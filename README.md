@@ -1,2 +1,2 @@
-# team-evm
-Repo for EVM dbt macros and other team activities 
+# fsc-evm
+Repo for EVM dbt macros, models and documentation
