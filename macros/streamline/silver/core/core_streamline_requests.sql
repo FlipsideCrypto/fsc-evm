@@ -5,8 +5,10 @@
     worker_batch_size,
     vault_secret_path,
     exploded_key=false,
+    exploded_key_fields,
     model_tags=["streamline_core_realtime"],
-    model_limit=false
+    model_limit=false,
+    model_limit_num
 ) %}
 
 {
