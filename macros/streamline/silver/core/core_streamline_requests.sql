@@ -16,16 +16,16 @@
     post_hook = fsc_utils.if_data_call_function_v2(
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
-        params ={ "external_table" :external_table,
-        "sql_limit" :sql_limit,
-        "producer_batch_size" :producer_batch_size,
-        "worker_batch_size" :worker_batch_size,
+        params ={ "external_table" :{{external_table}},
+        "sql_limit" :{{sql_limit}},
+        "producer_batch_size" :{{producer_batch_size}},
+        "worker_batch_size" :{{worker_batch_size}},
         "sql_source" :"{{this.identifier}}",
         {% if exploded_key %}
-        "exploded_key": tojson([exploded_key_fields])
+        "exploded_key": tojson([{{exploded_key_fields}}])
         {% endif %}}
     ),
-    tags = [model_tags]
+    tags = [{{model_tags}}]
 ) }}
 
 WITH last_3_days AS (
@@ -110,7 +110,7 @@ SELECT
             'params',
             ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)),
             --set to TRUE for full txn data
-            vault_secret_path
+            {{vault_secret_path}}
         ) AS request
         FROM
             ready_blocks
@@ -118,6 +118,6 @@ SELECT
             partition_key ASC
         {% if model_limit %}
         LIMIT
-            model_limit_num 
+            {{model_limit_num}} 
         {% endif %}
 {% endmacro %}
