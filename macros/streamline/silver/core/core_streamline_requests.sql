@@ -4,11 +4,9 @@
     producer_batch_size,
     worker_batch_size,
     vault_secret_path,
-    exploded_key=true,
-    exploded_key_fields=["data", "result.transactions"],
+    exploded_key=false,
     model_tags=["streamline_core_realtime"],
-    model_limit=true,
-    model_limit_num=300
+    model_limit=false
 ) %}
 
 {
