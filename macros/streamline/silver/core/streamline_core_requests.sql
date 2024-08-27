@@ -1,7 +1,6 @@
 {% macro streamline_core_requests(
     vault_secret_path,
-    model_limit_num,
-    model_limit=false,
+    query_limit,
     blocks_transactions=false,
     receipts=false,
     traces=false,
@@ -191,8 +190,8 @@ SELECT
             {% endif %}
         ORDER BY
             partition_key ASC
-        {% if model_limit %}
+        {% if query_limit %}
         LIMIT
-            {{ model_limit_num }} 
+            {{ query_limit }} 
         {% endif %}
 {% endmacro %}
