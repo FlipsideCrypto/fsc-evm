@@ -1,4 +1,4 @@
-{% macro core_streamline_block_requests(
+{% macro streamline_core_realtime(
     external_table,
     sql_limit,
     producer_batch_size,
