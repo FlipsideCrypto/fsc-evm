@@ -17,7 +17,7 @@
     model_tags=[]
 ) %}
 
-{
+{{ config (
     materialized: "view",
     post_hook: fsc_utils.if_data_call_function_v2(
         func = "streamline.udf_bulk_rest_api_v2",
@@ -34,7 +34,7 @@
         }
     ),
     tags: {{ model_tags }}
-}
+)}}
 
 WITH last_3_days AS (
     SELECT
