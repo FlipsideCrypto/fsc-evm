@@ -1,40 +1,14 @@
 {% macro streamline_core_requests(
-    external_table,
-    sql_limit,
-    producer_batch_size,
-    worker_batch_size,
     vault_secret_path,
     model_limit_num,
-    exploded_key_fields,
-    exploded_key=false,
     model_limit=false,
     blocks_transactions=false,
     receipts=false,
     traces=false,
     confirmed_blocks=false,
     realtime=false,
-    history=false,
-    model_tags=[]
+    history=false
 ) %}
-
-{{ config (
-    materialized: "view",
-    post_hook: fsc_utils.if_data_call_function_v2(
-        func = "streamline.udf_bulk_rest_api_v2",
-        target = "{{ this.schema }}.{{ this.identifier }}",
-        params = { 
-            "external_table": "{{ external_table }}",
-            "sql_limit": "{{ sql_limit }}",
-            "producer_batch_size": "{{ producer_batch_size }}",
-            "worker_batch_size": "{{ worker_batch_size }}",
-            "sql_source": "{{ this.identifier }}",
-            {% if exploded_key %}
-            "exploded_key": tojson({{ exploded_key_fields }})
-            {% endif %}
-        }
-    ),
-    tags: {{ model_tags }}
-)}}
 
 WITH last_3_days AS (
     SELECT
@@ -151,7 +125,6 @@ to_do AS (
         block_number
     FROM
         {{ ref("_missing_txs") }}
-        )
     {% elif receipts %}
     SELECT
         block_number
@@ -162,14 +135,13 @@ to_do AS (
         block_number
     FROM
         {{ ref("_missing_receipts") }}
-    )
     {% elif traces %}
     SELECT
         block_number
     FROM
         {{ ref("_missing_traces") }}
-    )
     {% endif %}
+    )
 )
 {% endif %}
 SELECT
