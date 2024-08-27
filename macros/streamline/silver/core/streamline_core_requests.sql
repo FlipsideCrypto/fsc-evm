@@ -1,4 +1,4 @@
-{% macro streamline_core_realtime(
+{% macro streamline_core_requests(
     external_table,
     sql_limit,
     producer_batch_size,
@@ -12,7 +12,9 @@
     receipts=false,
     traces=false,
     confirmed_blocks=false,
-    model_tags=["streamline_core_realtime"]
+    realtime=false,
+    history=false,
+    model_tags=[]
 ) %}
 
 {
@@ -59,7 +61,13 @@ to_do AS (
         {{ ref("streamline__blocks") }}
     WHERE
         block_number IS NOT NULL
-        AND block_number >= (
+        AND block_number
+        {% if realtime %}
+        >= 
+        {% elif history %}
+        <= 
+        {% endif %}
+        (
                 SELECT
                     block_number
                 FROM
@@ -90,7 +98,13 @@ to_do AS (
         {{ ref("streamline__complete_confirmed_blocks") }}
     {% endif %}
     WHERE
-        block_number >= (
+        block_number
+        {% if realtime %}
+        >= 
+        {% elif history %}
+        <= 
+        {% endif %}
+        (
             SELECT
                 block_number
             FROM
