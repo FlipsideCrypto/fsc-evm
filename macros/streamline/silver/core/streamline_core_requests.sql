@@ -1,12 +1,12 @@
 {% macro streamline_core_requests(
     vault_secret_path,
     query_limit,
+    realtime=false,
+    history=false
     blocks_transactions=false,
     receipts=false,
     traces=false,
-    confirmed_blocks=false,
-    realtime=false,
-    history=false
+    confirmed_blocks=false
 ) %}
 
 WITH last_3_days AS (
@@ -149,7 +149,7 @@ SELECT
         block_number,
         -3
     ) AS partition_key,
-    {{ target.database }}.live.udf_api(
+    live.udf_api(
         'POST',
         '{service}/{Authentication}',
         OBJECT_CONSTRUCT(
