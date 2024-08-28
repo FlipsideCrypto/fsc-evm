@@ -63,8 +63,9 @@ WHERE
                 {% elif confirmed_blocks %}
                 {{ ref('bronze__streamline_FR_confirmed_blocks') }}
             {% endif %}
+        {% endif %}
 
-            qualify(ROW_NUMBER() over (PARTITION BY block_number
+        qualify(ROW_NUMBER() over (PARTITION BY block_number
         ORDER BY
             _inserted_timestamp DESC)) = 1
 {% endmacro %}
