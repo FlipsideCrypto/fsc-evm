@@ -1,8 +1,8 @@
 {% macro streamline_decoded_logs_requests(
-        realtime=false,
-        history=false,
         start,
-        stop
+        stop,
+        realtime=false,
+        history=false
     ) %}
     WITH look_back AS ({% if realtime %}
     SELECT
@@ -95,10 +95,10 @@ WHERE
 {% endmacro %}
 
 {% macro streamline_decoded_traces_requests(
-        realtime=false,
-        history=false,
         start,
-        stop
+        stop,
+        realtime=false,
+        history=false
     ) %}
     WITH look_back AS (
         SELECT
