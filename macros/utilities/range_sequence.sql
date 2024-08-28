@@ -1,11 +1,13 @@
-{% macro number_sequence() %}
+{% macro number_sequence(
+    max_num=1000000000
+) %}
 SELECT
     ROW_NUMBER() over (
         ORDER BY
             SEQ4()
     ) - 1 :: INT AS _id
 FROM
-    TABLE(GENERATOR(rowcount => 1000000000))
+    TABLE(GENERATOR(rowcount => max_num))
 {% endmacro %}
 
 {% macro block_sequence() %}
