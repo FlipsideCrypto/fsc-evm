@@ -2,7 +2,7 @@
     vault_secret_path,
     query_limit,
     realtime=false,
-    history=false
+    history=false,
     blocks_transactions=false,
     receipts=false,
     traces=false,
