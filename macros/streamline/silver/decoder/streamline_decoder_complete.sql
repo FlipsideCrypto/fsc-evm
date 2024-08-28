@@ -1,17 +1,16 @@
 {% macro streamline_decoded_complete(
-        decoded_logs = false,
-        decoded_traces = false
+        model
     ) %}
 SELECT
     block_number,
-    id AS {% if decoded_logs %}
-        _log_id {% elif decoded_traces %}
+    id AS {% if model == 'decoded_logs' %}
+        _log_id {% elif model == 'decoded_traces' %}
         _call_id
     {% endif %},
     {{ dbt_utils.generate_surrogate_key(
         ['id']
-    ) }} AS {% if decoded_logs %}
-        complete_decoded_logs_id {% elif decoded_traces %}
+    ) }} AS {% if model == 'decoded_logs' %}
+        complete_decoded_logs_id {% elif model == 'decoded_traces' %}
         complete_decoded_traces_id
     {% endif %},
     SYSDATE() AS inserted_timestamp,
@@ -21,10 +20,10 @@ SELECT
 FROM
 
 {% if is_incremental() %}
-{% if decoded_logs %}
+{% if model == 'decoded_logs' %}
     {{ ref('bronze__streamline_decoded_logs') }}
 
-    {% elif decoded_traces %}
+    {% elif model == 'decoded_traces' %}
     {{ ref('bronze__streamline_decoded_traces') }}
 {% endif %}
 WHERE
@@ -35,10 +34,10 @@ WHERE
             {{ this }}
     )
 {% else %}
-    {% if decoded_logs %}
+    {% if model == 'decoded_logs' %}
         {{ ref('bronze__streamline_fr_decoded_logs') }}
 
-        {% elif decoded_traces %}
+        {% elif model == 'decoded_traces' %}
         {{ ref('bronze__streamline_fr_decoded_traces') }}
     {% endif %}
 {% endif %}

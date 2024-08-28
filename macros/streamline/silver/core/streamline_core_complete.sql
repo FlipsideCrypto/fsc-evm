@@ -1,9 +1,5 @@
 {% macro streamline_core_complete(
-        blocks = false,
-        transactions = false,
-        receipts = false,
-        traces = false,
-        confirmed_blocks = false
+        model
     ) %}
 SELECT
     COALESCE(
@@ -12,11 +8,11 @@ SELECT
     ) AS block_number,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number']
-    ) }} AS {% if blocks %}
-        complete_blocks_id {% elif transactions %}
-        complete_transactions_id {% elif receipts %}
-        complete_receipts_id {% elif traces %}
-        complete_traces_id {% elif confirmed_blocks %}
+    ) }} AS {% if model == 'blocks' %}
+        complete_blocks_id {% elif model == 'transactions' %}
+        complete_transactions_id {% elif model == 'receipts' %}
+        complete_receipts_id {% elif model == 'traces' %}
+        complete_traces_id {% elif model == 'confirmed_blocks' %}
         complete_confirmed_blocks_id
     {% endif %},
     SYSDATE() AS inserted_timestamp,
@@ -26,19 +22,19 @@ SELECT
 FROM
 
 {% if is_incremental() %}
-{% if blocks %}
+{% if model == 'blocks' %}
     {{ ref('bronze__streamline_blocks') }}
 
-    {% elif transactions %}
+    {% elif model == 'transactions' %}
     {{ ref('bronze__streamline_transactions') }}
 
-    {% elif receipts %}
+    {% elif model == 'receipts' %}
     {{ ref('bronze__streamline_receipts') }}
 
-    {% elif traces %}
+    {% elif model == 'traces' %}
     {{ ref('bronze__streamline_traces') }}
 
-    {% elif confirmed_blocks %}
+    {% elif model == 'confirmed_blocks' %}
     {{ ref('bronze__streamline_confirmed_blocks') }}
 {% endif %}
 WHERE
@@ -48,19 +44,19 @@ WHERE
         FROM
             {{ this }})
         {% else %}
-            {% if blocks %}
+            {% if model == 'blocks' %}
                 {{ ref('bronze__streamline_fr_blocks') }}
 
-                {% elif transactions %}
+                {% elif model == 'transactions' %}
                 {{ ref('bronze__streamline_fr_transactions') }}
 
-                {% elif receipts %}
+                {% elif model == 'receipts' %}
                 {{ ref('bronze__streamline_fr_receipts') }}
 
-                {% elif traces %}
+                {% elif model == 'traces' %}
                 {{ ref('bronze__streamline_fr_traces') }}
 
-                {% elif confirmed_blocks %}
+                {% elif model == 'confirmed_blocks' %}
                 {{ ref('bronze__streamline_fr_confirmed_blocks') }}
             {% endif %}
         {% endif %}

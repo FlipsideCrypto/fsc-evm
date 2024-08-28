@@ -44,7 +44,7 @@
 {% macro streamline_external_table_fr_query(
         model,
         partition_function,
-        partition_column="partition_key",
+        partition_join_key="partition_key",
         balances=false
     ) %}
     WITH meta AS (
@@ -74,13 +74,13 @@ FROM
     s
     JOIN meta b
     ON b.file_name = metadata$filename
-    AND b.partition_key = s.{{ partition_column }}
+    AND b.partition_key = s.{{ partition_join_key }}
     {% if balances %}
     JOIN {{ ref('_block_ranges') }} r
     ON r.block_number = COALESCE(s.VALUE :"BLOCK_NUMBER" :: INT,s.VALUE :"block_number" :: INT)
     {% endif %}
 WHERE
-    b.partition_key = s.{{ partition_column }}
+    b.partition_key = s.{{ partition_join_key }}
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
 {% endmacro %}

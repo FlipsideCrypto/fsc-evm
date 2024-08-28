@@ -1,17 +1,16 @@
 {% macro streamline_decoded_logs_requests(
+        model_type,
         start,
         stop,
-        query_limit,
-        realtime=false,
-        history=false
+        query_limit
     ) %}
-    WITH look_back AS ({% if realtime %}
+    WITH look_back AS ({% if model_type == 'realtime' %}
     SELECT
         block_number
     FROM
         {{ ref("_24_hour_lookback") }}
 
-        {% elif history %}
+        {% elif model_type == 'history' %}
     SELECT
         block_number
     FROM
@@ -41,7 +40,7 @@ FROM
     AND l.block_number BETWEEN A.start_block
     AND A.end_block
 WHERE
-    {% if realtime %}
+    {% if model_type == 'realtime' %}
         (
             l.block_number >= (
                 SELECT
@@ -64,7 +63,7 @@ WHERE
                     FROM
                         look_back
                 )
-                AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())) {% elif history %}
+                AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())) {% elif model_type == 'history' %}
                 (
                     l.block_number BETWEEN {{ start }}
                     AND {{ stop }}
@@ -100,11 +99,10 @@ WHERE
 {% endmacro %}
 
 {% macro streamline_decoded_traces_requests(
+        model_type,
         start,
         stop,
-        query_limit,
-        realtime=false,
-        history=false
+        query_limit
     ) %}
     WITH look_back AS (
         SELECT
@@ -143,7 +141,7 @@ FROM
     AND t.block_number BETWEEN A.start_block
     AND A.end_block
 WHERE
-    {% if realtime %}
+    {% if model_type == 'realtime' %}
         t.block_number >= (
             SELECT
                 block_number
@@ -164,7 +162,7 @@ WHERE
                     FROM
                         look_back
                 )
-                AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())) {% elif history %}
+                AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())) {% elif model_type == 'history' %}
                 (
                     t.block_number BETWEEN {{ start }}
                     AND {{ stop }}
