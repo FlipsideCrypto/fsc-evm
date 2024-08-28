@@ -29,15 +29,11 @@ SELECT
 {% endmacro %}
 
 {% macro streamline_core_requests(
-    vault_secret_path,
-    query_limit,
+    model_type,
+    model,
     quantum_state,
-    realtime=false,
-    history=false,
-    blocks_transactions=false,
-    receipts=false,
-    traces=false,
-    confirmed_blocks=false
+    vault_secret_path,
+    query_limit
 ) %}
 
 WITH last_3_days AS (
@@ -46,7 +42,7 @@ WITH last_3_days AS (
     FROM
         {{ ref("_block_lookback") }}
 ),
-{% if confirmed_blocks %}
+{% if model == 'confirmed_blocks' %}
 look_back AS (
     SELECT
         block_number
@@ -66,9 +62,9 @@ to_do AS (
     WHERE
         block_number IS NOT NULL
         AND block_number
-        {% if realtime %}
+        {% if model_type == 'realtime' %}
         >= 
-        {% elif history %}
+        {% elif model_type == 'history' %}
         <= 
         {% endif %}
         (
@@ -77,7 +73,7 @@ to_do AS (
                 FROM
                     last_3_days
             )
-        {% if confirmed_blocks %}
+        {% if model == 'confirmed_blocks' %}
         AND block_number <= (
             SELECT
                 block_number
@@ -89,23 +85,23 @@ to_do AS (
     SELECT
         block_number
     FROM
-    {% if blocks_transactions %}
+    {% if model == 'blocks_transactions' %}
         {{ ref("streamline__complete_blocks") }}
         b
         INNER JOIN {{ ref("streamline__complete_transactions") }}
         t USING(block_number) -- inner join to ensure that only blocks with both block data and transaction data are excluded
-    {% elif receipts %}
+    {% elif model == 'receipts' %}
         {{ ref("streamline__complete_receipts") }}
-    {% elif traces %}
+    {% elif model == 'traces' %}
         {{ ref("streamline__complete_traces") }}
-    {% elif confirmed_blocks%}
+    {% elif model == 'confirmed_blocks' %}
         {{ ref("streamline__complete_confirmed_blocks") }}
     {% endif %}
     WHERE
         block_number
-        {% if realtime %}
+        {% if model_type == 'realtime' %}
         >= 
-        {% elif history %}
+        {% elif model_type == 'history' %}
         <= 
         {% endif %}
         (
@@ -114,7 +110,7 @@ to_do AS (
             FROM
                 last_3_days
         )
-    {% if confirmed_blocks %}
+    {% if model == 'confirmed_blocks' %}
         AND block_number IS NOT NULL
         AND block_number <= (
             SELECT
@@ -135,7 +131,7 @@ to_do AS (
         )
     {% endif %}
 )
-{% if not confirmed_blocks%}
+{% if model != 'confirmed_blocks' %}
 ,ready_blocks AS (
     SELECT
         block_number
@@ -150,12 +146,12 @@ to_do AS (
         FROM
             {{ ref("_unconfirmed_blocks") }}
         UNION
-    {% if blocks_transactions %}
+    {% if model == 'blocks_transactions' %}
     SELECT
         block_number
     FROM
         {{ ref("_missing_txs") }}
-    {% elif receipts %}
+    {% elif model == 'receipts' %}
     SELECT
         block_number
     FROM
@@ -165,7 +161,7 @@ to_do AS (
         block_number
     FROM
         {{ ref("_missing_receipts") }}
-    {% elif traces %}
+    {% elif model == 'traces' %}
     SELECT
         block_number
     FROM
@@ -203,20 +199,20 @@ SELECT
             'jsonrpc',
             '2.0',
             'method',
-        {% if blocks_transactions %}
+        {% if model == 'blocks_transactions' %}
             'eth_getBlockByNumber',
             'params',
             ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)),
             --set to TRUE for full txn data
-        {% elif receipts %}
+        {% elif model == 'receipts' %}
             'eth_getBlockReceipts',
             'params',
             ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))),
-        {% elif traces %}
+        {% elif model == 'traces' %}
             'debug_traceBlockByNumber',
             'params',
             ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '30s'))),
-        {% elif confirmed_blocks %}
+        {% elif model == 'confirmed_blocks' %}
             'eth_getBlockByNumber',
             'params',
             ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)),
@@ -224,7 +220,7 @@ SELECT
         '{{ vault_secret_path }}'
     ) AS request
         FROM
-            {% if not confirmed_blocks %}
+            {% if model != 'confirmed_blocks' %}
                 ready_blocks
             {% else %}
                 to_do
