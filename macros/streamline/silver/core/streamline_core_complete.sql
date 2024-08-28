@@ -49,19 +49,19 @@ WHERE
             {{ this }})
         {% else %}
             {% if blocks %}
-                {{ ref('bronze__streamline_FR_blocks') }}
+                {{ ref('bronze__streamline_fr_blocks') }}
 
                 {% elif transactions %}
-                {{ ref('bronze__streamline_FR_transactions') }}
+                {{ ref('bronze__streamline_fr_transactions') }}
 
                 {% elif receipts %}
-                {{ ref('bronze__streamline_FR_receipts') }}
+                {{ ref('bronze__streamline_fr_receipts') }}
 
                 {% elif traces %}
-                {{ ref('bronze__streamline_FR_traces') }}
+                {{ ref('bronze__streamline_fr_traces') }}
 
                 {% elif confirmed_blocks %}
-                {{ ref('bronze__streamline_FR_confirmed_blocks') }}
+                {{ ref('bronze__streamline_fr_confirmed_blocks') }}
             {% endif %}
         {% endif %}
 
