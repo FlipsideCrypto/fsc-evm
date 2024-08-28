@@ -186,11 +186,11 @@ SELECT
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json'
-        {% if quantum_state = 'streamline' %}
+        {% if quantum_state == 'streamline' %}
             ,'fsc-quantum-state',
             'streamline'
         ),
-        {% elif quantum_state = 'livequery' %}
+        {% elif quantum_state == 'livequery' %}
             ,'fsc-quantum-state',
             'livequery'
         ),
