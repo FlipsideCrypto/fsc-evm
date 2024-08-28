@@ -1,6 +1,7 @@
 {% macro streamline_decoded_logs_requests(
         start,
         stop,
+        query_limit,
         realtime=false,
         history=false
     ) %}
@@ -92,11 +93,16 @@ WHERE
                         )
                 )
             {% endif %}
+        {% if query_limit %}
+        LIMIT
+            {{ query_limit }} 
+        {% endif %}
 {% endmacro %}
 
 {% macro streamline_decoded_traces_requests(
         start,
         stop,
+        query_limit,
         realtime=false,
         history=false
     ) %}
@@ -188,4 +194,8 @@ WHERE
                         )
                 )
             {% endif %}
+        {% if query_limit %}
+        LIMIT
+            {{ query_limit }} 
+        {% endif %}
 {% endmacro %}
