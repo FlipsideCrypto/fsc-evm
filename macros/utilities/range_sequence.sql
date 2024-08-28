@@ -7,7 +7,7 @@ SELECT
             SEQ4()
     ) - 1 :: INT AS _id
 FROM
-    TABLE(GENERATOR(rowcount => max_num))
+    TABLE(GENERATOR(rowcount => {{ max_num }}))
 {% endmacro %}
 
 {% macro block_sequence() %}
