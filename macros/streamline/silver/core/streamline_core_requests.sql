@@ -31,6 +31,7 @@ SELECT
 {% macro streamline_core_requests(
     vault_secret_path,
     query_limit,
+    quantum_state,
     realtime=false,
     history=false,
     blocks_transactions=false,
@@ -185,7 +186,17 @@ SELECT
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json'
+        {% if quantum_state = 'streamline' %}
+            ,'fsc-quantum-state',
+            'streamline'
         ),
+        {% elif quantum_state = 'livequery' %}
+            ,'fsc-quantum-state',
+            'livequery'
+        ),
+        {% else %}
+        ),
+        {% endif %}
         OBJECT_CONSTRUCT(
             'id',
             block_number,
