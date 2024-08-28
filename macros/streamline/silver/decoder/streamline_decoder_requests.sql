@@ -1,7 +1,7 @@
 {% macro streamline_decoded_logs_requests(
-        model_type,
         start,
         stop,
+        model_type,
         query_limit
     ) %}
     WITH look_back AS ({% if model_type == 'realtime' %}
@@ -99,9 +99,9 @@ WHERE
 {% endmacro %}
 
 {% macro streamline_decoded_traces_requests(
-        model_type,
         start,
         stop,
+        model_type,
         query_limit
     ) %}
     WITH look_back AS (
