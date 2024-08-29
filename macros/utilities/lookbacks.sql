@@ -36,7 +36,7 @@ WHERE
     WITH base AS (
         SELECT
             block_timestamp :: DATE AS block_date,
-            MAX(block_number) block_number
+            MAX(block_number) AS block_number
         FROM
             {{ ref("silver__blocks") }}
         GROUP BY
@@ -63,7 +63,7 @@ WHERE
                 'hour',
                 block_timestamp
             ) AS block_hour,
-            MAX(block_number) block_number
+            MAX(block_number) AS block_number
         FROM
             {{ ref("silver__blocks") }}
         WHERE
