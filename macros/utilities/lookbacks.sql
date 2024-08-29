@@ -6,7 +6,7 @@
             {{ ref("silver__blocks") }}
     )
 SELECT
-    MIN(block_number) AS block_number
+    COALESCE(MIN(block_number), 0) AS block_number
 FROM
     {{ ref("silver__blocks") }}
     JOIN max_time
@@ -24,7 +24,7 @@ FROM
 
 {% macro block_lookback_72_hour() %}
 SELECT
-    MIN(block_number) AS block_number
+    COALESCE(MIN(block_number), 0) AS block_number
 FROM
     {{ ref("silver__blocks") }}
 WHERE
@@ -89,4 +89,4 @@ WHERE
         FROM
             base
     )
-{% endmacro %}
+{% endmacro %} 
