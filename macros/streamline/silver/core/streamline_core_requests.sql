@@ -1,16 +1,26 @@
 {% macro streamline_core_chainhead(
-        vault_secret_path
-    ) %}
+    quantum_state,
+    vault_secret_path,
+    api_url='{service}/{Authentication}'
+) %}
 SELECT
     live.udf_api(
         'POST',
-        '{service}/{Authentication}',
+        '{{ api_url }}',
         OBJECT_CONSTRUCT(
             'Content-Type',
-            'application/json',
-            'fsc-quantum-state',
+            'application/json'
+        {% if quantum_state == 'streamline' %}
+            ,'fsc-quantum-state',
+            'streamline'
+        ),
+        {% elif quantum_state == 'livequery' %}
+            ,'fsc-quantum-state',
             'livequery'
         ),
+        {% else %}
+        ),
+        {% endif %}
         OBJECT_CONSTRUCT(
             'id',
             0,
@@ -33,7 +43,9 @@ SELECT
     model,
     quantum_state,
     vault_secret_path,
-    query_limit
+    query_limit,
+    api_url='{service}/{Authentication}',
+    order_by_clause='ORDER BY partition_key ASC'
 ) %}
 
 WITH last_3_days AS (
@@ -178,7 +190,7 @@ SELECT
     ) AS partition_key,
     live.udf_api(
         'POST',
-        '{service}/{Authentication}',
+        '{{ api_url }}',
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json'
@@ -225,8 +237,7 @@ SELECT
             {% else %}
                 to_do
             {% endif %}
-        ORDER BY
-            partition_key ASC
+        {{ order_by_clause }}
         {% if query_limit %}
         LIMIT
             {{ query_limit }} 
