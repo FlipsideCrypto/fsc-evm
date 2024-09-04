@@ -1,4 +1,4 @@
-{% docs evm_eth_state_id %}
+{% docs evm_state_id %}
 
 The hash-tree-root of the BeaconState.
 

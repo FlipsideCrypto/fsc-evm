@@ -1,4 +1,4 @@
-{% docs evm_eth_validators %}
+{% docs evm_validators %}
 
 Validators who have submitted their attestation and have been included by the block proposer.
 

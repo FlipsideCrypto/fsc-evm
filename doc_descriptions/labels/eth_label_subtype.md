@@ -1,4 +1,4 @@
-{% docs evm_eth_label_subtype %}
+{% docs evm_label_subtype %}
 
 A sub-category nested within label type providing further detail.
 

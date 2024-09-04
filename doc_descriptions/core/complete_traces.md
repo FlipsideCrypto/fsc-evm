@@ -19,7 +19,7 @@ The raw JSON data for this trace.
 {% enddocs %}
 
 
-{% docs evm_traces_eth_value %}
+{% docs evm_traces_value %}
 
 The amount of ETH transferred in this trace.
 
