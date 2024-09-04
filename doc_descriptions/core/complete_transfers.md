@@ -1,6 +1,6 @@
 {% docs evm_eth_amount %}
 
-ETH value transferred.
+**Variable Value:** {{ var('native_value') }} value transferred.
 
 {% enddocs %}
 

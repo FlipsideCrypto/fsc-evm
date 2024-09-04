@@ -36,3 +36,11 @@ tests:
 
 vars:
   "dbt_date:time_zone": GMT
+  native_value: |
+    {% if project_name == 'bsc-models' %}
+      "BNB"
+    {% elif project_name == 'polygon-models' %}
+      "POL"
+    {% else %}
+      "ETH"
+    {% endif %}
