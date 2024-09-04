@@ -1,4 +1,4 @@
-{% docs deposits_issued_ctokens %}
+{% docs evm_deposits_issued_ctokens %}
 
 Amount of cToken issued for providing liquidity.
 

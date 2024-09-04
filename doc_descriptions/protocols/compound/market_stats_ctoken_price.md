@@ -1,4 +1,4 @@
-{% docs market_stats_ctoken_price %}
+{% docs evm_market_stats_ctoken_price %}
 
 Price of the cToken (i.e. cUSDC).
 

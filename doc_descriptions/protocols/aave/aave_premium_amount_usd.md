@@ -1,4 +1,4 @@
-{% docs aave_premium_amount_usd %}
+{% docs evm_aave_premium_amount_usd %}
 
 The flash loan fee, valued in USD. 
 

@@ -1,4 +1,4 @@
-{% docs daily_balances_table_doc %}
+{% docs evm_daily_balances_table_doc %}
 
 READ THIS!
 

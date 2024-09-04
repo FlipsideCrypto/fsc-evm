@@ -1,4 +1,4 @@
-{% docs redemptions_redeemed_ctoken %}
+{% docs evm_redemptions_redeemed_ctoken %}
 
 cToken deposited to redeem 
 

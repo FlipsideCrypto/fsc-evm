@@ -1,4 +1,4 @@
-{% docs all_ctoken %}
+{% docs evm_all_ctoken %}
 
 Address of the Compound token.
 

@@ -1,4 +1,4 @@
-{% docs comp_ctoken_decimals %}
+{% docs evm_comp_ctoken_decimals %}
 
 The cToken decimals.
 

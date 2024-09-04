@@ -1,4 +1,4 @@
-{% docs pool_stats_tick %}
+{% docs evm_pool_stats_tick %}
 
 The tick of the pool according to the last tick transitions that was run.
 

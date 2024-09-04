@@ -1,4 +1,4 @@
-{% docs deposits_supplied_symbol %}
+{% docs evm_deposits_supplied_symbol %}
 
 Symbol of token provided liquidity for.
 

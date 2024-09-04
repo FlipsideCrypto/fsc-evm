@@ -1,4 +1,4 @@
-{% docs comp_underlying_name %}
+{% docs evm_comp_underlying_name %}
 
 The underlying asset name.
 

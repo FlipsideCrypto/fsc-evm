@@ -1,4 +1,4 @@
-{% docs pool_stats_unlocked %}
+{% docs evm_pool_stats_unlocked %}
 
 Whether the pool is currently locked to reentrancy
 

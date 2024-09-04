@@ -1,4 +1,4 @@
-{% docs deposits_supplier %}
+{% docs evm_deposits_supplier %}
 
 Address of liquidity provider.
 

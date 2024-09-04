@@ -1,4 +1,4 @@
-{% docs aave_borrow_rate_stable %}
+{% docs evm_aave_borrow_rate_stable %}
 
 The stable interest rate for borrowing assets.
 

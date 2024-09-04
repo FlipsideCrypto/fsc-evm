@@ -1,4 +1,4 @@
-{% docs all_token1_address %}
+{% docs evm_all_token1_address %}
 
 Address of token1
 

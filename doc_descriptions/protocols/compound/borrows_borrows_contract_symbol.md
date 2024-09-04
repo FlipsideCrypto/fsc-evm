@@ -1,4 +1,4 @@
-{% docs borrows_contract_symbol %}
+{% docs evm_borrows_contract_symbol %}
 
 Symbol of borrowed token.
 

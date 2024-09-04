@@ -1,4 +1,4 @@
-{% docs all_pool_address %}
+{% docs evm_all_pool_address %}
 
 The contract address of the pool
 
