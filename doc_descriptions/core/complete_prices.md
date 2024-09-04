@@ -28,12 +28,6 @@ The token price for a given hour.
 
 {% enddocs %}
 
-{% docs evm_prices_symbol %}
-
-The token's symbol.
-
-{% enddocs %}
-
 {% docs evm_prices_table_doc %}
 
 This table contains hourly prices for tokens on the Ethereum Blockchain. 
