@@ -1,4 +1,4 @@
-{% docs internal_column %}    
+{% docs evm_internal_column %}    
 
 Deprecated. This column is no longer used. Please remove from your query by Jan. 10 2024.'
 
