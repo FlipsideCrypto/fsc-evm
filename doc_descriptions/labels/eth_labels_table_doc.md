@@ -1,4 +1,4 @@
-{% docs evm_eth_labels_table %}
+{% docs evm_labels_table %}
 
 This table contains labels for addresses on the Ethereum Blockchain. 
 

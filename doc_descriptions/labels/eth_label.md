@@ -1,4 +1,4 @@
-{% docs evm_eth_label %}
+{% docs evm_label %}
 
 The label for this address. 
 

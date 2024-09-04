@@ -1,4 +1,4 @@
-{% docs evm_eth_label_blockchain %}
+{% docs evm_label_blockchain %}
 
 The name of the blockchain.
 
