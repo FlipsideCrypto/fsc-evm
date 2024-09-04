@@ -1,6 +1,6 @@
 {% docs evm_eth_amount %}
 
-**Variable Value:** {{ var('native_value') }} value transferred.
+ETH value transferred, this is imported from the fsc-evm package.
 
 {% enddocs %}
 
