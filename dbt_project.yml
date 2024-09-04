@@ -1,0 +1,98 @@
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: "kaia_models"
+version: "1.0.0"
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "kaia"
+
+# These configurations specify where dbt should look for different types of files.
+# The `source-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+models:
+  dbt_utils:
+    +docs:
+      show: false
+
+  livequery_models:
+    +docs:
+      show: false
+
+  dbt_snowflake_query_tags_models:
+    +docs:
+      show: false
+
+  dbt_date:
+    +docs:
+      show: false
+
+  dbt_expectations:
+    +docs:
+      show: false
+
+  dbt_external_tables:
+    +docs:
+      show: false
+
+target-path: "target" # directory which will store compiled SQL files
+clean-targets: # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_modules"
+  - "dbt_packages"
+
+tests:
+  +store_failures: true # all tests
+
+on-run-start:
+  - "{{ create_sps() }}"
+  - "{{ create_udfs() }}"
+
+on-run-end:
+  - '{{ apply_meta_as_tags(results) }}'
+
+dispatch:
+  - macro_namespace: dbt
+    search_order:
+      - kaia-models
+      - dbt_snowflake_query_tags
+      - dbt
+
+query-comment:
+  comment: '{{ dbt_snowflake_query_tags.get_query_comment(node) }}'
+  append: true # Snowflake removes prefixed comments.
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+models:
+  +copy_grants: true
+  +on_schema_change: "append_new_columns"
+  
+# In this example config, we tell dbt to build all models in the example/ directory
+# as tables. These settings can be overridden in the individual model files
+# using the `{{ config(...) }}` macro.
+
+vars:
+  "dbt_date:time_zone": GMT
+  STREAMLINE_INVOKE_STREAMS: False
+  STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
+  UPDATE_UDFS_AND_SPS: False
+  UPDATE_SNOWFLAKE_TAGS: True
+  OBSERV_FULL_TEST: False
+  WAIT: 0
+  HEAL_MODEL: False
+  HEAL_MODELS: []
+  START_GHA_TASKS: False
+  API_INTEGRATION: '{{var("config")["dev"]["API_INTEGRATION"]}}' 
+  EXTERNAL_FUNCTION_URI: '{{var("config")["dev"]["EXTERNAL_FUNCTION_URI"]}}'
+  ROLES: |
+      ["INTERNAL_DEV"]
