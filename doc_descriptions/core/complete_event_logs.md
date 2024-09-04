@@ -4,11 +4,13 @@ Event number within a transaction.
 
 {% enddocs %}
 
+
 {% docs evm_event_inputs %}
 
 The decoded event inputs for a given event.
 
 {% enddocs %}
+
 
 {% docs evm_event_name %}
 
@@ -16,11 +18,13 @@ The decoded event name for a given event.
 
 {% enddocs %}
 
+
 {% docs evm_event_removed %}
 
 Whether the event has been removed from the transaction.
 
 {% enddocs %}
+
 
 {% docs evm_log_id_events %}
 
@@ -28,11 +32,13 @@ This is the primary key for this table. This is a concatenation of the transacti
 
 {% enddocs %}
 
+
 {% docs evm_logs_contract_address %}
 
 The address interacted with for a given event.
 
 {% enddocs %}
+
 
 {% docs evm_logs_contract_name %}
 
@@ -40,11 +46,13 @@ The name of the contract or token, where possible.
 
 {% enddocs %}
 
+
 {% docs evm_logs_data %}
 
 The un-decoded event data.
 
 {% enddocs %}
+
 
 {% docs evm_logs_table_doc %}
 
@@ -52,15 +60,18 @@ This table contains flattened event logs from transactions on the Ethereum Block
 
 {% enddocs %}
 
+
 {% docs evm_logs_tx_hash %}
 
 Transaction hash is a unique 66-character identifier that is generated when a transaction is executed. This field will not be unique in this table, as a given transaction can include multiple events.
 
 {% enddocs %}
 
+
 {% docs evm_topics %}
 
 The un-decoded event input topics.
 
 {% enddocs %}
+
 
