@@ -1,4 +1,4 @@
-{% docs aave_token %}
+{% docs evm_aave_token %}
 
 The Aave interest bearing token contract.  
 

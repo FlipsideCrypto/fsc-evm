@@ -1,4 +1,4 @@
-{% docs positions_fee_percent %}
+{% docs evm_positions_fee_percent %}
 
 Percent of fees
 

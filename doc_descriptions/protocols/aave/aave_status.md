@@ -1,4 +1,4 @@
-{% docs aave_status %}
+{% docs evm_aave_status %}
 
 The proposal's status.
 

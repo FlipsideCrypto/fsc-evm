@@ -1,4 +1,4 @@
-{% docs market_stats_supply_usd %}
+{% docs evm_market_stats_supply_usd %}
 
 Supply converted to USD values as of the hour recorded.
 

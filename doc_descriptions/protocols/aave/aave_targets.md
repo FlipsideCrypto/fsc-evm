@@ -1,4 +1,4 @@
-{% docs aave_targets %}
+{% docs evm_aave_targets %}
 
 List of the targeted addresses by proposal transactions.
 

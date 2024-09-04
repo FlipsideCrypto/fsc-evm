@@ -1,4 +1,4 @@
-{% docs comp_ctoken_symbol %}
+{% docs evm_comp_ctoken_symbol %}
 
 The cToken symbol.
 

@@ -1,4 +1,4 @@
-{% docs swaps_price %}
+{% docs evm_swaps_price %}
 
 Price of swap
 

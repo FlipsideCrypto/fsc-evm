@@ -1,4 +1,4 @@
-{% docs all_token0_price %}
+{% docs evm_all_token0_price %}
 
 Price of token0
 

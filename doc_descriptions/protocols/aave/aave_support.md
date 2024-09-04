@@ -1,4 +1,4 @@
-{% docs aave_support %}
+{% docs evm_aave_support %}
 
 A value indicating their vote (For: true, Against: false).
 

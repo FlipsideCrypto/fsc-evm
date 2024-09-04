@@ -1,4 +1,4 @@
-{% docs all_liquidity %}
+{% docs evm_all_liquidity %}
 
 The liquidity of the pool.
 

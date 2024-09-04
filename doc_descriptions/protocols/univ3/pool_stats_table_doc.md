@@ -1,4 +1,4 @@
-{% docs pool_stats_table_doc %}
+{% docs evm_pool_stats_table_doc %}
 
 Statistics for each pool, appened each time a transaction triggers a Pool Event (i.e. 'Initialize', 'Mint', 'Collect', 'Burn', 'Swap', 'Flash', 'IncreaseObservationCardinalityNext', 'SetFeeProtocol', 'CollectProtocol', etc.). 
 

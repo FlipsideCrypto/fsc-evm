@@ -1,4 +1,4 @@
-{% docs eth_label_type %}
+{% docs evm_eth_label_type %}
 
 A high-level category describing the addresses main function or ownership.
 

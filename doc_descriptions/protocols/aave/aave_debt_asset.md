@@ -1,4 +1,4 @@
-{% docs aave_debt_asset %}
+{% docs evm_aave_debt_asset %}
 
 The debt asset, which the user borrowed. 
 

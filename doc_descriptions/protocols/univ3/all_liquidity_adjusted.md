@@ -1,4 +1,4 @@
-{% docs all_liquidity_adjusted %}
+{% docs evm_all_liquidity_adjusted %}
 
 The liquidity of the pool, decimal adjusted.
 

@@ -1,4 +1,4 @@
-{% docs current_bal_table_doc %}
+{% docs evm_current_bal_table_doc %}
 
 This table contains the current, non 0, balances for wallets on the Ethereum Blockchain. Symbol, name, and price are joined where possible. Prices are calculated as of the last activity date and as of the most recently recorded hourly price. ERC721s are included.
 

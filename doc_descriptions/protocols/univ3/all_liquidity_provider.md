@@ -1,4 +1,4 @@
-{% docs positions_liquidity_provider %}
+{% docs evm_positions_liquidity_provider %}
 
 The address of the LP
 

@@ -1,4 +1,4 @@
-{% docs all_token1_symbol %}
+{% docs evm_all_token1_symbol %}
 
 Symbol of token1
 

@@ -1,4 +1,4 @@
-{% docs aave_borrow_rate_variable %}
+{% docs evm_aave_borrow_rate_variable %}
 
 The variable interest rate for borrowing assets.
 

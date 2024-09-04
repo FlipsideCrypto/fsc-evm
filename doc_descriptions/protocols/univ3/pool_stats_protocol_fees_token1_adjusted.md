@@ -1,4 +1,4 @@
-{% docs pool_stats_protocol_fees_token1_adjusted %}
+{% docs evm_pool_stats_protocol_fees_token1_adjusted %}
 
 The amount of token1 owed to the protocol, decimal adjusted
 

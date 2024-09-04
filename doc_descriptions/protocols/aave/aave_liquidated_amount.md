@@ -1,4 +1,4 @@
-{% docs aave_liquidated_amount %}
+{% docs evm_aave_liquidated_amount %}
 
 The amount of asset liquidated.
 

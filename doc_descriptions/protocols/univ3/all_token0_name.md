@@ -1,4 +1,4 @@
-{% docs all_token0_name %}
+{% docs evm_all_token0_name %}
 
 Name of token0
 

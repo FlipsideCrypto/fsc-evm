@@ -3,42 +3,58 @@
 # Define the root directory containing .md files
 ROOT_DIR="doc_descriptions"
 
-# Function to add the evm_ prefix if missing and print changes
+# Function to add evm_ prefix to each doc block in the file with enhanced debugging
 add_evm_prefix() {
     local file="$1"
     local modified=0
-    
-    # Use awk to read and modify lines as needed
-    awk '
-    {
-        # Check for the start of a doc block
-        if ($0 ~ /{%\s*docs\s+([a-zA-Z_]+)\s*%}/) {
-            # Capture the original doc name
-            original = $0;
-            sub("{% docs ", "", original);
-            sub(" %}", "", original);
-            
-            # Check if the doc name starts with evm_
-            if (original !~ /^evm_/) {
-                # Print the update being made
-                print "Updating in " FILENAME ": " $0 " -> {% docs evm_" original " %}";
-                
-                # Update the line to add evm_ prefix
-                gsub("{% docs " original " %}", "{% docs evm_" original " %}");
-                modified = 1;
-            }
-        }
-        # Print the current line (modified or not)
-        print;
-    }' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 
-    # Check if any modifications were made
-    if [[ $modified -eq 0 ]]; then
-        echo "No changes needed in $file"
+    echo "Reading file: $file"
+    
+    # Read each line and process it
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        echo "Original line: '$line'" # Print each line being processed
+
+        # Check if the line contains '{% docs', more liberally
+        if [[ "$line" == *"{% docs"* ]]; then
+            echo "Detected potential doc block line: '$line'"
+
+            # Check if the line already has evm_ prefix
+            if [[ "$line" =~ \{%\s*docs\s+evm_ ]]; then
+                echo "Doc block already has evm_ prefix, no changes needed."
+            else
+                echo "Adding evm_ prefix to doc block."
+
+                # Extract the part before and after the doc name
+                prefix="${line%%docs *}docs "
+                doc_name="${line#*docs }"
+                doc_name="${doc_name%\%*}" # Remove everything after the doc name
+                suffix="%}"
+
+                # Form the updated line with the evm_ prefix
+                updated_line="${prefix}evm_${doc_name}${suffix}"
+                echo "Updated line: '$updated_line'"
+                line="$updated_line"
+                modified=1
+            fi
+        else
+            echo "No doc block detected in line."
+        fi
+        
+        # Write the (possibly modified) line to a temporary file
+        echo "$line" >> "$file.tmp"
+    done < "$file"
+
+    # Replace the original file with the updated version only if modifications were made
+    if [[ $modified -eq 1 ]]; then
+        echo "Changes made, updating file..."
+        mv "$file.tmp" "$file"
+    else
+        echo "No changes needed, cleaning up..."
+        rm -f "$file.tmp"
     fi
 }
 
-# Find all .md files in the directory and its subdirectories
+# Iterate over all .md files in the directory and its subdirectories
 find "$ROOT_DIR" -type f -name "*.md" | while read -r file; do
     echo "Processing $file..."
     add_evm_prefix "$file"
