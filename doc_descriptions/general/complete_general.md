@@ -4,7 +4,7 @@ Deprecated. This column is no longer used. Please remove from your query by Jan.
 
 {% enddocs %}
 
-{% docs amount_deprecation %}   
+{% docs evm_amount_deprecation %}   
 
 This column is being deprecated for standardization purposes on Jan. 10 2024. Please use the equivalent column without the native asset prefix. For example, use `amount` instead of `avax_amount`.
 
