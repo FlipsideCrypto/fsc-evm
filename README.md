@@ -4,9 +4,9 @@
 
 ---
 
-## Adding the `fsc_utils` dbt package
+## Adding the `fsc_evm` dbt package
 
-The `fsc_utils` dbt package is a centralized repository consisting of various dbt macros and snowflake functions that can be utilized across other repos.
+The `fsc_evm` dbt package is a centralized repository consisting of various dbt macros and snowflake functions that can be utilized across other repos.
 
 1. Navigate to `packages.yml` in your respective repo.
 2. Add the following (reference the latest version from [here](https://github.com/FlipsideCrypto/fsc-evm/tags)):
