@@ -32,7 +32,7 @@ AND block_number BETWEEN (
     SELECT
         MAX(
             block_number
-        ) - 100000
+        )
     FROM
         {{ this }}
 )
@@ -74,7 +74,7 @@ AND modified_timestamp > (
             SELECT
                 MAX(
                     block_number
-                ) - 100000
+                )
             FROM
                 {{ this }}
         )
