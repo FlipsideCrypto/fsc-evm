@@ -121,7 +121,7 @@ AND modified_timestamp > (
             SELECT
                 MAX(
                     block_number
-                ) - 100000
+                )
             FROM
                 {{ this }}
         )
