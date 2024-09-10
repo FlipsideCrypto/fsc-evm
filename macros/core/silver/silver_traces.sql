@@ -27,7 +27,7 @@ WHERE
     {% endif %}
 
     {% elif is_incremental() and full_reload_mode %}
-    {{ ref('bronze__streamline_FR_traces') }}
+    {{ ref('bronze__streamline_fr_traces') }}
 WHERE
     _partition_by_block_id BETWEEN (
         SELECT
@@ -44,7 +44,7 @@ WHERE
         AND block_number > 22207817
     {% endif %}
 {% else %}
-    {{ ref('bronze__streamline_FR_traces') }}
+    {{ ref('bronze__streamline_fr_traces') }}
 WHERE
     _partition_by_block_id <= {{ full_reload_start_block }}
 
