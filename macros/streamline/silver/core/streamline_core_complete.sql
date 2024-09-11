@@ -10,6 +10,7 @@ SELECT
             metadata :request :"data"
         ) :id :: INT
     ) AS block_number,
+    file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number']
     ) }} AS {% if model == 'blocks' %}

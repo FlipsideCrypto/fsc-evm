@@ -3,6 +3,7 @@
     ) %}
 SELECT
     block_number,
+    file_name,
     id AS {% if model == 'decoded_logs' %}
         _log_id {% elif model == 'decoded_traces' %}
         _call_id
