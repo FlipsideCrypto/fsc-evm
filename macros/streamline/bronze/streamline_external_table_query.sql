@@ -162,6 +162,8 @@ FROM
             block_number,
             id :: STRING AS id,
             DATA,
+            metadata,
+            b.file_name,
             _inserted_timestamp,
             s._partition_by_block_number AS _partition_by_block_number,
             s._partition_by_created_date AS _partition_by_created_date
@@ -207,6 +209,8 @@ FROM
         block_number,
         id :: STRING AS id,
         DATA,
+        metadata,
+        b.file_name,
         _inserted_timestamp,
         s._partition_by_block_number AS _partition_by_block_number,
         s._partition_by_created_date AS _partition_by_created_date
