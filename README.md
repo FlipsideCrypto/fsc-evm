@@ -28,7 +28,7 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
 3. Push your commits to the remote repository with `git push ...`.
 4. Tag your commit with a version number using `git tag -a v1.1.0 -m "version 1.1.0"`.
 5. Push your tags to the remote repository with `git push origin --tags`.
-6. Add an official `Release` to the repo with the new tag.
+6. Add official `Release` notes to the repo with the new tag.
   * Each `Release` should be formatted with the following template:
     ```
     Release Title: <vx.y.z release title>
