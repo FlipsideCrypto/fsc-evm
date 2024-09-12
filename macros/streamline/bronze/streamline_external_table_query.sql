@@ -47,10 +47,7 @@
             {% if balances %}
             JOIN {{ ref('_block_ranges') }}
             r
-            ON r.block_number = COALESCE(
-                s.value :"BLOCK_NUMBER" :: INT,
-                s.value :"block_number" :: INT
-            )
+            ON r.block_number = s.block_number
         {% endif %}
         WHERE
             b.partition_key = s.partition_key
@@ -109,10 +106,7 @@ FROM
     {% if balances %}
         JOIN {{ ref('_block_ranges') }}
         r
-        ON r.block_number = COALESCE(
-            s.value :"BLOCK_NUMBER" :: INT,
-            s.value :"block_number" :: INT
-        )
+        ON r.block_number = s.block_number
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
@@ -125,7 +119,7 @@ WHERE
     ) %}
 SELECT
     partition_key,
-    VALUE :"BLOCK_NUMBER" :: INT AS block_number,
+    block_number,
     {% if model == 'receipts' or model == 'traces' %}
         array_index,
     {% endif %}
