@@ -2,12 +2,18 @@
         full_reload_start_block,
         full_reload_blocks,
         full_reload_mode = false,
-        arb_traces_mode = false
+        arb_traces_mode = false,
+        use_partition_key = false
     ) %}
     WITH bronze_traces AS (
         SELECT
             block_number,
-            _partition_by_block_id AS partition_key,
+            {% if use_partition_key %}
+                partition_key,
+            {% else %}
+                _partition_by_block_id AS partition_key,
+            {% endif %}
+
             VALUE :array_index :: INT AS tx_position,
             DATA :result AS full_traces,
             _inserted_timestamp
@@ -29,24 +35,45 @@ WHERE
     {% elif is_incremental() and full_reload_mode %}
     {{ ref('bronze__streamline_fr_traces') }}
 WHERE
-    _partition_by_block_id BETWEEN (
-        SELECT
-            MAX(_partition_by_block_id) - 100000
-        FROM
-            {{ this }}
-    )
-    AND (
-        SELECT
-            MAX(_partition_by_block_id) + {{ full_reload_blocks }}
-        FROM
-            {{ this }}
-    ) {% if arb_traces_mode %}
+    {% if use_partition_key %}
+        partition_key BETWEEN (
+            SELECT
+                MAX(partition_key) - 100000
+            FROM
+                {{ this }}
+        )
+        AND (
+            SELECT
+                MAX(partition_key) + {{ full_reload_blocks }}
+            FROM
+                {{ this }}
+        )
+    {% else %}
+        _partition_by_block_id BETWEEN (
+            SELECT
+                MAX(_partition_by_block_id) - 100000
+            FROM
+                {{ this }}
+        )
+        AND (
+            SELECT
+                MAX(_partition_by_block_id) + {{ full_reload_blocks }}
+            FROM
+                {{ this }}
+        )
+    {% endif %}
+
+    {% if arb_traces_mode %}
         AND block_number > 22207817
     {% endif %}
 {% else %}
     {{ ref('bronze__streamline_fr_traces') }}
 WHERE
-    _partition_by_block_id <= {{ full_reload_start_block }}
+    {% if use_partition_key %}
+        partition_key <= {{ full_reload_start_block }}
+    {% else %}
+        _partition_by_block_id <= {{ full_reload_start_block }}
+    {% endif %}
 
     {% if arb_traces_mode %}
         AND block_number > 22207817
