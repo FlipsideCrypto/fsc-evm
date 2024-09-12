@@ -1,7 +1,8 @@
 {% macro streamline_external_table_query(
         model,
         partition_function,
-        balances=false
+        balances = false,
+        block_number = false
     ) %}
     WITH meta AS (
         SELECT
@@ -19,9 +20,20 @@
             s.*,
             b.file_name,
             b._inserted_timestamp
-            {% if balances %}
-            , r.block_timestamp :: TIMESTAMP AS block_timestamp
-            {% endif %}
+
+            {% if balances %},
+            r.block_timestamp :: TIMESTAMP AS block_timestamp
+        {% endif %}
+
+        {% if block_number %},
+            COALESCE(
+                s.value :BLOCK_NUMBER :: INT,
+                s.metadata :request :"data" :id :: INT,
+                PARSE_JSON(
+                    s.metadata :request :"data"
+                ) :id :: INT
+            ) AS block_number
+        {% endif %}
         FROM
             {{ source(
                 "bronze_streamline",
@@ -31,10 +43,15 @@
             JOIN meta b
             ON b.file_name = metadata$filename
             AND b.partition_key = s.partition_key
+
             {% if balances %}
-            JOIN {{ ref('_block_ranges') }} r
-            ON r.block_number = COALESCE(s.VALUE :"BLOCK_NUMBER" :: INT,s.VALUE :"block_number" :: INT)
-            {% endif %}
+            JOIN {{ ref('_block_ranges') }}
+            r
+            ON r.block_number = COALESCE(
+                s.value :"BLOCK_NUMBER" :: INT,
+                s.value :"block_number" :: INT
+            )
+        {% endif %}
         WHERE
             b.partition_key = s.partition_key
             AND DATA :error IS NULL
@@ -44,8 +61,9 @@
 {% macro streamline_external_table_fr_query(
         model,
         partition_function,
-        partition_join_key="partition_key",
-        balances=false
+        partition_join_key = "partition_key",
+        balances = false,
+        block_number = false
     ) %}
     WITH meta AS (
         SELECT
@@ -63,9 +81,20 @@ SELECT
     s.*,
     b.file_name,
     b._inserted_timestamp
-    {% if balances %}
-    , r.block_timestamp :: TIMESTAMP AS block_timestamp
-    {% endif %}
+
+    {% if balances %},
+    r.block_timestamp :: TIMESTAMP AS block_timestamp
+{% endif %}
+
+{% if block_number %},
+    COALESCE(
+        s.value :BLOCK_NUMBER :: INT,
+        s.metadata :request :"data" :id :: INT,
+        PARSE_JSON(
+            s.metadata :request :"data"
+        ) :id :: INT
+    ) AS block_number
+{% endif %}
 FROM
     {{ source(
         "bronze_streamline",
@@ -75,9 +104,14 @@ FROM
     JOIN meta b
     ON b.file_name = metadata$filename
     AND b.partition_key = s.{{ partition_join_key }}
+
     {% if balances %}
-    JOIN {{ ref('_block_ranges') }} r
-    ON r.block_number = COALESCE(s.VALUE :"BLOCK_NUMBER" :: INT,s.VALUE :"block_number" :: INT)
+        JOIN {{ ref('_block_ranges') }}
+        r
+        ON r.block_number = COALESCE(
+            s.value :"BLOCK_NUMBER" :: INT,
+            s.value :"block_number" :: INT
+        )
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
@@ -88,13 +122,13 @@ WHERE
 {% macro streamline_external_table_fr_union_query(
         model
     ) %}
-
 SELECT
     partition_key,
     VALUE :"BLOCK_NUMBER" :: INT AS block_number,
     {% if model == 'receipts' or model == 'traces' %}
-    array_index,
+        array_index,
     {% endif %}
+
     VALUE,
     DATA,
     metadata,
@@ -102,23 +136,28 @@ SELECT
     _inserted_timestamp
 FROM
     {% if model == 'blocks' %}
-    {{ ref('bronze__streamline_fr_blocks_v2') }}
-    {% elif model == 'confirmed_blocks' %}
-    {{ ref('bronze__streamline_fr_confirmed_blocks_v2') }}
-    {% elif model == 'transactions' %}
-    {{ ref('bronze__streamline_fr_transactions_v2') }}
-    {% elif model == 'receipts' %}
-    {{ ref('bronze__streamline_fr_receipts_v2') }}
-    {% elif model == 'traces' %}
-    {{ ref('bronze__streamline_fr_traces_v2') }}
+        {{ ref('bronze__streamline_fr_blocks_v2') }}
+
+        {% elif model == 'confirmed_blocks' %}
+        {{ ref('bronze__streamline_fr_confirmed_blocks_v2') }}
+
+        {% elif model == 'transactions' %}
+        {{ ref('bronze__streamline_fr_transactions_v2') }}
+
+        {% elif model == 'receipts' %}
+        {{ ref('bronze__streamline_fr_receipts_v2') }}
+
+        {% elif model == 'traces' %}
+        {{ ref('bronze__streamline_fr_traces_v2') }}
     {% endif %}
 UNION ALL
 SELECT
     _partition_by_block_id AS partition_key,
     block_number,
     {% if model == 'receipts' or model == 'traces' %}
-    VALUE :"array_index" :: INT AS array_index,
+        VALUE :"array_index" :: INT AS array_index,
     {% endif %}
+
     VALUE,
     DATA,
     metadata,
@@ -126,24 +165,26 @@ SELECT
     _inserted_timestamp
 FROM
     {% if model == 'blocks' %}
-    {{ ref('bronze__streamline_fr_blocks_v1') }}
-    {% elif model == 'confirmed_blocks' %}
-    {{ ref('bronze__streamline_fr_confirmed_blocks_v1') }}
-    {% elif model == 'transactions' %}
-    {{ ref('bronze__streamline_fr_transactions_v1') }}
-    {% elif model == 'receipts' %}
-    {{ ref('bronze__streamline_fr_receipts_v1') }}
-    {% elif model == 'traces' %}
-    {{ ref('bronze__streamline_fr_traces_v1') }}
+        {{ ref('bronze__streamline_fr_blocks_v1') }}
+
+        {% elif model == 'confirmed_blocks' %}
+        {{ ref('bronze__streamline_fr_confirmed_blocks_v1') }}
+
+        {% elif model == 'transactions' %}
+        {{ ref('bronze__streamline_fr_transactions_v1') }}
+
+        {% elif model == 'receipts' %}
+        {{ ref('bronze__streamline_fr_receipts_v1') }}
+
+        {% elif model == 'traces' %}
+        {{ ref('bronze__streamline_fr_traces_v1') }}
     {% endif %}
 {% endmacro %}
 
 {% macro streamline_external_table_query_decoder(
         model
     ) %}
-
     WITH meta AS (
-
         SELECT
             job_created_time AS _inserted_timestamp,
             file_name,
@@ -188,9 +229,7 @@ FROM
 {% macro streamline_external_table_fr_query_decoder(
         model
     ) %}
-
     WITH meta AS (
-
         SELECT
             registered_on AS _inserted_timestamp,
             file_name,
@@ -205,28 +244,28 @@ FROM
                 )
             ) A
     )
-    SELECT
-        block_number,
-        id :: STRING AS id,
-        DATA,
-        metadata,
-        b.file_name,
-        _inserted_timestamp,
-        s._partition_by_block_number AS _partition_by_block_number,
-        s._partition_by_created_date AS _partition_by_created_date
-    FROM
-        {{ source(
-            "bronze_streamline",
-            model
-        ) }}
-        s
-        JOIN meta b
-        ON b.file_name = metadata$filename
-        AND b._partition_by_block_number = s._partition_by_block_number
-        AND b._partition_by_created_date = s._partition_by_created_date
-    WHERE
-        b._partition_by_block_number = s._partition_by_block_number
-        AND b._partition_by_created_date = s._partition_by_created_date
-        AND DATA :error IS NULL
-        AND DATA IS NOT NULL
+SELECT
+    block_number,
+    id :: STRING AS id,
+    DATA,
+    metadata,
+    b.file_name,
+    _inserted_timestamp,
+    s._partition_by_block_number AS _partition_by_block_number,
+    s._partition_by_created_date AS _partition_by_created_date
+FROM
+    {{ source(
+        "bronze_streamline",
+        model
+    ) }}
+    s
+    JOIN meta b
+    ON b.file_name = metadata$filename
+    AND b._partition_by_block_number = s._partition_by_block_number
+    AND b._partition_by_created_date = s._partition_by_created_date
+WHERE
+    b._partition_by_block_number = s._partition_by_block_number
+    AND b._partition_by_created_date = s._partition_by_created_date
+    AND DATA :error IS NULL
+    AND DATA IS NOT NULL
 {% endmacro %}
