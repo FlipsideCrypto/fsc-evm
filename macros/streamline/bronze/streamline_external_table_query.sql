@@ -47,7 +47,10 @@
             {% if balances %}
             JOIN {{ ref('_block_ranges') }}
             r
-            ON r.block_number = s.block_number
+            ON r.block_number = COALESCE(
+                s.value :"BLOCK_NUMBER" :: INT,
+                s.value :"block_number" :: INT
+            )
         {% endif %}
         WHERE
             b.partition_key = s.partition_key
@@ -106,7 +109,10 @@ FROM
     {% if balances %}
         JOIN {{ ref('_block_ranges') }}
         r
-        ON r.block_number = s.block_number
+        ON r.block_number = COALESCE(
+            s.value :"BLOCK_NUMBER" :: INT,
+            s.value :"block_number" :: INT
+        )
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
