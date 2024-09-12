@@ -28,10 +28,10 @@
         {% if block_number %},
             COALESCE(
                 s.value :"BLOCK_NUMBER" :: INT,
-                s.metadata :request :"data" :id :: INT,
-                PARSE_JSON(
+                (s.metadata :request :"data" :id :: STRING) :: INT,
+                (PARSE_JSON(
                     s.metadata :request :"data"
-                ) :id :: INT
+                ) :id :: STRING) :: INT
             ) AS block_number
         {% endif %}
         FROM
@@ -90,10 +90,10 @@ SELECT
     COALESCE(
         s.value :"BLOCK_NUMBER" :: INT,
         s.value :"block_number" :: INT,
-        s.metadata :request :"data" :id :: INT,
-        PARSE_JSON(
+        (s.metadata :request :"data" :id :: STRING) :: INT,
+        (PARSE_JSON(
             s.metadata :request :"data"
-        ) :id :: INT
+        ) :id :: STRING) :: INT
     ) AS block_number
 {% endif %}
 FROM
