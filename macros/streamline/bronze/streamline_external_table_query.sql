@@ -2,7 +2,7 @@
         model,
         partition_function,
         balances = false,
-        block_number = false
+        block_number = true
     ) %}
     WITH meta AS (
         SELECT
@@ -63,7 +63,7 @@
         partition_function,
         partition_join_key = "partition_key",
         balances = false,
-        block_number = false
+        block_number = true
     ) %}
     WITH meta AS (
         SELECT
