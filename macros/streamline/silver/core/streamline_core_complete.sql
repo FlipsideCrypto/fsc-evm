@@ -2,14 +2,7 @@
         model
     ) %}
 SELECT
-    COALESCE(
-        VALUE :"BLOCK_NUMBER" :: INT,
-        VALUE :"block_number" :: INT,
-        metadata :request :"data" :id :: INT,
-        PARSE_JSON(
-            metadata :request :"data"
-        ) :id :: INT
-    ) AS block_number,
+    block_number,
     file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number']

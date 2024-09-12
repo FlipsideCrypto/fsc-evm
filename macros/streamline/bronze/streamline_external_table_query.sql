@@ -27,12 +27,12 @@
 
         {% if block_number %},
             COALESCE(
-                s.value :"BLOCK_NUMBER" :: INT,
-                s.metadata :request :"data" :id :: INT,
+                s.value :"BLOCK_NUMBER" :: STRING,
+                s.metadata :request :"data" :id :: STRING,
                 PARSE_JSON(
                     s.metadata :request :"data"
-                ) :id :: INT
-            ) AS block_number
+                ) :id :: STRING
+            ) :: INT AS block_number
         {% endif %}
         FROM
             {{ source(
@@ -88,13 +88,13 @@ SELECT
 
 {% if block_number %},
     COALESCE(
-        s.value :"BLOCK_NUMBER" :: INT,
-        s.value :"block_number" :: INT,
-        s.metadata :request :"data" :id :: INT,
+        s.value :"BLOCK_NUMBER" :: STRING,
+        s.value :"block_number" :: STRING,
+        s.metadata :request :"data" :id :: STRING,
         PARSE_JSON(
             s.metadata :request :"data"
-        ) :id :: INT
-    ) AS block_number
+        ) :id :: STRING
+    ) :: INT AS block_number
 {% endif %}
 FROM
     {{ source(
@@ -125,7 +125,7 @@ WHERE
     ) %}
 SELECT
     partition_key,
-    VALUE :"BLOCK_NUMBER" :: INT AS block_number,
+    block_number,
     {% if model == 'receipts' or model == 'traces' %}
         array_index,
     {% endif %}
