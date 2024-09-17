@@ -9,7 +9,7 @@
             ) AS contract_address,
             TRY_PARSE_JSON(DATA) AS DATA,
             VALUE,
-            {{ block_explorer }} AS abi_source,
+            '{{ block_explorer }}' AS abi_source,
             _inserted_timestamp
         FROM
 
