@@ -2,20 +2,31 @@
         chain,
         is_ethereum = false
     ) %}
-    {% set block_explorer = CASE(chain) 
-    when 'ethereum', 'etherscan' 
-    when 'polygon', 'polyscan' 
-    when 'arbitrum', 'arbscan' 
-    when 'optimism', 'opscan' 
-    when 'avalanche', 'snowscan' 
-    when 'base', 'basescan' 
-    when 'blast', 'blastscan' 
-    when 'bsc', 'bscscan' 
-    when 'gnosis', 'gnosisscan' 
-    when 'kaia', 'kaiascope' 
-    when 'sei_evm', 'seitrace' 
-    else 'unknown' 
-    END %}
+    {% if chain == 'ethereum' %}
+        {% set block_explorer = 'etherscan' %}
+        {% elif chain == 'polygon' %}
+        {% set block_explorer = 'polyscan' %}
+        {% elif chain == 'arbitrum' %}
+        {% set block_explorer = 'arbscan' %}
+        {% elif chain == 'optimism' %}
+        {% set block_explorer = 'opscan' %}
+        {% elif chain == 'avalanche' %}
+        {% set block_explorer = 'snowscan' %}
+        {% elif chain == 'base' %}
+        {% set block_explorer = 'basescan' %}
+        {% elif chain == 'blast' %}
+        {% set block_explorer = 'blastscan' %}
+        {% elif chain == 'bsc' %}
+        {% set block_explorer = 'bscscan' %}
+        {% elif chain == 'gnosis' %}
+        {% set block_explorer = 'gnosisscan' %}
+        {% elif chain == 'kaia' %}
+        {% set block_explorer = 'kaiascope' %}
+        {% elif chain == 'sei_evm' %}
+        {% set block_explorer = 'seitrace' %}
+    {% else %}
+        {% set block_explorer = 'unknown' %}
+    {% endif %}
 
     WITH {% if not is_ethereum %}
         base AS (
