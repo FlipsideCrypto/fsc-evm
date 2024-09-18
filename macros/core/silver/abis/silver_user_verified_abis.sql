@@ -1,4 +1,4 @@
-{% macro silver__user_verified_abis(chain) %}
+{% macro silver_user_verified_abis(chain) %}
     WITH base AS (
         SELECT
             contract_address,
@@ -13,7 +13,7 @@
                 "user_abis"
             ) }}
         WHERE
-            blockchain = {{ chain }}
+            blockchain = '{{ chain }}'
             AND NOT duplicate_abi
 
 {% if is_incremental() %}

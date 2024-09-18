@@ -1,6 +1,40 @@
-{% macro silver__verified_abis(block_explorer) %}
-    -- depends_on: {{ ref('bronze__streamline_contract_abis') }}
-    WITH block_explorer_abis AS (
+{% macro silver_verified_abis(
+        block_explorer,
+        is_ethereum = false
+    ) %}
+    WITH {% if not is_ethereum %}
+        base AS (
+            SELECT
+                contract_address,
+                PARSE_JSON(
+                    abi_data :data :result
+                ) AS DATA,
+                _inserted_timestamp
+            FROM
+                {{ ref('bronze_api__contract_abis') }}
+            WHERE
+                abi_data :data :message :: STRING = 'OK'
+
+{% if is_incremental() %}
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(_inserted_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
+),
+block_explorer_abis AS (
+    SELECT
+        contract_address,
+        DATA,
+        _inserted_timestamp,
+        '{{ block_explorer }}' AS abi_source
+    FROM
+        base
+),
+{% else %}
+    block_explorer_abis AS (
         SELECT
             block_number,
             COALESCE(
@@ -18,7 +52,7 @@
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) _inserted_timestamp
+            MAX(_inserted_timestamp)
         FROM
             {{ this }}
     )
@@ -31,10 +65,12 @@ WHERE
     AND TRY_PARSE_JSON(DATA) IS NOT NULL
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY contract_address, block_number
+qualify (ROW_NUMBER() over (PARTITION BY contract_address, block_number
 ORDER BY
     _inserted_timestamp DESC)) = 1
 ),
+{% endif %}
+
 user_abis AS (
     SELECT
         contract_address,
@@ -96,8 +132,13 @@ SELECT
     abi_hash
 FROM
     all_abis
+
+    {% if is_ethereum %}
 WHERE
-    DATA :: STRING <> 'Unknown Exception' qualify(ROW_NUMBER() over(PARTITION BY contract_address
+    DATA :: STRING <> 'Unknown Exception'
+{% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY contract_address
 ORDER BY
     _INSERTED_TIMESTAMP DESC)) = 1
 {% endmacro %}

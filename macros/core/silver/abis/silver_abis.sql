@@ -25,7 +25,7 @@
         FROM
             {{ ref('silver__verified_abis') }}
         WHERE
-            abi_source = {{ block_explorer }}
+            abi_source = '{{ block_explorer }}'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -36,7 +36,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = {{ block_explorer }}
+        abi_source = '{{ block_explorer }}'
 )
 {% endif %}
 ),
@@ -50,20 +50,21 @@ user_abis AS (
         abi_hash,
         3 AS priority
     FROM
-        {{ ref('silver__user_abis') }}
+        {{ ref('silver__verified_abis') }}
+    WHERE
+        abi_source = 'user'
 
 {% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
-        WHERE
-            abi_source = 'user'
-    )
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(
+            _inserted_timestamp
+        )
+    FROM
+        {{ this }}
+    WHERE
+        abi_source = 'user'
+)
 {% endif %}
 ),
 bytecode_abis AS (
@@ -71,7 +72,7 @@ bytecode_abis AS (
         contract_address,
         abi AS DATA,
         _inserted_timestamp,
-        'bytecode' AS abi_source,
+        'bytecode_matched' AS abi_source,
         NULL AS discord_username,
         abi_hash,
         4 AS priority

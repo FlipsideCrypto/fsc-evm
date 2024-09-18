@@ -1,4 +1,4 @@
-{% macro silver__bytecode_abis() %}
+{% macro silver_bytecode_abis() %}
     WITH contracts_with_abis AS (
         -- Identifying contracts with verified ABIs
         SELECT

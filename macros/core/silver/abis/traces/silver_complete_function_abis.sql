@@ -1,17 +1,9 @@
-{{ config (
-    materialized = 'incremental',
-    unique_key = ['parent_contract_address','event_signature','start_block'],
-    merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    tags = ['abis']
-) }}
-
-WITH new_abis AS (
-
-    SELECT
-        DISTINCT contract_address
-    FROM
-        {{ ref('silver__flat_event_abis') }}
+{% macro silver_complete_function_abis() %}
+    WITH new_abis AS (
+        SELECT
+            DISTINCT contract_address
+        FROM
+            {{ ref('silver__flat_function_abis') }}
 
 {% if is_incremental() %}
 WHERE
@@ -84,28 +76,30 @@ all_relevant_contracts AS (
 flat_abis AS (
     SELECT
         contract_address,
-        event_name,
+        function_name,
         abi,
-        simple_event_name,
-        event_signature,
-        NAME,
+        simple_function_name,
+        function_signature,
         inputs,
-        event_type,
+        outputs,
+        inputs_type,
+        outputs_type,
         _inserted_timestamp
     FROM
-        {{ ref('silver__flat_event_abis') }}
+        {{ ref('silver__flat_function_abis') }}
         JOIN all_relevant_contracts USING (contract_address)
 ),
 base AS (
     SELECT
         ea.contract_address,
-        event_name,
+        function_name,
         abi,
-        simple_event_name,
-        event_signature,
-        NAME,
+        simple_function_name,
+        function_signature,
         inputs,
-        event_type,
+        outputs,
+        inputs_type,
+        outputs_type,
         ea._inserted_timestamp,
         pb._inserted_timestamp AS proxy_inserted_timestamp,
         pb.start_block,
@@ -119,13 +113,14 @@ base AS (
     UNION ALL
     SELECT
         eab.contract_address,
-        event_name,
+        function_name,
         abi,
-        simple_event_name,
-        event_signature,
-        NAME,
+        simple_function_name,
+        function_signature,
         inputs,
-        event_type,
+        outputs,
+        inputs_type,
+        outputs_type,
         eab._inserted_timestamp,
         pbb._inserted_timestamp AS proxy_inserted_timestamp,
         pbb.created_block AS start_block,
@@ -147,13 +142,14 @@ base AS (
     UNION ALL
     SELECT
         contract_address,
-        event_name,
+        function_name,
         abi,
-        simple_event_name,
-        event_signature,
-        NAME,
+        simple_function_name,
+        function_signature,
         inputs,
-        event_type,
+        outputs,
+        inputs_type,
+        outputs_type,
         _inserted_timestamp,
         NULL AS proxy_inserted_timestamp,
         0 AS start_block,
@@ -173,24 +169,25 @@ base AS (
 new_records AS (
     SELECT
         base_contract_address AS parent_contract_address,
-        contract_address,
-        event_name,
+        contract_address AS implementation_contract,
+        function_name,
         abi,
         start_block,
         proxy_created_block,
-        simple_event_name,
-        event_signature,
-        NAME,
+        simple_function_name,
+        function_signature,
         inputs,
-        event_type,
+        outputs,
+        inputs_type,
+        outputs_type,
         _inserted_timestamp,
         proxy_inserted_timestamp
     FROM
         base qualify ROW_NUMBER() over (
             PARTITION BY parent_contract_address,
-            NAME,
-            event_type,
-            event_signature,
+            function_name,
+            inputs_type,
+            simple_function_name,
             start_block
             ORDER BY
                 priority ASC,
@@ -202,21 +199,21 @@ new_records AS (
 FINAL AS (
     SELECT
         parent_contract_address,
-        contract_address AS implementation_contract,
-        event_name,
+        implementation_contract,
+        function_name,
         abi,
         start_block,
         proxy_created_block,
-        simple_event_name,
-        event_signature,
-        IFNULL(LEAD(start_block) over (PARTITION BY parent_contract_address, event_signature
+        simple_function_name,
+        function_signature,
+        IFNULL(LEAD(start_block) over (PARTITION BY parent_contract_address, function_signature
     ORDER BY
         start_block) -1, 1e18) AS end_block,
         _inserted_timestamp,
         proxy_inserted_timestamp,
         SYSDATE() AS _updated_timestamp,
         {{ dbt_utils.generate_surrogate_key(
-            ['parent_contract_address','event_signature','start_block']
+            ['parent_contract_address','function_signature','start_block']
         ) }} AS complete_event_abis_id,
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp,
@@ -224,8 +221,8 @@ FINAL AS (
     FROM
         new_records qualify ROW_NUMBER() over (
             PARTITION BY parent_contract_address,
-            event_name,
-            event_signature,
+            function_name,
+            function_signature,
             start_block
             ORDER BY
                 _inserted_timestamp DESC
@@ -234,12 +231,12 @@ FINAL AS (
 SELECT
     parent_contract_address,
     implementation_contract,
-    event_name,
+    function_name,
     abi,
     start_block,
     proxy_created_block,
-    simple_event_name,
-    event_signature,
+    simple_function_name,
+    function_signature,
     end_block,
     _inserted_timestamp,
     proxy_inserted_timestamp,
@@ -249,17 +246,18 @@ SELECT
     modified_timestamp,
     _invocation_id
 FROM
-    FINAL f
+    FINAL
 
 {% if is_incremental() %}
 LEFT JOIN {{ this }}
 t USING (
     parent_contract_address,
-    event_name,
-    event_signature,
+    function_name,
+    function_signature,
     start_block,
     end_block
 )
 WHERE
-    t.event_signature IS NULL
+    t.function_signature IS NULL
 {% endif %}
+{% endmacro %}
