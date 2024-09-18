@@ -35,7 +35,7 @@ WITH override_abis AS (
             TO_TIMESTAMP_LTZ(SYSDATE()) AS _inserted_timestamp,
             'flipside' AS abi_source,
             'flipside' AS discord_username,
-            SHA2(abi) AS abi_hash,
+            SHA2(PARSE_JSON(DATA)) AS abi_hash,
             1 AS priority
         FROM
             {{ ref('silver__override_abis') }}
