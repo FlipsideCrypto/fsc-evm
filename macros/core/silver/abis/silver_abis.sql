@@ -1,5 +1,23 @@
-{% macro silver_abis(block_explorer) %}
-    WITH override_abis AS (
+{% macro silver_abis(
+        chain
+    ) %}
+    
+    {% set block_explorer = CASE(chain) 
+    when 'ethereum', 'etherscan' 
+    when 'polygon', 'polyscan' 
+    when 'arbitrum', 'arbscan' 
+    when 'optimism', 'opscan' 
+    when 'avalanche', 'snowscan' 
+    when 'base', 'basescan' 
+    when 'blast', 'blastscan' 
+    when 'bsc', 'bscscan' 
+    when 'gnosis', 'gnosisscan' 
+    when 'kaia', 'kaiascope' 
+    when 'sei_evm', 'seitrace' 
+    else 'unknown' 
+    END %}
+
+WITH override_abis AS (
         SELECT
             contract_address,
             PARSE_JSON(DATA) AS DATA,
@@ -25,7 +43,7 @@
         FROM
             {{ ref('silver__verified_abis') }}
         WHERE
-            abi_source = '{{ block_explorer }}'
+            abi_source = {{ block_explorer }}
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -36,7 +54,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = '{{ block_explorer }}'
+        abi_source = {{ block_explorer }}
 )
 {% endif %}
 ),

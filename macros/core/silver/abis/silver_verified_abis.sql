@@ -1,7 +1,22 @@
 {% macro silver_verified_abis(
-        block_explorer,
+        chain,
         is_ethereum = false
     ) %}
+    {% set block_explorer = CASE(chain) 
+    when 'ethereum', 'etherscan' 
+    when 'polygon', 'polyscan' 
+    when 'arbitrum', 'arbscan' 
+    when 'optimism', 'opscan' 
+    when 'avalanche', 'snowscan' 
+    when 'base', 'basescan' 
+    when 'blast', 'blastscan' 
+    when 'bsc', 'bscscan' 
+    when 'gnosis', 'gnosisscan' 
+    when 'kaia', 'kaiascope' 
+    when 'sei_evm', 'seitrace' 
+    else 'unknown' 
+    END %}
+
     WITH {% if not is_ethereum %}
         base AS (
             SELECT
@@ -29,7 +44,7 @@ block_explorer_abis AS (
         contract_address,
         DATA,
         _inserted_timestamp,
-        '{{ block_explorer }}' AS abi_source
+        {{ block_explorer }} AS abi_source
     FROM
         base
 ),
@@ -43,7 +58,7 @@ block_explorer_abis AS (
             ) AS contract_address,
             TRY_PARSE_JSON(DATA) AS DATA,
             VALUE,
-            '{{ block_explorer }}' AS abi_source,
+            {{ block_explorer }} AS abi_source,
             _inserted_timestamp
         FROM
 
@@ -86,9 +101,7 @@ user_abis AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(
-                _inserted_timestamp
-            )
+            MAX(_inserted_timestamp)
         FROM
             {{ this }}
         WHERE
