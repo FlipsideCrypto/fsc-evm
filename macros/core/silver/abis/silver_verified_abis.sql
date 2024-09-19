@@ -1,7 +1,9 @@
 {% macro silver_verified_abis(
-        chain,
         is_ethereum = false
     ) %}
+    {% set project_name = project_name %}
+    {% set chain = project_name.split('_') [0] %}
+    {% set block_explorer = 'unknown' %}
     {% if chain == 'ethereum' %}
         {% set block_explorer = 'etherscan' %}
         {% elif chain == 'polygon' %}
@@ -24,8 +26,6 @@
         {% set block_explorer = 'kaiascope' %}
         {% elif chain == 'sei_evm' %}
         {% set block_explorer = 'seitrace' %}
-    {% else %}
-        {% set block_explorer = 'unknown' %}
     {% endif %}
 
     WITH {% if not is_ethereum %}
