@@ -1,5 +1,5 @@
 {% macro silver_user_verified_abis() %}
-    {% set project_name = model.config.project_name %}
+    {% set project_name = project_name %}
     {% set chain = project_name.split('_') [0] %}
     WITH base AS (
         SELECT
