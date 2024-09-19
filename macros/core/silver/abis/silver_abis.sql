@@ -1,7 +1,7 @@
-{% macro silver_abis(
-        chain
-    ) %}
-    
+{% macro silver_abis() %}
+    {% set project_name = project_name %}
+    {% set chain = project_name.split('_') [0] %}
+    {% set block_explorer = 'unknown' %}
     {% if chain == 'ethereum' %}
         {% set block_explorer = 'etherscan' %}
         {% elif chain == 'polygon' %}
@@ -24,11 +24,9 @@
         {% set block_explorer = 'kaiascope' %}
         {% elif chain == 'sei_evm' %}
         {% set block_explorer = 'seitrace' %}
-    {% else %}
-        {% set block_explorer = 'unknown' %}
     {% endif %}
 
-WITH override_abis AS (
+    WITH override_abis AS (
         SELECT
             contract_address,
             PARSE_JSON(DATA) AS DATA,

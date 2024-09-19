@@ -1,4 +1,6 @@
-{% macro silver_user_verified_abis(chain) %}
+{% macro silver_user_verified_abis() %}
+    {% set project_name = model.config.project_name %}
+    {% set chain = project_name.split('_') [0] %}
     WITH base AS (
         SELECT
             contract_address,
