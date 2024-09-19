@@ -1,31 +1,4 @@
-{% macro silver_abis() %}
-    {% set project_name = project_name %}
-    {% set chain = project_name.split('_') [0] %}
-    {% set block_explorer = 'unknown' %}
-    {% if chain == 'ethereum' %}
-        {% set block_explorer = 'etherscan' %}
-        {% elif chain == 'polygon' %}
-        {% set block_explorer = 'polyscan' %}
-        {% elif chain == 'arbitrum' %}
-        {% set block_explorer = 'arbscan' %}
-        {% elif chain == 'optimism' %}
-        {% set block_explorer = 'opscan' %}
-        {% elif chain == 'avalanche' %}
-        {% set block_explorer = 'snowscan' %}
-        {% elif chain == 'base' %}
-        {% set block_explorer = 'basescan' %}
-        {% elif chain == 'blast' %}
-        {% set block_explorer = 'blastscan' %}
-        {% elif chain == 'bsc' %}
-        {% set block_explorer = 'bscscan' %}
-        {% elif chain == 'gnosis' %}
-        {% set block_explorer = 'gnosisscan' %}
-        {% elif chain == 'kaia' %}
-        {% set block_explorer = 'kaiascope' %}
-        {% elif chain == 'sei_evm' %}
-        {% set block_explorer = 'seitrace' %}
-    {% endif %}
-
+{% macro silver_abis(block_explorer) %}
     WITH override_abis AS (
         SELECT
             contract_address,

@@ -1,15 +1,10 @@
-{% macro silver_proxies(
-        is_ethereum = false
-    ) %}
+{% macro silver_proxies() %}
     WITH base AS (
         SELECT
             from_address,
             to_address,
             MIN(block_number) AS start_block,
-            {% if is_ethereum %}
-                MIN(block_timestamp) AS start_timestamp,
-            {% endif %}
-
+            MIN(block_timestamp) AS start_timestamp,
             MAX(_inserted_timestamp) AS _inserted_timestamp
         FROM
             {{ ref('silver__traces') }}
@@ -36,10 +31,7 @@ create_id AS (
         from_address AS contract_address,
         to_address AS proxy_address,
         start_block,
-        {% if is_ethereum %}
-            start_timestamp,
-        {% endif %}
-
+        start_timestamp,
         CONCAT(
             from_address,
             '-',
@@ -54,10 +46,7 @@ heal AS (
         contract_address,
         proxy_address,
         start_block,
-        {% if is_ethereum %}
-            start_timestamp,
-        {% endif %}
-
+        start_timestamp,
         _id,
         _inserted_timestamp
     FROM
@@ -69,10 +58,7 @@ SELECT
     contract_address,
     proxy_address,
     start_block,
-    {% if is_ethereum %}
-        start_timestamp,
-    {% endif %}
-
+    start_timestamp,
     _id,
     _inserted_timestamp
 FROM
@@ -88,10 +74,7 @@ FINAL AS (
         contract_address,
         proxy_address,
         start_block,
-        {% if is_ethereum %}
-            start_timestamp,
-        {% endif %}
-
+        start_timestamp,
         _id,
         _inserted_timestamp
     FROM
@@ -106,10 +89,7 @@ SELECT
     f.contract_address,
     f.proxy_address,
     f.start_block,
-    {% if is_ethereum %}
-        f.start_timestamp,
-    {% endif %}
-
+    f.start_timestamp,
     f._id,
     f._inserted_timestamp,
     C.block_number AS created_block,

@@ -1,6 +1,4 @@
-{% macro silver_complete_event_abis(
-        is_ethereum = false
-    ) %}
+{% macro silver_complete_event_abis() %}
     WITH new_abis AS (
         SELECT
             DISTINCT contract_address
@@ -8,36 +6,26 @@
             {{ ref('silver__flat_event_abis') }}
 
 {% if is_incremental() %}
-{% if not is_ethereum %}
-    WHERE
-        _inserted_timestamp >= (
-            SELECT
-                MAX(_inserted_timestamp) - INTERVAL '12 hours'
-            FROM
-                {{ this }}
-        )
-    {% else %}
-    WHERE
-        _inserted_timestamp >= (
-            SELECT
-                MAX(_inserted_timestamp) - INTERVAL '18 hours'
-            FROM
-                {{ this }}
-        )
-    UNION
-        -- catches any late arriving proxies
-    SELECT
-        DISTINCT proxy_address AS contract_address
-    FROM
-        {{ ref('silver__proxies') }}
-    WHERE
-        start_timestamp >= (
-            SELECT
-                MAX(_inserted_timestamp) - INTERVAL '18 hours'
-            FROM
-                {{ this }}
-        )
-    {% endif %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '18 hours'
+        FROM
+            {{ this }}
+    )
+UNION
+    -- catches any late arriving proxies
+SELECT
+    DISTINCT proxy_address AS contract_address
+FROM
+    {{ ref('silver__proxies') }}
+WHERE
+    start_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '18 hours'
+        FROM
+            {{ this }}
+    )
 {% endif %}
 ),
 proxies AS (
