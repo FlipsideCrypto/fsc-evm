@@ -6,7 +6,7 @@
             from_address,
             to_address,
             MIN(block_number) AS start_block,
-            {% if not is_ethereum %}
+            {% if is_ethereum %}
                 MIN(block_timestamp) AS start_timestamp,
             {% endif %}
 
@@ -36,7 +36,7 @@ create_id AS (
         from_address AS contract_address,
         to_address AS proxy_address,
         start_block,
-        {% if not is_ethereum %}
+        {% if is_ethereum %}
             start_timestamp,
         {% endif %}
 
@@ -54,7 +54,7 @@ heal AS (
         contract_address,
         proxy_address,
         start_block,
-        {% if not is_ethereum %}
+        {% if is_ethereum %}
             start_timestamp,
         {% endif %}
 
@@ -69,7 +69,7 @@ SELECT
     contract_address,
     proxy_address,
     start_block,
-    {% if not is_ethereum %}
+    {% if is_ethereum %}
         start_timestamp,
     {% endif %}
 
@@ -88,7 +88,7 @@ FINAL AS (
         contract_address,
         proxy_address,
         start_block,
-        {% if not is_ethereum %}
+        {% if is_ethereum %}
             start_timestamp,
         {% endif %}
 
@@ -106,7 +106,7 @@ SELECT
     f.contract_address,
     f.proxy_address,
     f.start_block,
-    {% if not is_ethereum %}
+    {% if is_ethereum %}
         f.start_timestamp,
     {% endif %}
 
