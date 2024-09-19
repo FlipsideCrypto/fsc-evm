@@ -159,7 +159,7 @@ SELECT
 FROM
     all_abis
 
-    {% if is_ethereum %}
+    {% if streamline %}
 WHERE
     DATA :: STRING <> 'Unknown Exception'
 {% endif %}
