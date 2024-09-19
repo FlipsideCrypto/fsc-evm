@@ -1,6 +1,4 @@
-{% macro silver_verified_abis(
-        is_ethereum = false
-    ) %}
+{% macro silver_verified_abis() %}
     {% set project_name = project_name %}
     {% set chain = project_name.split('_') [0] %}
     {% set block_explorer = 'unknown' %}
@@ -28,7 +26,11 @@
         {% set block_explorer = 'seitrace' %}
     {% endif %}
 
-    WITH {% if not is_ethereum %}
+    {% if chain in ['ethereum'] %}
+        {% set streamline = true %}
+    {% endif %}
+
+    WITH {% if not streamline %}
         base AS (
             SELECT
                 contract_address,
