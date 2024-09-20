@@ -7,7 +7,7 @@
 
 {% if is_incremental() %}
 WHERE
-    _inserted_timestamp >= (
+    _inserted_timestamp :: DATE >= (
         SELECT
             MAX(_inserted_timestamp) - INTERVAL '18 hours'
         FROM
@@ -20,7 +20,7 @@ SELECT
 FROM
     {{ ref('silver__proxies') }}
 WHERE
-    start_timestamp >= (
+    start_timestamp :: DATE >= (
         SELECT
             MAX(_inserted_timestamp) - INTERVAL '18 hours'
         FROM
