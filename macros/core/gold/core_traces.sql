@@ -18,7 +18,7 @@
             'regular' AS source
         FROM
             {{ ref(
-                view_schema ~ '__traces2'
+                schema_name ~ '__traces2'
             ) }}
             -- this needs to change eventually
         WHERE
@@ -64,7 +64,7 @@ SELECT
     'overflow' AS source
 FROM
     {{ ref(
-        view_schema ~ '__overflowed_traces2'
+        schema_name ~ '__overflowed_traces2'
     ) }}
 WHERE
     1 = 1
@@ -505,7 +505,7 @@ aggregated_errors AS (
                         FROM
                             json_traces f
                             LEFT OUTER JOIN {{ ref(
-                                view_schema ~ '__transactions'
+                                schema_name ~ '__transactions'
                             ) }}
                             t
                             ON f.tx_position = t.position
@@ -574,7 +574,7 @@ heal_missing_data AS (
         {{ this }}
         t
         JOIN {{ ref(
-            view_schema ~ '__transactions'
+            schema_name ~ '__transactions'
         ) }}
         txs
         ON t.tx_position = txs.position
@@ -774,7 +774,7 @@ ORDER BY
             'regular' AS source
         FROM
             {{ ref(
-                view_schema ~ '__traces'
+                schema_name ~ '__traces'
             ) }}
         WHERE
             1 = 1
@@ -819,7 +819,7 @@ SELECT
     'overflow' AS source
 FROM
     {{ ref(
-        view_schema ~ '__overflowed_traces'
+        schema_name ~ '__overflowed_traces'
     ) }}
 WHERE
     1 = 1
@@ -1219,7 +1219,7 @@ aggregated_errors AS (
                         FROM
                             json_traces f
                             LEFT OUTER JOIN {{ ref(
-                                view_schema ~ '__transactions'
+                                schema_name ~ '__transactions'
                             ) }}
                             t
                             ON f.tx_position = t.position
@@ -1280,7 +1280,7 @@ heal_missing_data AS (
         {{ this }}
         t
         JOIN {{ ref(
-            view_schema ~ '__transactions'
+            schema_name ~ '__transactions'
         ) }}
         txs
         ON t.tx_position = txs.position
