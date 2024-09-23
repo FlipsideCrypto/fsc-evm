@@ -540,7 +540,7 @@ heal_missing_data AS (
     WHERE
         t.tx_hash IS NULL
         OR t.block_timestamp IS NULL
-        OR t.tx_status IS NULL
+        OR t.tx_succeeded IS NULL
 )
 {% endif %},
 all_traces AS (
