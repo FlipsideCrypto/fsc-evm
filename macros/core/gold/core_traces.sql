@@ -63,15 +63,10 @@ SELECT
     'overflow' AS source
 FROM
 
-    {% if v2 %}
-            {{ ref(
-                schema_name ~ '__overflowed_traces2'
-            ) }}
-    {% else %}
-            {{ ref(
-                schema_name ~ '__overflowed_traces'
-            ) }}
-    {% endif %}
+    {{ ref(
+        schema_name ~ '__overflowed_traces2'
+    ) }}
+    
 WHERE
     1 = 1
 
