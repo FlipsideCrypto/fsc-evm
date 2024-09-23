@@ -761,7 +761,8 @@ ORDER BY
         full_reload_mode = false,
         uses_overflow_steps = false,
         arb_traces_mode = false,
-        schema_name = 'silver'
+        schema_name = 'silver',
+        uses_tx_status = false
     ) %}
     WITH silver_traces AS (
         SELECT
@@ -1211,8 +1212,11 @@ aggregated_errors AS (
                             f.traces_id,
                             f.trace_succeeded,
                             f.trace_address,
-                            t.tx_succeeded
-
+                            {% if uses_tx_status %}
+                            iff(t.tx_status = 'SUCCESS', true, false) as tx_succeeded,
+                            {% else %}
+                            t.tx_succeeded,
+                            {% endif %}
                             {% if arb_traces_mode %},
                             f.before_evm_transfers,
                             f.after_evm_transfers
@@ -1271,8 +1275,11 @@ heal_missing_data AS (
         t.fact_traces_id AS traces_id,
         t.trace_succeeded,
         t.trace_address,
-        txs.tx_succeeded
-
+        {% if uses_tx_status %}
+        iff(txs.tx_status = 'SUCCESS', true, false) as tx_succeeded,
+        {% else %}
+        txs.tx_succeeded,
+        {% endif %}
         {% if arb_traces_mode %},
         t.before_evm_transfers,
         t.after_evm_transfers
