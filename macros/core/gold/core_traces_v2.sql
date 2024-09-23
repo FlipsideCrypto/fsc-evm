@@ -1,10 +1,12 @@
-{% macro gold_traces_v1(
+
+{% macro gold_traces_v2(
         full_reload_start_block,
         full_reload_blocks,
         full_reload_mode = false,
         uses_overflow_steps = false,
         arb_traces_mode = false,
-        schema_name = 'silver'
+        schema_name = 'silver',
+        uses_tx_status = false
     ) %}
     WITH silver_traces AS (
         SELECT
@@ -18,7 +20,7 @@
             'regular' AS source
         FROM
             {{ ref(
-                schema_name ~ '__traces2'
+                schema_name ~ '__traces'
             ) }}
         WHERE
             1 = 1
@@ -62,11 +64,9 @@ SELECT
     traces_id,
     'overflow' AS source
 FROM
-
     {{ ref(
-        schema_name ~ '__overflowed_traces2'
+        schema_name ~ '__overflowed_traces'
     ) }}
-    
 WHERE
     1 = 1
 
@@ -274,7 +274,6 @@ aggregated_errors AS (
                     sub_traces,
                     number_array,
                     trace_index,
-                    trace_json AS DATA,
                     trace_succeeded,
                     trace_json :error :: STRING AS error_reason,
                     trace_json :revertReason :: STRING AS revert_reason,
@@ -304,16 +303,6 @@ aggregated_errors AS (
                     trace_json :input :: STRING AS input,
                     trace_json :output :: STRING AS output,
                     trace_json :type :: STRING AS TYPE,
-                    concat_ws(
-                        '_',
-                        TYPE,
-                        trace_address
-                    ) AS identifier,
-                    IFF(
-                        trace_succeeded,
-                        'SUCCESS',
-                        'FAIL'
-                    ) AS trace_status,
                     traces_id
                 FROM
                     trace_index_sub_traces
@@ -331,7 +320,6 @@ aggregated_errors AS (
                             sub_traces,
                             number_array,
                             trace_index,
-                            trace_json AS DATA,
                             trace_succeeded,
                             trace_json :error :: STRING AS error_reason,
                             trace_json :revertReason :: STRING AS revert_reason,
@@ -361,16 +349,6 @@ aggregated_errors AS (
                             trace_json :input :: STRING AS input,
                             trace_json :output :: STRING AS output,
                             trace_json :type :: STRING AS TYPE,
-                            concat_ws(
-                                '_',
-                                TYPE,
-                                trace_address
-                            ) AS identifier,
-                            IFF(
-                                trace_succeeded,
-                                'SUCCESS',
-                                'FAIL'
-                            ) AS trace_status,
                             traces_id,
                             trace_json :afterEVMTransfers AS after_evm_transfers,
                             trace_json :beforeEVMTransfers AS before_evm_transfers
@@ -391,7 +369,6 @@ aggregated_errors AS (
                             sub_traces,
                             number_array,
                             trace_index,
-                            trace_json AS DATA,
                             trace_succeeded,
                             trace_json :error :: STRING AS error_reason,
                             NULL AS revert_reason,
@@ -438,16 +415,6 @@ aggregated_errors AS (
                                     trace_json :type :: STRING
                                 )
                             ) AS TYPE,
-                            concat_ws(
-                                '_',
-                                TYPE,
-                                trace_address
-                            ) AS identifier,
-                            IFF(
-                                trace_succeeded,
-                                'SUCCESS',
-                                'FAIL'
-                            ) AS trace_status,
                             traces_id,
                             NULL AS after_evm_transfers,
                             NULL AS before_evm_transfers
@@ -470,7 +437,6 @@ aggregated_errors AS (
                             t.origin_function_signature,
                             t.from_address AS origin_from_address,
                             t.to_address AS origin_to_address,
-                            t.tx_status,
                             f.tx_position,
                             f.trace_index,
                             f.from_address AS from_address,
@@ -484,21 +450,17 @@ aggregated_errors AS (
                             f.input,
                             f.output,
                             f.type,
-                            f.identifier,
                             f.sub_traces,
                             f.error_reason,
                             f.revert_reason,
-                            f.trace_status,
-                            f.data,
                             f.traces_id,
                             f.trace_succeeded,
                             f.trace_address,
-                            IFF(
-                                t.tx_status = 'SUCCESS',
-                                TRUE,
-                                FALSE
-                            ) AS tx_succeeded
-
+                            {% if uses_tx_status %}
+                            t.tx_status as tx_succeeded
+                            {% else %}
+                            t.tx_succeeded
+                            {% endif %}
                             {% if arb_traces_mode %},
                             f.before_evm_transfers,
                             f.after_evm_transfers
@@ -538,7 +500,6 @@ heal_missing_data AS (
         txs.origin_function_signature,
         txs.from_address AS origin_from_address,
         txs.to_address AS origin_to_address,
-        txs.tx_status,
         t.tx_position,
         t.trace_index,
         t.from_address,
@@ -552,21 +513,17 @@ heal_missing_data AS (
         t.input,
         t.output,
         t.type,
-        t.identifier,
         t.sub_traces,
         t.error_reason,
         t.revert_reason,
-        t.trace_status,
-        t.data,
         t.fact_traces_id AS traces_id,
         t.trace_succeeded,
         t.trace_address,
-        IFF(
-            txs.tx_status = 'SUCCESS',
-            TRUE,
-            FALSE
-        ) AS tx_succeeded
-
+        {% if uses_tx_status %}
+        txs.tx_status as tx_succeeded
+        {% else %}
+        txs.tx_succeeded
+        {% endif %}
         {% if arb_traces_mode %},
         t.before_evm_transfers,
         t.after_evm_transfers
@@ -594,7 +551,6 @@ all_traces AS (
         origin_function_signature,
         origin_from_address,
         origin_to_address,
-        tx_status,
         tx_position,
         trace_index,
         from_address,
@@ -608,12 +564,9 @@ all_traces AS (
         input,
         output,
         TYPE,
-        identifier,
         sub_traces,
         error_reason,
         revert_reason,
-        trace_status,
-        DATA,
         trace_succeeded,
         trace_address,
         tx_succeeded
@@ -634,7 +587,6 @@ SELECT
     origin_function_signature,
     origin_from_address,
     origin_to_address,
-    tx_status,
     tx_position,
     trace_index,
     from_address,
@@ -648,12 +600,9 @@ SELECT
     input,
     output,
     TYPE,
-    identifier,
     sub_traces,
     error_reason,
     revert_reason,
-    trace_status,
-    DATA,
     trace_succeeded,
     trace_address,
     tx_succeeded
@@ -672,7 +621,6 @@ SELECT
     origin_function_signature,
     origin_from_address,
     origin_to_address,
-    tx_status,
     tx_position,
     trace_index,
     from_address,
@@ -686,12 +634,9 @@ SELECT
     input,
     output,
     TYPE,
-    identifier,
     sub_traces,
     error_reason,
     revert_reason,
-    trace_status,
-    DATA,
     trace_succeeded,
     trace_address,
     tx_succeeded
@@ -736,14 +681,6 @@ SELECT
     error_reason,
     revert_reason,
     tx_succeeded,
-    identifier,
-    -- remove in ideal version
-    DATA,
-    -- remove in ideal version
-    tx_status,
-    -- remove in ideal version
-    trace_status,
-    -- remove in ideal version
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash', 'trace_index']
     ) }} AS fact_traces_id,
