@@ -3,7 +3,8 @@
         full_reload_blocks,
         full_reload_mode = false,
         uses_overflow_steps = false,
-        arb_traces_mode = false
+        arb_traces_mode = false,
+        schema_name = 'silver'
     ) %}
     WITH silver_traces AS (
         SELECT
@@ -16,7 +17,9 @@
             traces_id,
             'regular' AS source
         FROM
-            {{ ref('silver__traces2') }}
+            {{ ref(
+                view_schema ~ '__traces2'
+            ) }}
             -- this needs to change eventually
         WHERE
             1 = 1
@@ -60,7 +63,9 @@ SELECT
     traces_id,
     'overflow' AS source
 FROM
-    {{ ref('silver__overflowed_traces2') }}
+    {{ ref(
+        view_schema ~ '__overflowed_traces2'
+    ) }}
 WHERE
     1 = 1
 
@@ -499,7 +504,9 @@ aggregated_errors AS (
                         {% endif %}
                         FROM
                             json_traces f
-                            LEFT OUTER JOIN {{ ref('silver__transactions') }}
+                            LEFT OUTER JOIN {{ ref(
+                                view_schema ~ '__transactions'
+                            ) }}
                             t
                             ON f.tx_position = t.position
                             AND f.block_number = t.block_number
@@ -566,7 +573,9 @@ heal_missing_data AS (
     FROM
         {{ this }}
         t
-        JOIN {{ ref('silver__transactions') }}
+        JOIN {{ ref(
+            view_schema ~ '__transactions'
+        ) }}
         txs
         ON t.tx_position = txs.position
         AND t.block_number = txs.block_number
@@ -750,7 +759,8 @@ ORDER BY
         full_reload_blocks,
         full_reload_mode = false,
         uses_overflow_steps = false,
-        arb_traces_mode = false
+        arb_traces_mode = false,
+        schema_name = 'silver'
     ) %}
     WITH silver_traces AS (
         SELECT
@@ -763,7 +773,9 @@ ORDER BY
             traces_id,
             'regular' AS source
         FROM
-            {{ ref('silver__traces') }}
+            {{ ref(
+                view_schema ~ '__traces'
+            ) }}
         WHERE
             1 = 1
 
@@ -806,7 +818,9 @@ SELECT
     traces_id,
     'overflow' AS source
 FROM
-    {{ ref('silver__overflowed_traces') }}
+    {{ ref(
+        view_schema ~ '__overflowed_traces'
+    ) }}
 WHERE
     1 = 1
 
@@ -1204,7 +1218,9 @@ aggregated_errors AS (
                         {% endif %}
                         FROM
                             json_traces f
-                            LEFT OUTER JOIN {{ ref('silver__transactions') }}
+                            LEFT OUTER JOIN {{ ref(
+                                view_schema ~ '__transactions'
+                            ) }}
                             t
                             ON f.tx_position = t.position
                             AND f.block_number = t.block_number
@@ -1263,7 +1279,9 @@ heal_missing_data AS (
     FROM
         {{ this }}
         t
-        JOIN {{ ref('silver__transactions') }}
+        JOIN {{ ref(
+            view_schema ~ '__transactions'
+        ) }}
         txs
         ON t.tx_position = txs.position
         AND t.block_number = txs.block_number
