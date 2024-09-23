@@ -3,7 +3,8 @@
         full_reload_blocks,
         full_reload_mode = false,
         arb_traces_mode = false,
-        use_partition_key = false
+        use_partition_key = false,
+        schema_name = 'bronze'
     ) %}
     WITH bronze_traces AS (
         SELECT
@@ -20,7 +21,9 @@
         FROM
 
 {% if is_incremental() and not full_reload_mode %}
-{{ ref('bronze__streamline_traces') }}
+{{ ref(
+    view_schema ~ '__streamline_traces'
+) }}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -33,7 +36,9 @@ WHERE
     {% endif %}
 
     {% elif is_incremental() and full_reload_mode %}
-    {{ ref('bronze__streamline_fr_traces') }}
+    {{ ref(
+        view_schema ~ '__streamline_fr_traces'
+    ) }}
 WHERE
     {% if use_partition_key %}
         partition_key BETWEEN (
@@ -67,7 +72,9 @@ WHERE
         AND block_number > 22207817
     {% endif %}
 {% else %}
-    {{ ref('bronze__streamline_fr_traces') }}
+    {{ ref(
+        view_schema ~ '__streamline_fr_traces'
+    ) }}
 WHERE
     {% if use_partition_key %}
         partition_key <= {{ full_reload_start_block }}
