@@ -20,7 +20,6 @@
             {{ ref(
                 schema_name ~ '__traces2'
             ) }}
-            -- this needs to change eventually
         WHERE
             1 = 1
 
@@ -63,9 +62,16 @@ SELECT
     traces_id,
     'overflow' AS source
 FROM
-    {{ ref(
-        schema_name ~ '__overflowed_traces2'
-    ) }}
+
+    {% if v2 %}
+            {{ ref(
+                schema_name ~ '__overflowed_traces2'
+            ) }}
+    {% else %}
+            {{ ref(
+                schema_name ~ '__overflowed_traces'
+            ) }}
+    {% endif %}
 WHERE
     1 = 1
 
