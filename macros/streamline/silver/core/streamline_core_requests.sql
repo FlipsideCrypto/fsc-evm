@@ -70,9 +70,9 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
         block_number IS NOT NULL
+        {% if not new_build %}
         AND block_number
         {% if model_type == 'realtime' %}>={% elif model_type == 'history' %}<={% endif %}
-        {% if not new_build %}
             (SELECT block_number FROM last_3_days)
         {% endif %}
         {% if model == 'confirmed_blocks' and not new_build %}
