@@ -87,12 +87,8 @@ to_do AS (
         {% if model == 'blocks_transactions' %}
             {{ ref("streamline__complete_blocks") }} b
             INNER JOIN {{ ref("streamline__complete_transactions") }} t USING(block_number)
-        {% elif model == 'receipts' %}
-            {{ ref("streamline__complete_receipts") }}
-        {% elif model == 'traces' %}
-            {{ ref("streamline__complete_traces") }}
-        {% elif model == 'confirmed_blocks' %}
-            {{ ref("streamline__complete_confirmed_blocks") }}
+        {% else %}
+            {{ ref('streamline__complete_' ~ model) }}
         {% endif %}
     WHERE 1=1
         {% if not new_build %}
