@@ -45,7 +45,8 @@ SELECT
     vault_secret_path,
     query_limit,
     api_url='{service}/{Authentication}',
-    order_by_clause='ORDER BY partition_key ASC'
+    order_by_clause='ORDER BY partition_key ASC',
+    uses_retry = true
 ) %}
 
 WITH last_3_days AS (
@@ -149,6 +150,7 @@ to_do AS (
         block_number
     FROM
         to_do
+    {% if uses_retry %}
     UNION
     SELECT
         block_number
@@ -180,6 +182,7 @@ to_do AS (
         {{ ref("_missing_traces") }}
     {% endif %}
     )
+    {% endif %}
 )
 {% endif %}
 SELECT
