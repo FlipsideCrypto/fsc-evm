@@ -46,10 +46,14 @@ SELECT
     query_limit,
     api_url='{service}/{Authentication}',
     order_by_clause='ORDER BY partition_key ASC',
-    uses_retry = true
+    new_build = false
 ) %}
 
-WITH last_3_days AS (
+WITH 
+
+{% if not new_build %}
+
+last_3_days AS (
     SELECT
         block_number
     FROM
@@ -67,6 +71,7 @@ look_back AS (
         ) = 6
 ),
 {% endif %}
+{% endif %}
 to_do AS (
     SELECT
         block_number
@@ -80,19 +85,23 @@ to_do AS (
         {% elif model_type == 'history' %}
         <= 
         {% endif %}
+        {% if not new_build %}
         (
                 SELECT
                     block_number
                 FROM
                     last_3_days
             )
+        {% endif %}
         {% if model == 'confirmed_blocks' %}
+        {% if not new_build %}
         AND block_number <= (
             SELECT
                 block_number
             FROM
                 look_back
         )
+        {% endif %}
     {% endif %}
     EXCEPT
     SELECT
@@ -111,7 +120,9 @@ to_do AS (
         {{ ref("streamline__complete_confirmed_blocks") }}
     {% endif %}
     WHERE
-        block_number
+        1=1
+        {% if not new_build %}
+        and block_number
         {% if model_type == 'realtime' %}
         >= 
         {% elif model_type == 'history' %}
@@ -123,14 +134,17 @@ to_do AS (
             FROM
                 last_3_days
         )
+    {% endif %}
     {% if model == 'confirmed_blocks' %}
         AND block_number IS NOT NULL
+        {% if not new_build %}
         AND block_number <= (
             SELECT
                 block_number
             FROM
                 look_back
         )
+        {% endif %}
         AND _inserted_timestamp >= DATEADD(
             'day',
             -4,
@@ -143,6 +157,7 @@ to_do AS (
                 last_3_days
         )
     {% endif %}
+    {% endif %}
 )
 {% if model != 'confirmed_blocks' %}
 ,ready_blocks AS (
@@ -150,7 +165,7 @@ to_do AS (
         block_number
     FROM
         to_do
-    {% if uses_retry %}
+    {% if not new_build %}
     UNION
     SELECT
         block_number
