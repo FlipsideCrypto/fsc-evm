@@ -19,7 +19,7 @@ FROM
         'silver__number_sequence'
     ) }}
 WHERE
-    _id <= (
+    _id BETWEEN {{ min_block }} AND (
         SELECT
             COALESCE(
                 block_number,
@@ -28,7 +28,6 @@ WHERE
         FROM
             {{ ref("streamline__get_chainhead") }}
     )
-    and _id >= {{ min_block }}
 ORDER BY
     _id ASC
 {% endmacro %}
