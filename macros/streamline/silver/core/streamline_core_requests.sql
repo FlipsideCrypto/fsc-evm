@@ -1,7 +1,7 @@
 {% macro streamline_core_chainhead(
     quantum_state,
     vault_secret_path,
-    api_url='{service}/{Authentication}'
+    api_url='{Service}/{Authentication}'
 ) %}
 SELECT
     live.udf_api(
@@ -44,7 +44,7 @@ SELECT
     quantum_state,
     vault_secret_path,
     query_limit,
-    api_url='{service}/{Authentication}',
+    api_url='{Service}/{Authentication}',
     order_by_clause='ORDER BY partition_key ASC',
     new_build=false,
     testing_limit=none
