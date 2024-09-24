@@ -37,7 +37,6 @@ SELECT
         resp :data :result :: STRING
     ) AS block_number
 {% endmacro %}
-
 {% macro streamline_core_requests(
     model_type,
     model,
@@ -46,7 +45,8 @@ SELECT
     query_limit,
     api_url='{service}/{Authentication}',
     order_by_clause='ORDER BY partition_key ASC',
-    new_build = false
+    new_build=false,
+    testing_limit=none
 ) %}
 
 WITH 
@@ -72,7 +72,7 @@ to_do AS (
         block_number IS NOT NULL
         {% if not new_build %}
         AND block_number
-        {% if model_type == 'realtime' %}>={% elif model_type == 'history' %}<={% endif %}
+            {% if model_type == 'realtime' %}>={% elif model_type == 'history' %}<={% endif %}
             (SELECT block_number FROM last_3_days)
         {% endif %}
         {% if model == 'confirmed_blocks' and not new_build %}
@@ -136,6 +136,9 @@ to_do AS (
                 {% endif %}
             )
         {% endif %}
+        {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }}
+        {% endif %}
     )
 {% endif %}
 
@@ -181,7 +184,7 @@ FROM
     {% endif %}
 {{ order_by_clause }}
 {% if query_limit %}
-    LIMIT {{ query_limit }} 
+LIMIT {{ query_limit }} 
 {% endif %}
 
 {% endmacro %}
