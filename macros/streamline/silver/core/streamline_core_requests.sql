@@ -37,6 +37,7 @@ SELECT
         resp :data :result :: STRING
     ) AS block_number
 {% endmacro %}
+
 {% macro streamline_core_requests(
     model_type,
     model,

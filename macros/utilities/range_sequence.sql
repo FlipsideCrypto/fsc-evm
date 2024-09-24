@@ -10,7 +10,7 @@ FROM
     TABLE(GENERATOR(rowcount => {{ max_num }}))
 {% endmacro %}
 
-{% macro block_sequence() %}
+{% macro block_sequence(min_block=0) %}
 SELECT
     _id AS block_number,
     utils.udf_int_to_hex(_id) AS block_number_hex
@@ -28,6 +28,7 @@ WHERE
         FROM
             {{ ref("streamline__get_chainhead") }}
     )
+    and _id >= {{ min_block }}
 ORDER BY
     _id ASC
 {% endmacro %}
