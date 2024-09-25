@@ -10,7 +10,11 @@
     WITH silver_traces AS (
         SELECT
             block_number,
-            tx_position,
+            {% if sei_traces_mode %}
+                tx_hash,
+            {% else %}
+                tx_position,
+            {% endif %}
             trace_address,
             parent_trace_address,
             trace_address_array,
@@ -55,7 +59,11 @@ AND (
 UNION ALL
 SELECT
     block_number,
-    tx_position,
+    {% if sei_traces_mode %}
+        tx_hash,
+    {% else %}
+        tx_position,
+    {% endif %}
     trace_address,
     parent_trace_address,
     trace_address_array,
@@ -148,27 +156,43 @@ AND modified_timestamp > (
 sub_traces AS (
     SELECT
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         parent_trace_address,
         COUNT(*) AS sub_traces
     FROM
         silver_traces
     GROUP BY
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         parent_trace_address
 ),
 trace_index_array AS (
     SELECT
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         trace_address,
         ARRAY_AGG(flat_value) AS number_array
     FROM
         (
             SELECT
                 block_number,
-                tx_position,
+                {% if sei_traces_mode %}
+                    tx_hash,
+                {% else %}
+                    tx_position,
+                {% endif %}
                 trace_address,
                 IFF(
                     VALUE :: STRING = 'ORIGIN',
@@ -183,13 +207,21 @@ trace_index_array AS (
         )
     GROUP BY
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         trace_address
 ),
 trace_index_sub_traces AS (
     SELECT
         b.block_number,
-        b.tx_position,
+        {% if sei_traces_mode %}
+            b.tx_hash,
+        {% else %}
+            b.tx_position,
+        {% endif %}
         b.trace_address,
         IFNULL(
             sub_traces,
@@ -198,7 +230,11 @@ trace_index_sub_traces AS (
         number_array,
         ROW_NUMBER() over (
             PARTITION BY b.block_number,
-            b.tx_position
+            {% if sei_traces_mode %}
+                b.tx_hash,
+            {% else %}
+                b.tx_position,
+            {% endif %}
             ORDER BY
                 number_array ASC
         ) - 1 AS trace_index,
@@ -209,17 +245,29 @@ trace_index_sub_traces AS (
         silver_traces b
         LEFT JOIN sub_traces s
         ON b.block_number = s.block_number
-        AND b.tx_position = s.tx_position
+        {% if sei_traces_mode %}
+            AND b.tx_hash = s.tx_hash
+        {% else %}
+            AND b.tx_position = s.tx_position
+        {% endif %}
         AND b.trace_address = s.parent_trace_address
         JOIN trace_index_array n
         ON b.block_number = n.block_number
-        AND b.tx_position = n.tx_position
+        {% if sei_traces_mode %}
+            AND b.tx_hash = n.tx_hash
+        {% else %}
+            AND b.tx_position = n.tx_position
+        {% endif %}
         AND b.trace_address = n.trace_address
 ),
 errored_traces AS (
     SELECT
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         trace_address,
         trace_json
     FROM
@@ -230,7 +278,11 @@ errored_traces AS (
 error_logic AS (
     SELECT
         b0.block_number,
-        b0.tx_position,
+        {% if sei_traces_mode %}
+            b0.tx_hash,
+        {% else %}
+            b0.tx_position,
+        {% endif %}
         b0.trace_address,
         b0.trace_json :error :: STRING AS error,
         b1.trace_json :error :: STRING AS any_error,
@@ -239,20 +291,32 @@ error_logic AS (
         trace_index_sub_traces b0
         LEFT JOIN errored_traces b1
         ON b0.block_number = b1.block_number
-        AND b0.tx_position = b1.tx_position
+        {% if sei_traces_mode %}
+            AND b0.tx_hash = b1.tx_hash
+        {% else %}
+            AND b0.tx_position = b1.tx_position
+        {% endif %}
         AND b0.trace_address LIKE CONCAT(
             b1.trace_address,
             '_%'
         )
         LEFT JOIN errored_traces b2
         ON b0.block_number = b2.block_number
-        AND b0.tx_position = b2.tx_position
+        {% if sei_traces_mode %}
+            AND b0.tx_hash = b2.tx_hash
+        {% else %}
+            AND b0.tx_position = b2.tx_position
+        {% endif %}
         AND b2.trace_address = 'ORIGIN'
 ),
 aggregated_errors AS (
     SELECT
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         trace_address,
         error,
         IFF(MAX(any_error) IS NULL
@@ -262,7 +326,11 @@ aggregated_errors AS (
         error_logic
     GROUP BY
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         trace_address,
         error,
         origin_error),
@@ -270,7 +338,11 @@ aggregated_errors AS (
             (
                 SELECT
                     block_number,
-                    tx_position,
+                    {% if sei_traces_mode %}
+                        tx_hash,
+                    {% else %}
+                        tx_position,
+                    {% endif %}
                     trace_address,
                     sub_traces,
                     number_array,
@@ -320,7 +392,11 @@ aggregated_errors AS (
                     trace_index_sub_traces
                     JOIN aggregated_errors USING (
                         block_number,
-                        tx_position,
+                        {% if sei_traces_mode %}
+                            tx_hash,
+                        {% else %}
+                            tx_position,
+                        {% endif %}
                         trace_address
                     )
                 {% else %}
@@ -466,13 +542,21 @@ aggregated_errors AS (
                     incremental_traces AS (
                         SELECT
                             f.block_number,
-                            t.tx_hash,
+                            {% if sei_traces_mode %}
+                                f.tx_hash,
+                            {% else %}
+                                t.tx_hash,
+                            {% endif %}
                             t.block_timestamp,
                             t.origin_function_signature,
                             t.from_address AS origin_from_address,
                             t.to_address AS origin_to_address,
                             t.tx_status,
+                            {% if sei_traces_mode %}
+                                t.position AS tx_position,
+                            {% else %}
                             f.tx_position,
+                            {% endif %}
                             f.trace_index,
                             f.from_address AS from_address,
                             f.to_address AS to_address,
@@ -510,7 +594,11 @@ aggregated_errors AS (
                                 schema_name ~ '__transactions'
                             ) }}
                             t
-                            ON f.tx_position = t.position
+                            {% if sei_traces_mode %}
+                                ON f.tx_hash = t.tx_hash
+                            {% else %}
+                                ON f.tx_position = t.position
+                            {% endif %}
                             AND f.block_number = t.block_number
 
 {% if is_incremental() and not full_reload_mode %}
@@ -534,13 +622,21 @@ overflow_blocks AS (
 heal_missing_data AS (
     SELECT
         t.block_number,
-        txs.tx_hash,
+        {% if sei_traces_mode %}
+            t.tx_hash,
+        {% else %}
+            txs.tx_hash,
+        {% endif %}
         txs.block_timestamp,
         txs.origin_function_signature,
         txs.from_address AS origin_from_address,
         txs.to_address AS origin_to_address,
         txs.tx_status,
-        t.tx_position,
+        {% if sei_traces_mode %}
+            txs.position AS tx_position,
+        {% else %}
+            t.tx_position,
+        {% endif %}
         t.trace_index,
         t.from_address,
         t.to_address,
@@ -579,10 +675,18 @@ heal_missing_data AS (
             schema_name ~ '__transactions'
         ) }}
         txs
-        ON t.tx_position = txs.position
+        {% if sei_traces_mode %}
+            ON t.tx_hash = txs.tx_hash
+        {% else %}
+            ON t.tx_position = txs.position
+        {% endif %}
         AND t.block_number = txs.block_number
     WHERE
-        t.tx_hash IS NULL
+        {% if sei_traces_mode %}
+            t.tx_position IS NULL
+        {% else %}
+            t.tx_hash IS NULL
+        {% endif %}
         OR t.block_timestamp IS NULL
         OR t.tx_status IS NULL
 )
@@ -751,7 +855,7 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number, tx_position, trace_index
+    all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number, {% if sei_traces_mode %}tx_hash, {% else %}tx_position, {% endif %}trace_index
 ORDER BY
     modified_timestamp DESC, block_timestamp DESC nulls last)) = 1
 {% endmacro %}
