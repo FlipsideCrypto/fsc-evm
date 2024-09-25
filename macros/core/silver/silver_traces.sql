@@ -3,6 +3,7 @@
         full_reload_blocks,
         full_reload_mode = false,
         arb_traces_mode = false,
+        sei_traces_mode = false,
         use_partition_key = false,
         schema_name = 'bronze'
     ) %}
@@ -17,6 +18,9 @@
 
             VALUE :array_index :: INT AS tx_position,
             DATA :result AS full_traces,
+            {% if sei_traces_mode %}
+                DATA :txHash :: STRING AS tx_hash,
+            {% endif %}
             _inserted_timestamp
         FROM
 
@@ -94,7 +98,11 @@ ORDER BY
 flatten_traces AS (
     SELECT
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         partition_key,
         IFF(
             path IN (
@@ -171,14 +179,22 @@ flatten_traces AS (
         {% endif %}
     GROUP BY
         block_number,
-        tx_position,
+        {% if sei_traces_mode %}
+            tx_hash,
+        {% else %}
+            tx_position,
+        {% endif %}
         partition_key,
         trace_address,
         _inserted_timestamp
 )
 SELECT
     block_number,
-    tx_position,
+    {% if sei_traces_mode %}
+        tx_hash,
+    {% else %}
+        tx_position,
+    {% endif %}
     trace_address,
     parent_trace_address,
     trace_address_array,
@@ -186,7 +202,9 @@ SELECT
     partition_key,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_number', 'tx_position', 'trace_address']
+        ['block_number'] + 
+        (['tx_hash'] if sei_traces_mode else ['tx_position']) + 
+        ['trace_address']
     ) }} AS traces_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

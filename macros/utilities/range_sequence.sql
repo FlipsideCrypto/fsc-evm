@@ -10,7 +10,7 @@ FROM
     TABLE(GENERATOR(rowcount => {{ max_num }}))
 {% endmacro %}
 
-{% macro block_sequence() %}
+{% macro block_sequence(min_block=0) %}
 SELECT
     _id AS block_number,
     utils.udf_int_to_hex(_id) AS block_number_hex
@@ -19,7 +19,7 @@ FROM
         'silver__number_sequence'
     ) }}
 WHERE
-    _id <= (
+    _id BETWEEN {{ min_block }} AND (
         SELECT
             COALESCE(
                 block_number,

@@ -136,21 +136,7 @@ SELECT
     file_name,
     _inserted_timestamp
 FROM
-    {% if model == 'blocks' %}
-        {{ ref('bronze__streamline_fr_blocks_v2') }}
-
-        {% elif model == 'confirmed_blocks' %}
-        {{ ref('bronze__streamline_fr_confirmed_blocks_v2') }}
-
-        {% elif model == 'transactions' %}
-        {{ ref('bronze__streamline_fr_transactions_v2') }}
-
-        {% elif model == 'receipts' %}
-        {{ ref('bronze__streamline_fr_receipts_v2') }}
-
-        {% elif model == 'traces' %}
-        {{ ref('bronze__streamline_fr_traces_v2') }}
-    {% endif %}
+    {{ ref('bronze__streamline_fr_' ~ model ~ '_v2') }}
 UNION ALL
 SELECT
     _partition_by_block_id AS partition_key,
@@ -165,21 +151,7 @@ SELECT
     file_name,
     _inserted_timestamp
 FROM
-    {% if model == 'blocks' %}
-        {{ ref('bronze__streamline_fr_blocks_v1') }}
-
-        {% elif model == 'confirmed_blocks' %}
-        {{ ref('bronze__streamline_fr_confirmed_blocks_v1') }}
-
-        {% elif model == 'transactions' %}
-        {{ ref('bronze__streamline_fr_transactions_v1') }}
-
-        {% elif model == 'receipts' %}
-        {{ ref('bronze__streamline_fr_receipts_v1') }}
-
-        {% elif model == 'traces' %}
-        {{ ref('bronze__streamline_fr_traces_v1') }}
-    {% endif %}
+    {{ ref('bronze__streamline_fr_' ~ model ~ '_v1') }}
 {% endmacro %}
 
 {% macro streamline_external_table_query_decoder(
