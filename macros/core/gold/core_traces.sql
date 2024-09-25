@@ -4,7 +4,8 @@
         full_reload_mode = false,
         uses_overflow_steps = false,
         arb_traces_mode = false,
-        schema_name = 'silver'
+        schema_name = 'silver',
+        sei_traces_mode = false
     ) %}
     WITH silver_traces AS (
         SELECT
