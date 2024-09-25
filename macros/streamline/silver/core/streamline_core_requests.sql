@@ -76,7 +76,7 @@ to_do AS (
             {% if model_type == 'realtime' %}>={% elif model_type == 'history' %}<={% endif %}
             (SELECT block_number FROM last_3_days)
         {% endif %}
-        {% if model == 'confirmed_blocks' and not new_build %}
+        {% if model == 'confirmed_blocks' %}
             AND block_number <= (SELECT block_number FROM look_back)
         {% endif %}
 
