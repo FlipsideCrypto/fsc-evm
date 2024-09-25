@@ -1,6 +1,4 @@
-{% macro streamline_decoded_complete(
-        model
-    ) %}
+{% macro streamline_decoded_complete(model) %}
 SELECT
     block_number,
     file_name,
@@ -8,42 +6,25 @@ SELECT
         _log_id {% elif model == 'decoded_traces' %}
         _call_id
     {% endif %},
-    {{ dbt_utils.generate_surrogate_key(
-        ['id']
-    ) }} AS {% if model == 'decoded_logs' %}
-        complete_decoded_logs_id {% elif model == 'decoded_traces' %}
-        complete_decoded_traces_id
-    {% endif %},
+    {{ dbt_utils.generate_surrogate_key(['id']) }} AS complete_{{ model }}_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-
-{% if is_incremental() %}
-{% if model == 'decoded_logs' %}
-    {{ ref('bronze__streamline_decoded_logs') }}
-
-    {% elif model == 'decoded_traces' %}
-    {{ ref('bronze__streamline_decoded_traces') }}
-{% endif %}
-WHERE
-    TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
-        SELECT
-            MAX(_inserted_timestamp)
-        FROM
-            {{ this }}
-    )
-{% else %}
-    {% if model == 'decoded_logs' %}
-        {{ ref('bronze__streamline_fr_decoded_logs') }}
-
-        {% elif model == 'decoded_traces' %}
-        {{ ref('bronze__streamline_fr_decoded_traces') }}
+    {% if is_incremental() %}
+        {{ ref('bronze__streamline_' ~ model) }}
+    WHERE
+        _inserted_timestamp >= (
+            SELECT
+                COALESCE(MAX(_inserted_timestamp), '1970-01-01'::TIMESTAMP) AS _inserted_timestamp
+            FROM
+                {{ this }}
+        )
+    {% else %}
+        {{ ref('bronze__streamline_fr_' ~ model) }}
     {% endif %}
-{% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY id
-ORDER BY
-    _inserted_timestamp DESC)) = 1
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY id ORDER BY _inserted_timestamp DESC)) = 1
+
 {% endmacro %}
