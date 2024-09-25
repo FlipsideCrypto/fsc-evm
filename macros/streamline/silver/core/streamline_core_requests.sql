@@ -44,10 +44,10 @@ SELECT
     quantum_state,
     vault_secret_path,
     query_limit,
+    testing_limit,
     api_url='{Service}/{Authentication}',
     order_by_clause='ORDER BY partition_key ASC',
-    new_build=false,
-    testing_limit=none
+    new_build=false
 ) %}
 
 WITH 
@@ -133,8 +133,9 @@ to_do AS (
                 {% endif %}
             )
         {% endif %}
-        {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }}
+
+        {% if testing_limit %}
+        LIMIT {{ testing_limit }} 
         {% endif %}
     )
 {% endif %}
