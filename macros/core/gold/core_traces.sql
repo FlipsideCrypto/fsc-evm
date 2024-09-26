@@ -4,6 +4,7 @@
         full_reload_mode = false,
         uses_overflow_steps = false,
         arb_traces_mode = false,
+        kaia_traces_mode = false,
         schema_name = 'silver',
         sei_traces_mode = false,
         tx_status_bool = false
@@ -351,7 +352,14 @@ aggregated_errors AS (
                     trace_json AS DATA,
                     trace_succeeded,
                     trace_json :error :: STRING AS error_reason,
-                    trace_json :revertReason :: STRING AS revert_reason,
+                    {% if kaia_traces_mode %}
+                        coalesce(
+                            trace_json :reverted :message :: STRING,
+                            trace_json :revertReason :: STRING
+                        ) AS revert_reason,
+                    {% else %}
+                        trace_json :revertReason :: STRING AS revert_reason,
+                    {% endif %}
                     trace_json :from :: STRING AS from_address,
                     trace_json :to :: STRING AS to_address,
                     IFNULL(
