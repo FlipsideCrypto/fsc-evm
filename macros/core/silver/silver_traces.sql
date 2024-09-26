@@ -4,6 +4,7 @@
         full_reload_mode = false,
         arb_traces_mode = false,
         sei_traces_mode = false,
+        kaia_traces_mode = false,
         use_partition_key = false,
         schema_name = 'bronze'
     ) %}
@@ -128,11 +129,16 @@ flatten_traces AS (
                 'error',
                 'output',
                 'time',
-                'revertReason' {% if arb_traces_mode %},
+                'revertReason' 
+                {% if arb_traces_mode %},
                     'afterEVMTransfers',
                     'beforeEVMTransfers',
                     'result.afterEVMTransfers',
                     'result.beforeEVMTransfers'
+                {% endif %}
+                {% if kaia_traces_mode %},
+                    'reverted',
+                    'result.reverted'
                 {% endif %}
             ),
             'ORIGIN',
@@ -173,9 +179,13 @@ flatten_traces AS (
     WHERE
         f.index IS NULL
         AND f.key != 'calls'
-        AND f.path != 'result' {% if arb_traces_mode %}
+        AND f.path != 'result' 
+        {% if arb_traces_mode %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
+        {% endif %}
+        {% if kaia_traces_mode %}
+            and f.key not in ('message', 'contract')
         {% endif %}
     GROUP BY
         block_number,
