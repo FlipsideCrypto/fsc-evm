@@ -6,7 +6,7 @@
         arb_traces_mode = false,
         schema_name = 'silver',
         sei_traces_mode = false,
-        berachain_traces_mode = false
+        tx_status_bool = false
     ) %}
     WITH silver_traces AS (
         SELECT
@@ -579,7 +579,7 @@ aggregated_errors AS (
                             f.traces_id,
                             f.trace_succeeded,
                             f.trace_address,
-                            {% if berachain_traces_mode %}
+                            {% if tx_status_bool %}
                             t.tx_status AS tx_succeeded
                             {% else %}
                             IFF(
@@ -663,7 +663,7 @@ heal_missing_data AS (
         t.fact_traces_id AS traces_id,
         t.trace_succeeded,
         t.trace_address,
-        {% if berachain_traces_mode %}
+        {% if tx_status_bool %}
             txs.tx_status AS tx_succeeded
         {% else %}
         IFF(
