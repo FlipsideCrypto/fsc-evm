@@ -5,7 +5,8 @@
         uses_overflow_steps = false,
         arb_traces_mode = false,
         schema_name = 'silver',
-        sei_traces_mode = false
+        sei_traces_mode = false,
+        berachain_traces_mode = false
     ) %}
     WITH silver_traces AS (
         SELECT
@@ -578,11 +579,15 @@ aggregated_errors AS (
                             f.traces_id,
                             f.trace_succeeded,
                             f.trace_address,
+                            {% if berachain_traces_mode %}
+                            t.tx_status AS tx_succeeded
+                            {% else %}
                             IFF(
                                 t.tx_status = 'SUCCESS',
                                 TRUE,
                                 FALSE
                             ) AS tx_succeeded
+                            {% endif %}
 
                             {% if arb_traces_mode %},
                             f.before_evm_transfers,
@@ -658,12 +663,15 @@ heal_missing_data AS (
         t.fact_traces_id AS traces_id,
         t.trace_succeeded,
         t.trace_address,
+        {% if berachain_traces_mode %}
+            txs.tx_status AS tx_succeeded
+        {% else %}
         IFF(
             txs.tx_status = 'SUCCESS',
             TRUE,
             FALSE
         ) AS tx_succeeded
-
+        {% endif %}
         {% if arb_traces_mode %},
         t.before_evm_transfers,
         t.after_evm_transfers
