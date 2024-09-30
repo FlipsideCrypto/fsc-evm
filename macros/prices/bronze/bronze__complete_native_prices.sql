@@ -1,9 +1,9 @@
 {% macro bronze_complete_native_prices(
+        symbol,
         blockchain = target.database | replace(
             '_dev',
             ''
-        ),
-        symbol
+        )
     ) %}
 SELECT
     HOUR,
