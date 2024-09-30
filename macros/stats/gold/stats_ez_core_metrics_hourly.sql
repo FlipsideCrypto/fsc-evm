@@ -30,5 +30,5 @@ FROM
     LEFT JOIN {{ ref('price__ez_prices_hourly') }}
     p
     ON s.block_timestamp_hour = p.hour
-    AND p.token_address = '{{ token_address }}' --Wrapped Native Token Addressfor target blockchain
+    AND p.token_address = '{{ token_address }}' --Wrapped Native Token Address for target blockchain
 {% endmacro %}
