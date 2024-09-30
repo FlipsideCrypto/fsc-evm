@@ -1,5 +1,8 @@
 {% macro bronze_labels(
-        blockchains
+        blockchains = target.database | lower | replace(
+            '_dev',
+            ''
+        )
     ) %}
 SELECT
     system_created_at,
