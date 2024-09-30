@@ -28,6 +28,6 @@ FROM
         'complete_native_prices'
     ) }}
 WHERE
-    blockchain = {{ blockchain }}
-    AND symbol = {{ symbol }}
+    blockchain = '{{ blockchain }}'
+    AND symbol = '{{ symbol }}'
 {% endmacro %}

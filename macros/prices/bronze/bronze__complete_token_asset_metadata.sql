@@ -27,5 +27,5 @@ FROM
         'complete_token_asset_metadata'
     ) }}
 WHERE
-    blockchain = {{ blockchain }}
+    blockchain = '{{ blockchain }}'
 {% endmacro %}

@@ -21,6 +21,6 @@ FROM
         'complete_provider_asset_metadata'
     ) }}
 WHERE
-    platform = {{ platform }}
+    platform = '{{ platform }}'
     -- platforms specific to the target blockchain
 {% endmacro %}

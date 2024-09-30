@@ -30,5 +30,5 @@ FROM
         'complete_token_prices'
     ) }}
 WHERE
-    blockchain = {{ blockchain }}
+    blockchain = '{{ blockchain }}'
 {% endmacro %}
