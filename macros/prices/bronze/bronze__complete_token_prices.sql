@@ -1,7 +1,8 @@
 {% macro bronze_complete_token_prices(
         blockchain = target.database | replace(
             '_dev',
-            ''
+            '',
+            'i'
         )
     ) %}
 SELECT

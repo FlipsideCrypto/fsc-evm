@@ -2,7 +2,8 @@
         symbol,
         blockchain = target.database | replace(
             '_dev',
-            ''
+            '',
+            'i'
         )
     ) %}
 SELECT

@@ -1,7 +1,8 @@
 {% macro bronze_complete_token_asset_metadata(
         blockchain = target.database | replace(
             '_dev',
-            ''
+            '',
+            'i'
         )
     ) %}
 SELECT
