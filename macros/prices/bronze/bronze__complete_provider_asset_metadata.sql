@@ -21,6 +21,9 @@ FROM
         'complete_provider_asset_metadata'
     ) }}
 WHERE
-    platform IN ('{{ platforms | join("', '") }}')
-    -- platforms specific to the target blockchain
+    platform IN ({% if platforms is string %}
+        '{{ platforms }}'
+    {% else %}
+        {{ platforms | replace('[', '') | replace(']', '') }}
+    {% endif %}) -- platforms specific to the target blockchain
 {% endmacro %}

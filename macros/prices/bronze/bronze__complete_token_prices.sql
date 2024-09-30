@@ -1,4 +1,5 @@
 {% macro bronze_complete_token_prices(
+        token_addresses,
         blockchain = target.database | lower | replace(
             '_dev',
             ''
@@ -30,5 +31,12 @@ FROM
         'complete_token_prices'
     ) }}
 WHERE
-    blockchain = '{{ blockchain }}'
+    blockchain = '{{ blockchain }}' 
+    {% if token_addresses %}
+        AND token_address IN ({% if token_addresses is string %}
+            '{{ token_addresses }}'
+        {% else %}
+            {{ token_addresses | replace('[', '') | replace(']', '') }}
+        {% endif %})
+    {% endif %}
 {% endmacro %}

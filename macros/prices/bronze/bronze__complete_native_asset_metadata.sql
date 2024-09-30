@@ -26,5 +26,9 @@ FROM
     ) }}
 WHERE
     blockchain = '{{ blockchain }}'
-    AND symbol IN ('{{ symbols | join("', '") }}')
+    AND symbol IN ({% if symbols is string %}
+        '{{ symbols }}'
+    {% else %}
+        {{ symbols | replace('[', '') | replace(']', '') }}
+    {% endif %})
 {% endmacro %}
