@@ -1,5 +1,5 @@
 {% macro bronze_complete_native_asset_metadata(
-        symbol,
+        symbols,
         blockchain = target.database | lower | replace(
             '_dev',
             ''
@@ -26,5 +26,5 @@ FROM
     ) }}
 WHERE
     blockchain = '{{ blockchain }}'
-    AND symbol = '{{ symbol }}'
+    AND symbol IN ('{{ symbols | join("', '") }}')
 {% endmacro %}

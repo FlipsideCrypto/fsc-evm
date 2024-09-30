@@ -1,5 +1,5 @@
 {% macro bronze_complete_provider_asset_metadata(
-        platform
+        platforms
     ) %}
 SELECT
     asset_id,
@@ -21,6 +21,6 @@ FROM
         'complete_provider_asset_metadata'
     ) }}
 WHERE
-    platform = '{{ platform }}'
+    platform IN ('{{ platforms | join("', '") }}')
     -- platforms specific to the target blockchain
 {% endmacro %}
