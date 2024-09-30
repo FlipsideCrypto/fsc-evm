@@ -1,9 +1,8 @@
 {% macro bronze_complete_native_prices(
         symbol,
-        blockchain = target.database | replace(
+        blockchain = target.database | lower | replace(
             '_dev',
-            '',
-            'i'
+            ''
         )
     ) %}
 SELECT

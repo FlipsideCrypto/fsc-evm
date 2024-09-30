@@ -1,9 +1,8 @@
 {% macro bronze_complete_native_asset_metadata(
         symbol,
-        blockchain = target.database | replace(
+        blockchain = target.database | lower | replace(
             '_dev',
-            '',
-            'i'
+            ''
         )
     ) %}
 SELECT
