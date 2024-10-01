@@ -36,8 +36,11 @@
 {# Set additional configuration variables #}
 {%- set model_quantum_state = var((model ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
 {%- set testing_limit = var((model ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
-{%- set order_by_clause = var((model ~ '_' ~ model_type ~ '_order_by_clause').upper(), 'ORDER BY partition_key ASC') -%}
 {%- set new_build = var((model ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
+
+{# Set order_by_clause based on model_type #}
+{%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
+{%- set order_by_clause = var((model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
 
 {# Define model-specific RPC method and params #}
 {%- set model_configs = {
