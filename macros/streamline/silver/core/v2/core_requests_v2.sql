@@ -186,7 +186,7 @@ SELECT
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', {{ model_configs[model]['method'] }},
+            'method', '{{ model_configs[model]['method'] }}',
             'params', {{ model_configs[model]['params'] }}
         ),
         '{{ var('VAULT_SECRET_PATH') }}'
