@@ -13,7 +13,7 @@
 {%- endif -%}
 
 {# Set full refresh type based on model configuration #}
-{%- set full_refresh_type = var(('complete_' ~ model ~ '_full_refresh').upper(), false) -%}
+{%- set full_refresh_type = var(('complete_' ~ model ~ '_full_refresh').upper(), False) -%}
 
 {# Log configuration details if in execution mode #}
 {%- if execute -%}

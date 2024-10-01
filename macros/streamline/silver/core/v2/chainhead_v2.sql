@@ -1,26 +1,16 @@
-{% macro streamline_core_chainhead_v2(
-    quantum_state,
-    vault_secret_path,
-    api_url
-) %}
+
+{% macro streamline_core_chainhead_v2() %}
+
+{%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
+
 SELECT
     live.udf_api(
         'POST',
-        '{{ api_url }}',
+        '{{ var('API_URL') }}',
         OBJECT_CONSTRUCT(
-            'Content-Type',
-            'application/json'
-        {% if quantum_state == 'streamline' %}
-            ,'fsc-quantum-state',
-            'streamline'
+            'Content-Type', 'application/json',
+            'fsc-quantum-state', '{{ model_quantum_state }}'
         ),
-        {% elif quantum_state == 'livequery' %}
-            ,'fsc-quantum-state',
-            'livequery'
-        ),
-        {% else %}
-        ),
-        {% endif %}
         OBJECT_CONSTRUCT(
             'id',
             0,
@@ -31,7 +21,7 @@ SELECT
             'params',
             []
         ),
-        '{{ vault_secret_path }}'
+        '{{ var('VAULT_SECRET_PATH') }}'
     ) AS resp,
     utils.udf_hex_to_int(
         resp :data :result :: STRING
