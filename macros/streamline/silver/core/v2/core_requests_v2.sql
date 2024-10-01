@@ -16,6 +16,9 @@
     "sql_source": view_source
 } -%}
 
+{# Set sql_limit variable for use in the main query #}
+{%- set sql_limit = params['sql_limit'] -%}
+
 {# Handle exploded key if it exists by updating the params dictionary above #}
 {%- set exploded_key_var = (model ~ '_exploded_key').upper() -%}
 {%- set exploded_key_value = var(exploded_key_var, none) -%} 
@@ -44,7 +47,7 @@
     {{ log("Model: " ~ model, info=True) }}
     {{ log("Model Type: " ~ model_type, info=True) }}
     {{ log("Model Quantum State: " ~ model_quantum_state, info=True) }}
-    {{ log("Query Limit: " ~ query_limit, info=True) }}
+    {{ log("Query Limit: " ~ sql_limit, info=True) }}
     {{ log("Testing Limit: " ~ testing_limit, info=True) }}
     {{ log("Order By Clause: " ~ order_by_clause, info=True) }}
     {{ log("New Build: " ~ new_build, info=True) }}
@@ -194,6 +197,6 @@ FROM
     ready_blocks
 {{ order_by_clause }}
 
-LIMIT var((model ~ '_' ~ model_type ~ '_sql_limit').upper())
+LIMIT {{ sql_limit }}
 
 {% endmacro %}
