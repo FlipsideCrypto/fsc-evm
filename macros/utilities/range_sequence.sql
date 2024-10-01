@@ -10,7 +10,23 @@ FROM
     TABLE(GENERATOR(rowcount => {{ max_num }}))
 {% endmacro %}
 
-{% macro block_sequence(min_block=0) %}
+{% macro block_sequence() %}
+
+{%- set min_block = var('START_UP_BLOCK', 0) -%}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("Min Block: " ~ min_block, info=True) }}
+    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{{ config (
+    materialized = "view",
+    tags = ['streamline_core_complete']
+) }}
+
 SELECT
     _id AS block_number,
     utils.udf_int_to_hex(_id) AS block_number_hex
