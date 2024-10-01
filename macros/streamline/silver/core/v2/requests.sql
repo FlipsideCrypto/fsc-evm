@@ -1,5 +1,5 @@
 
-{% macro streamline_core_requests_v2() %}
+{% macro streamline_core_requests() %}
 
 {# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}

@@ -1,5 +1,5 @@
 
-{% macro streamline_core_chainhead_v2() %}
+{% macro streamline_core_chainhead() %}
 
 {%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
