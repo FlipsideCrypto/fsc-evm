@@ -49,8 +49,9 @@
     {{ log("Testing Limit: " ~ testing_limit, info=True) }}
     {{ log("Order By Clause: " ~ order_by_clause, info=True) }}
     {{ log("New Build: " ~ new_build, info=True) }}
+    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
     {{ log("", info=True) }}
-    
+
     {{ log("=== Streamline Parameters ===", info=True) }}
     {%- for key, value in params.items() %}
     {{ log(key ~ ": " ~ value, info=True) }}
