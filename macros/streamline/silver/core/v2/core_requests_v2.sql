@@ -24,11 +24,10 @@
 {%- endif -%}
 
 {# Set additional configuration variables #}
-{%- set model_quantum_state = var((model ~ '_quantum_state').upper(), 'streamline') -%}
-{%- set query_limit = var((model ~ '_query_limit').upper(), none) -%}
-{%- set testing_limit = var((model ~ '_testing_limit').upper(), none) -%}
-{%- set order_by_clause = var('ORDER_BY_CLAUSE', 'ORDER BY partition_key ASC') -%}
-{%- set new_build = var('NEW_BUILD', false) -%}
+{%- set model_quantum_state = var((model ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
+{%- set testing_limit = var((model ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
+{%- set order_by_clause = var((model ~ '_' ~ model_type ~ '_order_by_clause').upper(), 'ORDER BY partition_key ASC') -%}
+{%- set new_build = var((model ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
 
 {# Define model-specific RPC method and params #}
 {%- set model_configs = {
@@ -194,8 +193,7 @@ SELECT
 FROM
     ready_blocks
 {{ order_by_clause }}
-{% if query_limit is not none %}
-    LIMIT {{ query_limit }} 
-{% endif %}
+
+LIMIT var((model ~ '_' ~ model_type ~ '_sql_limit').upper())
 
 {% endmacro %}
