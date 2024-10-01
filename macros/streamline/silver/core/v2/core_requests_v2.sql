@@ -50,16 +50,23 @@
     {{ log("Order By Clause: " ~ order_by_clause, info=True) }}
     {{ log("New Build: " ~ new_build, info=True) }}
     {{ log("", info=True) }}
-    {{ log("=== Parameters ===", info=True) }}
+    
+    {{ log("=== Streamline Parameters ===", info=True) }}
     {%- for key, value in params.items() %}
     {{ log(key ~ ": " ~ value, info=True) }}
     {%- endfor %}
     {{ log("", info=True) }}
-    {{ log("=== Model Config ===", info=True) }}
+
+    {{ log("=== RPC Details ===", info=True) }}
     {{ log(model ~ ": {", info=True) }}
     {{ log("    method: '" ~ model_configs[model]['method'] ~ "',", info=True) }}
     {{ log("    params: '" ~ model_configs[model]['params'] ~ "'", info=True) }}
     {{ log("}", info=True) }}
+    {{ log("", info=True) }}
+
+    {{ log("=== API Details ===", info=True) }}
+    {{ log("API URL: " ~ var('API_URL'), info=True) }}
+    {{ log("Vault Secret Path: " ~ var('VAULT_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
