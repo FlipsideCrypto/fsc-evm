@@ -1,4 +1,29 @@
 {% macro silver_complete_native_prices() %}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("", info=True) }}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+    {{ log("incremental_strategy: " ~ config.get('incremental_strategy'), info=True) }}
+    {{ log("unique_key: " ~ config.get('unique_key'), info=True) }}
+    {{ log("cluster_by: " ~ config.get('cluster_by'), info=True) }}
+    {{ log("post_hook: " ~ config.get('post_hook'), info=True) }}
+    {{ log("tags: " ~ config.get('tags'), info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{# Set up dbt configuration #}
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = 'complete_native_prices_id',
+    cluster_by = ['hour::DATE'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, symbol, name),SUBSTRING(asset_id, symbol, name)",
+    tags = ['non_realtime']
+) }}
+
+{# Main query starts here #}
 SELECT
     HOUR,
     asset_id,

@@ -1,10 +1,23 @@
-{% macro bronze_complete_token_prices(
-        token_addresses,
-        blockchains = target.database | lower | replace(
-            '_dev',
-            ''
-        )
-    ) %}
+{% macro bronze_complete_token_prices() %}
+
+{# Set macro parameters #}
+{%- set token_addresses = var('PRICES_TOKEN_ADDRESSES', token_addresses) -%}
+{%- set blockchains = var('PRICES_BLOCKCHAINS', target.database | lower | replace('_dev', '') ) -%}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("", info=True) }}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{# Set up dbt configuration #}
+{{ config (
+    materialized = 'view'
+) }}
+
+{# Main query starts here #}
 SELECT
     HOUR,
     token_address,
