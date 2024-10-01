@@ -1,6 +1,28 @@
 {% macro silver_stats_core_metrics_hourly() %}
-    /* run incremental timestamp value first then use it as a static value */
-    {% if execute %}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("", info=True) }}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+    {{ log("incremental_strategy: " ~ config.get('incremental_strategy'), info=True) }}
+    {{ log("unique_key: " ~ config.get('unique_key'), info=True) }}
+    {{ log("cluster_by: " ~ config.get('cluster_by'), info=True) }}
+    {{ log("tags: " ~ config.get('tags'), info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{# Set up dbt configuration #}
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_timestamp_hour",
+    cluster_by = ['block_timestamp_hour::DATE'],
+    tags = ['curated']
+) }}
+
+{# run incremental timestamp value first then use it as a static value #}
+{% if execute %}
 
 {% if is_incremental() %}
 {% set query %}
@@ -18,6 +40,8 @@ WHERE
     {% set min_block_timestamp_hour = run_query(query).columns [0].values() [0] %}
 {% endif %}
 {% endif %}
+
+{# Main query starts here #}
 SELECT
     DATE_TRUNC(
         'hour',

@@ -1,6 +1,6 @@
 {% macro bronze_labels() %}
 
-{# Set macro parameters#}
+{# Set macro parameters #}
 {%- set blockchains = var('LABELS_BLOCKCHAINS', target.database | lower | replace('_dev','') ) -%}
 
 {# Log configuration details if in execution mode #}

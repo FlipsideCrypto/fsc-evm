@@ -1,6 +1,28 @@
-{% macro stats_ez_core_metrics_hourly(
-        token_address
-    ) %}
+{% macro stats_ez_core_metrics_hourly() %}
+
+{# Set macro parameters #}
+{%- set token_address = var('STATS_TOKEN_ADDRESS', token_address) -%}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("", info=True) }}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+    {{ log("persist_docs: " ~ config.get('persist_docs'), info=True) }}
+    {{ log("meta: " ~ config.get('meta'), info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{# Set up dbt configuration #}
+{{ config(
+    materialized = 'view',
+    persist_docs ={ "relation": true,
+    "columns": true },
+    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STATS, METRICS, CORE, HOURLY',
+    } } }
+) }}
+
+{# Main query starts here #}
 SELECT
     block_timestamp_hour,
     block_number_min,
