@@ -17,9 +17,9 @@
 } -%}
 
 {# Handle exploded key if it exists by updating the params dictionary above #}
-{%- set exploded_key_var = (model ~ '_exploded_key').upper() -%} -- creates a string with the model name and the word 'exploded_key'
-{%- set exploded_key_value = var(exploded_key_var, none) -%} -- sets the value of the exploded_key_value to the value of the exploded_key_var, if it exists
-{%- if exploded_key_value is not none -%} -- if the exploded_key_value is not none, then update the params dictionary with the exploded_key_value
+{%- set exploded_key_var = (model ~ '_exploded_key').upper() -%}
+{%- set exploded_key_value = var(exploded_key_var, none) -%} 
+{%- if exploded_key_value is not none -%}
     {%- do params.update({"exploded_key": tojson(exploded_key_value)}) -%}
 {%- endif -%}
 
@@ -56,7 +56,10 @@
     {%- endfor %}
     {{ log("", info=True) }}
     {{ log("=== Model Config ===", info=True) }}
-    {{ log(model ~ ": " ~ model_configs[model], info=True) }}
+    {{ log(model ~ ": {", info=True) }}
+    {{ log("    method: '" ~ model_configs[model]['method'] ~ "',", info=True) }}
+    {{ log("    params: '" ~ model_configs[model]['params'] ~ "'", info=True) }}
+    {{ log("}", info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
