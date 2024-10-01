@@ -4,13 +4,16 @@
 {%- set identifier_parts = this.identifier.split('__') -%}
 {%- if '__' in this.identifier -%}
     {%- set model_parts = identifier_parts[1].split('_') -%}
-    {%- set model_type = model_parts[-1] -%}
-    {%- set model = '_'.join(model_parts[:-1]) -%}
+    {%- set model_type = model_parts[0] -%}
+    {%- set model = '_'.join(model_parts[1:]) -%}
 {%- else -%}
     {%- set model_parts = this.identifier.split('_') -%}
-    {%- set model_type = model_parts[-1] -%}
-    {%- set model = '_'.join(model_parts[:-1]) -%}
+    {%- set model_type = model_parts[0] -%}
+    {%- set model = '_'.join(model_parts[1:]) -%}
 {%- endif -%}
+
+{# Set full refresh type based on model configuration #}
+{%- set full_refresh_type = var(('complete_' ~ model ~ '_full_refresh').upper(), false) -%}
 
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
@@ -21,7 +24,6 @@
     {{ log("", info=True) }}
 {%- endif -%}
 
-{#
 -- depends_on: {{ ref('bronze__streamline_' ~ model) }}
 
 {{ config (
@@ -29,6 +31,7 @@
     unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    full_refresh = full_refresh_type,
     tags = ['streamline_core_complete']
 ) }}
 
@@ -57,4 +60,3 @@ FROM
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
 
 {% endmacro %}
-#}
