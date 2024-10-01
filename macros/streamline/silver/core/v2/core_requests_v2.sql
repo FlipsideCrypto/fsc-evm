@@ -55,10 +55,8 @@
     {{ log(key ~ ": " ~ value, info=True) }}
     {%- endfor %}
     {{ log("", info=True) }}
-    {{ log("=== Model Configs ===", info=True) }}
-    {%- for key, value in model_configs.items() %}
-    {{ log(key ~ ": " ~ value, info=True) }}
-    {%- endfor %}
+    {{ log("=== Model Config ===", info=True) }}
+    {{ log(model ~ ": " ~ model_configs[model], info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
