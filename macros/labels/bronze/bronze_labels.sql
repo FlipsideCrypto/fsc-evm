@@ -1,9 +1,25 @@
-{% macro bronze_labels(
-        blockchains = target.database | lower | replace(
-            '_dev',
-            ''
-        )
-    ) %}
+{% macro bronze_labels() %}
+
+{# Set macro parameters#}
+{%- set blockchains = var('LABELS_BLOCKCHAINS', target.database | lower | replace('_dev','') ) -%}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("", info=True) }}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("materialized: " ~ config.materialized, info=True) }}
+    {{ log("", info=True) }}
+    {{ log("=== Parameters ===", info=True) }}
+    {{ log("blockchains: " ~ blockchains, info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{# Set up dbt configuration #}
+{{ config(
+    materialized = 'view'
+) }}
+
+{# Main query starts here #}
 SELECT
     system_created_at,
     insert_date,
