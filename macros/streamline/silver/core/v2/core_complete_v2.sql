@@ -20,6 +20,8 @@
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
     {{ log("Model: " ~ model, info=True) }}
+    {{ log("Model Type: Complete", info=True) }}
+    {{ log("Full Refresh Type: " ~ full_refresh_type, info=True) }}
     {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
