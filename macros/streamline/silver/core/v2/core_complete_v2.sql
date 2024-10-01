@@ -21,6 +21,7 @@
     {{ log("", info=True) }}
 {%- endif -%}
 
+{#
 -- depends_on: {{ ref('bronze__streamline_' ~ model) }}
 
 {{ config (
@@ -56,3 +57,4 @@ FROM
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
 
 {% endmacro %}
+#}
