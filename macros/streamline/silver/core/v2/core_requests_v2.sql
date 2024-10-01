@@ -1,11 +1,13 @@
 
 {% macro streamline_core_requests_v2() %}
 
+{# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}
 {%- set model = identifier_parts[1].split('_')[0] if '__' in this.identifier else this.identifier.split('_')[-2] -%}
 {%- set model_type = identifier_parts[1].split('_')[1] if '__' in this.identifier else this.identifier.split('_')[-1] -%}
 {%- set view_source = identifier_parts[1] if identifier_parts|length > 1 else this.identifier -%}
 
+{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
     "external_table": model,
     "sql_limit": var((model ~ '_' ~ model_type ~ '_sql_limit').upper()),
@@ -14,25 +16,29 @@
     "sql_source": view_source
 } -%}
 
+{# Handle exploded key if it exists by updating the params dictionary above #}
 {%- set exploded_key_var = (model ~ '_exploded_key').upper() -%} -- creates a string with the model name and the word 'exploded_key'
 {%- set exploded_key_value = var(exploded_key_var, none) -%} -- sets the value of the exploded_key_value to the value of the exploded_key_var, if it exists
 {%- if exploded_key_value is not none -%} -- if the exploded_key_value is not none, then update the params dictionary with the exploded_key_value
     {%- do params.update({"exploded_key": tojson(exploded_key_value)}) -%}
 {%- endif -%}
 
+{# Set additional configuration variables #}
 {%- set model_quantum_state = var((model ~ '_quantum_state').upper(), 'streamline') -%}
 {%- set query_limit = var((model ~ '_query_limit').upper(), none) -%}
 {%- set testing_limit = var((model ~ '_testing_limit').upper(), none) -%}
 {%- set order_by_clause = var('ORDER_BY_CLAUSE', 'ORDER BY partition_key ASC') -%}
 {%- set new_build = var('NEW_BUILD', false) -%}
 
+{# Define model-specific RPC method and params #}
 {%- set model_configs = {
     'blocks_transactions': {'method': 'eth_getBlockByNumber', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)'},
     'receipts': {'method': 'eth_getBlockReceipts', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))'},
-    'traces': {'method': 'debug_traceBlockByNumber', 'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '30s'))"},
+    'traces': {'method': 'debug_traceBlockByNumber', 'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))"},
     'confirmed_blocks': {'method': 'eth_getBlockByNumber', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'}
 } -%}
 
+{# Log configuration details if in execution mode #}
 {%- if execute -%}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
@@ -56,6 +62,7 @@
     {{ log("", info=True) }}
 {%- endif -%}
 
+{# Set up dbt configuration #}
 {{ config (
     materialized = "view",
     post_hook = fsc_utils.if_data_call_function_v2(
@@ -66,6 +73,7 @@
     tags = ['streamline_core_' ~ model_type]
 ) }}
 
+{# Main query starts here #}
 WITH 
 {% if not new_build %}
     last_3_days AS (
@@ -74,6 +82,7 @@ WITH
     ),
 
     {% if model == 'confirmed_blocks' %}
+    {# For confirmed blocks, we want to exclude the last few hours of blocks to avoid any potential issues with reorgs #}
         look_back AS (
             SELECT block_number
             FROM {{ ref("_max_block_by_hour") }}
@@ -82,6 +91,7 @@ WITH
     {% endif %}
 {% endif %}
 
+{# Identify blocks that need processing #}
 to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
@@ -98,6 +108,7 @@ to_do AS (
 
     EXCEPT
 
+    {# Exclude blocks that have already been processed #}
     SELECT block_number
     FROM
         {% if model == 'blocks_transactions' %}
@@ -120,6 +131,7 @@ to_do AS (
         {% endif %}
 )
 
+{# Prepare the final list of blocks to process #}
 ,ready_blocks AS (
     SELECT block_number
     FROM to_do
@@ -151,6 +163,7 @@ to_do AS (
     {% endif %}
 )
 
+{# Generate API requests for each block #}
 SELECT
     block_number,
     ROUND(block_number, -3) AS partition_key,
