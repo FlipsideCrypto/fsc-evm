@@ -3,8 +3,15 @@
 
 {# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}
-{%- set model = identifier_parts[1].split('_')[0] if '__' in this.identifier else this.identifier.split('_')[-2] -%}
-{%- set model_type = identifier_parts[1].split('_')[1] if '__' in this.identifier else this.identifier.split('_')[-1] -%}
+{%- if '__' in this.identifier -%}
+    {%- set model_parts = identifier_parts[1].split('_') -%}
+    {%- set model_type = model_parts[-1] -%}
+    {%- set model = '_'.join(model_parts[:-1]) -%}
+{%- else -%}
+    {%- set model_parts = this.identifier.split('_') -%}
+    {%- set model_type = model_parts[-1] -%}
+    {%- set model = '_'.join(model_parts[:-1]) -%}
+{%- endif -%}
 {%- set view_source = identifier_parts[1] if identifier_parts|length > 1 else this.identifier -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
