@@ -4,13 +4,13 @@
 {%- if execute -%}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("materialized: " ~ config.materialized, info=True) }}
-    {{ log("unique_key: " ~ config.unique_key, info=True) }}
-    {{ log("incremental_strategy: " ~ config.incremental_strategy, info=True) }}
-    {{ log("merge_exclude_columns: " ~ config.merge_exclude_columns, info=True) }}
-    {{ log("cluster_by: " ~ config.cluster_by, info=True) }}
-    {{ log("post_hook: " ~ config.post_hook, info=True) }}
-    {{ log("tags: " ~ config.tags, info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+    {{ log("unique_key: " ~ config.get('unique_key'), info=True) }}
+    {{ log("incremental_strategy: " ~ config.get('incremental_strategy'), info=True) }}
+    {{ log("merge_exclude_columns: " ~ config.get('merge_exclude_columns'), info=True) }}
+    {{ log("cluster_by: " ~ config.get('cluster_by'), info=True) }}
+    {{ log("post_hook: " ~ config.get('post_hook'), info=True) }}
+    {{ log("tags: " ~ config.get('tags'), info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 

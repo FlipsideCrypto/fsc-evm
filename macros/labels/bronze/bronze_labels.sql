@@ -7,7 +7,7 @@
 {%- if execute -%}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("materialized: " ~ config.materialized, info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
     {{ log("", info=True) }}
     {{ log("=== Parameters ===", info=True) }}
     {{ log("blockchains: " ~ blockchains, info=True) }}

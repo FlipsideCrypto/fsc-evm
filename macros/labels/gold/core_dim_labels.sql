@@ -4,8 +4,8 @@
 {%- if execute -%}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("materialized: " ~ config.materialized, info=True) }}
-    {{ log("persist_docs: " ~ config.persist_docs, info=True) }}
+    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+    {{ log("persist_docs: " ~ config.get('persist_docs'), info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
