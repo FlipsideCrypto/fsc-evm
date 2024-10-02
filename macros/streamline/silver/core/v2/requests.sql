@@ -4,43 +4,66 @@
 {# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}
 {%- if '__' in this.identifier -%}
-    {%- set model_parts = identifier_parts[1].split('_') -%}
-    {%- set model_type = model_parts[-1] -%}
-    {%- set model = '_'.join(model_parts[:-1]) -%}
+    {%- set model = identifier_parts[1] -%}
 {%- else -%}
-    {%- set model_parts = this.identifier.split('_') -%}
-    {%- set model_type = model_parts[-1] -%}
-    {%- set model = '_'.join(model_parts[:-1]) -%}
+    {%- set model = this.identifier -%}
 {%- endif -%}
+
+{# Get the default suffixes from project variables #}
+{% set default_suffixes = var('REQUEST_MODEL_SUFFIXES', ['_history', '_realtime']) %}
+
+{# Dynamically get the trim suffix for this specific model #}
+{% set trim_suffix = var((model ~ '_trim_suffix').upper(), '') %}
+
+{# If no specific trim suffix is set, find the first matching default suffix #}
+{% if not trim_suffix %}
+    {% for suffix in default_suffixes %}
+        {% if model.endswith(suffix) %}
+            {% set trim_suffix = suffix %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{# Trim model name logic and extract model_type #}
+{%- if trim_suffix and model.endswith(trim_suffix) -%}
+    {%- set trimmed_model = model[:model.rfind(trim_suffix)] -%}
+    {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
+{%- else -%}
+    {%- set trimmed_model = model -%}
+    {%- set model_type = '' -%}
+{%- endif -%}
+
+
 {%- set view_source = identifier_parts[1] if identifier_parts|length > 1 else this.identifier -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
-    "external_table": model,
-    "sql_limit": var((model ~ '_' ~ model_type ~ '_sql_limit').upper()),
-    "producer_batch_size": var((model ~ '_' ~ model_type ~ '_producer_batch_size').upper()),
-    "worker_batch_size": var((model ~ '_' ~ model_type ~ '_worker_batch_size').upper()),
-    "sql_source": view_source
+    "external_table": trimmed_model,
+    "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper()),
+    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper()),
+    "worker_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper()),
+    "sql_source": trimmed_model
 } -%}
 
 {# Set sql_limit variable for use in the main query #}
 {%- set sql_limit = params['sql_limit'] -%}
 
 {# Handle exploded key if it exists by updating the params dictionary above #}
-{%- set exploded_key_var = (model ~ '_exploded_key').upper() -%}
+{%- set exploded_key_var = (trimmed_model ~ '_exploded_key').upper() -%}
 {%- set exploded_key_value = var(exploded_key_var, none) -%} 
 {%- if exploded_key_value is not none -%}
     {%- do params.update({"exploded_key": tojson(exploded_key_value)}) -%}
 {%- endif -%}
 
 {# Set additional configuration variables #}
-{%- set model_quantum_state = var((model ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
-{%- set testing_limit = var((model ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
-{%- set new_build = var((model ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
+{%- set model_quantum_state = var((trimmed_model ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
+{%- set testing_limit = var((trimmed_model ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
+{%- set new_build = var((trimmed_model ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
 
 {# Set order_by_clause based on model_type #}
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
-{%- set order_by_clause = var((model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
+{%- set order_by_clause = var((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
 
 {# Define model-specific RPC method and params #}
 {%- set model_configs = {
@@ -54,7 +77,9 @@
 {%- if execute -%}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("Model: " ~ model, info=True) }}
+    {{ log("Original Model: " ~ model, info=True) }}
+    {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
+    {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
     {{ log("Model Type: " ~ model_type, info=True) }}
     {{ log("Model Quantum State: " ~ model_quantum_state, info=True) }}
     {{ log("Query Limit: " ~ sql_limit, info=True) }}
@@ -71,9 +96,9 @@
     {{ log("", info=True) }}
 
     {{ log("=== RPC Details ===", info=True) }}
-    {{ log(model ~ ": {", info=True) }}
-    {{ log("    method: '" ~ model_configs[model]['method'] ~ "',", info=True) }}
-    {{ log("    params: '" ~ model_configs[model]['params'] ~ "'", info=True) }}
+    {{ log(trimmed_model ~ ": {", info=True) }}
+    {{ log("    method: '" ~ model_configs[trimmed_model]['method'] ~ "',", info=True) }}
+    {{ log("    params: '" ~ model_configs[trimmed_model]['params'] ~ "'", info=True) }}
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
@@ -102,7 +127,7 @@ WITH
         FROM {{ ref("_block_lookback") }}
     ),
 
-    {% if model == 'confirmed_blocks' %}
+    {% if trimmed_model == 'confirmed_blocks' %}
     {# For confirmed blocks, we want to exclude the last few hours of blocks to avoid any potential issues with reorgs #}
         look_back AS (
             SELECT block_number
@@ -123,7 +148,7 @@ to_do AS (
             {% if model_type == 'realtime' %}>={% elif model_type == 'history' %}<={% endif %}
             (SELECT block_number FROM last_3_days)
         {% endif %}
-        {% if model == 'confirmed_blocks' %}
+        {% if trimmed_model == 'confirmed_blocks' %}
             AND block_number <= (SELECT block_number FROM look_back)
         {% endif %}
 
@@ -132,18 +157,18 @@ to_do AS (
     {# Exclude blocks that have already been processed #}
     SELECT block_number
     FROM
-        {% if model == 'blocks_transactions' %}
+        {% if trimmed_model == 'blocks_transactions' %}
             {{ ref("streamline__blocks_complete") }} b
             INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
         {% else %}
-            {{ ref('streamline__' ~ model ~ '_complete') }}
+            {{ ref('streamline__' ~ trimmed_model ~ '_complete') }}
         {% endif %}
     WHERE 1=1
         {% if not new_build %}
             AND block_number
             {% if model_type == 'realtime' %}>={% elif model_type == 'history' %}<={% endif %}
             (SELECT block_number FROM last_3_days)
-            {% if model == 'confirmed_blocks' %}
+            {% if trimmed_model == 'confirmed_blocks' %}
                 AND block_number IS NOT NULL
                 AND block_number <= (SELECT block_number FROM look_back)
                 AND _inserted_timestamp >= DATEADD('day', -4, SYSDATE())
@@ -157,22 +182,22 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
-    {% if not new_build and model != 'confirmed_blocks' %}
+    {% if not new_build and trimmed_model != 'confirmed_blocks' %}
         UNION
         SELECT block_number
         FROM {{ ref("_unconfirmed_blocks") }}
 
-        {% if model in ['blocks_transactions', 'receipts'] %}
+        {% if trimmed_model in ['blocks_transactions', 'receipts'] %}
             UNION
             SELECT block_number
             FROM {{ ref("_missing_txs") }}
         {% endif %}
 
-        {% if model == 'receipts' %}
+        {% if trimmed_model == 'receipts' %}
             UNION
             SELECT block_number
             FROM {{ ref("_missing_receipts") }}
-        {% elif model == 'traces' %}
+        {% elif trimmed_model == 'traces' %}
             UNION
             SELECT block_number
             FROM {{ ref("_missing_traces") }}
@@ -198,8 +223,8 @@ SELECT
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ model_configs[model]['method'] }}',
-            'params', {{ model_configs[model]['params'] }}
+            'method', '{{ model_configs[trimmed_model]['method'] }}',
+            'params', {{ model_configs[trimmed_model]['params'] }}
         ),
         '{{ var('VAULT_SECRET_PATH') }}'
     ) AS request
