@@ -86,18 +86,7 @@
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
 {#
-
--- match key / value to the vars
--- update order to match below
-
-1. name output
-2. variable section
-3. rpc details
-4. api details
-5. dbt config
-
-...model...
-- only log in compile mode or runs in dev
+    only log in compile mode or runs in dev
 #}
 
 {# Log configuration details if in execution mode #}
@@ -113,11 +102,11 @@
 
     {{ log("=== Current Variable Settings ===", info=True) }}
 
-    {{ log("model_quantum_state: " ~ model_quantum_state, info=True) }}
-    {{ log("sql_limit: " ~ sql_limit, info=True) }}
-    {{ log("testing_limit: " ~ testing_limit, info=True) }}
-    {{ log("order_by_clause: " ~ order_by_clause, info=True) }}
-    {{ log("new_build: " ~ new_build, info=True) }}
+    {{ log(trimmed_model ~ '_' ~ model_type ~ '_model_quantum_state: ' ~ model_quantum_state, info=True) }}
+    {{ log(trimmed_model ~ '_' ~ model_type ~ '_sql_limit: ' ~ sql_limit, info=True) }}
+    {{ log(trimmed_model ~ '_' ~ model_type ~ '_testing_limit: ' ~ testing_limit, info=True) }}
+    {{ log(trimmed_model ~ '_' ~ model_type ~ '_order_by_clause: ' ~ order_by_clause, info=True) }}
+    {{ log(trimmed_model ~ '_' ~ model_type ~ '_new_build: ' ~ new_build, info=True) }}
     {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
         {{ log("uses_receipts_by_hash: " ~ uses_receipts_by_hash, info=True) }}
     {% endif %}
