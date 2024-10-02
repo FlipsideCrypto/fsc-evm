@@ -11,11 +11,13 @@
 {# Dynamically get the trim suffix for this specific model #}
 {%- set trim_suffix = var(model ~ '_trim_suffix', '') -%}
 
-{# Trim model name logic #}
+{# Trim model name logic and extract model_type #}
 {%- if trim_suffix and model.endswith(trim_suffix) -%}
     {%- set trimmed_model = model[:-trim_suffix|length] -%}
+    {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
 {%- else -%}
     {%- set trimmed_model = model -%}
+    {%- set model_type = 'incremental' -%}
 {%- endif -%}
 
 {# Set parameters using project variables #}
@@ -31,6 +33,7 @@
     {{ log("Original Model: " ~ model, info=True) }}
     {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
     {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
+    {{ log("Model Type: " ~ model_type, info=True) }}
     {{ log("Partition Function: " ~ partition_function, info=True) }}
     {{ log("Balances: " ~ balances, info=True) }}
     {{ log("Block Number: " ~ block_number, info=True) }}

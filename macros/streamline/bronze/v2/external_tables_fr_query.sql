@@ -3,13 +3,21 @@
 {# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}
 {%- if '__' in this.identifier -%}
-    {%- set model_parts = identifier_parts[1].split('_') -%}
-    {%- set model_type = model_parts[-1] -%}
-    {%- set model = '_'.join(model_parts[:-1]) -%}
+    {%- set model = identifier_parts[1] -%}
 {%- else -%}
-    {%- set model_parts = this.identifier.split('_') -%}
-    {%- set model_type = model_parts[-1] -%}
-    {%- set model = '_'.join(model_parts[:-1]) -%}
+    {%- set model = this.identifier -%}
+{%- endif -%}
+
+{# Dynamically get the trim suffix for this specific model #}
+{%- set trim_suffix = var(model ~ '_trim_suffix', '_fr') -%}
+
+{# Trim model name logic and extract model_type #}
+{%- if trim_suffix and model.endswith(trim_suffix) -%}
+    {%- set trimmed_model = model[:-trim_suffix|length] -%}
+    {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
+{%- else -%}
+    {%- set trimmed_model = model -%}
+    {%- set model_type = '' -%}
 {%- endif -%}
 
 {# Set parameters using project variables #}
@@ -24,7 +32,9 @@
 {% if execute %}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("Model: " ~ model, info=True) }}
+    {{ log("Original Model: " ~ model, info=True) }}
+    {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
+    {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
     {{ log("Model Type: " ~ model_type, info=True) }}
     {{ log("Partition Function: " ~ partition_function, info=True) }}
     {{ log("Partition Join Key: " ~ partition_join_key, info=True) }}
@@ -34,7 +44,7 @@
     {{ log("", info=True) }}
 
     {{ log("=== Source Details ===", info=True) }}
-    {{ log("Source: " ~ source('bronze_streamline', model), info=True) }}
+    {{ log("Source: " ~ source('bronze_streamline', trimmed_model), info=True) }}
     {{ log("", info=True) }}
 
 {% endif %}
@@ -52,7 +62,7 @@
         FROM
             TABLE(
                 information_schema.external_table_files(
-                    table_name => '{{ source( "bronze_streamline", model) }}'
+                    table_name => '{{ source( "bronze_streamline", trimmed_model) }}'
                 )
             ) A
     )
@@ -78,7 +88,7 @@ SELECT
 FROM
     {{ source(
         "bronze_streamline",
-        model
+        trimmed_model
     ) }}
     s
     JOIN meta b
