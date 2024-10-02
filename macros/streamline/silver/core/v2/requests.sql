@@ -3,9 +3,9 @@
 
 {# Extract model information from the identifier #}
 {% set model_info = extract_model_info() %}
-{% set model = model_info.model %}
-{% set model_type = model_info.model_type %}
-{% set view_source = model_info.view_source %}
+{% set model = model_info['model'] %}
+{% set model_type = model_info['model_type'] %}
+{% set view_source = model_info['view_source'] %}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {

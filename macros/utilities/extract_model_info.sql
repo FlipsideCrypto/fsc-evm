@@ -11,9 +11,9 @@
     {% set model = '_'.join(model_parts[:-1]) %}
     {% set view_source = identifier_parts[1] if identifier_parts|length > 1 else identifier %}
     
-    {% do return {
+    {{ return({
         'model': model,
         'model_type': model_type,
         'view_source': view_source
-    } %}
+    }) }}
 {% endmacro %}
