@@ -100,27 +100,6 @@
 - only log in compile mode or runs in dev
 #}
 
-{% set config_dict = {
-    'materialized': config.get('materialized'),
-    'schema': config.get('schema'),
-    'database': config.get('database'),
-    'alias': config.get('alias'),
-    'tags': config.get('tags'),
-    'post_hook': config.get('post_hook'),
-    'pre_hook': config.get('pre_hook'),
-    'unique_key': config.get('unique_key'),
-    'strategy': config.get('strategy'),
-    'full_refresh': config.get('full_refresh'),
-    'enabled': config.get('enabled'),
-    'persist_docs': config.get('persist_docs'),
-    'quoting': config.get('quoting'),
-    'on_schema_change': config.get('on_schema_change'),
-    'meta': config.get('meta'),
-    'grants': config.get('grants'),
-    'packages': config.get('packages'),
-    'docs': config.get('docs')
-} %}
-
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
     {{ log("", info=True) }}
@@ -129,6 +108,7 @@
     {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
     {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
     {{ log("Model Type: " ~ model_type, info=True) }}
+    {{ log("", info=True) }}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("model_quantum_state: " ~ model_quantum_state, info=True) }}
@@ -139,6 +119,7 @@
     {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
         {{ log("uses_receipts_by_hash: " ~ uses_receipts_by_hash, info=True) }}
     {% endif %}
+    {{ log("", info=True) }}
 
     {{ log("=== RPC Details ===", info=True) }}
     {{ log(trimmed_model ~ ": {", info=True) }}
@@ -152,25 +133,12 @@
     {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
-    {{ log("Config Details:", info=True) }}
-    {% for key, value in config_dict.items() %}
-        {% if value is not none %}
-            {% if key in ['pre_hook', 'post_hook'] %}
-                {{ log(key ~ ": " ~ value | map(attribute='sql') | list | tojson, info=True) }}
-            {% else %}
-                {{ log(key ~ ": " ~ value | tojson, info=True) }}
-            {% endif %}
-        {% endif %}
+    {{ log("=== DBT Model Config ===", info=True) }}
+    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {{ log("Post Hook: " ~ config.get('post_hook'), info=True) }}
+    {% for key, value in params.items() %}
+        {{ log(key ~ ": " ~ value | tojson, info=True) }}
     {% endfor %}
-
-    {# Separately handle pre_hook and post_hook #}
-    {% if config.get('pre_hook') %}
-        {{ log("pre_hook: " ~ config.get('pre_hook') | map(attribute='sql') | list | tojson, info=True) }}
-    {% endif %}
-
-    {% if config.get('post_hook') %}
-        {{ log("post_hook: " ~ config.get('post_hook') | map(attribute='sql') | list | tojson, info=True) }}
-    {% endif %}
     {{ log("", info=True) }}
 {%- endif -%}
 
