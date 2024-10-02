@@ -102,13 +102,13 @@
 
     {{ log("=== Current Variable Settings ===", info=True) }}
 
-    {{ log(trimmed_model ~ '_' ~ model_type ~ '_model_quantum_state: ' ~ model_quantum_state, info=True) }}
-    {{ log(trimmed_model ~ '_' ~ model_type ~ '_sql_limit: ' ~ sql_limit, info=True) }}
-    {{ log(trimmed_model ~ '_' ~ model_type ~ '_testing_limit: ' ~ testing_limit, info=True) }}
-    {{ log(trimmed_model ~ '_' ~ model_type ~ '_order_by_clause: ' ~ order_by_clause, info=True) }}
-    {{ log(trimmed_model ~ '_' ~ model_type ~ '_new_build: ' ~ new_build, info=True) }}
+    {{ log((trimmed_model ~ '_' ~ model_type ~ '_model_quantum_state').upper() ~ ': ' ~ model_quantum_state, info=True) }}
+    {{ log((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper() ~ ': ' ~ sql_limit, info=True) }}
+    {{ log((trimmed_model ~ '_' ~ model_type ~ '_testing_limit').upper() ~ ': ' ~ testing_limit, info=True) }}
+    {{ log((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper() ~ ': ' ~ order_by_clause, info=True) }}
+    {{ log((trimmed_model ~ '_' ~ model_type ~ '_new_build').upper() ~ ': ' ~ new_build, info=True) }}
     {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
-        {{ log("uses_receipts_by_hash: " ~ uses_receipts_by_hash, info=True) }}
+        {{ log("USES_RECEIPTS_BY_HASH: " ~ uses_receipts_by_hash, info=True) }}
     {% endif %}
     {{ log("", info=True) }}
 
