@@ -102,8 +102,9 @@
 
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
-    {{ log("", info=True) }}
+
     {{ log("=== Name Output Details ===", info=True) }}
+
     {{ log("Original Model: " ~ model, info=True) }}
     {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
     {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
@@ -111,6 +112,7 @@
     {{ log("", info=True) }}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
+
     {{ log("model_quantum_state: " ~ model_quantum_state, info=True) }}
     {{ log("sql_limit: " ~ sql_limit, info=True) }}
     {{ log("testing_limit: " ~ testing_limit, info=True) }}
@@ -122,6 +124,7 @@
     {{ log("", info=True) }}
 
     {{ log("=== RPC Details ===", info=True) }}
+
     {{ log(trimmed_model ~ ": {", info=True) }}
     {{ log("    method: '" ~ model_configs[trimmed_model]['method'] ~ "',", info=True) }}
     {{ log("    params: '" ~ model_configs[trimmed_model]['params'] ~ "'", info=True) }}
@@ -129,11 +132,13 @@
     {{ log("", info=True) }}
 
     {{ log("=== API Details ===", info=True) }}
+
     {{ log("API_URL: " ~ var('API_URL'), info=True) }}
     {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
     {{ log("=== DBT Model Config ===", info=True) }}
+
     {{ log("materialized = " ~ config.get('materialized'), info=True) }}
     {% set post_hook = config.get('post_hook')[0] %}
     {% if post_hook %}
@@ -145,7 +150,7 @@
             {{ log("    " ~ key ~ ": " ~ value | tojson, info=True) }}
         {% endfor %}
     {% endif %}
-    {{ log("tags = " ~ config.get('tags'), info=True) }}
+    {{ log(", tags = " ~ config.get('tags'), info=True) }}
     {{ log(")", info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
