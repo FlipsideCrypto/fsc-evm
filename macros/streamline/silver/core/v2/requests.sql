@@ -134,10 +134,10 @@
     {{ log("", info=True) }}
 
     {{ log("=== DBT Model Config ===", info=True) }}
-    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {{ log("materialized = " ~ config.get('materialized'), info=True) }}
     {% set post_hook = config.get('post_hook')[0] %}
     {% if post_hook %}
-        {{ log("post_hook:", info=True) }}
+        {{ log("post_hook = fsc_utils.if_data_call_function_v2(", info=True) }}
         {{ log("  function: streamline.udf_bulk_rest_api_v2", info=True) }}
         {{ log("  target: " ~ this.schema ~ "." ~ this.identifier, info=True) }}
         {{ log("  params:", info=True) }}
@@ -145,6 +145,8 @@
             {{ log("    " ~ key ~ ": " ~ value | tojson, info=True) }}
         {% endfor %}
     {% endif %}
+    {{ log("tags = " ~ config.get('tags'), info=True) }}
+    {{ log(")", info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
