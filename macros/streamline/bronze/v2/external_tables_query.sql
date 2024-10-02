@@ -13,7 +13,7 @@
 
 {# Trim model name logic and extract model_type #}
 {%- if trim_suffix and model.endswith(trim_suffix) -%}
-    {%- set trimmed_model = model[:-trim_suffix|length] -%}
+    {%- set trimmed_model = model[:model.rfind(trim_suffix)] -%}
     {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
 {%- else -%}
     {%- set trimmed_model = model -%}
