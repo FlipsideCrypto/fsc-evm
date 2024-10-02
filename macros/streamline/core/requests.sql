@@ -85,12 +85,8 @@
 {# Set uses_receipts_by_hash based on model configuration #}
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
-{#
-    only log in compile mode or runs in dev
-#}
-
-{# Log configuration details if in execution mode #}
-{%- if execute -%}
+{# Log configuration details if in dev or during execution #}
+{%- if execute and not target.name.startswith('prod') -%}
 
     {{ log("=== Name Output Details ===", info=True) }}
 

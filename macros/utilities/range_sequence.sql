@@ -3,10 +3,19 @@
 {%- set max_num = var('MAX_SEQUENCE_NUMBER', 1000000000) -%}
 
 {# Log configuration details if in execution mode #}
-{%- if execute -%}
-    {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("Max Number: " ~ max_num, info=True) }}
-    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+{%- if execute and not target.name.startswith('prod') -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+    {{ log("MAX_SEQUENCE_NUMBER: " ~ max_num, info=True) }}
+
+    {% set config_log = '\n' %}
+    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
+    {% set config_log = config_log ~ '\n{{ config (\n' %}
+    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
+    {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ ',\n' %}
+    {% set config_log = config_log ~ '    post_hook = "' ~ config.get('post_hook') ~ '",\n' %}
+    {% set config_log = config_log ~ ') }}\n' %}
+    {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
@@ -29,11 +38,15 @@ FROM
 
 {%- set min_block = var('START_UP_BLOCK', 0) -%}
 
-{# Log configuration details if in execution mode #}
-{%- if execute -%}
-    {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("Min Block: " ~ min_block, info=True) }}
-    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+{# Log configuration details if in dev or during execution #}
+{%- if execute and not target.name.startswith('prod') -%}
+    {% set config_log = '\n' %}
+    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
+    {% set config_log = config_log ~ '\n{{ config (\n' %}
+    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
+    {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
+    {% set config_log = config_log ~ ') }}\n' %}
+    {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 

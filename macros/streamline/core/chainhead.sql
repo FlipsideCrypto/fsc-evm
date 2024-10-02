@@ -3,8 +3,8 @@
 
 {%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
-{# Log configuration details if in execution mode #}
-{%- if execute -%}
+{# Log configuration details if in dev or during execution #}
+{%- if execute and not target.name.startswith('prod') -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("CHAINHEAD_QUANTUM_STATE: " ~ model_quantum_state, info=True) }}

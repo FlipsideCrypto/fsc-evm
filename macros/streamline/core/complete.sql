@@ -33,8 +33,8 @@
     {%- set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" -%}
 {% endif %}
 
-{# Log configuration details if in execution mode #}
-{%- if execute -%}
+{# Log configuration details if in dev or during execution #}
+{%- if execute and not target.name.startswith('prod') -%}
 
     {{ log("=== Name Output Details ===", info=True) }}
 
