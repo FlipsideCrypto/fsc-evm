@@ -133,10 +133,10 @@ to_do AS (
     SELECT block_number
     FROM
         {% if model == 'blocks_transactions' %}
-            {{ ref("streamline__complete_blocks") }} b
-            INNER JOIN {{ ref("streamline__complete_transactions") }} t USING(block_number)
+            {{ ref("streamline__blocks_complete") }} b
+            INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
         {% else %}
-            {{ ref('streamline__complete_' ~ model) }}
+            {{ ref('streamline__' ~ model ~ '_complete') }}
         {% endif %}
     WHERE 1=1
         {% if not new_build %}
