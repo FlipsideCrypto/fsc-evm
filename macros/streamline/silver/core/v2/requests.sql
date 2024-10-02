@@ -345,14 +345,14 @@ SELECT
     ) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ var(' api_url ') }}',
+         '{{ var('API_URL') }}',
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json',
             'fsc-quantum-state', '{{ model_quantum_state }}'
         ),
         receipt_rpc_call,
-        '{{ var(' vault_secret_path ') }}'
+        '{{ var('VAULT_SECRET_PATH') }}'
     ) AS request
 FROM
     ready_blocks
