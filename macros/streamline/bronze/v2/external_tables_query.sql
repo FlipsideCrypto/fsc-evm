@@ -9,7 +9,7 @@
 {%- endif -%}
 
 {# Dynamically get the trim suffix for this specific model #}
-{%- set trim_suffix = var(model ~ '_trim_suffix', '') -%}
+{% set trim_suffix = var((model ~ 'trim_suffix').upper(), '') %}
 
 {# Trim model name logic and extract model_type #}
 {%- if trim_suffix and model.endswith(trim_suffix) -%}
