@@ -44,8 +44,8 @@
     {{ log("Model Type: " ~ model_type, info=True) }}
     {{ log("", info=True) }}
 
-    {{ log("=== Current Variable Settings ===", info=True) }}
     {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+        {{ log("=== Current Variable Settings ===", info=True) }}
         {{ log("USES_RECEIPTS_BY_HASH: " ~ uses_receipts_by_hash, info=True) }}
     {% endif %}
 
@@ -55,13 +55,13 @@
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
     {% set config_log = config_log ~ '    cluster_by = "' ~ config.get('cluster_by') ~ '",\n' %}
-    {% set config_log = config_log ~ '    post_hook = "' ~ config.get('post_hook') ~ '",\n' %}
-    {% set config_log = config_log ~ '    full_refresh = "' ~ config.get('full_refresh') ~ '",\n' %}
+    {% set config_log = config_log ~ '    post_hook = "' ~ post_hook ~ '",\n' %}
+    {% set config_log = config_log ~ '    full_refresh = ' ~ full_refresh_type ~ ',\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
-    
+
 {%- endif -%}
 
 -- depends_on: {{ ref('bronze__' ~ trimmed_model) }}
