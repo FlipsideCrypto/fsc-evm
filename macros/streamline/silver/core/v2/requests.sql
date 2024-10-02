@@ -143,9 +143,9 @@
     {% set post_hook = config.get('post_hook')[0] %}
     {% if post_hook %}
         {{ log("post_hook = fsc_utils.if_data_call_function_v2(", info=True) }}
-        {{ log("  function: streamline.udf_bulk_rest_api_v2", info=True) }}
-        {{ log("  target: " ~ this.schema ~ "." ~ this.identifier, info=True) }}
-        {{ log("  params:", info=True) }}
+        {{ log("  function = streamline.udf_bulk_rest_api_v2", info=True) }}
+        {{ log("  target = " ~ this.schema ~ "." ~ this.identifier, info=True) }}
+        {{ log("  params = ", info=True) }}
         {% for key, value in params.items() %}
             {{ log("    " ~ key ~ ": " ~ value | tojson, info=True) }}
         {% endfor %}
