@@ -15,6 +15,15 @@
 {# Set full refresh type based on model configuration #}
 {%- set full_refresh_type = var(('complete_' ~ model ~ '_full_refresh').upper(), False) -%}
 
+{# set the post hook based on model configuration #}
+{% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+    {%- set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)" -%}
+{% else %}
+    {%- set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" -%}
+{% endif %}
+
+
+
 {# Set uses_receipts_by_hash based on model configuration #}
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
@@ -38,11 +47,7 @@
     materialized = "incremental",
     unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
-    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
-        post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)",
-    {% else %}
-        post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    {% endif %}
+    post_hook = post_hook,
     full_refresh = full_refresh_type,
     tags = ['streamline_core_complete']
 ) }}
