@@ -7,25 +7,30 @@
     'blocks_transactions': {
         'method': 'eth_getBlockByNumber',
         'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
-        'exploded_key': ['data', 'result.transactions']
+        'exploded_key': ['data', 'result.transactions'],
+        'lambdas': 2
     },
     'receipts': {
         'method': 'eth_getBlockReceipts',
         'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))',
-        'exploded_key': ['result']
+        'exploded_key': ['result'],
+        'lambdas': 2
     },
     'receipts_by_hash': {
         'method': 'eth_getTransactionReceipt',
-        'params': 'ARRAY_CONSTRUCT(tx_hash)'
+        'params': 'ARRAY_CONSTRUCT(tx_hash)',
+        'lambdas': 2
     },
     'traces': {
         'method': 'debug_traceBlockByNumber',
         'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))",
-        'exploded_key': ['result']
+        'exploded_key': ['result'],
+        'lambdas': 1
     },
     'confirmed_blocks': {
         'method': 'eth_getBlockByNumber',
-        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'
+        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)',
+        'lambdas': 2
     }
 } -%}
 
@@ -53,8 +58,8 @@
 {%- set params = {
     "external_table": trimmed_model,
     "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR')),
-    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper()),
-    "worker_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper()),
+    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 100),
+    "worker_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 100),
     "sql_source": model
 } -%}
 
