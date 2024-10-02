@@ -56,6 +56,7 @@
 {%- set model_configs = {
     'blocks_transactions': {'method': 'eth_getBlockByNumber', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)'},
     'receipts': {'method': 'eth_getBlockReceipts', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))'},
+    'receipts_by_hash': {'method': 'eth_getTransactionReceipt', 'params': 'ARRAY_CONSTRUCT(tx_hash)'},
     'traces': {'method': 'debug_traceBlockByNumber', 'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))"},
     'confirmed_blocks': {'method': 'eth_getBlockByNumber', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'}
 } -%}
