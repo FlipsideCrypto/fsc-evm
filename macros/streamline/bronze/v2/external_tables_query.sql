@@ -35,6 +35,10 @@
     {{ log("", info=True) }}
 {% endif %}
 
+{{ config (
+    materialized = 'view'
+) }}
+
     WITH meta AS (
         SELECT
             job_created_time AS _inserted_timestamp,
