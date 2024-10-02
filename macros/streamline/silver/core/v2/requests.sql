@@ -100,6 +100,12 @@
     {{ log("Model Type: " ~ model_type, info=True) }}
     {{ log("", info=True) }}
 
+    {{ log("=== API Details ===", info=True) }}
+
+    {{ log("API_URL: " ~ var('API_URL'), info=True) }}
+    {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
+    {{ log("", info=True) }}
+
     {{ log("=== Current Variable Settings ===", info=True) }}
 
     {{ log((trimmed_model ~ '_' ~ model_type ~ '_model_quantum_state').upper() ~ ': ' ~ model_quantum_state, info=True) }}
@@ -118,12 +124,6 @@
     {{ log("    method: '" ~ model_configs[trimmed_model]['method'] ~ "',", info=True) }}
     {{ log("    params: '" ~ model_configs[trimmed_model]['params'] ~ "'", info=True) }}
     {{ log("}", info=True) }}
-    {{ log("", info=True) }}
-
-    {{ log("=== API Details ===", info=True) }}
-
-    {{ log("API_URL: " ~ var('API_URL'), info=True) }}
-    {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
     {{ log("=== DBT Model Config ===", info=True) }}
