@@ -1,3 +1,5 @@
+{% import 'macros/utilities/trim_model_name.sql' as trim_utils %}
+
 {% macro streamline_external_table_query_v2() %}
 
 {# Extract model information from the identifier #}
@@ -10,7 +12,7 @@
 
 {# Dynamically get the trim suffix for this specific model #}
 {%- set trim_suffix = var(model ~ '_trim_suffix', '') -%}
-{%- set trimmed_model = trim_model_name(model, trim_suffix) -%}
+{%- set trimmed_model = trim_utils.trim_model_name(model, trim_suffix) -%}
 
 {# Set parameters using project variables #}
 {% set partition_function = var((trimmed_model ~ '_partition_function').upper(), 
