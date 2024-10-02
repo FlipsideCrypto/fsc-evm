@@ -58,7 +58,7 @@
     "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR')),
     "worker_batch_size": var(
         (trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * var('BLOCKS_PER_HOUR')) / model_configs.get(trimmed_model, {}).get('lambdas', 1)
+        int((2 * var('BLOCKS_PER_HOUR')) / model_configs.get(trimmed_model, {}).get('lambdas', 1))
     ),
     "sql_source": model
 } -%}
