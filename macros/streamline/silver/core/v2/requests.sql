@@ -129,7 +129,9 @@
     {% set params_str = params | tojson %}
     {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
 
-    {% set config_log = '\n{{ config (\n' %}
+    {% set config_log = '\n' %}
+    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
+    {% set config_log = config_log ~ '\n{{ config (\n' %}
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    post_hook = fsc_utils.if_data_call_function_v2(\n' %}
     {% set config_log = config_log ~ '        func = "streamline.udf_bulk_rest_api_v2",\n' %}
@@ -137,9 +139,7 @@
     {% set config_log = config_log ~ '        params = ' ~ params_formatted ~ '\n' %}
     {% set config_log = config_log ~ '    ),\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
-    {% set config_log = config_log ~ ') }}' %}
-
-    {{ log("=== DBT Model Config ===", info=True) }}
+    {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
 
