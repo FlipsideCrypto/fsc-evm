@@ -2,10 +2,17 @@
 {% macro streamline_core_requests() %}
 
 {# Extract model information from the identifier #}
-{% set model_info = extract_model_info() %}
-{% set model = model_info['model'] %}
-{% set model_type = model_info['model_type'] %}
-{% set view_source = model_info['view_source'] %}
+{%- set identifier_parts = this.identifier.split('__') -%}
+{%- if '__' in this.identifier -%}
+    {%- set model_parts = identifier_parts[1].split('_') -%}
+    {%- set model_type = model_parts[-1] -%}
+    {%- set model = '_'.join(model_parts[:-1]) -%}
+{%- else -%}
+    {%- set model_parts = this.identifier.split('_') -%}
+    {%- set model_type = model_parts[-1] -%}
+    {%- set model = '_'.join(model_parts[:-1]) -%}
+{%- endif -%}
+{%- set view_source = identifier_parts[1] if identifier_parts|length > 1 else this.identifier -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
