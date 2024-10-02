@@ -26,6 +26,7 @@
 {% set partition_join_key = var((model ~ '_partition_join_key').upper(), 'partition_key') %}
 {% set balances = var((model ~ '_balances').upper(), false) %}
 {% set block_number = var((model ~ '_block_number').upper(), true) %}
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
 
 {# Log configuration details if in execution mode #}
@@ -41,8 +42,10 @@
     {{ log("Balances: " ~ balances, info=True) }}
     {{ log("Block Number: " ~ block_number, info=True) }}
     {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {% if uses_receipts_by_hash %}
+        {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
+    {% endif %}
     {{ log("", info=True) }}
-
     {{ log("=== Source Details ===", info=True) }}
     {{ log("Source: " ~ source('bronze_streamline', trimmed_model), info=True) }}
     {{ log("", info=True) }}
@@ -54,6 +57,8 @@
     tags = ['streamline_core_complete']
 ) }}
 
+{% if not uses_receipts_by_hash %}
+
     WITH meta AS (
         SELECT
             registered_on AS _inserted_timestamp,
@@ -62,49 +67,53 @@
         FROM
             TABLE(
                 information_schema.external_table_files(
-                    table_name => '{{ source( "bronze_streamline", trimmed_model) }}'
+                    table_name => '{{ source( "bronze_streamline", trimmed_model) }}')
+                ) A
+            )
+        SELECT
+            s.*,
+            b.file_name,
+            b._inserted_timestamp
+
+            {% if balances %},
+            r.block_timestamp :: TIMESTAMP AS block_timestamp
+        {% endif %}
+
+        {% if block_number %},
+            COALESCE(
+                s.value :"BLOCK_NUMBER" :: STRING,
+                s.value :"block_number" :: STRING,
+                s.metadata :request :"data" :id :: STRING,
+                PARSE_JSON(
+                    s.metadata :request :"data"
+                ) :id :: STRING
+            ) :: INT AS block_number
+        {% endif %}
+        FROM
+            {{ source(
+                "bronze_streamline",
+                trimmed_model
+            ) }}
+            s
+            JOIN meta b
+            ON b.file_name = metadata$filename
+            AND b.partition_key = s.{{ partition_join_key }}
+
+            {% if balances %}
+                JOIN {{ ref('_block_ranges') }}
+                r
+                ON r.block_number = COALESCE(
+                    s.value :"BLOCK_NUMBER" :: INT,
+                    s.value :"block_number" :: INT
                 )
-            ) A
-    )
+            {% endif %}
+        WHERE
+            b.partition_key = s.{{ partition_join_key }}
+            AND DATA :error IS NULL
+            AND DATA IS NOT NULL
+
+{% else %}
 SELECT
-    s.*,
-    b.file_name,
-    b._inserted_timestamp
-
-    {% if balances %},
-    r.block_timestamp :: TIMESTAMP AS block_timestamp
+    1 as dummy 
 {% endif %}
-
-{% if block_number %},
-    COALESCE(
-        s.value :"BLOCK_NUMBER" :: STRING,
-        s.value :"block_number" :: STRING,
-        s.metadata :request :"data" :id :: STRING,
-        PARSE_JSON(
-            s.metadata :request :"data"
-        ) :id :: STRING
-    ) :: INT AS block_number
-{% endif %}
-FROM
-    {{ source(
-        "bronze_streamline",
-        trimmed_model
-    ) }}
-    s
-    JOIN meta b
-    ON b.file_name = metadata$filename
-    AND b.partition_key = s.{{ partition_join_key }}
-
-    {% if balances %}
-        JOIN {{ ref('_block_ranges') }}
-        r
-        ON r.block_number = COALESCE(
-            s.value :"BLOCK_NUMBER" :: INT,
-            s.value :"block_number" :: INT
-        )
-    {% endif %}
-WHERE
-    b.partition_key = s.{{ partition_join_key }}
-    AND DATA :error IS NULL
-    AND DATA IS NOT NULL
 {% endmacro %}

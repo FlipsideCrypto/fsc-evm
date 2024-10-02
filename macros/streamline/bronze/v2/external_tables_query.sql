@@ -25,6 +25,7 @@
     "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") %}
 {% set balances = var((trimmed_model ~ '_balances').upper(), false) %}
 {% set block_number = var((trimmed_model ~ '_block_number').upper(), true) %}
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
 {# Log configuration details if in execution mode #}
 {% if execute %}
@@ -38,19 +39,22 @@
     {{ log("Balances: " ~ balances, info=True) }}
     {{ log("Block Number: " ~ block_number, info=True) }}
     {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {% if uses_receipts_by_hash %}
+        {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
+    {% endif %}
     {{ log("", info=True) }}
-
     {{ log("=== Source Details ===", info=True) }}
     {{ log("Source: " ~ source('bronze_streamline', trimmed_model), info=True) }}
     {{ log("", info=True) }}
 {% endif %}
-
 {{ config (
     materialized = 'view',
     tags = ['streamline_core_complete']
 ) }}
 
+{% if not uses_receipts_by_hash %}
     WITH meta AS (
+
         SELECT
             job_created_time AS _inserted_timestamp,
             file_name,
@@ -67,7 +71,7 @@
             b.file_name,
             b._inserted_timestamp
 
-        {% if balances %},
+            {% if balances %},
             r.block_timestamp :: TIMESTAMP AS block_timestamp
         {% endif %}
 
@@ -87,7 +91,7 @@
             ) }}
             s
             JOIN meta b
-            ON b.file_name = metadata$filename
+            ON b.file_name = metadata $ filename
             AND b.partition_key = s.partition_key
 
             {% if balances %}
@@ -102,4 +106,8 @@
             b.partition_key = s.partition_key
             AND DATA :error IS NULL
             AND DATA IS NOT NULL
+{% else %}
+    SELECT
+        1 AS dummy
+{% endif %}
 {% endmacro %}
