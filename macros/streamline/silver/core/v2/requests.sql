@@ -152,13 +152,25 @@
     {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
-    {{ log("=== DBT Model Config ===", info=True) }}
     {{ log("Config Details:", info=True) }}
     {% for key, value in config_dict.items() %}
         {% if value is not none %}
-            {{ log(key ~ ": " ~ value | tojson, info=True) }}
+            {% if key in ['pre_hook', 'post_hook'] %}
+                {{ log(key ~ ": " ~ value | map(attribute='sql') | list | tojson, info=True) }}
+            {% else %}
+                {{ log(key ~ ": " ~ value | tojson, info=True) }}
+            {% endif %}
         {% endif %}
     {% endfor %}
+
+    {# Separately handle pre_hook and post_hook #}
+    {% if config.get('pre_hook') %}
+        {{ log("pre_hook: " ~ config.get('pre_hook') | map(attribute='sql') | list | tojson, info=True) }}
+    {% endif %}
+
+    {% if config.get('post_hook') %}
+        {{ log("post_hook: " ~ config.get('post_hook') | map(attribute='sql') | list | tojson, info=True) }}
+    {% endif %}
     {{ log("", info=True) }}
 {%- endif -%}
 
