@@ -46,7 +46,8 @@
 {% endif %}
 
 {{ config (
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['streamline_core_complete']
 ) }}
 
     WITH meta AS (

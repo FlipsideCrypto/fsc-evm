@@ -38,6 +38,12 @@
     {{ log("", info=True) }}
 
 {% endif %}
+
+{{ config (
+    materialized = 'view',
+    tags = ['streamline_core_complete']
+) }}
+
     WITH meta AS (
         SELECT
             registered_on AS _inserted_timestamp,
