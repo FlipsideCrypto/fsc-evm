@@ -126,22 +126,15 @@
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
-    {{ log("=== DBT Model Config ===", info=True) }}
+    {% set params_str = params | tojson %}
+    {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
 
-    {% set config_log = '{{ config (\n' %}
+    {% set config_log = '\n{{ config (\n' %}
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    post_hook = fsc_utils.if_data_call_function_v2(\n' %}
     {% set config_log = config_log ~ '        func = "streamline.udf_bulk_rest_api_v2",\n' %}
     {% set config_log = config_log ~ '        target = "' ~ this.schema ~ '.' ~ this.identifier ~ '",\n' %}
-    {% set config_log = config_log ~ '        params = {\n' %}
-    {% for key, value in params.items() %}
-        {% if key == 'exploded_key' %}
-            {% set config_log = config_log ~ '            "' ~ key ~ '": ' ~ value ~ ',\n' %}
-        {% else %}
-            {% set config_log = config_log ~ '            "' ~ key ~ '": "' ~ value ~ '",\n' %}
-        {% endif %}
-    {% endfor %}
-    {% set config_log = config_log ~ '        }\n' %}
+    {% set config_log = config_log ~ '        params = ' ~ params_formatted ~ '\n' %}
     {% set config_log = config_log ~ '    ),\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
     {% set config_log = config_log ~ ') }}' %}
@@ -149,6 +142,7 @@
     {{ log("=== DBT Model Config ===", info=True) }}
     {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
+
 {%- endif -%}
 
 {# Set up dbt configuration #}
