@@ -229,6 +229,8 @@ LIMIT {{ sql_limit }}
 
 {% else %}
 
+{# Special logic for receipts by hash #}
+
 {{ config (
     materialized = "view",
     tags = ['streamline_core_realtime']
@@ -333,8 +335,10 @@ ready_blocks AS (
         receipt_rpc_call
     FROM
         create_receipts_calls
-    LIMIT
-        10
+
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
+    {% endif %}
 )
 SELECT
     block_number,
@@ -356,6 +360,10 @@ SELECT
     ) AS request
 FROM
     ready_blocks
+
+{{ order_by_clause }}
+
+LIMIT {{ sql_limit }}
 
 {% endif %}
 
