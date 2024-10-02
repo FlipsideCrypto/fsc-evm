@@ -100,6 +100,27 @@
 - only log in compile mode or runs in dev
 #}
 
+{% set config_dict = {
+    'materialized': config.get('materialized'),
+    'schema': config.get('schema'),
+    'database': config.get('database'),
+    'alias': config.get('alias'),
+    'tags': config.get('tags'),
+    'post_hook': config.get('post_hook'),
+    'pre_hook': config.get('pre_hook'),
+    'unique_key': config.get('unique_key'),
+    'strategy': config.get('strategy'),
+    'full_refresh': config.get('full_refresh'),
+    'enabled': config.get('enabled'),
+    'persist_docs': config.get('persist_docs'),
+    'quoting': config.get('quoting'),
+    'on_schema_change': config.get('on_schema_change'),
+    'meta': config.get('meta'),
+    'grants': config.get('grants'),
+    'packages': config.get('packages'),
+    'docs': config.get('docs')
+} %}
+
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
     {{ log("", info=True) }}
@@ -132,7 +153,12 @@
     {{ log("", info=True) }}
 
     {{ log("=== DBT Model Config ===", info=True) }}
-    {{ log("DBT Model Config: " ~ config.to_dict(), info=True) }}
+    {{ log("Config Details:", info=True) }}
+    {% for key, value in config_dict.items() %}
+        {% if value is not none %}
+            {{ log(key ~ ": " ~ value | tojson, info=True) }}
+        {% endif %}
+    {% endfor %}
     {{ log("", info=True) }}
 {%- endif -%}
 
