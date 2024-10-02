@@ -10,7 +10,7 @@
 {%- endif -%}
 
 {# Dynamically get the trim suffix for this specific model #}
-{% set trim_suffix = var((model ~ 'trim_suffix').upper(), '_realtime') %}
+{% set trim_suffix = var((model ~ '_trim_suffix').upper(), '_realtime') %}
 
 {# Trim model name logic and extract model_type #}
 {%- if trim_suffix and model.endswith(trim_suffix) -%}
@@ -27,7 +27,7 @@
     "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper()),
     "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper()),
     "worker_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper()),
-    "sql_source": trimmed_model
+    "sql_source": model
 } -%}
 
 {# Set sql_limit variable for use in the main query #}
@@ -48,6 +48,9 @@
 {# Set order_by_clause based on model_type #}
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
 {%- set order_by_clause = var((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
+
+{# Set uses_receipts_by_hash based on model configuration #}
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
 {# Define model-specific RPC method and params #}
 {%- set model_configs = {
@@ -71,6 +74,9 @@
     {{ log("Order By Clause: " ~ order_by_clause, info=True) }}
     {{ log("New Build: " ~ new_build, info=True) }}
     {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+        {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
+    {% endif %}
     {{ log("", info=True) }}
 
     {{ log("=== Streamline Parameters ===", info=True) }}
@@ -102,6 +108,12 @@
     ),
     tags = ['streamline_core_' ~ model_type]
 ) }}
+
+{% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+
+select 1 as block_number, '0x123' as tx_hash
+
+{% else %}
 
 {# Main query starts here #}
 WITH 
@@ -217,5 +229,7 @@ FROM
 {{ order_by_clause }}
 
 LIMIT {{ sql_limit }}
+
+{% endif %}
 
 {% endmacro %}
