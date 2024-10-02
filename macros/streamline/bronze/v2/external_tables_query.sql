@@ -17,7 +17,7 @@
     {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
 {%- else -%}
     {%- set trimmed_model = model -%}
-    {%- set model_type = 'incremental' -%}
+    {%- set model_type = 'limited_bronze_view' -%}
 {%- endif -%}
 
 {# Set parameters using project variables #}
