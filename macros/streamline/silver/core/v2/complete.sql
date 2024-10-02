@@ -26,7 +26,7 @@
     {{ log("", info=True) }}
 {%- endif -%}
 
--- depends_on: {{ ref('bronze__streamline_' ~ model) }}
+-- depends_on: {{ ref('bronze__' ~ model) }}
 
 {{ config (
     materialized = "incremental",
@@ -47,7 +47,7 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM
     {% if is_incremental() %}
-        {{ ref('bronze__streamline_' ~ model) }}
+        {{ ref('bronze__' ~ model) }}
     WHERE
         _inserted_timestamp >= (
             SELECT
@@ -56,7 +56,7 @@ FROM
                 {{ this }}
         )
     {% else %}
-        {{ ref('bronze__streamline_fr_' ~ model) }}
+        {{ ref('bronze__' ~ model ~ '_fr') }}
     {% endif %}
 
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
