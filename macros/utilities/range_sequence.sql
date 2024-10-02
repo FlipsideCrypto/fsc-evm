@@ -1,6 +1,21 @@
-{% macro number_sequence(
-    max_num=1000000000
-) %}
+{% macro number_sequence() %}
+
+{%- set max_num = var('MAX_SEQUENCE_NUMBER', 1000000000) -%}
+
+{# Log configuration details if in execution mode #}
+{%- if execute -%}
+    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("Max Number: " ~ max_num, info=True) }}
+    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {{ log("", info=True) }}
+{%- endif -%}
+
+{{ config(
+    materialized = 'table',
+    cluster_by = 'round(_id,-3)',
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)"
+) }}
+
 SELECT
     ROW_NUMBER() over (
         ORDER BY
