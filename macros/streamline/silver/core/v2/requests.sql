@@ -9,21 +9,8 @@
     {%- set model = this.identifier -%}
 {%- endif -%}
 
-{# Get the default suffixes from project variables #}
-{% set default_suffixes = var('REQUEST_MODEL_SUFFIXES', ['_history', '_realtime']) %}
-
 {# Dynamically get the trim suffix for this specific model #}
-{% set trim_suffix = var((model ~ '_trim_suffix').upper(), '') %}
-
-{# If no specific trim suffix is set, find the first matching default suffix #}
-{% if not trim_suffix %}
-    {% for suffix in default_suffixes %}
-        {% if model.endswith(suffix) %}
-            {% set trim_suffix = suffix %}
-            {% break %}
-        {% endif %}
-    {% endfor %}
-{% endif %}
+{% set trim_suffix = var((model ~ 'trim_suffix').upper(), '_realtime') %}
 
 {# Trim model name logic and extract model_type #}
 {%- if trim_suffix and model.endswith(trim_suffix) -%}
@@ -33,9 +20,6 @@
     {%- set trimmed_model = model -%}
     {%- set model_type = '' -%}
 {%- endif -%}
-
-
-{%- set view_source = identifier_parts[1] if identifier_parts|length > 1 else this.identifier -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
