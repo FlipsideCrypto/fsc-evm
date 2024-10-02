@@ -40,6 +40,11 @@ FROM
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+    {{ log("START_UP_BLOCK: " ~ min_block, info=True) }}
+    {{ log("", info=True) }}
+    
     {% set config_log = '\n' %}
     {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
     {% set config_log = config_log ~ '\n{{ config (\n' %}
