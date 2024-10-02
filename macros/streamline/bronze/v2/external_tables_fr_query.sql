@@ -42,7 +42,7 @@
     {{ log("Balances: " ~ balances, info=True) }}
     {{ log("Block Number: " ~ block_number, info=True) }}
     {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
-    {% if uses_receipts_by_hash %}
+    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
         {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
     {% endif %}
     {{ log("", info=True) }}
@@ -57,7 +57,7 @@
     tags = ['streamline_core_complete']
 ) }}
 
-{% if not uses_receipts_by_hash %}
+{% if not uses_receipts_by_hash or not trimmed_model.lower().startswith('receipts') %}
 
     WITH meta AS (
         SELECT
