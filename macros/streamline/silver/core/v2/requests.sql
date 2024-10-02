@@ -24,7 +24,7 @@
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
     "external_table": trimmed_model,
-    "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper()),
+    "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR')),
     "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper()),
     "worker_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper()),
     "sql_source": model
