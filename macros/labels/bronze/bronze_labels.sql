@@ -1,17 +1,24 @@
 {% macro bronze_labels() %}
 
 {# Set macro parameters #}
-{%- set blockchains = var('LABELS_BLOCKCHAINS', target.database | lower | replace('_dev','') ) -%}
+{%- set blockchains = var('LABELS_BLOCKCHAINS', var('PROD_DB_NAME') ) -%}
 
 {# Log configuration details if in execution mode #}
-{%- if execute -%}
+{%- if execute and not target.name.startswith('prod') -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+
+    {{ log("LABELS_BLOCKCHAINS: " ~ blockchains, info=True) }}
     {{ log("", info=True) }}
-    {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
+
+    {% set config_log = '\n' %}
+    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
+    {% set config_log = config_log ~ '\n{{ config (\n' %}
+    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
+    {% set config_log = config_log ~ ') }}\n' %}
+    {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
-    {{ log("=== Parameters ===", info=True) }}
-    {{ log("blockchains: " ~ blockchains, info=True) }}
-    {{ log("", info=True) }}
+    
 {%- endif -%}
 
 {# Set up dbt configuration #}
