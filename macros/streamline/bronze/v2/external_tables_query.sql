@@ -14,7 +14,7 @@
 
 {# Set parameters using project variables #}
 {% set partition_function = var((model ~ '_partition_function').upper(), 
-    CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)) %}
+    "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") %}
 {% set balances = var((model ~ '_balances').upper(), false) %}
 {% set block_number = var((model ~ '_block_number').upper(), true) %}
 
