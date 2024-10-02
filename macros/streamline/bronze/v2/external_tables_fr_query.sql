@@ -49,7 +49,6 @@
     {{ log("=== Source Details ===", info=True) }}
     {{ log("Source: " ~ source('bronze_streamline', trimmed_model), info=True) }}
     {{ log("", info=True) }}
-
 {% endif %}
 
 {{ config (
@@ -57,7 +56,6 @@
     tags = ['streamline_core_complete']
 ) }}
 
-{% if not uses_receipts_by_hash or not trimmed_model.lower().startswith('receipts') %}
 
     WITH meta AS (
         SELECT
@@ -89,6 +87,9 @@
                 ) :id :: STRING
             ) :: INT AS block_number
         {% endif %}
+        {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+            , s.value :"TX_HASH" :: STRING AS tx_hash
+        {% endif %}
         FROM
             {{ source(
                 "bronze_streamline",
@@ -112,8 +113,4 @@
             AND DATA :error IS NULL
             AND DATA IS NOT NULL
 
-{% else %}
-SELECT
-    1 as dummy 
-{% endif %}
 {% endmacro %}
