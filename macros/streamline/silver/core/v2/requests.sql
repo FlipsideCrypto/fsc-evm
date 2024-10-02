@@ -110,7 +110,7 @@
     tags = ['streamline_core_' ~ model_type]
 ) }}
 
-{% if not uses_receipts_by_hash and not trimmed_model.lower().startswith('receipts') %}
+{% if not uses_receipts_by_hash or not trimmed_model.lower().startswith('receipts') %}
 
 {# Main query starts here #}
 WITH 
