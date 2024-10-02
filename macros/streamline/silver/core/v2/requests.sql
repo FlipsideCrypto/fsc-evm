@@ -1,6 +1,34 @@
 
 {% macro streamline_core_requests() %}
 
+{# Define model-specific RPC method and params #}
+
+{%- set model_configs = {
+    'blocks_transactions': {
+        'method': 'eth_getBlockByNumber',
+        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
+        'exploded_key': ['data', 'result.transactions']
+    },
+    'receipts': {
+        'method': 'eth_getBlockReceipts',
+        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))',
+        'exploded_key': ['result']
+    },
+    'receipts_by_hash': {
+        'method': 'eth_getTransactionReceipt',
+        'params': 'ARRAY_CONSTRUCT(tx_hash)'
+    },
+    'traces': {
+        'method': 'debug_traceBlockByNumber',
+        'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))",
+        'exploded_key': ['result']
+    },
+    'confirmed_blocks': {
+        'method': 'eth_getBlockByNumber',
+        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'
+    }
+} -%}
+
 {# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}
 {%- if '__' in this.identifier -%}
@@ -35,7 +63,7 @@
 
 {# Handle exploded key if it exists by updating the params dictionary above #}
 {%- set exploded_key_var = (trimmed_model ~ '_exploded_key').upper() -%}
-{%- set exploded_key_value = var(exploded_key_var, none) -%} 
+{%- set exploded_key_value = var(exploded_key_var, model_configs.get(trimmed_model, {}).get('exploded_key')) -%}
 {%- if exploded_key_value is not none -%}
     {%- do params.update({"exploded_key": tojson(exploded_key_value)}) -%}
 {%- endif -%}
@@ -51,15 +79,6 @@
 
 {# Set uses_receipts_by_hash based on model configuration #}
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
-
-{# Define model-specific RPC method and params #}
-{%- set model_configs = {
-    'blocks_transactions': {'method': 'eth_getBlockByNumber', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)'},
-    'receipts': {'method': 'eth_getBlockReceipts', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))'},
-    'receipts_by_hash': {'method': 'eth_getTransactionReceipt', 'params': 'ARRAY_CONSTRUCT(tx_hash)'},
-    'traces': {'method': 'debug_traceBlockByNumber', 'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))"},
-    'confirmed_blocks': {'method': 'eth_getBlockByNumber', 'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'}
-} -%}
 
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
