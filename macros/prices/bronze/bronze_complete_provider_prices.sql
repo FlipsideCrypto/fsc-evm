@@ -1,11 +1,16 @@
 {% macro bronze_complete_provider_prices() %}
 
-{# Log configuration details if in execution mode #}
-{%- if execute -%}
+{# Log configuration details if in dev, during execution #}
+{%- if execute and not target.name.startswith('prod') -%}
+
+    {% set config_log = '\n' %}
+    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
+    {% set config_log = config_log ~ '\n{{ config (\n' %}
+    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '"\n' %}
+    {% set config_log = config_log ~ ') }}\n' %}
+    {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
-    {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
-    {{ log("", info=True) }}
+    
 {%- endif -%}
 
 {# Set up dbt configuration #}

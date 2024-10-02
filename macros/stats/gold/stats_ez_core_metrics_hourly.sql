@@ -3,14 +3,24 @@
 {# Set macro parameters #}
 {%- set token_address = var('STATS_TOKEN_ADDRESS', token_address) -%}
 
-{# Log configuration details if in execution mode #}
-{%- if execute -%}
+{# Log configuration details if in dev, during execution #}
+{%- if execute and not target.name.startswith('prod') -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+
+    {{ log("STATS_TOKEN_ADDRESS: " ~ token_address, info=True) }}
     {{ log("", info=True) }}
-    {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("materialized: " ~ config.get('materialized'), info=True) }}
-    {{ log("persist_docs: " ~ config.get('persist_docs'), info=True) }}
-    {{ log("meta: " ~ config.get('meta'), info=True) }}
+
+    {% set config_log = '\n' %}
+    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
+    {% set config_log = config_log ~ '\n{{ config (\n' %}
+    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
+    {% set config_log = config_log ~ '    persist_docs = ' ~ config.get('persist_docs') ~ ',\n' %}
+    {% set config_log = config_log ~ '    meta = ' ~ config.get('meta') ~ '\n' %}
+    {% set config_log = config_log ~ ') }}\n' %}
+    {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
+
 {%- endif -%}
 
 {# Set up dbt configuration #}
