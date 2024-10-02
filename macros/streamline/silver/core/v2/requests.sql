@@ -110,11 +110,7 @@
     tags = ['streamline_core_' ~ model_type]
 ) }}
 
-{% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
-
-select 1 as block_number, '0x123' as tx_hash
-
-{% else %}
+{% if not uses_receipts_by_hash and not trimmed_model.lower().startswith('receipts') %}
 
 {# Main query starts here #}
 WITH 
@@ -231,6 +227,9 @@ FROM
 
 LIMIT {{ sql_limit }}
 
+{% else %}
+
+select 1 as block_number, '0x123' as tx_hash
 {% endif %}
 
 {% endmacro %}
