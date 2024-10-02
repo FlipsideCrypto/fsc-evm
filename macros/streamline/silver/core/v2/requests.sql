@@ -7,8 +7,7 @@
     'blocks_transactions': {
         'method': 'eth_getBlockByNumber',
         'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
-        'exploded_key': ['data', 'result.transactions'],
-        'lambdas': 2
+        'exploded_key': ['data', 'result.transactions']
     },
     'receipts': {
         'method': 'eth_getBlockReceipts',
@@ -18,19 +17,17 @@
     },
     'receipts_by_hash': {
         'method': 'eth_getTransactionReceipt',
-        'params': 'ARRAY_CONSTRUCT(tx_hash)',
-        'lambdas': 2
+        'params': 'ARRAY_CONSTRUCT(tx_hash)'
     },
     'traces': {
         'method': 'debug_traceBlockByNumber',
         'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))",
         'exploded_key': ['result'],
-        'lambdas': 1
+        'lambdas': 2
     },
     'confirmed_blocks': {
         'method': 'eth_getBlockByNumber',
-        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)',
-        'lambdas': 2
+        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'
     }
 } -%}
 
@@ -58,8 +55,11 @@
 {%- set params = {
     "external_table": trimmed_model,
     "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR')),
-    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 100),
-    "worker_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 100),
+    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR')),
+    "worker_batch_size": var(
+        (trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
+        (2 * var('BLOCKS_PER_HOUR')) / model_configs.get(trimmed_model, {}).get('lambdas', 1)
+    ),
     "sql_source": model
 } -%}
 
@@ -379,7 +379,12 @@ SELECT
             'application/json',
             'fsc-quantum-state', '{{ model_quantum_state }}'
         ),
-        receipt_rpc_call,
+        OBJECT_CONSTRUCT(
+            'id', block_number,
+            'jsonrpc', '2.0',
+            'method', '{{ model_configs[trimmed_model]['method'] }}',
+            'params', {{ model_configs[trimmed_model]['params'] }}
+        ),
         '{{ var('VAULT_SECRET_PATH') }}'
     ) AS request
 FROM
