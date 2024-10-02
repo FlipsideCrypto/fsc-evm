@@ -15,6 +15,9 @@
 {# Set full refresh type based on model configuration #}
 {%- set full_refresh_type = var(('complete_' ~ model ~ '_full_refresh').upper(), False) -%}
 
+{# Set uses_receipts_by_hash based on model configuration #}
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
     {{ log("", info=True) }}
@@ -23,6 +26,9 @@
     {{ log("Model Type: Complete", info=True) }}
     {{ log("Full Refresh Type: " ~ full_refresh_type, info=True) }}
     {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
+    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+        {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
+    {% endif %}
     {{ log("", info=True) }}
 {%- endif -%}
 
@@ -32,12 +38,19 @@
     materialized = "incremental",
     unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+        post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)",
+    {% else %}
+        post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    {% endif %}
     full_refresh = full_refresh_type,
     tags = ['streamline_core_complete']
 ) }}
 
 SELECT
+    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+        tx_hash,
+    {% endif %}
     block_number,
     file_name,
     {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS complete_{{ model }}_id,
@@ -59,6 +72,10 @@ FROM
         {{ ref('bronze__' ~ model ~ '_fr') }}
     {% endif %}
 
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number
+{% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+    , tx_hash
+{% endif %}
+ORDER BY _inserted_timestamp DESC)) = 1
 
 {% endmacro %}
