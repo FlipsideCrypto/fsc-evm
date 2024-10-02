@@ -3,37 +3,28 @@
 {# Extract model information from the identifier #}
 {%- set identifier_parts = this.identifier.split('__') -%}
 {%- if '__' in this.identifier -%}
-    {%- set model_parts = identifier_parts[1].split('_') -%}
-    {%- if model_parts | length > 1 -%}
-        {%- set model_type = model_parts[-1] -%}
-        {%- set model = '_'.join(model_parts[:-1]) -%}
-    {%- else -%}
-        {%- set model_type = 'incremental' -%}
-        {%- set model = identifier_parts[1] -%}
-    {%- endif -%}
+    {%- set model = identifier_parts[1] -%}
 {%- else -%}
-    {%- set model_parts = this.identifier.split('_') -%}
-    {%- if model_parts | length > 1 -%}
-        {%- set model_type = model_parts[-1] -%}
-        {%- set model = '_'.join(model_parts[:-1]) -%}
-    {%- else -%}
-        {%- set model_type = 'incremental' -%}
-        {%- set model = this.identifier -%}
-    {%- endif -%}
+    {%- set model = this.identifier -%}
 {%- endif -%}
 
+{# Dynamically get the trim suffix for this specific model #}
+{%- set trim_suffix = var(model ~ '_trim_suffix', '') -%}
+{%- set trimmed_model = trim_model_name(model, trim_suffix) -%}
+
 {# Set parameters using project variables #}
-{% set partition_function = var((model ~ '_partition_function').upper(), 
+{% set partition_function = var((trimmed_model ~ '_partition_function').upper(), 
     "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") %}
-{% set balances = var((model ~ '_balances').upper(), false) %}
-{% set block_number = var((model ~ '_block_number').upper(), true) %}
+{% set balances = var((trimmed_model ~ '_balances').upper(), false) %}
+{% set block_number = var((trimmed_model ~ '_block_number').upper(), true) %}
 
 {# Log configuration details if in execution mode #}
 {% if execute %}
     {{ log("", info=True) }}
     {{ log("=== Model Configuration ===", info=True) }}
-    {{ log("Model: " ~ model, info=True) }}
-    {{ log("Model Type: " ~ model_type, info=True) }}
+    {{ log("Original Model: " ~ model, info=True) }}
+    {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
+    {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
     {{ log("Partition Function: " ~ partition_function, info=True) }}
     {{ log("Balances: " ~ balances, info=True) }}
     {{ log("Block Number: " ~ block_number, info=True) }}
@@ -41,7 +32,7 @@
     {{ log("", info=True) }}
 
     {{ log("=== Source Details ===", info=True) }}
-    {{ log("Source: " ~ source('bronze_streamline', model), info=True) }}
+    {{ log("Source: " ~ source('bronze_streamline', trimmed_model), info=True) }}
     {{ log("", info=True) }}
 {% endif %}
 
@@ -59,7 +50,7 @@
             TABLE(
                 information_schema.external_table_file_registration_history(
                     start_time => DATEADD('day', -3, CURRENT_TIMESTAMP()),
-                    table_name => '{{ source( "bronze_streamline", model) }}')
+                    table_name => '{{ source( "bronze_streamline", trimmed_model) }}')
                 ) A
             )
         SELECT
@@ -83,7 +74,7 @@
         FROM
             {{ source(
                 "bronze_streamline",
-                model
+                trimmed_model
             ) }}
             s
             JOIN meta b
