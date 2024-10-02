@@ -53,7 +53,7 @@
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
-    "external_table": trimmed_model,
+    "external_table": var((trimmed_model ~ '_' ~ model_type ~ '_external_table').upper(), trimmed_model),
     "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR')),
     "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR')),
     "worker_batch_size": var(
@@ -85,30 +85,39 @@
 {# Set uses_receipts_by_hash based on model configuration #}
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
+{#
+
+-- match key / value to the vars
+-- update order to match below
+
+1. name output
+2. variable section
+3. rpc details
+4. api details
+5. dbt config
+
+...model...
+- only log in compile mode or runs in dev
+#}
+
 {# Log configuration details if in execution mode #}
 {%- if execute -%}
     {{ log("", info=True) }}
-    {{ log("=== Model Configuration ===", info=True) }}
+    {{ log("=== Name Output Details ===", info=True) }}
     {{ log("Original Model: " ~ model, info=True) }}
     {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
     {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
     {{ log("Model Type: " ~ model_type, info=True) }}
-    {{ log("Model Quantum State: " ~ model_quantum_state, info=True) }}
-    {{ log("Query Limit: " ~ sql_limit, info=True) }}
-    {{ log("Testing Limit: " ~ testing_limit, info=True) }}
-    {{ log("Order By Clause: " ~ order_by_clause, info=True) }}
-    {{ log("New Build: " ~ new_build, info=True) }}
-    {{ log("Materialization: " ~ config.get('materialized'), info=True) }}
-    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
-        {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
-    {% endif %}
-    {{ log("", info=True) }}
 
-    {{ log("=== Streamline Parameters ===", info=True) }}
-    {%- for key, value in params.items() %}
-    {{ log(key ~ ": " ~ value, info=True) }}
-    {%- endfor %}
-    {{ log("", info=True) }}
+    {{ log("=== Current Variable Settings ===", info=True) }}
+    {{ log("model_quantum_state: " ~ model_quantum_state, info=True) }}
+    {{ log("sql_limit: " ~ sql_limit, info=True) }}
+    {{ log("testing_limit: " ~ testing_limit, info=True) }}
+    {{ log("order_by_clause: " ~ order_by_clause, info=True) }}
+    {{ log("new_build: " ~ new_build, info=True) }}
+    {% if uses_receipts_by_hash and trimmed_model.lower().startswith('receipts') %}
+        {{ log("uses_receipts_by_hash: " ~ uses_receipts_by_hash, info=True) }}
+    {% endif %}
 
     {{ log("=== RPC Details ===", info=True) }}
     {{ log(trimmed_model ~ ": {", info=True) }}
@@ -118,8 +127,12 @@
     {{ log("", info=True) }}
 
     {{ log("=== API Details ===", info=True) }}
-    {{ log("API URL: " ~ var('API_URL'), info=True) }}
-    {{ log("Vault Secret Path: " ~ var('VAULT_SECRET_PATH'), info=True) }}
+    {{ log("API_URL: " ~ var('API_URL'), info=True) }}
+    {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
+    {{ log("", info=True) }}
+
+    {{ log("=== DBT Model Config ===", info=True) }}
+    {{ log("DBT Model Config: " ~ config.to_dict(), info=True) }}
     {{ log("", info=True) }}
 {%- endif -%}
 
@@ -321,7 +334,7 @@ rpc_requests AS (
                 'livequery'
             ),
             batch_request,
-            'Vault/prod/core/ankr/mainnet'
+            'Vault/prod/core/ankr/mainnet' -- update to streamline var
         ) AS resp
     FROM
         batched_calls
