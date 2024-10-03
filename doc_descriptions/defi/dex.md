@@ -5,7 +5,7 @@ Note: A rule is applied to nullify the `amount_USD` if there is a significant di
 
 {% enddocs %}
 
-{% docs evm_ez_dex_lp_table_doc %}
+{% docs evm_dim_dex_lp_table_doc %}
 
 This table provides details on decentralized exchange (DEX) liquidity pools (LP) on this EVM blockchain. It includes information on tokens, symbols, and decimals within each pool, applicable to various protocols.
 
