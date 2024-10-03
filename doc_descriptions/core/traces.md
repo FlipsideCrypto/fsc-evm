@@ -1,3 +1,10 @@
+{% docs evm_traces_table_doc %}
+
+This table contains flattened trace data for internal contract calls on this EVM blockchain. Hex encoded fields can be decoded to integers by using `TO_NUMBER(<FIELD>, 'XXXXXXXXXXXX')`, with the number of Xs being the max length of the encoded field. You must also remove the `0x` from your field to use the `TO_NUMBER()` function, if applicable. 
+
+{% enddocs %}
+
+
 {% docs evm_traces_block_no %}
 
 The block number of this transaction.
@@ -21,7 +28,7 @@ The raw JSON data for this trace.
 
 {% docs evm_traces_value %}
 
-The amount of ETH transferred in this trace.
+The amount of the native asset transferred in this trace.
 
 {% enddocs %}
 
@@ -82,13 +89,6 @@ The amount of nested sub traces for this trace.
 {% enddocs %}
 
 
-{% docs evm_traces_table_doc %}
-
-This table contains flattened trace data for internal contract calls on the Ethereum blockchain. Hex encoded fields can be decoded to integers by using `TO_NUMBER(<FIELD>, 'XXXXXXXXXXXX')`, with the number of Xs being the max length of the encoded field. You must also remove the `0x` from your field to use the `TO_NUMBER()` function, if applicable. 
-
-{% enddocs %}
-
-
 {% docs evm_traces_to %}
 
 The receiving address of this trace. This is not necessarily the to address of the transaction. 
@@ -108,5 +108,3 @@ The transaction hash for the trace. Please note, this is not necessarily unique 
 The type of internal transaction. Common trace types are `CALL`, `DELEGATECALL`, and `STATICCALL`.
 
 {% enddocs %}
-
-

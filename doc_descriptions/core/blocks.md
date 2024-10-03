@@ -1,6 +1,13 @@
+{% docs evm_blocks_table_doc %}
+
+This table contains block level data for this EVM blockchain. This table can be used to analyze trends at a block level, for example gas fees vs. total transactions over time. For more information, please see [Etherscan Resources](https://etherscan.io/directory/Learning_Resources/Ethereum) or [The Ethereum Organization](https://ethereum.org/en/developers/docs/blocks/)
+
+{% enddocs %}
+
+
 {% docs evm_block_header_json %}
 
-This JSON column contains the block header details. 
+This JSON column contains the block header details.
 
 {% enddocs %}
 
@@ -14,21 +21,14 @@ The blockchain on which transactions are being confirmed.
 
 {% docs evm_blocks_hash %}
 
-The hash of the block header for a given block. 
+The hash of the block header for a given block.
 
 {% enddocs %}
 
 
 {% docs evm_blocks_nonce %}
 
-Block nonce is a value used during mining to demonstrate proof of work for a given block. 
-
-{% enddocs %}
-
-
-{% docs evm_blocks_table_doc %}
-
-This table contains block level data for the Ethereum Blockchain. This table can be used to analyze trends at a block level, for example gas fees vs. total transactions over time. For more information, please see [Etherscan Resources](https://etherscan.io/directory/Learning_Resources/Ethereum) or [The Ethereum Organization](https://ethereum.org/en/developers/docs/blocks/)
+Block nonce is a value used during mining to demonstrate proof of work for a given block.
 
 {% enddocs %}
 
@@ -63,7 +63,7 @@ Total gas used in the block.
 
 {% docs evm_miner %}
 
-Miner who successfully added a given block to the blockchain. 
+Miner who successfully added a given block to the blockchain.
 
 {% enddocs %}
 
@@ -105,7 +105,7 @@ Block size, which is determined by a given block's gas limit.
 
 {% docs evm_total_difficulty %}
 
-Total difficulty of the chain at a given block. 
+Total difficulty of the chain at a given block.
 
 {% enddocs %}
 

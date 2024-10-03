@@ -1,42 +1,42 @@
+{% docs evm_prices_table_doc %}
+
+This table contains hourly prices for tokens on this EVM blockchain. 
+The sources of this data are [CoinMarketCap](https://coinmarketcap.com/) and [CoinGecko](https://www.coingecko.com/).
+
+{% enddocs %}
+
+
 {% docs evm_prices_address %}
 
-The unique Ethereum address for a given token.  
+The unique address for a given token on this EVM blockchain.  
 
 {% enddocs %}
 
 
 {% docs evm_prices_decimals %}
 
-The number of decimals for token contract. 
+The number of decimals for the token contract on this EVM blockchain. 
 
 {% enddocs %}
 
 
 {% docs evm_prices_hour %}
 
-  Hour at which the token price was recorded. 
+The hour at which the token price was recorded on this EVM blockchain. 
 
 {% enddocs %}
 
 
 {% docs evm_prices_imputed %}
 
-This column indicates whether or not the price has been pulled forward from the previous hour. Sometimes hourly prices are missed from our data source, and in that case we carry forward the last recorded hourly price until we record a new price. 
+This column indicates whether or not the price has been pulled forward from the previous hour. Sometimes hourly prices are missed from our data source, and in that case, we carry forward the last recorded hourly price until we record a new price. 
 
 {% enddocs %}
 
 
 {% docs evm_prices_price %}
 
-The token price for a given hour.
-
-{% enddocs %}
-
-
-{% docs evm_prices_table_doc %}
-
-This table contains hourly prices for tokens on the Ethereum Blockchain. 
-The sources of this data are [CoinMarketCap](https://coinmarketcap.com/) and [CoinGecko](https://www.coingecko.com/).
+The token price for a given hour on this EVM blockchain.
 
 {% enddocs %}
 
@@ -57,7 +57,7 @@ A convenience table holding prioritized asset metadata and other relevant detail
 
 {% docs evm_prices_fact_prices_ohlc_hourly_table_doc %}
 
-A comprehensive fact table holding id and provider specific open, high, low, close hourly prices, from multiple providers. This data set includes raw, non-transformed data coming directly from the provider APIs and rows are not intended to be unique. As a result, there may be data quality issues persisting in the APIs that flow through to this fact based model. If you are interested in using a curated data set instead, please utilize ez_prices_hourly.
+A comprehensive fact table holding id and provider specific open, high, low, close hourly prices, from multiple providers. This data set includes raw, non-transformed data coming directly from the provider APIs and rows are not intended to be unique. As a result, there may be data quality issues persisting in the APIs that flow through to this fact-based model. If you are interested in using a curated data set instead, please utilize ez_prices_hourly.
 
 {% enddocs %}
 
@@ -85,28 +85,28 @@ The unique identifier representing the asset.
 
 {% docs evm_prices_name %}
 
-The name of asset.
+The name of the asset.
 
 {% enddocs %}
 
 
 {% docs evm_prices_symbol %}
 
-The symbol of asset.
+The symbol of the asset.
 
 {% enddocs %}
 
 
 {% docs evm_prices_token_address %}
 
-The specific address representing the asset on a specific platform. This will be NULL if referring to a native asset.
+The specific address representing the asset on this EVM blockchain. This will be NULL if referring to a native asset.
 
 {% enddocs %}
 
 
 {% docs evm_prices_token_address_evm %}
 
-The specific address representing the asset on a specific platform. This will be NULL if referring to a native asset. The case (upper / lower) may or may not be specified within the `dim_asset_metadata` table, as this column is raw and not transformed, coming directly from the provider APIs. However, in the `ez_` views, it will be lowercase by default for all EVMs.
+The specific address representing the asset on this EVM blockchain. This will be NULL if referring to a native asset. The case (upper / lower) may or may not be specified within the `dim_asset_metadata` table, as this column is raw and not transformed, coming directly from the provider APIs. However, in the `ez_` views, it will be lowercase by default for all EVMs.
 
 {% enddocs %}
 
@@ -125,10 +125,9 @@ The unique identifier of the Blockchain, Network, or Platform for this asset.
 {% enddocs %}
 
 
-
 {% docs evm_prices_is_native %}
 
-A flag indicating assets native to the respective blockchain.
+A flag indicating assets native to this EVM blockchain.
 
 {% enddocs %}
 
@@ -154,8 +153,6 @@ Deprecating soon! Please use the decimals column in `ez_asset_metadata` or join 
 {% enddocs %}
 
 
-
-
 {% docs evm_prices_is_imputed %}
 
 A flag indicating if the price was imputed, or derived, from the last arriving record. This is generally used for tokens with low-liquidity or inconsistent reporting.
@@ -172,22 +169,21 @@ Opening price of the recorded hour in USD.
 
 {% docs evm_prices_high %}
 
-Highest price of the recorded hour in USD
+Highest price of the recorded hour in USD.
 
 {% enddocs %}
 
 
 {% docs evm_prices_low %}
 
-Lowest price of the recorded hour in USD
+Lowest price of the recorded hour in USD.
 
 {% enddocs %}
 
 
 {% docs evm_prices_close %}
 
-Closing price of the recorded hour in USD
+Closing price of the recorded hour in USD.
 
 {% enddocs %}
-
 

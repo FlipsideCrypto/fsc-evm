@@ -1,34 +1,34 @@
 {% docs evm_nft_events_table_doc %}
 
-This table contains NFT sales on the Ethereum blockchain. More NFT marketplaces will be added over time. 
+This table contains NFT sales on this EVM blockchain. More NFT marketplaces will be added over time. 
 
 {% enddocs %}
 
 {% docs evm_nft_mint_table_doc %}
 
-This table contains NFT mint events, defined as an NFT transfers from a burn address to an address, on the Ethereum blockchain.
+This table contains NFT mint events, defined as NFT transfers from a burn address to an address, on this EVM blockchain.
 
 {% enddocs %}
 
 {% docs evm_nft_transfer_table_doc %}
 
-This table contains NFT transfer events on the Ethereum blockchain.
+This table contains NFT transfer events on this EVM blockchain.
 
 {% enddocs %}
 
-{% docs evm_nft_aggregator_name%}
+{% docs evm_nft_aggregator_name %}
 
 The name of the aggregator platform where the sale took place. If the sale did not take place via an aggregator platform, then the value will be null.
 
 {% enddocs %}
 
-{% docs evm_nft_amount%}
+{% docs evm_nft_amount %}
 
 The total amount, specified by the mint token address, used as payment to mint the specified number of NFTs corresponding to this token id.
 
 {% enddocs %}
 
-{% docs evm_nft_amount_usd%}
+{% docs evm_nft_amount_usd %}
 
 The USD value of 'amount'.
 
@@ -66,7 +66,7 @@ The amount of fees paid to the NFT collection as royalty payments for this NFT e
 
 {% docs evm_nft_currency_address %}
 
-The token contract address for this NFT event. This will be `ETH` for native ETH transactions. 
+The token contract address for this NFT event. This will be the native asset for native transactions. 
 
 {% enddocs %}
 
@@ -84,13 +84,13 @@ If the NFT is an ERC-1155 contract, this field may be one or greater, representi
 
 {% docs evm_nft_event_index %}
 
-The event number within a transaction 
+The event number within a transaction.
 
 {% enddocs %}
 
 {% docs evm_nft_event_type %}
 
-The type of NFT event in this transaction, either `sale`,  `bid_won`, `redeem` or `mint` .
+The type of NFT event in this transaction, either `sale`, `bid_won`, `redeem`, or `mint`.
 
 {% enddocs %}
 
@@ -120,7 +120,7 @@ The number of NFTs minted in this event.
 
 {% docs evm_nft_mint_price %}
 
-The price paid in ETH to mint the NFT(s).
+The price paid in the native asset to mint the NFT(s).
 
 {% enddocs %}
 
@@ -174,7 +174,7 @@ The function signature of this transaction.
 
 {% docs evm_nft_origin_to %}
 
-The to address of this transaction. In most cases, this is the exchange contract. However, for some more complex NFT events, such as aggregate buys with tools such as Gem and Genie, this may not be the exchange address. 
+The to address of this transaction. In most cases, this is the exchange contract. However, for some more complex NFT events, such as aggregate buys with tools, this may not be the exchange address. 
 
 {% enddocs %}
 
@@ -192,13 +192,13 @@ The version of the exchange contract used for the transaction.
 
 {% docs evm_nft_platform_fee %}
 
-The decimal adjusted amount of fees paid to the platform for this NFT event in the transaction's currency. There are cases in Magic Eden transactions for example, where there are fees paid to multiple marketplaces. In those cases, the fee in platform_fee column will only reflect the platform fee related to the platform exchange contract.
+The decimal adjusted amount of fees paid to the platform for this NFT event in the transaction's currency. There are cases where there are fees paid to multiple marketplaces. In those cases, the fee in the platform_fee column will only reflect the platform fee related to the platform exchange contract.
 
 {% enddocs %}
 
 {% docs evm_nft_platform_fee_usd %}
 
-The amount of fees paid to the platform for this NFT event in US dollars. There are cases in Magic Eden transactions for example, where there are fees paid to multiple marketplaces. In those cases, the fee in platform_fee column will only reflect the platform fee related to the platform exchange contract.
+The amount of fees paid to the platform for this NFT event in US dollars. There are cases where there are fees paid to multiple marketplaces. In those cases, the fee in the platform_fee column will only reflect the platform fee related to the platform exchange contract.
 
 {% enddocs %}
 
@@ -258,7 +258,7 @@ The total amount of fees paid relating to the NFT purchase in US dollars. This i
 
 {% docs evm_nft_tx_fee %}
 
-The gas fee for this transaction in ETH. 
+The gas fee for this transaction in the native asset. 
 
 {% enddocs %}
 

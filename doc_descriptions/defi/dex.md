@@ -1,19 +1,48 @@
 {% docs evm_ez_dex_swaps_table_doc %}
 
-This table contains swap events from the `fact_event_logs` table for popular decentralized exchanges (DEXes) on this EVM chain. It includes additional columns such as the amount in USD where possible. 
+This table contains swap events from the `fact_event_logs` table for popular decentralized exchanges (DEXes) on this EVM blockchain. It includes additional columns such as the amount in USD where possible. 
 Note: A rule is applied to nullify the `amount_USD` if there is a significant divergence between `amount_in_USD` and `amount_out_usd`, which can occur during high price fluctuations for less liquid tokens.
+
+Below are the available blockchains and their corresponding protocols:
+
+| BLOCKCHAIN | PROTOCOLS                                                                                       |
+|------------|-------------------------------------------------------------------------------------------------|
+| ARBITRUM   | balancer, camelot-v2, camelot-v3, curve, dodo-v1, dodo-v2, gmx, hashflow, hashflow-v3, kyberswap-v1, kyberswap-v2, ramses-v2, sparta, sushiswap, trader-joe-v1, uniswap-v2, uniswap-v3, zyberswap-v2, zyberswap-v3 |
+| AVALANCHE  | balancer, curve, dodo-v1, dodo-v2, fraxswap, hashflow, hashflow-v3, kyberswap-v1, kyberswap-v2, pangolin, pharaoh-v1, pharaoh-v2, platypus, sushiswap, trader-joe-v1, trader-joe-v2, uniswap-v3, woofi |
+| BASE       | aerodrome, aerodrome-slipstream, alienbase, balancer, baseswap, dackieswap, kyberswap-v2, maverick, sushiswap, swapbased, uniswap-v2, uniswap-v3, voodoo, woofi |
+| BSC        | biswap, dodo-v1, dodo-v2, fraxswap, hashflow, hashflow-v3, kyberswap-v2, level-finance, pancakeswap-v2, pancakeswap-v3, sushiswap, trader-joe-v1, uniswap-v2, uniswap-v3, woofi |
+| ETHEREUM   | balancer, curve, dodo-v1, dodo-v2, fraxswap, hashflow, hashflow-v3, kyberswap-v1, kyberswap-v2, maverick, pancakeswap-v3, shibaswap, sushiswap, synthetix, trader-joe-v2, uniswap-v2, uniswap-v3, verse |
+| GNOSIS     | balancer, curve, honeyswap, sushiswap, swapr |
+| KAIA       | capybara, dragonswap-v2, dragonswap-v3, kaiaswap, klayswap-v2, klayswap-v3, neopin |
+| OPTIMISM   | balancer, beethoven-x, curve, dodo-v2, hashflow-v3, kyberswap-v1, kyberswap-v2, synthetix, uniswap-v2, uniswap-v3, velodrome, velodrome-v2, woofi |
+| POLYGON    | balancer, curve, dodo-v2, fraxswap, hashflow-v3, kyberswap-v1, kyberswap-v2, quickswap-v2, quickswap-v3, sushiswap, uniswap-v3, woofi |
 
 {% enddocs %}
 
 {% docs evm_dex_lp_table_doc %}
 
-This table provides details on decentralized exchange (DEX) liquidity pools (LP) on this EVM chain. It includes information on tokens, symbols, and decimals within each pool, applicable to various protocols.
+This table provides details on decentralized exchange (DEX) liquidity pools (LP) on this EVM blockchain. It includes information on tokens, symbols, and decimals within each pool, applicable to various protocols.
+
+Below are the available blockchains and their corresponding protocols:
+
+| BLOCKCHAIN | PROTOCOLS                                                                                       |
+|------------|-------------------------------------------------------------------------------------------------|
+| ARBITRUM   | balancer, camelot-v2, camelot-v3, curve, dodo-v1, dodo-v2, gmx, hashflow, hashflow-v3, kyberswap-v1, kyberswap-v2, ramses-v2, sparta, sushiswap, trader-joe-v1, uniswap-v2, uniswap-v3, zyberswap-v2, zyberswap-v3 |
+| AVALANCHE  | balancer, curve, dodo-v1, dodo-v2, fraxswap, hashflow, hashflow-v3, kyberswap-v1, kyberswap-v2, pangolin, pharaoh-v1, pharaoh-v2, platypus, sushiswap, trader-joe-v1, trader-joe-v2, uniswap-v3, woofi |
+| BASE       | aerodrome, aerodrome-slipstream, alienbase, balancer, baseswap, dackieswap, kyberswap-v2, maverick, sushiswap, swapbased, uniswap-v2, uniswap-v3, voodoo, woofi |
+| BSC        | biswap, dodo-v1, dodo-v2, fraxswap, hashflow, hashflow-v3, kyberswap-v2, level-finance, pancakeswap-v2, pancakeswap-v3, sushiswap, trader-joe-v1, uniswap-v2, uniswap-v3, woofi |
+| ETHEREUM   | balancer, curve, dodo-v1, dodo-v2, fraxswap, hashflow, hashflow-v3, kyberswap-v1, kyberswap-v2, maverick, pancakeswap-v3, shibaswap, sushiswap, synthetix, trader-joe-v2, uniswap-v2, uniswap-v3, verse |
+| GNOSIS     | balancer, curve, honeyswap, sushiswap, swapr |
+| KAIA       | capybara, dragonswap-v2, dragonswap-v3, kaiaswap, klayswap-v2, klayswap-v3, neopin |
+| OPTIMISM   | balancer, beethoven-x, curve, dodo-v2, hashflow-v3, kyberswap-v1, kyberswap-v2, synthetix, uniswap-v2, uniswap-v3, velodrome, velodrome-v2, woofi |
+| POLYGON    | balancer, curve, dodo-v2, fraxswap, hashflow-v3, kyberswap-v1, kyberswap-v2, quickswap-v2, quickswap-v3, sushiswap, uniswap-v3, woofi |
+
 
 {% enddocs %}
 
 {% docs evm_dex_lp_deprecation %}
 
-Deprecating soon: This table will be upgraded to include liquidity pools for all applicable DEXes on this EVM chain. Please migrate queries to `defi.dim_dex_liquidity_pools`. This table will be deprecated on 08/17/2023.
+Deprecating soon: This table will be upgraded to include liquidity pools for all applicable DEXes on this EVM blockchain. Please migrate queries to `defi.dim_dex_liquidity_pools`. This table will be deprecated on 08/17/2023.
 
 {% enddocs %}
 

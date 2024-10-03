@@ -1,3 +1,10 @@
+{% docs evm_logs_table_doc %}
+
+This table contains flattened event logs from transactions on this EVM blockchain. Transactions may have multiple events, which are denoted by the event index for a transaction hash. Therefore, this table is unique on the combination of transaction hash and event index. Please see `fact_decoded_event_logs` or `ez_decoded_event_logs` for the decoded event logs.
+
+{% enddocs %}
+
+
 {% docs evm_event_index %}
 
 Event number within a transaction.
@@ -50,13 +57,6 @@ The name of the contract or token, where possible.
 {% docs evm_logs_data %}
 
 The un-decoded event data.
-
-{% enddocs %}
-
-
-{% docs evm_logs_table_doc %}
-
-This table contains flattened event logs from transactions on the Ethereum Blockchain. Transactions may have multiple events, which are denoted by the event index for a transaction hash. Therefore, this table is unique on the combination of transaction hash and event index. Please see `fact_decoded_event_logs` or `ez_decoded_event_logs` for the decoded event logs.
 
 {% enddocs %}
 

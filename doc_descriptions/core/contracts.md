@@ -1,3 +1,10 @@
+{% docs evm_contracts_table_doc %}
+
+This table contains contract details for contracts deployed on this EVM blockchain. 
+
+{% enddocs %}
+
+
 {% docs evm_contracts_block_number %}
 
 The block number at which the contract was read and details recorded.
@@ -14,7 +21,7 @@ The block timestamp at which the contract was read and details recorded.
 
 {% docs evm_contracts_contract_address %}
 
-The unique Ethereum address of the deployed contract.
+The unique address of the deployed contract.
 
 {% enddocs %}
 
@@ -36,13 +43,6 @@ The name of the deployed contract. Please note this is not necessarily unique.
 {% docs evm_contracts_symbol %}
 
 The symbol used to represent this contract. Please note this is not necessarily unique. 
-
-{% enddocs %}
-
-
-{% docs evm_contracts_table_doc %}
-
-This table contains contract details for contracts deployed on the Ethereum blockchain. 
 
 {% enddocs %}
 
