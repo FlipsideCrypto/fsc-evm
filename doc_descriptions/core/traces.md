@@ -121,10 +121,3 @@ The boolean value representing if the trace succeeded.
 The reason for the trace failure, if any.
 
 {% enddocs %}
-
-
-{% docs evm_trace_index %}
-
-The index of the trace within the transaction.
-
-{% enddocs %}
