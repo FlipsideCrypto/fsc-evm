@@ -115,28 +115,6 @@ The total base charge plus tip paid for each unit of gas, in Gwei.
 
 {% enddocs %}
 
-
-{% docs evm_tx_gas_limit %}
-
-{{ doc("evm_tx_gas_limit") }}
-
-{% enddocs %}
-
-
-{% docs evm_tx_gas_used %}
-
-{{ doc("evm_tx_gas_used") }}
-
-{% enddocs %}
-
-
-{% docs evm_cumulative_gas_used %}
-
-{{ doc("evm_cumulative_gas_used") }}
-
-{% enddocs %}
-
-
 {% docs evm_max_fee_per_gas %}
 
 The maximum fee per gas of the transaction, in Gwei.
