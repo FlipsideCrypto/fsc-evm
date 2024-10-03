@@ -109,3 +109,64 @@ The value transacted in the native asset.
 {% enddocs %}
 
 
+{% docs evm_effective_gas_price %}
+
+The total base charge plus tip paid for each unit of gas, in Gwei.
+
+{% enddocs %}
+
+
+{% docs evm_tx_gas_limit %}
+
+{{ doc("evm_tx_gas_limit") }}
+
+{% enddocs %}
+
+
+{% docs evm_tx_gas_used %}
+
+{{ doc("evm_tx_gas_used") }}
+
+{% enddocs %}
+
+
+{% docs evm_cumulative_gas_used %}
+
+{{ doc("evm_cumulative_gas_used") }}
+
+{% enddocs %}
+
+
+{% docs evm_max_fee_per_gas %}
+
+The maximum fee per gas of the transaction, in Gwei.
+
+{% enddocs %}
+
+
+{% docs evm_max_priority_fee_per_gas %}
+
+The maximum priority fee per gas of the transaction, in Gwei.
+
+{% enddocs %}
+
+
+{% docs evm_r %}
+
+The r value of the transaction signature.
+
+{% enddocs %}
+
+
+{% docs evm_s %}
+
+The s value of the transaction signature.
+
+{% enddocs %}
+
+
+{% docs evm_v %}
+
+The v value of the transaction signature.
+
+{% enddocs %}
