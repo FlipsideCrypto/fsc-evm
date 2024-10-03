@@ -15,7 +15,6 @@
     {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
     {% set config_log = config_log ~ '\n{{ config (\n' %}
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    persist_docs = ' ~ config.get('persist_docs') ~ ',\n' %}
     {% set config_log = config_log ~ '    meta = ' ~ config.get('meta') ~ '\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
@@ -26,8 +25,6 @@
 {# Set up dbt configuration #}
 {{ config(
     materialized = 'view',
-    persist_docs ={ "relation": true,
-    "columns": true },
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STATS, METRICS, CORE, HOURLY',
     } } }
 ) }}
