@@ -2,6 +2,7 @@
         block_explorer,
         streamline = false
     ) %}
+    {% set block_explorer = var('BLOCK_EXPLORER') %}
     WITH {% if not streamline %}
         base AS (
             SELECT
@@ -29,7 +30,7 @@ block_explorer_abis AS (
         contract_address,
         DATA,
         _inserted_timestamp,
-        '{{ block_explorer }}' AS abi_source
+        block_explorer AS abi_source
     FROM
         base
 ),
@@ -43,7 +44,7 @@ block_explorer_abis AS (
             ) AS contract_address,
             TRY_PARSE_JSON(DATA) AS DATA,
             VALUE,
-            '{{ block_explorer }}' AS abi_source,
+            block_explorer AS abi_source,
             _inserted_timestamp
         FROM
 
