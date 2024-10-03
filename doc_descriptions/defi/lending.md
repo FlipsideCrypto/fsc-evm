@@ -2,37 +2,11 @@
 
 This table contains transactions where users borrowed assets across various lending protocols on this EVM blockchain. In order to borrow assets, a user must first deposit their preferred asset and amount as collateral. Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
 
-Below are the available blockchains and their corresponding protocols:
-
-| BLOCKCHAIN | PROTOCOLS                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------|
-| ARBITRUM   | Compound V3, dForce, Lodestar, Radiant V1, Radiant V2, Silo                                      |
-| AVALANCHE  | Aave V2, Aave V3, Benqi, Trader-Joe                                                              |
-| BASE       | Aave V3, Compound V3, Granary, Morpho Blue, Seamless, Sonne, Moonwell                           |
-| BSC        | dForce, Kinza, Liqee, Radiant V2, Venus                                                          |
-| ETHEREUM   | Aave AMM, Aave V1, Aave V2, Aave V3, Compound V2, Compound V3, Cream, Flux, Fraxlend, Morpho Blue, Radiant, Silo, Spark, Strike, Sturdy, UwU |
-| GNOSIS     | Aave V3, Agave, realT, Spark                                                                     |
-| OPTIMISM   | Aave V3, Exactly, Granary, Sonne, Tarot                                                          |
-| POLYGON    | Aave V2, Aave V3, Compound V3                                                                    |
-
 {% enddocs %}
 
 {% docs evm_complete_lending_deposits_table_doc %}
 
 This table contains deposit transactions across various lending protocols on this EVM blockchain. A user deposits their preferred asset and amount. After depositing, users earn passive income based on the market borrowing demand. Additionally, depositing allows users to borrow by using their deposited assets as collateral. Any interest earned by depositing funds helps offset the interest rate accumulated by borrowing. Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
-
-Below are the available blockchains and their corresponding protocols:
-
-| BLOCKCHAIN | PROTOCOLS                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------|
-| ARBITRUM   | Compound V3, dForce, Lodestar, Radiant V1, Radiant V2, Silo                                      |
-| AVALANCHE  | Aave V2, Aave V3, Benqi, Trader-Joe                                                              |
-| BASE       | Aave V3, Compound V3, Granary, Morpho Blue, Seamless, Sonne, Moonwell                           |
-| BSC        | dForce, Kinza, Liqee, Radiant V2, Venus                                                          |
-| ETHEREUM   | Aave AMM, Aave V1, Aave V2, Aave V3, Compound V2, Compound V3, Cream, Flux, Fraxlend, Morpho Blue, Radiant, Silo, Spark, Strike, Sturdy, UwU |
-| GNOSIS     | Aave V3, Agave, realT, Spark                                                                     |
-| OPTIMISM   | Aave V3, Exactly, Granary, Sonne, Tarot                                                          |
-| POLYGON    | Aave V2, Aave V3, Compound V3                                                                    |
 
 {% enddocs %}
 
@@ -40,37 +14,11 @@ Below are the available blockchains and their corresponding protocols:
 
 This table contains flash loan transactions across various lending protocols. Flash loans are a feature designed for developers, due to the technical knowledge required to execute one. Flash Loans allow you to borrow any available amount of assets without providing any collateral, as long as the liquidity is returned to the protocol within one block transaction.
 
-Below are the available blockchains and their corresponding protocols:
-
-| BLOCKCHAIN | PROTOCOLS                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------|
-| ARBITRUM   | Aave V3, Radiant V1, Radiant V2                                                                  |
-| AVALANCHE  | Aave V2, Aave V3                                                                                 |
-| BASE       | Aave V3, Morpho Blue, Seamless                                                                  |
-| BSC        | Kinza, Radiant V2                                                                               |
-| ETHEREUM   | Aave AMM, Aave V1, Aave V2, Aave V3, Morpho Blue, Radiant, Spark, UwU                           |
-| GNOSIS     | Aave V3, Agave, Spark                                                                            |
-| OPTIMISM   | Aave V3, Granary                                                                                 |
-| POLYGON    | Aave V2, Aave V3                                                                                 |
-
 {% enddocs %}
 
 {% docs evm_complete_lending_liquidations_table_doc %}
 
 This table contains transactions in which a borrower's collateral asset is liquidated across various lending protocols. Liquidations occur when a borrower's health factor goes below 1 due to their collateral value not properly covering their loan/debt value. This might happen when the collateral decreases in value or the borrowed debt increases in value against each other. This collateral vs loan value ratio is shown in the health factor. In a liquidation, up to 50% of a borrower's debt is repaid and that value + liquidation fee is taken from the collateral available, so after a liquidation the amount liquidated from one's debt is repaid.
-
-Below are the available blockchains and their corresponding protocols:
-
-| BLOCKCHAIN | PROTOCOLS                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------|
-| ARBITRUM   | Aave V3, Radiant V1, Radiant V2                                                                  |
-| AVALANCHE  | Aave V2, Aave V3                                                                                 |
-| BASE       | Aave V3, Morpho Blue, Seamless                                                                  |
-| BSC        | Kinza, Radiant V2                                                                               |
-| ETHEREUM   | Aave AMM, Aave V1, Aave V2, Aave V3, Morpho Blue, Radiant, Spark, UwU                           |
-| GNOSIS     | Aave V3, Agave, Spark                                                                            |
-| OPTIMISM   | Aave V3, Granary                                                                                 |
-| POLYGON    | Aave V2, Aave V3                                                                                 |
 
 {% enddocs %}
 
@@ -78,37 +26,11 @@ Below are the available blockchains and their corresponding protocols:
 
 This table contains transactions in which a borrower repays their loan (debt) across various lending protocols on this EVM blockchain. Loans are repaid in the same asset borrowed, plus accrued interest. Borrowers can pay back their loan based on the USD price as they can borrow any of the available stable coins (USDC, DAI, USDT, etc.). Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
 
-Below are the available blockchains and their corresponding protocols:
-
-| BLOCKCHAIN | PROTOCOLS                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------|
-| ARBITRUM   | Compound V3, dForce, Lodestar, Radiant V1, Radiant V2, Silo                                      |
-| AVALANCHE  | Aave V2, Aave V3, Benqi, Trader-Joe                                                              |
-| BASE       | Aave V3, Compound V3, Granary, Morpho Blue, Seamless, Sonne, Moonwell                           |
-| BSC        | dForce, Kinza, Liqee, Radiant V2, Venus                                                          |
-| ETHEREUM   | Aave AMM, Aave V1, Aave V2, Aave V3, Compound V2, Compound V3, Cream, Flux, Fraxlend, Morpho Blue, Radiant, Silo, Spark, Strike, Sturdy, UwU |
-| GNOSIS     | Aave V3, Agave, realT, Spark                                                                     |
-| OPTIMISM   | Aave V3, Exactly, Granary, Sonne, Tarot                                                          |
-| POLYGON    | Aave V2, Aave V3, Compound V3                                                                    |
-
 {% enddocs %}
 
 {% docs evm_complete_lending_withdraws_table_doc %}
 
 This table contains transactions in which a user withdraws liquidity across various lending protocols on this EVM blockchain. Users need to make sure there is enough liquidity (not borrowed) in order to withdraw, if this is not the case, users need to wait for more liquidity from depositors or borrowers repaying. Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
-
-Below are the available blockchains and their corresponding protocols:
-
-| BLOCKCHAIN | PROTOCOLS                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------|
-| ARBITRUM   | Compound V3, dForce, Lodestar, Radiant V1, Radiant V2, Silo                                      |
-| AVALANCHE  | Aave V2, Aave V3, Benqi, Trader-Joe                                                              |
-| BASE       | Aave V3, Compound V3, Granary, Morpho Blue, Seamless, Sonne, Moonwell                           |
-| BSC        | dForce, Kinza, Liqee, Radiant V2, Venus                                                          |
-| ETHEREUM   | Aave AMM, Aave V1, Aave V2, Aave V3, Compound V2, Compound V3, Cream, Flux, Fraxlend, Morpho Blue, Radiant, Silo, Spark, Strike, Sturdy, UwU |
-| GNOSIS     | Aave V3, Agave, realT, Spark                                                                     |
-| OPTIMISM   | Aave V3, Exactly, Granary, Sonne, Tarot                                                          |
-| POLYGON    | Aave V2, Aave V3, Compound V3                                                                    |
 
 {% enddocs %}
 
