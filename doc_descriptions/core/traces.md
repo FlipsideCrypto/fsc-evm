@@ -108,3 +108,23 @@ The transaction hash for the trace. Please note, this is not necessarily unique 
 The type of internal transaction. Common trace types are `CALL`, `DELEGATECALL`, and `STATICCALL`.
 
 {% enddocs %}
+
+{% docs evm_trace_succeeded %}
+
+The boolean value representing if the trace succeeded.
+
+{% enddocs %}
+
+
+{% docs evm_trace_error_reason %}
+
+The reason for the trace failure, if any.
+
+{% enddocs %}
+
+
+{% docs evm_trace_index %}
+
+The index of the trace within the transaction.
+
+{% enddocs %}
