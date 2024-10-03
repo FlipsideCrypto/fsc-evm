@@ -51,14 +51,19 @@
     {%- set model_type = '' -%}
 {%- endif -%}
 
+{# Set uses_receipts_by_hash based on model configuration #}
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+
+{%- set multiplier = 100 if uses_receipts_by_hash else 1 -%}
+
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
     "external_table": var((trimmed_model ~ '_' ~ model_type ~ '_external_table').upper(), trimmed_model),
-    "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR')),
-    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR')),
+    "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
+    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
     "worker_batch_size": var(
         (trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * var('BLOCKS_PER_HOUR')) // model_configs.get(trimmed_model, {}).get('lambdas', 1)
+        (2 * var('BLOCKS_PER_HOUR') * multiplier) // model_configs.get(trimmed_model, {}).get('lambdas', 1)
     ),
     "sql_source": model
 } -%}
@@ -81,9 +86,6 @@
 {# Set order_by_clause based on model_type #}
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
 {%- set order_by_clause = var((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
-
-{# Set uses_receipts_by_hash based on model configuration #}
-{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
