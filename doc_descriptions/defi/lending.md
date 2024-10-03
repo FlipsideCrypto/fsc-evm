@@ -1,43 +1,42 @@
 {% docs evm_complete_lending_borrows_table_doc %}
 
-This table contains transactions where users borrowed assets across AAVE, COMPOUND, CREAM, FLUX, FRAXLEND, MORPHO, RADIANT, SILO, SPARK, STRIKE, STURDY, and UWU protocols. In order to borrow assets, a user must first deposit their preferred asset and amount as collateral. MORPHO required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
-
+This table contains transactions where users borrowed assets across various lending protocols. In order to borrow assets, a user must first deposit their preferred asset and amount as collateral. Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_deposits_table_doc %}
 
-This table contains deposit transactions across AAVE, COMPOUND, CREAM, FLUX, FRAXLEND, MORPHO, RADIANT, SILO, SPARK, STRIKE, STURDY, and UWU protocols. A user deposits their preferred asset and amount. After depositing, users earn passive income based on the market borrowing demand. Additionally, depositing allows users to borrow by using their deposited assets as a collateral. Any interest earned by depositing funds helps offset the interest rate accumulated by borrowing. MORPHO required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
+This table contains deposit transactions across various lending protocols. A user deposits their preferred asset and amount. After depositing, users earn passive income based on the market borrowing demand. Additionally, depositing allows users to borrow by using their deposited assets as collateral. Any interest earned by depositing funds helps offset the interest rate accumulated by borrowing. Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_flashloans_table_doc %}
 
-This table contains flash loan transactions across AAVE, MORPHO, RADIANT, SPARK, AND UWU protocols. Flash loans are a feature designed for developers, due to the technical knowledge required to execute one. Flash Loans allow you to borrow any available amount of assets without providing any collateral, as long as the liquidity is returned to the protocol within one block transaction.
+This table contains flash loan transactions across various lending protocols. Flash loans are a feature designed for developers, due to the technical knowledge required to execute one. Flash Loans allow you to borrow any available amount of assets without providing any collateral, as long as the liquidity is returned to the protocol within one block transaction.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_liquidations_table_doc %}
 
-This table contains transactions in which a borrower's collateral asset is liquidated across AAVE, COMPOUND, CREAM, FLUX, FRAXLEND, MORPHO, RADIANT, SILO, SPARK, STRIKE, STURDY, and UWU protocols. Liquidations occur when a borrower's health factor goes below 1 due to their collateral value not properly covering their loan/debt value. This might happen when the collateral decreases in value or the borrowed debt increases in value against each other. This collateral vs loan value ratio is shown in the health factor. In a liquidation, up to 50% of a borrower's debt is repaid and that value + liquidation fee is taken from the collateral available, so after a liquidation the amount liquidated from one's debt is repaid. 
+This table contains transactions in which a borrower's collateral asset is liquidated across various lending protocols. Liquidations occur when a borrower's health factor goes below 1 due to their collateral value not properly covering their loan/debt value. This might happen when the collateral decreases in value or the borrowed debt increases in value against each other. This collateral vs loan value ratio is shown in the health factor. In a liquidation, up to 50% of a borrower's debt is repaid and that value + liquidation fee is taken from the collateral available, so after a liquidation the amount liquidated from one's debt is repaid.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_repayments_table_doc %}
 
-This table contains transactions in which a borrower repays their loan (debt) across the AAVE, COMPOUND, CREAM, FLUX, FRAXLEND, MORPHO, RADIANT, SILO, SPARK, STRIKE, STURDY, and UWU protocols.  Loans are repaid in the same asset borrowed, plus accrued interest. Borrowers can pay back their loan based on the USD price as they can borrow any of the available stable coins (USDC, DAI, USDT, etc.). MORPHO required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
+This table contains transactions in which a borrower repays their loan (debt) across various lending protocols. Loans are repaid in the same asset borrowed, plus accrued interest. Borrowers can pay back their loan based on the USD price as they can borrow any of the available stable coins (USDC, DAI, USDT, etc.). Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_withdraws_table_doc %}
 
-This table contains transactions in which a user withdraws liquidity across the AAVE, COMPOUND, CREAM, FLUX, FRAXLEND, MORPHO, RADIANT, SILO, SPARK, STRIKE, STURDY, and UWU protocols. Users need to make sure there is enough liquidity (not borrowed) in order to withdraw, if this is not the case, users need to wait for more liquidity from depositors or borrowers repaying. MORPHO required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
+This table contains transactions in which a user withdraws liquidity across various lending protocols. Users need to make sure there is enough liquidity (not borrowed) in order to withdraw, if this is not the case, users need to wait for more liquidity from depositors or borrowers repaying. Some protocols required trace-level curation; as a result, certain columns exclusive to event logs, such as event index, will contain NULL values.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_borrow_rate_mode %}
 
-The rate mode the user is swapping from. Stable: 1, Variable: 2.  Borrowers can switch between the stable and variable rate at any time. Stable rates act as a fixed rate in the short-term, but can be re-balanced in the long-term in response to changes in market conditions. The variable rate is the rate based on the offer and demand. The stable rate, as its name indicates, will remain pretty stable and its the best option to plan how much interest you will have to pay. The variable rate will change over time and could be the optimal rate depending on market conditions. 
+The rate mode the user is swapping from. Stable: 1, Variable: 2. Borrowers can switch between the stable and variable rate at any time. Stable rates act as a fixed rate in the short-term, but can be re-balanced in the long-term in response to changes in market conditions. The variable rate is the rate based on the offer and demand. The stable rate, as its name indicates, will remain pretty stable and its the best option to plan how much interest you will have to pay. The variable rate will change over time and could be the optimal rate depending on market conditions.
 
 {% enddocs %}
 
@@ -55,7 +54,7 @@ The variable interest rate for borrowing assets.
 
 {% docs evm_complete_lending_collateral_complete_lending_token %}
 
-The interest bearing token that's burned when a liquidation occurs. 
+The interest bearing token that's burned when a liquidation occurs.
 
 {% enddocs %}
 
@@ -67,19 +66,19 @@ The asset provided as collateral, which can be liquidated.
 
 {% docs evm_complete_lending_data_provider %}
 
-The protocol data provider contract address. 
+The protocol data provider contract address.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_debt_complete_lending_token %}
 
-The interest bearing token representing the debt. 
+The interest bearing token representing the debt.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_debt_asset %}
 
-The debt asset, which the user borrowed. 
+The debt asset, which the user borrowed.
 
 {% enddocs %}
 
@@ -91,7 +90,7 @@ The amount of debt the user must cover.
 
 {% docs evm_complete_lending_debt_to_cover_amount_usd %}
 
-The amount of debt the user must cover, valued in USD. 
+The amount of debt the user must cover, valued in USD.
 
 {% enddocs %}
 
@@ -109,13 +108,13 @@ The block number in which the voting period ends.
 
 {% docs evm_complete_lending_flashloan_amount %}
 
-The amount of assets flash loaned.  
+The amount of assets flash loaned.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_flashloan_amount_usd %}
 
-The value of the flash loan amount, in USD. 
+The value of the flash loan amount, in USD.
 
 {% enddocs %}
 
@@ -157,13 +156,13 @@ The value of the liquidated asset, in USD.
 
 {% docs evm_complete_lending_liquidator %}
 
-The address that initiated the liquidation call. 
+The address that initiated the liquidation call.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_market %}
 
-The asset contract for the applicable market.   
+The asset contract for the applicable market.
 
 {% enddocs %}
 
@@ -181,7 +180,7 @@ The flash loan fee, changeable via the normal governance process, decimal adjust
 
 {% docs evm_complete_lending_premium_amount_usd %}
 
-The flash loan fee, valued in USD. 
+The flash loan fee, valued in USD.
 
 {% enddocs %}
 
@@ -193,7 +192,7 @@ The unique ID representing a proposal.
 
 {% docs evm_complete_lending_proposal_tx %}
 
-The transaction confirming a proposal submission. 
+The transaction confirming a proposal submission.
 
 {% enddocs %}
 
@@ -205,7 +204,7 @@ The user's address that submitted the proposal.
 
 {% docs evm_complete_lending_repayed_tokens %}
 
-The amount of tokens repaid. 
+The amount of tokens repaid.
 
 {% enddocs %}
 
@@ -253,7 +252,7 @@ A value indicating their vote (For: true, Against: false).
 
 {% docs evm_complete_lending_target_address %}
 
-The address receiving the flash loan. 
+The address receiving the flash loan.
 
 {% enddocs %}
 
@@ -265,7 +264,7 @@ List of the targeted addresses by proposal transactions.
 
 {% docs evm_complete_lending_token %}
 
-The interest bearing token contract.  
+The interest bearing token contract.
 
 {% enddocs %}
 
@@ -277,7 +276,7 @@ The total supply of liquidity tokens.
 
 {% docs evm_complete_lending_total_liquidity_usd %}
 
-The total value of liquidity tokens, in USD. 
+The total value of liquidity tokens, in USD.
 
 {% enddocs %}
 
@@ -290,6 +289,7 @@ The total supply of debt tokens, representing a debt to the protocol with a stab
 {% docs evm_complete_lending_total_stable_debt_usd %}
 
 The total USD value of debt tokens, representing a debt to the protocol with a stable interest rate.
+
 {% enddocs %}
 
 {% docs evm_complete_lending_total_variable_debt_token %}
@@ -301,6 +301,7 @@ The total supply of debt tokens, representing a debt to the protocol with a vari
 {% docs evm_complete_lending_total_variable_debt_usd %}
 
 The total USD value of debt tokens, representing a debt to the protocol with a variable interest rate.
+
 {% enddocs %}
 
 {% docs evm_complete_lending_utilization_rate %}
@@ -317,13 +318,13 @@ Debt tokens are interest-accruing tokens that are minted and burned on borrow an
 
 {% docs evm_complete_lending_version %}
 
-The contract version. Example: Aave AMM, Aave v1, Aave v2
+The contract version. Example: v1, v2
 
 {% enddocs %}
 
 {% docs evm_complete_lending_withdrawn_tokens %}
 
-The amount of tokens withdrawn. 
+The amount of tokens withdrawn.
 
 {% enddocs %}
 
@@ -335,13 +336,13 @@ The value of withdrawn tokens, in USD.
 
 {% docs evm_complete_lending_platform %}
 
-The specific protocol where lending event occurred.
+The specific protocol where the lending event occurred.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_protocol_token %}
 
-The protocol's specific lending asset token, ie cWBTC or aETHUni.
+The protocol's specific lending asset token.
 
 {% enddocs %}
 
@@ -395,24 +396,24 @@ The flash loan fee, changeable via the normal governance process, non-decimal ad
 
 {% docs evm_complete_lending_flashloan_amount_unadj %}
 
-The amount of assets flash loaned, non-decimal adjusted.  
+The amount of assets flash loaned, non-decimal adjusted.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_flashloan_token %}
 
-The flashloaned token address.  
+The flashloaned token address.
 
 {% enddocs %}
 
 {% docs evm_complete_lending_flashloan_token_symbol %}
 
-The flashloaned token symbol
+The flashloaned token symbol.
 
 {% enddocs %}
 
 {% docs evm_borrower %}
 
-Its the address of the user who is Borrowing or repaying the loan, depending on the action.
+It's the address of the user who is borrowing or repaying the loan, depending on the action.
 
 {% enddocs %}

@@ -1,49 +1,49 @@
 {% docs evm_ez_dex_swaps_table_doc %}
 
-This table currently contains swap events from the ```fact_event_logs``` table for SUSHI, UNISWAP, CURVE, SYNTHETIX, BALANCER, DODO, FRAX, HASHFLOW, KYBERSWAP, MAVERICK, PANCAKESWAP, SHIBASWAP, TRADER JOE, AND VERSE along with other helpful columns including an amount USD where possible. Other dexes coming soon! 
-Note: A rule has been put in place to null out the amount_USD if that number is too divergent between amount_in_USD and amount_out_usd. This can happen for swaps of less liquid tokens during very high fluctuation of price.
+This table contains swap events from the `fact_event_logs` table for popular decentralized exchanges (DEXes) on this EVM chain. It includes additional columns such as the amount in USD where possible. 
+Note: A rule is applied to nullify the `amount_USD` if there is a significant divergence between `amount_in_USD` and `amount_out_usd`, which can occur during high price fluctuations for less liquid tokens.
 
 {% enddocs %}
 
 {% docs evm_dex_lp_table_doc %}
 
-This table contains details on decentralized exchange (DEX) liquidity pools (LP) on the Ethereum blockchain, including the tokens, symbols and decimals within each pool alongside the following protocols: BALANCER, CURVE, DODO, FRAXSWAP, KYBERSWAP, MAVERICK, PANCAKESWAP, SHIBASWAP, SUSHISWAP, UNISWAP, TRADER JOE, VERSE . 
+This table provides details on decentralized exchange (DEX) liquidity pools (LP) on this EVM chain. It includes information on tokens, symbols, and decimals within each pool, applicable to various protocols.
 
 {% enddocs %}
 
 {% docs evm_dex_lp_deprecation %}
 
-Deprecating soon: This table will be upgraded to include liquidity pools for all applicable dexes. Please migrate queries to `defi.dim_dex_liquidity_pools`. This table will be deprecated on 08/17/2023.
+Deprecating soon: This table will be upgraded to include liquidity pools for all applicable DEXes on this EVM chain. Please migrate queries to `defi.dim_dex_liquidity_pools`. This table will be deprecated on 08/17/2023.
 
 {% enddocs %}
 
 {% docs evm_dex_creation_block %}
 
-The block number of when this pool was created.
+The block number at which this liquidity pool was created on the blockchain.
 
 {% enddocs %}
 
 {% docs evm_dex_creation_time %}
 
-The block timestamp of when this pool was created.
+The timestamp of the block when this liquidity pool was created.
 
 {% enddocs %}
 
 {% docs evm_dex_creation_tx %}
 
-The transaction where this contract was created.
+The transaction that created this liquidity pool contract.
 
 {% enddocs %}
 
 {% docs evm_dex_factory_address %}
 
-The address that created or deployed this pool, where available.
+The address that deployed this liquidity pool, where available.
 
 {% enddocs %}
 
 {% docs evm_dex_lp_decimals %}
 
-The # of decimals for the token included in the liquidity pool, as a JSON object, where available. 
+The number of decimals for the tokens included in the liquidity pool, represented as a JSON object, where available.
 
 Query example to access the key:value pairing within the object:
 SELECT
