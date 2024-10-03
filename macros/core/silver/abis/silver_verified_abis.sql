@@ -3,8 +3,15 @@
         streamline = false
     ) %}
     {% set block_explorer = var('BLOCK_EXPLORER') %}
+    {{ config(
+        materialized = 'incremental',
+        unique_key = "contract_address",
+        tags = ['abis']
+    ) }}
+
     WITH {% if not streamline %}
         base AS (
+
             SELECT
                 contract_address,
                 PARSE_JSON(
