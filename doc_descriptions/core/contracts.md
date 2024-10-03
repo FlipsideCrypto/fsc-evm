@@ -74,4 +74,9 @@ The token standard utilized by this contract.
 
 {% enddocs %}
 
+{% docs evm_symbol %}
+
+The symbol belonging to the address of the token
+
+{% enddocs %}
 
