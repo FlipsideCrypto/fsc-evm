@@ -1,6 +1,6 @@
 {% docs evm_internal_column %}
 
-Deprecated. This column is no longer used. Please remove from your query by Jan. 10 2024.'
+Deprecated. This column is no longer used. Please remove from your query by Jan. 10 2024.
 
 {% enddocs %}
 
@@ -16,7 +16,6 @@ Also known as block height. The block number, which indicates the length of the 
 
 {% enddocs %}
 
-
 {% docs evm_block_timestamp %}
 
 The date and time at which the block was produced.  
@@ -25,7 +24,7 @@ The date and time at which the block was produced.
 
 {% docs evm_decimals %}
 
-The number of decimal places this contract needs adjusted where token values exist. For example, use the decimal field to correctly transform raw amounts in ```fact_token_transfers```. 
+The number of decimal places this contract needs adjusted where token values exist. For example, use the decimal field to correctly transform raw amounts in `fact_token_transfers`. 
 
 {% enddocs %}
 
@@ -55,18 +54,15 @@ The unique identifier for each row in the table.
 
 {% docs evm_inserted_timestamp %}
 
-The utc timestamp at which the row was inserted into the table.
+The UTC timestamp at which the row was inserted into the table.
 
 {% enddocs %}
 
 {% docs evm_modified_timestamp %}
 
-The utc timestamp at which the row was last modified.
+The UTC timestamp at which the row was last modified.
 
 {% enddocs %}
-
-
-
 
 {% docs evm_precise_amount_unadjusted %}
 
@@ -85,5 +81,4 @@ The precise, adjusted amount of the transaction. This is returned as a string to
 The precise amount of the transaction fee. This is returned as a string to avoid precision loss. 
 
 {% enddocs %}
-
 

@@ -1,3 +1,10 @@
+{% docs evm_tx_table_doc %}
+
+This table contains transaction level data for this EVM blockchain. Each transaction will have a unique transaction hash, along with transaction fees and a value transferred in the native asset when applicable. Transactions may be native asset transfers or interactions with contract addresses. For more information, please see [The Ethereum Organization - Transactions](https://ethereum.org/en/developers/docs/transactions/)
+
+{% enddocs %}
+
+
 {% docs evm_cumulative_gas_used %}
 
 The total amount of gas used when this transaction was executed in the block. 
@@ -7,14 +14,14 @@ The total amount of gas used when this transaction was executed in the block.
 
 {% docs evm_tx_block_hash %}
 
-Block hash is a unique 66-character identifier that is generate when a block is produced. 
+Block hash is a unique 66-character identifier that is generated when a block is produced. 
 
 {% enddocs %}
 
 
 {% docs evm_tx_fee %}
 
-Amount paid to validate the transaction in Ether. 
+Amount paid to validate the transaction in the native asset. 
 
 {% enddocs %}
 
@@ -35,7 +42,7 @@ Cost per unit of gas in Gwei.
 
 {% docs evm_tx_gas_used %}
 
-Gas used by transaction.
+Gas used by the transaction.
 
 {% enddocs %}
 
@@ -89,16 +96,9 @@ Status of the transaction.
 {% enddocs %}
 
 
-{% docs evm_tx_table_doc %}
-
-This table contains transaction level data for the Ethereum Blockchain. Each transaction will have a unique transaction hash, along with transactions fees and an ETH value transferred when applicable. Transactions may be native ETH transfers or interactions with contract addresses. For more information, please see [The Ethereum Organization - Transactions](https://ethereum.org/en/developers/docs/transactions/)
-
-{% enddocs %}
-
-
 {% docs evm_value %}
 
-The value transacted in Ether. 
+The value transacted in the native asset. 
 
 {% enddocs %}
 

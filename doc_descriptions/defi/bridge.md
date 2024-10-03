@@ -1,6 +1,19 @@
 {% docs evm_bridge_table_doc %}
 
-A convenience table that aggregates bridge activity from event_logs, traces and transfers, including bridge deposits and transfers sent from the following protocols: ACROSS, ALLBRIDGE, AXELAR, CELER, CBRIDGE, DLN, DEBRIDGE, EYWA, HOP, MESON, MULTICHAIN, NATIVE, STARGATE, SYMBIOSIS, SYNAPSE, WORMHOLE along with other helpful columns, including an amount USD where available. Note, this table only includes records for the protocols listed above with live, onchain bridge activity and may not represent the complete bridging picture.
+A convenience table that aggregates bridge activity from event_logs, traces, and transfers, including bridge deposits and transfers. This table includes helpful columns, including an amount in USD where available. Note, this table only includes records for protocols with live, onchain bridge activity and may not represent the complete bridging picture.
+
+Below are the available blockchains and their corresponding platforms:
+
+| BLOCKCHAIN | PLATFORMS                                                                                       |
+|------------|-------------------------------------------------------------------------------------------------|
+| ARBITRUM   | across, across-v3, axelar, celer_cbridge, eywa, hop, meson, multichain, stargate, symbiosis, synapse, wormhole |
+| AVALANCHE  | allbridge, axelar, celer_cbridge, dln_debridge, eywa, meson, multichain, stargate, symbiosis, synapse |
+| BASE       | across, axelar, celer_cbridge, dln_debridge, meson, stargate, symbiosis |
+| BSC        | allbridge, celer_cbridge, dln_debridge, eywa, meson, stargate, symbiosis, synapse, wormhole |
+| ETHEREUM   | across, across-v3, allbridge, arbitrum nova: bridge, arbitrum one: l1 arb - custom gateway, arbitrum one: l1 erc20 gateway, avalanche: bridge, avalanche: old bridge, axelar, axie infinity: ronin bridge, axie infinity: ronin bridge v2, boba network: gateway, celer_cbridge, dln_debridge, gnosis chain: eth-xdai omni bridge, gnosis chain: xdai bridge, hop, meson, multichain, near: rainbow bridge, optimism: gateway, optimism: l1 escrow, polygon (matic): erc20 bridge, polygon (matic): plasma bridge, polygon (matic): zkevm bridge, starknet: starkgate eth bridge, stargate, symbiosis, synapse, wormhole, zksync era: diamond proxy, zksync lite: bridge |
+| GNOSIS     | celer_cbridge, hop, meson |
+| OPTIMISM   | across, across-v3, axelar, celer_cbridge, dln_debridge, eywa, hop, meson, multichain, stargate, symbiosis, synapse, wormhole |
+| POLYGON    | across, across-v3, allbridge, axelar, celer_cbridge, dln_debridge, hop, meson, multichain, stargate, symbiosis, synapse, wormhole |
 
 {% enddocs %}
 
@@ -12,7 +25,7 @@ The platform or protocol from which the bridge transaction or event originates.
 
 {% docs evm_bridge_origin_from %}
 
-The from address where the transaction originated from. This may be an EOA or contract address, however in most cases this is the user that initiated the bridge deposit or transfer.
+The from address where the transaction originated from. This may be an EOA or contract address; however, in most cases, this is the user that initiated the bridge deposit or transfer.
 
 {% enddocs %}
 
