@@ -28,7 +28,7 @@
 
 {{ config (
     materialized = 'table',
-    tags = ['streamline_core_complete']
+    tags = ['model_approach']
 ) }}
 
 SELECT
