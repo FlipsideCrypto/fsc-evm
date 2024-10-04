@@ -54,7 +54,7 @@
 {# Set uses_receipts_by_hash based on model configuration #}
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
-{%- set multiplier = 100 if uses_receipts_by_hash else 1 -%}
+{%- set multiplier = var('AVG_TXS_PER_BLOCK', 1) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
@@ -87,6 +87,8 @@
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
 {%- set order_by_clause = var((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
 
+{%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
+
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
 
@@ -100,8 +102,8 @@
 
     {{ log("=== API Details ===", info=True) }}
 
-    {{ log("API_URL: " ~ var('API_URL'), info=True) }}
-    {{ log("VAULT_SECRET_PATH: " ~ var('VAULT_SECRET_PATH'), info=True) }}
+    {{ log("NODE_URL: " ~ node_url, info=True) }}
+    {{ log("NODE_SECRET_PATH: " ~ var('NODE_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
@@ -252,7 +254,7 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ var('API_URL') }}',
+        '{{ node_url }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
             'fsc-quantum-state', '{{ model_quantum_state }}'
@@ -263,7 +265,7 @@ SELECT
             'method', '{{ model_configs[trimmed_model]['method'] }}',
             'params', {{ model_configs[trimmed_model]['params'] }}
         ),
-        '{{ var('VAULT_SECRET_PATH') }}'
+        '{{ var('NODE_SECRET_PATH') }}'
     ) AS request
 FROM
     ready_blocks
@@ -275,11 +277,8 @@ LIMIT {{ sql_limit }}
 
 {# Special logic for receipts by hash #}
 
-{{ config (
-    materialized = "view",
-    tags = ['streamline_core_realtime']
-) }}
 {# Start by invoking LQ for the last hour of blocks #}
+
 WITH numbered_blocks AS (
 
     SELECT
@@ -333,7 +332,7 @@ rpc_requests AS (
     SELECT
         live.udf_api(
             'POST',
-            '{Service}/{Authentication}',
+            '{{ node_url }}',
             OBJECT_CONSTRUCT(
                 'Content-Type',
                 'application/json',
@@ -341,7 +340,7 @@ rpc_requests AS (
                 'livequery'
             ),
             batch_request,
-            'Vault/prod/core/ankr/mainnet' -- update to streamline var
+            '{{ var('NODE_SECRET_PATH') }}'
         ) AS resp
     FROM
         batched_calls
@@ -393,7 +392,7 @@ SELECT
     ) AS partition_key,
     live.udf_api(
         'POST',
-         '{{ var('API_URL') }}',
+        '{{ node_url }}',
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json',
@@ -405,7 +404,7 @@ SELECT
             'method', '{{ model_configs[trimmed_model]['method'] }}',
             'params', {{ model_configs[trimmed_model]['params'] }}
         ),
-        '{{ var('VAULT_SECRET_PATH') }}'
+        '{{ var('NODE_SECRET_PATH') }}'
     ) AS request
 FROM
     ready_blocks
