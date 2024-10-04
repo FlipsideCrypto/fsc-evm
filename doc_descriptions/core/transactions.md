@@ -2,6 +2,19 @@
 
 This table contains transaction level data for this EVM blockchain. Each transaction will have a unique transaction hash, along with transaction fees and a value transferred in the native asset when applicable. Transactions may be native asset transfers or interactions with contract addresses. For more information, please see [The Ethereum Organization - Transactions](https://ethereum.org/en/developers/docs/transactions/)
 
+Below are the specific native tokens that correspond to each EVM chain:
+
+| Status     | Description |
+|------------|-------------|
+| ETHEREUM   | ETH         |
+| BINANCE    | BNB         |
+| POLYGON    | POL         |
+| AVALANCHE  | AVAX        |
+| ARBITRUM   | ETH         |
+| OPTIMISM   | ETH         |
+| GNOSIS     | xDAI        |
+| KAIA       | KLAY        |
+
 {% enddocs %}
 
 

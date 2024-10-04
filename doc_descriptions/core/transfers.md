@@ -8,7 +8,7 @@ Below are the specific native tokens that correspond to each EVM chain:
 |------------|-------------|
 | ETHEREUM   | ETH         |
 | BINANCE    | BNB         |
-| POLYGON    | MATIC       |
+| POLYGON    | POL         |
 | AVALANCHE  | AVAX        |
 | ARBITRUM   | ETH         |
 | OPTIMISM   | ETH         |
