@@ -282,7 +282,7 @@ The transaction hash for the NFT event. This is not necessarily unique in this t
 
 {% enddocs %}
 
-{% docs evm_nft_ez_lending_liquidations %}
+{% docs evm_nft_lending_liquidations_table_doc %}
 
 This table contains liquidation events for loans backed by collateralized NFTs on this EVM blockchain. This typically means the lender of the loan closes the loan and receives the NFT collateral.
 
