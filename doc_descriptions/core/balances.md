@@ -147,3 +147,225 @@ ORDER BY
 {% enddocs %}
 
 
+{% docs evm_balance_deltas_block_number %}
+
+Block at which the balance was read (when the transfer occurred).
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_block_timestamp %}
+
+Block timestamp at which the balance was read (when the transfer occurred).
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_user_address %}
+
+The wallet address holding the tokens / native asset.
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_contract_address %}
+
+The contract address of the token (null for native asset).
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_prev_bal_unadj %}
+
+The token or native asset balance from the previously recorded record for this wallet / token, without a decimal adjustment.
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_prev_bal %}
+
+The decimal adjusted token or native asset balance from the previously recorded record for this wallet and token.
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_prev_bal_usd %}
+
+Previously recorded balance in USD - this will be null for tokens without a decimal adjustment. Please note, the USD value is calculated at this block.
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_current_bal_unadj %}
+
+The token or native asset balance at the current block number, without a decimal adjustment.
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_ current_bal %}
+
+The decimal adjusted token or native asset balance at the current block number.
+
+{% enddocs %}
+
+
+{% docs evm_balance_deltas_current_bal_usd %}
+
+The current balance in USD - this will be null for tokens without a decimal adjustment. Please note, the USD value is calculated at this block.
+
+{% enddocs %}
+
+
+{% docs evm_bal_delta_unadj %}
+
+The non-decimal adjusted balance change.
+
+{% enddocs %}
+
+
+{% docs evm_bal_delta %}
+
+The decimal adjusted balance change.
+
+{% enddocs %}
+
+
+{% docs evm_bal_delta_usd %}
+
+The balance change in USD, will be null for tokens without a decimal.
+
+{% enddocs %}
+
+
+{% docs evm_symbol %}
+
+The symbol of the token contract, or native asset.
+
+{% enddocs %}
+
+
+{% docs evm_token_name %}
+
+The name of the token contract, or native asset.
+
+{% enddocs %}
+
+
+{% docs evm_decimals %}
+
+The decimals for the token contract.
+
+{% enddocs %}
+
+
+{% docs evm_has_decimal %}
+
+Whether the token has a decimal or not, either TRUE or FALSE.
+
+{% enddocs %}
+
+
+{% docs evm_has_price %}
+
+Whether the token has an hourly price or not, either TRUE or FALSE.
+
+{% enddocs %}
+
+{% docs evm_current_balances_last_activity_block %}
+
+The last block where this token was transferred by this address.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_block_timestamp %}
+
+The last block timestamp where this token was transferred by this address.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_user_address %}
+
+The wallet address holding the tokens / native asset.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_contract_address %}
+
+The contract address of the token (null for native asset).
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_current_bal_unadj %}
+
+The current token or native asset balance for this address, without a decimal adjustment.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_current_bal %}
+
+The decimal adjusted current token or native asset balance.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_usd_value_last_activity %}
+
+The value of the tokens or native asset in USD, at the time the last token activity occurred. Will be null for tokens without a decimal.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_usd_value_now %}
+
+The value of the tokens or native asset in USD, as of the most recently recorded hourly price. Will be null for tokens without a decimal.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_symbol %}
+
+The symbol of the token contract, or native asset.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_token_name %}
+
+The name of the token contract, or native asset.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_decimals %}
+
+The decimals for the token contract.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_has_decimal %}
+
+Whether the token has a decimal or not, either TRUE or FALSE.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_has_price %}
+
+Whether the token has an hourly price or not, either TRUE or FALSE.
+
+{% enddocs %}
+
+
+{% docs evm_current_balances_last_recorded_price %}
+
+The timestamp of the last hourly price recorded for this token.
+
+{% enddocs %}
+
