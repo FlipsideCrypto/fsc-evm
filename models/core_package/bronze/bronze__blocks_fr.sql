@@ -20,7 +20,7 @@
 
     {{ log("", info=True) }}
     {{ log("=== Source Details ===", info=True) }}
-    {{ log("Source: " ~ source('bronze_streamline', source_name), info=True) }}
+    {{ log("Source: " ~ source('bronze_streamline', source_name.lower()), info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
@@ -47,7 +47,7 @@
         FROM
             TABLE(
                 information_schema.external_table_files(
-                    table_name => '{{ source( "bronze_streamline", source_name) }}')
+                    table_name => '{{ source( "bronze_streamline", source_name.lower()) }}')
                 ) A
             )
         SELECT
@@ -71,7 +71,7 @@
         FROM
             {{ source(
                 "bronze_streamline",
-                source_name
+                source_name.lower()
             ) }}
             s
             JOIN meta b
