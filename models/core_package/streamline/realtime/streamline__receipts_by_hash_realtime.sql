@@ -171,27 +171,41 @@ blocks AS (
             input => resp :data
         )
 ),
-create_receipts_calls AS (
+flat_tx_hashes AS (
     SELECT
         block_number,
-        VALUE :: STRING AS tx_hash,
-        utils.udf_json_rpc_call(
-            'eth_getTransactionReceipt',
-            [tx_hash]
-        ) AS receipt_rpc_call
+        VALUE :: STRING AS tx_hash
     FROM
         blocks,
         LATERAL FLATTEN (
             input => tx_hashes
         )
 ),
+to_do AS (
+    SELECT
+        block_number,
+        tx_hash
+    FROM
+        flat_tx_hashes
+
+    EXCEPT
+
+    SELECT
+        block_number,
+        tx_hash
+    FROM
+        {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
+    WHERE 1=1
+        {% if not new_build %}
+            AND block_number >= (SELECT block_number FROM last_3_days)
+        {% endif %}
+),
 ready_blocks AS (
     SELECT
         block_number,
-        tx_hash,
-        receipt_rpc_call
+        tx_hash
     FROM
-        create_receipts_calls
+        to_do
 
     {% if testing_limit is not none %}
         LIMIT {{ testing_limit }} 
