@@ -8,7 +8,7 @@
         (model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
         (2 * var('BLOCKS_PER_HOUR') * multiplier) // lambdas
     ),
-    "sql_source": model_name ~ '_' ~ model_type
+    "sql_source": (model_name ~ '_' ~ model_type).lower()
 } -%}
 
 {%- if exploded_key is not none -%}

@@ -7,13 +7,15 @@
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type.lower() == 'realtime' 
     else 'ORDER BY partition_key ASC, block_number ASC' -%}
 {%- set order_by_clause = var((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
+{%- set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) -%}
 
 {%- set variables = {
     'node_url': node_url,
     'model_quantum_state': model_quantum_state,
     'testing_limit': testing_limit,
     'new_build': new_build,
-    'order_by_clause': order_by_clause
+    'order_by_clause': order_by_clause,
+    'uses_receipts_by_hash': uses_receipts_by_hash
 } -%}
 
 {{ return(variables) }}
