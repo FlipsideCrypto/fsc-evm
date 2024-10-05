@@ -2,49 +2,24 @@
 
 {% if uses_receipts_by_hash %}
 
-{# Extract model information from the identifier #}
-{%- set identifier_parts = this.identifier.split('__') -%}
-{%- if '__' in this.identifier -%}
-    {%- set model = identifier_parts[1] -%}
-{%- else -%}
-    {%- set model = this.identifier -%}
-{%- endif -%}
+{% set source_name = var('RECEIPTS_BY_HASH_FR_SOURCE_NAME', 'RECEIPTS_BY_HASH') %}
+{%% set model_type = '_FR' %}
+{# Default dynamic variables begin #}
 
-{# Dynamically get the trim suffix for this specific model #}
-{% set trim_suffix = var((model ~ 'trim_suffix').upper(), '_fr') %}
+{% set partition_function = var(source_name ~ model_type ~ '_PARTITION_FUNCTION', 
+ "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
+%}
+{% set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') %}
+{% set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', True) %}
 
-{# Trim model name logic and extract model_type #}
-{%- if trim_suffix and model.endswith(trim_suffix) -%}
-    {%- set trimmed_model = model[:model.rfind(trim_suffix)] -%}
-    {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
-{%- else -%}
-    {%- set trimmed_model = model -%}
-    {%- set model_type = 'fr' -%}
-{%- endif -%}
-
-{# Set parameters using project variables #}
-{% set partition_function = var((model ~ '_partition_function').upper(), 
-    "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") %}
-{% set partition_join_key = var((model ~ '_partition_join_key').upper(), 'partition_key') %}
-{% set balances = var((model ~ '_balances').upper(), false) %}
-{% set block_number = var((model ~ '_block_number').upper(), true) %}
-
+{# Default variables end #}
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
 
-    {{ log("=== Name Output Details ===", info=True) }}
-
-    {{ log("Original Model: " ~ model, info=True) }}
-    {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
-    {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
-    {{ log("Model Type: " ~ model_type, info=True) }}
-    {{ log("", info=True) }}
-
     {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_partition_function').upper() ~ ': ' ~ partition_function, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_partition_join_key').upper() ~ ': ' ~ partition_join_key, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_balances').upper() ~ ': ' ~ balances, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_block_number').upper() ~ ': ' ~ block_number, info=True) }}
+    {{ log(source_name ~ model_type ~ '_PARTITION_FUNCTION: ' ~ partition_function, info=True) }}
+    {{ log(source_name ~ model_type ~ '_PARTITION_JOIN_KEY: ' ~ partition_join_key, info=True) }}
+    {{ log(source_name ~ model_type ~ '_BLOCK_NUMBER: ' ~ block_number, info=True) }}
     {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
 
     {{ log("", info=True) }}
@@ -83,11 +58,6 @@
             s.*,
             b.file_name,
             b._inserted_timestamp
-
-        {% if balances %},
-            r.block_timestamp :: TIMESTAMP AS block_timestamp
-        {% endif %}
-
         {% if block_number %},
             COALESCE(
                 s.value :"BLOCK_NUMBER" :: STRING,
@@ -108,15 +78,6 @@
             JOIN meta b
             ON b.file_name = metadata$filename
             AND b.partition_key = s.{{ partition_join_key }}
-
-            {% if balances %}
-                JOIN {{ ref('_block_ranges') }}
-                r
-                ON r.block_number = COALESCE(
-                    s.value :"BLOCK_NUMBER" :: INT,
-                    s.value :"block_number" :: INT
-                )
-            {% endif %}
         WHERE
             b.partition_key = s.{{ partition_join_key }}
             AND DATA :error IS NULL

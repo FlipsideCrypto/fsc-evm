@@ -1,22 +1,23 @@
-{% set source_name = var('BLOCKS_FR_SOURCE_NAME', 'BLOCKS')%}
+{% set source_name = var('BLOCKS_FR_SOURCE_NAME', 'BLOCKS') %}
+{%% set model_type = '_FR' %}
 
-{% set partition_function = 
-    var(source_name ~ '_FR_PARTITION_FUNCTION', 
-        "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
+{# Default dynamic variables begin #}
+
+{% set partition_function = var(source_name ~ model_type ~ '_PARTITION_FUNCTION', 
+ "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
 %}
+{% set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') %}
+{% set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', True) %}
 
-{% set partition_join_key = var(source_name ~ '_FR_PARTITION_JOIN_KEY', 'partition_key') %}
-{% set balances = var(source_name ~ '_FR_BALANCES', false) %}
-{% set block_number = var(source_name ~ '_FR_BLOCK_NUMBER', true) %}
+{# Default variables end #}
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log(source_name ~ '_FR_PARTITION_FUNCTION: ' ~ partition_function, info=True) }}
-    {{ log(source_name ~ '_FR_PARTITION_JOIN_KEY: ' ~ partition_join_key, info=True) }}
-    {{ log(source_name ~ '_FR_BALANCES: ' ~ balances, info=True) }}
-    {{ log(source_name ~ '_FR_BLOCK_NUMBER: ' ~ block_number, info=True) }}
+    {{ log(source_name ~ model_type ~ '_PARTITION_FUNCTION: ' ~ partition_function, info=True) }}
+    {{ log(source_name ~ model_type ~ '_PARTITION_JOIN_KEY: ' ~ partition_join_key, info=True) }}
+    {{ log(source_name ~ model_type ~ '_BLOCK_NUMBER: ' ~ block_number, info=True) }}
 
     {{ log("", info=True) }}
     {{ log("=== Source Details ===", info=True) }}
@@ -36,7 +37,7 @@
 
 {{ config (
     materialized = 'view',
-    tags = ['test_tag']
+    tags = ['streamline_core_complete']
 ) }}
 
     WITH meta AS (
@@ -54,10 +55,6 @@
             s.*,
             b.file_name,
             b._inserted_timestamp
-        {% if balances %}
-            , r.block_timestamp :: TIMESTAMP AS block_timestamp
-        {% endif %}
-
         {% if block_number %},
             COALESCE(
                 s.value :"BLOCK_NUMBER" :: STRING,
@@ -77,15 +74,6 @@
             JOIN meta b
             ON b.file_name = metadata$filename
             AND b.partition_key = s.{{ partition_join_key }}
-
-            {% if balances %}
-                JOIN {{ ref('_block_ranges') }}
-                r
-                ON r.block_number = COALESCE(
-                    s.value :"BLOCK_NUMBER" :: INT,
-                    s.value :"block_number" :: INT
-                )
-            {% endif %}
         WHERE
             b.partition_key = s.{{ partition_join_key }}
             AND DATA :error IS NULL
