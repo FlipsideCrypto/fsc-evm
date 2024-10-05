@@ -4,25 +4,16 @@
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 
-{%- set params = set_streamline_parameters(
+{%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
     model_type=model_type,
     exploded_key=exploded_key
 ) -%}
 
 {# Set sql_limit variable for use in the main query #}
-{%- set sql_limit = params['sql_limit'] -%}
+{%- set sql_limit = streamline_params['sql_limit'] -%}
 
-{# Set additional configuration variables #}
-{%- set model_quantum_state = var((model_name ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
-{%- set testing_limit = var((model_name ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
-{%- set new_build = var((model_name ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
-
-{# Set order_by_clause based on model_type #}
-{%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type.lower() == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
-{%- set order_by_clause = var((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
-
-{%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
+{%- set default_vars = set_default_variables(model_name, model_type) -%}
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
@@ -50,7 +41,7 @@
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
-    {% set params_str = params | tojson %}
+    {% set params_str = streamline_params | tojson %}
     {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
 
     {% set config_log = '\n' %}
@@ -75,7 +66,7 @@
     post_hook = fsc_utils.if_data_call_function_v2(
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
-        params = params
+        params = streamline_params
     ),
     tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
