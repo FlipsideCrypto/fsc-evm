@@ -24,7 +24,7 @@
         SELECT
             job_created_time AS _inserted_timestamp,
             file_name,
-            {{ partition_function }} AS partition_key
+            {{ default_vars['partition_function'] }} AS partition_key
         FROM
             TABLE(
                 information_schema.external_table_file_registration_history(
