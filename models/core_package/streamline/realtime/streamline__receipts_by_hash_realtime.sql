@@ -8,20 +8,15 @@
 
 {%- set multiplier = var('AVG_TXS_PER_BLOCK', 1) -%}
 
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set params = {
-    "external_table": var((model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name),
-    "sql_limit": var((model_name ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
-    "producer_batch_size": var((model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
-    "worker_batch_size": var(
-        (model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * var('BLOCKS_PER_HOUR') * multiplier) // 2
-    ),
-    "sql_source": model_name ~ '_' ~ model_type
-} -%}
+{%- set streamline_params = set_streamline_parameters(
+    model_name=model_name,
+    model_type=model_type,
+    lambdas=2,
+    multiplier=multiplier
+) -%}
 
 {# Set sql_limit variable for use in the main query #}
-{%- set sql_limit = params['sql_limit'] -%}
+{%- set sql_limit = streamline_params['sql_limit'] -%}
 
 {# Set additional configuration variables #}
 {%- set model_quantum_state = var((model_name ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
@@ -61,7 +56,7 @@
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
-    {% set params_str = params | tojson %}
+    {% set params_str = streamline_params | tojson %}
     {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
 
     {% set config_log = '\n' %}
@@ -86,7 +81,7 @@
     post_hook = fsc_utils.if_data_call_function_v2(
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
-        params = params
+        params = streamline_params
     ),
     tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
