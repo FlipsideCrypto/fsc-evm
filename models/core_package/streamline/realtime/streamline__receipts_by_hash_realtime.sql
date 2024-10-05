@@ -3,101 +3,39 @@
 
 {% if uses_receipts_by_hash %}
 
-{# Define model-specific RPC method and params #}
-
-{%- set model_configs = {
-    'blocks_transactions': {
-        'method': 'eth_getBlockByNumber',
-        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
-        'exploded_key': ['data', 'result.transactions']
-    },
-    'receipts': {
-        'method': 'eth_getBlockReceipts',
-        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))',
-        'exploded_key': ['result'],
-        'lambdas': 2
-    },
-    'receipts_by_hash': {
-        'method': 'eth_getTransactionReceipt',
-        'params': 'ARRAY_CONSTRUCT(tx_hash)'
-    },
-    'traces': {
-        'method': 'debug_traceBlockByNumber',
-        'params': "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))",
-        'exploded_key': ['result'],
-        'lambdas': 2
-    },
-    'confirmed_blocks': {
-        'method': 'eth_getBlockByNumber',
-        'params': 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'
-    }
-} -%}
-
-{# Extract model information from the identifier #}
-{%- set identifier_parts = this.identifier.split('__') -%}
-{%- if '__' in this.identifier -%}
-    {%- set model = identifier_parts[1] -%}
-{%- else -%}
-    {%- set model = this.identifier -%}
-{%- endif -%}
-
-{# Dynamically get the trim suffix for this specific model #}
-{% set trim_suffix = var((model ~ '_trim_suffix').upper(), '_realtime') %}
-
-{# Trim model name logic and extract model_type #}
-{%- if trim_suffix and model.endswith(trim_suffix) -%}
-    {%- set trimmed_model = model[:model.rfind(trim_suffix)] -%}
-    {%- set model_type = trim_suffix[1:] -%}  {# Remove the leading underscore #}
-{%- else -%}
-    {%- set trimmed_model = model -%}
-    {%- set model_type = '' -%}
-{%- endif -%}
+{% set model_name = 'RECEIPTS_BY_HASH' %}
+{% set model_type = 'REALTIME' %}
 
 {%- set multiplier = var('AVG_TXS_PER_BLOCK', 1) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set params = {
-    "external_table": var((trimmed_model ~ '_' ~ model_type ~ '_external_table').upper(), trimmed_model),
-    "sql_limit": var((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
-    "producer_batch_size": var((trimmed_model ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
+    "external_table": var((model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name),
+    "sql_limit": var((model_name ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
+    "producer_batch_size": var((model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR') * multiplier),
     "worker_batch_size": var(
-        (trimmed_model ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
+        (model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
         (2 * var('BLOCKS_PER_HOUR') * multiplier) // model_configs.get(trimmed_model, {}).get('lambdas', 1)
     ),
-    "sql_source": model
+    "sql_source": model_name ~ '_' ~ model_type
 } -%}
 
 {# Set sql_limit variable for use in the main query #}
 {%- set sql_limit = params['sql_limit'] -%}
 
-{# Handle exploded key if it exists by updating the params dictionary above #}
-{%- set exploded_key_var = (trimmed_model ~ '_exploded_key').upper() -%}
-{%- set exploded_key_value = var(exploded_key_var, model_configs.get(trimmed_model, {}).get('exploded_key')) -%}
-{%- if exploded_key_value is not none -%}
-    {%- do params.update({"exploded_key": tojson(exploded_key_value)}) -%}
-{%- endif -%}
-
 {# Set additional configuration variables #}
-{%- set model_quantum_state = var((trimmed_model ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
-{%- set testing_limit = var((trimmed_model ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
-{%- set new_build = var((trimmed_model ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
+{%- set model_quantum_state = var((model_name ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
+{%- set testing_limit = var((model_name ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
+{%- set new_build = var((model_name ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
 
 {# Set order_by_clause based on model_type #}
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
-{%- set order_by_clause = var((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
+{%- set order_by_clause = var((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
 
 {%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
-
-    {{ log("=== Name Output Details ===", info=True) }}
-
-    {{ log("Original Model: " ~ model, info=True) }}
-    {{ log("Trimmed Model: " ~ trimmed_model, info=True) }}
-    {{ log("Trim Suffix: " ~ trim_suffix, info=True) }}
-    {{ log("Model Type: " ~ model_type, info=True) }}
-    {{ log("", info=True) }}
 
     {{ log("=== API Details ===", info=True) }}
 
@@ -107,19 +45,19 @@
 
     {{ log("=== Current Variable Settings ===", info=True) }}
 
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_model_quantum_state').upper() ~ ': ' ~ model_quantum_state, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_sql_limit').upper() ~ ': ' ~ sql_limit, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_testing_limit').upper() ~ ': ' ~ testing_limit, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_order_by_clause').upper() ~ ': ' ~ order_by_clause, info=True) }}
-    {{ log((trimmed_model ~ '_' ~ model_type ~ '_new_build').upper() ~ ': ' ~ new_build, info=True) }}
+    {{ log((model_name ~ '_' ~ model_type ~ '_model_quantum_state').upper() ~ ': ' ~ model_quantum_state, info=True) }}
+    {{ log((model_name ~ '_' ~ model_type ~ '_sql_limit').upper() ~ ': ' ~ sql_limit, info=True) }}
+    {{ log((model_name ~ '_' ~ model_type ~ '_testing_limit').upper() ~ ': ' ~ testing_limit, info=True) }}
+    {{ log((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper() ~ ': ' ~ order_by_clause, info=True) }}
+    {{ log((model_name ~ '_' ~ model_type ~ '_new_build').upper() ~ ': ' ~ new_build, info=True) }}
     {{ log("USES_RECEIPTS_BY_HASH: " ~ uses_receipts_by_hash, info=True) }}
     {{ log("", info=True) }}
 
     {{ log("=== RPC Details ===", info=True) }}
 
-    {{ log(trimmed_model ~ ": {", info=True) }}
-    {{ log("    method: '" ~ model_configs[trimmed_model]['method'] ~ "',", info=True) }}
-    {{ log("    params: '" ~ model_configs[trimmed_model]['params'] ~ "'", info=True) }}
+    {{ log(model_name ~ ": {", info=True) }}
+    {{ log("    method: '" ~ 'eth_getTransactionReceipt' ~ "',", info=True) }}
+    {{ log("    params: '" ~ 'ARRAY_CONSTRUCT(tx_hash)' ~ "'", info=True) }}
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
@@ -150,7 +88,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = params
     ),
-    tags = ['streamline_core_' ~ model_type]
+    tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
 
 {# Start by invoking LQ for the last hour of blocks #}
@@ -277,8 +215,8 @@ SELECT
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ model_configs[trimmed_model]['method'] }}',
-            'params', {{ model_configs[trimmed_model]['params'] }}
+            'method', 'eth_getTransactionReceipt',
+            'params', ARRAY_CONSTRUCT(tx_hash)
         ),
         '{{ var('NODE_SECRET_PATH') }}'
     ) AS request
