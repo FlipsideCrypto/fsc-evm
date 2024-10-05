@@ -36,7 +36,7 @@
 
 {{ config (
     materialized = 'view',
-    tags = ['streamline_core_complete']
+    tags = ['test_tag']
 ) }}
 
     WITH meta AS (
