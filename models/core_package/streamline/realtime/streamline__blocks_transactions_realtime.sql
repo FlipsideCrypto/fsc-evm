@@ -72,7 +72,7 @@
 ) }}
 
 WITH 
-{% if not new_build %}
+{% if not default_vars['new_build'] %}
     last_3_days AS (
         SELECT block_number
         FROM {{ ref("_block_lookback") }}
@@ -85,7 +85,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
     block_number IS NOT NULL
-    {% if not new_build %}
+    {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 
@@ -95,7 +95,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks_complete") }} b
     INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
     WHERE 1=1
-    {% if not new_build %}
+    {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 ),
@@ -103,7 +103,7 @@ ready_blocks AS (
     SELECT block_number
     FROM to_do
 
-    {% if not new_build%}
+    {% if not default_vars['new_build']%}
         UNION
         SELECT block_number
         FROM {{ ref("_unconfirmed_blocks") }}
@@ -112,8 +112,8 @@ ready_blocks AS (
         FROM {{ ref("_missing_txs") }}
     {% endif %}
 
-    {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+    {% if default_vars['testing_limit'] is not none %}
+        LIMIT {{ default_vars['testing_limit'] }} 
     {% endif %}
 )
 
@@ -123,10 +123,10 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        '{{ default_vars['node_url'] }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', '{{ default_vars['model_quantum_state'] }}'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
@@ -134,11 +134,11 @@ SELECT
             'method', 'eth_getBlockByNumber',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
         ),
-        '{{ var('NODE_SECRET_PATH') }}'
+        '{{ default_vars['node_secret_path'] }}'
     ) AS request
 FROM
     ready_blocks
     
-{{ order_by_clause }}
+{{ default_vars['order_by_clause'] }}
 
 LIMIT {{ sql_limit }}
