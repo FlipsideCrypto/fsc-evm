@@ -97,10 +97,10 @@ to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
     WHERE 
-        block_number IS NOT NULL
-        {% if not new_build %}
-            AND block_number >= (SELECT block_number FROM last_3_days)
-        {% endif %}
+    block_number IS NOT NULL
+    {% if not new_build %}
+        AND block_number >= (SELECT block_number FROM last_3_days)
+    {% endif %}
 
     EXCEPT
 
@@ -108,9 +108,9 @@ to_do AS (
     FROM {{ ref("streamline__blocks_complete") }} b
     INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
     WHERE 1=1
-        {% if not new_build %}
-            AND block_number >= (SELECT block_number FROM last_3_days)
-        {% endif %}
+    {% if not new_build %}
+        AND block_number >= (SELECT block_number FROM last_3_days)
+    {% endif %}
 ),
 ready_blocks AS (
     SELECT block_number
@@ -151,6 +151,7 @@ SELECT
     ) AS request
 FROM
     ready_blocks
+    
 {{ order_by_clause }}
 
 LIMIT {{ sql_limit }}
