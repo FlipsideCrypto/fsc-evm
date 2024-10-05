@@ -21,7 +21,7 @@
         SELECT
             registered_on AS _inserted_timestamp,
             file_name,
-            {{ partition_function }} AS partition_key
+            {{ default_vars['partition_function'] }} AS partition_key
         FROM
             TABLE(
                 information_schema.external_table_files(
@@ -50,8 +50,8 @@
             s
             JOIN meta b
             ON b.file_name = metadata$filename
-            AND b.partition_key = s.{{ partition_join_key }}
+            AND b.partition_key = s.{{ default_vars['partition_join_key'] }}
         WHERE
-            b.partition_key = s.{{ partition_join_key }}
+            b.partition_key = s.{{ default_vars['partition_join_key'] }}
             AND DATA :error IS NULL
             AND DATA IS NOT NULL
