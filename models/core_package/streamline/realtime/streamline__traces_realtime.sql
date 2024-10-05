@@ -106,7 +106,7 @@ to_do AS (
 
     {# Exclude blocks that have already been processed #}
     SELECT block_number
-    FROM {{ ref('streamline__' ~ model_name ~ '_complete') }}
+    FROM {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
         {% if not new_build %}
             AND block_number >= (SELECT block_number FROM last_3_days)
