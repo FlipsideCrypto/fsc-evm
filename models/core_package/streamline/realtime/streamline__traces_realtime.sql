@@ -147,7 +147,7 @@ SELECT
             'id', block_number,
             'jsonrpc', '2.0',
             'method', 'debug_traceBlockByNumber',
-            'params', 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))'
+            'params', "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))"
         ),
         '{{ var('NODE_SECRET_PATH') }}'
     ) AS request
