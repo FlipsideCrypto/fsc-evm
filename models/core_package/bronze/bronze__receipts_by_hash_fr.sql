@@ -3,7 +3,7 @@
 {% if uses_receipts_by_hash %}
 
 {% set source_name = var('RECEIPTS_BY_HASH_FR_SOURCE_NAME', 'RECEIPTS_BY_HASH') %}
-{%% set model_type = '_FR' %}
+{% set model_type = '_FR' %}
 {# Default dynamic variables begin #}
 
 {% set partition_function = var(source_name ~ model_type ~ '_PARTITION_FUNCTION', 

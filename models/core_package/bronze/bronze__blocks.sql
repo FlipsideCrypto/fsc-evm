@@ -1,6 +1,6 @@
 {% set source_name = var('BLOCKS_SOURCE_NAME', 'BLOCKS') %}
 
-{%% set model_type = '' %}
+{% set model_type = '' %}
 
 {# Default dynamic variables begin #}
 

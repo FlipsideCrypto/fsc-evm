@@ -1,6 +1,6 @@
 {% set source_name = var('TRACES_SOURCE_NAME', 'TRACES') %}
 
-{%% set model_type = '' %}
+{% set model_type = '' %}
 
 {# Default dynamic variables begin #}
 
