@@ -1,4 +1,3 @@
-
 {%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
 {%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
