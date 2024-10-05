@@ -4,7 +4,11 @@
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 
-{{ set_streamline_parameters(model_name, model_type, exploded_key) }}
+{%- set params = set_streamline_parameters(
+    model_name=model_name,
+    model_type=model_type,
+    exploded_key=exploded_key
+) -%}
 
 {# Set sql_limit variable for use in the main query #}
 {%- set sql_limit = params['sql_limit'] -%}
