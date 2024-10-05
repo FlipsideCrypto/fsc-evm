@@ -1,5 +1,5 @@
 {% set source_name = 'TRACES' %}
-{%% set model_type = 'COMPLETE' %}
+{% set model_type = 'COMPLETE' %}
 
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
 

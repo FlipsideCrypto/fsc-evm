@@ -4,7 +4,7 @@
 {% if uses_receipts_by_hash %}
 
 {% set source_name = 'RECEIPTS_BY_HASH' %}
-{%% set model_type = 'COMPLETE' %}
+{% set model_type = 'COMPLETE' %}
 
 {%- set full_refresh_type = var(('complete_' ~ trimmed_model ~ '_full_refresh').upper(), False) -%}
 
