@@ -50,7 +50,7 @@
 
     {{ log(model_name ~ ": {", info=True) }}
     {{ log("    method: '" ~ 'debug_traceBlockByNumber' ~ "',", info=True) }}
-    {{ log("    params: '" ~ 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))' ~ "'", info=True) }}
+    {{ log("    params: '" ~ "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))" ~ "'", info=True) }}
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
