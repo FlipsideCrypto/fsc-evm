@@ -20,7 +20,7 @@
 {%- endif -%}
 
 {{ config(
-    materialized = 'table',
+    materialized = 'incremental',
     cluster_by = 'round(_id,-3)',
     post_hook = post_hook,
     tags = ['utility']
@@ -33,3 +33,7 @@ SELECT
     ) - 1 :: INT AS _id
 FROM
     TABLE(GENERATOR(rowcount => {{ max_num }}))
+WHERE 1=1
+{% if is_incremental() %}
+    AND 1=0
+{% endif %}
