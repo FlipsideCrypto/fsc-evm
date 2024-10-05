@@ -2,6 +2,7 @@
 {% set model_type = 'COMPLETE' %}
 
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
+{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" %}
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
@@ -27,7 +28,7 @@
     materialized = "incremental",
     unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    post_hook = post_hook,
     full_refresh = full_refresh_type,
     tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
