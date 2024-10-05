@@ -1,5 +1,7 @@
 {%- set max_num = var('MAX_SEQUENCE_NUMBER', 1000000000) -%}
 
+{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)" %}
+
 {# Log configuration details if in execution mode #}
 {%- if execute and not target.name.startswith('prod') -%}
 
@@ -11,7 +13,7 @@
     {% set config_log = config_log ~ '\n{{ config (\n' %}
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ ',\n' %}
-    {% set config_log = config_log ~ '    post_hook = "' ~ config.get('post_hook') ~ '",\n' %}
+    {% set config_log = config_log ~ '    post_hook = "' ~ post_hook ~ '",\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
@@ -20,7 +22,7 @@
 {{ config(
     materialized = 'table',
     cluster_by = 'round(_id,-3)',
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)",
+    post_hook = post_hook,
     tags = ['utility']
 ) }}
 
