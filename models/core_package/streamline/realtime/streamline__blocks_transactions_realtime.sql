@@ -1,18 +1,10 @@
 {% set model_name = 'BLOCKS_TRANSACTIONS' %}
 {% set model_type = 'REALTIME' %}
+{% set exploded_key = ['data', 'result.transactions'] %}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set params = {
-    "external_table": var((model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name.lower()),
-    "sql_limit": var((model_name ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('BLOCKS_PER_HOUR')),
-    "producer_batch_size": var((model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('BLOCKS_PER_HOUR')),
-    "worker_batch_size": var(
-        (model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * var('BLOCKS_PER_HOUR'))
-    ),
-    "sql_source": model_name ~ '_' ~ model_type,
-    "exploded_key": tojson(['data', 'result.transactions'])
-} -%}
+
+{{ set_streamline_parameters(model_name, model_type, exploded_key) }}
 
 {# Set sql_limit variable for use in the main query #}
 {%- set sql_limit = params['sql_limit'] -%}
