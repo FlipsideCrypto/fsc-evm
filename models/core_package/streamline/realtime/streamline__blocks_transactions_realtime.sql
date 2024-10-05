@@ -10,9 +10,6 @@
     exploded_key=exploded_key
 ) -%}
 
-{# Set sql_limit variable for use in the main query #}
-{%- set sql_limit = streamline_params['sql_limit'] -%}
-
 {%- set default_vars = set_default_variables(model_name, model_type) -%}
 
 {{ log_streamline_details(
@@ -108,4 +105,4 @@ FROM
     
 {{ default_vars['order_by_clause'] }}
 
-LIMIT {{ sql_limit }}
+LIMIT {{ streamline_params['sql_limit'] }}
