@@ -6,7 +6,7 @@
 {% set source_name = 'RECEIPTS_BY_HASH' %}
 {% set model_type = 'COMPLETE' %}
 
-{%- set full_refresh_type = var(('complete_' ~ trimmed_model ~ '_full_refresh').upper(), False) -%}
+{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
 
 {# Log configuration details if in dev or during execution #}
 {%- if execute and not target.name.startswith('prod') -%}
