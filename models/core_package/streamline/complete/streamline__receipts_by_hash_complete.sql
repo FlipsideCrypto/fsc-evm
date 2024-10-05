@@ -1,4 +1,3 @@
-{# Set uses_receipts_by_hash based on model configuration #}
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
 {% if uses_receipts_by_hash %}
@@ -7,28 +6,14 @@
 {% set model_type = 'COMPLETE' %}
 
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
+
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)"%}
 
-{# Log configuration details if in dev or during execution #}
-{%- if execute and not target.name.startswith('prod') -%}
-
-    {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log("USES_RECEIPTS_BY_HASH: " ~ uses_receipts_by_hash, info=True) }}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
-    {% set config_log = config_log ~ '    cluster_by = "' ~ config.get('cluster_by') ~ '",\n' %}
-    {% set config_log = config_log ~ '    post_hook = "' ~ post_hook ~ '",\n' %}
-    {% set config_log = config_log ~ '    full_refresh = ' ~ full_refresh_type ~ ',\n' %}
-    {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-
-{%- endif -%}
+{{ log_complete_details(
+    post_hook = post_hook,
+    full_refresh_type = full_refresh_type,
+    uses_receipts_by_hash = uses_receipts_by_hash
+) }}
 
 -- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
 
