@@ -1,5 +1,5 @@
 {% set source_name = var('BLOCKS_FR_SOURCE_NAME', 'BLOCKS') %}
-{%% set model_type = '_FR' %}
+{% set model_type = '_FR' %}
 
 {# Default dynamic variables begin #}
 

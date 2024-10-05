@@ -1,6 +1,6 @@
 {% set source_name = var('TRANSACTIONS_FR_SOURCE_NAME', 'TRANSACTIONS') %}
 
-{%% set model_type = '_FR' %}
+{% set model_type = '_FR' %}
 
 {# Default dynamic variables begin #}
 

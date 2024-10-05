@@ -4,7 +4,7 @@
 
 {% set source_name = var('RECEIPTS_BY_HASH_SOURCE_NAME', 'RECEIPTS_BY_HASH') %}
 
-{%% set model_type = '' %}
+{% set model_type = '' %}
 
 {# Default dynamic variables begin #}
 
