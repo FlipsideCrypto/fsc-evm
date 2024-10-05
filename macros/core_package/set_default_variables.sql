@@ -21,3 +21,21 @@
 {{ return(variables) }}
 
 {% endmacro %}  
+
+{% macro set_default_variables_bronze(source_name, model_type) %}
+
+{%- set partition_function = var(source_name ~ model_type ~ '_PARTITION_FUNCTION', 
+ "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
+-%}
+{%- set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') -%}
+{%- set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', True) -%}
+
+{%- set variables = {
+    'partition_function': partition_function,
+    'partition_join_key': partition_join_key,
+    'block_number': block_number
+} -%}
+
+{{ return(variables) }}
+
+{% endmacro %} 

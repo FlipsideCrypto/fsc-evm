@@ -1,42 +1,18 @@
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
-
 {% if uses_receipts_by_hash %}
-
 {% set source_name = var('RECEIPTS_BY_HASH_FR_SOURCE_NAME', 'RECEIPTS_BY_HASH') %}
 {% set model_type = '_FR' %}
-{# Default dynamic variables begin #}
 
-{% set partition_function = var(source_name ~ model_type ~ '_PARTITION_FUNCTION', 
- "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
-%}
-{% set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') %}
-{% set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', True) %}
+{%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
 
-{# Default variables end #}
-{# Log configuration details if in dev or during execution #}
-{%- if execute and not target.name.startswith('prod') -%}
-
-    {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log(source_name ~ model_type ~ '_PARTITION_FUNCTION: ' ~ partition_function, info=True) }}
-    {{ log(source_name ~ model_type ~ '_PARTITION_JOIN_KEY: ' ~ partition_join_key, info=True) }}
-    {{ log(source_name ~ model_type ~ '_BLOCK_NUMBER: ' ~ block_number, info=True) }}
-    {{ log("Uses Receipts by Hash: " ~ uses_receipts_by_hash, info=True) }}
-
-    {{ log("", info=True) }}
-    {{ log("=== Source Details ===", info=True) }}
-    {{ log("Source: " ~ source('bronze_streamline', source_name.lower()), info=True) }}
-    {{ log("", info=True) }}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-
-{% endif %}
+{{ log_bronze_details(
+    source_name = source_name,
+    model_type = model_type,
+    partition_function = default_vars['partition_function'],
+    partition_join_key = default_vars['partition_join_key'],
+    block_number = default_vars['block_number'],
+    uses_receipts_by_hash = default_vars['uses_receipts_by_hash']
+) }}
 
 {{ config (
     materialized = 'view',
