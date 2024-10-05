@@ -29,7 +29,7 @@
 {%- set new_build = var((model_name ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
 
 {# Set order_by_clause based on model_type #}
-{%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
+{%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type.lower() == 'realtime' else 'ORDER BY partition_key ASC, block_number ASC' -%}
 {%- set order_by_clause = var((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
 
 {%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
