@@ -1,37 +1,3 @@
-{% macro number_sequence(
-    max_num=1000000000
-) %}
-SELECT
-    ROW_NUMBER() over (
-        ORDER BY
-            SEQ4()
-    ) - 1 :: INT AS _id
-FROM
-    TABLE(GENERATOR(rowcount => {{ max_num }}))
-{% endmacro %}
-
-{% macro block_sequence(min_block=0) %}
-SELECT
-    _id AS block_number,
-    utils.udf_int_to_hex(_id) AS block_number_hex
-FROM
-    {{ ref(
-        'silver__number_sequence'
-    ) }}
-WHERE
-    _id BETWEEN {{ min_block }} AND (
-        SELECT
-            COALESCE(
-                block_number,
-                0
-            )
-        FROM
-            {{ ref("streamline__get_chainhead") }}
-    )
-ORDER BY
-    _id ASC
-{% endmacro %}
-
 {% macro block_ranges() %}
 SELECT
     block_number,
