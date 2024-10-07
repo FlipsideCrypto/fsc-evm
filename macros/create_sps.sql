@@ -1,5 +1,6 @@
 {% macro create_sps() %}
     {{ log("Debug: Entering create_sps macro", info=True) }}
+    {{ log("Debug: Available macros: " ~ context.keys() | join(", "), info=True) }}
     {% if var("UPDATE_UDFS_AND_SPS", false) %}
         {{ log("Debug: UPDATE_UDFS_AND_SPS is true", info=True) }}
         {% set prod_db_name = var('PROD_DB_NAME') | upper %}
