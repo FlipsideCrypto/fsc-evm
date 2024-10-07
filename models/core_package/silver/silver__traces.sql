@@ -14,9 +14,9 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     full_refresh = false,
-    tags = ['realtime']
+    tags = ['core','silver']
 ) }}
 
     WITH bronze_traces AS (
@@ -41,7 +41,7 @@
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) _inserted_timestamp
+            COALESCE(MAX(_inserted_timestamp), '1900-01-01') _inserted_timestamp
         FROM
             {{ this }}
     ) AND DATA :result IS NOT NULL 
