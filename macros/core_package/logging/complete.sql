@@ -1,6 +1,6 @@
 {% macro log_complete_details(post_hook, full_refresh_type, uses_receipts_by_hash) %}
 
-{%- if flags.WHICH == 'compile' -%}
+{%- if flags.WHICH == 'compile' and execute -%}
 
     {% if uses_receipts_by_hash %}
 
