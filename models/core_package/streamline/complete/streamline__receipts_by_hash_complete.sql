@@ -49,6 +49,6 @@ FROM
         {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
     {% endif %}
 
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number, tx_hash ORDER BY _inserted_timestamp DESC)) = 1
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number desc, _inserted_timestamp DESC)) = 1
 
 {% endif %}
