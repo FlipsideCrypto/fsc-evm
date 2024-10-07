@@ -26,7 +26,7 @@ SELECT
     _id AS block_number,
     utils.udf_int_to_hex(_id) AS block_number_hex
 FROM
-    {{ ref('silver__number_sequence') }}
+    {{ ref('utils__number_sequence') }}
 WHERE
     _id BETWEEN {{ min_block }} AND (
         SELECT
