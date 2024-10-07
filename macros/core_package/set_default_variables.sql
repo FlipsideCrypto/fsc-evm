@@ -12,6 +12,7 @@
 
 {%- set variables = {
     'node_url': node_url,
+    'node_secret_path': node_secret_path,
     'model_quantum_state': model_quantum_state,
     'testing_limit': testing_limit,
     'new_build': new_build,
