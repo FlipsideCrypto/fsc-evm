@@ -1,6 +1,7 @@
 {% macro set_default_variables(model_name, model_type) %}
 
 {%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
+{%- set node_secret_path = var('NODE_SECRET_PATH') -%}
 {%- set model_quantum_state = var((model_name ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
 {%- set testing_limit = var((model_name ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
 {%- set new_build = var((model_name ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
