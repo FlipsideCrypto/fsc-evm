@@ -1,4 +1,4 @@
-{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params) %}
+{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -15,6 +15,7 @@
     {{ log((model_name ~ '_' ~ model_type ~ '_testing_limit').upper() ~ ': ' ~ testing_limit, info=True) }}
     {{ log((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper() ~ ': ' ~ order_by_clause, info=True) }}
     {{ log((model_name ~ '_' ~ model_type ~ '_new_build').upper() ~ ': ' ~ new_build, info=True) }}
+    {{ log('USES_RECEIPTS_BY_HASH' ~ ': ' ~ uses_receipts_by_hash, info=True) }}
     {{ log("", info=True) }}
 
     {{ log("=== RPC Details ===", info=True) }}
