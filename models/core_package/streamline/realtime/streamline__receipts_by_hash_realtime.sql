@@ -1,5 +1,8 @@
 {% set model_name = 'RECEIPTS_BY_HASH' %}
 {% set model_type = 'REALTIME' %}
+
+{%- set default_vars = set_default_variables(model_name, model_type) -%}
+
 {% if default_vars['uses_receipts_by_hash'] %}
 
 {%- set multiplier = var('AVG_TXS_PER_BLOCK', 1) -%}
@@ -11,7 +14,6 @@
     multiplier=multiplier
 ) -%}
 
-{%- set default_vars = set_default_variables(model_name, model_type) -%}
 
 {{ log_streamline_details(
     model_name=model_name,
