@@ -24,9 +24,10 @@ WITH bronze_blocks as (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
-    )
+    ) AND DATA:result is not null
     {% else %}
     {{ ref('bronze__blocks_fr') }}
+    WHERE DATA:result is not null
     {% endif %}
 )
 
