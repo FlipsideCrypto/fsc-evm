@@ -39,7 +39,25 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
     ```
 7. In the `packages.yml` file of your other dbt project, specify the new version of the package with:
 
+Alternatively, you can use the `makefile` to create a new tag and push it to the remote repository:
+
 ```
+make new_repo_tag
+```
+```
+Last 3 tags:
+v1.11.0
+v1.10.0
+v1.9.0
+
+Enter new tag name (e.g., v1.1.0) or 'q' to quit:
+```
+
+```
+vx.y.z # where x, y, and z are the new version numbers (or q to quit)
+```
+
+
 packages:
   - git: "https://github.com/FlipsideCrypto/fsc-evm.git"
     revision: "v1.1.0"
@@ -51,7 +69,7 @@ Regarding Semantic Versioning;
 - MAJOR version (first number) should increment when there are potential breaking or incompatible changes.
 - MINOR version (second number) should increment when functionality or features are added in a backwards-compatible manner.
 - PATCH version (third number) should increment when bug fixes are made without adding new features.
-3. Semantic versioning helps package users understand the degree of changes in a new release, and decide when to adopt new versions. With dbt packages, when you tag a release with a semantic version, users can specify the exact version they want to use in their projects.
+1. Semantic versioning helps package users understand the degree of changes in a new release, and decide when to adopt new versions. With dbt packages, when you tag a release with a semantic version, users can specify the exact version they want to use in their projects.
 
 ---
 
