@@ -1,13 +1,24 @@
-{% macro silver_traces_v1(
-        full_reload_start_block,
-        full_reload_blocks,
-        full_reload_mode = false,
-        arb_traces_mode = false,
-        sei_traces_mode = false,
-        kaia_traces_mode = false,
-        use_partition_key = false,
-        schema_name = 'bronze'
-    ) %}
+-- depends_on: {{ ref('bronze__traces') }}
+
+{{ set full_reload_start_block = var('TRACES_FULL_RELOAD_START_BLOCK', 0)}}
+{{ set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000)}}
+{{ set full_reload_mode = var('SILVER_TRACES_FULL_RELOAD_MODE', false)}}
+{{ set arb_traces_mode = var('ARB_TRACES_MODE', false)}}
+{{ set sei_traces_mode = var('EI_TRACES_MODE', false)}}
+{{ set kaia_traces_mode = var('KAIA_TRACES_MODE', false)}}
+{{ set use_partition_key = var('USE_PARTITION_KEY', false)}}
+{{ set schema_name = var('TRACES_SCHEMA_NAME', 'bronze')}}
+
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['modified_timestamp::DATE','partition_key'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+    full_refresh = false,
+    tags = ['realtime']
+) }}
+
     WITH bronze_traces AS (
         SELECT
             block_number,
@@ -26,24 +37,20 @@
         FROM
 
 {% if is_incremental() and not full_reload_mode %}
-{{ ref(
-    schema_name ~ '__streamline_traces'
-) }}
+{{ ref(schema_name ~ '__traces') }}
 WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(_inserted_timestamp) _inserted_timestamp
         FROM
             {{ this }}
-    )
-    AND DATA :result IS NOT NULL {% if arb_traces_mode %}
+    ) AND DATA :result IS NOT NULL 
+    {% if arb_traces_mode %}
         AND block_number > 22207817
     {% endif %}
 
     {% elif is_incremental() and full_reload_mode %}
-    {{ ref(
-        schema_name ~ '__streamline_fr_traces'
-    ) }}
+    {{ ref(schema_name ~ '__traces_fr') }}
 WHERE
     {% if use_partition_key %}
         partition_key BETWEEN (
@@ -77,9 +84,7 @@ WHERE
         AND block_number > 22207817
     {% endif %}
 {% else %}
-    {{ ref(
-        schema_name ~ '__streamline_fr_traces'
-    ) }}
+    {{ ref(schema_name ~ '__traces_fr') }}
 WHERE
     {% if use_partition_key %}
         partition_key <= {{ full_reload_start_block }}
@@ -223,4 +228,3 @@ FROM
     flatten_traces qualify(ROW_NUMBER() over(PARTITION BY traces_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
-{% endmacro %}
