@@ -46,6 +46,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_receipts
-QUALIFY ROW_NUMBER() OVER (PARTITION BY receipts_id ORDER BY _inserted_timestamp DESC) = 1
+QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number desc, _inserted_timestamp DESC) = 1
 
 {% endif %}
