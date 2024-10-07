@@ -14,7 +14,6 @@
     multiplier=multiplier
 ) -%}
 
-
 {{ log_streamline_details(
     model_name=model_name,
     model_type=model_type,
