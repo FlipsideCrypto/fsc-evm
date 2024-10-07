@@ -12,11 +12,11 @@
             {% do run_query("CREATE SCHEMA IF NOT EXISTS " ~ schema_name) %}
             {{ log("Debug: Attempting to call sp_create_prod_clone", info=True) }}
             {% if execute %}
-                {% if context.get('sp_create_prod_clone') is not none %}
+                {% if context.get('fsc_evm.sp_create_prod_clone') is not none %}
                     {{ log("Debug: sp_create_prod_clone is defined", info=True) }}
-                    {{ sp_create_prod_clone(schema_name) }}
+                    {{ fsc_evm.sp_create_prod_clone(schema_name) }}
                 {% else %}
-                    {{ log("Warning: sp_create_prod_clone is not defined. Skipping stored procedure creation.", info=True) }}
+                    {{ log("Warning: fsc_evm.sp_create_prod_clone is not defined. Skipping stored procedure creation.", info=True) }}
                 {% endif %}
             {% else %}
                 {{ log("Debug: In compilation phase, skipping sp_create_prod_clone call", info=True) }}
