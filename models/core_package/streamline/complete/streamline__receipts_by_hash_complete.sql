@@ -7,6 +7,8 @@
 
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
 
+{%- set unique_key = 'complete_' ~ source_name.lower() ~ '_id' -%}
+
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)"%}
 
 {{ log_complete_details(
@@ -19,7 +21,7 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = "block_number",
+    unique_key = unique_key,
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
