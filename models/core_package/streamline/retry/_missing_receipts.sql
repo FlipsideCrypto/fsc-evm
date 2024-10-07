@@ -1,6 +1,17 @@
 {{ config(
     materialized = 'ephemeral'
 ) }}
+
+{% set new_build = var('RECEIPTS_REALTIME_NEW_BUILD', False) %}
+{% set new_build_by_hash = var('RECEIPTS_BY_HASH_REALTIME_NEW_BUILD', False) %}
+
+{% if new_build or new_build_by_hash %}
+
+SELECT  
+    -1 AS block_number
+
+{% else %}
+
     WITH lookback AS (
         SELECT
             block_number
@@ -30,3 +41,5 @@ WHERE
     AND (
         r._inserted_timestamp >= DATEADD('hour', -84, SYSDATE())
         OR r._inserted_timestamp IS NULL)
+
+{% endif %}

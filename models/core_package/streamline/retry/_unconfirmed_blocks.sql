@@ -1,6 +1,16 @@
 {{ config(
     materialized = 'ephemeral'
 ) }}
+
+{% set new_build = var('CONFIRM_BLOCKS_REALTIME_NEW_BUILD', False) %}
+
+{% if new_build %}
+
+SELECT  
+    -1 AS block_number
+
+{% else %}
+
     WITH lookback AS (
         SELECT
             block_number
@@ -30,3 +40,5 @@ WHERE
     AND (
         txs._inserted_timestamp >= DATEADD('hour', -84, SYSDATE())
         OR txs._inserted_timestamp IS NULL)
+
+{% endif %}
