@@ -2,8 +2,7 @@
 
 {%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
 
-{# Log configuration details if in dev or during execution #}
-{%- if execute and not target.name.startswith('prod') -%}
+{%- if flags.WHICH == 'compile' -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("CHAINHEAD_QUANTUM_STATE: " ~ model_quantum_state, info=True) }}
