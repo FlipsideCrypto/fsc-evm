@@ -1,6 +1,8 @@
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
--- depends_on: {{ ref('bronze__receipts') }}
+{% if uses_receipts_by_hash %}
+
+-- depends_on: {{ ref('bronze__receipts_by_hash') }}
 
 {{ config (
     materialized = "incremental",
@@ -11,8 +13,6 @@
     full_refresh = false,
     tags = ['core','silver']
 ) }}
-
-{% if uses_receipts_by_hash %}
 
 WITH bronze_receipts AS (
     SELECT 
