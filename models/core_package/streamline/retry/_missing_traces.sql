@@ -2,6 +2,15 @@
     materialized = 'ephemeral'
 ) }}
 
+{% set new_build = var('TRACES_REALTIME_NEW_BUILD', False) %}
+
+{% if new_build %}
+
+SELECT  
+    -1 AS block_number
+
+{% else %}
+
     WITH lookback AS (
         SELECT
             block_number
@@ -28,3 +37,5 @@ WHERE
     )
     AND tr.block_timestamp >= DATEADD('hour', -84, SYSDATE())
     AND tr.block_timestamp IS NOT NULL
+
+{% endif %}

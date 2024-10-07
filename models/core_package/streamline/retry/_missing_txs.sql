@@ -2,6 +2,15 @@
     materialized = 'ephemeral'
 ) }}
     
+{% set new_build = var('BLOCKS_TRANSACTIONS_REALTIME_NEW_BUILD', False) %}
+
+{% if new_build %}
+
+SELECT  
+    -1 AS block_number
+
+{% else %}
+    
     WITH lookback AS (
         SELECT
             block_number
@@ -37,3 +46,5 @@ FROM
     transactions
 WHERE
     POSITION - prev_POSITION <> 1
+
+{% endif %}
