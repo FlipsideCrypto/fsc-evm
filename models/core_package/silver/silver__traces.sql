@@ -1,5 +1,3 @@
--- depends_on: {{ ref('bronze__traces') }}
-
 {{ set full_reload_start_block = var('TRACES_FULL_RELOAD_START_BLOCK', 0)}}
 {{ set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000)}}
 {{ set full_reload_mode = var('SILVER_TRACES_FULL_RELOAD_MODE', false)}}
@@ -8,6 +6,8 @@
 {{ set kaia_traces_mode = var('KAIA_TRACES_MODE', false)}}
 {{ set use_partition_key = var('USE_PARTITION_KEY', false)}}
 {{ set schema_name = var('TRACES_SCHEMA_NAME', 'bronze')}}
+
+-- depends_on: {{ ref('bronze__traces') }}
 
 {{ config (
     materialized = "incremental",
