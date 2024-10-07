@@ -23,7 +23,7 @@
     materialized = 'incremental',
     cluster_by = 'round(_id,-3)',
     post_hook = post_hook,
-    tags = ['utility']
+    tags = ['utils']
 ) }}
 
 SELECT
