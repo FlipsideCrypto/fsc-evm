@@ -14,7 +14,7 @@
 
 {{ config (
     materialized = 'view',
-    tags = ['streamline_core_complete']
+    tags = ['streamline_core_complete', 'bronze_external']
 ) }}
 
     WITH meta AS (
