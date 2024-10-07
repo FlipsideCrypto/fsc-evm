@@ -33,7 +33,7 @@
             b.file_name,
             b._inserted_timestamp
 
-        {% if block_number %},
+        {% if default_vars['block_number'] %},
             COALESCE(
                 s.value :"BLOCK_NUMBER" :: STRING,
                 s.value :"block_number" :: STRING,
