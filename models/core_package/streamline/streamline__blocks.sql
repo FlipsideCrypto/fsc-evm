@@ -1,6 +1,6 @@
 {%- set min_block = var('START_UP_BLOCK', 0) -%}
 
-{%- if flags.WHICH == 'compile' -%}
+{%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("START_UP_BLOCK: " ~ min_block, info=True) }}

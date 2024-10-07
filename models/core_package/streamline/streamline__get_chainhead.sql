@@ -2,7 +2,7 @@
 
 {%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
 
-{%- if flags.WHICH == 'compile' -%}
+{%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("CHAINHEAD_QUANTUM_STATE: " ~ model_quantum_state, info=True) }}
