@@ -21,7 +21,7 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = unique_key,
+    unique_key = "'" ~ unique_key ~ "'",
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
