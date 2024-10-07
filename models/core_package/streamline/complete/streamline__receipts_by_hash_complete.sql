@@ -19,7 +19,7 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = "block_number",
+    unique_key = "complete_{{ source_name.lower() }}_id",
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
