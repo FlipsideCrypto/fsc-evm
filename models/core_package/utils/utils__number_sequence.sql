@@ -2,7 +2,7 @@
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)" %}
 
-{%- if flags.WHICH == 'compile' -%}
+{%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("MAX_SEQUENCE_NUMBER: " ~ max_num, info=True) }}
