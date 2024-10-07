@@ -1,6 +1,6 @@
 {% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params) %}
 
-{%- if execute and not target.name.startswith('prod') -%}
+{%- if flags.WHICH == 'compile' -%}
 
     {{ log("=== API Details ===", info=True) }}
 

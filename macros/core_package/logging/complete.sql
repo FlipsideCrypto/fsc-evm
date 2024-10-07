@@ -1,6 +1,6 @@
 {% macro log_complete_details(post_hook, full_refresh_type, uses_receipts_by_hash) %}
 
-{%- if execute and not target.name.startswith('prod') -%}
+{%- if flags.WHICH == 'compile' -%}
 
     {% if uses_receipts_by_hash %}
 

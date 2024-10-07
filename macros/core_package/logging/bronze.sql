@@ -1,6 +1,6 @@
 {% macro log_bronze_details(source_name, model_type, partition_function, partition_join_key, block_number, uses_receipts_by_hash) %}
 
-{%- if execute and not target.name.startswith('prod') -%}
+{%- if flags.WHICH == 'compile' -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log(source_name ~ model_type ~ '_PARTITION_FUNCTION: ' ~ partition_function, info=True) }}
