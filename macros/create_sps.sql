@@ -1,31 +1,55 @@
 {% macro create_sps() %}
-    {{ log("Debug: Entering create_sps macro", info=True) }}
-    {{ log("Debug: Available macros: " ~ context.keys() | join(", "), info=True) }}
     {% if var("UPDATE_UDFS_AND_SPS", false) %}
-        {{ log("Debug: UPDATE_UDFS_AND_SPS is true", info=True) }}
         {% set prod_db_name = var('PROD_DB_NAME') | upper %}
-        {{ log("Debug: prod_db_name is " ~ prod_db_name, info=True) }}
         {% if target.database | upper == prod_db_name and target.name == 'prod' %}
-            {{ log("Debug: Target database and name match production criteria", info=True) }}
             {% set schema_name = var("SPS_SCHEMA_NAME", '_internal') %}
-            {{ log("Debug: schema_name is " ~ schema_name, info=True) }}
             {% do run_query("CREATE SCHEMA IF NOT EXISTS " ~ schema_name) %}
-            {{ log("Debug: Attempting to call sp_create_prod_clone", info=True) }}
-            {% if execute %}
-                {% if context.get('fsc_evm.sp_create_prod_clone') is not none %}
-                    {{ log("Debug: sp_create_prod_clone is defined", info=True) }}
-                    {{ fsc_evm.sp_create_prod_clone(schema_name) }}
-                {% else %}
-                    {{ log("Warning: fsc_evm.sp_create_prod_clone is not defined. Skipping stored procedure creation.", info=True) }}
-                {% endif %}
-            {% else %}
-                {{ log("Debug: In compilation phase, skipping sp_create_prod_clone call", info=True) }}
-            {% endif %}
-        {% else %}
-            {{ log("Debug: Target database or name do not match production criteria", info=True) }}
+            
+            {% set sp_create_prod_clone_sql %}
+            create or replace procedure {{ schema_name }}.create_prod_clone(source_db_name string, destination_db_name string, role_name string)
+            returns boolean 
+            language javascript
+            execute as caller
+            as
+            $$
+                snowflake.execute({sqlText: `BEGIN TRANSACTION;`});
+                try {
+                    snowflake.execute({sqlText: `CREATE OR REPLACE DATABASE ${DESTINATION_DB_NAME} CLONE ${SOURCE_DB_NAME}`});
+                    snowflake.execute({sqlText: `DROP SCHEMA IF EXISTS ${DESTINATION_DB_NAME}._INTERNAL`}); /* this only needs to be in prod */
+
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON ALL SCHEMAS IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON ALL FUNCTIONS IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON ALL PROCEDURES IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON ALL VIEWS IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON ALL STAGES IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON ALL TABLES IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUTURE FUNCTIONS IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME};`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUTURE PROCEDURES IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME};`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUTURE VIEWS IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME};`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUTURE STAGES IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME};`}); 
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUTURE TABLES IN DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME};`}); 
+
+                    snowflake.execute({sqlText: `GRANT OWNERSHIP ON DATABASE ${DESTINATION_DB_NAME} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`})
+
+                    var existing_tags = snowflake.execute({sqlText: `SHOW TAGS IN DATABASE ${DESTINATION_DB_NAME};`});
+                    while (existing_tags.next()) {
+                        var schema = existing_tags.getColumnValue(4);
+                        var tag_name = existing_tags.getColumnValue(2)
+                        snowflake.execute({sqlText: `GRANT OWNERSHIP ON TAG ${DESTINATION_DB_NAME}.${schema}.${tag_name} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`});
+                    }
+
+                    snowflake.execute({sqlText: `COMMIT;`});
+                } catch (err) {
+                    snowflake.execute({sqlText: `ROLLBACK;`});
+                    throw(err);
+                }
+
+                return true
+            $$
+            {% endset %}
+
+            {% do run_query(sp_create_prod_clone_sql) %}
+            {{ log("Created stored procedure: " ~ schema_name ~ ".create_prod_clone", info=True) }}
         {% endif %}
-    {% else %}
-        {{ log("Debug: UPDATE_UDFS_AND_SPS is false", info=True) }}
     {% endif %}
-    {{ log("Debug: Exiting create_sps macro", info=True) }}
 {% endmacro %}
