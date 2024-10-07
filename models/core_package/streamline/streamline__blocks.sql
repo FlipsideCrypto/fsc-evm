@@ -1,7 +1,6 @@
 {%- set min_block = var('START_UP_BLOCK', 0) -%}
 
-{# Log configuration details if in dev or during execution #}
-{%- if execute and not target.name.startswith('prod') -%}
+{%- if flags.WHICH == 'compile' -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("START_UP_BLOCK: " ~ min_block, info=True) }}
