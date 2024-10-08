@@ -1,4 +1,4 @@
-{% macro streamline_decoded_traces_requests(
+{% macro streamline_decoded_traces_requests_test(
         start,
         stop,
         model_type,
