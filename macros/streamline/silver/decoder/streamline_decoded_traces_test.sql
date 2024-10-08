@@ -35,6 +35,7 @@
             input
         FROM
             {{ ref("silver__traces") }}
+            t
         WHERE
             {% if model_type == 'realtime' %}
                 t.block_number >= (
