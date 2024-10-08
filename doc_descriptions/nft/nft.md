@@ -5,7 +5,7 @@ This table contains NFT sales on this EVM blockchain. More NFT marketplaces will
 {% enddocs %}
 
 
-{% docs evm_ez_nft_sales_table_doc %}
+{% docs evm_nft_sales_table_doc %}
 
 This table contains NFT sale events from various marketplaces.
 
@@ -21,6 +21,12 @@ This table contains NFT mint events, defined as NFT transfers from a burn addres
 {% docs evm_nft_transfer_table_doc %}
 
 This table contains NFT transfer events on this EVM blockchain.
+
+{% enddocs %}
+
+{% docs evm_lending_repayments_table_doc %}
+
+This table contains repayment events for loans backed by collateralized NFTs on this EVM blockchain. Events in this table can be a full repayment either by the borrower to get their collateral back or by a new lender to repay the borrower's previous loan. The latter is labeled as refinance where the same borrower takes on a new loan from a new lender and repays the past loan. The NFT collateral is still locked in this scenario.
 
 {% enddocs %}
 
@@ -408,102 +414,18 @@ The tenure of the loan denominated in seconds. For perpetual term loan, the valu
 
 {% enddocs %}
 
-{% docs evm_ez_lending_loans %}
+{% docs evm_lending_loans %}
 
 This table contains NFT lending events for loans backed by collateralized NFTs on this EVM blockchain. This could be depositing an NFT and taking out a loan or using the Buy Now Pay Later (BNPL) feature to take a loan out of the newly bought NFT. This NFT will remain locked until the loan is cleared.
 
 {% enddocs %}
 
-{% docs evm_event_type %}
+{% docs evm_nft_lending_event_type %}
 
 There are 2 types of loan creation events. It can either be a new loan or a refinance of an existing loan. Note that renegotiation events are categorized as refinance events in this table. Old loans are repaid and new loan ids are reissued so these would be new loan entries in this table.
 
 {% enddocs %}
 
-{% docs evm_platform_address %}
-
-The contract address of the platform's lending contract.
-
-{% enddocs %}
-
-{% docs evm_platform_name %}
-
-The name of the platform.
-
-{% enddocs %}
-
-{% docs evm_platform_exchange_version %}
-
-The version of the platform's lending contract.
-
-{% enddocs %}
-
-{% docs evm_loanid %}
-
-The ID associated with the loan, often times tied to the borrower's address and collateral. This ID can be used as a unique identifier when tracking active loans. However, note that refinances can happen while still maintaining the same loanId. For some platforms, loanids of previously paid loans are reused hence they can't be reliably used as a unique identifier without appropriate timestamp filters. Instead, use the unique_loan_id column.
-
-{% enddocs %}
-
-{% docs evm_unique_loan_id %}
-
-The unique ID that can be used to represent a loan within the same platform. For the same loan, the value of this ID will remain the same across the loans taken, liquidations and repayment tables. For some platforms where the lender is issued a promissory note, the lender can send this note to any address, making the receiver the new lender. However, the unique_loan_id still remains the same although the final lender is different. The unique_loan_id changes only if the loanId and lender changes which would also indicate the previous loan has been fully paid off.
-
-{% enddocs %}
-
-{% docs evm_lender_address %}
-
-The address that gives out a loan to the borrower. When a loan is issued, a promissory note (an ERC721) is issued to the lender. The lender can transfer this note to any address which makes any receiving address the new lender.
-
-{% enddocs %}
-
-{% docs evm_borrower_address %}
-
-The address that receives the loan and has an NFT locked as collateral.
-
-{% enddocs %}
-
-{% docs evm_nft_address %}
-
-The address of the NFT used as collateral.
-
-{% enddocs %}
-
-{% docs evm_tokenid %}
-
-The tokenId of the NFT used as collateral.
-
-{% enddocs %}
-
-{% docs evm_loan_token_address %}
-
-The contract address of what the loan is denominated in. This could be either the native asset or other tokens.
-
-{% enddocs %}
-
-{% docs evm_loan_token_symbol %}
-
-The symbol of the loan token address.
-
-{% enddocs %}
-
-{% docs evm_principal_unadj %}
-
-The principal amount of the loan taken with unadjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_principal %}
-
-The principal amount of the loan taken with adjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_principal_usd %}
-
-The principal amount of the loan taken in USD terms.
-
-{% enddocs %}
-
 {% docs evm_debt_unadj %}
 
 The total debt of the loan (principal amount plus interests) with unadjusted decimal places.
@@ -540,211 +462,7 @@ The fee charged by the lending platform in USD terms.
 
 {% enddocs %}
 
-{% docs evm_interest_rate %}
-
-The non-annualized rate charged by the lender on the principal amount of the loan denominated in percentage (%). For fixed term loans, it is calculated by taking the difference between total debt and principal amount divided by principal amount. For perpetual term loans, interest rate is usually on an annual basis and total debt is calculated prorated.
-
-{% enddocs %}
-
-{% docs evm_apr %}
-
-The annualized interest rate denominated in percentage (%).
-
-{% enddocs %}
-
-{% docs evm_loan_term_type %}
-
-The type of loan terms, could be either a fixed loan or a perpetual loan. A fixed term loan has a fixed repayment date while a perpetual loan does not.
-
-{% enddocs %}
-
-{% docs evm_loan_start_timestamp %}
-
-The timestamp of when the loan offer is accepted.
-
-{% enddocs %}
-
-{% docs evm_loan_due_timestamp %}
-
-The timestamp of when the loan is due. For perpetual term loan, the value will be null.
-
-{% enddocs %}
-
-{% docs evm_loan_tenure %}
-
-The tenure of the loan denominated in seconds. For perpetual term loan, the value will be null.
-
-{% enddocs %}
-
-{% docs evm_ez_lending_repayments %}
-
-This table contains repayment events for loans backed by collateralized NFTs on this EVM blockchain. Events in this table can be a full repayment either by the borrower to get their collateral back or by a new lender to repay the borrower's previous loan. The latter is labeled as refinance where the same borrower takes on a new loan from a new lender and repays the past loan. The NFT collateral is still locked in this scenario.
-
-{% enddocs %}
-
-{% docs evm_event_type %}
-
-There are 2 types of loan repayment events. It can either be repay or refinance. Repay events are full repayment events by the borrower to get their collateral back while refinance events represent the same borrower engaging a new lender and repay their past loan. The collateral is still locked in this scenario.
-
-{% enddocs %}
-
-{% docs evm_platform_address %}
-
-The contract address of the platform's lending contract.
-
-{% enddocs %}
-
-{% docs evm_platform_name %}
-
-The name of the platform.
-
-{% enddocs %}
-
-{% docs evm_platform_exchange_version %}
-
-The version of the platform's lending contract.
-
-{% enddocs %}
-
-{% docs evm_loanid %}
-
-The ID associated with the loan, often times tied to the borrower's address and collateral. This ID can be used as a unique identifier when tracking active loans. However, note that refinances can happen while still maintaining the same loanId. For some platforms, loanids of previously paid loans are reused hence they can't be reliably used as a unique identifier without appropriate timestamp filters. Instead, use the unique_loan_id column.
-
-{% enddocs %}
-
-{% docs evm_unique_loan_id %}
-
-The unique ID that can be used to represent a loan within the same platform. For the same loan, the value of this ID will remain the same across the loans taken, liquidations and repayment tables. For some platforms where the lender is issued a promissory note, the lender can send this note to any address, making the receiver the new lender. However, the unique_loan_id still remains the same although the final lender is different. The unique_loan_id changes only if the loanId and lender changes which would also indicate the previous loan has been fully paid off.
-
-{% enddocs %}
-
-{% docs evm_lender_address %}
-
-The address that gives out a loan to the borrower. When a loan is issued, a promissory note (an ERC721) is issued to the lender. The lender can transfer this note to any address which makes any receiving address the new lender.
-
-{% enddocs %}
-
-{% docs evm_borrower_address %}
-
-The address that receives the loan and has an NFT locked as collateral.
-
-{% enddocs %}
-
-{% docs evm_nft_address %}
-
-The address of the NFT used as collateral.
-
-{% enddocs %}
-
-{% docs evm_tokenid %}
-
-The tokenId of the NFT used as collateral.
-
-{% enddocs %}
-
-{% docs evm_loan_token_address %}
-
-The contract address of what the loan is denominated in. This could be either the native asset or other tokens.
-
-{% enddocs %}
-
-{% docs evm_loan_token_symbol %}
-
-The symbol of the loan token address.
-
-{% enddocs %}
-
-{% docs evm_principal_unadj %}
-
-The principal amount of the loan taken with unadjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_principal %}
-
-The principal amount of the loan taken with adjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_principal_usd %}
-
-The principal amount of the loan taken in USD terms.
-
-{% enddocs %}
-
-{% docs evm_debt_unadj %}
-
-The total debt of the loan (principal amount plus interests) with unadjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_debt %}
-
-The total debt of the loan (principal amount plus interests) with adjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_debt_usd %}
-
-The total debt of the loan (principal amount plus interests) in USD terms.
-
-{% enddocs %}
-
-{% docs evm_platform_fee_unadj %}
-
-The fee charged by the lending platform with unadjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_platform_fee %}
-
-The fee charged by the lending platform with adjusted decimal places.
-
-{% enddocs %}
-
-{% docs evm_platform_fee_usd %}
-
-The fee charged by the lending platform in USD terms.
-
-{% enddocs %}
-
-{% docs evm_interest_rate %}
-
-The non-annualized rate charged by the lender on the principal amount of the loan denominated in percentage (%). For fixed term loans, it is calculated by taking the difference between total debt and principal amount divided by principal amount. For perpetual term loans, interest rate is usually on an annual basis and total debt is calculated prorated.
-
-{% enddocs %}
-
-{% docs evm_apr %}
-
-The annualized interest rate denominated in percentage (%).
-
-{% enddocs %}
-
-{% docs evm_loan_term_type %}
-
-The type of loan terms, could be either a fixed loan or a perpetual loan. A fixed term loan has a fixed repayment date while a perpetual loan does not.
-
-{% enddocs %}
-
-{% docs evm_loan_start_timestamp %}
-
-The timestamp of when the loan offer is accepted.
-
-{% enddocs %}
-
-{% docs evm_loan_due_timestamp %}
-
-The timestamp of when the loan is due. For perpetual term loan, the value will be null.
-
-{% enddocs %}
-
-{% docs evm_loan_tenure %}
-
-The tenure of the loan denominated in seconds. For perpetual term loan, the value will be null.
-
-{% enddocs %}
-
-{% docs evm_ez_mev_arbitrage %}
+{% docs evm_mev_arbitrage %}
 
 This table contains the financial metrics from NFT arbitrage transactions including cost, revenue and profits.
 
@@ -816,27 +534,15 @@ This table contains the metadata for popular NFT collections on this EVM blockch
 
 {% enddocs %}
 
-{% docs evm_blockchain %}
+{% docs evm_nft_blockchain %}
 
 Blockchain where the NFT metadata is retrieved from.
-
-{% enddocs %}
-
-{% docs evm_nft_address %}
-
-The contract address of the NFT collection.
 
 {% enddocs %}
 
 {% docs evm_collection_name %}
 
 The name for this NFT collection.
-
-{% enddocs %}
-
-{% docs evm_tokenid %}
-
-The tokenId for this NFT.
 
 {% enddocs %}
 

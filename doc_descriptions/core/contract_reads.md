@@ -5,28 +5,28 @@ This table contains contract reads for a variety of functions and contracts on t
 {% enddocs %}
 
 
-{% docs evm_contract_address %}
+{% docs evm_contract_reads_contract_address %}
 
 The address of the contract read.
 
 {% enddocs %}
 
 
-{% docs evm_block_number %}
+{% docs evm_contract_reads_block_number %}
 
 The block number the contract address was read at.
 
 {% enddocs %}
 
 
-{% docs evm_function_signature %}
+{% docs evm_contract_reads_function_signature %}
 
 The function signature called by this read. See `dim_function_signatures` for text versions.
 
 {% enddocs %}
 
 
-{% docs evm_function_input %}
+{% docs evm_contract_reads_function_input %}
 
 The function inputs called in this read, if applicable.
 

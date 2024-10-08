@@ -1,4 +1,4 @@
-{% docs evm_ez_dex_swaps_table_doc %}
+{% docs evm_dex_swaps_table_doc %}
 
 This table contains swap events from the `fact_event_logs` table for popular decentralized exchanges (DEXes) on this EVM blockchain. It includes additional columns such as the amount in USD where possible. 
 Note: A rule is applied to nullify the `amount_USD` if there is a significant divergence between `amount_in_USD` and `amount_out_usd`, which can occur during high price fluctuations for less liquid tokens.
