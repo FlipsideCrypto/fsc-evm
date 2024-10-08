@@ -24,7 +24,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'dim_asset_metadata_id',
     post_hook = post_hook,
-    tags = ['core','prices']
+    tags = ['core']
 ) }}
 
 {# Main query starts here #}

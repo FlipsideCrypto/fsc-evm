@@ -26,7 +26,7 @@
     unique_key = 'fact_prices_ohlc_hourly_id',
     cluster_by = ['hour::DATE','provider'],
     post_hook = post_hook,
-    tags = ['core','prices']
+    tags = ['core']
 ) }}
 
 {# Main query starts here #}

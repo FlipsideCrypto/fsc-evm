@@ -19,7 +19,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_provider_asset_metadata_id',
-    tags = ['core','prices']
+    tags = ['core']
 ) }}
 
 {# Main query starts here #}
