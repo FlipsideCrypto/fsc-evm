@@ -1,13 +1,13 @@
 version: 2
 models:
   - name: core__fact_blocks
-    description: '{{ doc(evm_blocks_table_doc) }}'
+    description: '{{ doc("evm_blocks_table_doc") }}'
       
     columns:
       - name: block_number
-        description: '{{ doc(evm_block_number) }}'
+        description: '{{ doc("evm_block_number") }}'
       - name: block_hash
-        description: '{{ evm_blocks_hash }}'
+        description: '{{ doc("evm_blocks_hash") }}'
       - name: block_timestamp
         description: '{{ evm_block_timestamp }}'
       - name: network
