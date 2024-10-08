@@ -179,9 +179,3 @@ The precise amount of the transaction fee. This is returned as a string to avoid
 The type of transaction. 
 
 {% enddocs %}
-
-{% docs evm_tx_nonce %}
-
-The nonce of the transaction for the transaction sender.
-
-{% enddocs %}
