@@ -7,6 +7,7 @@
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    incremental_strategy = "' ~ config.get('incremental_strategy') ~ '",\n' %}
     {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
+    {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ ',\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') ~ '\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
@@ -18,34 +19,33 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'complete_token_asset_metadata_id',
-    tags = ['core','silver','prices']
+    unique_key = 'complete_native_prices_id',
+    cluster_by = ['hour::DATE'],
+    tags = ['core','prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
-    LOWER(
-        A.token_address
-    ) AS token_address,
+    HOUR,
     asset_id,
     symbol,
     NAME,
     decimals,
+    price,
     blockchain,
-    blockchain_name,
-    blockchain_id,
+    is_imputed,
     is_deprecated,
     provider,
     source,
     _inserted_timestamp,
-    inserted_timestamp,
-    modified_timestamp,
-    complete_token_asset_metadata_id,
-    _invocation_id
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['complete_native_prices_id']) }} AS complete_native_prices_id,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     {{ ref(
-        'bronze__complete_token_asset_metadata'
-    ) }} A
+        'bronze__complete_native_prices'
+    ) }}
 
 {% if is_incremental() %}
 WHERE

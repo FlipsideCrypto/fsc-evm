@@ -21,7 +21,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_provider_prices_id',
     cluster_by = ['recorded_hour::DATE','provider'],
-    tags = ['core','silver','prices']
+    tags = ['core','prices']
 ) }}
 
 {# Main query starts here #}
@@ -35,10 +35,10 @@ SELECT
     p.provider,
     p.source,
     p._inserted_timestamp,
-    p.inserted_timestamp,
-    p.modified_timestamp,
-    p.complete_provider_prices_id,
-    p._invocation_id
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['p.complete_provider_prices_id']) }} AS complete_provider_prices_id,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     {{ ref(
         'bronze__complete_provider_prices'

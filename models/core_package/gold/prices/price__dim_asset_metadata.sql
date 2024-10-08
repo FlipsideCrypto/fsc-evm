@@ -1,3 +1,6 @@
+{# Set variables #}
+{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)" %}
+
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -7,6 +10,7 @@
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    incremental_strategy = "' ~ config.get('incremental_strategy') ~ '",\n' %}
     {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
+    {% set config_log = config_log ~ '    post_hook = "' ~ config.get('post_hook') ~ '",\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') ~ '\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
@@ -18,30 +22,25 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'complete_provider_asset_metadata_id',
-    tags = ['core','silver','prices']
+    unique_key = 'dim_asset_metadata_id',
+    post_hook = post_hook,
+    tags = ['core','prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
-    asset_id,
     token_address,
-    NAME,
+    asset_id,
     symbol,
-    platform,
-    platform_id,
+    NAME,
+    platform AS blockchain,
+    platform_id AS blockchain_id,
     provider,
-    source,
-    _inserted_timestamp,
-    inserted_timestamp,
-    modified_timestamp,
-    complete_provider_asset_metadata_id,
-    _invocation_id
+    {{ dbt_utils.generate_surrogate_key(['complete_provider_asset_metadata_id']) }} AS dim_asset_metadata_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
 FROM
-    {{ ref(
-        'bronze__complete_provider_asset_metadata'
-    ) }}
-
+    {{ ref('silver__complete_provider_asset_metadata') }}
 {% if is_incremental() %}
 WHERE
     modified_timestamp >= (

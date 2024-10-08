@@ -21,7 +21,7 @@
     incremental_strategy = 'merge',
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = 'modified_timestamp::DATE',
-    tags = ['core','silver','labels']
+    tags = ['core','labels']
 ) }}
 
 SELECT
@@ -35,7 +35,7 @@ SELECT
     address_name,
     project_name,
     _is_deleted,
-    labels_combined_id as labels_id,
+    {{ dbt_utils.generate_surrogate_key(['labels_combined_id']) }} AS labels_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id

@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: price__dim_asset_metadata
+    description: '{{ doc("evm_prices_dim_asset_metadata_table_doc") }}'
+
+    columns:
+      - name: PROVIDER
+        description: '{{ doc("evm_prices_provider")}}'
+      - name: ASSET_ID
+        description: '{{ doc("evm_prices_asset_id") }}'
+      - name: NAME
+        description: '{{ doc("evm_prices_name") }}'
+      - name: SYMBOL
+        description: '{{ doc("evm_prices_symbol") }}'
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("evm_prices_token_address") }}'
+      - name: BLOCKCHAIN
+        description: '{{ doc("evm_prices_blockchain") }}'
+      - name: BLOCKCHAIN_ID
+        description: '{{ doc("evm_prices_blockchain_id") }}'
+      - name: DIM_ASSET_METADATA_ID
+        description: '{{ doc("evm_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("evm_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("evm_modified_timestamp") }}' 
