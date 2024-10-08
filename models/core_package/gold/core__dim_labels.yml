@@ -4,23 +4,23 @@ models:
     description: '{{ doc("evm_table_dim_labels") }}'
       
     columns:
-      - name: blockchain
+      - name: BLOCKCHAIN
         description: '{{ doc("evm_label_blockchain") }}'
-      - name: creator
+      - name: CREATOR
         description: '{{ doc("evm_label_creator") }}'
-      - name: address
+      - name: ADDRESS
         description: '{{ doc("evm_label_address") }}'
-      - name: address_name
+      - name: ADDRESS_NAME
         description: '{{ doc("evm_label_address_name") }}'
-      - name: label_type
+      - name: LABEL_TYPE
         description: '{{ doc("evm_label_type") }}'
-      - name: label_subtype
+      - name: LABEL_SUBTYPE
         description: '{{ doc("evm_label_subtype") }}'
-      - name: label
+      - name: LABEL
         description: '{{ doc("evm_label") }}'
-      - name: dim_labels_id
+      - name: DIM_LABELS_ID
         description: '{{ doc("evm_pk") }}'
-      - name: inserted_timestamp
+      - name: INSERTED_TIMESTAMP
         description: '{{ doc("evm_inserted_timestamp") }}'
-      - name: modified_timestamp
+      - name: MODIFIED_TIMESTAMP
         description: '{{ doc("evm_modified_timestamp") }}'
