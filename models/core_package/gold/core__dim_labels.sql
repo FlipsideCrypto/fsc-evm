@@ -36,15 +36,15 @@ SELECT
     label_type,
     label_subtype,
     project_name AS label,
-    labels_combined_id AS dim_labels_id,
-    inserted_timestamp,
-    modified_timestamp
+    labels_id AS dim_labels_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
 FROM
-    {{ ref('silver__labels') }}
+    {{ ref('silver__labels') }} s 
 
 {% if is_incremental() %}
 WHERE
-    modified_timestamp > (
+    s.modified_timestamp > (
         SELECT
             MAX(
                 modified_timestamp
