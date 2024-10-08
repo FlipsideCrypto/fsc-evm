@@ -677,7 +677,6 @@ heal_missing_data AS (
         {% else %}
             ON t.tx_position = txs.position
         {% endif %}
-        AND t.block_
         AND t.block_number = txs.block_number
     WHERE
         {% if TRACES_SEI_MODE %}
