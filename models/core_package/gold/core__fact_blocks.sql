@@ -1,4 +1,4 @@
-{%- set prod_network = var('PROD_NETWORK') -%}
+{%- set prod_network = var('PROD_NETWORK', 'mainnet') -%}
 {%- set uses_base_fee = var('USES_BASE_FEE', true) -%}
 
 {{ config (
