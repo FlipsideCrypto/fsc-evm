@@ -1,0 +1,162 @@
+[0m15:21:39.555354 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c68550>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c6a810>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c54610>]}
+
+
+============================== 15:21:39.557903 | f7a033d4-e5cf-44a4-9177-20dfd4acec07 ==============================
+[0m15:21:39.557903 [info ] [MainThread]: Running with dbt=1.7.6
+[0m15:21:39.558251 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '/Users/mattromano/.dbt', 'version_check': 'True', 'warn_error': 'None', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'debug': 'False', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'introspect': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'invocation_command': 'dbt clean', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m15:21:39.625822 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'f7a033d4-e5cf-44a4-9177-20dfd4acec07', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c79f50>]}
+[0m15:21:39.628244 [debug] [MainThread]: Resource report: {"command_name": "clean", "command_success": true, "command_wall_clock_time": 0.10487521, "process_user_time": 0.829793, "process_kernel_time": 0.098127, "process_mem_max_rss": "107577344", "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m15:21:39.628522 [debug] [MainThread]: Command `dbt clean` succeeded at 15:21:39.628463 after 0.11 seconds
+[0m15:21:39.628701 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x106328490>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c6bc10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107c70050>]}
+[0m15:21:39.628870 [debug] [MainThread]: Flushing usage events
+[0m15:21:41.019474 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107da16d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107d9ed10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1068a3890>]}
+
+
+============================== 15:21:41.021405 | a2b698ff-0882-45c5-9ac3-1ee08c1ff793 ==============================
+[0m15:21:41.021405 [info ] [MainThread]: Running with dbt=1.7.6
+[0m15:21:41.021733 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '/Users/mattromano/.dbt', 'fail_fast': 'False', 'warn_error': 'None', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'debug': 'False', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'log_format': 'default', 'invocation_command': 'dbt deps', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m15:21:41.087989 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'a2b698ff-0882-45c5-9ac3-1ee08c1ff793', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107d71790>]}
+[0m15:21:41.088437 [info ] [MainThread]: Warning: No packages were found in packages.yml
+[0m15:21:41.088805 [info ] [MainThread]: Warning: No packages were found in packages.yml
+[0m15:21:41.089609 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 0.09948321, "process_user_time": 0.829975, "process_kernel_time": 0.084228, "process_mem_max_rss": "107577344", "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m15:21:41.090125 [debug] [MainThread]: Command `dbt deps` succeeded at 15:21:41.090017 after 0.10 seconds
+[0m15:21:41.090352 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107d5aad0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107d7e2d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10072e390>]}
+[0m15:21:41.090562 [debug] [MainThread]: Flushing usage events
+[0m15:21:42.445421 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11486fa10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x114853fd0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x114851e90>]}
+
+
+============================== 15:21:42.448218 | b593cd0f-c8b3-48cb-a1d1-1f4d4172259c ==============================
+[0m15:21:42.448218 [info ] [MainThread]: Running with dbt=1.7.6
+[0m15:21:42.448531 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'debug': 'False', 'profiles_dir': '/Users/mattromano/.dbt', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'version_check': 'True', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt docs generate', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'send_anonymous_usage_stats': 'True'}
+[0m15:21:43.090950 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'b593cd0f-c8b3-48cb-a1d1-1f4d4172259c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1328d6850>]}
+[0m15:21:43.128114 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'b593cd0f-c8b3-48cb-a1d1-1f4d4172259c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x115446390>]}
+[0m15:21:43.129732 [info ] [MainThread]: Registered adapter: snowflake=1.7.0
+[0m15:21:43.144506 [debug] [MainThread]: checksum: d62e513342251256fdf8c77c78ccf3e0bf76720e6e4e8384a98b7479399def9a, vars: {}, profile: , target: , version: 1.7.6
+[0m15:21:43.144980 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m15:21:43.145519 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': 'b593cd0f-c8b3-48cb-a1d1-1f4d4172259c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11486e510>]}
+[0m15:21:43.590420 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 2 unused configuration paths:
+- models
+- tests
+[0m15:21:43.591758 [error] [MainThread]: Encountered an error:
+Compilation Error
+  'dbt_snowflake_query_tags' is undefined
+[0m15:21:43.592720 [debug] [MainThread]: Resource report: {"command_name": "generate", "command_wall_clock_time": 1.1755013, "process_user_time": 1.483212, "process_kernel_time": 0.172232, "process_mem_max_rss": "168198144", "command_success": false, "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m15:21:43.593011 [debug] [MainThread]: Command `dbt docs generate` failed at 15:21:43.592958 after 1.18 seconds
+[0m15:21:43.593192 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x114853550>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1148533d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x132d64d50>]}
+[0m15:21:43.593366 [debug] [MainThread]: Flushing usage events
+[0m10:43:56.703677 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x113717210>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1137722d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11375d7d0>]}
+
+
+============================== 10:43:56.706303 | c8fc9833-6d03-4b2a-97fd-5f8b5744f7d8 ==============================
+[0m10:43:56.706303 [info ] [MainThread]: Running with dbt=1.7.6
+[0m10:43:56.706668 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '/Users/mattromano/.dbt', 'debug': 'False', 'version_check': 'True', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'fail_fast': 'False', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'invocation_command': 'dbt docs generate', 'static_parser': 'True', 'introspect': 'True', 'target_path': 'None', 'log_format': 'default', 'send_anonymous_usage_stats': 'True'}
+[0m10:43:56.709801 [error] [MainThread]: Encountered an error:
+Runtime Error
+  dbt cannot run because no profile was specified for this dbt project.
+  To specify a profile for this project, add a line like the this to
+  your dbt_project.yml file:
+  
+  profile: [profile name]
+  
+  Here, [profile name] should be replaced with a profile name
+  defined in your profiles.yml file. You can find profiles.yml here:
+  
+  /Users/mattromano/.dbt/profiles.yml
+  
+[0m10:43:56.711231 [debug] [MainThread]: Resource report: {"command_name": "generate", "command_wall_clock_time": 0.037601918, "process_user_time": 0.806126, "process_kernel_time": 0.116578, "process_mem_max_rss": "106201088", "command_success": false, "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m10:43:56.711733 [debug] [MainThread]: Command `dbt docs generate` failed at 10:43:56.711597 after 0.04 seconds
+[0m10:43:56.711983 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1027709d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11371f0d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11371f110>]}
+[0m10:43:56.712200 [debug] [MainThread]: Flushing usage events
+[0m11:16:07.413213 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a965310>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a9534d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a950750>]}
+
+
+============================== 11:16:07.416323 | 0cda03ec-52c1-4896-9cee-42a3c6ac4449 ==============================
+[0m11:16:07.416323 [info ] [MainThread]: Running with dbt=1.7.6
+[0m11:16:07.416736 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'version_check': 'True', 'profiles_dir': '/Users/mattromano/.dbt', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'fail_fast': 'False', 'debug': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'invocation_command': 'dbt docs generate', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'target_path': 'None', 'introspect': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m11:16:07.420202 [error] [MainThread]: Encountered an error:
+Runtime Error
+  dbt cannot run because no profile was specified for this dbt project.
+  To specify a profile for this project, add a line like the this to
+  your dbt_project.yml file:
+  
+  profile: [profile name]
+  
+  Here, [profile name] should be replaced with a profile name
+  defined in your profiles.yml file. You can find profiles.yml here:
+  
+  /Users/mattromano/.dbt/profiles.yml
+  
+[0m11:16:07.421043 [debug] [MainThread]: Resource report: {"command_name": "generate", "command_wall_clock_time": 0.03655671, "process_user_time": 0.789567, "process_kernel_time": 0.100509, "process_mem_max_rss": "106151936", "command_success": false, "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m11:16:07.421367 [debug] [MainThread]: Command `dbt docs generate` failed at 11:16:07.421306 after 0.04 seconds
+[0m11:16:07.421554 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a941a90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a975dd0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a976210>]}
+[0m11:16:07.421728 [debug] [MainThread]: Flushing usage events
+[0m11:16:13.085929 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107765e90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10776c150>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x107758610>]}
+
+
+============================== 11:16:13.088156 | 2c064fc3-2d7d-4933-93f6-d4b4f5f537f6 ==============================
+[0m11:16:13.088156 [info ] [MainThread]: Running with dbt=1.7.6
+[0m11:16:13.088502 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'version_check': 'True', 'profiles_dir': '/Users/mattromano/.dbt', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'fail_fast': 'False', 'debug': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'introspect': 'True', 'invocation_command': 'dbt docs generate', 'static_parser': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'send_anonymous_usage_stats': 'True'}
+[0m11:16:13.091395 [error] [MainThread]: Encountered an error:
+Runtime Error
+  dbt cannot run because no profile was specified for this dbt project.
+  To specify a profile for this project, add a line like the this to
+  your dbt_project.yml file:
+  
+  profile: [profile name]
+  
+  Here, [profile name] should be replaced with a profile name
+  defined in your profiles.yml file. You can find profiles.yml here:
+  
+  /Users/mattromano/.dbt/profiles.yml
+  
+[0m11:16:13.092202 [debug] [MainThread]: Resource report: {"command_name": "generate", "command_wall_clock_time": 0.033769, "process_user_time": 0.795348, "process_kernel_time": 0.076567, "process_mem_max_rss": "106512384", "command_success": false, "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m11:16:13.092552 [debug] [MainThread]: Command `dbt docs generate` failed at 11:16:13.092489 after 0.03 seconds
+[0m11:16:13.092751 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10771eed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10771ee90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10771fe50>]}
+[0m11:16:13.092938 [debug] [MainThread]: Flushing usage events
+[0m11:16:28.804118 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a66190>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a6fa10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a50ed0>]}
+
+
+============================== 11:16:28.806207 | 0a8d91b5-3e15-4a3b-ac02-156451fac0db ==============================
+[0m11:16:28.806207 [info ] [MainThread]: Running with dbt=1.7.6
+[0m11:16:28.806516 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'debug': 'False', 'profiles_dir': '/Users/mattromano/.dbt', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'fail_fast': 'False', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'introspect': 'True', 'log_format': 'default', 'target_path': 'None', 'invocation_command': 'dbt docs generate', 'send_anonymous_usage_stats': 'True'}
+[0m11:16:28.809414 [error] [MainThread]: Encountered an error:
+Runtime Error
+  dbt cannot run because no profile was specified for this dbt project.
+  To specify a profile for this project, add a line like the this to
+  your dbt_project.yml file:
+  
+  profile: [profile name]
+  
+  Here, [profile name] should be replaced with a profile name
+  defined in your profiles.yml file. You can find profiles.yml here:
+  
+  /Users/mattromano/.dbt/profiles.yml
+  
+[0m11:16:28.810216 [debug] [MainThread]: Resource report: {"command_name": "generate", "command_wall_clock_time": 0.0347075, "process_user_time": 0.784146, "process_kernel_time": 0.079592, "process_mem_max_rss": "106741760", "command_success": false, "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m11:16:28.810541 [debug] [MainThread]: Command `dbt docs generate` failed at 11:16:28.810477 after 0.04 seconds
+[0m11:16:28.810733 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a1f090>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a1ec90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a1e990>]}
+[0m11:16:28.810915 [debug] [MainThread]: Flushing usage events
+[0m13:23:31.767807 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d6ca10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d5b910>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d51550>]}
+
+
+============================== 13:23:31.770675 | efffac7f-865b-4a7a-bba3-817cad4fe1b9 ==============================
+[0m13:23:31.770675 [info ] [MainThread]: Running with dbt=1.7.6
+[0m13:23:31.771009 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '/Users/mattromano/.dbt', 'debug': 'False', 'fail_fast': 'False', 'log_path': '/Users/mattromano/Desktop/repos/fsc-evm/logs', 'version_check': 'True', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'invocation_command': 'dbt docs generate', 'introspect': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m13:23:31.774127 [error] [MainThread]: Encountered an error:
+Runtime Error
+  dbt cannot run because no profile was specified for this dbt project.
+  To specify a profile for this project, add a line like the this to
+  your dbt_project.yml file:
+  
+  profile: [profile name]
+  
+  Here, [profile name] should be replaced with a profile name
+  defined in your profiles.yml file. You can find profiles.yml here:
+  
+  /Users/mattromano/.dbt/profiles.yml
+  
+[0m13:23:31.775075 [debug] [MainThread]: Resource report: {"command_name": "generate", "command_wall_clock_time": 0.036453415, "process_user_time": 0.834861, "process_kernel_time": 0.104045, "process_mem_max_rss": "106283008", "command_success": false, "process_in_blocks": "0", "process_out_blocks": "0"}
+[0m13:23:31.775414 [debug] [MainThread]: Command `dbt docs generate` failed at 13:23:31.775345 after 0.04 seconds
+[0m13:23:31.775622 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d1f010>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d1ed50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d1ea50>]}
+[0m13:23:31.776182 [debug] [MainThread]: Flushing usage events
