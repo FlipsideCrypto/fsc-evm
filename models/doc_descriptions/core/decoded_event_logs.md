@@ -1,4 +1,4 @@
-{% docs core__decoded_event_logs_table_doc %}
+{% docs core_decoded_event_logs_table_doc %}
 
 For information on how to submit a contract for decoding, as well as how ABIs are sourced, please visit [here](https://science.flipsidecrypto.xyz/abi-requestor/).
       This model contains decoded event logs for contracts that we have an ABI for. Please note, this table does not include all event logs, only those that we have an ABI for.
