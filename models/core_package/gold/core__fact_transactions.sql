@@ -81,7 +81,7 @@ WHERE
             END AS to_address,
             utils.udf_hex_to_int(
                 transaction_json :transactionIndex :: STRING
-            ) :: bigint AS POSITION,
+            ) :: bigint AS tx_position,
             utils.udf_hex_to_int(
                 transaction_json :type :: STRING
             ) :: bigint AS tx_type,
@@ -131,7 +131,7 @@ WHERE
             END AS tx_succeeded,
             txs.tx_type,
             txs.nonce,
-            txs.position,
+            txs.tx_position,
             txs.input_data,
             txs.gas_price / pow(
                 10,
@@ -204,7 +204,7 @@ missing_data AS (
         END AS tx_succeeded_heal,
         t.tx_type,
         t.nonce,
-        t.position,
+        t.tx_position,
         t.input_data,
         t.gas_price,
         utils.udf_hex_to_int(
@@ -252,7 +252,7 @@ all_transactions AS (
         tx_succeeded,
         tx_type,
         nonce,
-        POSITION,
+        tx_position,
         input_data,
         gas_price,
         gas_used,
@@ -283,7 +283,7 @@ SELECT
     tx_succeeded_heal AS tx_succeeded,
     tx_type,
     nonce,
-    POSITION,
+    tx_position,
     input_data,
     gas_price,
     gas_used_heal AS gas_used,
@@ -313,7 +313,7 @@ SELECT
     tx_succeeded,
     tx_type,
     nonce,
-    POSITION,
+    tx_position,
     input_data,
     gas_price,
     gas_used,

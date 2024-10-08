@@ -20,15 +20,15 @@ SELECT
     transactions AS (
         SELECT
             block_number,
-            POSITION,
+            tx_position,
             LAG(
-                POSITION,
+                tx_position,
                 1
             ) over (
                 PARTITION BY block_number
                 ORDER BY
-                    POSITION ASC
-            ) AS prev_POSITION
+                    tx_position ASC
+            ) AS prev_tx_position
         FROM
             {{ ref("silver__transactions") }}
         WHERE
@@ -45,6 +45,6 @@ SELECT
 FROM
     transactions
 WHERE
-    POSITION - prev_POSITION <> 1
+    tx_position - prev_tx_position <> 1
 
 {% endif %}

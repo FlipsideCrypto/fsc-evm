@@ -601,7 +601,7 @@ aggregated_errors AS (
                             ON {% if TRACES_SEI_MODE %}
                                 f.tx_hash = t.tx_hash
                             {% else %}
-                                f.tx_position = t.position
+                                f.tx_position = t.tx_position
                             {% endif %}
                             AND f.block_number = t.block_number
 
@@ -675,7 +675,7 @@ heal_missing_data AS (
         {% if TRACES_SEI_MODE %}
             ON t.tx_hash = txs.tx_hash
         {% else %}
-            ON t.tx_position = txs.position
+            ON t.tx_position = txs.tx_position
         {% endif %}
         AND t.block_number = txs.block_number
     WHERE
