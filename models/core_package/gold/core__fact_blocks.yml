@@ -9,44 +9,44 @@ models:
       - name: block_hash
         description: '{{ doc("evm_blocks_hash") }}'
       - name: block_timestamp
-        description: '{{ evm_block_timestamp }}'
+        description: '{{ doc("evm_block_timestamp") }}'
       - name: network
-        description: '{{ evm_network }}'
+        description: '{{ doc("evm_network") }}'
       - name: tx_count
-        description: '{{ evm_tx_count }}'
+        description: '{{ doc("evm_tx_count") }}'
       - name: size
-        description: '{{ evm_size }}'
+        description: '{{ doc("evm_size") }}'
       - name: miner
-        description: '{{ evm_miner }}'
+        description: '{{ doc("evm_miner") }}'
       - name: extra_data
-        description: '{{ evm_extra_data }}'
+        description: '{{ doc("evm_extra_data") }}'
       - name: parent_hash
-        description: '{{ evm_parent_hash }}'
+        description: '{{ doc("evm_parent_hash") }}'
       - name: gas_used
-        description: '{{ evm_gas_used }}'
+        description: '{{ doc("evm_gas_used") }}'
       - name: gas_limit
-        description: '{{ evm_gas_limit }}'
+        description: '{{ doc("evm_gas_limit") }}'
       - name: difficulty
-        description: '{{ evm_difficulty }}'
+        description: '{{ doc("evm_difficulty") }}'
       - name: total_difficulty
-        description: '{{ evm_total_difficulty }}'
+        description: '{{ doc("evm_total_difficulty") }}'
       - name: sha3_uncles
-        description: '{{ evm_sha3_uncles }}'
+        description: '{{ doc("evm_sha3_uncles") }}'
       - name: uncle_blocks
-        description: '{{ evm_uncle_blocks }}'
+        description: '{{ doc("evm_uncle_blocks") }}'
       - name: nonce
-        description: '{{ evm_blocks_nonce }}'
+        description: '{{ doc("evm_blocks_nonce") }}'
       - name: receipts_root
-        description: '{{ evm_receipts_root }}'
+        description: '{{ doc("evm_receipts_root") }}'
       - name: state_root
-        description: '{{ evm_blocks_state_root }}'
+        description: '{{ doc("evm_blocks_state_root") }}'
       - name: transactions_root
-        description: '{{ evm_blocks_transactions_root }}'
+        description: '{{ doc("evm_blocks_transactions_root") }}'
       - name: logs_bloom
-        description: '{{ evm_blocks_logs_bloom }}'
+        description: '{{ doc("evm_blocks_logs_bloom")  }}'
       - name: fact_blocks_id
-        description: '{{ evm_pk }}'
+        description: '{{ doc("evm_pk") }}'
       - name: inserted_timestamp
-        description: '{{ evm_inserted_timestamp }}'
+        description: '{{ doc("evm_inserted_timestamp") }}'
       - name: modified_timestamp
-        description: '{{ evm_modified_timestamp }}'
+        description: '{{ doc("evm_modified_timestamp") }}'
