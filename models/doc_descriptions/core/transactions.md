@@ -90,7 +90,7 @@ The number of transactions sent from a given address.
 
 {% docs evm_tx_origin_sig %}
 
-The function signature of the contract call. 
+The function signature of the call that triggered this transaction. 
 
 {% enddocs %}
 
@@ -159,5 +159,29 @@ The s value of the transaction signature.
 {% docs evm_v %}
 
 The v value of the transaction signature.
+
+{% enddocs %}
+
+{% docs evm_tx_succeeded %}
+
+Whether the transaction was successful, returned as a boolean.
+
+{% enddocs %}
+
+{% docs evm_tx_fee_precise %}
+
+The precise amount of the transaction fee. This is returned as a string to avoid precision loss. 
+
+{% enddocs %}
+
+{% docs evm_tx_type %}
+
+The type of transaction. 
+
+{% enddocs %}
+
+{% docs evm_tx_nonce %}
+
+The nonce of the transaction for the transaction sender.
 
 {% enddocs %}
