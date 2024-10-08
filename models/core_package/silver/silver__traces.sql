@@ -15,7 +15,6 @@
     unique_key = "block_number",
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    full_refresh = false,
     tags = ['core','silver']
 ) }}
 
