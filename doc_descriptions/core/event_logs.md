@@ -18,14 +18,6 @@ The decoded event inputs for a given event.
 
 {% enddocs %}
 
-
-{% docs evm_event_name %}
-
-The decoded event name for a given event.
-
-{% enddocs %}
-
-
 {% docs evm_event_removed %}
 
 Whether the event has been removed from the transaction.
