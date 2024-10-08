@@ -34,7 +34,7 @@ models:
         description: '{{ doc("evm_tx_type") }}'
       - name: NONCE
         description: '{{ doc("evm_tx_nonce") }}'
-      - name: POSITION
+      - name: TX_POSITION
         description: '{{ doc("evm_tx_position") }}'
       - name: INPUT_DATA
         description: '{{ doc("evm_tx_input_data") }}'
