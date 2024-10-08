@@ -18,7 +18,8 @@
 {%- endif -%}
 
 {{ config(
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['core','bronze','labels']
 ) }}
 
 SELECT

@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: core__dim_labels
+    description: '{{ doc("evm_table_dim_labels") }}'
+      
+    columns:
+      - name: blockchain
+        description: '{{ doc("evm_label_blockchain") }}'
+      - name: creator
+        description: '{{ doc("evm_label_creator") }}'
+      - name: address
+        description: '{{ doc("evm_label_address") }}'
+      - name: address_name
+        description: '{{ doc("evm_label_address_name") }}'
+      - name: label_type
+        description: '{{ doc("evm_label_type") }}'
+      - name: label_subtype
+        description: '{{ doc("evm_label_subtype") }}'
+      - name: label
+        description: '{{ doc("evm_label") }}'
+      - name: dim_labels_id
+        description: '{{ doc("evm_pk") }}'
+      - name: inserted_timestamp
+        description: '{{ doc("evm_inserted_timestamp") }}'
+      - name: modified_timestamp
+        description: '{{ doc("evm_modified_timestamp") }}'
