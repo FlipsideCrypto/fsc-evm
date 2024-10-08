@@ -1,6 +1,6 @@
 {% docs evm_traces_table_doc %}
 
-This table contains flattened trace data for internal contract calls on this EVM blockchain. Hex encoded fields can be decoded to integers by using `TO_NUMBER(<FIELD>, 'XXXXXXXXXXXX')`, with the number of Xs being the max length of the encoded field. You must also remove the `0x` from your field to use the `TO_NUMBER()` function, if applicable. 
+This table contains flattened trace data for internal contract calls. User-defined functions (UDFs) are available to decode hex encoded fields, including `utils.udf_hex_to_int()`.
 
 {% enddocs %}
 
@@ -82,7 +82,7 @@ The output data for this trace.
 {% enddocs %}
 
 
-{% docs evm_traces_sub %}
+{% docs evm_sub_traces %}
 
 The amount of nested sub traces for this trace.
 
@@ -115,9 +115,22 @@ The boolean value representing if the trace succeeded.
 
 {% enddocs %}
 
-
 {% docs evm_trace_error_reason %}
 
 The reason for the trace failure, if any.
 
 {% enddocs %}
+
+{% docs evm_trace_address %}
+
+The trace address for this trace.
+
+{% enddocs %}
+
+
+{% docs evm_revert_reason %}
+
+The reason for the revert, if available.
+
+{% enddocs %}
+

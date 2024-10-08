@@ -206,8 +206,7 @@ SELECT
     tx_succeeded,
     {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS fact_event_logs_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
-    '{{ invocation_id }}' AS _invocation_id
+    SYSDATE() AS modified_timestamp
 FROM
     all_logs qualify ROW_NUMBER() over (
         PARTITION BY fact_event_logs_id
