@@ -1,12 +1,14 @@
 {# Set variables #}
-{%- set platforms = var('PRICES_PLATFORMS') -%}
+{%- set symbols = var('PRICES_SYMBOLS') -%}
+{%- set blockchains = var('PRICES_BLOCKCHAINS', var('PROD_DB_NAME').lower() ) -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
-    
-    {{ log("PRICES_PLATFORMS: " ~ platforms, info=True) }}
+
+    {{ log("PRICES_SYMBOLS: " ~ symbols, info=True) }}
+    {{ log("PRICES_BLOCKCHAINS: " ~ blockchains, info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
@@ -23,32 +25,37 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['core','bronze','prices']
+    tags = ['core','prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
     asset_id,
-    token_address,
-    NAME,
     symbol,
-    platform,
-    platform_id,
+    NAME,
+    decimals,
+    blockchain,
+    is_deprecated,
     provider,
     source,
     _inserted_timestamp,
     inserted_timestamp,
     modified_timestamp,
-    complete_provider_asset_metadata_id,
+    complete_native_asset_metadata_id,
     _invocation_id
 FROM
     {{ source(
         'crosschain_silver',
-        'complete_provider_asset_metadata'
+        'complete_native_asset_metadata'
     ) }}
 WHERE
-    platform IN ({% if platforms is string %}
-        '{{ platforms }}'
+    blockchain IN ({% if blockchains is string %}
+        '{{ blockchains }}'
     {% else %}
-        {{ platforms | replace('[', '') | replace(']', '') }}
-    {% endif %}) -- platforms specific to the target blockchain
+        {{ blockchains | replace('[', '') | replace(']', '') }}
+    {% endif %})
+    AND symbol IN ({% if symbols is string %}
+        '{{ symbols }}'
+    {% else %}
+        {{ symbols | replace('[', '') | replace(']', '') }}
+    {% endif %})

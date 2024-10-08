@@ -25,7 +25,7 @@
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = 'modified_timestamp::DATE',
     post_hook = post_hook,
-    tags = ['core','gold','labels']
+    tags = ['core','labels']
 ) }}
 
 SELECT
@@ -36,7 +36,7 @@ SELECT
     label_type,
     label_subtype,
     project_name AS label,
-    labels_id AS dim_labels_id,
+    {{ dbt_utils.generate_surrogate_key(['labels_id']) }} AS dim_labels_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
