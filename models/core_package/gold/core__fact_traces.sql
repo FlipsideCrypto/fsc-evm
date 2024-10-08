@@ -567,9 +567,7 @@ aggregated_errors AS (
                         {% endif %}
                         FROM
                             json_traces f
-                            LEFT OUTER JOIN {{ ref(
-                                schema_name ~ '__transactions'
-                            ) }}
+                            LEFT OUTER JOIN {{ ref('core__fact_transactions') }}
                             t
                             ON {% if sei_traces_mode %}
                                 f.tx_hash = t.tx_hash
@@ -643,9 +641,7 @@ heal_missing_data AS (
     FROM
         {{ this }}
         t
-        JOIN {{ ref(
-            schema_name ~ '__transactions'
-        ) }}
+        JOIN {{ ref('core__fact_transactions') }}
         txs
         {% if sei_traces_mode %}
             ON t.tx_hash = txs.tx_hash
@@ -691,8 +687,7 @@ all_traces AS (
         trace_succeeded,
         trace_address,
         tx_succeeded
-
-        {% if arb_traces_mode %},
+    {% if arb_traces_mode %},
         before_evm_transfers,
         after_evm_transfers
     {% endif %}
@@ -727,8 +722,7 @@ SELECT
     trace_succeeded,
     trace_address,
     tx_succeeded
-
-    {% if arb_traces_mode %},
+{% if arb_traces_mode %},
     before_evm_transfers,
     after_evm_transfers
 {% endif %}
@@ -761,7 +755,6 @@ SELECT
     trace_succeeded,
     trace_address,
     tx_succeeded
-
     {% if arb_traces_mode %},
     before_evm_transfers,
     after_evm_transfers
@@ -797,7 +790,6 @@ SELECT
         before_evm_transfers,
         after_evm_transfers,
     {% endif %}
-
     trace_succeeded,
     error_reason,
     revert_reason,
