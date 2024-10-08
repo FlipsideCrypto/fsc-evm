@@ -6,8 +6,24 @@
 {% set TRACES_KAIA_MODE = var('TRACES_KAIA_MODE', false) %}
 {% set use_partition_key = var('USE_PARTITION_KEY', true) %}
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'bronze') %}
+{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 
 -- depends_on: {{ ref('bronze__traces') }}
+
+{% if not silver_full_refresh %}
+
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['modified_timestamp::DATE','partition_key'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    incremental_predicates = [fsc_evm.standard_predicate()],
+    full_refresh = silver_full_refresh,
+    tags = ['core','silver']
+) }}
+
+{% else %}
 
 {{ config (
     materialized = "incremental",
@@ -18,6 +34,8 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['core','silver']
 ) }}
+
+{% endif %}
 
     WITH bronze_traces AS (
         SELECT
