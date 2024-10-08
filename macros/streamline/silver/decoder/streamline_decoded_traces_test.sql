@@ -32,7 +32,8 @@
                 ELSE NULL
             END AS parent_trace_grouping,
             IFF(REGEXP_REPLACE(trace_address, '.$', '') = '', 'ORIGIN', REGEXP_REPLACE(trace_address, '.$', '')) AS parent_grouping,
-            input
+            input,
+            output
         FROM
             {{ ref("silver__traces") }}
             t
