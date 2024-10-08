@@ -67,3 +67,29 @@ The un-decoded event input topics.
 {% enddocs %}
 
 
+{% docs evm_topic_0 %}
+
+The first topic of the event, which is a unique identifier for the event.
+
+{% enddocs %}
+
+
+{% docs evm_topic_1 %}  
+
+The second topic of the event, if applicable.
+
+{% enddocs %}
+
+
+{% docs evm_topic_2 %}
+
+The third topic of the event, if applicable.
+
+{% enddocs %}
+
+
+{% docs evm_topic_3 %}
+
+The fourth topic of the event, if applicable.  
+
+{% enddocs %}

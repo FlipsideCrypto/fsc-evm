@@ -299,8 +299,7 @@ SELECT
     v,
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
-    '{{ invocation_id }}' AS _invocation_id
+    SYSDATE() AS modified_timestamp
 FROM
     all_transactions qualify ROW_NUMBER() over (
         PARTITION BY fact_transactions_id

@@ -14,6 +14,8 @@ Below are the specific native tokens that correspond to each EVM chain:
 | OPTIMISM   | ETH         |
 | GNOSIS     | xDAI        |
 | KAIA       | KLAY        |
+| SEI        | SEI         |
+| CORE       | CORE        |
 
 {% enddocs %}
 
@@ -96,7 +98,7 @@ The function signature of the call that triggered this transaction.
 
 {% docs evm_origin_sig %}
 
-The function signature of the contract call. 
+The function signature of the contract call that triggered this transaction.
 
 {% enddocs %}
 

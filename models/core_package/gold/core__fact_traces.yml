@@ -1,50 +1,60 @@
 version: 2
 models:
   - name: core__fact_traces
-    description: '{{ doc("evm_blocks_table_doc") }}'
+    description: '{{ doc("evm_traces_table_doc") }}'
       
     columns:
       - name: block_number
         description: '{{ doc("evm_block_number") }}'
-      - name: block_hash
-        description: '{{ doc("evm_blocks_hash") }}'
       - name: block_timestamp
         description: '{{ doc("evm_block_timestamp") }}'
-      - name: network
-        description: '{{ doc("evm_network") }}'
-      - name: tx_count
-        description: '{{ doc("evm_tx_count") }}'
-      - name: size
-        description: '{{ doc("evm_size") }}'
-      - name: miner
-        description: '{{ doc("evm_miner") }}'
-      - name: extra_data
-        description: '{{ doc("evm_extra_data") }}'
-      - name: parent_hash
-        description: '{{ doc("evm_parent_hash") }}'
+      - name: tx_hash
+        description: '{{ doc("evm_tx_hash") }}'
+      - name: tx_position
+        description: '{{ doc("evm_tx_position") }}'
+      - name: trace_index
+        description: '{{ doc("evm_trace_index") }}'
+      - name: from_address
+        description: '{{ doc("evm_from_address") }}'
+      - name: to_address
+        description: '{{ doc("evm_to_address") }}'
+      - name: input
+        description: '{{ doc("evm_traces_input") }}'
+      - name: output
+        description: '{{ doc("evm_traces_output") }}'
+      - name: type
+        description: '{{ doc("evm_traces_type") }}'
+      - name: trace_address
+        description: '{{ doc("evm_trace_address") }}'
+      - name: sub_traces
+        description: '{{ doc("evm_sub_traces") }}'
+      - name: value
+        description: '{{ doc("evm_value") }}'
+      - name: value_precise_raw
+        description: '{{ doc("evm_precise_amount_unadjusted") }}'
+      - name: value_precise
+        description: '{{ doc("evm_precise_amount_adjusted") }}'
+      - name: value_hex
+        description: '{{ doc("evm_value_hex") }}'
+      - name: gas
+        description: '{{ doc("evm_traces_gas") }}'
       - name: gas_used
-        description: '{{ doc("evm_gas_used") }}'
-      - name: gas_limit
-        description: '{{ doc("evm_gas_limit") }}'
-      - name: difficulty
-        description: '{{ doc("evm_difficulty") }}'
-      - name: total_difficulty
-        description: '{{ doc("evm_total_difficulty") }}'
-      - name: sha3_uncles
-        description: '{{ doc("evm_sha3_uncles") }}'
-      - name: uncle_blocks
-        description: '{{ doc("evm_uncle_blocks") }}'
-      - name: nonce
-        description: '{{ doc("evm_blocks_nonce") }}'
-      - name: receipts_root
-        description: '{{ doc("evm_receipts_root") }}'
-      - name: state_root
-        description: '{{ doc("evm_blocks_state_root") }}'
-      - name: transactions_root
-        description: '{{ doc("evm_blocks_transactions_root") }}'
-      - name: logs_bloom
-        description: '{{ doc("evm_blocks_logs_bloom")  }}'
-      - name: fact_blocks_id
+        description: '{{ doc("evm_traces_gas_used") }}'
+      - name: origin_from_address
+        description: '{{ doc("evm_traces_from") }}'
+      - name: origin_to_address
+        description: '{{ doc("evm_traces_to") }}'
+      - name: origin_function_signature
+        description: '{{ doc("evm_origin_sig") }}'
+      - name: trace_succeeded
+        description: '{{ doc("evm_trace_succeeded") }}'
+      - name: error_reason
+        description: '{{ doc("evm_trace_error_reason") }}'
+      - name: revert_reason
+        description: '{{ doc("evm_revert_reason") }}'
+      - name: tx_succeeded
+        description: '{{ doc("evm_tx_succeeded") }}'
+      - name: fact_traces_id
         description: '{{ doc("evm_pk") }}'
       - name: inserted_timestamp
         description: '{{ doc("evm_inserted_timestamp") }}'
