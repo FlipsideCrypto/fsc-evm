@@ -52,19 +52,19 @@ The amount of the native asset, decimal adjusted.
 
 {% enddocs %}
 
-{% docs evm_liquid_staking_ eth_amount_usd %}
+{% docs evm_liquid_staking_eth_amount_usd %}
 
 The amount of the native asset in USD, where available.
 
 {% enddocs %}
 
-{% docs evm_liquid_staking_ token_amount_unadj %}
+{% docs evm_liquid_staking_token_amount_unadj %}
 
 The amount of liquid staking tokens, non-decimal adjusted.
 
 {% enddocs %}
 
-{% docs evm_liquid_staking_ token_amount %}
+{% docs evm_liquid_staking_token_amount %}
 
 The amount of liquid staking tokens, decimal adjusted.
 
