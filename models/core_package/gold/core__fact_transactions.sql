@@ -167,7 +167,7 @@ missing_data AS (
     SELECT
         t.block_number,
         t.block_hash,
-        b.block_timestamp_heal,
+        b.block_timestamp AS block_timestamp_heal,
         t.tx_hash,
         t.from_address,
         t.to_address,

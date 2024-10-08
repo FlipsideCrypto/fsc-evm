@@ -614,10 +614,10 @@ heal_missing_data AS (
         {% else %}
             txs.tx_hash,
         {% endif %}
-        txs.block_timestamp,
-        txs.origin_function_signature,
-        txs.from_address AS origin_from_address,
-        txs.to_address AS origin_to_address,
+        txs.block_timestamp AS block_timestamp_heal,
+        txs.origin_function_signature AS origin_function_signature_heal,
+        txs.from_address AS origin_from_address_heal,
+        txs.to_address AS origin_to_address_heal,
         {% if TRACES_SEI_MODE %}
             txs.position AS tx_position,
         {% else %}
@@ -642,13 +642,13 @@ heal_missing_data AS (
         t.trace_succeeded,
         t.trace_address,
         {% if uses_tx_status %}
-        txs.tx_status as tx_succeeded
+        txs.tx_status as tx_succeeded_heal
         {% else %}
-        txs.tx_succeeded
+        txs.tx_succeeded as tx_succeeded_heal
         {% endif %}
         {% if TRACES_ARB_MODE %},
-        t.before_evm_transfers,
-        t.after_evm_transfers
+        t.before_evm_transfers_heal,
+        t.after_evm_transfers_heal
     {% endif %}
     FROM
         {{ this }}
@@ -711,10 +711,10 @@ UNION ALL
 SELECT
     block_number,
     tx_hash,
-    block_timestamp,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
+    block_timestamp_heal AS block_timestamp,
+    origin_function_signature_heal AS origin_function_signature,
+    origin_from_address_heal AS origin_from_address,
+    origin_to_address_heal AS origin_to_address,
     tx_position,
     trace_index,
     from_address,
@@ -733,10 +733,10 @@ SELECT
     revert_reason,
     trace_succeeded,
     trace_address,
-    tx_succeeded
+    tx_succeeded_heal AS tx_succeeded
 {% if TRACES_ARB_MODE %},
-    before_evm_transfers,
-    after_evm_transfers
+    before_evm_transfers_heal AS before_evm_transfers,
+    after_evm_transfers_heal AS after_evm_transfers
 {% endif %}
 FROM
     heal_missing_data
