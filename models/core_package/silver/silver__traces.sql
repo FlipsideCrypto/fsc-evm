@@ -1,9 +1,9 @@
 {% set full_reload_start_block = var('TRACES_FULL_RELOAD_START_BLOCK', 0) %}
 {% set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000) %}
 {% set full_reload_mode = var('SILVER_TRACES_FULL_RELOAD_MODE', false) %}
-{% set arb_traces_mode = var('ARB_TRACES_MODE', false) %}
-{% set sei_traces_mode = var('SEI_TRACES_MODE', false) %}
-{% set kaia_traces_mode = var('KAIA_TRACES_MODE', false) %}
+{% set TRACES_ARB_MODE = var('TRACES_ARB_MODE', false) %}
+{% set TRACES_SEI_MODE = var('TRACES_SEI_MODE', false) %}
+{% set TRACES_KAIA_MODE = var('TRACES_KAIA_MODE', false) %}
 {% set use_partition_key = var('USE_PARTITION_KEY', true) %}
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'bronze') %}
 
@@ -29,7 +29,7 @@
 
             VALUE :array_index :: INT AS tx_position,
             DATA :result AS full_traces,
-            {% if sei_traces_mode %}
+            {% if TRACES_SEI_MODE %}
                 DATA :txHash :: STRING AS tx_hash,
             {% endif %}
             _inserted_timestamp
@@ -44,7 +44,7 @@ WHERE
         FROM
             {{ this }}
     ) AND DATA :result IS NOT NULL 
-    {% if arb_traces_mode %}
+    {% if TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
 
@@ -79,7 +79,7 @@ WHERE
         )
     {% endif %}
 
-    {% if arb_traces_mode %}
+    {% if TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
 {% else %}
@@ -91,7 +91,7 @@ WHERE
         _partition_by_block_id <= {{ full_reload_start_block }}
     {% endif %}
 
-    {% if arb_traces_mode %}
+    {% if TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
 {% endif %}
@@ -103,7 +103,7 @@ ORDER BY
 flatten_traces AS (
     SELECT
         block_number,
-        {% if sei_traces_mode %}
+        {% if TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -134,13 +134,13 @@ flatten_traces AS (
                 'output',
                 'time',
                 'revertReason' 
-                {% if arb_traces_mode %},
+                {% if TRACES_ARB_MODE %},
                     'afterEVMTransfers',
                     'beforeEVMTransfers',
                     'result.afterEVMTransfers',
                     'result.beforeEVMTransfers'
                 {% endif %}
-                {% if kaia_traces_mode %},
+                {% if TRACES_KAIA_MODE %},
                     'reverted',
                     'result.reverted'
                 {% endif %}
@@ -184,16 +184,16 @@ flatten_traces AS (
         f.index IS NULL
         AND f.key != 'calls'
         AND f.path != 'result' 
-        {% if arb_traces_mode %}
+        {% if TRACES_ARB_MODE %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
         {% endif %}
-        {% if kaia_traces_mode %}
+        {% if TRACES_KAIA_MODE %}
             and f.key not in ('message', 'contract')
         {% endif %}
     GROUP BY
         block_number,
-        {% if sei_traces_mode %}
+        {% if TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -204,7 +204,7 @@ flatten_traces AS (
 )
 SELECT
     block_number,
-    {% if sei_traces_mode %}
+    {% if TRACES_SEI_MODE %}
         tx_hash,
     {% else %}
         tx_position,
@@ -217,7 +217,7 @@ SELECT
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number'] + 
-        (['tx_hash'] if sei_traces_mode else ['tx_position']) + 
+        (['tx_hash'] if TRACES_SEI_MODE else ['tx_position']) + 
         ['trace_address']
     ) }} AS traces_id,
     SYSDATE() AS inserted_timestamp,
