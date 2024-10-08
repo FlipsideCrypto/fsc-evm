@@ -1,8 +1,23 @@
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 
 {% if uses_receipts_by_hash %}
 
 -- depends_on: {{ ref('bronze__receipts_by_hash') }}
+
+{% if not silver_full_refresh %}
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = "tx_hash",
+    cluster_by = ['modified_timestamp::DATE','partition_key'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
+    incremental_predicates = [fsc_evm.standard_predicate()],
+    full_refresh = silver_full_refresh,
+    tags = ['core','silver']
+) }}
+
+{% else %}
 
 {{ config (
     materialized = "incremental",
@@ -13,6 +28,8 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['core','silver']
 ) }}
+
+{% endif %}
 
 WITH bronze_receipts AS (
     SELECT 

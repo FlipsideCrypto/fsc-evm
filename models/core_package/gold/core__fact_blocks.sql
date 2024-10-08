@@ -1,5 +1,20 @@
 {%- set prod_network = var('PROD_NETWORK', 'mainnet') -%}
 {%- set uses_base_fee = var('USES_BASE_FEE', true) -%}
+{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+
+{% if not gold_full_refresh %}
+
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    incremental_predicates = [fsc_evm.standard_predicate()],
+    full_refresh = gold_full_refresh,
+    tags = ['core','gold']
+) }}
+
+{% else %}
 
 {{ config (
     materialized = "incremental",
@@ -9,6 +24,8 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['core','gold']
 ) }}
+
+{% endif %}
 
 SELECT
     block_number,

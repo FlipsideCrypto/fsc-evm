@@ -7,6 +7,7 @@
 {% set TRACES_KAIA_MODE = var('TRACES_KAIA_MODE', false) %}
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
+{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
 {% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
 
@@ -20,6 +21,20 @@
     {% set delete_key = "block_number" %}
 {% endif %}
 
+{% if not gold_full_refresh %}
+
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = delete_key,
+    cluster_by = ['block_timestamp::DATE'],
+    incremental_predicates = [fsc_evm.standard_predicate()],
+    full_refresh = gold_full_refresh,
+    tags = ['core','gold']
+) }}
+
+{% else %}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -27,10 +42,12 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['core','gold']
-) }}
+) }}    
 
-    WITH silver_traces AS (
-        SELECT
+{% endif %}
+
+WITH silver_traces AS (
+    SELECT
             block_number,
             {% if TRACES_SEI_MODE %}
                 tx_hash,
