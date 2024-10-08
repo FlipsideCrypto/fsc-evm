@@ -8,11 +8,24 @@
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
 
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+
+{% if uses_receipts_by_hash %}
+    {% if TRACES_SEI_MODE %}
+        {% set delete_key = "concat(block_number, '-', tx_hash)" %}
+    {% else %}
+        {% set delete_key = "concat(block_number, '-', tx_position)" %}
+    {% endif %}
+{% else %}
+    {% set delete_key = "block_number" %}
+{% endif %}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
+    unique_key = delete_key,
     cluster_by = ['block_timestamp::DATE'],
+    incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['core','gold']
 ) }}
 

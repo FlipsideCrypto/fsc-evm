@@ -1,8 +1,17 @@
+{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+
+{% if uses_receipts_by_hash %}
+    {% set delete_key = "tx_hash" %}
+{% else %}
+    {% set delete_key = "block_number" %}
+{% endif %}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
+    unique_key = delete_key,
     cluster_by = ['block_timestamp::DATE'],
+    incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['core','gold']
 ) }}
 
