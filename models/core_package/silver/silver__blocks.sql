@@ -10,7 +10,6 @@
     tags = ['core','silver']
 ) }}
 
-
 WITH bronze_blocks as (
     SELECT 
         block_number,
