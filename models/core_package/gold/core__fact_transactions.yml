@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: core__fact_blocks
-    description: '{{ doc("evm_blocks_table_doc") }}'
+  - name: core__fact_transactions
+    description: '{{ doc("evm_tx_table_doc") }}'
       
     columns:
       - name: block_number
