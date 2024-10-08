@@ -118,7 +118,7 @@ AND txs.modified_timestamp >= (
 missing_data AS (
     SELECT
         t.block_number,
-        b.block_timestamp_heal,
+        b.block_timestamp AS block_timestamp_heal,
         t.tx_hash,
         t.tx_position,
         t.event_index,
@@ -132,7 +132,7 @@ missing_data AS (
         t.event_removed,
         t.origin_from_address,
         t.origin_to_address,
-        txs.origin_function_signature_heal,
+        txs.origin_function_signature AS origin_function_signature_heal,
         t.tx_succeeded
     FROM
         {{ this }}
