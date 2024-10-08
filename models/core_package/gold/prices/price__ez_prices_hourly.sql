@@ -26,7 +26,7 @@
     unique_key = 'ez_prices_hourly_id',
     cluster_by = ['hour::DATE'],
     post_hook = post_hook,
-    tags = ['core','prices']
+    tags = ['core']
 ) }}
 
 {# Set up dbt configuration #}
