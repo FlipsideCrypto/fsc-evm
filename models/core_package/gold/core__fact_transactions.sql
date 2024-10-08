@@ -308,5 +308,6 @@ FROM
         PARTITION BY fact_transactions_id
         ORDER BY
             block_number DESC,
-            block_timestamp DESC nulls last
+            block_timestamp DESC nulls last,
+            tx_succeeded DESC nulls last
     ) = 1
