@@ -238,9 +238,9 @@ trace_index_sub_traces AS (
         ROW_NUMBER() over (
             PARTITION BY b.block_number,
             {% if sei_traces_mode %}
-                b.tx_hash,
+                b.tx_hash
             {% else %}
-                b.tx_position,
+                b.tx_position
             {% endif %}
             ORDER BY
                 number_array ASC
