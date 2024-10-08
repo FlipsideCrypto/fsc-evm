@@ -95,7 +95,7 @@
                         parent_trace_grouping AS parent_grouping,
                         input
                     FROM
-                        raw
+                        raw_traces
                     WHERE
                         sub_traces > 0
                 ),
@@ -107,7 +107,7 @@
                         parent_grouping AS parent_trace_grouping,
                         input
                     FROM
-                        raw
+                        raw_traces
                         INNER JOIN PARENT USING (
                             tx_hash,
                             parent_grouping,
@@ -133,7 +133,7 @@
                             to_address
                         ) AS effective_contract_address
                     FROM
-                        raw
+                        raw_traces
                         LEFT JOIN effective_contract USING (
                             tx_hash,
                             parent_trace_grouping,
