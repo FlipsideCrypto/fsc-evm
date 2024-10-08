@@ -16,7 +16,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :timestamp :: STRING
     ) :: TIMESTAMP AS block_timestamp,
-    {{ prod_network }} AS network,
+    '{{ prod_network }}' AS network,
     ARRAY_SIZE(
         block_json :transactions
     ) AS tx_count,

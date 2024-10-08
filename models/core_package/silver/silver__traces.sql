@@ -4,7 +4,7 @@
 {% set arb_traces_mode = var('ARB_TRACES_MODE', false) %}
 {% set sei_traces_mode = var('SEI_TRACES_MODE', false) %}
 {% set kaia_traces_mode = var('KAIA_TRACES_MODE', false) %}
-{% set use_partition_key = var('USE_PARTITION_KEY', false) %}
+{% set use_partition_key = var('USE_PARTITION_KEY', true) %}
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'bronze') %}
 
 -- depends_on: {{ ref('bronze__traces') }}
