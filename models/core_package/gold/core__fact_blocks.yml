@@ -21,7 +21,7 @@ models:
       - name: extra_data
         description: '{{ evm_extra_data }}'
       - name: parent_hash
-        description: {{ evm_parent_hash }}
+        description: '{{ evm_parent_hash }}'
       - name: gas_used
         description: '{{ evm_gas_used }}'
       - name: gas_limit
