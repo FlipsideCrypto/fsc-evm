@@ -313,7 +313,7 @@ The token or native asset balance at the current block number, without a decimal
 {% enddocs %}
 
 
-{% docs evm_balance_deltas_ current_bal %}
+{% docs evm_balance_deltas_current_bal %}
 
 The decimal adjusted token or native asset balance at the current block number.
 
