@@ -69,10 +69,3 @@ The precise, unadjusted amount of the transaction. This is returned as a string 
 The precise, adjusted amount of the transaction. This is returned as a string to avoid precision loss. 
 
 {% enddocs %}
-
-{% docs evm_tx_fee_precise %}
-
-The precise amount of the transaction fee. This is returned as a string to avoid precision loss. 
-
-{% enddocs %}
-

@@ -1,9 +1,62 @@
 version: 2
-
 models:
-  - name: core__fact_transactions
-    description: |
-      This model contains the transaction data for all transactions in the blockchain.
+  - name: core__fact_blocks
+    description: '{{ doc("evm_blocks_table_doc") }}'
       
     columns:
       - name: block_number
+        description: '{{ doc("evm_block_number") }}'
+      - name: block_hash
+        description: '{{ doc("evm_tx_block_hash") }}'
+      - name: block_timestamp
+        description: '{{ doc("evm_block_timestamp") }}'
+      - name: tx_hash
+        description: '{{ doc("evm_tx_hash") }}'
+      - name: from_address
+        description: '{{ doc("evm_from_address") }}'
+      - name: to_address
+        description: '{{ doc("evm_to_address") }}'
+      - name: origin_function_signature
+        description: '{{ doc("evm_tx_origin_sig") }}'
+      - name: value
+        description: '{{ doc("evm_value") }}'
+      - name: value_precise_raw
+        description: '{{ doc("evm_precise_amount_unadjusted") }}'
+      - name: value_precise
+        description: '{{ doc("evm_precise_amount_adjusted") }}'
+      - name: tx_fee
+        description: '{{ doc("evm_tx_fee") }}'
+      - name: tx_fee_precise
+        description: '{{ doc("evm_tx_fee_precise") }}'
+      - name: tx_succeeded
+        description: '{{ doc("evm_tx_succeeded") }}'
+      - name: tx_type
+        description: '{{ doc("evm_tx_type") }}'
+      - name: nonce
+        description: '{{ doc("evm_tx_nonce") }}'
+      - name: position
+        description: '{{ doc("evm_tx_position") }}'
+      - name: input_data
+        description: '{{ doc("evm_tx_input_data") }}'
+      - name: gas_price
+        description: '{{ doc("evm_tx_gas_price") }}'
+      - name: gas_used
+        description: '{{ doc("evm_tx_gas_used") }}'
+      - name: gas_limit
+        description: '{{ doc("evm_tx_gas_limit") }}'
+      - name: cumulative_gas_used
+        description: '{{ doc("evm_cumulative_gas_used") }}'
+      - name: effective_gas_price
+        description: '{{ doc("evm_effective_gas_price") }}'
+      - name: r
+        description: '{{ doc("evm_r") }}'
+      - name: s
+        description: '{{ doc("evm_s") }}'
+      - name: v
+        description: '{{ doc("evm_v") }}'
+      - name: fact_transactions_id
+        description: '{{ doc("evm_tx_id") }}'
+      - name: inserted_timestamp
+        description: '{{ doc("evm_inserted_timestamp") }}'
+      - name: modified_timestamp
+        description: '{{ doc("evm_modified_timestamp") }}'
