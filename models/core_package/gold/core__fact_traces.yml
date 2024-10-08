@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: core__fact_traces
+    description: |
+      This model contains the trace data for all traces in the blockchain.
+      
+    columns:
+      - name: block_number
