@@ -40,11 +40,11 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    {{ ref('bronze__labels') }}
+    {{ ref('bronze__labels') }} b 
 
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    b.modified_timestamp >= (
         SELECT
             MAX(
                 modified_timestamp
