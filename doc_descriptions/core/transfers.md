@@ -1,4 +1,4 @@
-{% docs evm_ez_transfers_table_doc %}
+{% docs evm_transfers_table_doc %}
 
 This table contains all native asset transfers, including equivalent USD amounts. The origin addresses correspond to the to and from addresses from the `fact_transactions` table. The `identifier` and `tx_hash` columns relate this table back to `fact_traces`, which contains more details on the transfers. 
 
@@ -18,7 +18,7 @@ Below are the specific native tokens that correspond to each EVM chain:
 {% enddocs %}
 
 
-{% docs evm_ez_transfer_table_doc %}
+{% docs evm_transfer_table_doc %}
 
 This table contains all events in the `fact_token_transfers` table, along with joined columns such as token price, symbol, and decimals where possible that allow for easier analysis of token transfer events. Please note native asset transfers are not included here.
 
@@ -32,14 +32,14 @@ This fact-based table contains emitted event logs for ERC-20 Token Transfers (e.
 {% enddocs %}
 
 
-{% docs evm_ez_token_transfers_table_doc %}
+{% docs evm_token_transfers_table_doc %}
 
 This convenience table contains emitted event logs for ERC-20 Token Transfers (e.g. `Transfer`: topic_0 = `0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef`), including decimal adjusted values, USD values, and other helpful token metadata where available for each transfer event. The contract address is the token transferred, and the raw amount field is the amount of tokens transferred. Note, this table does not contain ERC-721 and ERC-1155 token transfers, instead please use `nft.ez_nft_transfers`. Additionally, this table does not contain transfers of the chain's native asset, instead please use `core.ez_native_transfers`.
 
 {% enddocs %}
 
 
-{% docs evm_ez_native_transfers_table_doc %}
+{% docs evm_native_transfers_table_doc %}
 
 This convenience table contains all transfers for the chain's native asset, sourced from internal traces (`core.fact_traces`), and includes decimal adjusted and USD values where available. The origin addresses correspond to the to and from addresses in the `core.fact_transactions` table. Note, this table does not contain ERC-721 and ERC-1155 token transfers, instead please use `nft.ez_nft_transfers`.
 

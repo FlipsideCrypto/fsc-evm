@@ -80,3 +80,15 @@ The symbol belonging to the address of the token
 
 {% enddocs %}
 
+{% docs evm_token_name %}
+
+The name of the token contract, or native asset.
+
+{% enddocs %}
+
+
+{% docs evm_decimals %}
+
+The decimals for the token contract.
+
+{% enddocs %}

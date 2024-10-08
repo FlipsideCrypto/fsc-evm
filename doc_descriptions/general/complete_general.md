@@ -22,12 +22,6 @@ The date and time at which the block was produced.
 
 {% enddocs %}
 
-{% docs evm_decimals %}
-
-The number of decimal places this contract needs adjusted where token values exist. For example, use the decimal field to correctly transform raw amounts in `fact_token_transfers`. 
-
-{% enddocs %}
-
 {% docs evm_from_address %}
 
 The sending address of this transaction. 

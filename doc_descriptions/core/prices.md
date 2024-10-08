@@ -48,7 +48,7 @@ A comprehensive dimensional table holding asset metadata and other relevant deta
 {% enddocs %}
 
 
-{% docs evm_prices_ez_asset_metadata_table_doc %}
+{% docs evm_prices_asset_metadata_table_doc %}
 
 A convenience table holding prioritized asset metadata and other relevant details pertaining to each token_address and native asset. This data set is highly curated and contains metadata for one unique asset per blockchain.
 
@@ -62,7 +62,7 @@ A comprehensive fact table holding id and provider specific open, high, low, clo
 {% enddocs %}
 
 
-{% docs evm_prices_ez_prices_hourly_table_doc %}
+{% docs evm_prices_prices_hourly_table_doc %}
 
 A convenience table for determining token prices by address and blockchain, and native asset prices by symbol and blockchain. This data set is highly curated and contains metadata for one price per hour per unique asset and blockchain.
 
