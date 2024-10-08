@@ -44,11 +44,13 @@ SELECT
     ) :: bigint AS total_difficulty,
     block_json :sha3Uncles :: STRING AS sha3_uncles,
     block_json :uncles AS uncle_blocks,
-    block_json :nonce :: STRING AS nonce,
+    utils.udf_hex_to_int(
+        block_json :nonce :: STRING
+    ) :: bigint AS nonce,
     block_json :receiptsRoot :: STRING AS receipts_root,
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
-    block_json :logsBloom :: STRING AS log_bloom,
+    block_json :logsBloom :: STRING AS logs_bloom,
     {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

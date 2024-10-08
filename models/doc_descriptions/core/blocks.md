@@ -123,4 +123,23 @@ Uncle blocks occur when two blocks are mined and broadcasted at the same time, w
 
 {% enddocs %}
 
+{% docs evm_blocks_logs_bloom %}
+
+The bloom filter for the logs in the block.
+
+{% enddocs %}
+
+
+{% docs evm_blocks_transactions_root %}
+
+The root of the transactions in the block.
+
+{% enddocs %}
+
+
+{% docs evm_blocks_state_root %}
+
+The root of the state trie.
+
+{% enddocs %}
 
