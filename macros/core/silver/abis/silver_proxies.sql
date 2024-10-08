@@ -29,7 +29,7 @@ GROUP BY
 create_id AS (
     SELECT
         from_address AS contract_address,
-        to_address AS proxy_address,
+        to_address AS implementation_contract,
         start_block,
         start_timestamp,
         CONCAT(
@@ -44,7 +44,7 @@ create_id AS (
 heal AS (
     SELECT
         contract_address,
-        proxy_address,
+        implementation_contract,
         start_block,
         start_timestamp,
         _id,
@@ -56,7 +56,7 @@ heal AS (
 UNION ALL
 SELECT
     contract_address,
-    proxy_address,
+    implementation_contract,
     start_block,
     start_timestamp,
     _id,
@@ -65,14 +65,14 @@ FROM
     {{ this }}
     JOIN create_id USING (
         contract_address,
-        proxy_address
+        implementation_contract
     )
 {% endif %}
 ),
 FINAL AS (
     SELECT
         contract_address,
-        proxy_address,
+        implementation_contract,
         start_block,
         start_timestamp,
         _id,
@@ -80,25 +80,31 @@ FINAL AS (
     FROM
         heal qualify ROW_NUMBER() over (
             PARTITION BY contract_address,
-            proxy_address
+            implementation_contract
             ORDER BY
                 start_block ASC
         ) = 1
 )
 SELECT
     f.contract_address,
-    f.proxy_address,
+    f.implementation_contract,
     f.start_block,
     f.start_timestamp,
     f._id,
     f._inserted_timestamp,
-    C.block_number AS created_block,
-    p.block_number AS proxy_created_block
+    COALESCE(
+        C.block_number,
+        0
+    ) AS created_block,
+    COALESCE(
+        p.block_number,
+        0
+    ) AS implementation_created_block
 FROM
     FINAL f
-    JOIN {{ ref('silver__created_contracts') }} C
+    LEFT JOIN {{ ref('silver__created_contracts') }} C
     ON f.contract_address = C.created_contract_address
-    JOIN {{ ref('silver__created_contracts') }}
+    LEFT JOIN {{ ref('silver__created_contracts') }}
     p
-    ON f.proxy_address = p.created_contract_address
+    ON f.implementation_contract = p.created_contract_address
 {% endmacro %}

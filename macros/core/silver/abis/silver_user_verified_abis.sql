@@ -394,31 +394,31 @@ contracts AS (
 ),
 proxies AS (
     SELECT
-        p.proxy_address,
+        p.implementation_contract,
         p.contract_address
     FROM
         {{ ref('silver__proxies') }}
         p
         JOIN new_abis n
-        ON p.proxy_address = n.contract_address
+        ON p.implementation_contract = n.contract_address
 ),
 final_groupings AS (
     SELECT
         b.contract_address AS address,
         C.contract_address,
-        proxy_address,
+        implementation_contract,
         CASE
             WHEN C.contract_address IS NOT NULL
-            AND proxy_address IS NOT NULL THEN 'contract'
+            AND implementation_contract IS NOT NULL THEN 'contract'
             WHEN C.contract_address IS NOT NULL THEN 'contract'
-            WHEN proxy_address IS NOT NULL THEN 'proxy'
+            WHEN implementation_contract IS NOT NULL THEN 'implementation'
             WHEN C.contract_address IS NULL
-            AND proxy_address IS NULL THEN 'contract'
+            AND implementation_contract IS NULL THEN 'contract'
         END AS TYPE,
-        p.contract_address AS proxy_parent,
+        p.contract_address AS proxy_address,
         CASE
             WHEN TYPE = 'contract' THEN address
-            ELSE proxy_parent
+            ELSE proxy_address
         END AS final_address
     FROM
         base b
@@ -431,12 +431,12 @@ final_groupings AS (
         ON b.contract_address = C.contract_address
         LEFT JOIN (
             SELECT
-                DISTINCT proxy_address,
+                DISTINCT implementation_contract,
                 contract_address
             FROM
                 proxies
         ) p
-        ON b.contract_address = proxy_address
+        ON b.contract_address = p.implementation_contract
 ),
 identified_addresses AS (
     SELECT

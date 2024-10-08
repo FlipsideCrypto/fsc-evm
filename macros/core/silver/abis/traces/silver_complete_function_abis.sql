@@ -14,9 +14,9 @@ WHERE
             {{ this }}
     )
 UNION
-    -- catches any late arriving proxies
+    -- catches any late arriving implementation contracts - when we get its ABI but no delegatecalls where made yet
 SELECT
-    DISTINCT proxy_address AS contract_address
+    DISTINCT implementation_contract AS contract_address
 FROM
     {{ ref('silver__proxies') }}
 WHERE
@@ -28,12 +28,12 @@ WHERE
     )
 {% endif %}
 ),
-proxies AS (
+implementations AS (
     SELECT
         p0.created_block,
-        p0.proxy_created_block,
+        p0.implementation_created_block,
         p0.contract_address,
-        p0.proxy_address,
+        p0.implementation_contract,
         p0.start_block,
         p0._id,
         p0._inserted_timestamp
@@ -45,9 +45,9 @@ proxies AS (
     UNION
     SELECT
         p1.created_block,
-        p1.proxy_created_block,
+        p1.implementation_created_block,
         p1.contract_address,
-        p1.proxy_address,
+        p1.implementation_contract,
         p1.start_block,
         p1._id,
         p1._inserted_timestamp
@@ -55,18 +55,18 @@ proxies AS (
         {{ ref('silver__proxies') }}
         p1
         JOIN new_abis na1
-        ON p1.proxy_address = na1.contract_address
+        ON p1.implementation_contract = na1.contract_address
 ),
 all_relevant_contracts AS (
     SELECT
         DISTINCT contract_address
     FROM
-        proxies
+        implementations
     UNION
     SELECT
-        DISTINCT proxy_address AS contract_address
+        DISTINCT implementation_contract AS contract_address
     FROM
-        proxies
+        implementations
     UNION
     SELECT
         contract_address
@@ -101,15 +101,15 @@ base AS (
         inputs_type,
         outputs_type,
         ea._inserted_timestamp,
-        pb._inserted_timestamp AS proxy_inserted_timestamp,
+        pb._inserted_timestamp AS implementation_inserted_timestamp,
         pb.start_block,
-        pb.proxy_created_block,
+        pb.implementation_created_block,
         pb.contract_address AS base_contract_address,
         1 AS priority
     FROM
         flat_abis ea
-        JOIN proxies pb
-        ON ea.contract_address = pb.proxy_address
+        JOIN implementations pb
+        ON ea.contract_address = pb.implementation_contract
     UNION ALL
     SELECT
         eab.contract_address,
@@ -122,9 +122,9 @@ base AS (
         inputs_type,
         outputs_type,
         eab._inserted_timestamp,
-        pbb._inserted_timestamp AS proxy_inserted_timestamp,
+        pbb._inserted_timestamp AS implementation_inserted_timestamp,
         pbb.created_block AS start_block,
-        pbb.proxy_created_block,
+        pbb.implementation_created_block,
         pbb.contract_address AS base_contract_address,
         2 AS priority
     FROM
@@ -133,10 +133,10 @@ base AS (
             SELECT
                 DISTINCT contract_address,
                 created_block,
-                proxy_created_block,
+                implementation_created_block,
                 _inserted_timestamp
             FROM
-                proxies
+                implementations
         ) pbb
         ON eab.contract_address = pbb.contract_address
     UNION ALL
@@ -151,9 +151,9 @@ base AS (
         inputs_type,
         outputs_type,
         _inserted_timestamp,
-        NULL AS proxy_inserted_timestamp,
+        NULL AS implementation_inserted_timestamp,
         0 AS start_block,
-        NULL AS proxy_created_block,
+        NULL AS implementation_created_block,
         contract_address AS base_contract_address,
         3 AS priority
     FROM
@@ -163,7 +163,7 @@ base AS (
             SELECT
                 DISTINCT contract_address
             FROM
-                proxies
+                implementations
         )
 ),
 new_records AS (
@@ -173,7 +173,7 @@ new_records AS (
         function_name,
         abi,
         start_block,
-        proxy_created_block,
+        implementation_created_block,
         simple_function_name,
         function_signature,
         inputs,
@@ -181,7 +181,7 @@ new_records AS (
         inputs_type,
         outputs_type,
         _inserted_timestamp,
-        proxy_inserted_timestamp
+        implementation_inserted_timestamp
     FROM
         base qualify ROW_NUMBER() over (
             PARTITION BY parent_contract_address,
@@ -192,8 +192,8 @@ new_records AS (
             ORDER BY
                 priority ASC,
                 _inserted_timestamp DESC,
-                proxy_created_block DESC nulls last,
-                proxy_inserted_timestamp DESC nulls last
+                implementation_created_block DESC nulls last,
+                implementation_inserted_timestamp DESC nulls last
         ) = 1
 ),
 FINAL AS (
@@ -203,14 +203,14 @@ FINAL AS (
         function_name,
         abi,
         start_block,
-        proxy_created_block,
+        implementation_created_block,
         simple_function_name,
         function_signature,
         IFNULL(LEAD(start_block) over (PARTITION BY parent_contract_address, function_signature
     ORDER BY
         start_block) -1, 1e18) AS end_block,
         _inserted_timestamp,
-        proxy_inserted_timestamp,
+        implementation_inserted_timestamp,
         SYSDATE() AS _updated_timestamp,
         {{ dbt_utils.generate_surrogate_key(
             ['parent_contract_address','function_signature','start_block']
@@ -234,12 +234,12 @@ SELECT
     function_name,
     abi,
     start_block,
-    proxy_created_block,
+    implementation_created_block,
     simple_function_name,
     function_signature,
     end_block,
     _inserted_timestamp,
-    proxy_inserted_timestamp,
+    implementation_inserted_timestamp,
     _updated_timestamp,
     complete_event_abis_id,
     inserted_timestamp,
