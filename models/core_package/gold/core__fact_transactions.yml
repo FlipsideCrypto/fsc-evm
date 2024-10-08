@@ -55,7 +55,7 @@ models:
       - name: v
         description: '{{ doc("evm_v") }}'
       - name: fact_transactions_id
-        description: '{{ doc("evm_tx_id") }}'
+        description: '{{ doc("evm_pk") }}'
       - name: inserted_timestamp
         description: '{{ doc("evm_inserted_timestamp") }}'
       - name: modified_timestamp
