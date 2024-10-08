@@ -139,7 +139,6 @@ AND b.modified_timestamp >= (
         {{ this }}
 )
 {% endif %}
-)
 LEFT JOIN {{ ref('silver__receipts') }}
 r
 ON txs.block_number = r.block_number
