@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: core__fact_event_logs
+    description: |
+      This model contains the event log data for all event logs in the blockchain.
+      
+    columns:
+      - name: block_number

@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: core__fact_transactions
+    description: |
+      This model contains the transaction data for all transactions in the blockchain.
+      
+    columns:
+      - name: block_number

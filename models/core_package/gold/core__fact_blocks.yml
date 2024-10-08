@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: core__fact_blocks
+    description: |
+      This model contains the block data for all blocks in the blockchain.
+      
+    columns:
+      - name: block_number
