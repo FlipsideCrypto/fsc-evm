@@ -156,7 +156,7 @@
                 ) AS output
             FROM
                 final_traces t
-                INNER JOIN {{ ref("silver__flat_function_abis") }}
+                LEFT JOIN {{ ref("silver__flat_function_abis") }}
                 f
                 ON t.effective_contract_address = f.contract_address
                 AND LEFT(
