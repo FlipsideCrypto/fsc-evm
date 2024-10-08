@@ -44,7 +44,7 @@ FROM
 
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    modified_timestamp > (
         SELECT
             MAX(
                 modified_timestamp
