@@ -1,4 +1,4 @@
-{%- set blockchains = var('LABELS_BLOCKCHAINS', var('PROD_DB_NAME').lower() ) -%}
+{%- set blockchains = var('LABELS_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
