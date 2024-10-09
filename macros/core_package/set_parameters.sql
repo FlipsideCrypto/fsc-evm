@@ -3,29 +3,29 @@
 {%- set rpc_config_details = {
     "blocks_transactions": {
         "method": 'eth_getBlockByNumber',
-        "params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
+        "method_params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
         "exploded_key": ['data', 'result.transactions']
     },
     "receipts_by_hash": {
         "method": 'eth_getTransactionReceipt',
-        "params": 'ARRAY_CONSTRUCT(tx_hash)'
+        "method_params": 'ARRAY_CONSTRUCT(tx_hash)'
     },
     "receipts": {
         "method": 'eth_getBlockReceipts',
-        "params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))',
+        "method_params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))',
         "exploded_key": ['result'],
         "lambdas": 2
 
     },
     "traces": {
         "method": 'debug_traceBlockByNumber',
-        "params": "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))",
+        "method_params": "ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))",
         "exploded_key": ['result'],
         "lambdas": 2
     },
     "confirm_blocks": {
         "method": 'eth_getBlockByNumber',
-        "params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'
+        "method_params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), FALSE)'
     }
 } -%}
 
@@ -41,7 +41,7 @@
     ),
     "sql_source": (model_name ~ '_' ~ model_type).lower(),
     "method": rpc_config['method'],
-    "params": rpc_config['params']
+    "method_params": rpc_config['method_params']
 } -%}
 
 {%- if rpc_config.get('exploded_key') is not none -%}

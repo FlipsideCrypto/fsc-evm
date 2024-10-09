@@ -24,7 +24,7 @@
     order_by_clause=default_vars['order_by_clause'],
     new_build=default_vars['new_build'],
     streamline_params=streamline_params,
-    params=streamline_params['params'],
+    method_params=streamline_params['method_params'],
     method=streamline_params['method']
 ) }}
 
@@ -178,7 +178,7 @@ SELECT
             'id', block_number,
             'jsonrpc', '2.0',
             'method', '{{ streamline_params['method'] }}',
-            'params', {{ streamline_params['params'] }}
+            'params', {{ streamline_params['method_params'] }}
         ),
         '{{ default_vars['node_secret_path'] }}'
     ) AS request
