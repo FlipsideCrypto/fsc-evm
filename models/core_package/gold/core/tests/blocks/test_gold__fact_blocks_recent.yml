@@ -83,11 +83,14 @@ models:
                 - FLOAT
       - name: >-
           {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else 'DUMMY_COLUMN' }}
-        tests: >-
-          {{ [
-            'not_null',
-            {'dbt_expectations.expect_column_values_to_be_in_type_list': {'column_type_list': ['NUMBER', 'FLOAT']}}
-          ] if var('GLOBAL_USES_BASE_FEE', true) else [] }}
+        tests:
+          - not_null:
+              enabled: "{{ var('GLOBAL_USES_BASE_FEE', true) }}"
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              enabled: "{{ var('GLOBAL_USES_BASE_FEE', true) }}"
+              column_type_list:
+                - NUMBER
+                - FLOAT
       - name: DIFFICULTY
         tests:
           - not_null
