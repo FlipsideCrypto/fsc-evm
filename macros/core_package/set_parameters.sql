@@ -29,7 +29,7 @@
     }
 } -%}
 
-{%- set rpc_config = rpc_config_details[model_name] -%}
+{%- set rpc_config = rpc_config_details[model_name.lower()] -%}
 
 {%- set params = {
     "external_table": var((model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name.lower()),
