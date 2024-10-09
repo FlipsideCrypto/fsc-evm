@@ -12,5 +12,5 @@ WHERE
         SELECT
             block_number
         FROM
-            {{ ref('_block_lookback ') }}
+            {{ ref('_block_lookback') }}
     )

@@ -1,0 +1,18 @@
+version: 2
+models:
+  - name: test_gold__fact_event_logs_recent
+    description: "This is a view used to test the last three days of fact event logs."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_NUMBER
+      - fsc_utils.sequence_gaps:
+          column_name: BLOCK_NUMBER
+          config:
+            severity: error
+            error_if: ">10"
+
+    columns:
+      - name: BLOCK_NUMBER
+        tests:
+          - not_null
