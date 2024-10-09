@@ -26,7 +26,7 @@
 
 {{ config (
     materialized = 'table',
-    tags = ['streamline_core_complete']
+    tags = ['streamline_core_complete','chainhead']
 ) }}
 
 SELECT
