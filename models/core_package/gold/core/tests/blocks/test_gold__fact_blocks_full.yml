@@ -79,7 +79,7 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-      {% if var('GLOBAL_USES_BASE_FEE', true) %}
+{% if var('GLOBAL_USES_BASE_FEE', true) %}
       - name: BASE_FEE_PER_GAS
         tests:
           - not_null
@@ -87,7 +87,7 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-      {% endif %}
+{% endif %}
       - name: DIFFICULTY
         tests:
           - not_null
