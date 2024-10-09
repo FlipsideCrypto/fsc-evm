@@ -1,5 +1,6 @@
 {% set model_name = 'TRACES' %}
 {% set model_type = 'REALTIME' %}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
@@ -19,7 +20,8 @@
     new_build=default_vars['new_build'],
     streamline_params=streamline_params,
     method_params=streamline_params['method_params'],
-    method=streamline_params['method']
+    method=streamline_params['method'],
+    min_block=min_block
 ) }}
 
 {# Set up dbt configuration #}
@@ -49,6 +51,9 @@ to_do AS (
         block_number IS NOT NULL
     {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
+    {% endif %}
+    {% if min_block is not none %}
+        AND block_number >= {{ min_block }}
     {% endif %}
 
     EXCEPT
