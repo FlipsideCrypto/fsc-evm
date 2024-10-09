@@ -10,7 +10,6 @@
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
     model_type=model_type,
-    lambdas=2,
     multiplier=multiplier
 ) -%}
 
@@ -176,8 +175,8 @@ SELECT
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', 'eth_getTransactionReceipt',
-            'params', ARRAY_CONSTRUCT(tx_hash)
+            'method', '{{ streamline_params['method'] }}',
+            'params', {{ streamline_params['params'] }}
         ),
         '{{ default_vars['node_secret_path'] }}'
     ) AS request

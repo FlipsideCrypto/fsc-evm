@@ -1,4 +1,4 @@
-{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash) %}
+{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash, method, params) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -20,9 +20,11 @@
 
     {{ log("=== RPC Details ===", info=True) }}
 
+    {# THIS NEEDS TO BE FIXED #}
+
     {{ log(model_name ~ ": {", info=True) }}
-    {{ log("    method: '" ~ 'eth_getBlockByNumber' ~ "',", info=True) }}
-    {{ log("    params: '" ~ 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)' ~ "'", info=True) }}
+    {{ log("    method: '" ~ method ~ "',", info=True) }}
+    {{ log("    params: '" ~ params ~ "'", info=True) }}
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 

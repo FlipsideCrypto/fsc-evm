@@ -1,12 +1,9 @@
 {% set model_name = 'TRACES' %}
 {% set model_type = 'REALTIME' %}
-{% set exploded_key = ['result'] %}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
-    model_type=model_type,
-    exploded_key=exploded_key,
-    lambdas=2
+    model_type=model_type
 ) -%}
 
 {%- set default_vars = set_default_variables(model_name, model_type) -%}
@@ -96,8 +93,8 @@ SELECT
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', 'debug_traceBlockByNumber',
-            'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))
+            'method', '{{ streamline_params['method'] }}',
+            'params', {{ streamline_params['params'] }}
         ),
         '{{ default_vars['node_secret_path'] }}'
     ) AS request
