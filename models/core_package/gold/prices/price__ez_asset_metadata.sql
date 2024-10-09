@@ -44,7 +44,7 @@ FROM
     {{ ref('silver__complete_token_asset_metadata') }}
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    modified_timestamp > (
         SELECT
             MAX(
                 modified_timestamp
@@ -70,7 +70,7 @@ FROM
     {{ ref('silver__complete_native_asset_metadata') }}
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    modified_timestamp > (
         SELECT
             MAX(
                 modified_timestamp

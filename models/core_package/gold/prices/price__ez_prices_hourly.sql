@@ -29,11 +29,6 @@
     tags = ['core']
 ) }}
 
-{# Set up dbt configuration #}
-{{ config(
-    materialized = 'view'
-) }}
-
 {# Main query starts here #}
 SELECT
     HOUR,
@@ -53,7 +48,7 @@ FROM
     {{ ref('silver__complete_token_prices') }}
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    modified_timestamp > (
         SELECT
             MAX(
                 modified_timestamp
@@ -81,7 +76,7 @@ FROM
     {{ ref('silver__complete_native_prices') }}
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    modified_timestamp > (
         SELECT
             MAX(
                 modified_timestamp

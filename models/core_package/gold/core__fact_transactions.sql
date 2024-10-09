@@ -81,7 +81,7 @@ WHERE
             END AS to_address,
             utils.udf_hex_to_int(
                 transaction_json :transactionIndex :: STRING
-            ) :: bigint AS tx_position,
+            ) :: bigint AS transaction_index,
             utils.udf_hex_to_int(
                 transaction_json :type :: STRING
             ) :: bigint AS tx_type,
