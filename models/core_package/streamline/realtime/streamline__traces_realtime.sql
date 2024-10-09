@@ -6,7 +6,7 @@
     model_type=model_type
 ) -%}
 
-{%- set default_vars = set_default_variables(model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
 {{ log_streamline_details(
     model_name=model_name,
