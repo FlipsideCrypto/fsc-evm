@@ -1,7 +1,7 @@
 {% set model_name = 'RECEIPTS_BY_HASH' %}
 {% set model_type = 'HISTORY' %}
 
-{%- set default_vars = set_default_variables(model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
 {% if default_vars['uses_receipts_by_hash'] %}
 

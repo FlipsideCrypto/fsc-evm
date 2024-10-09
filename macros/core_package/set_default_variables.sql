@@ -1,4 +1,4 @@
-{% macro set_default_variables(model_name, model_type) %}
+{% macro set_default_variables_streamline(model_name, model_type) %}
 
 {%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
 {%- set node_secret_path = var('GLOBAL_NODE_SECRET_PATH') -%}
