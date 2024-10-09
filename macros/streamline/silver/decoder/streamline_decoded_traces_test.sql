@@ -114,7 +114,7 @@
                             tx_hash,
                             parent_grouping,
                             input
-                        )
+                        ) -- where type = 'DELEGATECALL'
                 ),
                 final_traces AS (
                     SELECT
