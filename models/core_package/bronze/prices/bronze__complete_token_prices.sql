@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set token_addresses = var('PRICES_TOKEN_ADDRESSES') -%}
+{%- set token_addresses = var('PRICES_TOKEN_ADDRESSES', none) -%}
 {%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
 
 {# Log configuration details #}
