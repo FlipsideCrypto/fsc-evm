@@ -40,7 +40,15 @@
 
 {# Start by invoking LQ for the last hour of blocks #}
 
-WITH numbered_blocks AS (
+WITH 
+{% if not default_vars['new_build'] %}
+    last_3_days AS (
+        SELECT block_number
+        FROM {{ ref("_block_lookback") }}
+    ),
+{% endif %}
+
+numbered_blocks AS (
 
     SELECT
         block_number_hex,
