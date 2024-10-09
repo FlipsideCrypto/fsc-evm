@@ -82,7 +82,7 @@ models:
                 - NUMBER
                 - FLOAT
       - name: >-
-          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else 'DUMMY_COLUMN' }}
+          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else 'DUMMY_COLUMN_0' }}
         tests:
           - not_null:
               enabled: "{{ var('GLOBAL_USES_BASE_FEE', true) }}"
