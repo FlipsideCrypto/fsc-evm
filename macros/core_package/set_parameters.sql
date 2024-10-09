@@ -1,7 +1,7 @@
 {% macro set_streamline_parameters(model_name, model_type, multiplier=1) %}
 
 {%- set rpc_config_details = {
-    "block_transactions": {
+    "blocks_transactions": {
         "method": 'eth_getBlockByNumber',
         "params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
         "exploded_key": ['data', 'result.transactions']
