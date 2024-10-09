@@ -1,4 +1,4 @@
-{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash, method, params) %}
+{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash, method_params, params) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -24,7 +24,7 @@
 
     {{ log(model_name ~ ": {", info=True) }}
     {{ log("    method: '" ~ method ~ "',", info=True) }}
-    {{ log("    params: '" ~ params ~ "'", info=True) }}
+    {{ log("    method_params: '" ~ method_params ~ "'", info=True) }}
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
