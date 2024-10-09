@@ -20,8 +20,6 @@
 
     {{ log("=== RPC Details ===", info=True) }}
 
-    {# THIS NEEDS TO BE FIXED #}
-
     {{ log(model_name ~ ": {", info=True) }}
     {{ log("    method: '" ~ method ~ "',", info=True) }}
     {{ log("    method_params: " ~ method_params, info=True) }}
@@ -30,7 +28,6 @@
 
     {% set params_str = streamline_params | tojson %}
     {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
-    
     
     {# Clean up the method_params formatting #}
     {% set params_formatted = params_formatted | replace('"method_params": "', '"method_params": "') | replace('\\n', ' ') | replace('\\u0027', "'") %}
