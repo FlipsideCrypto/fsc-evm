@@ -37,18 +37,18 @@
     "producer_batch_size": var((model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('GLOBAL_BLOCKS_PER_HOUR') * multiplier),
     "worker_batch_size": var(
         (model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * var('GLOBAL_BLOCKS_PER_HOUR') * multiplier) // (rpc_config['lambdas'] | default(1))
+        (2 * var('GLOBAL_BLOCKS_PER_HOUR') * multiplier) // (rpc_config.get('lambdas', 1))
     ),
     "sql_source": (model_name ~ '_' ~ model_type).lower(),
     "method": rpc_config['method'],
     "params": rpc_config['params']
 } -%}
 
-{%- if rpc_config['exploded_key'] is not none -%}
+{%- if rpc_config.get('exploded_key') is not none -%}
     {%- do params.update({"exploded_key": tojson(rpc_config['exploded_key'])}) -%}
 {%- endif -%}
 
-{%- if rpc_config['lambdas'] is not none -%}
+{%- if rpc_config.get('lambdas') is not none -%}
     {%- do params.update({"lambdas": rpc_config['lambdas']}) -%}
 {%- endif -%}
 
