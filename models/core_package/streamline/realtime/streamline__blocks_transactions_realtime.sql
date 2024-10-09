@@ -1,5 +1,6 @@
 {% set model_name = 'BLOCKS_TRANSACTIONS' %}
 {% set model_type = 'REALTIME' %}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 
@@ -21,7 +22,8 @@
     new_build=default_vars['new_build'],
     streamline_params=streamline_params,
     method_params=streamline_params['method_params'],
-    method=streamline_params['method']
+    method=streamline_params['method'],
+    min_block=min_block
 ) }}
 
 {# Set up dbt configuration #}
@@ -51,6 +53,10 @@ to_do AS (
     block_number IS NOT NULL
     {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
+    {% endif %}
+
+    {% if min_block is not none %}
+        AND block_number >= {{ min_block }}
     {% endif %}
 
     EXCEPT

@@ -67,15 +67,6 @@ ready_blocks AS (
     SELECT block_number
     FROM to_do
 
-    {% if not default_vars['new_build']%}
-        UNION
-        SELECT block_number
-        FROM {{ ref("_unconfirmed_blocks") }}
-        UNION
-        SELECT block_number
-        FROM {{ ref("_missing_txs") }}
-    {% endif %}
-
     {% if default_vars['testing_limit'] is not none %}
         LIMIT {{ default_vars['testing_limit'] }} 
     {% endif %}
