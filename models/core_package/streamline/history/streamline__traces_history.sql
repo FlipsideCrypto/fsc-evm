@@ -1,5 +1,5 @@
 {% set model_name = 'TRACES' %}
-{% set model_type = 'REALTIME' %}
+{% set model_type = 'HISTORY' %}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,

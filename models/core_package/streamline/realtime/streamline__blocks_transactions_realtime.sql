@@ -1,16 +1,14 @@
 {% set model_name = 'BLOCKS_TRANSACTIONS' %}
 {% set model_type = 'REALTIME' %}
-{% set exploded_key = ['data', 'result.transactions'] %}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
-    model_type=model_type,
-    exploded_key=exploded_key
+    model_type=model_type
 ) -%}
 
-{%- set default_vars = set_default_variables(model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
 {{ log_streamline_details(
     model_name=model_name,
@@ -21,7 +19,9 @@
     testing_limit=default_vars['testing_limit'],
     order_by_clause=default_vars['order_by_clause'],
     new_build=default_vars['new_build'],
-    streamline_params=streamline_params
+    streamline_params=streamline_params,
+    method_params=streamline_params['method_params'],
+    method=streamline_params['method']
 ) }}
 
 {# Set up dbt configuration #}
@@ -95,8 +95,8 @@ SELECT
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', 'eth_getBlockByNumber',
-            'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
+            'method', '{{ streamline_params['method'] }}',
+            'params', {{ streamline_params['method_params'] }}
         ),
         '{{ default_vars['node_secret_path'] }}'
     ) AS request

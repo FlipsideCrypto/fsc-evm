@@ -1,5 +1,7 @@
-{% set model_name = 'TRACES' %}
-{% set model_type = 'REALTIME' %}
+{% set model_name = 'BLOCKS_TRANSACTIONS' %}
+{% set model_type = 'HISTORY' %}
+
+{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
@@ -46,34 +48,32 @@ to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
     WHERE 
-        block_number IS NOT NULL
+    block_number IS NOT NULL
     {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 
     EXCEPT
 
-    {# Exclude blocks that have already been processed #}
     SELECT block_number
-    FROM {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
+    FROM {{ ref("streamline__blocks_complete") }} b
+    INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
     WHERE 1=1
     {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
-)
-
-{# Prepare the final list of blocks to process #}
-,ready_blocks AS (
+),
+ready_blocks AS (
     SELECT block_number
     FROM to_do
 
-    {% if not default_vars['new_build'] %}
+    {% if not default_vars['new_build']%}
         UNION
         SELECT block_number
         FROM {{ ref("_unconfirmed_blocks") }}
         UNION
         SELECT block_number
-        FROM {{ ref("_missing_traces") }}
+        FROM {{ ref("_missing_txs") }}
     {% endif %}
 
     {% if default_vars['testing_limit'] is not none %}
