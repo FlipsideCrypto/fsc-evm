@@ -31,8 +31,9 @@
     {% set params_str = streamline_params | tojson %}
     {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
     
+    
     {# Clean up the method_params formatting #}
-    {% set params_formatted = params_formatted | replace('"method_params": "', '"method_params": \n                "') | replace('\\n', '\n                ') | replace('\\u0027', "'") %}
+    {% set params_formatted = params_formatted | replace('"method_params": "', '"method_params": "') | replace('\\n', ' ') | replace('\\u0027', "'") %}
 
     {% set config_log = '\n' %}
     {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
