@@ -1,4 +1,4 @@
-{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 
 {% if uses_receipts_by_hash %}

@@ -9,7 +9,7 @@
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
-{% set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) %}
+{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 
 {% if uses_receipts_by_hash %}
     {% if TRACES_SEI_MODE %}

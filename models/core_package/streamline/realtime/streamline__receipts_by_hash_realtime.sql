@@ -5,7 +5,7 @@
 
 {% if default_vars['uses_receipts_by_hash'] %}
 
-{%- set multiplier = var('AVG_TXS_PER_BLOCK', 1) -%}
+{%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
@@ -58,7 +58,7 @@ WITH numbered_blocks AS (
             ORDER BY
                 block_number DESC
             LIMIT
-                {{ var('BLOCKS_PER_HOUR') }}
+                {{ var('GLOBAL_BLOCKS_PER_HOUR') }}
         )
 ), batched_blocks AS (
     SELECT

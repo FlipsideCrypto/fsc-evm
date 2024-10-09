@@ -1,14 +1,14 @@
 {% macro set_default_variables(model_name, model_type) %}
 
-{%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
-{%- set node_secret_path = var('NODE_SECRET_PATH') -%}
+{%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
+{%- set node_secret_path = var('GLOBAL_NODE_SECRET_PATH') -%}
 {%- set model_quantum_state = var((model_name ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
 {%- set testing_limit = var((model_name ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
 {%- set new_build = var((model_name ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
 {%- set default_order = 'ORDER BY partition_key DESC, block_number DESC' if model_type.lower() == 'realtime' 
     else 'ORDER BY partition_key ASC, block_number ASC' -%}
 {%- set order_by_clause = var((model_name ~ '_' ~ model_type ~ '_order_by_clause').upper(), default_order) -%}
-{%- set uses_receipts_by_hash = var('USES_RECEIPTS_BY_HASH', false) -%}
+{%- set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) -%}
 
 {%- set variables = {
     'node_url': node_url,

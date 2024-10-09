@@ -1,5 +1,5 @@
-{%- set prod_network = var('PROD_NETWORK', 'mainnet') -%}
-{%- set uses_base_fee = var('USES_BASE_FEE', true) -%}
+{%- set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') -%}
+{%- set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) -%}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
 {% if not gold_full_refresh %}
