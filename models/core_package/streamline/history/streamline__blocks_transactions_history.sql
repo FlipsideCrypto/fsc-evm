@@ -19,7 +19,9 @@
     testing_limit=default_vars['testing_limit'],
     order_by_clause=default_vars['order_by_clause'],
     new_build=default_vars['new_build'],
-    streamline_params=streamline_params
+    streamline_params=streamline_params,
+    params=streamline_params['params'],
+    method=streamline_params['method']
 ) }}
 
 {# Set up dbt configuration #}
