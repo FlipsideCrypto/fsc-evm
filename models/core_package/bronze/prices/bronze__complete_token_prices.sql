@@ -60,7 +60,7 @@ WHERE
     {% else %}
         {{ blockchains | replace('[', '') | replace(']', '') }}
     {% endif %})
-    {% if token_addresses %}
+    {% if token_addresses is not none %}
         AND token_address IN ({% if token_addresses is string %}
             '{{ token_addresses }}'
         {% else %}
