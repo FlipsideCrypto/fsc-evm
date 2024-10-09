@@ -1,4 +1,4 @@
-{%- set max_num = var('MAX_SEQUENCE_NUMBER', 1000000000) -%}
+{%- set max_num = var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)" %}
 

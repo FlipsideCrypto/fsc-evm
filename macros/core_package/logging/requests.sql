@@ -5,7 +5,7 @@
     {{ log("=== API Details ===", info=True) }}
 
     {{ log("NODE_URL: " ~ node_url, info=True) }}
-    {{ log("NODE_SECRET_PATH: " ~ var('NODE_SECRET_PATH'), info=True) }}
+    {{ log("NODE_SECRET_PATH: " ~ var('GLOBAL_NODE_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
     {{ log("=== Current Variable Settings ===", info=True) }}

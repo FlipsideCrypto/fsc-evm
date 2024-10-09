@@ -1,6 +1,6 @@
 {%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
-{%- set node_url = var('NODE_URL', '{Service}/{Authentication}') -%}
+{%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -10,7 +10,7 @@
 
     {{ log("=== API Details ===", info=True) }}
     {{ log("NODE_URL: " ~ node_url, info=True) }}
-    {{ log("NODE_SECRET_PATH: " ~ var('NODE_SECRET_PATH'), info=True) }}
+    {{ log("NODE_SECRET_PATH: " ~ var('GLOBAL_NODE_SECRET_PATH'), info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
@@ -47,7 +47,7 @@ SELECT
             'params',
             []
         ),
-        '{{ var('NODE_SECRET_PATH') }}'
+        '{{ var('GLOBAL_NODE_SECRET_PATH') }}'
     ) AS resp,
     utils.udf_hex_to_int(
         resp :data :result :: STRING
