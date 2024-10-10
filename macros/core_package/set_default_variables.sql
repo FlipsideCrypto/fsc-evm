@@ -31,12 +31,14 @@
 -%}
 {%- set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') -%}
 {%- set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', True) -%}
+{%- set balances = var(source_name ~ model_type ~ '_BALANCES', False) -%}
 {%- set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) -%}
 
 {%- set variables = {
     'partition_function': partition_function,
     'partition_join_key': partition_join_key,
     'block_number': block_number,
+    'balances': balances,
     'uses_receipts_by_hash': uses_receipts_by_hash
 } -%}
 
