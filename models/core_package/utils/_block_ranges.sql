@@ -1,4 +1,10 @@
-{% macro block_ranges() %}
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
+{{ config (
+    materialized = "ephemeral",
+    unique_key = "block_number",
+) }}
+
 SELECT
     block_number,
     CASE
@@ -49,4 +55,4 @@ SELECT
     TO_TIMESTAMP_NTZ(_inserted_timestamp) AS _inserted_timestamp
 FROM
     {{ ref("silver__blocks") }}
-{% endmacro %}
+{%- endif -%}

@@ -1,5 +1,9 @@
 {% macro log_bronze_details(source_name, source_version, model_type, partition_function, partition_join_key, block_number, uses_receipts_by_hash) %}
 
+{% if source_version != '' %}
+    {% set source_version = '_' ~ source_version.lower() %}
+{% endif %}
+
 {%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
@@ -12,7 +16,7 @@
 
     {{ log("", info=True) }}
     {{ log("=== Source Details ===", info=True) }}
-    {{ log("Source: " ~ source('bronze_streamline', source_name.lower() ~ '_' ~ source_version.lower()), info=True) }}
+    {{ log("Source: " ~ source('bronze_streamline', source_name.lower() ~ source_version.lower()), info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
