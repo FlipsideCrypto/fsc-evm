@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {% set full_reload_start_block = var('TRACES_FULL_RELOAD_START_BLOCK', 0) %}
 {% set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000) %}
 {% set full_reload_mode = var('TRACES_FULL_RELOAD_MODE', false) %}
@@ -831,3 +833,4 @@ FROM
     all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index
 ORDER BY
     modified_timestamp DESC, block_timestamp DESC nulls last)) = 1
+{%- endif -%}

@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {# Set variables #}
 {%- set token_address = var('STATS_TOKEN_ADDRESS') -%}
 
@@ -59,3 +61,4 @@ FROM
     p
     ON s.block_timestamp_hour = p.hour
     AND p.token_address = '{{ token_address }}' --Wrapped Native Token Address for target blockchain
+{%- endif -%}

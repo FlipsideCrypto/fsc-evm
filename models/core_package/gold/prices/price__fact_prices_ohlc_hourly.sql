@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {# Set variables #}
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id),SUBSTRING(asset_id)" %}
 
@@ -54,3 +56,4 @@ WHERE
             {{ this }}
     )
 {% endif %}
+{%- endif -%}

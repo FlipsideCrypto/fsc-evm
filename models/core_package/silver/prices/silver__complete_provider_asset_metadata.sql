@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -53,3 +54,4 @@ WHERE
             {{ this }}
     )
 {% endif %}
+{%- endif -%}

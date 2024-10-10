@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {% set full_reload_start_block = var('TRACES_FULL_RELOAD_START_BLOCK', 0) %}
 {% set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000) %}
 {% set full_reload_mode = var('SILVER_TRACES_FULL_RELOAD_MODE', false) %}
@@ -246,3 +247,4 @@ FROM
     flatten_traces qualify(ROW_NUMBER() over(PARTITION BY traces_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
+{%- endif -%}

@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
@@ -334,3 +336,4 @@ FROM
             block_timestamp DESC nulls last,
             tx_succeeded DESC nulls last
     ) = 1
+{%- endif -%}

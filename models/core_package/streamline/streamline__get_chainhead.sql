@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
 {%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
@@ -52,3 +53,4 @@ SELECT
     utils.udf_hex_to_int(
         resp :data :result :: STRING
     ) AS block_number
+{%- endif -%}

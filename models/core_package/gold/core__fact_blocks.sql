@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {%- set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') -%}
 {%- set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) -%}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
@@ -84,3 +85,4 @@ AND modified_timestamp > (
         {{ this }}
     )
 {% endif %}
+{%- endif -%}

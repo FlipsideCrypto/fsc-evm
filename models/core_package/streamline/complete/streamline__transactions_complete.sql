@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {% set source_name = 'TRANSACTIONS' %}
 {% set model_type = 'COMPLETE' %}
 
@@ -44,3 +45,4 @@ FROM
     {% endif %}
 
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
+{%- endif -%}

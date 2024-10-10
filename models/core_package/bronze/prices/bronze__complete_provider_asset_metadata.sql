@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {# Set variables #}
 {%- set platforms = var('PRICES_PLATFORMS') -%}
 
@@ -52,3 +54,4 @@ WHERE
     {% else %}
         {{ platforms | replace('[', '') | replace(']', '') }}
     {% endif %}) -- platforms specific to the target blockchain
+{%- endif -%}

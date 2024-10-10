@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {{ config(
     materialized = 'ephemeral'
 ) }}
@@ -43,3 +44,4 @@ WHERE
         OR r._inserted_timestamp IS NULL)
 
 {% endif %}
+{%- endif -%}

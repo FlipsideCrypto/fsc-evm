@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 -- depends_on: {{ ref('bronze__transactions') }}
 
 {% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
@@ -62,3 +64,4 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_transactions
 QUALIFY ROW_NUMBER() OVER (PARTITION BY transactions_id ORDER BY _inserted_timestamp DESC) = 1
+{%- endif -%}

@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {% set model_name = 'RECEIPTS_BY_HASH' %}
 {% set model_type = 'HISTORY' %}
 
@@ -198,3 +199,4 @@ FROM
 LIMIT {{ streamline_params['sql_limit'] }}
 
 {% endif %}
+{%- endif -%}

@@ -1,3 +1,4 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
 {{ config(
     materialized = 'ephemeral'
 ) }}
@@ -20,3 +21,4 @@ WHERE
     AND block_timestamp < DATEADD('hour', -71, TRUNCATE(SYSDATE(), 'HOUR'))
 
 {% endif %}
+{%- endif -%}

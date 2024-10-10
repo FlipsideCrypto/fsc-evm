@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {# Set variables #}
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(token_address, symbol, name),SUBSTRING(token_address, symbol, name)" %}
 
@@ -85,3 +87,4 @@ WHERE
             {{ this }}
     )
 {% endif %}
+{%- endif -%}

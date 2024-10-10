@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -39,3 +41,4 @@ FROM
         'complete_provider_prices'
     ) }}
     -- prices for all ids, no filter necessary
+{%- endif -%}
