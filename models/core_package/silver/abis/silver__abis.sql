@@ -1,3 +1,4 @@
+{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -6,7 +7,6 @@
     tags = ['abis']
 ) }}
 
-{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
 WITH override_abis AS (
 
     SELECT

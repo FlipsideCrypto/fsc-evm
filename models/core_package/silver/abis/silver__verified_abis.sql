@@ -1,4 +1,9 @@
 -- depends_on: {{ ref('bronze__streamline_contract_abis') }}
+{% set abi_streamline = var(
+    'ABI_STREAMLINE',
+    false
+) %}
+{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -7,13 +12,8 @@
     tags = ['abis']
 ) }}
 
-{% set abi_streamline = var(
-    'ABI_STREAMLINE',
-    false
-) %}
-{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
-WITH {% if not abi_streamline %}
-    base AS (
+{% if not abi_streamline %}
+    WITH base AS (
 
         SELECT
             contract_address,
@@ -45,7 +45,7 @@ block_explorer_abis AS (
         base
 ),
 {% else %}
-    block_explorer_abis AS (
+    WITH block_explorer_abis AS (
         SELECT
             block_number,
             COALESCE(
@@ -142,7 +142,7 @@ SELECT
 FROM
     all_abis
 
-    {% if streamline %}
+    {% if abi_streamline %}
 WHERE
     DATA :: STRING <> 'Unknown Exception'
 {% endif %}

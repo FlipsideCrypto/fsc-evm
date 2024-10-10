@@ -1,11 +1,11 @@
+{% set project_name = project_name %}
+{% set chain = project_name.split('_models') [0] %}
 {{ config (
     materialized = "incremental",
     unique_key = "id",
     tags = ['abis']
 ) }}
 
-{% set project_name = project_name %}
-{% set chain = project_name.split('_models') [0] %}
 WITH base AS (
 
     SELECT
