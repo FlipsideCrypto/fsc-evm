@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__dim_labels
+  - name: fsc_evm.core_package.gold.core__dim_labels
     description: '{{ doc("evm_table_dim_labels") }}'
       
     columns:

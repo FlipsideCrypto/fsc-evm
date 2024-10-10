@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_transactions
+  - name: fsc_evm.core_package.gold.core__fact_transactions
     description: '{{ doc("evm_tx_table_doc") }}'
       
     columns:

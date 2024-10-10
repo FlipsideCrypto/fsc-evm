@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_blocks
+  - name: fsc_evm.core_package.gold.core__fact_blocks
     description: '{{ doc("evm_blocks_table_doc") }}'
       
     columns:
