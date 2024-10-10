@@ -76,9 +76,6 @@ ready_blocks AS (
     {% if not default_vars['new_build']%}
         UNION
         SELECT block_number
-        FROM {{ ref("_unconfirmed_blocks") }}
-        UNION
-        SELECT block_number
         FROM {{ ref("_missing_txs") }}
     {% endif %}
 

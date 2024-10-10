@@ -33,6 +33,8 @@ clean-targets: # directories to be removed by `dbt clean`
 
 vars:
   "dbt_date:time_zone": GMT
+  STREAMLINE_INVOKE_STREAMS: False
+  STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
 
   ### GLOBAL VARIABLES
   GLOBAL_PROD_DB_NAME: 'core'
