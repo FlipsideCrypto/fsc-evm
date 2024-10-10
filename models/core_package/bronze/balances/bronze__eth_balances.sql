@@ -1,5 +1,5 @@
-{% set source_name = 'BLOCKS' %}
-{% set source_version = var('BRONZE_BLOCKS_SOURCE_VERSION', '') %}
+{% set source_name = 'ETH_BALANCES' %}
+{% set source_version = var('BRONZE_ETH_BALANCES_SOURCE_VERSION', '') %}
 {% set model_type = '' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
@@ -23,6 +23,6 @@
     source_name = source_name.lower(),
     source_version = source_version.lower(),
     partition_function = default_vars['partition_function'],
-    balances = default_vars['balances'],
+    balances = true,
     block_number = default_vars['block_number']
 ) }}
