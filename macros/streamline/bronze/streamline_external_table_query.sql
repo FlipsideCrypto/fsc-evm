@@ -1,9 +1,13 @@
 {% macro streamline_external_table_query(
-        model,
+        source_name,
+        source_version,
         partition_function,
-        balances = false,
-        block_number = true
+        balances,
+        block_number
     ) %}
+
+    {% set source_version = '_' ~ source_version.lower() %}
+
     WITH meta AS (
         SELECT
             job_created_time AS _inserted_timestamp,
@@ -13,7 +17,7 @@
             TABLE(
                 information_schema.external_table_file_registration_history(
                     start_time => DATEADD('day', -3, CURRENT_TIMESTAMP()),
-                    table_name => '{{ source( "bronze_streamline", model) }}')
+                    table_name => '{{ source( "bronze_streamline", source_name ~ source_version) }}')
                 ) A
             )
         SELECT
@@ -37,7 +41,7 @@
         FROM
             {{ source(
                 "bronze_streamline",
-                model
+                source_name ~ source_version
             ) }}
             s
             JOIN meta b
@@ -59,7 +63,8 @@
 {% endmacro %}
 
 {% macro streamline_external_table_fr_query(
-        model,
+        source_name,
+        source_version,
         partition_function,
         partition_join_key = "partition_key",
         balances = false,
@@ -73,7 +78,7 @@
         FROM
             TABLE(
                 information_schema.external_table_files(
-                    table_name => '{{ source( "bronze_streamline", model) }}'
+                    table_name => '{{ source( "bronze_streamline", source_name ~ source_version) }}'
                 )
             ) A
     )
@@ -99,7 +104,7 @@ SELECT
 FROM
     {{ source(
         "bronze_streamline",
-        model
+        source_name ~ source_version
     ) }}
     s
     JOIN meta b
