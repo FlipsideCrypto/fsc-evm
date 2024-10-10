@@ -33,16 +33,7 @@ clean-targets: # directories to be removed by `dbt clean`
 
 vars:
   "dbt_date:time_zone": GMT
-  STREAMLINE_INVOKE_STREAMS: False
-  STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
-  UPDATE_UDFS_AND_SPS: False
-  UPDATE_SNOWFLAKE_TAGS: True
-  OBSERV_FULL_TEST: False
-  WAIT: 0
-  HEAL_MODEL: False
-  HEAL_MODELS: []
-  START_GHA_TASKS: False
-  
+
   ### GLOBAL VARIABLES
   GLOBAL_PROD_DB_NAME: 'core'
   GLOBAL_NODE_SECRET_PATH: 'Vault/prod/core/ankr/mainnet'

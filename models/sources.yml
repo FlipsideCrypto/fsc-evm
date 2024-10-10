@@ -1,0 +1,8 @@
+version: 2 
+
+sources:
+  - name: crosschain_silver
+    database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME').upper() else 'crosschain_dev' }}"
+    schema: silver
+    tables:
+      - name: labels_combined
