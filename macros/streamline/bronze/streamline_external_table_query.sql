@@ -6,7 +6,9 @@
         block_number
     ) %}
 
-    {% set source_version = '_' ~ source_version.lower() %}
+    {% if source_version != '' %}
+        {% set source_version = '_' ~ source_version.lower() %}
+    {% endif %}
 
     WITH meta AS (
         SELECT
