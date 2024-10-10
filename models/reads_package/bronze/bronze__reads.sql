@@ -1,5 +1,5 @@
-{% set source_name = 'BEACON_VALIDATORS' %}
-{% set source_version = var('BRONZE_BEACON_VALIDATORS_SOURCE_VERSION', '') %}
+{% set source_name = 'READS' %}
+{% set source_version = var('BRONZE_READS_SOURCE_VERSION', '') %}
 {% set model_type = '' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
@@ -24,6 +24,6 @@
     source_version = source_version.lower(),
     partition_function = default_vars['partition_function'],
     balances = default_vars['balances'],
-    block_number = false,
+    block_number = default_vars['block_number'],
     uses_receipts_by_hash = default_vars['uses_receipts_by_hash']
 ) }}

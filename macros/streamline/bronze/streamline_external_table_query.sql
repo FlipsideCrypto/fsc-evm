@@ -164,10 +164,17 @@ SELECT
 FROM
     {{ ref('bronze__streamline_fr_' ~ model ~ '_v1') }}
 {% endmacro %}
+#}
 
 {% macro streamline_external_table_query_decoder(
-        model
+        source_name,
+        source_version
     ) %}
+    
+    {% if source_version != '' %}
+        {% set source_version = '_' ~ source_version.lower() %}
+    {% endif %}
+    
     WITH meta AS (
         SELECT
             job_created_time AS _inserted_timestamp,
@@ -180,7 +187,7 @@ FROM
             TABLE(
                 information_schema.external_table_file_registration_history(
                     start_time => DATEADD('day', -3, CURRENT_TIMESTAMP()),
-                    table_name => '{{ source( "bronze_streamline", model) }}')
+                    table_name => '{{ source( "bronze_streamline", source_name ~ source_version) }}')
                 ) A
             )
         SELECT
@@ -195,7 +202,7 @@ FROM
         FROM
             {{ source(
                 "bronze_streamline",
-                model
+                source_name ~ source_version
             ) }}
             s
             JOIN meta b
@@ -210,6 +217,7 @@ FROM
             AND DATA IS NOT NULL
 {% endmacro %}
 
+{# 
 {% macro streamline_external_table_fr_query_decoder(
         model
     ) %}
@@ -252,4 +260,5 @@ WHERE
     AND b._partition_by_created_date = s._partition_by_created_date
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
-{% endmacro %} #}
+{% endmacro %} 
+#}

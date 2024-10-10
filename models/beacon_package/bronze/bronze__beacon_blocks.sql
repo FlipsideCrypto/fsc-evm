@@ -24,6 +24,6 @@
     source_version = source_version.lower(),
     partition_function = default_vars['partition_function'],
     balances = default_vars['balances'],
-    block_number = default_vars['block_number'],
+    block_number = false,
     uses_receipts_by_hash = default_vars['uses_receipts_by_hash']
 ) }}
