@@ -1,9 +1,17 @@
-{% macro silver_complete_event_abis() %}
-    WITH new_abis AS (
-        SELECT
-            DISTINCT contract_address
-        FROM
-            {{ ref('silver__flat_event_abis') }}
+{{ config (
+    materialized = 'incremental',
+    unique_key = ["parent_contract_address","event_signature","start_block"],
+    merge_exclude_columns = ["inserted_timestamp"],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+    tags = ['abis']
+) }}
+
+WITH new_abis AS (
+
+    SELECT
+        DISTINCT contract_address
+    FROM
+        {{ ref('silver__flat_event_abis') }}
 
 {% if is_incremental() %}
 WHERE
@@ -286,4 +294,3 @@ WHERE
     t.event_signature IS NULL
 {% endif %}
 {% endif %}
-{% endmacro %}

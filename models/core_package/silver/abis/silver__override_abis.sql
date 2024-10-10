@@ -1,5 +1,8 @@
-{% macro silver_override_abis() %}
+{{ config(
+    materialized = 'view',
+    tags = ['abis']
+) }}
+
 SELECT
     NULL AS contract_address,
     NULL AS DATA
-{% endmacro %}

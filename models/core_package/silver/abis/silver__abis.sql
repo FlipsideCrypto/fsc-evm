@@ -1,31 +1,40 @@
-{% macro silver_abis(block_explorer) %}
-    WITH override_abis AS (
-        SELECT
-            contract_address,
-            PARSE_JSON(DATA) AS DATA,
-            TO_TIMESTAMP_LTZ(SYSDATE()) AS _inserted_timestamp,
-            'flipside' AS abi_source,
-            'flipside' AS discord_username,
-            SHA2(PARSE_JSON(DATA)) AS abi_hash,
-            1 AS priority
-        FROM
-            {{ ref('silver__override_abis') }}
-        WHERE
-            contract_address IS NOT NULL
-    ),
-    verified_abis AS (
-        SELECT
-            contract_address,
-            DATA,
-            _inserted_timestamp,
-            abi_source,
-            discord_username,
-            abi_hash,
-            2 AS priority
-        FROM
-            {{ ref('silver__verified_abis') }}
-        WHERE
-            abi_source = '{{ block_explorer }}'
+{{ config (
+    materialized = "incremental",
+    unique_key = "contract_address",
+    merge_exclude_columns = ["inserted_timestamp"],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,abi_hash,bytecode), SUBSTRING(contract_address,abi_hash,bytecode)",
+    tags = ['abis']
+) }}
+
+{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
+WITH override_abis AS (
+
+    SELECT
+        contract_address,
+        PARSE_JSON(DATA) AS DATA,
+        TO_TIMESTAMP_LTZ(SYSDATE()) AS _inserted_timestamp,
+        'flipside' AS abi_source,
+        'flipside' AS discord_username,
+        SHA2(PARSE_JSON(DATA)) AS abi_hash,
+        1 AS priority
+    FROM
+        {{ ref('silver__override_abis') }}
+    WHERE
+        contract_address IS NOT NULL
+),
+verified_abis AS (
+    SELECT
+        contract_address,
+        DATA,
+        _inserted_timestamp,
+        abi_source,
+        discord_username,
+        abi_hash,
+        2 AS priority
+    FROM
+        {{ ref('silver__verified_abis') }}
+    WHERE
+        abi_source = '{{ abi_block_explorer }}'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -36,7 +45,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = '{{ block_explorer }}'
+        abi_source = '{{ abi_block_explorer }}'
 )
 {% endif %}
 ),
@@ -147,4 +156,3 @@ FROM
     priority_abis p
     LEFT JOIN {{ ref('silver__created_contracts') }}
     ON p.contract_address = created_contract_address
-{% endmacro %}

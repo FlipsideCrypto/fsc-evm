@@ -1,18 +1,26 @@
-{% macro silver_proxies() %}
-    WITH base AS (
-        SELECT
-            from_address,
-            to_address,
-            MIN(block_number) AS start_block,
-            MIN(block_timestamp) AS start_timestamp,
-            MAX(_inserted_timestamp) AS _inserted_timestamp
-        FROM
-            {{ ref('silver__traces') }}
-        WHERE
-            TYPE = 'DELEGATECALL'
-            AND trace_status = 'SUCCESS'
-            AND tx_status = 'SUCCESS'
-            AND from_address != to_address -- exclude self-calls
+{{ config (
+    materialized = 'incremental',
+    unique_key = ["contract_address", "proxy_address"],
+    cluster_by = ["start_timestamp::date"],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+    tags = ['abis']
+) }}
+
+WITH base AS (
+
+    SELECT
+        from_address,
+        to_address,
+        MIN(block_number) AS start_block,
+        MIN(block_timestamp) AS start_timestamp,
+        MAX(_inserted_timestamp) AS _inserted_timestamp
+    FROM
+        {{ ref('silver__traces') }}
+    WHERE
+        TYPE = 'DELEGATECALL'
+        AND trace_status = 'SUCCESS'
+        AND tx_status = 'SUCCESS'
+        AND from_address != to_address -- exclude self-calls
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -107,4 +115,3 @@ FROM
     LEFT JOIN {{ ref('silver__created_contracts') }}
     p
     ON f.implementation_contract = p.created_contract_address
-{% endmacro %}

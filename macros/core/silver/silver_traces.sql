@@ -2,9 +2,9 @@
         full_reload_start_block,
         full_reload_blocks,
         full_reload_mode = false,
-        TRACES_ARB_MODE = false,
-        TRACES_SEI_MODE = false,
-        TRACES_KAIA_MODE = false,
+        traces_arb_mode = false,
+        traces_sei_mode = false,
+        traces_kaia_mode = false,
         use_partition_key = false,
         schema_name = 'bronze'
     ) %}
@@ -19,9 +19,10 @@
 
             VALUE :array_index :: INT AS tx_position,
             DATA :result AS full_traces,
-            {% if TRACES_SEI_MODE %}
+            {% if traces_sei_mode %}
                 DATA :txHash :: STRING AS tx_hash,
             {% endif %}
+
             _inserted_timestamp
         FROM
 
@@ -36,7 +37,7 @@ WHERE
         FROM
             {{ this }}
     )
-    AND DATA :result IS NOT NULL {% if TRACES_ARB_MODE %}
+    AND DATA :result IS NOT NULL {% if traces_arb_mode %}
         AND block_number > 22207817
     {% endif %}
 
@@ -73,7 +74,7 @@ WHERE
         )
     {% endif %}
 
-    {% if TRACES_ARB_MODE %}
+    {% if traces_arb_mode %}
         AND block_number > 22207817
     {% endif %}
 {% else %}
@@ -87,7 +88,7 @@ WHERE
         _partition_by_block_id <= {{ full_reload_start_block }}
     {% endif %}
 
-    {% if TRACES_ARB_MODE %}
+    {% if traces_arb_mode %}
         AND block_number > 22207817
     {% endif %}
 {% endif %}
@@ -99,11 +100,12 @@ ORDER BY
 flatten_traces AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if traces_sei_mode %}
             tx_hash,
         {% else %}
             tx_position,
         {% endif %}
+
         partition_key,
         IFF(
             path IN (
@@ -129,14 +131,14 @@ flatten_traces AS (
                 'error',
                 'output',
                 'time',
-                'revertReason' 
-                {% if TRACES_ARB_MODE %},
+                'revertReason' {% if traces_arb_mode %},
                     'afterEVMTransfers',
                     'beforeEVMTransfers',
                     'result.afterEVMTransfers',
                     'result.beforeEVMTransfers'
                 {% endif %}
-                {% if TRACES_KAIA_MODE %},
+
+                {% if traces_kaia_mode %},
                     'reverted',
                     'result.reverted'
                 {% endif %}
@@ -179,32 +181,37 @@ flatten_traces AS (
     WHERE
         f.index IS NULL
         AND f.key != 'calls'
-        AND f.path != 'result' 
-        {% if TRACES_ARB_MODE %}
+        AND f.path != 'result' {% if traces_arb_mode %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
         {% endif %}
-        {% if TRACES_KAIA_MODE %}
-            and f.key not in ('message', 'contract')
+
+        {% if traces_kaia_mode %}
+            AND f.key NOT IN (
+                'message',
+                'contract'
+            )
         {% endif %}
     GROUP BY
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if traces_sei_mode %}
             tx_hash,
         {% else %}
             tx_position,
         {% endif %}
+
         partition_key,
         trace_address,
         _inserted_timestamp
 )
 SELECT
     block_number,
-    {% if TRACES_SEI_MODE %}
+    {% if traces_sei_mode %}
         tx_hash,
     {% else %}
         tx_position,
     {% endif %}
+
     trace_address,
     parent_trace_address,
     trace_address_array,
@@ -212,9 +219,10 @@ SELECT
     partition_key,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_number'] + 
-        (['tx_hash'] if TRACES_SEI_MODE else ['tx_position']) + 
-        ['trace_address']
+        ['block_number'] + (
+            ['tx_hash'] if traces_sei_mode
+            ELSE ['tx_position']
+        ) + ['trace_address']
     ) }} AS traces_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

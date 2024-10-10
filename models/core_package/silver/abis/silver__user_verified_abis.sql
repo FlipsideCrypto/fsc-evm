@@ -1,22 +1,28 @@
-{% macro silver_user_verified_abis() %}
-    {% set project_name = project_name %}
-    {% set chain = project_name.split('_models') [0] %}
-    WITH base AS (
-        SELECT
-            contract_address,
-            abi,
-            PARSE_JSON(abi) AS DATA,
-            SHA2(PARSE_JSON(abi)) AS abi_hash,
-            discord_username,
-            _inserted_timestamp
-        FROM
-            {{ source(
-                "crosschain_public",
-                "user_abis"
-            ) }}
-        WHERE
-            blockchain = '{{ chain }}'
-            AND NOT duplicate_abi
+{{ config (
+    materialized = "incremental",
+    unique_key = "id",
+    tags = ['abis']
+) }}
+
+{% set project_name = project_name %}
+{% set chain = project_name.split('_models') [0] %}
+WITH base AS (
+
+    SELECT
+        contract_address,
+        abi,
+        PARSE_JSON(abi) AS DATA,
+        SHA2(PARSE_JSON(abi)) AS abi_hash,
+        discord_username,
+        _inserted_timestamp
+    FROM
+        {{ source(
+            "crosschain_public",
+            "user_abis"
+        ) }}
+    WHERE
+        blockchain = '{{ chain }}'
+        AND NOT duplicate_abi
 
 {% if is_incremental() %}
 AND contract_address NOT IN (
@@ -541,4 +547,3 @@ valid_traces AS (
                 ) qualify(ROW_NUMBER() over(PARTITION BY contract_address
             ORDER BY
                 _inserted_timestamp DESC)) = 1
-{% endmacro %}
