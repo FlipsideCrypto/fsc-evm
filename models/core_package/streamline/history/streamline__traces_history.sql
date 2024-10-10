@@ -1,3 +1,5 @@
+{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+
 {% set model_name = 'TRACES' %}
 {% set model_type = 'HISTORY' %}
 
@@ -97,3 +99,5 @@ FROM
 {{ default_vars['order_by_clause'] }}
 
 LIMIT {{ streamline_params['sql_limit'] }}
+
+{%- endif -%}
