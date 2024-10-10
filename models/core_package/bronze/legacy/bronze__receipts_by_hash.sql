@@ -1,4 +1,4 @@
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
+{# {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% if uses_receipts_by_hash %}
 {% set source_name = var('RECEIPTS_BY_HASH_SOURCE_NAME', 'RECEIPTS_BY_HASH') %}
 {% set model_type = '' %}
@@ -60,4 +60,4 @@
             b.partition_key = s.partition_key
             AND DATA :error IS NULL
             AND DATA IS NOT NULL
-{% endif %}
+{% endif %} #}

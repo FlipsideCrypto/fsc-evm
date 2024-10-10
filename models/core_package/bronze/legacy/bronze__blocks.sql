@@ -1,4 +1,4 @@
-{% set source_name = var('BLOCKS_SOURCE_NAME', 'BLOCKS') %}
+{# {% set source_name = var('BLOCKS_SOURCE_NAME', 'BLOCKS') %}
 {% set model_type = '' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
@@ -56,4 +56,4 @@
         WHERE
             b.partition_key = s.partition_key
             AND DATA :error IS NULL
-            AND DATA IS NOT NULL
+            AND DATA IS NOT NULL #}

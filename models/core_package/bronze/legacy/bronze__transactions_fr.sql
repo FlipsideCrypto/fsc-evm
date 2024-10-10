@@ -1,4 +1,4 @@
-{% set source_name = var('TRANSACTIONS_FR_SOURCE_NAME', 'TRANSACTIONS') %}
+{# {% set source_name = var('TRANSACTIONS_FR_SOURCE_NAME', 'TRANSACTIONS') %}
 {% set model_type = '_FR' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
@@ -55,4 +55,4 @@
         WHERE
             b.partition_key = s.{{ default_vars['partition_join_key'] }}
             AND DATA :error IS NULL
-            AND DATA IS NOT NULL
+            AND DATA IS NOT NULL #}
