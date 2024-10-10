@@ -3,6 +3,9 @@
 {% if source_version != '' %}
     {% set source_version = '_' ~ source_version.lower() %}
 {% endif %}
+{% if model_type != '' %}
+    {% set model_type = '_' ~ model_type %}
+{% endif %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 

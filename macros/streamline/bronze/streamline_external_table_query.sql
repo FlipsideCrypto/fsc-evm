@@ -217,10 +217,16 @@ FROM
             AND DATA IS NOT NULL
 {% endmacro %}
 
-{# 
+
 {% macro streamline_external_table_fr_query_decoder(
-        model
+        source_name,
+        source_version
     ) %}
+    
+    {% if source_version != '' %}
+        {% set source_version = '_' ~ source_version.lower() %}
+    {% endif %} 
+    
     WITH meta AS (
         SELECT
             registered_on AS _inserted_timestamp,
@@ -232,7 +238,7 @@ FROM
         FROM
             TABLE(
                 information_schema.external_table_files(
-                    table_name => '{{ source( "bronze_streamline", model) }}'
+                    table_name => '{{ source( "bronze_streamline", source_name ~ source_version) }}'
                 )
             ) A
     )
@@ -248,7 +254,7 @@ SELECT
 FROM
     {{ source(
         "bronze_streamline",
-        model
+        source_name ~ source_version
     ) }}
     s
     JOIN meta b
@@ -261,4 +267,3 @@ WHERE
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
 {% endmacro %} 
-#}
