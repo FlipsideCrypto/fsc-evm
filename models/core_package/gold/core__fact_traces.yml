@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_traces
+  - name: fsc_evm.core_package.gold.core__fact_traces
     description: '{{ doc("evm_traces_table_doc") }}'
       
     columns:
