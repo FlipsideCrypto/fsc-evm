@@ -1,8 +1,5 @@
-{% set model_name = 'BLOCKS_TRANSACTIONS' %}
-{% set model_type = 'REALTIME' %}
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
-
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
+{% set model_name = 'TRACES' %}
+{% set model_type = 'HISTORY' %}
 
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
@@ -22,8 +19,7 @@
     new_build=default_vars['new_build'],
     streamline_params=streamline_params,
     method_params=streamline_params['method_params'],
-    method=streamline_params['method'],
-    min_block=min_block
+    method=streamline_params['method']
 ) }}
 
 {# Set up dbt configuration #}
@@ -50,37 +46,26 @@ to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
     WHERE 
-    block_number IS NOT NULL
+        block_number IS NOT NULL
     {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
-    {% endif %}
-
-    {% if min_block is not none %}
-        AND block_number >= {{ min_block }}
     {% endif %}
 
     EXCEPT
 
+    {# Exclude blocks that have already been processed #}
     SELECT block_number
-    FROM {{ ref("streamline__blocks_complete") }} b
-    INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
+    FROM {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
     {% if not default_vars['new_build'] %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
-),
-ready_blocks AS (
+)
+
+{# Prepare the final list of blocks to process #}
+,ready_blocks AS (
     SELECT block_number
     FROM to_do
-
-    {% if not default_vars['new_build']%}
-        UNION
-        SELECT block_number
-        FROM {{ ref("_unconfirmed_blocks") }}
-        UNION
-        SELECT block_number
-        FROM {{ ref("_missing_txs") }}
-    {% endif %}
 
     {% if default_vars['testing_limit'] is not none %}
         LIMIT {{ default_vars['testing_limit'] }} 
