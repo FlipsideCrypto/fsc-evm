@@ -198,69 +198,39 @@ new_records AS (
                 implementation_created_block DESC nulls last,
                 implementation_inserted_timestamp DESC nulls last
         ) = 1
-) {% if not is_ethereum %}
-SELECT
-    parent_contract_address,
-    event_name,
-    abi,
-    start_block,
-    implementation_created_block,
-    simple_event_name,
-    event_signature,
-    IFNULL(LEAD(start_block) over (PARTITION BY parent_contract_address, event_signature
-ORDER BY
-    start_block) -1, 1e18) AS end_block,
-    _inserted_timestamp,
-    implementation_inserted_timestamp,
-    SYSDATE() AS _updated_timestamp,
-    {{ dbt_utils.generate_surrogate_key(
-        ['parent_contract_address','event_signature','start_block']
-    ) }} AS complete_event_abis_id,
-    SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
-    '{{ invocation_id }}' AS _invocation_id
-FROM
-    new_records qualify ROW_NUMBER() over (
-        PARTITION BY parent_contract_address,
+),
+FINAL AS (
+    SELECT
+        parent_contract_address,
+        contract_address AS implementation_contract,
         event_name,
+        abi,
+        start_block,
+        implementation_created_block,
+        simple_event_name,
         event_signature,
-        start_block
-        ORDER BY
-            _inserted_timestamp DESC
-    ) = 1
-{% else %},
-    FINAL AS (
-        SELECT
-            parent_contract_address,
-            contract_address AS implementation_contract,
+        IFNULL(LEAD(start_block) over (PARTITION BY parent_contract_address, event_signature
+    ORDER BY
+        start_block) -1, 1e18) AS end_block,
+        _inserted_timestamp,
+        implementation_inserted_timestamp,
+        SYSDATE() AS _updated_timestamp,
+        {{ dbt_utils.generate_surrogate_key(
+            ['parent_contract_address','event_signature','start_block']
+        ) }} AS complete_event_abis_id,
+        SYSDATE() AS inserted_timestamp,
+        SYSDATE() AS modified_timestamp,
+        '{{ invocation_id }}' AS _invocation_id
+    FROM
+        new_records qualify ROW_NUMBER() over (
+            PARTITION BY parent_contract_address,
             event_name,
-            abi,
-            start_block,
-            implementation_created_block,
-            simple_event_name,
             event_signature,
-            IFNULL(LEAD(start_block) over (PARTITION BY parent_contract_address, event_signature
-        ORDER BY
-            start_block) -1, 1e18) AS end_block,
-            _inserted_timestamp,
-            implementation_inserted_timestamp,
-            SYSDATE() AS _updated_timestamp,
-            {{ dbt_utils.generate_surrogate_key(
-                ['parent_contract_address','event_signature','start_block']
-            ) }} AS complete_event_abis_id,
-            SYSDATE() AS inserted_timestamp,
-            SYSDATE() AS modified_timestamp,
-            '{{ invocation_id }}' AS _invocation_id
-        FROM
-            new_records qualify ROW_NUMBER() over (
-                PARTITION BY parent_contract_address,
-                event_name,
-                event_signature,
-                start_block
-                ORDER BY
-                    _inserted_timestamp DESC
-            ) = 1
-    )
+            start_block
+            ORDER BY
+                _inserted_timestamp DESC
+        ) = 1
+)
 SELECT
     parent_contract_address,
     implementation_contract,
@@ -292,5 +262,4 @@ t USING (
 )
 WHERE
     t.event_signature IS NULL
-{% endif %}
 {% endif %}
