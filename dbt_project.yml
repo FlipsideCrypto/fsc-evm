@@ -6,7 +6,7 @@ version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-# profile: 'fsc_evm'
+profile: 'fsc_evm'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -24,9 +24,6 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_modules"
   - "dbt_packages"
 
-tests:
-  +store_failures: true # all tests
-
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
@@ -36,3 +33,21 @@ tests:
 
 vars:
   "dbt_date:time_zone": GMT
+  STREAMLINE_INVOKE_STREAMS: False
+  STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
+  UPDATE_UDFS_AND_SPS: False
+  UPDATE_SNOWFLAKE_TAGS: True
+  OBSERV_FULL_TEST: False
+  WAIT: 0
+  HEAL_MODEL: False
+  HEAL_MODELS: []
+  START_GHA_TASKS: False
+  
+  ### GLOBAL VARIABLES
+  GLOBAL_PROD_DB_NAME: 'core'
+  GLOBAL_NODE_SECRET_PATH: 'Vault/prod/core/ankr/mainnet'
+  GLOBAL_BLOCKS_PER_HOUR: 1200
+
+  ### PRICES ###
+  PRICES_SYMBOLS: 'CORE' ### REQUIRED 
+  PRICES_PLATFORMS: ['Core', 'core'] ### REQUIRED
