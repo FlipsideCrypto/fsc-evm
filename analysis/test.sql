@@ -1,0 +1,1 @@
+select 1 as block_number, 1 as id, 1 as data, 1 as metadata, 1 as inserted_timestamp
