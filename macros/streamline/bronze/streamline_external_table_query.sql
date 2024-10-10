@@ -61,7 +61,7 @@
             AND DATA :error IS NULL
             AND DATA IS NOT NULL
 {% endmacro %}
-
+{# 
 {% macro streamline_external_table_fr_query(
         source_name,
         source_version,
@@ -246,4 +246,4 @@ WHERE
     AND b._partition_by_created_date = s._partition_by_created_date
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
-{% endmacro %}
+{% endmacro %} #}
