@@ -1,4 +1,4 @@
-{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {% set model_name = 'TRACES' %}
 {% set model_type = 'REALTIME' %}
 {%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}

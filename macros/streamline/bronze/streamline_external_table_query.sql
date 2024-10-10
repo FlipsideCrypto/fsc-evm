@@ -3,7 +3,8 @@
         source_version,
         partition_function,
         balances,
-        block_number
+        block_number,
+        uses_receipts_by_hash
     ) %}
 
     {% if source_version != '' %}
@@ -39,6 +40,9 @@
                     s.metadata :request :"data"
                 ) :id :: STRING
             ) :: INT AS block_number
+        {% endif %}
+        {% if uses_receipts_by_hash %}
+            , s.value :"TX_HASH" :: STRING AS tx_hash
         {% endif %}
         FROM
             {{ source(

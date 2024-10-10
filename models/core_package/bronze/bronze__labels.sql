@@ -1,4 +1,4 @@
-{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 
 {%- set blockchains = var('LABELS_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
 

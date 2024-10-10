@@ -1,4 +1,4 @@
-{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 
 {# Set variables #}
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)" %}

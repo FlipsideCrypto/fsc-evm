@@ -1,4 +1,4 @@
-{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
 {%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}

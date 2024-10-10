@@ -1,4 +1,4 @@
-{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {%- if flags.WHICH == 'compile' and execute -%}
 
     {% set config_log = '\n' %}

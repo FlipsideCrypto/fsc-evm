@@ -1,4 +1,4 @@
-{%- if var('GLOBAL_USES_V2_FSC_EVM', False) -%}
+{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {% set model_name = 'RECEIPTS_BY_HASH' %}
 {% set model_type = 'HISTORY' %}
 
