@@ -37,4 +37,3 @@
     block_number = block_number,
     uses_receipts_by_hash = uses_receipts_by_hash
 ) }}
-{% endif %}
