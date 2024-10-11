@@ -1,8 +1,4 @@
 {# Set variables #}
-{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
-
-{% if uses_receipts_by_hash %}
-
 {% set source_name = 'RECEIPTS_BY_HASH' %}
 {% set source_version = var('BRONZE_RECEIPTS_BY_HASH_SOURCE_VERSION', '') %}
 {% set model_type = '' %}
@@ -13,6 +9,7 @@
 {% set partition_join_key = default_vars['partition_join_key'] %}
 {% set balances = default_vars['balances'] %}
 {% set block_number = default_vars['block_number'] %}
+{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {# Log configuration details #}
 {{ log_bronze_details(
@@ -28,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['core']
+    tags = ['core','receipts_by_hash']
 ) }}
 
 {# Main query starts here #}
