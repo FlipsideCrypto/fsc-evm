@@ -53,6 +53,3 @@
 {%- endif -%}
 
 {% endmacro %}
-
-    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STATS, METRICS, CORE, HOURLY',
-    } } }
