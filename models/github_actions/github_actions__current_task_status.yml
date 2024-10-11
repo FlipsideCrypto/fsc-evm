@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: github_actions__current_task_status
+  - name: fsc_evm.github_actions.github_actions__current_task_status
     columns:
       - name: PIPELINE_ACTIVE
         tests:
