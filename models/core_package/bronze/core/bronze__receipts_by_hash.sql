@@ -1,6 +1,6 @@
 {# Set variables #}
 {% set source_name = 'RECEIPTS_BY_HASH' %}
-{% set source_version = var('BRONZE_RECEIPTS_BY_HASH_SOURCE_VERSION', '') %}
+{% set source_version = '' %}
 {% set model_type = '' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
