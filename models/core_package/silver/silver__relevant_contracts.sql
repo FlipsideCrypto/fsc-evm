@@ -13,7 +13,10 @@ WITH emitted_events AS (
         MAX(inserted_timestamp) AS max_inserted_timestamp_logs,
         MAX(block_number) AS latest_event_block
     FROM
-        {{ ref('core__fact_event_logs') }}
+        {{ source(
+            'core',
+            'fact_event_logs'
+        ) }}
 
 {% if is_incremental() %}
 WHERE
@@ -34,7 +37,10 @@ function_calls AS (
         MAX(inserted_timestamp) AS max_inserted_timestamp_traces,
         MAX(block_number) AS latest_call_block
     FROM
-        {{ ref('core__fact_traces') }}
+        {{ source(
+            'core',
+            'fact_traces'
+        ) }}
     WHERE
         tx_succeeded
         AND trace_succeeded
