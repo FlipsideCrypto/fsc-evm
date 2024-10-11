@@ -19,7 +19,7 @@
     tags = ['streamline_core_complete', 'bronze_external']
 ) }}
 
-{{ streamline_external_table_query(
+{{ streamline_external_table_query_fr(
     source_name = source_name.lower(),
     source_version = source_version.lower(),
     partition_function = default_vars['partition_function'],

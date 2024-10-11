@@ -68,7 +68,7 @@
             AND DATA IS NOT NULL
 {% endmacro %}
 
-{% macro streamline_external_table_fr_query(
+{% macro streamline_external_table_query_fr(
         source_name,
         source_version,
         partition_function,
@@ -192,7 +192,7 @@ WHERE
 {% endmacro %}
 
 
-{% macro streamline_external_table_fr_query_decoder(
+{% macro streamline_external_table_query_decoder_fr(
         source_name,
         source_version
     ) %}

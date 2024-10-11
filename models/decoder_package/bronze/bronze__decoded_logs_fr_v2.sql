@@ -15,7 +15,7 @@
     tags = ['streamline_core_complete', 'bronze_external']
 ) }}
 
-{{ streamline_external_table_fr_query_decoder(
+{{ streamline_external_table_query_decoder_fr(
     source_name = source_name.lower(),
     source_version = source_version.lower()
 ) }}
