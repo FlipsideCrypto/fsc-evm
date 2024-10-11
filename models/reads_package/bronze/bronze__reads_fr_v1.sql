@@ -1,13 +1,13 @@
 {# Set variables #}
-{% set source_name = 'TOKEN_BALANCES' %}
+{% set source_name = 'READS' %}
 {% set source_version = '' %}
 {% set model_type = 'FR' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
 
-{% set partition_function = "TO_NUMBER(SPLIT_PART(file_name, '/', 3))" %}
-{% set partition_join_key = '_partition_by_block_id' %}
-{% set balances = true %}
+{% set partition_function = "TO_DATE(concat_ws('-', SPLIT_PART(file_name, '/', 3), SPLIT_PART(file_name, '/', 4), SPLIT_PART(file_name, '/', 5)))" %}
+{% set partition_join_key = '_partition_by_modified_date' %}
+{% set balances = default_vars['balances'] %}
 {% set block_number = false %}
 {% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
@@ -25,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['balances']
+    tags = ['reads']
 ) }}
 
 {# Main query starts here #}
