@@ -1,6 +1,6 @@
 {# Set variables #}
 {% set source_name = 'BEACON_BLOCKS' %}
-{% set source_version = 'V2' %}
+{% set source_version = 'V2' if var('GLOBAL_USES_STREAMLINE_V1') else '' %}
 {% set model_type = 'FR' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
