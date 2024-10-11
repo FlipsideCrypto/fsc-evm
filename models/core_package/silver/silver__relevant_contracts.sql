@@ -10,14 +10,14 @@ WITH emitted_events AS (
     SELECT
         contract_address,
         COUNT(*) AS event_count,
-        MAX(_inserted_timestamp) AS max_inserted_timestamp_logs,
+        MAX(inserted_timestamp) AS max_inserted_timestamp_logs,
         MAX(block_number) AS latest_event_block
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
 
 {% if is_incremental() %}
 WHERE
-    _inserted_timestamp > (
+    inserted_timestamp > (
         SELECT
             MAX(max_inserted_timestamp_logs)
         FROM
@@ -29,25 +29,21 @@ GROUP BY
 ),
 function_calls AS (
     SELECT
-        IFF(
-            TYPE = 'DELEGATECALL',
-            from_address,
-            to_address
-        ) AS contract_address,
+        to_address AS contract_address,
         COUNT(*) AS function_call_count,
-        MAX(_inserted_timestamp) AS max_inserted_timestamp_traces,
+        MAX(inserted_timestamp) AS max_inserted_timestamp_traces,
         MAX(block_number) AS latest_call_block
     FROM
-        {{ ref('silver__traces') }}
+        {{ ref('core__fact_traces') }}
     WHERE
-        tx_status = 'SUCCESS'
-        AND trace_status = 'SUCCESS'
+        tx_succeeded
+        AND trace_succeeded
         AND to_address IS NOT NULL
         AND input IS NOT NULL
         AND input <> '0x'
 
 {% if is_incremental() %}
-AND _inserted_timestamp > (
+AND inserted_timestamp > (
     SELECT
         MAX(max_inserted_timestamp_traces)
     FROM
