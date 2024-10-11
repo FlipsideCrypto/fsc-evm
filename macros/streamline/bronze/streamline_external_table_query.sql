@@ -41,8 +41,8 @@
                 ) :id :: STRING
             ) :: INT AS block_number
         {% endif %}
-        {% if uses_receipts_by_hash %}
-            , s.value :"TX_HASH" :: STRING AS tx_hash
+        {% if uses_receipts_by_hash %},
+            s.value :"TX_HASH" :: STRING AS tx_hash
         {% endif %}
         FROM
             {{ source(
@@ -67,15 +67,21 @@
             AND DATA :error IS NULL
             AND DATA IS NOT NULL
 {% endmacro %}
-{# 
+
 {% macro streamline_external_table_fr_query(
         source_name,
         source_version,
         partition_function,
-        partition_join_key = "partition_key",
-        balances = false,
-        block_number = true
+        partition_join_key,
+        balances,
+        block_number,
+        uses_receipts_by_hash
     ) %}
+
+    {% if source_version != '' %}
+        {% set source_version = '_' ~ source_version.lower() %}
+    {% endif %}
+    
     WITH meta AS (
         SELECT
             registered_on AS _inserted_timestamp,
@@ -107,6 +113,9 @@ SELECT
         ) :id :: STRING
     ) :: INT AS block_number
 {% endif %}
+{% if uses_receipts_by_hash %},
+    s.value :"TX_HASH" :: STRING AS tx_hash
+{% endif %}
 FROM
     {{ source(
         "bronze_streamline",
@@ -130,41 +139,6 @@ WHERE
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
 {% endmacro %}
-
-{% macro streamline_external_table_fr_union_query(
-        model
-    ) %}
-SELECT
-    partition_key,
-    block_number,
-    {% if model == 'receipts' or model == 'traces' %}
-        array_index,
-    {% endif %}
-
-    VALUE,
-    DATA,
-    metadata,
-    file_name,
-    _inserted_timestamp
-FROM
-    {{ ref('bronze__streamline_fr_' ~ model ~ '_v2') }}
-UNION ALL
-SELECT
-    _partition_by_block_id AS partition_key,
-    block_number,
-    {% if model == 'receipts' or model == 'traces' %}
-        VALUE :"array_index" :: INT AS array_index,
-    {% endif %}
-
-    VALUE,
-    DATA,
-    metadata,
-    file_name,
-    _inserted_timestamp
-FROM
-    {{ ref('bronze__streamline_fr_' ~ model ~ '_v1') }}
-{% endmacro %}
-#}
 
 {% macro streamline_external_table_query_decoder(
         source_name,
