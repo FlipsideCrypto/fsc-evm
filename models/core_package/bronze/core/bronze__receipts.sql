@@ -1,6 +1,6 @@
 {# Set variables #}
 {% set source_name = 'RECEIPTS' %}
-{% set source_version = var('BRONZE_RECEIPTS_SOURCE_VERSION', '') %}
+{% set source_version = 'V2' if var('GLOBAL_USES_STREAMLINE_V1') else '' %}
 {% set model_type = '' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
