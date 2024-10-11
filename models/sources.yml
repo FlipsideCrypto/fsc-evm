@@ -15,8 +15,8 @@ sources:
       - name: blocks_v2
       - name: transactions
       - name: transactions_v2
-      - name: >-
-          {{ 'receipts_by_hash' if var("GLOBAL_USES_RECEIPTS_BY_HASH", False) else 'receipts' }}
+      - name: receipts_by_hash
+      - name: receipts
       - name: receipts_v2
       - name: traces
       - name: traces_v2
