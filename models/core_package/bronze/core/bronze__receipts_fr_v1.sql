@@ -1,4 +1,8 @@
 {# Set variables #}
+{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
+
+{% if not uses_receipts_by_hash %}
+
 {% set source_name = 'RECEIPTS' %}
 {% set source_version = '' %}
 {% set model_type = 'FR' %}
@@ -9,7 +13,6 @@
 {% set partition_join_key = '_partition_by_block_id' %}
 {% set balances = default_vars['balances'] %}
 {% set block_number = false %}
-{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {# Log configuration details #}
 {{ log_bronze_details(
@@ -38,3 +41,4 @@
     block_number = block_number,
     uses_receipts_by_hash = uses_receipts_by_hash
 ) }}
+{% endif %}

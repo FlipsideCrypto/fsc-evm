@@ -1,3 +1,7 @@
+{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
+
+{% if not uses_receipts_by_hash %}
+
 {{ config (
     materialized = 'view',
     tags = ['core']
@@ -26,3 +30,4 @@ SELECT
     _inserted_timestamp
 FROM
    {{ ref('bronze__receipts_fr_v1') }}
+{% endif %}

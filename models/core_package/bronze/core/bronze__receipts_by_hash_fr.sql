@@ -1,5 +1,5 @@
 {# Set variables #}
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
+{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {% if uses_receipts_by_hash %}
 
@@ -13,7 +13,6 @@
 {% set partition_join_key = default_vars['partition_join_key'] %}
 {% set balances = default_vars['balances'] %}
 {% set block_number = default_vars['block_number'] %}
-{% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {# Log configuration details #}
 {{ log_bronze_details(
