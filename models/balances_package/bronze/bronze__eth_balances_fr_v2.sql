@@ -1,5 +1,5 @@
 {# Set variables #}
-{% set source_name = 'CONFIRM_BLOCKS' %}
+{% set source_name = 'ETH_BALANCES' %}
 {% set source_version = 'V2' %}
 {% set model_type = 'FR' %}
 
@@ -7,7 +7,7 @@
 
 {% set partition_function = default_vars['partition_function'] %}
 {% set partition_join_key = default_vars['partition_join_key'] %}
-{% set balances = default_vars['balances'] %}
+{% set balances = true %}
 {% set block_number = default_vars['block_number'] %}
 {% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 

@@ -1,5 +1,5 @@
 {# Set variables #}
-{% set source_name = 'CONFIRM_BLOCKS' %}
+{% set source_name = 'CONTRACT_ABIS' %}
 {% set source_version = 'V2' %}
 {% set model_type = 'FR' %}
 

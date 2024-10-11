@@ -1,14 +1,14 @@
 {# Set variables #}
-{% set source_name = 'CONFIRM_BLOCKS' %}
-{% set source_version = 'V2' %}
+{% set source_name = 'CONTRACT_ABIS' %}
+{% set source_version = '' %}
 {% set model_type = 'FR' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
 
-{% set partition_function = default_vars['partition_function'] %}
-{% set partition_join_key = default_vars['partition_join_key'] %}
+{% set partition_function = "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 3), '_', 1) AS INTEGER)" %}
+{% set partition_join_key = '_partition_by_block_id' %}
 {% set balances = default_vars['balances'] %}
-{% set block_number = default_vars['block_number'] %}
+{% set block_number = false %}
 {% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {# Log configuration details #}
