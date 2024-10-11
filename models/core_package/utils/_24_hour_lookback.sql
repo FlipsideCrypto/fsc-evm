@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {{ config(
     materialized = 'ephemeral'
 ) }}
@@ -25,5 +23,3 @@ FROM
         -24,
         max_timestamp
         )
-
-{%- endif -%}

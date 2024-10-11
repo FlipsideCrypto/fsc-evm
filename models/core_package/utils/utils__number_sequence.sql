@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {%- set max_num = var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)" %}
@@ -38,4 +36,3 @@ WHERE 1=1
 {% if is_incremental() %}
     AND 1=0
 {% endif %}
-{%- endif -%}

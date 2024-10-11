@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {{ config(
     materialized = 'ephemeral',
     unique_key = 'block_number'
@@ -26,4 +24,3 @@ WHERE
         FROM
             base
     )
-{%- endif -%}

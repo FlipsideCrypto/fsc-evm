@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {% set model_name = 'RECEIPTS_BY_HASH' %}
 {% set model_type = 'REALTIME' %}
 {%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
@@ -197,4 +196,3 @@ FROM
 LIMIT {{ streamline_params['sql_limit'] }}
 
 {% endif %}
-{%- endif -%}

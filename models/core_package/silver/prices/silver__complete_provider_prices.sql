@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -64,4 +63,3 @@ WHERE
 qualify(ROW_NUMBER() over (PARTITION BY p.asset_id, recorded_hour, p.provider
 ORDER BY
     p.modified_timestamp DESC)) = 1
-{%- endif -%}

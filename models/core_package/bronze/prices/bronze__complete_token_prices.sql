@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {# Set variables #}
 {%- set token_addresses = var('PRICES_TOKEN_ADDRESSES', none) -%}
 {%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
@@ -69,4 +67,3 @@ WHERE
             {{ token_addresses | replace('[', '') | replace(']', '') }}
         {% endif %})
     {% endif %}
-{%- endif -%}

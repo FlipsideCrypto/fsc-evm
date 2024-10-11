@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {%- set blockchains = var('LABELS_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
 
 {%- if flags.WHICH == 'compile' and execute -%}
@@ -49,4 +47,3 @@ WHERE
         {{ blockchains | replace('[', '') | replace(']', '') }}
     {% endif %})
     AND address LIKE '0x%'
-{%- endif -%}

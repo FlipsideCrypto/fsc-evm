@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, label_type, label_subtype, address_name, label), SUBSTRING(address, label_type, label_subtype, address_name, label); DELETE FROM {{ this }} WHERE address in (SELECT address FROM {{ ref('silver__labels') }} WHERE _is_deleted = TRUE);" %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
@@ -54,4 +53,3 @@ WHERE
             {{ this }}
     )
 {% endif %}
-{%- endif -%}

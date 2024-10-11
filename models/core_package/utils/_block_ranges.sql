@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {{ config (
     materialized = "ephemeral",
     unique_key = "block_number",
@@ -55,4 +53,3 @@ SELECT
     TO_TIMESTAMP_NTZ(_inserted_timestamp) AS _inserted_timestamp
 FROM
     {{ ref("silver__blocks") }}
-{%- endif -%}

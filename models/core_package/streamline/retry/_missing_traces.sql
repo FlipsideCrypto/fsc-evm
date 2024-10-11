@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {{ config(
     materialized = 'ephemeral'
 ) }}
@@ -40,4 +39,3 @@ WHERE
     AND tr.block_timestamp IS NOT NULL
 
 {% endif %}
-{%- endif -%}

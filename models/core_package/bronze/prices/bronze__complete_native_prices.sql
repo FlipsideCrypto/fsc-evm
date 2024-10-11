@@ -1,5 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
-
 {# Set variables #}
 {%- set symbols = var('PRICES_SYMBOLS') -%}
 {%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
@@ -64,4 +62,3 @@ WHERE
     {% else %}
         {{ symbols | replace('[', '') | replace(']', '') }}
     {% endif %})
-{%- endif -%}

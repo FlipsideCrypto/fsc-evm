@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 -- depends_on: {{ ref('bronze__blocks') }}
 {% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 
@@ -60,4 +59,3 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_blocks
 QUALIFY ROW_NUMBER() OVER (PARTITION BY blocks_id ORDER BY _inserted_timestamp DESC) = 1
-{%- endif -%}

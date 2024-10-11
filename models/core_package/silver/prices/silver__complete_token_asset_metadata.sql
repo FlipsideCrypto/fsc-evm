@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -59,4 +58,3 @@ WHERE
             {{ this }}
     )
 {% endif %}
-{%- endif -%}

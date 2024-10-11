@@ -1,4 +1,3 @@
-{%- if var('GLOBAL_ENABLE_FSC_EVM', False) -%}
 {{ config(
     materialized = 'ephemeral'
 ) }}
@@ -49,4 +48,3 @@ WHERE
     tx_position - prev_tx_position <> 1
 
 {% endif %}
-{%- endif -%}
