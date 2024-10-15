@@ -94,7 +94,7 @@ to_do AS (
     {% if not new_build %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
-),
+)
 
 {# Prepare the final list of blocks to process #}
 ,ready_blocks AS (
