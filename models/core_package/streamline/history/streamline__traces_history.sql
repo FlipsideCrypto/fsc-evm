@@ -62,7 +62,7 @@ to_do AS (
     WHERE 
         block_number IS NOT NULL
     {% if not new_build %}
-        AND block_number >= (SELECT block_number FROM last_3_days)
+        AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
 
     EXCEPT
@@ -72,7 +72,7 @@ to_do AS (
     FROM {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
     {% if not new_build %}
-        AND block_number >= (SELECT block_number FROM last_3_days)
+        AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
 )
 

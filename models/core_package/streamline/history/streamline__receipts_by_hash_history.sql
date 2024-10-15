@@ -166,7 +166,7 @@ to_do AS (
         {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
         {% if not new_build %}
-            AND block_number >= (SELECT block_number FROM last_3_days)
+            AND block_number <= (SELECT block_number FROM last_3_days)
         {% endif %}
 ),
 ready_blocks AS (

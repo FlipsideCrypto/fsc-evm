@@ -1,6 +1,7 @@
 {# Set variables #}
-{%- set model_name = 'RECEIPTS' -%}
-{%- set model_type = 'HISTORY' -%}
+{%- set model_name = 'CONFIRM_BLOCKS' -%}
+{%- set model_type = 'REALTIME' -%}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
@@ -32,7 +33,8 @@
     new_build=new_build,
     streamline_params=streamline_params,
     method_params=method_params,
-    method=method
+    method=method,
+    min_block=min_block
 ) }}
 
 {# Set up dbt configuration #}
@@ -43,7 +45,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_' ~ model_type.lower(), 'receipts']
+    tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
 
 {# Main query starts here #}
@@ -55,14 +57,30 @@ WITH
     ),
 {% endif %}
 
+{# Delay blocks #}
+look_back AS (
+    SELECT
+        block_number
+    FROM
+        {{ ref("_max_block_by_hour") }}
+        qualify ROW_NUMBER() over (
+            ORDER BY
+                block_number DESC
+        ) = 6
+    ),
+
 {# Identify blocks that need processing #}
 to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
     WHERE 
         block_number IS NOT NULL
+        AND block_number <= (SELECT block_number FROM look_back)
     {% if not new_build %}
-        AND block_number <= (SELECT block_number FROM last_3_days)
+        AND block_number >= (SELECT block_number FROM last_3_days)
+    {% endif %}
+    {% if min_block is not none %}
+        AND block_number >= {{ min_block }}
     {% endif %}
 
     EXCEPT
@@ -71,18 +89,15 @@ to_do AS (
     SELECT block_number
     FROM {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
+        AND block_number IS NOT NULL
+        AND block_number <= (SELECT block_number FROM look_back)
+        AND _inserted_timestamp >= DATEADD(
+            'day',
+            -4,
+            SYSDATE()
+        )
     {% if not new_build %}
-        AND block_number <= (SELECT block_number FROM last_3_days)
-    {% endif %}
-)
-
-{# Prepare the final list of blocks to process #}
-,ready_blocks AS (
-    SELECT block_number
-    FROM to_do
-
-    {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+        AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 )
 
@@ -106,7 +121,7 @@ SELECT
         '{{ node_secret_path }}'
     ) AS request
 FROM
-    ready_blocks
+    to_do
     
 {{ order_by_clause }}
 
