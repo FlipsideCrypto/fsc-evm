@@ -5,20 +5,20 @@ This table contains NFT sales on this EVM blockchain. More NFT marketplaces will
 {% enddocs %}
 
 
-{% docs evm_nft_sales_table_doc %}
+{% docs evm_ez_nft_sales_table_doc %}
 
 This table contains NFT sale events from various marketplaces.
 
 {% enddocs %}
 
 
-{% docs evm_nft_mint_table_doc %}
+{% docs evm_ez_nft_mint_table_doc %}
 
 This table contains NFT mint events, defined as NFT transfers from a burn address to an address, on this EVM blockchain.
 
 {% enddocs %}
 
-{% docs evm_nft_transfer_table_doc %}
+{% docs evm_ez_nft_transfer_table_doc %}
 
 This table contains NFT transfer events on this EVM blockchain.
 
