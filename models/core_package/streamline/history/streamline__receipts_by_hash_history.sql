@@ -4,14 +4,14 @@
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
+{%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
+
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
     model_type=model_type,
     multiplier=multiplier
 ) -%}
-
-{%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
 
 {%- set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] -%}
 {%- set node_url = default_vars['node_url'] -%}
