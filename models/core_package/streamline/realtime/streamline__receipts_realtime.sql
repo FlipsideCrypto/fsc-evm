@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set model_name = 'TRACES' -%}
+{%- set model_name = 'RECEIPTS' -%}
 {%- set model_type = 'REALTIME' -%}
 {%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
@@ -45,7 +45,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_' ~ model_type.lower()]
+    tags = ['streamline_core_' ~ model_type.lower(), 'receipts']
 ) }}
 
 {# Main query starts here #}
@@ -92,7 +92,10 @@ to_do AS (
         FROM {{ ref("_unconfirmed_blocks") }}
         UNION
         SELECT block_number
-        FROM {{ ref("_missing_traces") }}
+        FROM {{ ref("_missing_txs") }}
+        UNION
+        SELECT block_number
+        FROM {{ ref("_missing_receipts") }}
     {% endif %}
 
     {% if testing_limit is not none %}

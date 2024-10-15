@@ -1,13 +1,24 @@
-{% set model_name = 'RECEIPTS_BY_HASH' %}
-{% set model_type = 'REALTIME' %}
+{# Set variables #}
+{%- set model_name = 'RECEIPTS_BY_HASH' -%}
+{%- set model_type = 'REALTIME' -%}
 {%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
-{% if default_vars['uses_receipts_by_hash'] %}
+{%- set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] -%}
+{%- set node_url = default_vars['node_url'] -%}
+{%- set node_secret_path = default_vars['node_secret_path'] -%}
+{%- set model_quantum_state = default_vars['model_quantum_state'] -%}
+{%- set sql_limit = streamline_params['sql_limit'] -%}
+{%- set testing_limit = default_vars['testing_limit'] -%}
+{%- set order_by_clause = default_vars['order_by_clause'] -%}
+{%- set new_build = default_vars['new_build'] -%}
+{%- set method_params = streamline_params['method_params'] -%}
+{%- set method = streamline_params['method'] -%}
 
 {%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
 
+{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set streamline_params = set_streamline_parameters(
     model_name=model_name,
     model_type=model_type,
@@ -17,16 +28,16 @@
 {{ log_streamline_details(
     model_name=model_name,
     model_type=model_type,
-    uses_receipts_by_hash=default_vars['uses_receipts_by_hash'],
-    node_url=default_vars['node_url'],
-    model_quantum_state=default_vars['model_quantum_state'],
-    sql_limit=streamline_params['sql_limit'],
-    testing_limit=default_vars['testing_limit'],
-    order_by_clause=default_vars['order_by_clause'],
-    new_build=default_vars['new_build'],
+    uses_receipts_by_hash=uses_receipts_by_hash,
+    node_url=node_url,
+    model_quantum_state=model_quantum_state,
+    sql_limit=sql_limit,
+    testing_limit=testing_limit,
+    order_by_clause=order_by_clause,
+    new_build=new_build,
     streamline_params=streamline_params,
-    method_params=streamline_params['method_params'],
-    method=streamline_params['method'],
+    method_params=method_params,
+    method=method,
     min_block=min_block
 ) }}
 
@@ -38,9 +49,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_' ~ model_type.lower()]
+    tags = ['streamline_core_' ~ model_type.lower(), 'receipts_by_hash']
 ) }}
 
+{# Main query starts here #}
 {# Start by invoking LQ for the last hour of blocks #}
 
 WITH numbered_blocks AS (
@@ -96,7 +108,7 @@ rpc_requests AS (
     SELECT
         live.udf_api(
             'POST',
-            '{{ default_vars['node_url'] }}',
+            '{{ node_url }}',
             OBJECT_CONSTRUCT(
                 'Content-Type',
                 'application/json',
@@ -104,7 +116,7 @@ rpc_requests AS (
                 'livequery'
             ),
             batch_request,
-            '{{ default_vars['node_secret_path'] }}'
+            '{{ node_secret_path }}'
         ) AS resp
     FROM
         batched_calls
@@ -150,7 +162,7 @@ to_do AS (
     FROM
         {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
-        {% if not default_vars['new_build'] %}
+        {% if not new_build %}
             AND block_number >= (SELECT block_number FROM last_3_days)
         {% endif %}
 ),
@@ -161,8 +173,8 @@ ready_blocks AS (
     FROM
         to_do
 
-    {% if default_vars['testing_limit'] is not none %}
-        LIMIT {{ default_vars['testing_limit'] }} 
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
     {% endif %}
 )
 SELECT
@@ -174,25 +186,23 @@ SELECT
     ) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ default_vars['node_url'] }}',
+        '{{ node_url }}',
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json',
-            'fsc-quantum-state', '{{ default_vars['model_quantum_state'] }}'
+            'fsc-quantum-state', '{{ model_quantum_state }}'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ streamline_params['method'] }}',
-            'params', {{ streamline_params['method_params'] }}
+            'method', '{{ method }}',
+            'params', {{ method_params }}
         ),
-        '{{ default_vars['node_secret_path'] }}'
+        '{{ node_secret_path }}'
     ) AS request
 FROM
     ready_blocks
 
-{{ default_vars['order_by_clause'] }}
+{{ order_by_clause }}
 
-LIMIT {{ streamline_params['sql_limit'] }}
-
-{% endif %}
+LIMIT {{ sql_limit }}

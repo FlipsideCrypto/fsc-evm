@@ -1,15 +1,18 @@
-{% set source_name = 'RECEIPTS' %}
-{% set model_type = 'COMPLETE' %}
+{# Set variables #}
+{%- set source_name = 'RECEIPTS' -%}
+{%- set model_type = 'COMPLETE' -%}
 
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" %}
 
+{# Log configuration details #}
 {{ log_complete_details(
     post_hook = post_hook,
     full_refresh_type = full_refresh_type
 ) }}
 
+{# Set up dbt configuration #}
 -- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
 
 {{ config (
@@ -21,6 +24,7 @@
     tags = ['streamline_core_' ~ model_type.lower(), 'receipts']
 ) }}
 
+{# Main query starts here #}
 SELECT
     block_number,
     file_name,

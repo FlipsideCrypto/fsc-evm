@@ -1,5 +1,18 @@
-{% set model_name = 'BLOCKS_TRANSACTIONS' %}
-{% set model_type = 'HISTORY' %}
+{# Set variables #}
+{%- set model_name = 'BLOCKS_TRANSACTIONS' -%}
+{%- set model_type = 'HISTORY' -%}
+
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
+
+{%- set node_url = default_vars['node_url'] -%}
+{%- set node_secret_path = default_vars['node_secret_path'] -%}
+{%- set model_quantum_state = default_vars['model_quantum_state'] -%}
+{%- set sql_limit = streamline_params['sql_limit'] -%}
+{%- set testing_limit = default_vars['testing_limit'] -%}
+{%- set order_by_clause = default_vars['order_by_clause'] -%}
+{%- set new_build = default_vars['new_build'] -%}
+{%- set method_params = streamline_params['method_params'] -%}
+{%- set method = streamline_params['method'] -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 
@@ -8,20 +21,19 @@
     model_type=model_type
 ) -%}
 
-{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
-
+{# Log configuration details #}
 {{ log_streamline_details(
     model_name=model_name,
     model_type=model_type,
-    node_url=default_vars['node_url'],
-    model_quantum_state=default_vars['model_quantum_state'],
-    sql_limit=streamline_params['sql_limit'],
-    testing_limit=default_vars['testing_limit'],
-    order_by_clause=default_vars['order_by_clause'],
-    new_build=default_vars['new_build'],
+    node_url=node_url,
+    model_quantum_state=model_quantum_state,
+    sql_limit=sql_limit,
+    testing_limit=testing_limit,
+    order_by_clause=order_by_clause,
+    new_build=new_build,
     streamline_params=streamline_params,
-    method_params=streamline_params['method_params'],
-    method=streamline_params['method']
+    method_params=method_params,
+    method=method
 ) }}
 
 {# Set up dbt configuration #}
@@ -35,8 +47,9 @@
     tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
 
+{# Main query starts here #}
 WITH 
-{% if not default_vars['new_build'] %}
+{% if not new_build %}
     last_3_days AS (
         SELECT block_number
         FROM {{ ref("_block_lookback") }}
@@ -49,7 +62,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
     block_number IS NOT NULL
-    {% if not default_vars['new_build'] %}
+    {% if not new_build %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 
@@ -59,7 +72,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks_complete") }} b
     INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
     WHERE 1=1
-    {% if not default_vars['new_build'] %}
+    {% if not new_build %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 ),
@@ -67,8 +80,8 @@ ready_blocks AS (
     SELECT block_number
     FROM to_do
 
-    {% if default_vars['testing_limit'] is not none %}
-        LIMIT {{ default_vars['testing_limit'] }} 
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
     {% endif %}
 )
 
@@ -78,22 +91,22 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ default_vars['node_url'] }}',
+        '{{ node_url }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', '{{ default_vars['model_quantum_state'] }}'
+            'fsc-quantum-state', '{{ model_quantum_state }}'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ streamline_params['method'] }}',
-            'params', {{ streamline_params['method_params'] }}
+            'method', '{{ method }}',
+            'params', {{ method_params }}
         ),
-        '{{ default_vars['node_secret_path'] }}'
+        '{{ node_secret_path }}'
     ) AS request
 FROM
     ready_blocks
     
-{{ default_vars['order_by_clause'] }}
+{{ order_by_clause }}
 
-LIMIT {{ streamline_params['sql_limit'] }}
+LIMIT {{ sql_limit }}

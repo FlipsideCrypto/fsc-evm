@@ -1,7 +1,6 @@
 {# Set variables #}
-{%- set model_name = 'TRACES' -%}
-{%- set model_type = 'REALTIME' -%}
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
+{%- set model_name = 'RECEIPTS' -%}
+{%- set model_type = 'HISTORY' -%}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
@@ -33,8 +32,7 @@
     new_build=new_build,
     streamline_params=streamline_params,
     method_params=method_params,
-    method=method,
-    min_block=min_block
+    method=method
 ) }}
 
 {# Set up dbt configuration #}
@@ -45,7 +43,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_' ~ model_type.lower()]
+    tags = ['streamline_core_' ~ model_type.lower(), 'receipts']
 ) }}
 
 {# Main query starts here #}
@@ -66,9 +64,6 @@ to_do AS (
     {% if not new_build %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
-    {% if min_block is not none %}
-        AND block_number >= {{ min_block }}
-    {% endif %}
 
     EXCEPT
 
@@ -85,15 +80,6 @@ to_do AS (
 ,ready_blocks AS (
     SELECT block_number
     FROM to_do
-
-    {% if not new_build %}
-        UNION
-        SELECT block_number
-        FROM {{ ref("_unconfirmed_blocks") }}
-        UNION
-        SELECT block_number
-        FROM {{ ref("_missing_traces") }}
-    {% endif %}
 
     {% if testing_limit is not none %}
         LIMIT {{ testing_limit }} 
