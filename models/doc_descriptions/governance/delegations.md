@@ -27,3 +27,15 @@ The address that is delegating OP tokens.
 The type of delegation event that is happening in the transaction. 
 
 {% enddocs %}
+
+{% docs delegation_raw_new_balance %}
+
+The new amount the user has delegated after the transaction.
+
+{% enddocs %}
+
+{% docs delegation_raw_previous_balance %}
+
+The amount of OP the user had delegated before the transaction.
+
+{% enddocs %}
