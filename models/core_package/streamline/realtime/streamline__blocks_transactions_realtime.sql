@@ -5,6 +5,12 @@
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
+{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
+{%- set streamline_params = set_streamline_parameters(
+    model_name=model_name,
+    model_type=model_type
+) -%}
+
 {%- set node_url = default_vars['node_url'] -%}
 {%- set node_secret_path = default_vars['node_secret_path'] -%}
 {%- set model_quantum_state = default_vars['model_quantum_state'] -%}
@@ -14,12 +20,6 @@
 {%- set new_build = default_vars['new_build'] -%}
 {%- set method_params = streamline_params['method_params'] -%}
 {%- set method = streamline_params['method'] -%}
-
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set streamline_params = set_streamline_parameters(
-    model_name=model_name,
-    model_type=model_type
-) -%}
 
 {# Log configuration details #}
 {{ log_streamline_details(

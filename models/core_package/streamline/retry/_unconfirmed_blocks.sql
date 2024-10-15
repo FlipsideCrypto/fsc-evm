@@ -20,7 +20,7 @@ SELECT
 SELECT
     DISTINCT cb.block_number AS block_number
 FROM
-    {{ ref("silver__confirmed_blocks") }}
+    {{ ref("silver__confirm_blocks") }}
     cb
     LEFT JOIN {{ ref("silver__transactions") }}
     txs USING (
