@@ -94,6 +94,16 @@ to_do AS (
     {% if not new_build %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
+),
+
+{# Prepare the final list of blocks to process #}
+,ready_blocks AS (
+    SELECT block_number
+    FROM to_do
+
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
+    {% endif %}
 )
 
 {# Generate API requests for each block #}
@@ -116,7 +126,7 @@ SELECT
         '{{ node_secret_path }}'
     ) AS request
 FROM
-    to_do
+    ready_blocks
     
 {{ order_by_clause }}
 
