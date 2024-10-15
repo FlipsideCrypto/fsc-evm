@@ -1,34 +1,30 @@
-{% set source_name = 'RECEIPTS_BY_HASH' %}
+{% set source_name = 'CONFIRM_BLOCKS' %}
 {% set model_type = 'COMPLETE' %}
 
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
 
-{%- set unique_key = 'complete_' ~ source_name.lower() ~ '_id' -%}
-
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)"%}
+{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" %}
 
 {{ log_complete_details(
     post_hook = post_hook,
-    full_refresh_type = full_refresh_type,
-    uses_receipts_by_hash = uses_receipts_by_hash
+    full_refresh_type = full_refresh_type
 ) }}
 
 -- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
 
 {{ config (
     materialized = "incremental",
-    unique_key = unique_key,
+    unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_core_' ~ model_type.lower(), 'receipts_by_hash']
+    tags = ['streamline_core_' ~ model_type.lower()]
 ) }}
 
 SELECT
-    tx_hash,
     block_number,
     file_name,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_hash']) }} AS complete_{{ source_name.lower() }}_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS complete_{{ source_name.lower() }}_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
@@ -47,4 +43,4 @@ FROM
         {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
     {% endif %}
 
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number desc, _inserted_timestamp DESC)) = 1
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1

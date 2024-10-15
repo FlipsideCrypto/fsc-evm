@@ -25,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['core','streamline_v1']
+    tags = ['core', 'streamline_v1', 'receipts']
 ) }}
 
 {# Main query starts here #}
