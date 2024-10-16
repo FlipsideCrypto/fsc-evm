@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('_retry_abis') }}
 {% set api_abi_error_message = var(
     'API_ABI_ERROR_MESSAGE',
     "abi_data :data :result :: STRING <> 'Max rate limit reached'"
