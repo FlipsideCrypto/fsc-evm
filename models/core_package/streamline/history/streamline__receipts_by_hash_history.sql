@@ -138,12 +138,22 @@ flat_tx_hashes AS (
         )
 ),
 to_do AS (
-    SELECT
+    SELECT 
         block_number,
         tx_hash
-    FROM
-        flat_tx_hashes
-
+    FROM (
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            flat_tx_hashes
+        UNION ALL
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            {{ ref("core__fact_transactions") }}
+    )
     EXCEPT
 
     SELECT
