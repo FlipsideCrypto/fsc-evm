@@ -1,4 +1,19 @@
-{% set api_error_message = var('API_ERROR_MESSAGE') %}
+{% set api_abi_error_message = var(
+    'API_ABI_ERROR_MESSAGE',
+    'abi_data :data :result :: STRING <> \'Max rate limit reached\''
+) %}
+{% set api_abi_interaction_count = var(
+    'API_ABI_INTERACTION_COUNT',
+    250
+) %}
+{% set api_abi_relevant_contract_limit = var(
+    'API_ABI_RELEVANT_CONTRACT_LIMIT',
+    5
+) %}
+{% set api_abi_batch_size = var(
+    'API_ABI_BATCH_SIZE',
+    10
+) %}
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
@@ -13,7 +28,7 @@ WITH base AS (
     FROM
         {{ ref('silver__relevant_contracts') }}
     WHERE
-        total_interaction_count >= 100
+        total_interaction_count >= {{ api_abi_interaction_count }}
 
 {% if is_incremental() %}
 EXCEPT
@@ -22,10 +37,10 @@ SELECT
 FROM
     {{ this }}
 WHERE
-    abi_data :data :result :: STRING <> '{{ api_error_message }}'
+    '{{ api_abi_error_message }}'
 {% endif %}
 LIMIT
-    5
+    {{ api_abi_relevant_contract_limit }}
 ), all_contracts AS (
     SELECT
         contract_address
@@ -47,9 +62,9 @@ row_nos AS (
     FROM
         all_contracts
 ),
-batched AS ({% for item in range(15) %}
+batched AS ({% for item in range({{ api_abi_batch_size }}) %}
 SELECT
-    rn.contract_address, live.udf_api('GET', CONCAT('{{GLOBAL_API_URL}}', rn.contract_address, '&apikey=', '{{GLOBAL_API_SECRET_PATH}}'),{ 'User-Agent': 'FlipsideStreamline' },{}) AS abi_data, SYSDATE() AS _inserted_timestamp
+    rn.contract_address, live.udf_api('GET', CONCAT('{{GLOBAL_API_URL}}', rn.contract_address, '&apikey={key}'),{ 'User-Agent': 'FlipsideStreamline' },{}, '{{GLOBAL_API_SECRET_PATH}}') AS abi_data, SYSDATE() AS _inserted_timestamp
 FROM
     row_nos rn
 WHERE

@@ -1,3 +1,11 @@
+{% set api_abi_interaction_count = var(
+    'API_ABI_INTERACTION_COUNT',
+    250
+) %}
+{% set api_abi_error_message = var(
+    'API_ABI_ERROR_MESSAGE',
+    'abi_data :data :result :: STRING <> \'Max rate limit reached\''
+) %}
 {{ config (
     materialized = "ephemeral"
 ) }}
@@ -15,12 +23,13 @@ WITH retry AS (
         {{ ref("silver__relevant_contracts") }}
         r
         LEFT JOIN {{ source(
-            'base_silver',
+            'silver',
             'verified_abis'
         ) }}
         v USING (contract_address)
     WHERE
-        r.total_interaction_count >= 250 -- high interaction count
+        r.total_interaction_count >= {{ api_abi_interaction_count }}
+        -- high interaction count
         AND GREATEST(
             max_inserted_timestamp_logs,
             max_inserted_timestamp_traces
@@ -31,12 +40,12 @@ WITH retry AS (
                 contract_address
             FROM
                 {{ source(
-                    'base_bronze_api',
+                    'bronze_api',
                     'contract_abis'
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND abi_data :data :result :: STRING <> 'Max rate limit reached'
+                AND '{{ api_abi_error_message }}'
         )
     ORDER BY
         total_interaction_count DESC
@@ -51,7 +60,7 @@ WITH retry AS (
         p
         JOIN retry r USING (contract_address)
         LEFT JOIN {{ source(
-            'base_silver',
+            'silver',
             'verified_abis'
         ) }}
         v
@@ -63,12 +72,12 @@ WITH retry AS (
                 contract_address
             FROM
                 {{ source(
-                    'base_bronze_api',
+                    'bronze_api',
                     'contract_abis'
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND abi_data :data :result :: STRING <> 'Max rate limit reached'
+                AND '{{ api_abi_error_message }}'
         )
     UNION ALL
     SELECT
