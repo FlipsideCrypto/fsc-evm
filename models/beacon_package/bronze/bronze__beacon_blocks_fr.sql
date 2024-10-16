@@ -23,4 +23,4 @@ SELECT
     file_name,
     _inserted_timestamp
 FROM
-    {{ ref('bronze__beacon_blocks_fr_v2') }}
+    {{ ref('bronze__beacon_blocks_fr_v1') }}
