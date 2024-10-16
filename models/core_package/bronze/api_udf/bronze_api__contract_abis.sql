@@ -52,10 +52,7 @@ UNION
 SELECT
     contract_address
 FROM
-    {{ source(
-        'bronze_api',
-        '_retry_abis'
-    ) }}
+    {{ ref('_retry_abis') }}
 {% endif %}
 ),
 row_nos AS (
