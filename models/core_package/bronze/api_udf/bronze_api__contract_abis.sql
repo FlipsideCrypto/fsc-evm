@@ -70,7 +70,7 @@ row_nos AS (
 ),
 batched AS ({% for item in range(api_abi_batch_size) %}
 SELECT
-    rn.contract_address, live.udf_api('GET', CONCAT('{{ var("GLOBAL_API_URL") }}', rn.contract_address, '&apikey=', '{{ var("TEMP_ABI_KEY") }}'),{ 'User-Agent': 'FlipsideStreamline' },{},{}) AS abi_data, SYSDATE() AS _inserted_timestamp
+    rn.contract_address, live.udf_api('GET', CONCAT('{{ var("GLOBAL_API_URL") }}', rn.contract_address, '&apikey=', '{{ var("TEMP_ABI_KEY") }}'),{ 'User-Agent': 'FlipsideStreamline' },{}) AS abi_data, SYSDATE() AS _inserted_timestamp
 FROM
     row_nos rn
 WHERE
