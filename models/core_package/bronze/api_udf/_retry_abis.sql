@@ -45,7 +45,7 @@ WITH retry AS (
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND '{{ api_abi_error_message }}'
+                AND {{ api_abi_error_message }}
         )
     ORDER BY
         total_interaction_count DESC
@@ -77,7 +77,7 @@ WITH retry AS (
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND '{{ api_abi_error_message }}'
+                AND {{ api_abi_error_message }}
         )
     UNION ALL
     SELECT
