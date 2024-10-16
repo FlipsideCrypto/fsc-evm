@@ -6,14 +6,14 @@
     tags = ['abis']
 ) }}
 
-WITH raw_table AS (
+WITH base AS (
 
     SELECT
         from_address,
         to_address,
-        block_number,
-        block_timestamp,
-        inserted_timestamp
+        MIN(block_number) AS start_block,
+        MIN(block_timestamp) AS start_timestamp,
+        MAX(inserted_timestamp) AS _inserted_timestamp
     FROM
         {{ ref('core__fact_traces') }}
     WHERE
@@ -25,23 +25,13 @@ WITH raw_table AS (
 {% if is_incremental() %}
 AND inserted_timestamp >= (
     SELECT
-        MAX(inserted_timestamp) - INTERVAL '24 hours'
+        MAX(_inserted_timestamp) - INTERVAL '24 hours'
     FROM
         {{ this }}
 )
 {% endif %}
-),
-base AS (
-    SELECT
-        from_address,
-        to_address,
-        MIN(block_number) AS start_block,
-        MIN(block_timestamp) AS start_timestamp,
-        MAX(inserted_timestamp) AS _inserted_timestamp
-    FROM
-        raw_table
-    GROUP BY
-        ALL
+GROUP BY
+    ALL
 ),
 create_id AS (
     SELECT
