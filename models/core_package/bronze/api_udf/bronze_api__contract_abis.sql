@@ -1,6 +1,6 @@
 {% set api_abi_error_message = var(
     'API_ABI_ERROR_MESSAGE',
-    'abi_data :data :result :: STRING <> \'Max rate limit reached\''
+    "abi_data :data :result :: STRING <> 'Max rate limit reached'"
 ) %}
 {% set api_abi_interaction_count = var(
     'API_ABI_INTERACTION_COUNT',
