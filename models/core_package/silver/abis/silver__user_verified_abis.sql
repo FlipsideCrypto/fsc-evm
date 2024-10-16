@@ -472,7 +472,7 @@ valid_traces AS (
             SELECT
                 base_address
             FROM
-                {{ ref('silver__traces') }}
+                {{ ref('core__fact_traces') }}
                 JOIN function_mapping
                 ON function_sig = LEFT(
                     input,
@@ -505,7 +505,7 @@ valid_traces AS (
                     SELECT
                         base_address
                     FROM
-                        {{ ref('silver__logs') }}
+                        {{ ref('core__fact_event_logs') }}
                         l
                         JOIN event_mapping ia
                         ON ia.contract_address = l.contract_address
