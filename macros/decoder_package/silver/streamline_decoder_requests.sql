@@ -2,7 +2,7 @@
         start,
         stop,
         model_type,
-        query_limit
+        testing_limit
     ) %}
     WITH look_back AS ({% if model_type == 'realtime' %}
     SELECT
@@ -92,17 +92,16 @@ WHERE
                         )
                 )
             {% endif %}
-        {% if query_limit %}
-        LIMIT
-            {{ query_limit }} 
-        {% endif %}
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
+    {% endif %}
 {% endmacro %}
 
 {% macro streamline_decoded_traces_requests(
         start,
         stop,
         model_type,
-        query_limit
+        testing_limit
     ) %}
     WITH look_back AS (
         SELECT
@@ -192,8 +191,7 @@ WHERE
                         )
                 )
             {% endif %}
-        {% if query_limit %}
-        LIMIT
-            {{ query_limit }} 
-        {% endif %}
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
+    {% endif %}
 {% endmacro %}
