@@ -39,7 +39,7 @@ base AS (
         MIN(block_timestamp) AS start_timestamp,
         MAX(inserted_timestamp) AS _inserted_timestamp
     FROM
-        base
+        raw_table
     GROUP BY
         ALL
 ),
