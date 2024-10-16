@@ -32,7 +32,7 @@ SELECT
         l.contract_address
     ) AS DATA
 FROM
-    {{ ref("silver__logs") }}
+    {{ ref("core__fact_event_logs") }}
     l
     INNER JOIN {{ ref("silver__complete_event_abis") }} A
     ON A.parent_contract_address = l.contract_address
@@ -136,7 +136,7 @@ WHERE
             input,
             output
         FROM
-            {{ ref("silver__traces") }}
+            {{ ref("core__fact_traces") }}
             t
         WHERE
             {% if model_type == 'realtime' %}
