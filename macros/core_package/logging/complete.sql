@@ -15,7 +15,9 @@
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
     {% set config_log = config_log ~ '    cluster_by = "' ~ config.get('cluster_by') ~ '",\n' %}
+    {% set config_log = config_log ~ '    merge_update_columns = ' ~ config.get('merge_update_columns') | tojson ~ ',\n' %}
     {% set config_log = config_log ~ '    post_hook = "' ~ post_hook ~ '",\n' %}
+    {% set config_log = config_log ~ '    incremental_predicates = ' ~ config.get('incremental_predicates') | tojson ~ ',\n' %}
     {% set config_log = config_log ~ '    full_refresh = ' ~ full_refresh_type ~ ',\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') | tojson ~ '\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
