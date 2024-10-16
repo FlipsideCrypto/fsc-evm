@@ -55,7 +55,7 @@ WHERE
             SELECT
                 _log_id
             FROM
-                {{ ref("streamline__complete_decoded_logs") }}
+                {{ ref("streamline__decoded_logs_complete") }}
             WHERE
                 block_number >= (
                     SELECT
@@ -78,7 +78,7 @@ WHERE
                     SELECT
                         _log_id
                     FROM
-                        {{ ref("streamline__complete_decoded_logs") }}
+                        {{ ref("streamline__decoded_logs_complete") }}
                     WHERE
                         (
                             block_number BETWEEN {{ start }}
@@ -153,7 +153,7 @@ WHERE
             SELECT
                 _call_id
             FROM
-                {{ ref("streamline__complete_decoded_traces") }}
+                {{ ref("streamline__decoded_traces_complete") }}
             WHERE
                 block_number >= (
                     SELECT
@@ -177,7 +177,7 @@ WHERE
                     SELECT
                         _call_id
                     FROM
-                        {{ ref("streamline__complete_decoded_traces") }}
+                        {{ ref("streamline__decoded_traces_complete") }}
                     WHERE
                         (
                             block_number BETWEEN {{ start }}
