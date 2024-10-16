@@ -13,7 +13,7 @@ SELECT
     to_address AS created_contract_address,
     from_address AS creator_address,
     input AS created_contract_input,
-    inserted_timestamp,
+    inserted_timestamp AS _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['to_address']
     ) }} AS created_contracts_id,
@@ -31,9 +31,9 @@ WHERE
     AND trace_succeeded
 
 {% if is_incremental() %}
-AND inserted_timestamp >= (
+AND _inserted_timestamp >= (
     SELECT
-        MAX(inserted_timestamp) - INTERVAL '24 hours'
+        MAX(_inserted_timestamp) - INTERVAL '24 hours'
     FROM
         {{ this }}
 )
@@ -41,7 +41,7 @@ AND inserted_timestamp >= (
 
 qualify(ROW_NUMBER() over(PARTITION BY created_contract_address
 ORDER BY
-    inserted_timestamp DESC)) = 1
+    _inserted_timestamp DESC)) = 1
 UNION ALL
 SELECT
     0 AS block_number,
