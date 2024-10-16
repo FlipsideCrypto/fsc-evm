@@ -25,7 +25,10 @@
             ) AS DATA,
             _inserted_timestamp
         FROM
-            {{ ref('bronze_api__contract_abis') }}
+            {{ source(
+                'bronze_api',
+                'contract_abis'
+            ) }}
         WHERE
             abi_data :data :message :: STRING = 'OK'
 
