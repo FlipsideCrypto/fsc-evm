@@ -53,7 +53,7 @@ WITH retry AS (
         5
 ), FINAL AS (
     SELECT
-        proxy_address AS contract_address,
+        implementation_contract AS contract_address,
         start_block AS block_number
     FROM
         {{ ref("silver__proxies") }}
@@ -64,7 +64,7 @@ WITH retry AS (
             'verified_abis'
         ) }}
         v
-        ON v.contract_address = p.proxy_address
+        ON v.contract_address = p.implementation_contract
     WHERE
         v.contract_address IS NULL
         AND p.contract_address NOT IN (
