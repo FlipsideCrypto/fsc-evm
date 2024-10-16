@@ -46,11 +46,14 @@ LIMIT
         contract_address
     FROM
         base
-    UNION
-    SELECT
-        contract_address
-    FROM
-        {{ ref('_retry_abis') }}
+
+{% if is_incremental() %}
+UNION
+SELECT
+    contract_address
+FROM
+    {{ ref('_retry_abis') }}
+{% endif %}
 ),
 row_nos AS (
     SELECT
