@@ -54,7 +54,7 @@ SELECT
 FROM
     {{ source(
         'bronze_api',
-        'retry_abis'
+        '_retry_abis'
     ) }}
 {% endif %}
 ),
