@@ -1,9 +1,12 @@
--- depends_on: {{ ref('bronze__streamline_contract_abis') }}
 {% set abi_streamline = var(
     'ABI_STREAMLINE',
     false
 ) %}
 {% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
+{% if abi_streamline %}
+    -- depends_on: {{ ref('bronze__streamline_contract_abis') }}
+{% endif %}
+
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
