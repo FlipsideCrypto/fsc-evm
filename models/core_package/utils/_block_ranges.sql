@@ -52,4 +52,4 @@ SELECT
     block_timestamp,
     TO_TIMESTAMP_NTZ(_inserted_timestamp) AS _inserted_timestamp
 FROM
-    {{ ref("silver__blocks") }}
+    {{ ref("core__fact_blocks") }}
