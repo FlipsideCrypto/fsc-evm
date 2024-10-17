@@ -2,7 +2,7 @@
 {%- set source_name = 'CONFIRM_BLOCKS' -%}
 {%- set model_type = 'COMPLETE' -%}
 
-{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
+{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), false) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" %}
 

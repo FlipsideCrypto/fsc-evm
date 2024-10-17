@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set platforms = var('PRICES_PLATFORMS') -%}
+{%- set platforms = var('PRICES_PLATFORMS', '') -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}

@@ -2,7 +2,7 @@
 {%- set source_name = 'RECEIPTS_BY_HASH' -%}
 {%- set model_type = 'COMPLETE' -%}
 
-{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
+{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), false) -%}
 
 {%- set unique_key = 'complete_' ~ source_name.lower() ~ '_id' -%}
 

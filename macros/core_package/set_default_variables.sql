@@ -1,7 +1,7 @@
 {% macro set_default_variables_streamline(model_name, model_type) %}
 
 {%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
-{%- set node_secret_path = var('GLOBAL_NODE_SECRET_PATH') -%}
+{%- set node_secret_path = var('GLOBAL_NODE_SECRET_PATH', '') -%}
 {%- set model_quantum_state = var((model_name ~ '_' ~ model_type ~ '_quantum_state').upper(), 'streamline') -%}
 {%- set testing_limit = var((model_name ~ '_' ~ model_type ~ '_testing_limit').upper(), none) -%}
 {%- set new_build = var((model_name ~ '_' ~ model_type ~ '_new_build').upper(), false) -%}
@@ -30,8 +30,8 @@
  "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
 -%}
 {%- set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') -%}
-{%- set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', True) -%}
-{%- set balances = var(source_name ~ model_type ~ '_BALANCES', False) -%}
+{%- set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', true) -%}
+{%- set balances = var(source_name ~ model_type ~ '_BALANCES', false) -%}
 {%- set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) -%}
 
 {%- set variables = {

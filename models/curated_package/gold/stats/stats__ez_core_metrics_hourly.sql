@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set token_address = var('STATS_TOKEN_ADDRESS') -%}
+{%- set token_address = var('STATS_TOKEN_ADDRESS', '') -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}

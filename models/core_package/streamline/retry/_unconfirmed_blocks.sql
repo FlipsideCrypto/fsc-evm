@@ -2,7 +2,7 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = var('CONFIRM_BLOCKS_REALTIME_NEW_BUILD', False) %}
+{% set new_build = var('CONFIRM_BLOCKS_REALTIME_NEW_BUILD', false) %}
 
 {% if new_build %}
 

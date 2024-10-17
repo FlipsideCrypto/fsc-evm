@@ -10,7 +10,7 @@
     model_type=model_type
 ) -%}
 
-{%- set node_secret_path = var('CONTRACT_ABIS_SECRET_PATH') -%}
+{%- set node_secret_path = var('CONTRACT_ABIS_SECRET_PATH', '') -%}
 {%- set model_quantum_state = default_vars['model_quantum_state'] -%}
 {%- set sql_limit = streamline_params['sql_limit'] -%}
 {%- set testing_limit = default_vars['testing_limit'] -%}
