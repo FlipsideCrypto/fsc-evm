@@ -7,7 +7,7 @@
     },
     "token_balances": {
         "method": 'eth_call',
-        "method_params": 'ARRAY_CONSTRUCT(OBJECT_CONSTRUCT('to', contract_address, 'data', CONCAT('0x70a08231000000000000000000000000', SUBSTR(address, 3))), utils.udf_int_to_hex(block_number))'
+        "method_params": "ARRAY_CONSTRUCT(OBJECT_CONSTRUCT('to', contract_address, 'data', CONCAT('0x70a08231000000000000000000000000', SUBSTR(address, 3))), utils.udf_int_to_hex(block_number))"
     }
 } -%}
 

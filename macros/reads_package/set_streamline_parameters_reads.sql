@@ -3,7 +3,7 @@
 {%- set rpc_config_details = {
     "reads": {
         "method": 'eth_call',
-        "method_params": 'ARRAY_CONSTRUCT(OBJECT_CONSTRUCT('to', contract_address, 'data', DATA), utils.udf_int_to_hex(block_number))'
+        "method_params": "ARRAY_CONSTRUCT(OBJECT_CONSTRUCT('to', contract_address, 'data', DATA), utils.udf_int_to_hex(block_number))"
     }
 } -%}
 
