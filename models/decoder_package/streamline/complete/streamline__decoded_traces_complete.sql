@@ -5,7 +5,6 @@
 {%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), False) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_call_id)" %}
-{% set unique_key = "_call_id" %}
 
 {# Log configuration details #}
 {{ log_complete_details(
@@ -18,10 +17,10 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = unique_key,
+    unique_key = "_call_id",
     cluster_by = "ROUND(block_number, -3)",
     incremental_predicates = ["dynamic_range", "block_number"],
-    merge_update_columns = [unique_key],
+    merge_update_columns = ["_call_id"],
     post_hook = post_hook,
     full_refresh = full_refresh_type,
     tags = ['streamline_' ~ source_name.lower() ~ '_' ~ model_type.lower()]
@@ -31,7 +30,7 @@
 SELECT
     block_number,
     file_name,
-    id AS {{ unique_key }},
+    id AS _call_id,
     {{ dbt_utils.generate_surrogate_key(['id']) }} AS complete_{{ source_name.lower() }}_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
