@@ -52,7 +52,7 @@ SELECT
     {% if uses_base_fee %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
-    ) :: bigint as  base_fee_per_gas,
+    ) :: bigint AS  base_fee_per_gas,
     {% endif %}
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING

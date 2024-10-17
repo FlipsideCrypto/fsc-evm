@@ -36,7 +36,7 @@ WITH bronze_receipts AS (
         block_number,
         partition_key,
         tx_hash,
-        DATA:result as receipts_json,
+        DATA:result AS receipts_json,
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
@@ -45,10 +45,10 @@ WITH bronze_receipts AS (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
-    ) AND DATA:result is not null
+    ) AND DATA:result IS NOT NULL
     {% else %}
     {{ ref('bronze__receipts_by_hash_fr') }}
-    WHERE DATA:result is not null
+    WHERE DATA:result IS NOT NULL
     {% endif %}
 )
 
@@ -63,6 +63,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_receipts
-QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number desc, _inserted_timestamp DESC) = 1
+QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
 
 {% endif %}

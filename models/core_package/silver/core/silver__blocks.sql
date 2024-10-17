@@ -28,11 +28,11 @@
 
 {% endif %}
 
-WITH bronze_blocks as (
+WITH bronze_blocks AS (
     SELECT 
         block_number,
         partition_key,
-        DATA:result as block_json,
+        DATA:result AS block_json,
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
@@ -41,10 +41,10 @@ WITH bronze_blocks as (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
-    ) AND DATA:result is not null
+    ) AND DATA:result IS NOT NULL
     {% else %}
     {{ ref('bronze__blocks_fr') }}
-    WHERE DATA:result is not null
+    WHERE DATA:result IS NOT NULL
     {% endif %}
 )
 

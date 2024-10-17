@@ -586,7 +586,7 @@ aggregated_errors AS (
                             f.trace_succeeded,
                             f.trace_address,
                             {% if uses_tx_status %}
-                            t.tx_status as tx_succeeded
+                            t.tx_status AS tx_succeeded
                             {% else %}
                             t.tx_succeeded
                             {% endif %}
@@ -659,9 +659,9 @@ heal_missing_data AS (
         t.trace_succeeded,
         t.trace_address,
         {% if uses_tx_status %}
-        txs.tx_status as tx_succeeded_heal
+        txs.tx_status AS tx_succeeded_heal
         {% else %}
-        txs.tx_succeeded as tx_succeeded_heal
+        txs.tx_succeeded AS tx_succeeded_heal
         {% endif %}
         {% if TRACES_ARB_MODE %},
         t.before_evm_transfers_heal,

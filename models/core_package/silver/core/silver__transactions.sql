@@ -34,7 +34,7 @@ WITH bronze_transactions AS (
         block_number,
         partition_key,
         VALUE :array_index :: INT AS tx_position,
-        DATA as transaction_json,
+        DATA AS transaction_json,
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
@@ -43,10 +43,10 @@ WITH bronze_transactions AS (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
-    ) AND DATA is not null
+    ) AND DATA IS NOT NULL
     {% else %}
     {{ ref('bronze__transactions_fr') }}
-    WHERE DATA is not null
+    WHERE DATA IS NOT NULL
     {% endif %}
 )
 
