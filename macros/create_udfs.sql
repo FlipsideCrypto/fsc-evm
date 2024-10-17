@@ -1,5 +1,5 @@
 {% macro create_udfs() %}
-    {% if var("UPDATE_UDFS_AND_SPS") %}
+    {% if var("UPDATE_UDFS_AND_SPS", false) %}
         {% set sql %}
         CREATE schema if NOT EXISTS silver;
         {% endset %}

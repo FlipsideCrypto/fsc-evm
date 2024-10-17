@@ -13,7 +13,7 @@ SELECT
     _inserted_timestamp
 FROM
     {{ ref('bronze__transactions_fr_v2') }}
-{% if var('GLOBAL_USES_STREAMLINE_V1') %}
+{% if var('GLOBAL_USES_STREAMLINE_V1', false) %}
 UNION ALL
 SELECT
     _partition_by_block_id AS partition_key,

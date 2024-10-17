@@ -1,5 +1,5 @@
 {% macro apply_meta_as_tags(results) %}
-    {% if var("UPDATE_SNOWFLAKE_TAGS") %}
+    {% if var("UPDATE_SNOWFLAKE_TAGS", false) %}
         {{ log('apply_meta_as_tags', info=False) }}
         {{ log(results, info=False) }}
         {% if execute %}
