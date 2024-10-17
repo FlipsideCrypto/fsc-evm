@@ -1,0 +1,31 @@
+version: 2 
+
+sources:
+  - name: github_actions
+    database: "{{ target.database }}"
+    schema: github_actions
+    tables:
+      - name: workflows
+  - name: bronze_streamline
+    database: streamline
+    schema: >-
+      {{ var('GLOBAL_PROD_DB_NAME') ~ ('_dev' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else '') }}
+    tables:
+      - name: blocks
+      - name: transactions
+      - name: >-
+          {{ 'receipts_by_hash' if var("GLOBAL_USES_RECEIPTS_BY_HASH", False) else 'receipts' }}
+      - name: traces
+      - name: confirm_blocks
+      - name: decoded_logs
+  - name: crosschain_silver
+    database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME').upper() else 'crosschain_dev' }}"
+    schema: silver
+    tables:
+      - name: labels_combined
+      - name: complete_provider_asset_metadata
+      - name: complete_native_asset_metadata
+      - name: complete_native_prices
+      - name: complete_provider_prices
+      - name: complete_token_asset_metadata
+      - name: complete_token_prices
