@@ -20,9 +20,9 @@ SELECT
 SELECT
     DISTINCT tx.block_number block_number
 FROM
-    {{ ref("silver__transactions") }}
+    {{ ref("core__fact_transactions") }}
     tx
-    LEFT JOIN {{ ref("silver__traces") }}
+    LEFT JOIN {{ ref("core__fact_traces") }}
     tr
     ON tx.block_number = tr.block_number
     AND tx.tx_hash = tr.tx_hash

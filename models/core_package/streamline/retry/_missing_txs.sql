@@ -30,7 +30,7 @@ SELECT
                     tx_position ASC
             ) AS prev_tx_position
         FROM
-            {{ ref("silver__transactions") }}
+            {{ ref("core__fact_transactions") }}
         WHERE
             block_timestamp >= DATEADD('hour', -84, SYSDATE())
             AND block_number >= (
