@@ -39,7 +39,7 @@ sources:
       - name: reads
       - name: reads_v2
   - name: crosschain_silver
-    database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME').upper() else 'crosschain_dev' }}"
+    database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME', '').upper() else 'crosschain_dev' }}"
     schema: silver
     tables:
       - name: labels_combined
