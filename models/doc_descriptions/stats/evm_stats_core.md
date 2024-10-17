@@ -1,4 +1,4 @@
-{% docs evm_core_metrics_hourly_table_doc %}
+{% docs evm_ez_core_metrics_hourly_table_doc %}
 
 A convenience table that aggregates block and transaction-related metrics using various aggregate functions such as SUM, COUNT, MIN, and MAX from the fact_transactions table, on an hourly basis.
 

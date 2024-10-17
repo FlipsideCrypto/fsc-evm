@@ -60,14 +60,6 @@ Total gas used in the block.
 
 {% enddocs %}
 
-
-{% docs evm_miner %}
-
-Miner who successfully added a given block to the blockchain.
-
-{% enddocs %}
-
-
 {% docs evm_network %}
 
 The network on the blockchain used by a transaction.
@@ -123,23 +115,26 @@ Uncle blocks occur when two blocks are mined and broadcasted at the same time, w
 
 {% enddocs %}
 
-{% docs evm_blocks_logs_bloom %}
+{% docs evm_miner %}
 
-The bloom filter for the logs in the block.
-
-{% enddocs %}
-
-
-{% docs evm_blocks_transactions_root %}
-
-The root of the transactions in the block.
+The address of the beneficiary to whom the mining rewards were given
 
 {% enddocs %}
 
+{% docs evm_state_root %}
 
-{% docs evm_blocks_state_root %}
-
-The root of the state trie.
+The root of the final state trie of the block
 
 {% enddocs %}
 
+{% docs evm_transactions_root %}
+
+The root of the transaction trie of the block
+
+{% enddocs %}
+
+{% docs evm_logs_bloom %}
+
+The bloom filter for the logs of the block.
+
+{% enddocs %}

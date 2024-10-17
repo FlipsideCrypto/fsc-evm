@@ -2,7 +2,7 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = var('CONFIRM_BLOCKS_REALTIME_NEW_BUILD', False) %}
+{% set new_build = var('CONFIRM_BLOCKS_REALTIME_NEW_BUILD', false) %}
 
 {% if new_build %}
 
@@ -20,9 +20,9 @@ SELECT
 SELECT
     DISTINCT cb.block_number AS block_number
 FROM
-    {{ ref("silver__confirmed_blocks") }}
+    {{ ref("silver__confirm_blocks") }}
     cb
-    LEFT JOIN {{ ref("silver__transactions") }}
+    LEFT JOIN {{ ref("core__fact_transactions") }}
     txs USING (
         block_number,
         block_hash,
@@ -38,7 +38,7 @@ WHERE
     )
     AND cb._inserted_timestamp >= DATEADD('hour', -84, SYSDATE())
     AND (
-        txs._inserted_timestamp >= DATEADD('hour', -84, SYSDATE())
-        OR txs._inserted_timestamp IS NULL)
+        txs.modified_timestamp >= DATEADD('hour', -84, SYSDATE())
+        OR txs.modified_timestamp IS NULL)
 
 {% endif %}

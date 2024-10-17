@@ -1,0 +1,51 @@
+version: 2 
+
+sources:
+  - name: github_actions
+    database: "{{ target.database }}"
+    schema: github_actions
+    tables:
+      - name: workflows
+  - name: bronze_streamline
+    database: streamline
+    schema: >-
+      {{ var('GLOBAL_PROD_DB_NAME', '') ~ ('_dev' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", false) else '') }}
+    tables:
+      - name: blocks
+      - name: blocks_v2
+      - name: transactions
+      - name: transactions_v2
+      - name: receipts_by_hash
+      - name: receipts
+      - name: receipts_v2
+      - name: traces
+      - name: traces_v2
+      - name: confirm_blocks
+      - name: confirm_blocks_v2
+      - name: decoded_logs
+      - name: decoded_logs_v2
+      - name: decoded_traces
+      - name: decoded_traces_v2
+      - name: contract_abis
+      - name: contract_abis_v2
+      - name: eth_balances
+      - name: eth_balances_v2
+      - name: token_balances
+      - name: token_balances_v2
+      - name: beacon_blocks
+      - name: beacon_blocks_v2
+      - name: beacon_validators
+      - name: beacon_validators_v2
+      - name: reads
+      - name: reads_v2
+  - name: crosschain_silver
+    database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME', '').upper() else 'crosschain_dev' }}"
+    schema: silver
+    tables:
+      - name: labels_combined
+      - name: complete_provider_asset_metadata
+      - name: complete_native_asset_metadata
+      - name: complete_native_prices
+      - name: complete_provider_prices
+      - name: complete_token_asset_metadata
+      - name: complete_token_prices

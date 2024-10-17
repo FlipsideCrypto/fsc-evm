@@ -1,6 +1,6 @@
 {# Set variables #}
-{%- set symbols = var('PRICES_SYMBOLS') -%}
-{%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
+{%- set symbols = var('PRICES_SYMBOLS', '') -%}
+{%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}

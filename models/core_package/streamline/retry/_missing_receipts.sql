@@ -2,8 +2,8 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = var('RECEIPTS_REALTIME_NEW_BUILD', False) %}
-{% set new_build_by_hash = var('RECEIPTS_BY_HASH_REALTIME_NEW_BUILD', False) %}
+{% set new_build = var('RECEIPTS_REALTIME_NEW_BUILD', false) %}
+{% set new_build_by_hash = var('RECEIPTS_BY_HASH_REALTIME_NEW_BUILD', false) %}
 
 {% if new_build or new_build_by_hash %}
 
@@ -21,12 +21,11 @@ SELECT
 SELECT
     DISTINCT t.block_number AS block_number
 FROM
-    {{ ref("silver__transactions") }}
+    {{ ref("core__fact_transactions") }}
     t
     LEFT JOIN {{ ref("silver__receipts") }}
     r USING (
         block_number,
-        block_hash,
         tx_hash
     )
 WHERE
