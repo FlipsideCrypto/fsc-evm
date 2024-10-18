@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('_retry_abis') }}
 {% set abi_block_explorer_error_message = var(
     'ABI_BLOCK_EXPLORER_ERROR_MESSAGE',
-    "abi_data :data :result :: STRING <> 'Max rate limit reached'"
+    "(abi_data:data:result::string not ilike '%max rate limit%' or abi_data:error is null)"
 ) %}
 {% set abi_api_interaction_count = var(
     'ABI_API_INTERACTION_COUNT',
