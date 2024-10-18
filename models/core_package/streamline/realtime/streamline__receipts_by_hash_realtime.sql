@@ -74,7 +74,7 @@ WITH numbered_blocks AS (
             ORDER BY
                 block_number DESC
             LIMIT
-                {{ var('GLOBAL_BLOCKS_PER_HOUR') }}
+                {{ var('GLOBAL_BLOCKS_PER_HOUR', sql_limit) }}
         )
 ), batched_blocks AS (
     SELECT
