@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['decoder']
+    tags = ['decoder', 'decoded_traces']
 ) }}
 
 SELECT

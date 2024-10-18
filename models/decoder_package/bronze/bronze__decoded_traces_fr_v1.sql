@@ -15,7 +15,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['decoder']
+    tags = ['decoder','streamline_v1','decoded_traces']
 ) }}
 
 {# Main query starts here #}

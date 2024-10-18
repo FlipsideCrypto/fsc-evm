@@ -29,7 +29,7 @@
         params = streamline_params
     ),
     fsc_utils.if_data_call_wait()],
-    tags = ['streamline_' ~ model_name.lower() ~ '_' ~ model_type.lower()]
+    tags = ['streamline_' ~ model_name.lower() ~ '_' ~ model_type.lower(), 'decoded_traces']
 ) }}
 
 {# Main query starts here #}

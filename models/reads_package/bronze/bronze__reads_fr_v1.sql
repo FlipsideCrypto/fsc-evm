@@ -25,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['reads']
+    tags = ['reads','streamline_v1']
 ) }}
 
 {# Main query starts here #}
