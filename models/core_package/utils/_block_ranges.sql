@@ -50,6 +50,6 @@ SELECT
         ) IN (0000) THEN block_number
     END AS block_number_10000,
     block_timestamp,
-    TO_TIMESTAMP_NTZ(_inserted_timestamp) AS _inserted_timestamp
+    TO_TIMESTAMP_NTZ(modified_timestamp) AS modified_timestamp
 FROM
     {{ ref("core__fact_blocks") }}
