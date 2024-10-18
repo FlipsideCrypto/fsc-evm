@@ -6,7 +6,7 @@ version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-# profile: 'fsc_evm'
+profile: 'fsc_evm'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -23,9 +23,6 @@ clean-targets: # directories to be removed by `dbt clean`
   - "target"
   - "dbt_modules"
   - "dbt_packages"
-
-tests:
-  +store_failures: true # all tests
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
