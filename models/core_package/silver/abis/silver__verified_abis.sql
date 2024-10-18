@@ -1,9 +1,9 @@
-{% set abi_streamline = var(
-    'ABI_STREAMLINE',
+{% set abi_uses_streamline = var(
+    'ABI_USES_STREAMLINE',
     false
 ) %}
-{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
-{% if abi_streamline %}
+{% set abi_block_explorer_name = var('ABI_BLOCK_EXPLORER_NAME') %}
+{% if abi_uses_streamline %}
     -- depends_on: {{ ref('bronze__streamline_contract_abis') }}
 {% endif %}
 
@@ -15,7 +15,7 @@
     tags = ['abis']
 ) }}
 
-{% if not abi_streamline %}
+{% if not abi_uses_streamline %}
     WITH base AS (
 
         SELECT
@@ -46,7 +46,7 @@ block_explorer_abis AS (
         contract_address,
         DATA,
         _inserted_timestamp,
-        '{{ abi_block_explorer }}' AS abi_source
+        '{{ abi_block_explorer_name }}' AS abi_source
     FROM
         base
 ),
@@ -60,7 +60,7 @@ block_explorer_abis AS (
             ) AS contract_address,
             TRY_PARSE_JSON(DATA) AS DATA,
             VALUE,
-            '{{ abi_block_explorer }}' AS abi_source,
+            '{{ abi_block_explorer_name }}' AS abi_source,
             _inserted_timestamp
         FROM
 
@@ -148,7 +148,7 @@ SELECT
 FROM
     all_abis
 
-    {% if abi_streamline %}
+    {% if abi_uses_streamline %}
 WHERE
     DATA :: STRING <> 'Unknown Exception'
 {% endif %}

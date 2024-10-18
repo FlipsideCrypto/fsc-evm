@@ -1,10 +1,10 @@
-{% set api_abi_interaction_count = var(
-    'API_ABI_INTERACTION_COUNT',
+{% set abi_api_interaction_count = var(
+    'ABI_API_INTERACTION_COUNT',
     250
 ) %}
-{% set api_abi_error_message = var(
-    'API_ABI_ERROR_MESSAGE',
-    'abi_data :data :result :: STRING <> \'Max rate limit reached\''
+{% set abi_block_explorer_error_message = var(
+    'ABI_BLOCK_EXPLORER_ERROR_MESSAGE',
+    "abi_data :data :result :: STRING <> 'Max rate limit reached'"
 ) %}
 {{ config (
     materialized = "ephemeral"
@@ -28,7 +28,7 @@ WITH retry AS (
         ) }}
         v USING (contract_address)
     WHERE
-        r.total_interaction_count >= {{ api_abi_interaction_count }}
+        r.total_interaction_count >= {{ abi_api_interaction_count }}
         -- high interaction count
         AND GREATEST(
             max_inserted_timestamp_logs,
@@ -45,7 +45,7 @@ WITH retry AS (
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND {{ api_abi_error_message }}
+                AND {{ abi_block_explorer_error_message }}
         )
     ORDER BY
         total_interaction_count DESC
@@ -77,7 +77,7 @@ WITH retry AS (
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND {{ api_abi_error_message }}
+                AND {{ abi_block_explorer_error_message }}
         )
     UNION ALL
     SELECT

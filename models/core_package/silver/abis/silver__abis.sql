@@ -1,4 +1,4 @@
-{% set abi_block_explorer = var('ABI_BLOCK_EXPLORER') %}
+{% set abi_block_explorer_name = var('ABI_BLOCK_EXPLORER_NAME') %}
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -34,7 +34,7 @@ verified_abis AS (
     FROM
         {{ ref('silver__verified_abis') }}
     WHERE
-        abi_source = '{{ abi_block_explorer }}'
+        abi_source = '{{ abi_block_explorer_name }}'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -45,7 +45,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = '{{ abi_block_explorer }}'
+        abi_source = '{{ abi_block_explorer_name }}'
 )
 {% endif %}
 ),

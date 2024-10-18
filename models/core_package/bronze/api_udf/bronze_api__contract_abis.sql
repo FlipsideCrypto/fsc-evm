@@ -1,19 +1,25 @@
 -- depends_on: {{ ref('_retry_abis') }}
-{% set api_abi_error_message = var(
-    'API_ABI_ERROR_MESSAGE',
+{% set abi_block_explorer_error_message = var(
+    'ABI_BLOCK_EXPLORER_ERROR_MESSAGE',
     "abi_data :data :result :: STRING <> 'Max rate limit reached'"
 ) %}
-{% set api_abi_interaction_count = var(
-    'API_ABI_INTERACTION_COUNT',
+{% set abi_api_interaction_count = var(
+    'ABI_API_INTERACTION_COUNT',
     250
 ) %}
-{% set api_abi_relevant_contract_limit = var(
-    'API_ABI_RELEVANT_CONTRACT_LIMIT',
+{% set abi_api_relevant_contract_limit = var(
+    'ABI_API_RELEVANT_CONTRACT_LIMIT',
     5
 ) %}
-{% set api_abi_batch_size = var(
-    'API_ABI_BATCH_SIZE',
+{% set abi_api_batch_size = var(
+    'ABI_API_BATCH_SIZE',
     10
+) %}
+{% set abi_block_explorer_url = var(
+    'ABI_BLOCK_EXPLORER_URL'
+) %}
+{% set abi_block_explorer_secret_path = var(
+    'ABI_BLOCK_EXPLORER_SECRET_PATH'
 ) %}
 {{ config(
     materialized = 'incremental',
@@ -29,7 +35,7 @@ WITH base AS (
     FROM
         {{ ref('silver__relevant_contracts') }}
     WHERE
-        total_interaction_count >= {{ api_abi_interaction_count }}
+        total_interaction_count >= {{ abi_api_interaction_count }}
 
 {% if is_incremental() %}
 EXCEPT
@@ -38,10 +44,10 @@ SELECT
 FROM
     {{ this }}
 WHERE
-    {{ api_abi_error_message }}
+    {{ abi_block_explorer_error_message }}
 {% endif %}
 LIMIT
-    {{ api_abi_relevant_contract_limit }}
+    {{ abi_api_relevant_contract_limit }}
 ), all_contracts AS (
     SELECT
         contract_address
@@ -66,9 +72,9 @@ row_nos AS (
     FROM
         all_contracts
 ),
-batched AS ({% for item in range(api_abi_batch_size) %}
+batched AS ({% for item in range(abi_api_batch_size) %}
 SELECT
-    rn.contract_address, live.udf_api('GET', CONCAT('{{ var("GLOBAL_API_URL") }}', rn.contract_address, '&apikey={key}'),{ 'User-Agent': 'FlipsideStreamline' },{}, '{{ var("GLOBAL_API_SECRET_PATH") }}') AS abi_data, SYSDATE() AS _inserted_timestamp
+    rn.contract_address, live.udf_api('GET', CONCAT('{{ abi_block_explorer_url }}', rn.contract_address, '&apikey={key}'),{ 'User-Agent': 'FlipsideStreamline' },{}, '{{ abi_block_explorer_secret_path }}') AS abi_data, SYSDATE() AS _inserted_timestamp
 FROM
     row_nos rn
 WHERE
