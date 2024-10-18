@@ -92,10 +92,11 @@ WHERE
                         )
                 )
             {% endif %}
-        {% if query_limit %}
-        LIMIT
-            {{ query_limit }} 
-        {% endif %}
+
+            {% if query_limit %}
+            LIMIT
+                {{ query_limit }}
+            {% endif %}
 {% endmacro %}
 
 {% macro streamline_decoded_traces_requests(
@@ -192,8 +193,9 @@ WHERE
                         )
                 )
             {% endif %}
-        {% if query_limit %}
-        LIMIT
-            {{ query_limit }} 
-        {% endif %}
+
+            {% if query_limit %}
+            LIMIT
+                {{ query_limit }}
+            {% endif %}
 {% endmacro %}
