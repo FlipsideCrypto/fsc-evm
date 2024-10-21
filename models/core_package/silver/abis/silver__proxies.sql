@@ -1,3 +1,7 @@
+{% set global_uses_boolean_status = var(
+    'GLOBAL_USES_BOOLEAN_STATUS',
+    true
+) %}
 {{ config (
     materialized = 'incremental',
     unique_key = ["contract_address", "implementation_contract"],
@@ -18,8 +22,16 @@ WITH base AS (
         {{ ref('core__fact_traces') }}
     WHERE
         TYPE = 'DELEGATECALL'
-        AND trace_succeeded
-        AND tx_succeeded
+        AND {% if global_uses_boolean_status %}
+            trace_succeeded
+        {% else %}
+            trace_status = 'SUCCESS'
+        {% endif %}
+        AND {% if global_uses_boolean_status %}
+            tx_succeeded
+        {% else %}
+            tx_status = 'SUCCESS'
+        {% endif %}
         AND from_address != to_address -- exclude self-calls
 
 {% if is_incremental() %}

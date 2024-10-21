@@ -1,3 +1,7 @@
+{% set global_uses_boolean_status = var(
+    'GLOBAL_USES_BOOLEAN_STATUS',
+    true
+) %}
 {{ config (
     materialized = "incremental",
     unique_key = "created_contract_address",
@@ -27,8 +31,16 @@ WHERE
     AND to_address IS NOT NULL
     AND input IS NOT NULL
     AND input != '0x'
-    AND tx_succeeded
-    AND trace_succeeded
+    AND {% if global_uses_boolean_status %}
+        trace_succeeded
+    {% else %}
+        trace_status = 'SUCCESS'
+    {% endif %}
+    AND {% if global_uses_boolean_status %}
+        tx_succeeded
+    {% else %}
+        tx_status = 'SUCCESS'
+    {% endif %}
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (

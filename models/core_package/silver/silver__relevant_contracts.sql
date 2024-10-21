@@ -1,3 +1,7 @@
+{% set global_uses_boolean_status = var(
+    'GLOBAL_USES_BOOLEAN_STATUS',
+    true
+) %}
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
@@ -36,8 +40,16 @@ function_calls AS (
     FROM
         {{ ref('core__fact_traces') }}
     WHERE
-        tx_succeeded
-        AND trace_succeeded
+        AND {% if global_uses_boolean_status %}
+            trace_succeeded
+        {% else %}
+            trace_status = 'SUCCESS'
+        {% endif %}
+        AND {% if global_uses_boolean_status %}
+            tx_succeeded
+        {% else %}
+            tx_status = 'SUCCESS'
+        {% endif %}
         AND to_address IS NOT NULL
         AND input IS NOT NULL
         AND input <> '0x'
