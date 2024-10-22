@@ -134,7 +134,8 @@ WHERE
             END AS parent_trace_grouping,
             IFF(REGEXP_REPLACE(trace_address, '.$', '') = '', 'ORIGIN', REGEXP_REPLACE(trace_address, '.$', '')) AS parent_grouping,
             input,
-            output
+            output,
+            _call_id
         FROM
             {{ ref("silver__traces") }}
             -- have to make this silver temporarily
@@ -235,7 +236,8 @@ WHERE
                         COALESCE(
                             effective_implementation,
                             to_address
-                        ) AS effective_contract_address
+                        ) AS effective_contract_address,
+                        _call_id
                     FROM
                         raw_traces
                         LEFT JOIN effective_contract USING (
@@ -248,9 +250,10 @@ WHERE
                 t.block_number,
                 t.tx_hash,
                 t.trace_index,
-                t.effective_contract_address,
+                _call_id,
                 f.abi AS abi,
                 f.function_name,
+                t.effective_contract_address AS abi_address,
                 t.input,
                 COALESCE(
                     t.output,
