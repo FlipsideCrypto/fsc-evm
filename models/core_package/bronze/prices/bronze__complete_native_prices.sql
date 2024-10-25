@@ -1,14 +1,14 @@
 {# Set variables #}
-{%- set symbols = var('PRICES_SYMBOLS', '') -%}
-{%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{%- set symbols = var('PRICES_NATIVE_SYMBOLS', '') -%}
+{%- set blockchains = var('PRICES_NATIVE_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
 
-    {{ log("PRICES_SYMBOLS: " ~ symbols, info=True) }}
-    {{ log("PRICES_BLOCKCHAINS: " ~ blockchains, info=True) }}
+    {{ log("PRICES_NATIVE_SYMBOLS: " ~ symbols, info=True) }}
+    {{ log("PRICES_NATIVE_BLOCKCHAINS: " ~ blockchains, info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}

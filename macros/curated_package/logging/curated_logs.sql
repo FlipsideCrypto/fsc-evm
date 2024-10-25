@@ -6,16 +6,17 @@
     {{ log("=== Current Variable Settings ===", info=True) }}
 
     {% if platforms %}
-        {{ log("PRICES_PLATFORMS: " ~ platforms, info=True) }}
+        {{ log("PRICES_PROVIDER_PLATFORMS: " ~ platforms, info=True) }}
     {% endif %}
     {% if symbols %}
-        {{ log("PRICES_SYMBOLS: " ~ symbols, info=True) }}
+        {{ log("PRICES_NATIVE_SYMBOLS: " ~ symbols, info=True) }}
     {% endif %}
     {% if token_addresses %}
         {{ log("PRICES_TOKEN_ADDRESSES: " ~ token_addresses, info=True) }}
     {% endif %}
     {% if blockchains %}
-        {{ log("PRICES_BLOCKCHAINS: " ~ blockchains, info=True) }}
+        {{ log("PRICES_TOKEN_BLOCKCHAINS: " ~ blockchains, info=True) }}
+        {{ log("PRICES_NATIVE_BLOCKCHAINS: " ~ blockchains, info=True) }}
     {% endif %}
         {{ log("", info=True) }}
     {% endif %}

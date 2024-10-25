@@ -1,12 +1,12 @@
 {# Set variables #}
-{%- set platforms = var('PRICES_PLATFORMS', '') -%}
+{%- set platforms = var('PRICES_PROVIDER_PLATFORMS', '') -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
     
-    {{ log("PRICES_PLATFORMS: " ~ platforms, info=True) }}
+    {{ log("PRICES_PROVIDER_PLATFORMS: " ~ platforms, info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}

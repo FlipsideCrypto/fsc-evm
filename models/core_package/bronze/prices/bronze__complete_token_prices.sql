@@ -1,6 +1,6 @@
 {# Set variables #}
 {%- set token_addresses = var('PRICES_TOKEN_ADDRESSES', none) -%}
-{%- set blockchains = var('PRICES_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{%- set blockchains = var('PRICES_TOKEN_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
@@ -8,7 +8,7 @@
     {{ log("=== Current Variable Settings ===", info=True) }}
 
     {{ log("PRICES_TOKEN_ADDRESSES: " ~ token_addresses, info=True) }}
-    {{ log("PRICES_BLOCKCHAINS: " ~ blockchains, info=True) }}
+    {{ log("PRICES_TOKEN_BLOCKCHAINS: " ~ blockchains, info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
