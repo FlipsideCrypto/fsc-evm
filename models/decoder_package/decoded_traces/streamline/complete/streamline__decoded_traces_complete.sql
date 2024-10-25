@@ -23,7 +23,7 @@
     merge_update_columns = ["_call_id"],
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_' ~ source_name.lower() ~ '_' ~ model_type.lower(),'decoded_traces']
+    tags = ['streamline_' ~ source_name.lower() ~ '_' ~ model_type.lower()]
 ) }}
 
 {# Main query starts here #}
