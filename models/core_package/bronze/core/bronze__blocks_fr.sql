@@ -26,3 +26,16 @@ SELECT
 FROM
    {{ ref('bronze__blocks_fr_v1') }}
 {% endif %}
+{% if var('GLOBAL_USES_BLOCKS_TRANSACTIONS', false) %}
+UNION ALL
+SELECT
+    partition_key,
+    block_number,
+    VALUE,
+    DATA,
+    metadata,
+    file_name,
+    _inserted_timestamp
+FROM
+    {{ ref('bronze__blocks_fr_v2_1') }}
+{% endif %}
