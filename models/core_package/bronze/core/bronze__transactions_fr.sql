@@ -26,7 +26,7 @@ SELECT
 FROM
    {{ ref('bronze__transactions_fr_v1') }}
 {% endif %}
-{% if var('GLOBAL_USES_BLOCKS_TRANSACTIONS', false) %}
+{% if var('GLOBAL_USES_BLOCKS_TRANSACTIONS_PATH', false) %}
 UNION ALL
 SELECT
     partition_key,
