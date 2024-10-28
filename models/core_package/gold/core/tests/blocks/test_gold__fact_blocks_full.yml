@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_gold__fact_blocks_full
+  - name: fsc_evm.core_package.gold.core.tests.blocks.test_gold__fact_blocks_full
     description: "This is a view used to test all of the gold fact blocks model."
     tests:
       - dbt_utils.unique_combination_of_columns:
