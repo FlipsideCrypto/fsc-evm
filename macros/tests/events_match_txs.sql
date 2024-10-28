@@ -19,7 +19,7 @@ missing_transactions as (
         tx_hash,
         tx_position
     )
-    where transactions.tx_hash is null
+    where transactions.tx_hash is null or transactions.tx_position is null or transactions.block_number is null
 )
 
 select * from missing_transactions

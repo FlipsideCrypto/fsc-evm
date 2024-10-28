@@ -12,6 +12,8 @@ models:
             - TX_HASH
           column_name: TRACE_INDEX
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
+      - txs_have_traces:
+          transactions_model: ref('test_gold__fact_transactions_full')
 
     columns:
       - name: BLOCK_NUMBER
