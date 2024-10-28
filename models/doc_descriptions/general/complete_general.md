@@ -76,4 +76,14 @@ The value of the transaction in hexadecimal format.
 
 {% enddocs %}
 
+{% docs column_deprecation_notice %}
 
+This column is being deprecated for standardization purposes.
+
+{% enddocs %}
+
+{% docs table_deprecation_notice %}
+
+This table is being deprecated for standardization purposes.
+
+{% enddocs %}
