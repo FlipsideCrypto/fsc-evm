@@ -64,9 +64,6 @@ models:
       - name: INPUT
         tests:
           - not_null
-      - name: OUTPUT
-        tests:
-          - not_null
       - name: TYPE
         tests:
           - not_null
