@@ -1,24 +1,31 @@
-{% test txs_match_blocks(model, blocks_model) %}
-
-with count_txs as (
-    select 
+{% test txs_match_blocks(
+    model,
+    blocks_model
+) %}
+WITH count_txs AS (
+    SELECT
         block_number,
-        count(*) as record_count
-    from {{ model }}
-    group by all
+        COUNT(*) AS record_count
+    FROM
+        {{ model }}
+    GROUP BY
+        ALL
 ),
-
-block_txs as (
-    select
+block_txs AS (
+    SELECT
         block_number,
-        tx_count as expected_count
-    from {{ blocks_model }}
+        tx_count AS expected_count
+    FROM
+        {{ blocks_model }}
 )
-select
+SELECT
     block_number,
-    record_count as actual_count,
+    record_count AS actual_count,
     expected_count
-from block_txs
-left join count_txs using (block_number)
-where record_count != expected_count or expected_count is null
+FROM
+    block_txs
+    LEFT JOIN count_txs USING (block_number)
+WHERE
+    record_count != expected_count
+    OR expected_count IS NULL 
 {% endtest %}

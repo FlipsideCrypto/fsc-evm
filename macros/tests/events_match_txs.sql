@@ -1,27 +1,35 @@
-{% test events_match_txs(model, transactions_model) %}
-
-with event_transactions as (
-    select distinct
-        block_number,
+{% test events_match_txs(
+    model,
+    transactions_model
+) %}
+WITH logs AS (
+    SELECT
+        DISTINCT block_number,
         tx_hash,
         tx_position
-    from {{ model }}
+    FROM
+        {{ model }}
 ),
-
-missing_transactions as (
-    select 
-        event_transactions.block_number,
-        event_transactions.tx_hash,
-        event_transactions.tx_position
-    from event_transactions
-    left join {{ transactions_model }} transactions using (
-        block_number,
-        tx_hash,
-        tx_position
-    )
-    where transactions.tx_hash is null or transactions.tx_position is null or transactions.block_number is null
+missing_transactions AS (
+    SELECT
+        logs.block_number,
+        logs.tx_hash,
+        logs.tx_position
+    FROM
+        logs
+        LEFT JOIN {{ transactions_model }}
+        txs USING (
+            block_number,
+            tx_hash,
+            tx_position
+        )
+    WHERE
+        txs.tx_hash IS NULL
+        OR txs.tx_position IS NULL
+        OR txs.block_number IS NULL
 )
-
-select * from missing_transactions
-
+SELECT
+    *
+FROM
+    missing_transactions 
 {% endtest %}
