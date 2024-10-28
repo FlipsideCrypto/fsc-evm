@@ -1,6 +1,10 @@
-{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash) %}
+{% macro log_streamline_details(model_name, model_type, node_url, model_quantum_state, sql_limit, testing_limit, order_by_clause, new_build, streamline_params, uses_receipts_by_hash, method, method_params, min_block=0) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+    {{ log("START_UP_BLOCK: " ~ min_block, info=True) }}
+    {{ log("", info=True) }}
 
     {{ log("=== API Details ===", info=True) }}
 
@@ -21,13 +25,16 @@
     {{ log("=== RPC Details ===", info=True) }}
 
     {{ log(model_name ~ ": {", info=True) }}
-    {{ log("    method: '" ~ 'eth_getBlockByNumber' ~ "',", info=True) }}
-    {{ log("    params: '" ~ 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)' ~ "'", info=True) }}
+    {{ log("    method: '" ~ method ~ "',", info=True) }}
+    {{ log("    method_params: " ~ method_params, info=True) }}
     {{ log("}", info=True) }}
     {{ log("", info=True) }}
 
     {% set params_str = streamline_params | tojson %}
     {% set params_formatted = params_str | replace('{', '{\n            ') | replace('}', '\n        }') | replace(', ', ',\n            ') %}
+    
+    {# Clean up the method_params formatting #}
+    {% set params_formatted = params_formatted | replace('"method_params": "', '"method_params": "') | replace('\\n', ' ') | replace('\\u0027', "'") %}
 
     {% set config_log = '\n' %}
     {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}

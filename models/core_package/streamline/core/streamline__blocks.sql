@@ -1,10 +1,4 @@
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', 0) -%}
-
 {%- if flags.WHICH == 'compile' and execute -%}
-
-    {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log("START_UP_BLOCK: " ~ min_block, info=True) }}
-    {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
     {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
@@ -27,7 +21,7 @@ SELECT
 FROM
     {{ ref('utils__number_sequence') }}
 WHERE
-    _id BETWEEN {{ min_block }} AND (
+    _id <= (
         SELECT
             COALESCE(
                 block_number,

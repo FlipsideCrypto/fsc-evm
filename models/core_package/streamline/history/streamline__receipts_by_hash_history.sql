@@ -1,6 +1,5 @@
 {% set model_name = 'RECEIPTS_BY_HASH' %}
-{% set model_type = 'REALTIME' %}
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
+{% set model_type = 'HISTORY' %}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
@@ -26,8 +25,7 @@
     new_build=default_vars['new_build'],
     streamline_params=streamline_params,
     method_params=streamline_params['method_params'],
-    method=streamline_params['method'],
-    min_block=min_block
+    method=streamline_params['method']
 ) }}
 
 {# Set up dbt configuration #}
@@ -43,7 +41,15 @@
 
 {# Start by invoking LQ for the last hour of blocks #}
 
-WITH numbered_blocks AS (
+WITH 
+{% if not default_vars['new_build'] %}
+    last_3_days AS (
+        SELECT block_number
+        FROM {{ ref("_block_lookback") }}
+    ),
+{% endif %}
+
+numbered_blocks AS (
 
     SELECT
         block_number_hex,
@@ -132,16 +138,22 @@ flat_tx_hashes AS (
         )
 ),
 to_do AS (
-    SELECT
+    SELECT 
         block_number,
         tx_hash
-    FROM
-        flat_tx_hashes
-    WHERE 1=1
-    {% if min_block is not none %}
-        AND block_number >= {{ min_block }}
-    {% endif %}
-
+    FROM (
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            flat_tx_hashes
+        UNION ALL
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            {{ ref("core__fact_transactions") }}
+    )
     EXCEPT
 
     SELECT
