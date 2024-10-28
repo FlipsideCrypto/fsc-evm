@@ -17,7 +17,7 @@ models:
       - name: TRACE_ADDRESS
         tests:
           - not_null
-      - name: TRACES_JSON
+      - name: TRACE_JSON
         tests:
           - not_null
       - name: _INSERTED_TIMESTAMP
