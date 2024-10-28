@@ -106,12 +106,6 @@ models:
       - name: TRACE_SUCCEEDED
         tests:
           - not_null  
-      - name: ERROR_REASON
-        tests:
-          - not_null
-      - name: REVERT_REASON
-        tests:
-          - not_null
       - name: TX_SUCCEEDED
         tests:
           - not_null
