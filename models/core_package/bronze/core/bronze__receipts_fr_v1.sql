@@ -25,8 +25,8 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_streamline_v1', 'bronze_receipts']
-) }}
+    tags = ['bronze_core_streamline_v1','bronze_receipts']
+) }} 
 
 {# Main query starts here #}
 {{ streamline_external_table_query_fr(
