@@ -1,4 +1,4 @@
-{% test tx_count_match(model, comparison_model) %}
+{% test txs_match_blocks(model, comparison_model) %}
 
 with count_txs as (
     select 

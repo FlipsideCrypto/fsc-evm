@@ -11,7 +11,7 @@ models:
             - BLOCK_NUMBER
           column_name: TX_POSITION
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
-      - tx_count_match:
+      - txs_match_blocks:
           comparison_model: ref('test_gold__fact_blocks_full')
 
     columns:
