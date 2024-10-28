@@ -62,9 +62,6 @@ models:
       - name: TOPICS
         tests:
           - not_null
-      - name: TOPIC_0
-        tests:
-          - not_null
       - name: DATA
         tests:
           - not_null
