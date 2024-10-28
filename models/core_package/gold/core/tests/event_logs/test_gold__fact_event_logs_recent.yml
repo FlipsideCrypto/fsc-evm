@@ -10,7 +10,6 @@ models:
       - fsc_utils.sequence_gaps:
           partition_by:
             - BLOCK_NUMBER
-            - TX_HASH
           column_name: EVENT_INDEX
       - events_match_txs:
           transactions_model: ref('test_gold__fact_transactions_recent')
