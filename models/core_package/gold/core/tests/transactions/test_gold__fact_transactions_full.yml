@@ -11,11 +11,8 @@ models:
             - BLOCK_NUMBER
           column_name: TX_POSITION
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
-      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          expression: COUNT(*)
-          compare_model: ref('test_gold__fact_blocks_full')
-          compare_expression: tx_count
-          group_by: [block_number]
+      - txs_match_blocks:
+          comparison_model: ref('test_gold__fact_blocks_full')
 
     columns:
       - name: BLOCK_NUMBER

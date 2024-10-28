@@ -10,11 +10,8 @@ models:
           partition_by:
             - BLOCK_NUMBER
           column_name: TX_POSITION
-      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          expression: COUNT(*)
-          compare_model: ref('test_gold__fact_blocks_recent')
-          compare_expression: tx_count
-          group_by: [block_number]
+      - txs_match_blocks:
+          comparison_model: ref('test_gold__fact_blocks_recent')
 
     columns:
       - name: BLOCK_NUMBER
