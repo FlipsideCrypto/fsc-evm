@@ -11,7 +11,7 @@ models:
             - BLOCK_NUMBER
           column_name: TX_POSITION
       - txs_match_blocks:
-          comparison_model: ref('test_gold__fact_blocks_recent')
+          blocks_model: ref('test_gold__fact_blocks_recent')
 
     columns:
       - name: BLOCK_NUMBER

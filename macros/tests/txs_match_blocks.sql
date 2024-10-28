@@ -1,4 +1,4 @@
-{% test txs_match_blocks(model, comparison_model) %}
+{% test txs_match_blocks(model, blocks_model) %}
 
 with count_txs as (
     select 
@@ -12,7 +12,7 @@ block_txs as (
     select
         block_number,
         tx_count as expected_count
-    from {{ comparison_model }}
+    from {{ blocks_model }}
 )
 select
     block_number,
