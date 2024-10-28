@@ -12,12 +12,8 @@ models:
             - BLOCK_NUMBER
             - TX_HASH
           column_name: EVENT_INDEX
-      - dbt_utils.equality:
-          compare_model: ref('test_gold__fact_transactions_recent')
-          compare_columns:
-            - BLOCK_NUMBER
-            - TX_HASH
-            - TX_POSITION
+      - events_match_txs:
+          transactions_model: ref('test_gold__fact_transactions_recent')
 
     columns:
       - name: BLOCK_NUMBER

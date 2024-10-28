@@ -11,6 +11,7 @@ models:
           partition_by:
             - TX_HASH
           column_name: TRACE_INDEX
+          where: TX_HASH IS NOT NULL
 
     columns:
       - name: BLOCK_NUMBER

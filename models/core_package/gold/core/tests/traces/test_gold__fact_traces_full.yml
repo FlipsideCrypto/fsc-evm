@@ -11,7 +11,7 @@ models:
           partition_by:
             - TX_HASH
           column_name: TRACE_INDEX
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
 
     columns:
       - name: BLOCK_NUMBER
