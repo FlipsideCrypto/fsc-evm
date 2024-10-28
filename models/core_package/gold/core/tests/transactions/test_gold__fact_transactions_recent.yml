@@ -10,6 +10,8 @@ models:
           partition_by:
             - BLOCK_NUMBER
           column_name: TX_POSITION
+      - tx_count_match:
+          comparison_model: {{ ref('test_gold__fact_blocks_recent') }}
 
     columns:
       - name: BLOCK_NUMBER
