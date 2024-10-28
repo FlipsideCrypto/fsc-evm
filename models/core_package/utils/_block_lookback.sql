@@ -4,7 +4,7 @@
 
 {% set uses_lookback = var('GLOBAL_USES_LOOKBACK', True) %}
 
-{% if uses_lookback %}
+{% if not uses_lookback %}
 
 SELECT  
     0 AS block_number
