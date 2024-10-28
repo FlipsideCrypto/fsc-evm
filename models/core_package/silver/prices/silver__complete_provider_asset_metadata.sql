@@ -19,7 +19,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_provider_asset_metadata_id',
-    tags = ['core']
+    tags = ['silver_core', 'silver_prices']
 ) }}
 
 {# Main query starts here #}

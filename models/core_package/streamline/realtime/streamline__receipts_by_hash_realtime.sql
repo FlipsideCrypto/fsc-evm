@@ -50,7 +50,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_' ~ model_type.lower(), 'receipts_by_hash']
+    tags = ['streamline_core_realtime_receipts_by_hash']
 ) }}
 
 {# Main query starts here #}

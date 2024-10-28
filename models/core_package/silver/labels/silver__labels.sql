@@ -21,7 +21,7 @@
     incremental_strategy = 'merge',
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = 'modified_timestamp::DATE',
-    tags = ['core']
+    tags = ['silver_core', 'silver_labels']
 ) }}
 
 SELECT

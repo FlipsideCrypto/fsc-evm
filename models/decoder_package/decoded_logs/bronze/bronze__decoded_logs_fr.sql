@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['decoder']
+    tags = ['bronze_decoded_logs']
 ) }}
 
 SELECT

@@ -25,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['core', 'receipts']
+    tags = ['bronze_receipts']
 ) }}
 
 {# Main query starts here #}

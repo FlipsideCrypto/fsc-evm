@@ -25,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['core','blocks_transactions_path']
+    tags = ['bronze_blocks_transactions_path']
 ) }}
 
 {# Main query starts here #}

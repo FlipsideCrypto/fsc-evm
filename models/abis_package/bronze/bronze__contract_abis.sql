@@ -25,7 +25,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['abis']
+    tags = ['bronze_abis']
 ) }}
 
 {# Main query starts here #}

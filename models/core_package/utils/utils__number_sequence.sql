@@ -21,8 +21,7 @@
 {{ config(
     materialized = 'incremental',
     cluster_by = 'round(_id,-3)',
-    post_hook = post_hook,
-    tags = ['utils']
+    post_hook = post_hook
 ) }}
 
 SELECT

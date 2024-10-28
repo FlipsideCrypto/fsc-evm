@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['reads']
+    tags = ['bronze_reads']
 ) }}
 
 SELECT

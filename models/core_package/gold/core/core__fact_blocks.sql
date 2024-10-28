@@ -11,7 +11,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
-    tags = ['core']
+    tags = ['gold_core']
 ) }}
 
 {% else %}
@@ -22,7 +22,7 @@
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['core','gold']
+    tags = ['gold_core']
 ) }}
 
 {% endif %}

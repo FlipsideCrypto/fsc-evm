@@ -41,7 +41,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_balances_' ~ model_type.lower()]
+    tags = ['streamline_balances_realtime']
 ) }}
 
 {# Main query starts here #}

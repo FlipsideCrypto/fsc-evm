@@ -35,7 +35,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_abis_' ~ model_type.lower()]
+    tags = ['streamline_abis_realtime']
 ) }}
 
 {# Main query starts here #}

@@ -21,7 +21,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_provider_prices_id',
     cluster_by = ['recorded_hour::DATE','provider'],
-    tags = ['core']
+    tags = ['silver_core', 'silver_prices']
 ) }}
 
 {# Main query starts here #}

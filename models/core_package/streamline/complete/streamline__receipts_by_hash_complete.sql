@@ -24,7 +24,7 @@
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_core_' ~ model_type.lower(), 'receipts_by_hash']
+    tags = ['streamline_core_complete_receipts_by_hash']
 ) }}
 
 {# Main query starts here #}

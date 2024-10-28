@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['balances']
+    tags = ['bronze_balances']
 ) }}
 
 SELECT

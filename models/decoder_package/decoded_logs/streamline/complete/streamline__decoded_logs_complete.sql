@@ -23,7 +23,7 @@
     merge_update_columns = ["_log_id"],
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_' ~ source_name.lower() ~ '_' ~ model_type.lower()]
+    tags = ['streamline_decoded_logs_complete']
 ) }}
 
 {# Main query starts here #}

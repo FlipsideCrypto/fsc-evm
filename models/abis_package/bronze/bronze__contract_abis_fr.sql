@@ -1,6 +1,6 @@
 {{ config (
     materialized = 'view',
-    tags = ['abis']
+    tags = ['bronze_abis']
 ) }}
 
 SELECT

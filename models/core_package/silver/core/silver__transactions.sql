@@ -12,7 +12,7 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = silver_full_refresh,
-    tags = ['core']
+    tags = ['silver_core']
 ) }}
 
 {% else %}
@@ -24,7 +24,7 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['core']
+    tags = ['silver_core']
 ) }}
 
 {% endif %}

@@ -43,7 +43,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_' ~ model_type.lower(), 'receipts']
+    tags = ['streamline_core_history_receipts']
 ) }}
 
 {# Main query starts here #}
