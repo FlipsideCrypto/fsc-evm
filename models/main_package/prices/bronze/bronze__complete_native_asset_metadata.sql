@@ -25,31 +25,28 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_core', 'bronze_prices']
+    tags = ['bronze_prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
-    HOUR,
     asset_id,
     symbol,
     NAME,
     decimals,
-    price,
     blockchain,
-    is_imputed,
     is_deprecated,
     provider,
     source,
     _inserted_timestamp,
     inserted_timestamp,
     modified_timestamp,
-    complete_native_prices_id,
+    complete_native_asset_metadata_id,
     _invocation_id
 FROM
     {{ source(
         'crosschain_silver',
-        'complete_native_prices'
+        'complete_native_asset_metadata'
     ) }}
 WHERE
     blockchain IN ({% if blockchains is string %}

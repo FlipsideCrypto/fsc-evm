@@ -1,5 +1,13 @@
+{# Set variables #}
+{%- set platforms = var('PRICES_PROVIDER_PLATFORMS', '') -%}
+
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+    
+    {{ log("PRICES_PROVIDER_PLATFORMS: " ~ platforms, info=True) }}
+    {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
     {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
@@ -9,33 +17,38 @@
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
-    
+
 {%- endif -%}
 
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_core', 'bronze_prices']
+    tags = ['bronze_prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
     asset_id,
-    recorded_hour,
-    OPEN,
-    high,
-    low,
-    CLOSE,
+    token_address,
+    NAME,
+    symbol,
+    platform,
+    platform_id,
     provider,
     source,
     _inserted_timestamp,
     inserted_timestamp,
     modified_timestamp,
-    complete_provider_prices_id,
+    complete_provider_asset_metadata_id,
     _invocation_id
 FROM
     {{ source(
         'crosschain_silver',
-        'complete_provider_prices'
+        'complete_provider_asset_metadata'
     ) }}
-    -- prices for all ids, no filter necessary
+WHERE
+    platform IN ({% if platforms is string %}
+        '{{ platforms }}'
+    {% else %}
+        {{ platforms | replace('[', '') | replace(']', '') }}
+    {% endif %}) -- platforms specific to the target blockchain

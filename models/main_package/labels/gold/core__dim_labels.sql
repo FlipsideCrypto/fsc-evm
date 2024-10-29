@@ -25,7 +25,7 @@
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = 'modified_timestamp::DATE',
     post_hook = post_hook,
-    tags = ['gold_core', 'gold_labels']
+    tags = ['gold_labels']
 ) }}
 
 SELECT

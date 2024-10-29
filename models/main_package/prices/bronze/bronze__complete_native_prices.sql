@@ -1,14 +1,14 @@
 {# Set variables #}
-{%- set token_addresses = var('PRICES_TOKEN_ADDRESSES', none) -%}
-{%- set blockchains = var('PRICES_TOKEN_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{%- set symbols = var('PRICES_NATIVE_SYMBOLS', '') -%}
+{%- set blockchains = var('PRICES_NATIVE_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
     {{ log("=== Current Variable Settings ===", info=True) }}
 
-    {{ log("PRICES_TOKEN_ADDRESSES: " ~ token_addresses, info=True) }}
-    {{ log("PRICES_TOKEN_BLOCKCHAINS: " ~ blockchains, info=True) }}
+    {{ log("PRICES_NATIVE_SYMBOLS: " ~ symbols, info=True) }}
+    {{ log("PRICES_NATIVE_BLOCKCHAINS: " ~ blockchains, info=True) }}
     {{ log("", info=True) }}
 
     {% set config_log = '\n' %}
@@ -19,27 +19,24 @@
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
     {{ log("", info=True) }}
-    
+
 {%- endif -%}
 
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_core', 'bronze_prices']
+    tags = ['bronze_prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
     HOUR,
-    token_address,
     asset_id,
     symbol,
     NAME,
     decimals,
     price,
     blockchain,
-    blockchain_name,
-    blockchain_id,
     is_imputed,
     is_deprecated,
     provider,
@@ -47,12 +44,12 @@ SELECT
     _inserted_timestamp,
     inserted_timestamp,
     modified_timestamp,
-    complete_token_prices_id,
+    complete_native_prices_id,
     _invocation_id
 FROM
     {{ source(
         'crosschain_silver',
-        'complete_token_prices'
+        'complete_native_prices'
     ) }}
 WHERE
     blockchain IN ({% if blockchains is string %}
@@ -60,10 +57,8 @@ WHERE
     {% else %}
         {{ blockchains | replace('[', '') | replace(']', '') }}
     {% endif %})
-    {% if token_addresses is not none %}
-        AND token_address IN ({% if token_addresses is string %}
-            '{{ token_addresses }}'
-        {% else %}
-            {{ token_addresses | replace('[', '') | replace(']', '') }}
-        {% endif %})
-    {% endif %}
+    AND symbol IN ({% if symbols is string %}
+        '{{ symbols }}'
+    {% else %}
+        {{ symbols | replace('[', '') | replace(']', '') }}
+    {% endif %})

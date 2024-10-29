@@ -1,6 +1,3 @@
-{# Set variables #}
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)" %}
-
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -10,7 +7,7 @@
     {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
     {% set config_log = config_log ~ '    incremental_strategy = "' ~ config.get('incremental_strategy') ~ '",\n' %}
     {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
-    {% set config_log = config_log ~ '    post_hook = "' ~ config.get('post_hook') ~ '",\n' %}
+    {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ ',\n' %}
     {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') ~ '\n' %}
     {% set config_log = config_log ~ ') }}\n' %}
     {{ log(config_log, info=True) }}
@@ -22,28 +19,38 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'dim_asset_metadata_id',
-    post_hook = post_hook,
-    tags = ['gold_core', 'gold_prices']
+    unique_key = 'complete_provider_prices_id',
+    cluster_by = ['recorded_hour::DATE','provider'],
+    tags = ['silver_prices']
 ) }}
 
 {# Main query starts here #}
 SELECT
-    token_address,
-    asset_id,
-    symbol,
-    NAME,
-    platform AS blockchain,
-    platform_id AS blockchain_id,
-    provider,
-    {{ dbt_utils.generate_surrogate_key(['complete_provider_asset_metadata_id']) }} AS dim_asset_metadata_id,
+    p.asset_id,
+    recorded_hour,
+    OPEN,
+    high,
+    low,
+    CLOSE,
+    p.provider,
+    p.source,
+    p._inserted_timestamp,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['p.complete_provider_prices_id']) }} AS complete_provider_prices_id,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
-    {{ ref('silver__complete_provider_asset_metadata') }}
+    {{ ref(
+        'bronze__complete_provider_prices'
+    ) }}
+    p
+    INNER JOIN {{ ref('bronze__complete_provider_asset_metadata') }}
+    m
+    ON p.asset_id = m.asset_id
+
 {% if is_incremental() %}
 WHERE
-    modified_timestamp > (
+    p.modified_timestamp >= (
         SELECT
             MAX(
                 modified_timestamp
@@ -52,3 +59,7 @@ WHERE
             {{ this }}
     )
 {% endif %}
+
+qualify(ROW_NUMBER() over (PARTITION BY p.asset_id, recorded_hour, p.provider
+ORDER BY
+    p.modified_timestamp DESC)) = 1

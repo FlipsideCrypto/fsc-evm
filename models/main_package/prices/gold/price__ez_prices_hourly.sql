@@ -26,7 +26,7 @@
     unique_key = 'ez_prices_hourly_id',
     cluster_by = ['hour::DATE'],
     post_hook = post_hook,
-    tags = ['gold_core', 'gold_prices']
+    tags = ['gold_prices']
 ) }}
 
 {# Main query starts here #}

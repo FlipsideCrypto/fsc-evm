@@ -19,7 +19,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['bronze_core', 'bronze_labels']
+    tags = ['bronze_labels']
 ) }}
 
 SELECT
