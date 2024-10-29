@@ -219,7 +219,7 @@ WHERE
                         raw_traces
                         INNER JOIN PARENT USING (
                             tx_hash,
-                            parent_grouping,
+                            child_of,
                             input
                         ) -- where type = 'DELEGATECALL'
                 ),
