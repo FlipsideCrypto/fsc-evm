@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__complete_native_asset_metadata
+  - name: models.fsc_evm.silver__complete_native_asset_metadata
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

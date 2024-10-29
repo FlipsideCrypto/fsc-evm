@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_gold__fact_traces_recent
+  - name: models.fsc_evm.test_gold__fact_traces_recent
     description: "This is a view used to test the last three days of fact traces."
     tests:
       - dbt_utils.unique_combination_of_columns:

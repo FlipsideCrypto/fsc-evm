@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_silver__blocks_full
+  - name: models.fsc_evm.models.fsc_evm.test_silver__blocks_full
     description: "This is a view used to test all of the silver blocks model."
     tests:
       - dbt_utils.unique_combination_of_columns:

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_silver__transactions_recent
+  - name: models.fsc_evm.test_silver__transactions_recent
     description: "This is a view used to test the last three days of transactions."
     tests:
       - dbt_utils.unique_combination_of_columns:

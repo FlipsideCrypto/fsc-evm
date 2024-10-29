@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_event_logs
+  - name: models.fsc_evm.core__fact_event_logs
     description: '{{ doc("evm_logs_table_doc") }}'
       
     columns:

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: price__ez_prices_hourly
+  - name: models.fsc_evm.price__ez_prices_hourly
     description: '{{ doc("evm_prices_ez_prices_hourly_table_doc") }}'
 
     columns:

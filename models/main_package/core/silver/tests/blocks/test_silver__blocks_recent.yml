@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_silver__blocks_recent
+  - name: models.fsc_evm.test_silver__blocks_recent
     description: "This is a view used to test the last three days of blocks."
     tests:
       - dbt_utils.unique_combination_of_columns:

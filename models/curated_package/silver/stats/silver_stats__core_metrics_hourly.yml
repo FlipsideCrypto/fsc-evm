@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_stats__core_metrics_hourly
+  - name: models.fsc_evm.silver_stats__core_metrics_hourly
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

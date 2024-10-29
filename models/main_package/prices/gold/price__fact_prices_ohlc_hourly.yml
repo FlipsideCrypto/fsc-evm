@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: price__fact_prices_ohlc_hourly
+  - name: models.fsc_evm.price__fact_prices_ohlc_hourly
     description: '{{ doc("evm_prices_fact_prices_ohlc_hourly_table_doc") }}'
 
     columns:

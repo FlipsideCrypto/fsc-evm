@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: utils__number_sequence
+  - name: models.fsc_evm.utils__number_sequence
     description: |
       This model generates a sequence of numbers for a given range.
     tests:

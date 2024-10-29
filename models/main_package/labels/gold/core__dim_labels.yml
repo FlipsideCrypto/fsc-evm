@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__dim_labels
+  - name: models.fsc_evm.core__dim_labels
     description: '{{ doc("evm_table_dim_labels") }}'
       
     columns:

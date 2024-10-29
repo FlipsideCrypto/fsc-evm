@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_gold__fact_traces_full
+  - name: models.fsc_evm.test_gold__fact_traces_full
     description: "This is a view used to test all of the gold fact traces model."
     tests:
       - dbt_utils.unique_combination_of_columns:
