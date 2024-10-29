@@ -131,8 +131,10 @@ WHERE
                 WHEN sub_traces > 0
                 AND trace_address != 'ORIGIN' THEN trace_address || '_'
                 ELSE NULL
-            END AS parent_trace_grouping,
-            IFF(REGEXP_REPLACE(trace_address, '.$', '') = '', 'ORIGIN', REGEXP_REPLACE(trace_address, '.$', '')) AS parent_grouping,
+            END AS parent_of,
+            -- this adds an underscore
+            IFF(REGEXP_REPLACE(trace_address, '.$', '') = '', 'ORIGIN', REGEXP_REPLACE(trace_address, '.$', '')) AS child_of,
+            -- removes the last character
             input,
             output,
             _call_id
@@ -197,7 +199,7 @@ WHERE
                     -- first takes trace calls where there are subtraces. These are the parent calls
                     SELECT
                         tx_hash,
-                        parent_trace_grouping AS parent_grouping,
+                        parent_of AS child_of,
                         input
                     FROM
                         raw_traces
@@ -208,8 +210,10 @@ WHERE
                     -- finds the effective implementation address for the parent trace
                     SELECT
                         tx_hash,
-                        to_address AS effective_implementation,
-                        parent_grouping AS parent_trace_grouping,
+                        TYPE AS child_type,
+                        to_address AS child_to_address,
+                        -- effective implementation
+                        child_of AS parent_of,
                         input
                     FROM
                         raw_traces
@@ -229,12 +233,16 @@ WHERE
                         TYPE,
                         trace_address,
                         sub_traces,
-                        parent_trace_grouping,
-                        parent_grouping,
+                        parent_of,
+                        child_of,
                         input,
                         output,
-                        COALESCE(
-                            effective_implementation,
+                        child_type,
+                        child_to_address,
+                        IFF(
+                            child_type = 'DELEGATECALL'
+                            AND child_to_address IS NOT NULL,
+                            child_to_address,
                             to_address
                         ) AS effective_contract_address,
                         _call_id
