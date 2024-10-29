@@ -39,11 +39,11 @@ models:
       - name: RECEIPTS_ROOT
         description: '{{ doc("evm_receipts_root") }}'
       - name: STATE_ROOT
-        description: '{{ doc("evm_blocks_state_root") }}'
+        description: '{{ doc("evm_state_root") }}'
       - name: TRANSACTIONS_ROOT
-        description: '{{ doc("evm_blocks_transactions_root") }}'
+        description: '{{ doc("evm_transactions_root") }}'
       - name: LOGS_BLOOM
-        description: '{{ doc("evm_blocks_logs_bloom")  }}'
+        description: '{{ doc("evm_logs_bloom")  }}'
       - name: FACT_BLOCKS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP
