@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: fsc_evm.curated_package.gold.stats.stats__ez_core_metrics_hourly
+  - name: stats__ez_core_metrics_hourly
     description: '{{ doc("evm_ez_core_metrics_hourly_table_doc") }}'
 
     columns:
