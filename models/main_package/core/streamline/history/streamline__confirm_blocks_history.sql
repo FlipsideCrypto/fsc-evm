@@ -43,7 +43,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_history']
+    tags = ['streamline_core_history_confirm_blocks']
 ) }}
 
 {# Main query starts here #}

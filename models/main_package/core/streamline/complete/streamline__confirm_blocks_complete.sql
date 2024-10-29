@@ -21,7 +21,7 @@
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_core_complete']
+    tags = ['streamline_core_complete_confirm_blocks']
 ) }}
 
 {# Main query starts here #}

@@ -45,7 +45,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_realtime']
+    tags = ['streamline_core_realtime_confirm_blocks']
 ) }}
 
 {# Main query starts here #}
