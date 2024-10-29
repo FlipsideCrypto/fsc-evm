@@ -250,7 +250,7 @@ WHERE
                         raw_traces
                         LEFT JOIN effective_contract USING (
                             tx_hash,
-                            parent_trace_grouping,
+                            parent_of,
                             input
                         )
                 )
