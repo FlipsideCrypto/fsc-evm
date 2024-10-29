@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: price__ez_asset_metadata
-    description: '{{ doc("evm_prices_asset_metadata_table_doc") }}'
+    description: '{{ doc("evm_prices_ez_asset_metadata_table_doc") }}'
 
     columns:
       - name: ASSET_ID
