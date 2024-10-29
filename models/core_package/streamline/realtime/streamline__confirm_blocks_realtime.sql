@@ -131,7 +131,7 @@ SELECT
         '{{ node_secret_path }}'
     ) AS request
 FROM
-    to_do
+    ready_blocks
     
 {{ order_by_clause }}
 
