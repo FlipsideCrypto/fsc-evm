@@ -101,6 +101,16 @@ to_do AS (
     {% endif %}
 )
 
+{# Prepare the final list of blocks to process #}
+,ready_blocks AS (
+    SELECT block_number
+    FROM to_do
+
+    {% if testing_limit is not none %}
+        LIMIT {{ testing_limit }} 
+    {% endif %}
+)
+
 {# Generate API requests for each block #}
 SELECT
     block_number,
