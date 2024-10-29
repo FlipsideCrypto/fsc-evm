@@ -27,7 +27,7 @@
 
 {% if is_incremental() and not full_reload_mode %}
 {{ ref(
-    schema_name ~ '__streamline_traces'
+    schema_name ~ '__traces'
 ) }}
 WHERE
     _inserted_timestamp >= (
@@ -42,7 +42,7 @@ WHERE
 
     {% elif is_incremental() and full_reload_mode %}
     {{ ref(
-        schema_name ~ '__streamline_fr_traces'
+        schema_name ~ '__traces_fr'
     ) }}
 WHERE
     {% if use_partition_key %}
@@ -78,7 +78,7 @@ WHERE
     {% endif %}
 {% else %}
     {{ ref(
-        schema_name ~ '__streamline_fr_traces'
+        schema_name ~ '__traces_fr'
     ) }}
 WHERE
     {% if use_partition_key %}
