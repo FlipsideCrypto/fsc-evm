@@ -550,7 +550,7 @@ aggregated_errors AS (
                             f.trace_succeeded,
                             f.trace_address,
                             {% if uses_tx_status %}
-                            t.tx_status AS tx_succeeded
+                            t.tx_status as tx_succeeded
                             {% else %}
                             t.tx_succeeded
                             {% endif %}
@@ -625,7 +625,7 @@ heal_missing_data AS (
         t.trace_succeeded,
         t.trace_address,
         {% if uses_tx_status %}
-        txs.tx_status AS tx_succeeded
+        txs.tx_status as tx_succeeded
         {% else %}
         txs.tx_succeeded
         {% endif %}
