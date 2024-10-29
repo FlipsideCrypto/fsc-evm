@@ -221,7 +221,9 @@ WHERE
                             tx_hash,
                             child_of,
                             input
-                        ) -- where type = 'DELEGATECALL'
+                        )
+                    WHERE
+                        TYPE = 'DELEGATECALL'
                 ),
                 final_traces AS (
                     SELECT
