@@ -2,6 +2,7 @@
 {% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set source_name = 'RECEIPTS_BY_HASH' if uses_receipts_by_hash else 'RECEIPTS' %}
+{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)" if uses_receipts_by_hash else "" %}
 
 -- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
 
@@ -11,7 +12,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = unique_key,
     cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
+    post_hook = post_hook,
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = silver_full_refresh,
     tags = ['silver_core']
@@ -24,7 +25,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = unique_key,
     cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
+    post_hook = post_hook,
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['silver_core']
 ) }}
