@@ -38,10 +38,11 @@ WITH bronze_receipts AS (
         partition_key,
         {% if uses_receipts_by_hash %}
             tx_hash,
+            DATA:result AS receipts_json,
         {% else %}
             array_index,
+            DATA AS receipts_json,
         {% endif %}
-        DATA:result AS receipts_json,
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
