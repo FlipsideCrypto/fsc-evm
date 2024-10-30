@@ -2,6 +2,15 @@
 {% set block_explorer_abi_url = var('BLOCK_EXPLORER_ABI_URL', '') %}
 {% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
 
+{%- if flags.WHICH == 'compile' and execute -%}
+
+    {{ log("=== Current Variable Settings ===", info=True) }}
+    {{ log("BLOCK_EXPLORER_ABI_LIMIT: " ~ block_explorer_abi_limit, info=True) }}
+    {{ log("BLOCK_EXPLORER_ABI_URL: " ~ block_explorer_abi_url, info=True) }}
+    {{ log("BLOCK_EXPLORER_ABI_API_KEY_PATH: " ~ block_explorer_abi_api_key_path, info=True) }}
+
+{%- endif -%}
+
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
