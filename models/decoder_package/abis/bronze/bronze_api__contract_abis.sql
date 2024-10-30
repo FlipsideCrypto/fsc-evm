@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('_retry_abis') }}
 {% set block_explorer_abi_limit = var('BLOCK_EXPLORER_ABI_LIMIT', 50) %}
 {% set block_explorer_abi_url = var('BLOCK_EXPLORER_ABI_URL', '') %}
 {% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
