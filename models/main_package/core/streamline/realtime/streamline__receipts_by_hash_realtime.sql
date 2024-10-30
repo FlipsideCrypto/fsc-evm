@@ -2,6 +2,7 @@
 {%- set model_name = 'RECEIPTS_BY_HASH' -%}
 {%- set model_type = 'REALTIME' -%}
 {%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
+{%- set txs_model_built = var('GLOBAL_TXS_MODEL_BUILT', True) -%}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
@@ -145,15 +146,37 @@ flat_tx_hashes AS (
         )
 ),
 to_do AS (
-    SELECT
+
+    SELECT 
         block_number,
         tx_hash
-    FROM
-        flat_tx_hashes
-    WHERE 1=1
-    {% if min_block is not none %}
-        AND block_number >= {{ min_block }}
-    {% endif %}
+    FROM (
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            flat_tx_hashes
+        WHERE 1=1
+        {% if min_block is not none %}
+            AND block_number >= {{ min_block }}
+        {% endif %}
+
+        {% if txs_model_built %}
+        UNION ALL
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            {{ ref('core__fact_transactions') }}
+        where 1=1
+        and block_number >= (
+            SELECT
+                block_number
+            FROM
+                {{ ref('_block_lookback') }}
+            )
+        {% endif %}
+    )
 
     EXCEPT
 
@@ -164,7 +187,7 @@ to_do AS (
         {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
     WHERE 1=1
         {% if not new_build %}
-            AND block_number >= (SELECT block_number FROM last_3_days)
+            AND block_number >= (SELECT block_number FROM {{ ref('_block_lookback') }})
         {% endif %}
 ),
 ready_blocks AS (
