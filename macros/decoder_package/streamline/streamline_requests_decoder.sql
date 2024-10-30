@@ -109,7 +109,12 @@ SELECT
     t.block_number,
     t.tx_hash,
     t.trace_index,
-    _call_id,
+    concat_ws(
+            '-',
+            t.block_number,
+            t.tx_position,
+            concat(t.type,'_',t.trace_address)
+    ) as _call_id,
     A.abi AS abi,
     A.function_name AS function_name,
     CASE
@@ -122,7 +127,7 @@ SELECT
         '0x'
     ) AS output
 FROM
-    {{ ref("silver__traces") }}
+    {{ ref("core__fact_traces") }}
     t
     INNER JOIN {{ ref("silver__complete_function_abis") }} A
     ON A.parent_contract_address = abi_address
