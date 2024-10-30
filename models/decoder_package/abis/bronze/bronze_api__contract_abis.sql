@@ -7,7 +7,7 @@
     {{ log("=== Current Variable Settings ===", info=True) }}
     {{ log("BLOCK_EXPLORER_ABI_LIMIT: " ~ block_explorer_abi_limit, info=True) }}
     {{ log("BLOCK_EXPLORER_ABI_URL: " ~ block_explorer_abi_url, info=True) }}
-    {{ log("BLOCK_EXPLORER_ABI_API_KEY_PATH: " ~ block_explorer_abi_api_key_path, info=True) }}
+    {{ log("BLOCK_EXPLORER_ABI_API_KEY_PATH: " ~ block_explorer_vault_path, info=True) }}
 
 {%- endif -%}
 
