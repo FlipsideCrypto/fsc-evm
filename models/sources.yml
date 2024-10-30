@@ -49,3 +49,18 @@ sources:
       - name: complete_provider_prices
       - name: complete_token_asset_metadata
       - name: complete_token_prices
+  - name: bronze_api
+    database: "{{ target.database }}"
+    schema: bronze_api
+    tables:
+      - name: contract_abis
+  - name: crosschain_public
+    database: crosschain
+    schema: bronze_public
+    tables:
+      - name: user_abis
+  - name: silver
+    database: "{{ target.database }}"
+    schema: silver
+    tables:
+      - name: verified_abis
