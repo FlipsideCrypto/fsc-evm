@@ -50,10 +50,20 @@ WITH bronze_receipts AS (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
-    ) AND DATA:result IS NOT NULL
+    ) AND 
+    {% if uses_receipts_by_hash %}
+        DATA:result IS NOT NULL
+    {% else %}
+        DATA IS NOT NULL
+    {% endif %}
     {% else %}
     {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
-    WHERE DATA:result IS NOT NULL
+    WHERE 
+    {% if uses_receipts_by_hash %}
+        DATA:result IS NOT NULL
+    {% else %}
+        DATA IS NOT NULL
+    {% endif %}
     {% endif %}
 )
 
