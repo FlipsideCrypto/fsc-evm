@@ -113,9 +113,7 @@ WHERE
             txs.value_precise_raw,
             txs.value_precise,
             utils.udf_decimal_adjust(
-                utils.udf_hex_to_int(
-                    txs.gas_price
-                ) :: bigint * utils.udf_hex_to_int(
+                txs.gas_price * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
                 ) :: bigint,
                 18
@@ -192,7 +190,12 @@ missing_data AS (
         t.value,
         t.value_precise_raw,
         t.value_precise,
-        utils.udf_decimal_adjust((t.gas_price * pow(10, 9)) :: bigint * utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint, 18) AS tx_fee_precise_heal,
+        utils.udf_decimal_adjust(
+            t.gas_price * utils.udf_hex_to_int(
+                r.receipts_json :gasUsed :: STRING
+            ) :: bigint, 
+            9
+        ) AS tx_fee_precise_heal,
         COALESCE(
             tx_fee_precise_heal :: FLOAT,
             0
