@@ -41,7 +41,7 @@
     unique_key = delete_key,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['core','gold']
+    tags = ['gold_core']
 ) }}    
 
 {% endif %}
