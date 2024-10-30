@@ -30,7 +30,7 @@ models:
         description: '{{ doc("evm_difficulty") }}'
       - name: TOTAL_DIFFICULTY
         description: '{{ doc("evm_total_difficulty") }}'
-      - name: SHA3_UNCLLES
+      - name: SHA3_UNCLES
         description: '{{ doc("evm_sha3_uncles") }}'
       - name: UNCLE_BLOCKS
         description: '{{ doc("evm_uncle_blocks") }}'

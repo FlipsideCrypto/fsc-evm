@@ -1,4 +1,5 @@
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
+{% set uses_deposit_nonce = var('GLOBAL_USES_DEPOSIT_NONCE', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
@@ -67,6 +68,11 @@ flattened_logs AS (
         VALUE :blockHash :: STRING AS block_hash,
         VALUE :blockNumber :: STRING AS block_number_hex,
         VALUE :data :: STRING AS DATA,
+        {% if uses_deposit_nonce %}
+        utils.udf_hex_to_int(
+                VALUE :data :depositNonce :: STRING
+            ) :: INT AS deposit_nonce,
+        {% endif %}
         utils.udf_hex_to_int(
             VALUE :logIndex :: STRING
         ) :: INT AS event_index,
@@ -96,6 +102,9 @@ new_logs AS (
         l.topics [2] :: STRING AS topic_2,
         l.topics [3] :: STRING AS topic_3,
         l.data,
+        {% if uses_deposit_nonce %}
+        l.deposit_nonce,
+        {% endif %}
         l.event_removed,
         l.origin_from_address,
         l.origin_to_address,
@@ -145,6 +154,9 @@ missing_data AS (
         t.topic_2,
         t.topic_3,
         t.data,
+        {% if uses_deposit_nonce %}
+        t.deposit_nonce,
+        {% endif %}
         t.event_removed,
         t.origin_from_address,
         t.origin_to_address,
@@ -179,6 +191,9 @@ all_logs AS (
         topic_2,
         topic_3,
         DATA,
+        {% if uses_deposit_nonce %}
+        deposit_nonce,
+        {% endif %}
         event_removed,
         origin_from_address,
         origin_to_address,
@@ -202,6 +217,9 @@ SELECT
     topic_2,
     topic_3,
     DATA,
+    {% if uses_deposit_nonce %}
+    deposit_nonce,
+    {% endif %}
     event_removed,
     origin_from_address,
     origin_to_address,
@@ -224,6 +242,9 @@ SELECT
     topic_2,
     topic_3,
     DATA,
+    {% if uses_deposit_nonce %}
+    deposit_nonce,
+    {% endif %}
     event_removed,
     origin_from_address,
     origin_to_address,

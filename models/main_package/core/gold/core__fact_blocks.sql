@@ -1,6 +1,8 @@
-{%- set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') -%}
-{%- set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) -%}
+{% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
+{% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) %}
+{% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+
 
 {% if not gold_full_refresh %}
 
@@ -41,6 +43,9 @@ SELECT
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
+    {% if uses_mix_hash %}
+    block_json :mixHash :: STRING AS mix_hash,
+    {% endif %}
     block_json :extraData :: STRING AS extra_data,
     block_json :parentHash :: STRING AS parent_hash,
     utils.udf_hex_to_int(
@@ -52,7 +57,7 @@ SELECT
     {% if uses_base_fee %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
-    ) :: bigint AS  base_fee_per_gas,
+    ) :: bigint AS base_fee_per_gas,
     {% endif %}
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
