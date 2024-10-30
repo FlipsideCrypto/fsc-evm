@@ -49,6 +49,13 @@ LIMIT
         contract_address
     FROM
         base
+    {% if is_incremental() %}
+    UNION
+    SELECT
+        contract_address
+    FROM
+        {{ ref('_retry_abis') }}
+    {% endif %}
 ),
 row_nos AS (
     SELECT
@@ -60,7 +67,7 @@ row_nos AS (
     FROM
         all_contracts
 ),
-batched AS ({% for item in range(block_explorer_abi_limit + 1) %}
+batched AS ({% for item in range(block_explorer_abi_limit * 2) %}
 SELECT
     rn.contract_address, 
     live.udf_api('GET', 
