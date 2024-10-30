@@ -1,5 +1,6 @@
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set uses_eip_1559 = var('GLOBAL_USES_EIP_1559', true) %}
+{% set uses_l1_columns = var('GLOBAL_USES_L1_COLUMNS', false) %}
 {% set uses_chain_id = var('GLOBAL_USES_CHAIN_ID', true) %}
 {% set uses_eth_value = var('GLOBAL_USES_ETH_VALUE', false) %}
 {% set uses_mint = var('GLOBAL_USES_MINT', false) %}
@@ -173,14 +174,53 @@ WHERE
                         9
             ) AS max_priority_fee_per_gas,
             {% endif %}
-            utils.udf_decimal_adjust(
+            {% if uses_l1_columns %}
+            COALESCE(
                 utils.udf_hex_to_int(
-                    txs.gas_price
-                ) :: bigint * utils.udf_hex_to_int(
+                    r.receipts_json :l1Fee :: STRING
+                ) :: FLOAT,
+                0
+            ) AS l1_fee,
+            COALESCE(
+                (
+                    r.receipts_json :l1FeeScalar :: STRING
+                ) :: FLOAT,
+                0
+            ) AS l1_fee_scalar,
+            COALESCE(
+                utils.udf_hex_to_int(
+                    r.receipts_json :l1GasUsed :: STRING
+                ) :: FLOAT,
+                0
+            ) AS l1_gas_used,
+            COALESCE(
+                utils.udf_hex_to_int(
+                    r.receipts_json :l1GasPrice :: STRING
+                ) :: FLOAT,
+                0
+            ) AS l1_gas_price,
+            utils.udf_decimal_adjust(
+                (
+                    utils.udf_hex_to_int(
+                        r.receipts_json :gasUsed :: STRING
+                    ) :: bigint * txs.gas_price
+                ) + FLOOR(
+                    l1_gas_price * l1_gas_used * l1_fee_scalar
+                ) + IFF(
+                    l1_fee_scalar = 0,
+                    l1_fee,
+                    0
+                ),
+                18
+            ) AS tx_fee_precise,
+            {% else %}
+            utils.udf_decimal_adjust(
+                txs.gas_price * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
                 ) :: bigint,
                 18
             ) AS tx_fee_precise,
+            {% endif %}
             COALESCE(
                 tx_fee_precise :: FLOAT,
                 0
@@ -278,7 +318,53 @@ missing_data AS (
         t.max_fee_per_gas,
         t.max_priority_fee_per_gas,
         {% endif %}
-        utils.udf_decimal_adjust((t.gas_price * pow(10, 9)) :: bigint * utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint, 18) AS tx_fee_precise_heal,
+        {% if uses_l1_columns %}
+        COALESCE(
+            utils.udf_hex_to_int(
+                r.receipts_json :l1Fee :: STRING
+            ) :: FLOAT,
+            0
+        ) AS l1_fee,
+        COALESCE(
+            (
+                r.receipts_json :l1FeeScalar :: STRING
+            ) :: FLOAT,
+            0
+        ) AS l1_fee_scalar,
+        COALESCE(
+            utils.udf_hex_to_int(
+                r.receipts_json :l1GasUsed :: STRING
+            ) :: FLOAT,
+            0
+        ) AS l1_gas_used,
+        COALESCE(
+            utils.udf_hex_to_int(
+                r.receipts_json :l1GasPrice :: STRING
+            ) :: FLOAT,
+            0
+        ) AS l1_gas_price,
+        utils.udf_decimal_adjust(
+            (
+                utils.udf_hex_to_int(
+                    r.receipts_json :gasUsed :: STRING
+                ) :: bigint * t.gas_price
+            ) + FLOOR(
+                l1_gas_price * l1_gas_used * l1_fee_scalar
+            ) + IFF(
+                l1_fee_scalar = 0,
+                l1_fee,
+                0
+            ),
+            18
+        ) AS tx_fee_precise_heal,
+        {% else %}
+        utils.udf_decimal_adjust(
+            t.gas_price * utils.udf_hex_to_int(
+                r.receipts_json :gasUsed :: STRING
+            ) :: bigint, 
+            9
+        ) AS tx_fee_precise_heal,
+        {% endif %}
         COALESCE(
             tx_fee_precise_heal :: FLOAT,
             0
@@ -358,6 +444,12 @@ all_transactions AS (
         max_fee_per_gas,
         max_priority_fee_per_gas,
         {% endif %}
+        {% if uses_l1_columns %}
+        l1_fee,
+        l1_fee_scalar,
+        l1_gas_used,
+        l1_gas_price,
+        {% endif %}
         tx_fee,
         tx_fee_precise,
         tx_succeeded,
@@ -409,6 +501,12 @@ SELECT
     max_fee_per_gas,
     max_priority_fee_per_gas,
     {% endif %}
+    {% if uses_l1_columns %}
+    l1_fee,
+    l1_fee_scalar,
+    l1_gas_used,
+    l1_gas_price,
+    {% endif %}
     tx_fee_heal AS tx_fee,
     tx_fee_precise_heal AS tx_fee_precise,
     tx_succeeded_heal AS tx_succeeded,
@@ -458,6 +556,12 @@ SELECT
     {% if uses_eip_1559 %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
+    {% endif %}
+    {% if uses_l1_columns %}
+    l1_fee,
+    l1_fee_scalar,
+    l1_gas_used,
+    l1_gas_price,
     {% endif %}
     tx_fee,
     tx_fee_precise,
