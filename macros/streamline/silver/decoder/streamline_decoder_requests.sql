@@ -223,7 +223,12 @@ WHERE
                             input
                         )
                     WHERE
-                        TYPE = 'DELEGATECALL'
+                        TYPE = 'DELEGATECALL' qualify ROW_NUMBER() over (
+                            PARTITION BY t.tx_hash,
+                            t.child_of
+                            ORDER BY
+                                t.trace_index ASC
+                        ) = 1 -- there can be > 1 delegatecall per parent with same function signature
                 ),
                 final_traces AS (
                     SELECT
