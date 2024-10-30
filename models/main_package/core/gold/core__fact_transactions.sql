@@ -167,7 +167,12 @@ AND b.modified_timestamp >= (
 LEFT JOIN {{ ref('silver__receipts') }}
 r
 ON txs.block_number = r.block_number
-AND txs.tx_hash = r.tx_hash
+AND txs.tx_hash =
+{% if uses_receipts_by_hash %}
+    r.tx_hash
+{% else %}
+    r.receipts_json :transactionHash :: STRING
+{% endif %}
 
 {% if is_incremental() %}
 AND r.modified_timestamp >= (
@@ -229,7 +234,12 @@ missing_data AS (
         LEFT JOIN {{ ref('silver__receipts') }}
         r
         ON t.block_number = r.block_number
-        AND t.tx_hash = r.tx_hash
+        AND t.tx_hash =
+        {% if uses_receipts_by_hash %}
+            r.tx_hash
+        {% else %}
+            r.receipts_json :transactionHash :: STRING
+        {% endif %}
     WHERE
         t.block_timestamp IS NULL
         OR t.tx_succeeded IS NULL
