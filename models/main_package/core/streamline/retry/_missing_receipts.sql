@@ -24,10 +24,9 @@ FROM
     {{ ref("core__fact_transactions") }}
     t
     LEFT JOIN {{ ref("silver__receipts") }}
-    r USING (
-        block_number,
-        receipts_json :transactionHash :: STRING
-    )
+    r
+    ON t.block_number = r.block_number
+        AND t.tx_hash = r.receipts_json :transactionHash :: STRING
 WHERE
     r.receipts_json :transactionHash :: STRING IS NULL
     AND t.block_number >= (
