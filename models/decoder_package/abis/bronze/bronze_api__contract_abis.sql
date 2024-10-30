@@ -17,7 +17,7 @@
     unique_key = "contract_address",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
     full_refresh = false,
-    tags = ['bronze_abis_core']
+    tags = ['bronze_abis']
 ) }}
 
 WITH base AS (
