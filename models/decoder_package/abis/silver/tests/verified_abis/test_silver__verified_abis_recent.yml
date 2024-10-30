@@ -1,0 +1,7 @@
+version: 2
+models:
+  - name: test_silver__verified_abis_recent
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTRACT_ADDRESS
