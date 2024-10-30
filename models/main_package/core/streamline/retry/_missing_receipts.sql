@@ -26,10 +26,10 @@ FROM
     LEFT JOIN {{ ref("silver__receipts") }}
     r USING (
         block_number,
-        tx_hash
+        receipts_json :transactionHash :: STRING
     )
 WHERE
-    r.tx_hash IS NULL
+    r.receipts_json :transactionHash :: STRING IS NULL
     AND t.block_number >= (
         SELECT
             block_number
