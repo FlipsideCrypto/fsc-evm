@@ -21,7 +21,7 @@
     {% endif %})
 SELECT
     l.block_number,
-    l._log_id,
+    concat(l.tx_hash::string, '-', l.event_index::string) as _log_id,
     A.abi AS abi,
     OBJECT_CONSTRUCT(
         'topics',
@@ -32,7 +32,7 @@ SELECT
         l.contract_address
     ) AS DATA
 FROM
-    {{ ref("silver__logs") }}
+    {{ ref("core__fact_event_logs") }}
     l
     INNER JOIN {{ ref("silver__complete_event_abis") }} A
     ON A.parent_contract_address = l.contract_address
@@ -40,14 +40,13 @@ FROM
     AND l.block_number BETWEEN A.start_block
     AND A.end_block
 WHERE
+    l.tx_succeeded
     {% if model_type == 'realtime' %}
-        (
-            l.block_number >= (
-                SELECT
-                    block_number
-                FROM
-                    look_back
-            )
+        AND l.block_number >= (
+            SELECT
+                block_number
+            FROM
+                look_back
         )
         AND l.block_number IS NOT NULL
         AND l.block_timestamp >= DATEADD('day', -2, CURRENT_DATE())
@@ -63,35 +62,32 @@ WHERE
                     FROM
                         look_back
                 )
-                AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())) {% elif model_type == 'history' %}
-                (
-                    l.block_number BETWEEN {{ start }}
-                    AND {{ stop }}
-                )
-                AND l.block_number <= (
-                    SELECT
-                        block_number
-                    FROM
-                        look_back
-                )
-                AND _log_id NOT IN (
-                    SELECT
-                        _log_id
-                    FROM
-                        {{ ref("streamline__decoded_logs_complete") }}
-                    WHERE
-                        (
-                            block_number BETWEEN {{ start }}
-                            AND {{ stop }}
-                        )
-                        AND block_number <= (
-                            SELECT
-                                block_number
-                            FROM
-                                look_back
-                        )
-                )
-            {% endif %}
+                AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())) 
+    {% elif model_type == 'history' %}
+        AND l.block_number BETWEEN {{ start }}
+        AND {{ stop }}
+        AND l.block_number <= (
+            SELECT
+                block_number
+            FROM
+                look_back
+        )
+        AND _log_id NOT IN (
+            SELECT
+                _log_id
+            FROM
+                {{ ref("streamline__decoded_logs_complete") }}
+            WHERE
+                block_number BETWEEN {{ start }}
+                AND {{ stop }}
+                AND block_number <= (
+                SELECT
+                    block_number
+                FROM
+                    look_back
+            )
+        )
+    {% endif %}
     {% if testing_limit is not none %}
         LIMIT {{ testing_limit }} 
     {% endif %}
