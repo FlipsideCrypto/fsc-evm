@@ -70,7 +70,7 @@ WITH silver_traces AS (
 {% if is_incremental() and not full_reload_mode %}
 AND modified_timestamp > (
     SELECT
-        MAX(modified_timestamp)
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
     FROM
         {{ this }}
 ) {% elif is_incremental() and full_reload_mode %}
