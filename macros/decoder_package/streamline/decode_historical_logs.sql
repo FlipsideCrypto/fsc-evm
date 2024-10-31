@@ -6,18 +6,18 @@
       "worker_batch_size": var("HISTORICAL_DECODING_WORKER_BATCH_SIZE", 200000)
   } -%}
 
-  {% set find_months_query %}
-    select distinct date_trunc('month', block_timestamp)::date as month
+  {% set find_weeks_query %}
+    select distinct date_trunc('week', block_timestamp)::date as week
     from {{ ref('core__fact_blocks') }}
   {% endset %}
 
-  {% set results = run_query(find_months_query) %}
+  {% set results = run_query(find_weeks_query) %}
 
   {% if execute %}
-    {% set months = results.columns[0].values() %}
+    {% set weeks = results.columns[0].values() %}
     
-    {% for month in months %}
-      {% set view_name = 'decode_historical_logs_' ~ month.strftime('%Y_%m') %}
+    {% for week in weeks %}
+      {% set view_name = 'decode_historical_event_logs_' ~ week.strftime('%Y_%m_%d') %}
       
       {% set create_view_query %}
         create or replace view streamline.{{view_name}} as (
@@ -39,11 +39,20 @@
               ON A.parent_contract_address = l.contract_address
               AND A.event_signature = l.topics[0]::STRING
               AND l.block_number BETWEEN A.start_block AND A.end_block
-              LEFT JOIN {{ ref('streamline__decoded_logs_complete') }} dlc
+              LEFT JOIN (
+                select _log_id 
+                from {{ ref('streamline__decoded_logs_complete') }}
+                join (
+                    select block_number
+                    from {{ ref('core__fact_blocks') }}
+                    where date_trunc('week', block_timestamp) = '{{week}}'::timestamp
+                ) 
+                using (block_number)              
+              ) dlc
               ON dlc._log_id = concat(l.tx_hash::string, '-', l.event_index::string)
           WHERE
               l.tx_succeeded
-              AND date_trunc('month', block_timestamp) = '{{month}}'::timestamp
+              AND date_trunc('week', block_timestamp) = '{{week}}'::timestamp
               AND dlc._log_id is null
               AND l.block_number < (
                 SELECT
@@ -57,19 +66,19 @@
 
       {# Create the view #}
       {% do run_query(create_view_query) %}
-      {{ log("Created view for " ~ month.strftime('%Y-%m'), info=True) }}
+      {{ log("Created view for week starting " ~ week.strftime('%Y-%m-%d'), info=True) }}
       
       {% if var("UPDATE_UDFS_AND_SPS", false) %}
-        {# Execute decode function with existence check #}
+        {# Invoke streamline, if rows exist to decode #}
         {% set decode_query %}
           SELECT
             streamline.udf_bulk_decode_logs_v2(
-              object_construct(
-                'sql_source', '{{view_name}}',
-                'external_table', 'DECODED_LOGS',
-                'sql_limit', {{ params.sql_limit }},
-                'producer_batch_size', {{ params.producer_batch_size }},
-                'worker_batch_size', {{ params.worker_batch_size }}
+              PARSE_JSON(
+                  $${ "external_table": "decoded_logs",
+                  "producer_batch_size": {{ params.producer_batch_size }},
+                  "sql_limit": {{ params.sql_limit }},
+                  "sql_source": "{{view_name}}",
+                  "worker_batch_size": {{ params.worker_batch_size }} }$$
               )
             )
           WHERE
@@ -81,11 +90,11 @@
         {% endset %}
         
         {% do run_query(decode_query) %}
-        {{ log("Triggered decoding for " ~ month.strftime('%Y-%m'), info=True) }}
+        {{ log("Triggered decoding for " ~ week.strftime('%Y-%m-%d'), info=True) }}
         
-        {# Execute wait #}
-        {% do run_query("call system$wait(10)") %}
-        {{ log("Completed wait after decoding for " ~ month.strftime('%Y-%m'), info=True) }}
+        {# Call wait to avoid queueing up too many jobs #}
+        {% do run_query("call system$wait(20)") %}
+        {{ log("Completed wait after decoding for " ~ week.strftime('%Y-%m-%d'), info=True) }}
       {% endif %}
       
     {% endfor %}
