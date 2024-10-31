@@ -2,7 +2,6 @@
 {% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set source_name = 'RECEIPTS_BY_HASH' if uses_receipts_by_hash else 'RECEIPTS' %}
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)" if uses_receipts_by_hash else "" %}
 
 -- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
 
@@ -12,7 +11,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = unique_key,
     cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = post_hook,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = silver_full_refresh,
     tags = ['silver_core']
@@ -25,7 +24,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = unique_key,
     cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = post_hook,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['silver_core']
 ) }}
@@ -40,7 +39,7 @@ WITH bronze_receipts AS (
             tx_hash,
             DATA:result AS receipts_json,
         {% else %}
-            array_index,
+            receipts_json :transactionHash :: STRING AS tx_hash,
             DATA AS receipts_json,
         {% endif %}
         _inserted_timestamp
@@ -71,24 +70,12 @@ WITH bronze_receipts AS (
 SELECT 
     block_number,
     partition_key,
-    {% if uses_receipts_by_hash %}
-        tx_hash,
-    {% else %}
-        array_index,
-    {% endif %}
+    tx_hash,
     receipts_json,
     _inserted_timestamp,
-    {% if uses_receipts_by_hash %}
-        {{ dbt_utils.generate_surrogate_key(['block_number','tx_hash']) }} AS receipts_id,
-    {% else %}
-        {{ dbt_utils.generate_surrogate_key(['block_number','array_index']) }} AS receipts_id,
-    {% endif %}
+    {{ dbt_utils.generate_surrogate_key(['block_number','tx_hash']) }} AS receipts_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_receipts
-{% if uses_receipts_by_hash %}
 QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
-{% else %}
-QUALIFY ROW_NUMBER() OVER (PARTITION BY array_index ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
-{% endif %}
