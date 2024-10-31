@@ -121,6 +121,12 @@ The address of the beneficiary to whom the mining rewards were given
 
 {% enddocs %}
 
+{% docs evm_blocks_nonce %}
+
+The nonce of the block.
+
+{% enddocs %}
+
 {% docs evm_state_root %}
 
 The root of the final state trie of the block
