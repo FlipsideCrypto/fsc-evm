@@ -4,7 +4,7 @@
     "blocks_transactions": {
         "method": 'eth_getBlockByNumber',
         "method_params": 'ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)',
-        "exploded_key": ['data', 'result.transactions']
+        "exploded_key": ['result', 'result.transactions']
     },
     "receipts_by_hash": {
         "method": 'eth_getTransactionReceipt',
