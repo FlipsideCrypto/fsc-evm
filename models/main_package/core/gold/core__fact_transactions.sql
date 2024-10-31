@@ -1,6 +1,7 @@
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set uses_eip_1559 = var('GLOBAL_USES_EIP_1559', true) %}
 {% set uses_l1_columns = var('GLOBAL_USES_L1_COLUMNS', false) %}
+{% set uses_l1_tx_fee_calc = var('GLOBAL_USES_L1_TX_FEE_CALC', false) %}
 {% set uses_chain_id = var('GLOBAL_USES_CHAIN_ID', true) %}
 {% set uses_eth_value = var('GLOBAL_USES_ETH_VALUE', false) %}
 {% set uses_mint = var('GLOBAL_USES_MINT', false) %}
@@ -202,6 +203,8 @@ WHERE
                 ) :: FLOAT,
                 0
             ) AS l1_gas_price,
+            {% endif %}
+            {% if uses_l1_tx_fee_calc %}
             utils.udf_decimal_adjust(
                 (
                     txs.gas_price * utils.udf_hex_to_int(
@@ -346,6 +349,8 @@ missing_data AS (
             ) :: FLOAT,
             0
         ) AS l1_gas_price_heal,
+        {% endif %}
+        {% if uses_l1_tx_fee_calc %}
         utils.udf_decimal_adjust(
             (
                 t.gas_price * utils.udf_hex_to_int(
