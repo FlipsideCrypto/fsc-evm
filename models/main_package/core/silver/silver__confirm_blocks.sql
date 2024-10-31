@@ -47,7 +47,7 @@ WITH bronze_confirm_blocks AS (
             )
             AND block_number < (
                 SELECT COALESCE(MAX(block_number), 0) FROM {{ this }} 
-            ) +5000000
+            ) + 2000000
             AND DATA:result IS NOT NULL
         {% else %}
             {{ ref('bronze__confirm_blocks') }}
