@@ -109,6 +109,24 @@ WHERE
             utils.udf_hex_to_int(
                 transaction_json :v :: STRING
             ) :: bigint AS v,
+            {% if uses_eip_1559 %}
+            TRY_TO_NUMBER(
+                utils.udf_hex_to_int(
+                    transaction_json :maxFeePerGas :: STRING
+                )
+                    ) / pow(
+                        10,
+                        9
+            ) AS max_fee_per_gas,
+            TRY_TO_NUMBER(
+                utils.udf_hex_to_int(
+                    transaction_json :maxPriorityFeePerGas :: STRING
+                )
+                    ) / pow(
+                        10,
+                        9
+            ) AS max_priority_fee_per_gas,
+            {% endif %}
             {% if uses_eth_value %}
             utils.udf_hex_to_int(
                 transaction_json :ethValue :: STRING
@@ -127,7 +145,6 @@ WHERE
                 18
             ) AS value_precise,
             value_precise :: FLOAT AS VALUE 
-            {# no priority fee in transaction json for Core Chain, will need to add for other chains#}
         FROM
             base
     ),
@@ -157,22 +174,8 @@ WHERE
             txs.value_precise_raw,
             txs.value_precise,
             {% if uses_eip_1559 %}
-            TRY_TO_NUMBER(
-                utils.udf_hex_to_int(
-                    transaction_json :maxFeePerGas :: STRING
-                )
-                    ) / pow(
-                        10,
-                        9
-            ) AS max_fee_per_gas,
-            TRY_TO_NUMBER(
-                utils.udf_hex_to_int(
-                    transaction_json :maxPriorityFeePerGas :: STRING
-                )
-                    ) / pow(
-                        10,
-                        9
-            ) AS max_priority_fee_per_gas,
+            txs.max_fee_per_gas,
+            txs.max_priority_fee_per_gas,
             {% endif %}
             {% if uses_l1_columns %}
             COALESCE(
