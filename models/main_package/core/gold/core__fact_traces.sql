@@ -8,7 +8,6 @@
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-{% set uses_time = var('GLOBAL_USES_TIME', false) %}
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 
 {% if uses_receipts_by_hash %}
@@ -396,9 +395,6 @@ aggregated_errors AS (
                     {% endif %}
                     trace_json :from :: STRING AS from_address,
                     trace_json :to :: STRING AS to_address,
-                    {% if uses_time %}
-                    trace_json :time :: STRING AS time,
-                    {% endif %}
                     IFNULL(
                         trace_json :value :: STRING,
                         '0x0'
@@ -573,9 +569,6 @@ aggregated_errors AS (
                             f.trace_index,
                             f.from_address AS from_address,
                             f.to_address AS to_address,
-                            {% if uses_time %}
-                            f.time,
-                            {% endif %}
                             f.value_hex,
                             f.value_precise_raw,
                             f.value_precise,
@@ -649,9 +642,6 @@ heal_missing_data AS (
         t.trace_index,
         t.from_address,
         t.to_address,
-        {% if uses_time %}
-        t.time,
-        {% endif %}
         t.value_hex,
         t.value_precise_raw,
         t.value_precise,
@@ -709,9 +699,6 @@ all_traces AS (
         trace_index,
         from_address,
         to_address,
-        {% if uses_time %}
-        time,
-        {% endif %}
         value_hex,
         value_precise_raw,
         value_precise,
@@ -747,9 +734,6 @@ SELECT
     trace_index,
     from_address,
     to_address,
-    {% if uses_time %}
-    time,
-    {% endif %}
     value_hex,
     value_precise_raw,
     value_precise,
@@ -783,9 +767,6 @@ SELECT
     trace_index,
     from_address,
     to_address,
-    {% if uses_time %}
-    time,
-    {% endif %}
     value_hex,
     value_precise_raw,
     value_precise,
@@ -832,9 +813,6 @@ SELECT
     origin_from_address,
     origin_to_address,
     origin_function_signature,
-    {% if uses_time %}
-    time,
-    {% endif %}
     {% if TRACES_ARB_MODE %}
         before_evm_transfers,
         after_evm_transfers,
