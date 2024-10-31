@@ -11,7 +11,8 @@ models:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-      - name: TX_HASH
+      - name: >-
+          {{ 'TX_HASH' if var('GLOBAL_USES_RECEIPTS_BY_HASH', true) else 'ARRAY_INDEX' }}
         tests:
           - not_null
       - name: RECEIPTS_JSON

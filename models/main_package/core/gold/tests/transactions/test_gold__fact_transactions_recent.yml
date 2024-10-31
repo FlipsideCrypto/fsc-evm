@@ -112,6 +112,46 @@ models:
       - name: V
         tests:
           - not_null
+      - name: >-
+          {{ 'ETH_VALUE' if var('GLOBAL_USES_ETH_VALUE', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'MINT' if var('GLOBAL_USES_MINT', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'SOURCE_HASH' if var('GLOBAL_USES_SOURCE_HASH', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'MAX_FEE_PER_GAS' if var('GLOBAL_USES_EIP_1559', true) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'MAX_PRIORITY_FEE_PER_GAS' if var('GLOBAL_USES_EIP_1559', true) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'CHAIN_ID' if var('GLOBAL_USES_CHAIN_ID', true) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_FEE' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_GAS_USED' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
       - name: FACT_TRANSACTIONS_ID
         tests:
           - not_null
