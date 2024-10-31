@@ -90,5 +90,5 @@ FROM bronze_receipts
 {% if uses_receipts_by_hash %}
 QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
 {% else %}
-QUALIFY ROW_NUMBER() OVER (PARTITION BY array_index ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
-{% endif %}
+QUALIFY(ROW_NUMBER() OVER (PARTITION BY block_number, array_index ORDER BY _inserted_timestamp DESC)) = 1
+{% endif %} 
