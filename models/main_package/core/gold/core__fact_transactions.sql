@@ -201,9 +201,9 @@ WHERE
             ) AS l1_gas_price,
             utils.udf_decimal_adjust(
                 (
-                    utils.udf_hex_to_int(
+                    txs.gas_price * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
-                    ) :: bigint * txs.gas_price
+                    ) :: bigint
                 ) + FLOOR(
                     l1_gas_price * l1_gas_used * l1_fee_scalar
                 ) + IFF(
@@ -324,30 +324,30 @@ missing_data AS (
                 r.receipts_json :l1Fee :: STRING
             ) :: FLOAT,
             0
-        ) AS l1_fee,
+        ) AS l1_fee_heal,
         COALESCE(
             (
                 r.receipts_json :l1FeeScalar :: STRING
             ) :: FLOAT,
             0
-        ) AS l1_fee_scalar,
+        ) AS l1_fee_scalar_heal,
         COALESCE(
             utils.udf_hex_to_int(
                 r.receipts_json :l1GasUsed :: STRING
             ) :: FLOAT,
             0
-        ) AS l1_gas_used,
+        ) AS l1_gas_used_heal,
         COALESCE(
             utils.udf_hex_to_int(
                 r.receipts_json :l1GasPrice :: STRING
             ) :: FLOAT,
             0
-        ) AS l1_gas_price,
+        ) AS l1_gas_price_heal,
         utils.udf_decimal_adjust(
             (
-                utils.udf_hex_to_int(
+                t.gas_price * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
-                ) :: bigint * t.gas_price
+                ) :: bigint
             ) + FLOOR(
                 l1_gas_price * l1_gas_used * l1_fee_scalar
             ) + IFF(
@@ -502,10 +502,10 @@ SELECT
     max_priority_fee_per_gas,
     {% endif %}
     {% if uses_l1_columns %}
-    l1_fee,
-    l1_fee_scalar,
-    l1_gas_used,
-    l1_gas_price,
+    l1_fee_heal AS l1_fee,
+    l1_fee_scalar_heal AS l1_fee_scalar,
+    l1_gas_used_heal AS l1_gas_used,
+    l1_gas_price_heal AS l1_gas_price,
     {% endif %}
     tx_fee_heal AS tx_fee,
     tx_fee_precise_heal AS tx_fee_precise,
