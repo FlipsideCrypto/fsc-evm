@@ -1,0 +1,94 @@
+{% macro decode_historical_logs() %}
+
+  {%- set params = {
+      "sql_limit": var("HISTORICAL_DECODING_SQL_LIMIT", 2000000),
+      "producer_batch_size": var("HISTORICAL_DECODING_PRODUCER_BATCH_SIZE", 400000),
+      "worker_batch_size": var("HISTORICAL_DECODING_WORKER_BATCH_SIZE", 200000)
+  } -%}
+
+  {% set find_months_query %}
+    select distinct date_trunc('month', block_timestamp)::date as month
+    from {{ ref('core__fact_blocks') }}
+  {% endset %}
+
+  {% set results = run_query(find_months_query) %}
+
+  {% if execute %}
+    {% set months = results.columns[0].values() %}
+    
+    {% for month in months %}
+      {% set view_name = 'decode_historical_logs_' ~ month.strftime('%Y_%m') %}
+      
+      {% set create_view_query %}
+        create or replace view streamline.{{view_name}} as (
+          SELECT
+              l.block_number,
+              concat(l.tx_hash::string, '-', l.event_index::string) as _log_id,
+              A.abi AS abi,
+              OBJECT_CONSTRUCT(
+                  'topics',
+                  l.topics,
+                  'data',
+                  l.data,
+                  'address',
+                  l.contract_address
+              ) AS DATA
+          FROM
+              {{ ref('core__fact_event_logs') }} l
+              INNER JOIN {{ ref('silver__complete_event_abis') }} A
+              ON A.parent_contract_address = l.contract_address
+              AND A.event_signature = l.topics[0]::STRING
+              AND l.block_number BETWEEN A.start_block AND A.end_block
+              LEFT JOIN {{ ref('streamline__decoded_logs_complete') }} dlc
+              ON dlc._log_id = concat(l.tx_hash::string, '-', l.event_index::string)
+          WHERE
+              l.tx_succeeded
+              AND date_trunc('month', block_timestamp) = '{{month}}'::timestamp
+              AND dlc._log_id is null
+              AND l.block_number < (
+                SELECT
+                    block_number
+                FROM
+                    {{ ref('_block_lookback') }}
+              )
+          LIMIT {{ params.sql_limit }}
+        )
+      {% endset %}
+
+      {# Create the view #}
+      {% do run_query(create_view_query) %}
+      {{ log("Created view for " ~ month.strftime('%Y-%m'), info=True) }}
+      
+      {% if var("UPDATE_UDFS_AND_SPS", false) %}
+        {# Execute decode function with existence check #}
+        {% set decode_query %}
+          SELECT
+            streamline.udf_bulk_decode_logs_v2(
+              object_construct(
+                'sql_source', '{{view_name}}',
+                'external_table', 'DECODED_LOGS',
+                'sql_limit', {{ params.sql_limit }},
+                'producer_batch_size', {{ params.producer_batch_size }},
+                'worker_batch_size', {{ params.worker_batch_size }}
+              )
+            )
+          WHERE
+            EXISTS(
+              SELECT 1
+              FROM streamline.{{view_name}}
+              LIMIT 1
+            );
+        {% endset %}
+        
+        {% do run_query(decode_query) %}
+        {{ log("Triggered decoding for " ~ month.strftime('%Y-%m'), info=True) }}
+        
+        {# Execute wait #}
+        {% do run_query("call system$wait(10)") %}
+        {{ log("Completed wait after decoding for " ~ month.strftime('%Y-%m'), info=True) }}
+      {% endif %}
+      
+    {% endfor %}
+  {% endif %}
+
+{% endmacro %}
