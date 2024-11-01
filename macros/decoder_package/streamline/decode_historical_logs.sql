@@ -58,7 +58,7 @@
                   l.data,
                   concat(l.tx_hash::string, '-', l.event_index::string) as _log_id
               FROM target_blocks b
-              JOIN {{ ref('core__fact_event_logs') }} l using (block_number)
+              INNER JOIN {{ ref('core__fact_event_logs') }} l using (block_number)
               WHERE l.tx_succeeded and date_trunc('month', l.block_timestamp) = '{{month}}'::timestamp
           )
           SELECT
