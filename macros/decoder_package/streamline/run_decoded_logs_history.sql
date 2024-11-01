@@ -1,4 +1,4 @@
-{% macro run_historical_log_decoding() %}
+{% macro run_decoded_logs_history() %}
 
 {% set blockchain = var('GLOBAL_PROD_DB_NAME','').lower() %}
 

@@ -21,7 +21,7 @@
     {% set months = results.columns[0].values() %}
     
     {% for month in months %}
-      {% set view_name = 'decode_logs_history_' ~ month.strftime('%Y_%m') %}
+      {% set view_name = 'decoded_logs_history_' ~ month.strftime('%Y_%m') %}
       
       {% set create_view_query %}
         create or replace view streamline.{{view_name}} as (
