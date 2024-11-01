@@ -1,12 +1,12 @@
-{% macro decode_historical_logs(backfill_mode=false) %}
+{% macro historical_log_decoding(backfill_mode=false) %}
 
   {%- set params = {
-      "sql_limit": var("HISTORICAL_DECODING_SQL_LIMIT", 20),
-      "producer_batch_size": var("HISTORICAL_DECODING_PRODUCER_BATCH_SIZE", 400000),
-      "worker_batch_size": var("HISTORICAL_DECODING_WORKER_BATCH_SIZE", 200000)
+      "sql_limit": var("HISTORICAL_LOG_DECODING_SQL_LIMIT", 20),
+      "producer_batch_size": var("HISTORICAL_LOG_DECODING_PRODUCER_BATCH_SIZE", 400000),
+      "worker_batch_size": var("HISTORICAL_LOG_DECODING_WORKER_BATCH_SIZE", 200000)
   } -%}
 
-  {% set wait_time = var("HISTORICAL_DECODING_WAIT_TIME", 60) %}
+  {% set wait_time = var("HISTORICAL_LOG_DECODING_WAIT_TIME", 60) %}
 
   {% set find_months_query %}
     SELECT 
@@ -21,7 +21,7 @@
     {% set months = results.columns[0].values() %}
     
     {% for month in months %}
-      {% set view_name = 'decode_historical_logs_' ~ month.strftime('%Y_%m') %}
+      {% set view_name = 'historical_log_decoding_' ~ month.strftime('%Y_%m') %}
       
       {% set create_view_query %}
         create or replace view streamline.{{view_name}} as (
