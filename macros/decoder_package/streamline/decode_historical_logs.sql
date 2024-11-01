@@ -108,7 +108,7 @@
         {{ log("Triggered decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
         
         {# Call wait to avoid queueing up too many jobs #}
-        {% do run_query("call system$wait({{ wait_time }})") %}
+        {% do run_query("call system$wait(" ~ wait_time ~ ")") %}
         {{ log("Completed wait after decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
       {% endif %}
       
