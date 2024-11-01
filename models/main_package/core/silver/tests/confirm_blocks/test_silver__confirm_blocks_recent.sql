@@ -18,9 +18,7 @@ FROM
 
 {% set hour_lookback = run_query(lookback_query) %}
 
-{% if execute %}
-    {% set hour_lookback = hour_lookback.rows[0].hour_lookback %}
-{% endif %}
+{% set hours = hour_lookback.rows[0].hour_lookback %}
 
 SELECT
     *
@@ -29,7 +27,7 @@ FROM
 WHERE
     modified_timestamp > DATEADD(
         'hour',
-        {{ hour_lookback }},
+        {{ hours }},
         SYSDATE()
     )
     AND partition_key > (
