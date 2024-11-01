@@ -21,7 +21,7 @@
     {% set months = results.columns[0].values() %}
     
     {% for month in months %}
-      {% set view_name = 'decode_historical_event_logs_' ~ month.strftime('%Y_%m') %}
+      {% set view_name = 'decode_historical_logs_' ~ month.strftime('%Y_%m') %}
       
       {% set create_view_query %}
         create or replace view streamline.{{view_name}} as (
@@ -105,11 +105,11 @@
         {% endset %}
         
         {% do run_query(decode_query) %}
-        {{ log("Triggered decoding for " ~ month.strftime('%Y-%m'), info=True) }}
+        {{ log("Triggered decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
         
         {# Call wait to avoid queueing up too many jobs #}
         {% do run_query("call system$wait({{ wait_time }})") %}
-        {{ log("Completed wait after decoding for " ~ month.strftime('%Y-%m'), info=True) }}
+        {{ log("Completed wait after decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
       {% endif %}
       
     {% endfor %}
