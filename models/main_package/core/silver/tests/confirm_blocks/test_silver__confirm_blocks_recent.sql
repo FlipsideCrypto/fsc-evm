@@ -4,8 +4,9 @@
 ) }}
 
 {%- set default_hours = -24 * 5 -%}
+{%- set hour_lookback = default_hours -%}
 
-{%- if execute -%}
+{% if execute %}
     {% set lookback_query %}
         SELECT
             IFF(
@@ -17,10 +18,9 @@
             {{ ref('silver__confirm_blocks') }}
     {% endset %}
     
-    {% set hour_lookback = run_query(lookback_query).rows[0].hour_lookback %}
-{%- else -%}
-    {% set hour_lookback = default_hours %}
-{%- endif -%}
+    {% set results = run_query(lookback_query) %}
+    {% set hour_lookback = results.columns[0].values()[0] %}
+{% endif %}
 
 SELECT
     *
