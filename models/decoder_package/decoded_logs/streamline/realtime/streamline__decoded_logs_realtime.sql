@@ -71,8 +71,7 @@ candidate_logs AS (
     WHERE
         l.tx_succeeded
         AND l.inserted_timestamp :: DATE >= DATEADD('day', -2, SYSDATE())
-),
-decoded_logs AS (
+)
     SELECT
         l.block_number,
         l._log_id,
@@ -101,7 +100,6 @@ decoded_logs AS (
             WHERE
                 e._log_id = l._log_id
         )
-)
 
 {% if testing_limit is not none %}
     LIMIT
