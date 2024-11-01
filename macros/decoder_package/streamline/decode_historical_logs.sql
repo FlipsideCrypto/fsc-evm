@@ -80,7 +80,7 @@
       {% do run_query(create_view_query) %}
       {{ log("Created view for month " ~ month.strftime('%Y-%m'), info=True) }}
       
-      {% if var("UPDATE_UDFS_AND_SPS", false) %}
+      {% if var("STREAMLINE_INVOKE_STREAMS", false) %}
         {# Invoke streamline, if rows exist to decode #}
         {% set decode_query %}
           SELECT
