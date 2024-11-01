@@ -32,7 +32,12 @@
               WHERE date_trunc('month', block_timestamp) = '{{month}}'::timestamp
           ),
           new_abis AS (
-              SELECT *
+              SELECT 
+                abi,
+                parent_contract_address,
+                event_signature,
+                start_block,
+                end_block
               FROM {{ ref('silver__complete_event_abis') }} 
               {% if not backfill_mode %}
                 WHERE inserted_timestamp > dateadd('day', -30, sysdate())
