@@ -3,26 +3,24 @@
     tags = ['recent_test_confirm_blocks']
 ) }}
 
-{% set lookback_query %}
-SELECT
-    IFF(
-        DATEDIFF('hour', MIN(modified_timestamp), SYSDATE()) <= (
-            24 * 6
-        ),
-        -12,
-        -24 * 5
-    ) as hour_lookback
-FROM
-    {{ ref('silver__confirm_blocks') }}
-{% endset %}
+{%- set default_hours = -24 * 5 -%}
 
-{% set hour_lookback = run_query(lookback_query) %}
-
-{# Set a default value for hours #}
-{% set hours = -24 * 5 %}
-{% if execute %}
-    {% set hours = hour_lookback.rows[0].hour_lookback %}
-{% endif %}
+{%- if execute -%}
+    {% set lookback_query %}
+        SELECT
+            IFF(
+                DATEDIFF('hour', MIN(modified_timestamp), SYSDATE()) <= (24 * 6),
+                -12,
+                {{ default_hours }}
+            ) as hour_lookback
+        FROM
+            {{ ref('silver__confirm_blocks') }}
+    {% endset %}
+    
+    {% set hour_lookback = run_query(lookback_query).rows[0].hour_lookback %}
+{%- else -%}
+    {% set hour_lookback = default_hours %}
+{%- endif -%}
 
 SELECT
     *
@@ -31,7 +29,7 @@ FROM
 WHERE
     modified_timestamp > DATEADD(
         'hour',
-        {{ hours }},
+        {{ hour_lookback }},
         SYSDATE()
     )
     AND partition_key > (
