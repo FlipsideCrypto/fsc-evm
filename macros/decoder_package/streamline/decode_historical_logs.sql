@@ -12,7 +12,7 @@
     SELECT 
       DISTINCT date_trunc('month', block_timestamp)::date as month
     FROM {{ ref('core__fact_blocks') }}
-    ORDER BY 1 ASC
+    ORDER BY month ASC
   {% endset %}
 
   {% set results = run_query(find_months_query) %}
