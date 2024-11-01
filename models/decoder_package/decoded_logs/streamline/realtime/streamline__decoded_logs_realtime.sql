@@ -72,34 +72,34 @@ candidate_logs AS (
         l.tx_succeeded
         AND l.inserted_timestamp :: DATE >= DATEADD('day', -2, SYSDATE())
 )
-    SELECT
-        l.block_number,
-        l._log_id,
-        A.abi,
-        OBJECT_CONSTRUCT(
-            'topics',
-            l.topics,
-            'data',
-            l.data,
-            'address',
-            l.contract_address
-        ) AS DATA
-    FROM
-        candidate_logs l
-        INNER JOIN {{ ref('silver__complete_event_abis') }} A
-        ON A.parent_contract_address = l.contract_address
-        AND A.event_signature = l.topics [0] :: STRING
-        AND l.block_number BETWEEN A.start_block
-        AND A.end_block
-    WHERE
-        NOT EXISTS (
-            SELECT
-                1
-            FROM
-                existing_logs_to_exclude e
-            WHERE
-                e._log_id = l._log_id
-        )
+SELECT
+    l.block_number,
+    l._log_id,
+    A.abi,
+    OBJECT_CONSTRUCT(
+        'topics',
+        l.topics,
+        'data',
+        l.data,
+        'address',
+        l.contract_address
+    ) AS DATA
+FROM
+    candidate_logs l
+    INNER JOIN {{ ref('silver__complete_event_abis') }} A
+    ON A.parent_contract_address = l.contract_address
+    AND A.event_signature = l.topics [0] :: STRING
+    AND l.block_number BETWEEN A.start_block
+    AND A.end_block
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            existing_logs_to_exclude e
+        WHERE
+            e._log_id = l._log_id
+    )
 
 {% if testing_limit is not none %}
     LIMIT
