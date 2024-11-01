@@ -9,6 +9,7 @@
   {% set find_months_query %}
     select distinct date_trunc('month', block_timestamp)::date as month
     from {{ ref('core__fact_blocks') }}
+    order by 1 asc
   {% endset %}
 
   {% set results = run_query(find_months_query) %}
