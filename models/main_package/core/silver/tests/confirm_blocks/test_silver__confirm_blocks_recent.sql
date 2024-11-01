@@ -10,7 +10,7 @@
     {% set lookback_query %}
         SELECT
             IFF(
-                DATEDIFF('hour', MIN(modified_timestamp), SYSDATE()) <= (24 * 6),
+                DATEDIFF('hour', MIN(modified_timestamp), SYSDATE()) <= (24 * 7),
                 -12,
                 {{ default_hours }}
             ) as hour_lookback
