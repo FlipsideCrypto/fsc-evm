@@ -54,11 +54,11 @@
               l.tx_succeeded
               AND date_trunc('month', block_timestamp) = '{{month}}'::timestamp
               AND dlc._log_id is null
-              AND l.block_number < (
+              AND l.block_timestamp < (
                 SELECT
-                    block_number
+                    dateadd('hour',-24,max(block_timestamp))
                 FROM
-                    {{ ref('_block_lookback') }}
+                    {{ ref('core__fact_blocks') }}
               )
           LIMIT {{ params.sql_limit }}
         )
