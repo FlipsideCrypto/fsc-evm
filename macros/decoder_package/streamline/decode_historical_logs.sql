@@ -1,4 +1,4 @@
-{% macro decode_historical_logs() %}
+{% macro decode_historical_logs(backfill_mode=false) %}
 
   {%- set params = {
       "sql_limit": var("HISTORICAL_DECODING_SQL_LIMIT", 20),
@@ -22,44 +22,55 @@
       
       {% set create_view_query %}
         create or replace view streamline.{{view_name}} as (
-          SELECT
-              l.block_number,
-              concat(l.tx_hash::string, '-', l.event_index::string) as _log_id,
-              A.abi AS abi,
-              OBJECT_CONSTRUCT(
-                  'topics',
+          WITH target_blocks AS (
+              SELECT 
+                  block_number
+              FROM {{ ref('core__fact_blocks') }}
+              WHERE date_trunc('month', block_timestamp) = '{{month}}'::timestamp
+          ),
+          new_abis AS (
+              SELECT *
+              FROM {{ ref('silver__complete_event_abis') }} 
+              {% if not backfill_mode %}
+                WHERE inserted_timestamp > dateadd('day', -30, sysdate())
+              {% endif %}
+          ),
+          existing_logs_to_exclude AS (
+              SELECT _log_id
+              FROM {{ ref('streamline__decoded_logs_complete') }} l
+              INNER JOIN target_blocks b using (block_number)
+          ),
+          candidate_logs AS (
+              SELECT 
+                  l.block_number,
+                  l.tx_hash,
+                  l.event_index,
+                  l.contract_address,
                   l.topics,
-                  'data',
                   l.data,
-                  'address',
-                  l.contract_address
-              ) AS DATA
-          FROM
-              {{ ref('core__fact_event_logs') }} l
-              INNER JOIN {{ ref('silver__complete_event_abis') }} A
+                  concat(l.tx_hash::string, '-', l.event_index::string) as _log_id
+              FROM target_blocks b
+              JOIN {{ ref('core__fact_event_logs') }} l using (block_number)
+              WHERE l.tx_succeeded and date_trunc('month', l.block_timestamp) = '{{month}}'::timestamp
+          )
+              SELECT
+                  l.block_number,
+                  l._log_id,
+                  A.abi,
+                  OBJECT_CONSTRUCT(
+                      'topics', l.topics,
+                      'data', l.data,
+                      'address', l.contract_address
+                   ) AS data
+              FROM candidate_logs l
+              INNER JOIN new_abis A
               ON A.parent_contract_address = l.contract_address
               AND A.event_signature = l.topics[0]::STRING
               AND l.block_number BETWEEN A.start_block AND A.end_block
-              LEFT JOIN (
-                select _log_id 
-                from {{ ref('streamline__decoded_logs_complete') }}
-                join (
-                    select block_number
-                    from {{ ref('core__fact_blocks') }}
-                    where date_trunc('month', block_timestamp) = '{{month}}'::timestamp
-                ) 
-                using (block_number)              
-              ) dlc
-              ON dlc._log_id = concat(l.tx_hash::string, '-', l.event_index::string)
-          WHERE
-              l.tx_succeeded
-              AND date_trunc('month', block_timestamp) = '{{month}}'::timestamp
-              AND dlc._log_id is null
-              AND l.block_timestamp < (
-                SELECT
-                    dateadd('hour',-24,max(block_timestamp))
-                FROM
-                    {{ ref('core__fact_blocks') }}
+              WHERE NOT EXISTS (
+                  SELECT 1 
+                  FROM existing_logs_to_exclude e 
+                  WHERE e._log_id = l._log_id
               )
           LIMIT {{ params.sql_limit }}
         )
