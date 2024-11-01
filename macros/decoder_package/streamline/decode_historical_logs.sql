@@ -6,10 +6,13 @@
       "worker_batch_size": var("HISTORICAL_DECODING_WORKER_BATCH_SIZE", 200000)
   } -%}
 
+  {% set wait_time = var("HISTORICAL_DECODING_WAIT_TIME", 60) %}
+
   {% set find_months_query %}
-    select distinct date_trunc('month', block_timestamp)::date as month
-    from {{ ref('core__fact_blocks') }}
-    order by 1 asc
+    SELECT 
+      DISTINCT date_trunc('month', block_timestamp)::date as month
+    FROM {{ ref('core__fact_blocks') }}
+    ORDER BY 1 ASC
   {% endset %}
 
   {% set results = run_query(find_months_query) %}
@@ -105,7 +108,7 @@
         {{ log("Triggered decoding for " ~ month.strftime('%Y-%m'), info=True) }}
         
         {# Call wait to avoid queueing up too many jobs #}
-        {% do run_query("call system$wait(20)") %}
+        {% do run_query("call system$wait({{ wait_time }})") %}
         {{ log("Completed wait after decoding for " ~ month.strftime('%Y-%m'), info=True) }}
       {% endif %}
       
