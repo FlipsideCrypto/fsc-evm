@@ -18,7 +18,9 @@ FROM
 
 {% set hour_lookback = run_query(lookback_query) %}
 
-{% set hours = hour_lookback.rows[0].hour_lookback %}
+{% if execute or compile %}
+    {% set hours = hour_lookback.rows[0].hour_lookback %}
+{% endif %}
 
 SELECT
     *
