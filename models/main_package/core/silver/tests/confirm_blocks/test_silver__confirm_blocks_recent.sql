@@ -8,7 +8,7 @@ SELECT
 FROM
     {{ ref('silver__confirm_blocks') }}
 WHERE
-    modified_timestamp > dateadd('hour',-12,sysdate()) and 
+    modified_timestamp > DATEADD('hour',-12,sysdate()) and 
     partition_key > (
         SELECT
             round(block_number, -3) AS block_number

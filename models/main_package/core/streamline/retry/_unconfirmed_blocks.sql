@@ -24,4 +24,5 @@
         )
     WHERE
         txs.tx_hash IS NULL
+        AND cb.modified_timestamp > DATEADD('day', -5, SYSDATE())
 {% endif %}
