@@ -2,11 +2,11 @@
 {{ config (
     materialized = "incremental",
     unique_key = ['decoded_logs_id'],
-    cluster_by = "block_timestamp::date",
+    cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['decoded_logs']
+    tags = ['silver_decoded_logs']
 ) }}
 
 WITH base_data AS (

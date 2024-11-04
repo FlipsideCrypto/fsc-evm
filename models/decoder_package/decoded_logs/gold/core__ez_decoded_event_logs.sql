@@ -8,7 +8,7 @@
     full_refresh = false,
     post_hook = dbt_post_hook,
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['decoded_logs']
+    tags = ['gold_decoded_logs']
 ) }}
 
 WITH base AS (
