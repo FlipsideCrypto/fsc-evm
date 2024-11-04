@@ -24,7 +24,7 @@ WITH base AS (
     FROM
         {{ ref('silver__decoded_logs') }}
     WHERE
-        IS_OBJECT(DATA)
+        1=1
 
     {% if is_incremental() %}
     AND modified_timestamp > (
