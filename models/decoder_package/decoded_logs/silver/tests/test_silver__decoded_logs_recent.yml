@@ -1,0 +1,12 @@
+version: 2
+models:
+  - name: test_silver__decoded_logs_recent
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DECODED_LOGS_ID
+
+    columns:
+      - name: BLOCK_NUMBER
+        tests:
+          - not_null
