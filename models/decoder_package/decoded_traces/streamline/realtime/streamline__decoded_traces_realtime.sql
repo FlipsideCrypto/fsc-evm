@@ -10,7 +10,7 @@
     "sql_source": "decoded_traces_realtime"
 } -%}
 
-{%- set testing_limit = default_vars['testing_limit'] -%}
+{%- set testing_limit = var('DECODED_TRACES_REALTIME_TESTING_LIMIT', none) -%}
 
 {# Log configuration details #}
 {{ log_streamline_details(
