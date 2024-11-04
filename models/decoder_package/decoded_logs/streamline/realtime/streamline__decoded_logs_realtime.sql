@@ -1,12 +1,12 @@
 {%- set testing_limit = var('DECODED_LOGS_REALTIME_TESTING_LIMIT', none) -%}
 
-{%- set params ={ 
+{%- set params = { 
     "external_table": var("DECODED_LOGS_REALTIME_EXTERNAL_TABLE", "decoded_logs"),
     "sql_limit": var("DECODED_LOGS_REALTIME_SQL_LIMIT", 10000000),
     "producer_batch_size": var("DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE", 400000),
     "worker_batch_size": var("DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE", 200000),
-    "sql_source": "decoded_logs_realtime"} | tojson
--%}
+    "sql_source": "decoded_logs_realtime"
+} -%}
 
 {# Log configuration details #}
 {{ log_streamline_details(
@@ -22,7 +22,13 @@
     post_hook = [fsc_utils.if_data_call_function_v2( 
         func = 'streamline.udf_bulk_decode_logs_v2', 
         target = "{{this.schema}}.{{this.identifier}}", 
-        params = params 
+        params = {
+            "external_table": params['external_table'],
+            "sql_limit": params['sql_limit'],
+            "producer_batch_size": params['producer_batch_size'],
+            "worker_batch_size": params['worker_batch_size'],
+            "sql_source": params['sql_source']
+        } 
     ), 
     fsc_utils.if_data_call_wait()],
     tags = ['streamline_decoded_logs_realtime']
