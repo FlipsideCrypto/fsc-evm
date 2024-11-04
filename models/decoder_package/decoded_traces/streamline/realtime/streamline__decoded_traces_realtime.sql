@@ -20,7 +20,7 @@
     model_name=model_name,
     model_type=model_type,
     testing_limit=testing_limit,
-    streamline_params=streamline_params
+    streamline_params=params
 ) }}
 
 {# Set up dbt configuration #}
