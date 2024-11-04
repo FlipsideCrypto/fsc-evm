@@ -2,6 +2,7 @@
 {% set block_explorer_abi_limit = var('BLOCK_EXPLORER_ABI_LIMIT', 50) %}
 {% set block_explorer_abi_url = var('BLOCK_EXPLORER_ABI_URL', '') %}
 {% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
+{% set block_explorer_abi_interaction_limit = var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT', 250) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
@@ -29,7 +30,7 @@ WITH base AS (
         {{ ref('silver__relevant_contracts') }}
     WHERE
         1=1
-
+        AND total_interaction_count > {{ block_explorer_abi_interaction_limit }}
 {% if is_incremental() %}
 AND contract_address NOT IN (
     SELECT
