@@ -320,6 +320,7 @@ missing_data AS (
         t.value,
         t.value_precise_raw,
         t.value_precise,
+<<<<<<< HEAD
         {% if uses_eip_1559 %}
         t.max_fee_per_gas,
         t.max_priority_fee_per_gas,
@@ -366,13 +367,18 @@ missing_data AS (
             18
         ) AS tx_fee_precise_heal,
         {% else %}
+=======
+>>>>>>> origin/main
         utils.udf_decimal_adjust(
             t.gas_price * utils.udf_hex_to_int(
                 r.receipts_json :gasUsed :: STRING
             ) :: bigint, 
             9
         ) AS tx_fee_precise_heal,
+<<<<<<< HEAD
         {% endif %}
+=======
+>>>>>>> origin/main
         COALESCE(
             tx_fee_precise_heal :: FLOAT,
             0

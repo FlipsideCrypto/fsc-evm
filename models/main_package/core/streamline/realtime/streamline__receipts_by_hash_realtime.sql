@@ -167,15 +167,9 @@ to_do AS (
             block_number,
             tx_hash
         FROM
-            {{ ref('core__fact_transactions') }}
-        where 1=1
-        and block_number >= (
-            SELECT
-                block_number
-            FROM
-                {{ ref('_block_lookback') }}
-            )
+            {{ ref('test_gold__fact_transactions_recent') }}
         {% endif %}
+
     )
 
     EXCEPT
@@ -196,6 +190,18 @@ ready_blocks AS (
         tx_hash
     FROM
         to_do
+
+    {% if not new_build %}
+
+        UNION
+        SELECT
+            block_number,
+            tx_hash
+        FROM
+            {{ ref('test_gold__fact_transactions_recent') }}
+            JOIN {{ ref('_missing_receipts') }} using (block_number)
+
+    {% endif %}
 
     {% if testing_limit is not none %}
         LIMIT {{ testing_limit }} 
