@@ -10,9 +10,6 @@
     "sql_source": "decoded_traces_realtime"
 } -%}
 
-{%- set default_vars = set_default_variables_streamline_decoder(model_name, model_type) -%}
-
-
 {%- set testing_limit = default_vars['testing_limit'] -%}
 
 {# Log configuration details #}
