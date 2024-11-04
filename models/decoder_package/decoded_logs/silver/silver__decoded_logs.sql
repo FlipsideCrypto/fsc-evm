@@ -95,6 +95,6 @@ SELECT
     decoded_flat,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'event_index']) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS updated_timestamp,
+    SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM FINAL
