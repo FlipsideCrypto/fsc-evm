@@ -212,11 +212,10 @@ WHERE
                         tx_hash,
                         TYPE AS child_type,
                         to_address AS child_to_address,
-                        -- effective implementation
                         child_of AS parent_of,
                         input
                     FROM
-                        raw_traces
+                        raw_traces t
                         INNER JOIN PARENT USING (
                             tx_hash,
                             child_of,
@@ -285,7 +284,9 @@ WHERE
                 ) = LEFT(
                     f.function_signature,
                     10
-                ) {% if query_limit %}
+                )
+            WHERE
+                f.abi IS NOT NULL {% if query_limit %}
                 LIMIT
                     {{ query_limit }}
                 {% endif %}
