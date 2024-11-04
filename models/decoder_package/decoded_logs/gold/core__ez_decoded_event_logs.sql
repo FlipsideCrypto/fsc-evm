@@ -1,4 +1,4 @@
-{% set dbt_post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)' %}
+{% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)' %}
 
 {{ config (
     materialized = "incremental",
@@ -6,7 +6,7 @@
     cluster_by = "block_timestamp::date",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,
-    post_hook = dbt_post_hook,
+    post_hook = post_hook,
     merge_exclude_columns = ["inserted_timestamp"],
     tags = ['gold_decoded_logs']
 ) }}
