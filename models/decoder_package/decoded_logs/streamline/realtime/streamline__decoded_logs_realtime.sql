@@ -5,7 +5,7 @@
     "sql_limit": var("DECODED_LOGS_REALTIME_SQL_LIMIT", 10000000),
     "producer_batch_size": var("DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE", 400000),
     "worker_batch_size": var("DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE", 200000),
-    "sql_source": "decoded_logs_realtime"} 
+    "sql_source": "decoded_logs_realtime"} | tojson
 -%}
 
 {# Log configuration details #}
