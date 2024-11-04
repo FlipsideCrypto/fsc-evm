@@ -5,8 +5,93 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - EZ_DECODED_EVENT_LOGS_ID
+      - decoded_logs_exist:
+          fact_logs_model: ref('test_gold__fact_event_logs_full')
+      - missing_decoded_logs:
+          fact_logs_model: ref('test_gold__fact_event_logs_full')
+          wrapped_asset_address: {{ var('GLOBAL_WRAPPED_ASSET_ADDRESS', '') }}
 
     columns:
       - name: BLOCK_NUMBER
         tests:
           - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: hour
+              interval: 2
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
+      - name: TX_HASH
+        tests:
+          - not_null
+      - name: TX_POSITION
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: TOPICS
+        tests:
+          - not_null
+      - name: TOPIC_0
+        tests:
+          - not_null
+      - name: TOPIC_1
+      - name: TOPIC_2
+      - name: TOPIC_3
+      - name: DATA
+        tests:
+          - not_null
+      - name: EVENT_REMOVED
+        tests:
+          - not_null
+      - name: ORIGIN_FROM_ADDRESS
+        tests:
+          - not_null
+      - name: ORIGIN_TO_ADDRESS
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        tests:
+          - not_null
+      - name: TX_SUCCEEDED
+        tests:
+          - not_null
+      - name: EVENT_NAME
+        tests:
+          - not_null
+      - name: FULL_DECODED_DATA
+        tests:
+          - not_null
+      - name: DECODED_LOG
+        tests:
+          - not_null
+      - name: CONTRACT_NAME
+      - name: EZ_DECODED_EVENT_LOGS_ID
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: hour
+              interval: 2
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: hour
+              interval: 2
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
