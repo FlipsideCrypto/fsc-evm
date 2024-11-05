@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('bronze__decoded_logs') }}
 {{ config (
     materialized = "incremental",
-    unique_key = ['decoded_logs_id'],
+    unique_key = "decoded_logs_id",
     cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,

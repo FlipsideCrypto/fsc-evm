@@ -2,7 +2,7 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = ['ez_decoded_event_logs_id'],
+    unique_key = "ez_decoded_event_logs_id",
     cluster_by = "block_timestamp::date",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,
