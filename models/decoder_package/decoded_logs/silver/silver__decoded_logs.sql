@@ -1,11 +1,11 @@
 -- depends_on: {{ ref('bronze__decoded_logs') }}
 {{ config (
     materialized = "incremental",
-    unique_key = ['decoded_logs_id'],
+    unique_key = "decoded_logs_id",
+    incremental_strategy = 'delete+insert',
     cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,
-    merge_exclude_columns = ["inserted_timestamp"],
     tags = ['silver_decoded_logs']
 ) }}
 
