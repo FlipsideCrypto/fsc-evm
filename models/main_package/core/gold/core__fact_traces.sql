@@ -8,17 +8,16 @@
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 
 {% if uses_receipts_by_hash %}
     {% if TRACES_SEI_MODE %}
-        {% set delete_key = "concat(block_number, '-', tx_hash)" %}
+        {% set unique_key = "concat(block_number, '-', tx_hash)" %}
     {% else %}
-        {% set delete_key = "concat(block_number, '-', tx_position)" %}
+        {% set unique_key = "concat(block_number, '-', tx_position)" %}
     {% endif %}
 {% else %}
-    {% set delete_key = "block_number" %}
+    {% set unique_key = "block_number" %}
 {% endif %}
 
 {% if not gold_full_refresh %}
@@ -26,7 +25,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = delete_key,
+    unique_key = unique_key,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
@@ -38,10 +37,10 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = delete_key,
+    unique_key = unique_key,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['core','gold']
+    tags = ['gold_core']
 ) }}    
 
 {% endif %}
@@ -70,7 +69,7 @@ WITH silver_traces AS (
 {% if is_incremental() and not full_reload_mode %}
 AND modified_timestamp > (
     SELECT
-        MAX(modified_timestamp)
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
     FROM
         {{ this }}
 ) {% elif is_incremental() and full_reload_mode %}

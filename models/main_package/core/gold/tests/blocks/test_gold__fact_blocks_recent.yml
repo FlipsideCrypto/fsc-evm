@@ -82,7 +82,7 @@ models:
                 - NUMBER
                 - FLOAT
       - name: >-
-          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else 'DUMMY_COLUMN_0' }}
+          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else '' }}
         tests:
           - not_null:
               enabled: "{{ var('GLOBAL_USES_BASE_FEE', true) }}"
@@ -91,6 +91,14 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
+      - name: >-
+          {{ 'MIX_HASH' if var('GLOBAL_USES_MIX_HASH', false) else '' }}
+        tests:
+          - not_null:
+              enabled: "{{ var('GLOBAL_USES_MIX_HASH', false) }}"
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+              enabled: "{{ var('GLOBAL_USES_MIX_HASH', false) }}"
       - name: DIFFICULTY
         tests:
           - not_null

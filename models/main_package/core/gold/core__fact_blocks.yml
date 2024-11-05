@@ -18,6 +18,12 @@ models:
         description: '{{ doc("evm_size") }}'
       - name: MINER
         description: '{{ doc("evm_miner") }}'
+      - name: >-
+          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else '' }}
+        description: '{{ doc("evm_base_fee_per_gas") }}'
+      - name: >-
+          {{ 'MIX_HASH' if var('GLOBAL_USES_MIX_HASH', false) else '' }}
+        description: '{{ doc("evm_mix_hash") }}'
       - name: EXTRA_DATA
         description: '{{ doc("evm_extra_data") }}'
       - name: PARENT_HASH
@@ -30,7 +36,7 @@ models:
         description: '{{ doc("evm_difficulty") }}'
       - name: TOTAL_DIFFICULTY
         description: '{{ doc("evm_total_difficulty") }}'
-      - name: SHA3_UNCLLES
+      - name: SHA3_UNCLES
         description: '{{ doc("evm_sha3_uncles") }}'
       - name: UNCLE_BLOCKS
         description: '{{ doc("evm_uncle_blocks") }}'

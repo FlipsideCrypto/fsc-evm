@@ -138,3 +138,15 @@ The root of the transaction trie of the block
 The bloom filter for the logs of the block.
 
 {% enddocs %}
+
+{% docs evm_mix_hash %}
+
+A string of a 256-bit hash encoded as a hexadecimal
+
+{% enddocs %}
+
+{% docs evm_base_fee_per_gas %}
+
+A string of the base fee encoded in hexadecimal format. Please note that this response field will not be included in a block requested before the EIP-1559 upgrade
+
+{% enddocs %}

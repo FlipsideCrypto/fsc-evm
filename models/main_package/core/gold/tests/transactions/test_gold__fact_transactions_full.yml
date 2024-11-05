@@ -113,6 +113,22 @@ models:
       - name: V
         tests:
           - not_null
+      - name: >-
+          {{ 'L1_FEE' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
+      - name: >-
+          {{ 'L1_GAS_USED' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+        tests:
+          - not_null
       - name: FACT_TRANSACTIONS_ID
         tests:
           - not_null

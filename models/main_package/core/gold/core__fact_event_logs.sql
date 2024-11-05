@@ -1,18 +1,13 @@
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-
-{% if uses_receipts_by_hash %}
-    {% set delete_key = "tx_hash" %}
-{% else %}
-    {% set delete_key = "block_number" %}
-{% endif %}
+{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
 {% if not gold_full_refresh %}
 
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = delete_key,
+    unique_key = unique_key,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
@@ -24,7 +19,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = delete_key,
+    unique_key = unique_key,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['gold_core']
@@ -36,7 +31,11 @@ WITH base AS (
 
     SELECT
         block_number,
-        tx_hash,
+        {% if uses_receipts_by_hash %}
+            tx_hash,
+        {% else %}
+            receipts_json :transactionHash :: STRING AS tx_hash,
+        {% endif %}
         receipts_json,
         receipts_json :logs AS full_logs
     FROM

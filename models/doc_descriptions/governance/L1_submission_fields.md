@@ -34,6 +34,12 @@ The timestamp of the Ethereum block that contained this batch from the OP stack 
 
 {% enddocs %}
 
+{% docs evm_l1_fee %}
+
+The L1 portion of fees paid.
+
+{% enddocs %}
+
 {% docs evm_l1_fee_scalar %}
 
 This value covers the change in L1 gas price between the time the transaction is submitted and when it is published from the OP stack L2 chain.

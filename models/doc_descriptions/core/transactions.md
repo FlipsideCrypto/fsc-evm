@@ -181,3 +181,27 @@ The precise amount of the transaction fee. This is returned as a string to avoid
 The type of transaction. 
 
 {% enddocs %}
+
+{% docs evm_mint %}
+
+The minting event associated with the transaction
+
+{% enddocs %}
+
+{% docs evm_source_hash %}
+
+The hash of the source transaction that created this transaction
+
+{% enddocs %}
+
+{% docs evm_eth_value %}
+
+The eth value for the transaction
+
+{% enddocs %}
+
+{% docs evm_chain_id %}
+
+The unique identifier for the chain the transaction was executed on.
+
+{% enddocs %}

@@ -15,7 +15,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_decoded_traces', 'decoded_traces']
+    tags = ['bronze_decoded_traces']
 ) }}
 
 {# Main query starts here #}
