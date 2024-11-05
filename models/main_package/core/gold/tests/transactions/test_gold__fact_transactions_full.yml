@@ -114,19 +114,19 @@ models:
         tests:
           - not_null
       - name: >-
-          {{ 'L1_FEE' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+          {{ 'L1_FEE' if var('GLOBAL_USES_L1_COLUMNS', false) else '0' }}
         tests:
           - not_null
       - name: >-
-          {{ 'L1_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+          {{ 'L1_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) else '1' }}
         tests:
           - not_null
       - name: >-
-          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) else '2' }}
         tests:
           - not_null
       - name: >-
-          {{ 'L1_GAS_USED' if var('GLOBAL_USES_L1_COLUMNS', false) else '' }}
+          {{ 'L1_GAS_USED' if var('GLOBAL_USES_L1_COLUMNS', false) else '3' }}
         tests:
           - not_null
       - name: FACT_TRANSACTIONS_ID
