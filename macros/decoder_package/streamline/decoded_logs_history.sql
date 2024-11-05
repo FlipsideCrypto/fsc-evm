@@ -1,9 +1,9 @@
 {% macro decoded_logs_history(backfill_mode=false) %}
 
   {%- set params = {
-      "sql_limit": var("DECODED_LOGS_HISTORY_SQL_LIMIT", 7500000),
+      "sql_limit": var("DECODED_LOGS_HISTORY_SQL_LIMIT", 8000000),
       "producer_batch_size": var("DECODED_LOGS_HISTORY_PRODUCER_BATCH_SIZE", 400000),
-      "worker_batch_size": var("DECODED_LOGS_HISTORY_WORKER_BATCH_SIZE", 200000)
+      "worker_batch_size": var("DECODED_LOGS_HISTORY_WORKER_BATCH_SIZE", 100000)
   } -%}
 
   {% set wait_time = var("DECODED_LOGS_HISTORY_WAIT_TIME", 60) %}
@@ -87,34 +87,40 @@
       {# Create the view #}
       {% do run_query(create_view_query) %}
       {{ log("Created view for month " ~ month.strftime('%Y-%m'), info=True) }}
-      
+
       {% if var("STREAMLINE_INVOKE_STREAMS", false) %}
-        {# Invoke streamline, if rows exist to decode #}
-        {% set decode_query %}
-          SELECT
-            streamline.udf_bulk_decode_logs_v2(
-              PARSE_JSON(
-                  $${ "external_table": "decoded_logs",
-                  "producer_batch_size": {{ params.producer_batch_size }},
-                  "sql_limit": {{ params.sql_limit }},
-                  "sql_source": "{{view_name}}",
-                  "worker_batch_size": {{ params.worker_batch_size }} }$$
-              )
-            )
-          WHERE
-            EXISTS(
-              SELECT 1
-              FROM streamline.{{view_name}}
-              LIMIT 1
-            );
+        {# Check if rows exist first #}
+        {% set check_rows_query %}
+          SELECT EXISTS(SELECT 1 FROM streamline.{{view_name}} LIMIT 1)
         {% endset %}
         
-        {% do run_query(decode_query) %}
-        {{ log("Triggered decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
-        
-        {# Call wait to avoid queueing up too many jobs #}
-        {% do run_query("call system$wait(" ~ wait_time ~ ")") %}
-        {{ log("Completed wait after decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
+        {% set results = run_query(check_rows_query) %}
+        {% set has_rows = results.columns[0].values()[0] %}
+
+        {% if has_rows %}
+          {# Invoke streamline, if rows exist to decode #}
+          {% set decode_query %}
+            SELECT
+              streamline.udf_bulk_decode_logs_v2(
+                PARSE_JSON(
+                    $${ "external_table": "decoded_logs",
+                    "producer_batch_size": {{ params.producer_batch_size }},
+                    "sql_limit": {{ params.sql_limit }},
+                    "sql_source": "{{view_name}}",
+                    "worker_batch_size": {{ params.worker_batch_size }} }$$
+                )
+              );
+          {% endset %}
+
+          {% do run_query(decode_query) %}
+          {{ log("Triggered decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
+
+          {# Call wait since we actually did some decoding #}
+          {% do run_query("call system$wait(" ~ wait_time ~ ")") %}
+          {{ log("Completed wait after decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
+        {% else %}
+          {{ log("No rows to decode for month " ~ month.strftime('%Y-%m'), info=True) }}
+        {% endif %}
       {% endif %}
       
     {% endfor %}
