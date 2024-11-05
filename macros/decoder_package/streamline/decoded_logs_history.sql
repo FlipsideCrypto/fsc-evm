@@ -1,7 +1,7 @@
 {% macro decoded_logs_history(backfill_mode=false) %}
 
   {%- set params = {
-      "sql_limit": var("DECODED_LOGS_HISTORY_SQL_LIMIT", 10000000),
+      "sql_limit": var("DECODED_LOGS_HISTORY_SQL_LIMIT", 8000000),
       "producer_batch_size": var("DECODED_LOGS_HISTORY_PRODUCER_BATCH_SIZE", 400000),
       "worker_batch_size": var("DECODED_LOGS_HISTORY_WORKER_BATCH_SIZE", 100000)
   } -%}
