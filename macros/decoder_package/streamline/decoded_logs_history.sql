@@ -87,34 +87,40 @@
       {# Create the view #}
       {% do run_query(create_view_query) %}
       {{ log("Created view for month " ~ month.strftime('%Y-%m'), info=True) }}
-      
+
       {% if var("STREAMLINE_INVOKE_STREAMS", false) %}
-        {# Invoke streamline, if rows exist to decode #}
-        {% set decode_query %}
-          SELECT
-            streamline.udf_bulk_decode_logs_v2(
-              PARSE_JSON(
-                  $${ "external_table": "decoded_logs",
-                  "producer_batch_size": {{ params.producer_batch_size }},
-                  "sql_limit": {{ params.sql_limit }},
-                  "sql_source": "{{view_name}}",
-                  "worker_batch_size": {{ params.worker_batch_size }} }$$
-              )
-            )
-          WHERE
-            EXISTS(
-              SELECT 1
-              FROM streamline.{{view_name}}
-              LIMIT 1
-            );
+        {# Check if rows exist first #}
+        {% set check_rows_query %}
+          SELECT EXISTS(SELECT 1 FROM streamline.{{view_name}} LIMIT 1)
         {% endset %}
         
-        {% do run_query(decode_query) %}
-        {{ log("Triggered decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
-        
-        {# Call wait to avoid queueing up too many jobs #}
-        {% do run_query("call system$wait(" ~ wait_time ~ ")") %}
-        {{ log("Completed wait after decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
+        {% set results = run_query(check_rows_query) %}
+        {% set has_rows = results.columns[0].values()[0] %}
+
+        {% if has_rows %}
+          {# Invoke streamline, if rows exist to decode #}
+          {% set decode_query %}
+            SELECT
+              streamline.udf_bulk_decode_logs_v2(
+                PARSE_JSON(
+                    $${ "external_table": "decoded_logs",
+                    "producer_batch_size": {{ params.producer_batch_size }},
+                    "sql_limit": {{ params.sql_limit }},
+                    "sql_source": "{{view_name}}",
+                    "worker_batch_size": {{ params.worker_batch_size }} }$$
+                )
+              );
+          {% endset %}
+
+          {% do run_query(decode_query) %}
+          {{ log("Triggered decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
+
+          {# Call wait since we actually did some decoding #}
+          {% do run_query("call system$wait(" ~ wait_time ~ ")") %}
+          {{ log("Completed wait after decoding for month " ~ month.strftime('%Y-%m'), info=True) }}
+        {% else %}
+          {{ log("No rows to decode for month " ~ month.strftime('%Y-%m'), info=True) }}
+        {% endif %}
       {% endif %}
       
     {% endfor %}
