@@ -2,12 +2,12 @@
 
 {{ config (
     materialized = "incremental",
+    incremental_strategy = 'delete+insert',
     unique_key = "ez_decoded_event_logs_id",
     cluster_by = "block_timestamp::date",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,
     post_hook = post_hook,
-    merge_exclude_columns = ["inserted_timestamp"],
     tags = ['gold_decoded_logs']
 ) }}
 
