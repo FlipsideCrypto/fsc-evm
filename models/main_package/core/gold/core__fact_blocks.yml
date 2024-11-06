@@ -19,10 +19,10 @@ models:
       - name: MINER
         description: '{{ doc("evm_miner") }}'
       - name: >-
-          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else '' }}
+          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else '0' }}
         description: '{{ doc("evm_base_fee_per_gas") }}'
       - name: >-
-          {{ 'MIX_HASH' if var('GLOBAL_USES_MIX_HASH', false) else '' }}
+          {{ 'MIX_HASH' if var('GLOBAL_USES_MIX_HASH', false) else '1' }}
         description: '{{ doc("evm_mix_hash") }}'
       - name: EXTRA_DATA
         description: '{{ doc("evm_extra_data") }}'

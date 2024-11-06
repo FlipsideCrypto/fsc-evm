@@ -92,3 +92,9 @@ The name of the token contract, or native asset.
 The decimals for the token contract.
 
 {% enddocs %}
+
+{% docs evm_contracts_created_tx_hash %}
+
+The transaction hash at which the contract was created.
+
+{% enddocs %}
