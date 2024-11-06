@@ -7,8 +7,8 @@ models:
       - name: CONTRACT_ADDRESS
         description: '{{ doc("evm_contracts_contract_address") }}'
       - name: ABI
-        description: '{{ doc("evm_abi") }}'
+        description: '{{ doc("abi") }}'
       - name: ABI_SOURCE
         description: '{{ doc("abi_source") }}'
       - name: BYTECODE
-        description: '{{ doc("evm_bytecode") }}'
+        description: '{{ doc("bytecode") }}'
