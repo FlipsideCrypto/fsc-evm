@@ -51,3 +51,8 @@ The full decoded log, including the event name, the event parameters, and the da
 
 {% enddocs %}
 
+{% docs evm_contract_address %}
+
+The address of the contract that the event log was emitted from.
+
+{% enddocs %}
