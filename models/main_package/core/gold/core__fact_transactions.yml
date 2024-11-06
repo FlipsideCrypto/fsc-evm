@@ -79,7 +79,7 @@ models:
           {{ 'L1_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) else '7' }}
         description: '{{ doc("evm_l1_fee_scalar") }}'
       - name: >-
-          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) else 8'' }}
+          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) else '8' }}
         description: '{{ doc("evm_l1_gas_price") }}'
       - name: >-
           {{ 'L1_GAS_USED' if var('GLOBAL_USES_L1_COLUMNS', false) else '9' }}
