@@ -61,7 +61,8 @@ to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
     WHERE 
-    block_number IS NOT NULL
+    block_number IS NOT NULL 
+    AND block_number <> 0
     {% if not new_build %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
