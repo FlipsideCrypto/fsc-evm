@@ -43,8 +43,9 @@ WITH base AS (
     FROM
         {{ ref('silver__relevant_contracts') }}
     WHERE
-        1=1
+        1 = 1
         AND total_interaction_count > {{ block_explorer_abi_interaction_limit }}
+
 {% if is_incremental() %}
 AND contract_address NOT IN (
     SELECT
@@ -52,26 +53,28 @@ AND contract_address NOT IN (
     FROM
         {{ this }}
     WHERE
-        1=1 and 
-        abi_data:error is null
+        1 = 1
+        AND abi_data :error IS NULL
 )
 {% endif %}
 ORDER BY
     total_interaction_count DESC
 LIMIT
-    {{ block_explorer_abi_limit }}    
-), all_contracts AS (
+    {{ block_explorer_abi_limit }}
+), 
+all_contracts AS (
     SELECT
         contract_address
     FROM
         base
-    {% if is_incremental() %}
-    UNION
-    SELECT
-        contract_address
-    FROM
-        {{ ref('_retry_abis') }}
-    {% endif %}
+
+{% if is_incremental() %}
+UNION
+SELECT
+    contract_address
+FROM
+    {{ ref('_retry_abis') }}
+{% endif %}
 ),
 row_nos AS (
     SELECT
@@ -83,28 +86,32 @@ row_nos AS (
     FROM
         all_contracts
 ),
-batched AS ({% for item in range(block_explorer_abi_limit * 2) %}
-SELECT
-    rn.contract_address, 
-    live.udf_api('GET', 
-        CONCAT(
-            '{{ block_explorer_abi_url }}', 
-            rn.contract_address, 
-            '&apikey={key}'
-        ),
-        {'User-Agent': 'FlipsideStreamline'},
-        {},
-        '{{ block_explorer_vault_path }}'
-    ) AS abi_data
-FROM
-    row_nos rn
-WHERE
-    row_no = {{ item }}
+batched AS (
+    {% for item in range(
+            block_explorer_abi_limit * 2
+        ) %}
+    SELECT
+        rn.contract_address,
+        live.udf_api('GET',
+            CONCAT(
+                '{{ block_explorer_abi_url }}',
+                rn.contract_address,
+                '&apikey={key}'
+            ),
+            {'User-Agent': 'FlipsideStreamline'},
+            {},
+            '{{ block_explorer_vault_path }}'
+        ) AS abi_data
+    FROM
+        row_nos rn
+    WHERE
+        row_no = {{ item }}
 
-    {% if not loop.last %}
-    UNION ALL
-    {% endif %}
-{% endfor %})
+        {% if not loop.last %}
+        UNION ALL
+        {% endif %}
+    {% endfor %}
+)
 SELECT
     contract_address,
     abi_data,
