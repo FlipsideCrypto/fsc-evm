@@ -165,3 +165,8 @@ Transaction hash is a unique 66-character identifier that is generated when a tr
 {% enddocs %}
 
 
+{% docs evm_token_standard %}
+
+The type of token transferred in this event, for example `erc721`, `erc1155`, or `erc20`.
+
+{% enddocs %}

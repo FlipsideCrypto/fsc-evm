@@ -258,6 +258,12 @@ The token ID for this NFT contract.
 
 {% enddocs %}
 
+{% docs evm_nft_token_id %}
+
+The token ID for this NFT contract.
+
+{% enddocs %}
+
 {% docs evm_nft_total_fees %}
 
 The total amount of fees paid relating to the NFT purchase in the transaction currency. This includes royalty payments to creators and platform fees. Please note, this does not include the gas fee.
@@ -573,5 +579,17 @@ The url of the image for this tokenId.
 {% docs evm_nft_address_tokenid %}
 
 The concatenation of NFT address and tokenId.
+
+{% enddocs %}
+
+{% docs evm_nft_token_transfer_type %}
+
+The type of token and NFT transfer event, for example `erc721_Transfer`, `erc1155_TransferSingle`, or `erc1155_TransferBatch`.
+
+{% enddocs %}
+
+{% docs evm_nft_event_type %}
+
+The type of NFT event, for example `mint`.
 
 {% enddocs %}

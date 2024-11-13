@@ -1,0 +1,38 @@
+version: 2
+models:
+  - name: core__ez_native_transfers
+    description: '{{ doc("evm_ez_native_transfers_table_doc") }}'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("evm_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("evm_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("evm_tx_hash") }}'
+      - name: TYPE
+        description: '{{ doc("evm_traces_type") }}'
+      - name: TRACE_ADDRESS
+        description: '{{ doc("evm_trace_address") }}'
+      - name: FROM_ADDRESS
+        description: '{{ doc("evm_transfer_from_address") }}'
+      - name: TO_ADDRESS
+        description: '{{ doc("evm_transfer_to_address") }}'
+      - name: AMOUNT
+        description: '{{ doc("evm_transfer_amount") }}'
+      - name: AMOUNT_PRECISE_RAW
+        description: '{{ doc("evm_transfer_raw_amount_precise") }}'
+      - name: AMOUNT_PRECISE
+        description: '{{ doc("evm_transfer_amount_precise") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("evm_amount_usd") }}'
+      - name: TX_POSITION
+        description: '{{ doc("evm_tx_position") }}'
+      - name: TRACE_INDEX
+        description: '{{ doc("evm_trace_index") }}'
+      - name: NATIVE_TRANSFERS_ID
+        description: '{{ doc("evm_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("evm_inserted_timestamp") }}'
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("evm_modified_timestamp") }}'
