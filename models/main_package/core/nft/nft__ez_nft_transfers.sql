@@ -389,6 +389,8 @@ INNER JOIN {{ ref('core__dim_contracts') }} c
     ON t.contract_address = c.address
     AND c.name IS NOT NULL
     and c.modified_timestamp > current_date() - 30
+LEFT JOIN final_transfers f using (ez_nft_transfers_id)
 WHERE t.project_name IS NULL and t.modified_timestamp > current_date() - 30
 and t.inserted_timestamp < (SELECT max(inserted_timestamp) FROM {{ this }})
+and f.ez_nft_transfers_id is null
 {% endif %}

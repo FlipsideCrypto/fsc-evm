@@ -32,6 +32,8 @@
 
 {% endif %}
 
+WITH base AS (
+
 SELECT
     block_number,
     block_timestamp,
@@ -65,9 +67,40 @@ FROM
         block_timestamp
     ) = HOUR
     AND token_address = '{{ native_token_address }}'
+WHERE tr.value > 0 
+    AND tr.tx_succeeded
+    AND tr.trace_succeeded
+    AND tr.type NOT IN ('DELEGATECALL', 'STATICCALL')
+{% if is_incremental() %}
+AND tr.modified_timestamp > (SELECT max(modified_timestamp) FROM {{ this }})
+{% endif %}
+
+)
+
+SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    type,
+    trace_address,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    from_address,
+    to_address,
+    amount,
+    amount_precise_raw,
+    amount_precise,
+    amount_usd,
+    tx_position,
+    trace_index,
+    native_transfers_id,
+    inserted_timestamp,
+    modified_timestamp
+FROM 
+    base
 
 {% if is_incremental() %}
-where tr.modified_timestamp > (SELECT max(modified_timestamp) FROM {{ this }})
 
 union all 
 
@@ -98,8 +131,9 @@ inner join {{ ref('price__ez_prices_hourly') }} p
         block_timestamp
     ) = HOUR
     and token_address = '{{ native_token_address }}'
+left join base b using (native_transfers_id)
 where t.amount_usd is null
 and t.modified_timestamp > current_date() - 30
 and t.block_timestamp::date >= '{{ native_price_start_date }}'
-
+and b.native_transfers_id is null
 {% endif %}

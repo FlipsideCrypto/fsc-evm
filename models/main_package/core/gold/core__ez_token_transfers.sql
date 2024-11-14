@@ -30,6 +30,7 @@
 
 {% endif %}
 
+WITH base AS (
 SELECT
     block_number,
     block_timestamp,
@@ -49,7 +50,7 @@ SELECT
     iff(c.decimals is not null and price is not null, amount_precise * price, null) as amount_usd,
     c.decimals,
     c.symbol,
-    iff(topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', 'erc-20', null) as token_standard,
+    iff(topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', 'erc20', null) as token_standard,
     fact_event_logs_id AS ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
@@ -72,6 +73,36 @@ WHERE
 {% if is_incremental() %}
 and f.modified_timestamp > (SELECT max(modified_timestamp) FROM {{ this }})
 and p.modified_timestamp > current_date() - 14
+{% endif %}
+
+)
+
+select 
+    block_number,
+    block_timestamp,
+    tx_hash,
+    tx_position,
+    event_index,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    from_address,
+    to_address,
+    raw_amount_precise,
+    raw_amount,
+    amount_precise,
+    amount,
+    amount_usd,
+    decimals,
+    symbol,
+    token_standard,
+    ez_token_transfers_id,
+    inserted_timestamp,
+    modified_timestamp
+from base 
+
+{% if is_incremental() %}
 
 union all 
 
@@ -108,10 +139,12 @@ left join {{ ref('core__dim_contracts') }} c1
 left join {{ ref('price__ez_prices_hourly') }} p
     on DATE_TRUNC('hour', t.block_timestamp) = HOUR
     and t.contract_address = p.token_address
+left join base b using (ez_token_transfers_id)
 where t.modified_timestamp > current_date() - 30
 and (
     t.amount_usd is null
     or t.decimals is null
     or t.symbol is null
 )
+and b.ez_token_transfers_id is null
 {% endif %}
