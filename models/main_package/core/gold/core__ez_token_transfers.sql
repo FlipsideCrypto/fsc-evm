@@ -134,6 +134,7 @@ select
 from {{ this }} t 
 left join {{ ref('core__dim_contracts') }} c0
     on t.contract_address = c0.address
+    and (c0.decimals is not null or c0.symbol is not null or c0.name is not null)
 left join {{ ref('price__ez_prices_hourly') }} p
     on DATE_TRUNC('hour', t.block_timestamp) = HOUR
     and t.contract_address = p.token_address

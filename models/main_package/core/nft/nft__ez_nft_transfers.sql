@@ -321,7 +321,10 @@ final_transfers AS (
             when token_transfer_type = 'erc721_Transfer' then 'erc721'
             when token_transfer_type = 'erc1155_TransferSingle' then 'erc1155'
             when token_transfer_type = 'erc1155_TransferBatch' then 'erc1155'
-        end as token_standard
+        end as token_standard,
+        {{ dbt_utils.generate_surrogate_key(
+            ['tx_hash','event_index','intra_event_index']
+        ) }} AS ez_nft_transfers_id
     FROM
         all_transfers A
         LEFT JOIN {{ ref('core__dim_contracts') }} C 
@@ -348,9 +351,7 @@ SELECT
     token_standard,
     tx_position,
     event_index,
-    {{ dbt_utils.generate_surrogate_key(
-        ['tx_hash','event_index','intra_event_index']
-    ) }} AS ez_nft_transfers_id,
+    ez_nft_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
