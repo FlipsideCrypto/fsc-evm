@@ -31,7 +31,7 @@ models:
       - name: ERC1155_VALUE
         description: '{{ doc("evm_nft_erc1155_value") }}'
       - name: INTRA_EVENT_INDEX
-        description: '{{ doc("evm_intra_event_index") }}'
+        description: '{{ doc("evm_nft_intra_event_index") }}'
       - name: TOKEN_TRANSFER_TYPE
         description: '{{ doc("evm_nft_token_transfer_type") }}'
       - name: PROJECT_NAME
