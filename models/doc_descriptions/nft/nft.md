@@ -587,9 +587,3 @@ The concatenation of NFT address and tokenId.
 The type of token and NFT transfer event, for example `erc721_Transfer`, `erc1155_TransferSingle`, or `erc1155_TransferBatch`.
 
 {% enddocs %}
-
-{% docs evm_nft_event_type %}
-
-The type of NFT event, for example `mint`.
-
-{% enddocs %}
