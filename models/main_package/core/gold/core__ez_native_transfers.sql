@@ -132,8 +132,7 @@ inner join {{ ref('price__ez_prices_hourly') }} p
     ) = HOUR
     and token_address = '{{ native_token_address }}'
 left join base b using (ez_native_transfers_id)
-where t.amount_usd is null
-and t.modified_timestamp > current_date() - 30
+where t.amount_usd is null 
 and t.block_timestamp::date >= '{{ native_price_start_date }}'
 and b.ez_native_transfers_id is null
 {% endif %}

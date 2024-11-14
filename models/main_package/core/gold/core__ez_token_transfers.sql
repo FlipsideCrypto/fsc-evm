@@ -138,8 +138,7 @@ left join {{ ref('price__ez_prices_hourly') }} p
     on DATE_TRUNC('hour', t.block_timestamp) = HOUR
     and t.contract_address = p.token_address
 left join base b using (ez_token_transfers_id)
-where t.modified_timestamp > current_date() - 30
-and (
+where (
     t.amount_usd is null
     or t.decimals is null
     or t.symbol is null

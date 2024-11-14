@@ -386,6 +386,5 @@ INNER JOIN {{ ref('core__dim_contracts') }} c
     AND c.name IS NOT NULL
     and c.modified_timestamp > current_date() - 30
 LEFT JOIN final_transfers f using (ez_nft_transfers_id)
-WHERE t.project_name IS NULL and t.modified_timestamp > current_date() - 30
-and f.ez_nft_transfers_id is null
+WHERE t.name IS NULL and f.ez_nft_transfers_id is null
 {% endif %}
