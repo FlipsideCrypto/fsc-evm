@@ -56,7 +56,7 @@ SELECT
     trace_index,
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash', 'trace_index']
-    ) }} AS native_transfers_id,
+    ) }} AS ez_native_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
@@ -81,8 +81,6 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    type,
-    trace_address,
     origin_from_address,
     origin_to_address,
     origin_function_signature,
@@ -93,8 +91,10 @@ SELECT
     amount_precise,
     amount_usd,
     tx_position,
+    type,
+    trace_address,
     trace_index,
-    native_transfers_id,
+    ez_native_transfers_id,
     inserted_timestamp,
     modified_timestamp
 FROM 
@@ -108,8 +108,6 @@ select
     t.block_number,
     t.block_timestamp,
     t.tx_hash,
-    t.type,
-    t.trace_address,
     t.origin_from_address,
     t.origin_to_address,
     t.origin_function_signature,
@@ -120,8 +118,10 @@ select
     t.amount_precise,
     t.amount * p.price as amount_usd_heal,
     t.tx_position,
+    t.type,
+    t.trace_address,
     t.trace_index,
-    t.native_transfers_id,
+    t.ez_native_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 from {{ this }} t
@@ -131,9 +131,9 @@ inner join {{ ref('price__ez_prices_hourly') }} p
         block_timestamp
     ) = HOUR
     and token_address = '{{ native_token_address }}'
-left join base b using (native_transfers_id)
+left join base b using (ez_native_transfers_id)
 where t.amount_usd is null
 and t.modified_timestamp > current_date() - 30
 and t.block_timestamp::date >= '{{ native_price_start_date }}'
-and b.native_transfers_id is null
+and b.ez_native_transfers_id is null
 {% endif %}

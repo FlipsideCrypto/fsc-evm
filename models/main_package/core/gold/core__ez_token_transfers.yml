@@ -10,10 +10,6 @@ models:
         description: '{{ doc("evm_block_timestamp") }}'
       - name: TX_HASH
         description: '{{ doc("evm_tx_hash") }}'
-      - name: TX_POSITION
-        description: '{{ doc("evm_tx_position") }}'
-      - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("evm_tx_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS
@@ -42,6 +38,10 @@ models:
         description: '{{ doc("evm_symbol") }}'
       - name: TOKEN_STANDARD
         description: '{{ doc("evm_token_standard") }}'
+      - name: TX_POSITION
+        description: '{{ doc("evm_tx_position") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("evm_event_index") }}'
       - name: EZ_TOKEN_TRANSFERS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP

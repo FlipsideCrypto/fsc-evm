@@ -47,9 +47,10 @@ SELECT
     raw_amount_precise::float as raw_amount,
     iff(c.decimals is null, null, utils.udf_decimal_adjust(raw_amount_precise, c.decimals)) as amount_precise,
     amount_precise::float as amount,
-    iff(c.decimals is not null and price is not null, amount_precise * price, null) as amount_usd,
+    iff(c.decimals is not null and price is not null, round(amount_precise * price, 2), null) as amount_usd,
     c.decimals,
     c.symbol,
+    c.name,
     iff(topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', 'erc20', null) as token_standard,
     fact_event_logs_id AS ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
@@ -61,18 +62,17 @@ FROM
     AND token_address = contract_address
     LEFT JOIN {{ ref('core__dim_contracts') }} c
     ON contract_address = c.address
-    AND (c.decimals IS NOT NULL OR c.symbol IS NOT NULL)
+    AND (c.decimals IS NOT NULL OR c.symbol IS NOT NULL OR c.name IS NOT NULL)
 WHERE
     topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
     AND tx_succeeded 
     and not event_removed
-    and SUBSTR(topic_1, 27, 40) is not null
-    and SUBSTR(topic_2, 27, 40) is not null
-    and SUBSTR(DATA, 3, 64) is not null
+    and topic_1 is not null
+    and topic_2 is not null
+    and data is not null
 
 {% if is_incremental() %}
 and f.modified_timestamp > (SELECT max(modified_timestamp) FROM {{ this }})
-and p.modified_timestamp > current_date() - 14
 {% endif %}
 
 )
@@ -81,8 +81,6 @@ select
     block_number,
     block_timestamp,
     tx_hash,
-    tx_position,
-    event_index,
     origin_function_signature,
     origin_from_address,
     origin_to_address,
@@ -96,7 +94,10 @@ select
     amount_usd,
     decimals,
     symbol,
+    name,
     token_standard,
+    tx_position,
+    event_index,
     ez_token_transfers_id,
     inserted_timestamp,
     modified_timestamp
@@ -110,8 +111,6 @@ select
     t.block_number,
     t.block_timestamp,
     t.tx_hash,
-    t.tx_position,
-    t.event_index,
     t.origin_function_signature,
     t.origin_from_address,
     t.origin_to_address,
@@ -122,20 +121,19 @@ select
     t.raw_amount,
     iff(c0.decimals is null, null, utils.udf_decimal_adjust(t.raw_amount_precise, c0.decimals)) as amount_precise_heal,
     amount_precise_heal::float as amount_heal,
-    iff(c0.decimals is not null and price is not null, amount_heal * price, null) as amount_usd_heal,
+    iff(c0.decimals is not null and price is not null, round(amount_heal * price, 2), null) as amount_usd_heal,
     c0.decimals as decimals_heal,
-    c1.symbol as symbol_heal,
+    c0.symbol as symbol_heal,
+    c0.name as name_heal,
     t.token_standard,
+    t.tx_position,
+    t.event_index,
     t.ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 from {{ this }} t 
 left join {{ ref('core__dim_contracts') }} c0
     on t.contract_address = c0.address
-    and c0.decimals is not null
-left join {{ ref('core__dim_contracts') }} c1
-    on t.contract_address = c1.address
-    and c1.symbol is not null
 left join {{ ref('price__ez_prices_hourly') }} p
     on DATE_TRUNC('hour', t.block_timestamp) = HOUR
     and t.contract_address = p.token_address
@@ -145,6 +143,7 @@ and (
     t.amount_usd is null
     or t.decimals is null
     or t.symbol is null
+    or t.name is null
 )
 and b.ez_token_transfers_id is null
 {% endif %}

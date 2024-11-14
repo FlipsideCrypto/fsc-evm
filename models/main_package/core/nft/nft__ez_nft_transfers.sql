@@ -68,7 +68,7 @@ WITH base AS (
         case
             when token_transfer_type = 'erc721_Transfer' then null 
             when token_transfer_type = 'erc1155_TransferSingle' then utils.udf_hex_to_int(segmented_data [1] :: STRING) :: STRING
-        end as erc1155_value,
+        end as quantity,
         case 
             when token_transfer_type = 'erc721_Transfer' then null 
             when token_transfer_type = 'erc1155_TransferSingle' OR token_transfer_type = 'erc1155_TransferBatch' then CONCAT('0x', SUBSTR(topic_1 :: STRING, 27, 40))
@@ -93,7 +93,7 @@ WITH base AS (
         )
 
 {% if is_incremental() %}
-AND TO_TIMESTAMP_NTZ(modified_timestamp) >   (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
@@ -248,7 +248,7 @@ transfer_batch_final AS (
         from_address,
         to_address,
         t.tokenId AS token_id,
-        q.quantity AS erc1155_value,
+        q.quantity AS quantity,
         tokenid_order AS intra_event_index
     FROM
         tokenid_list t
@@ -271,7 +271,7 @@ all_transfers AS (
         from_address,
         to_address,
         token_id,
-        erc1155_value,
+        quantity,
         1 AS intra_event_index,
         token_transfer_type
     FROM
@@ -292,13 +292,11 @@ all_transfers AS (
         from_address,
         to_address,
         token_id,
-        erc1155_value,
+        quantity,
         intra_event_index,
         'erc1155_TransferBatch' AS token_transfer_type
     FROM
         transfer_batch_final
-    WHERE
-        erc1155_value != '0'
 ),
 final_transfers AS (
     SELECT
@@ -314,17 +312,15 @@ final_transfers AS (
         from_address,
         to_address,
         token_id,
-        erc1155_value,
+        quantity,
         intra_event_index,
         token_transfer_type,
-        name AS project_name,
-        CASE
-            WHEN from_address = '0x0000000000000000000000000000000000000000' THEN 'mint'
-            ELSE 'other'
-        END AS event_type,
-        case when token_transfer_type = 'erc721_Transfer' then 'erc721'
-        when token_transfer_type = 'erc1155_TransferSingle' then 'erc1155'
-        when token_transfer_type = 'erc1155_TransferBatch' then 'erc1155'
+        name AS name,
+        from_address = '0x0000000000000000000000000000000000000000' as is_mint,
+        case 
+            when token_transfer_type = 'erc721_Transfer' then 'erc721'
+            when token_transfer_type = 'erc1155_TransferSingle' then 'erc1155'
+            when token_transfer_type = 'erc1155_TransferBatch' then 'erc1155'
         end as token_standard
     FROM
         all_transfers A
@@ -337,8 +333,6 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    tx_position,
-    event_index,
     origin_function_signature,
     origin_from_address,
     origin_to_address,
@@ -346,12 +340,14 @@ SELECT
     from_address,
     to_address,
     token_id,
-    erc1155_value,
+    quantity,
     intra_event_index,
     token_transfer_type,
-    project_name,
-    event_type,
+    name,
+    is_mint,
     token_standard,
+    tx_position,
+    event_index,
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash','event_index','intra_event_index']
     ) }} AS ez_nft_transfers_id,
@@ -366,8 +362,6 @@ SELECT
     t.block_number,
     t.block_timestamp,
     t.tx_hash,
-    t.tx_position,
-    t.event_index,
     t.origin_function_signature,
     t.origin_from_address,
     t.origin_to_address,    
@@ -375,12 +369,14 @@ SELECT
     t.from_address,
     t.to_address,
     t.token_id,
-    t.erc1155_value,
+    t.quantity,
     t.intra_event_index,
     t.token_transfer_type,
-    c.name AS project_name_heal,
-    t.event_type,
+    c.name AS name_heal,
+    t.is_mint,
     t.token_standard,
+    t.tx_position,
+    t.event_index,
     t.ez_nft_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
@@ -391,6 +387,5 @@ INNER JOIN {{ ref('core__dim_contracts') }} c
     and c.modified_timestamp > current_date() - 30
 LEFT JOIN final_transfers f using (ez_nft_transfers_id)
 WHERE t.project_name IS NULL and t.modified_timestamp > current_date() - 30
-and t.inserted_timestamp < (SELECT max(inserted_timestamp) FROM {{ this }})
 and f.ez_nft_transfers_id is null
 {% endif %}

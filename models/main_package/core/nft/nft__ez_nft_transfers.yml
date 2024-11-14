@@ -10,10 +10,6 @@ models:
         description: '{{ doc("evm_block_timestamp") }}'
       - name: TX_HASH
         description: '{{ doc("evm_tx_hash") }}'
-      - name: TX_POSITION
-        description: '{{ doc("evm_tx_position") }}'
-      - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("evm_tx_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS
@@ -28,16 +24,20 @@ models:
         description: '{{ doc("evm_transfer_to_address") }}'
       - name: TOKEN_ID
         description: '{{ doc("evm_nft_token_id") }}'
-      - name: ERC1155_VALUE
+      - name: QUANTITY
         description: '{{ doc("evm_nft_erc1155_value") }}'
       - name: INTRA_EVENT_INDEX
         description: '{{ doc("evm_nft_intra_event_index") }}'
       - name: TOKEN_TRANSFER_TYPE
         description: '{{ doc("evm_nft_token_transfer_type") }}'
-      - name: PROJECT_NAME
+      - name: NAME
         description: '{{ doc("evm_nft_project_name") }}'
-      - name: EVENT_TYPE
-        description: '{{ doc("evm_nft_event_type") }}'
+      - name: IS_MINT
+        description: '{{ doc("evm_nft_is_mint") }}'
+      - name: TX_POSITION
+        description: '{{ doc("evm_tx_position") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("evm_event_index") }}'
       - name: TOKEN_STANDARD
         description: '{{ doc("evm_token_standard") }}'
       - name: EZ_NFT_TRANSFERS_ID
