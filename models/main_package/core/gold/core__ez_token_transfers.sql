@@ -49,7 +49,7 @@ SELECT
     iff(c.decimals is not null and price is not null, amount_precise * price, null) as amount_usd,
     c.decimals,
     c.symbol,
-    iff(topics_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', 'erc-20', null) as token_standard,
+    iff(topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', 'erc-20', null) as token_standard,
     fact_event_logs_id AS ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
