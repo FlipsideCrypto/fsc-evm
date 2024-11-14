@@ -19,7 +19,7 @@ WITH base AS (
         event_index,
         event_name,
         contract_address,
-        decoded_data as full_decoded_data,
+        decoded_data as full_decoded_log,
         decoded_flat as decoded_log
     FROM
         {{ ref('silver__decoded_logs') }}
@@ -58,7 +58,7 @@ new_records as (
         origin_function_signature,
         tx_succeeded,
         event_name, 
-        full_decoded_data,
+        full_decoded_log,
         decoded_log,
         name as contract_name
     FROM base b 
@@ -92,7 +92,7 @@ missing_tx_data AS (
         fel.origin_function_signature,
         fel.tx_succeeded,
         t.event_name, 
-        t.full_decoded_data,
+        t.full_decoded_log,
         t.decoded_log,
         t.contract_name
     FROM {{ this }} t
@@ -120,7 +120,7 @@ missing_contract_data AS (
         origin_function_signature,
         tx_succeeded,
         event_name, 
-        full_decoded_data,
+        full_decoded_log,
         decoded_log,
         dc.name as contract_name
     FROM {{ this }} t
@@ -177,7 +177,7 @@ FINAL as (
         origin_function_signature,
         tx_succeeded,
         event_name, 
-        full_decoded_data,
+        full_decoded_log,
         decoded_log,
         contract_name
     FROM
@@ -202,7 +202,7 @@ FINAL as (
         origin_function_signature,
         tx_succeeded,
         event_name, 
-        full_decoded_data,
+        full_decoded_log,
         decoded_log,
         contract_name
     FROM
@@ -228,7 +228,7 @@ SELECT
     origin_function_signature,
     tx_succeeded,
     event_name, 
-    full_decoded_data,
+    full_decoded_log,
     decoded_log,
     contract_name,
     {{ dbt_utils.generate_surrogate_key(
