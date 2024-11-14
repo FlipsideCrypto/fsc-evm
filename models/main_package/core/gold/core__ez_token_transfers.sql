@@ -94,6 +94,7 @@ select
     iff(c0.decimals is not null and price is not null, amount_heal * price, null) as amount_usd_heal,
     c0.decimals as decimals_heal,
     c1.symbol as symbol_heal,
+    t.token_standard,
     t.ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
