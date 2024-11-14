@@ -70,6 +70,7 @@ WHERE
     and topic_1 is not null
     and topic_2 is not null
     and data is not null
+    and raw_amount > 0
 
 {% if is_incremental() %}
 and f.modified_timestamp > (SELECT max(modified_timestamp) FROM {{ this }})
