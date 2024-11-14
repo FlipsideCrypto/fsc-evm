@@ -361,6 +361,7 @@ FROM
     final_transfers
 
 {% if is_incremental() %}
+UNION ALL
 SELECT 
     t.block_number,
     t.block_timestamp,
