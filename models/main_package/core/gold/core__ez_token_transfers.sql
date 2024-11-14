@@ -140,10 +140,10 @@ left join {{ ref('price__ez_prices_hourly') }} p
     and t.contract_address = p.token_address
 left join base b using (ez_token_transfers_id)
 where (
-    t.amount_usd is null
-    or t.decimals is null
-    or t.symbol is null
-    or t.name is null
+    (t.decimals is null and c0.decimals is not null) or  -- Only heal decimals if new data exists
+    (t.amount_usd is null and price is not null and t.decimals is not null) or  -- Only heal USD if we have price and decimals
+    (t.symbol is null and c0.symbol is not null) or  -- Only heal symbol if new data exists
+    (t.name is null and c0.name is not null)  -- Only heal name if new data exists
 )
 and b.ez_token_transfers_id is null
 {% endif %}
