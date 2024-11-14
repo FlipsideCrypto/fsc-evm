@@ -57,7 +57,7 @@ AND contract_address NOT IN (
 )
 {% endif %}
 ORDER BY
-    total_interaction_count DESC
+    total_event_count DESC
 LIMIT
     {{ block_explorer_abi_limit }}
 ), 
