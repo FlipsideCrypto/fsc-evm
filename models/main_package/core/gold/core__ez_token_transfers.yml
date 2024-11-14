@@ -27,9 +27,9 @@ models:
       - name: TO_ADDRESS
         description: '{{ doc("evm_transfer_to_address") }}'
       - name: RAW_AMOUNT_PRECISE
-        description: '{{ doc("evm_raw_amount_precise") }}'
+        description: '{{ doc("evm_transfer_raw_amount_precise") }}'
       - name: RAW_AMOUNT
-        description: '{{ doc("evm_raw_amount") }}'
+        description: '{{ doc("evm_transfer_raw_amount") }}'
       - name: AMOUNT_PRECISE
         description: '{{ doc("evm_transfer_amount_precise") }}'
       - name: AMOUNT
