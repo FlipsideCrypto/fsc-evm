@@ -23,9 +23,9 @@ models:
       - name: TOKEN_STANDARD
         description: '{{ doc("evm_token_standard") }}'
       - name: NAME
-        description: '{{ doc("evm_name") }}'
+        description: '{{ doc("evm_contracts_name") }}'
       - name: SYMBOL
-        description: '{{ doc("evm_symbol") }}'
+        description: '{{ doc("evm_contracts_symbol") }}'
       - name: DECIMALS
         description: '{{ doc("evm_decimals") }}'
       - name: RAW_AMOUNT_PRECISE
