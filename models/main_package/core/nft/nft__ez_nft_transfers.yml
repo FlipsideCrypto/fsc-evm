@@ -10,36 +10,36 @@ models:
         description: '{{ doc("evm_block_timestamp") }}'
       - name: TX_HASH
         description: '{{ doc("evm_tx_hash") }}'
+      - name: TX_POSITION
+        description: '{{ doc("evm_tx_position") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("evm_event_index") }}'
+      - name: INTRA_EVENT_INDEX
+        description: '{{ doc("evm_nft_intra_event_index") }}'
+      - name: TOKEN_TRANSFER_TYPE
+        description: '{{ doc("evm_nft_token_transfer_type") }}'
+      - name: IS_MINT
+        description: '{{ doc("evm_nft_is_mint") }}'
+      - name: FROM_ADDRESS
+        description: '{{ doc("evm_transfer_from_address") }}'
+      - name: TO_ADDRESS
+        description: '{{ doc("evm_transfer_to_address") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("evm_contract_address") }}'
+      - name: TOKEN_ID
+        description: '{{ doc("evm_nft_token_id") }}'
+      - name: QUANTITY
+        description: '{{ doc("evm_nft_erc1155_value") }}'
+      - name: TOKEN_STANDARD
+        description: '{{ doc("evm_token_standard") }}'
+      - name: NAME
+        description: '{{ doc("evm_nft_project_name") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("evm_tx_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS
         description: '{{ doc("evm_origin_from") }}'
       - name: ORIGIN_TO_ADDRESS
         description: '{{ doc("evm_origin_to") }}'
-      - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_contract_address") }}'
-      - name: FROM_ADDRESS
-        description: '{{ doc("evm_transfer_from_address") }}'
-      - name: TO_ADDRESS
-        description: '{{ doc("evm_transfer_to_address") }}'
-      - name: TOKEN_ID
-        description: '{{ doc("evm_nft_token_id") }}'
-      - name: QUANTITY
-        description: '{{ doc("evm_nft_erc1155_value") }}'
-      - name: INTRA_EVENT_INDEX
-        description: '{{ doc("evm_nft_intra_event_index") }}'
-      - name: TOKEN_TRANSFER_TYPE
-        description: '{{ doc("evm_nft_token_transfer_type") }}'
-      - name: NAME
-        description: '{{ doc("evm_nft_project_name") }}'
-      - name: IS_MINT
-        description: '{{ doc("evm_nft_is_mint") }}'
-      - name: TX_POSITION
-        description: '{{ doc("evm_tx_position") }}'
-      - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
-      - name: TOKEN_STANDARD
-        description: '{{ doc("evm_token_standard") }}'
       - name: EZ_NFT_TRANSFERS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP

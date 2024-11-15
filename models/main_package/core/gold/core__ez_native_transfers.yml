@@ -10,12 +10,14 @@ models:
         description: '{{ doc("evm_block_timestamp") }}'
       - name: TX_HASH
         description: '{{ doc("evm_tx_hash") }}'
-      - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
-      - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
-      - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("evm_tx_origin_sig") }}'
+      - name: TX_POSITION
+        description: '{{ doc("evm_tx_position") }}'
+      - name: TRACE_INDEX
+        description: '{{ doc("evm_trace_index") }}'
+      - name: TRACE_ADDRESS
+        description: '{{ doc("evm_trace_address") }}'
+      - name: TYPE
+        description: '{{ doc("evm_traces_type") }}'
       - name: FROM_ADDRESS
         description: '{{ doc("evm_transfer_from_address") }}'
       - name: TO_ADDRESS
@@ -28,14 +30,12 @@ models:
         description: '{{ doc("evm_transfer_amount_precise") }}'
       - name: AMOUNT_USD
         description: '{{ doc("evm_amount_usd") }}'
-      - name: TX_POSITION
-        description: '{{ doc("evm_tx_position") }}'
-      - name: TYPE
-        description: '{{ doc("evm_traces_type") }}'
-      - name: TRACE_ADDRESS
-        description: '{{ doc("evm_trace_address") }}'
-      - name: TRACE_INDEX
-        description: '{{ doc("evm_trace_index") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("evm_origin_from") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("evm_origin_to") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("evm_tx_origin_sig") }}'
       - name: EZ_NATIVE_TRANSFERS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP

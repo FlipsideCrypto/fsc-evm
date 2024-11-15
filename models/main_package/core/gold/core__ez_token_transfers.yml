@@ -10,18 +10,24 @@ models:
         description: '{{ doc("evm_block_timestamp") }}'
       - name: TX_HASH
         description: '{{ doc("evm_tx_hash") }}'
-      - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("evm_tx_origin_sig") }}'
-      - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
-      - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
-      - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_contract_address") }}'
+      - name: TX_POSITION
+        description: '{{ doc("evm_tx_position") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("evm_event_index") }}'
       - name: FROM_ADDRESS
         description: '{{ doc("evm_transfer_from_address") }}'
       - name: TO_ADDRESS
         description: '{{ doc("evm_transfer_to_address") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("evm_contract_address") }}'
+      - name: TOKEN_STANDARD
+        description: '{{ doc("evm_token_standard") }}'
+      - name: NAME
+        description: '{{ doc("evm_name") }}'
+      - name: SYMBOL
+        description: '{{ doc("evm_symbol") }}'
+      - name: DECIMALS
+        description: '{{ doc("evm_decimals") }}'
       - name: RAW_AMOUNT_PRECISE
         description: '{{ doc("evm_transfer_raw_amount_precise") }}'
       - name: RAW_AMOUNT
@@ -32,16 +38,12 @@ models:
         description: '{{ doc("evm_transfer_amount") }}'
       - name: AMOUNT_USD
         description: '{{ doc("evm_transfer_amount_usd") }}'
-      - name: DECIMALS
-        description: '{{ doc("evm_decimals") }}'
-      - name: SYMBOL
-        description: '{{ doc("evm_symbol") }}'
-      - name: TOKEN_STANDARD
-        description: '{{ doc("evm_token_standard") }}'
-      - name: TX_POSITION
-        description: '{{ doc("evm_tx_position") }}'
-      - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("evm_tx_origin_sig") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("evm_origin_from") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("evm_origin_to") }}'
       - name: EZ_TOKEN_TRANSFERS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP

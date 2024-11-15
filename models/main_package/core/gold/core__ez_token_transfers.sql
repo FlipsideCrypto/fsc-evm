@@ -70,7 +70,7 @@ WHERE
     and topic_1 is not null
     and topic_2 is not null
     and data is not null
-    and raw_amount > 0
+    and raw_amount is not null
 
 {% if is_incremental() %}
 and f.modified_timestamp > (SELECT max(modified_timestamp) FROM {{ this }})
@@ -82,26 +82,27 @@ select
     block_number,
     block_timestamp,
     tx_hash,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    contract_address,
+    tx_position,
+    event_index,
     from_address,
     to_address,
+    contract_address,
+    token_standard,
+    name,
+    symbol,
+    decimals,
     raw_amount_precise,
     raw_amount,
     amount_precise,
     amount,
     amount_usd,
-    decimals,
-    symbol,
-    name,
-    token_standard,
-    tx_position,
-    event_index,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
     ez_token_transfers_id,
     inserted_timestamp,
     modified_timestamp
+
 from base 
 
 {% if is_incremental() %}
@@ -112,23 +113,23 @@ select
     t.block_number,
     t.block_timestamp,
     t.tx_hash,
-    t.origin_function_signature,
-    t.origin_from_address,
-    t.origin_to_address,
-    t.contract_address,
+    t.tx_position,
+    t.event_index,
     t.from_address,
     t.to_address,
+    t.contract_address,
+    t.token_standard,
+    c0.name,
+    c0.symbol,
+    c0.decimals,
     t.raw_amount_precise,
     t.raw_amount,
     iff(c0.decimals is null, null, utils.udf_decimal_adjust(t.raw_amount_precise, c0.decimals)) as amount_precise_heal,
     amount_precise_heal::float as amount_heal,
     iff(c0.decimals is not null and price is not null, round(amount_heal * price, 2), null) as amount_usd_heal,
-    c0.decimals as decimals_heal,
-    c0.symbol as symbol_heal,
-    c0.name as name_heal,
-    t.token_standard,
-    t.tx_position,
-    t.event_index,
+    t.origin_function_signature,
+    t.origin_from_address,
+    t.origin_to_address,
     t.ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
