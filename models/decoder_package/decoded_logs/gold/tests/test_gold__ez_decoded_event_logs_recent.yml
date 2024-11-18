@@ -65,7 +65,7 @@ models:
       - name: EVENT_NAME
         tests:
           - not_null
-      - name: FULL_DECODED_DATA
+      - name: FULL_DECODED_LOG
         tests:
           - not_null
       - name: DECODED_LOG

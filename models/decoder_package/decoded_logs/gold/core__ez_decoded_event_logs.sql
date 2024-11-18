@@ -150,7 +150,7 @@ FINAL as (
         origin_function_signature,
         tx_succeeded,
         event_name, 
-        full_decoded_data,
+        full_decoded_log,
         decoded_log,
         contract_name
     FROM
