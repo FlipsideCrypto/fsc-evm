@@ -9,6 +9,9 @@
         {% do run_query("GRANT SELECT ON ALL VIEWS IN SCHEMA " ~ prod_db_name ~ "." ~ schema_name ~ " TO ROLE " ~ role_name ~ " COPY CURRENT GRANTS;") %}
         {% do run_query("GRANT SELECT ON ALL FUTURE TABLES IN SCHEMA " ~ schema_name ~ " TO ROLE " ~ role_name ~ ";") %}
         {% do run_query("GRANT SELECT ON ALL FUTURE VIEWS IN SCHEMA " ~ schema_name ~ " TO ROLE " ~ role_name ~ ";") %}
+        {% log "Granted SELECT on all future tables and views in schema " ~ schema_name ~ " to role " ~ role_name %}
+    {% else %}
+        {% log "Not granting SELECT on all future tables and views in schema " ~ schema_name ~ " to role " ~ role_name ~ " because target is not prod" %}
     {% endif %}
 
 {% endmacro %}
