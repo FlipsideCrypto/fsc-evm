@@ -60,32 +60,17 @@ The logic address, where applicable.
 
 {% enddocs %}
 
-
 {% docs evm_system_created_at %}
 
 Internal column.
 
 {% enddocs %}
 
-
 {% docs evm_token_convention %}
 
 The token standard utilized by this contract. 
 
 {% enddocs %}
-
-{% docs evm_symbol %}
-
-The symbol belonging to the address of the token
-
-{% enddocs %}
-
-{% docs evm_token_name %}
-
-The name of the token contract, or native asset.
-
-{% enddocs %}
-
 
 {% docs evm_decimals %}
 
