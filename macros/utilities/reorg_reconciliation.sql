@@ -27,7 +27,7 @@
 
     {% if execute %}
         {% set impacted_blocks = results.columns[0].values() %}
-        {{ log("Impacted Blocks:" ~ impacted_blocks | join(','), info=True) }}
+        {{ log("Impacted blocks found:" ~ impacted_blocks | join(','), info=True) }}
         
         {% if impacted_blocks %}
             {% set reorg_models = [] %}
@@ -40,6 +40,7 @@
                 {% do return() %}
             {% endif %}
 
+            {{ log("Checking for potentially impacted models:", info=True) }}
             {% set union_query %}
                 {% for model in reorg_models %}
                     {% if not loop.first %}
@@ -61,15 +62,15 @@
                 {% endfor %}
             {% endset %}
 
-            {{ log("Checking for potentially impacted records:", info=True) }}
             {% set results = run_query(union_query) %}
+            {% for row in results.rows %}
+                {{ log("Model '" ~ row[0] ~ "' has " ~ row[1] ~ " potentially impacted records", info=True) }}
+            {% endfor %}
             
             {% if execute %}
-                {# Initialize dictionary to track deletions #}
                 {% set deletion_counts = {} %}
                 
                 {% for row in results.rows %}
-                    {{ log("Model '" ~ row[0] ~ "' has " ~ row[1] ~ " impacted records", info=True) }}
                     
                     {# Get delete count before executing delete #}
                     {% set delete_count_query %}
@@ -122,11 +123,16 @@
                 {% endfor %}
 
                 {# Summary log at the end #}
-                {{ log("=== DELETION SUMMARY ===", info=True) }}
-                {% for model, count in deletion_counts.items() %}
-                    {{ log("Model '" ~ model ~ "': " ~ count ~ " records deleted", info=True) }}
-                {% endfor %}
-                {{ log("=====================", info=True) }}
+                {% set models_with_deletions = deletion_counts.items() | selectattr(1, '>', 0) | list %}
+                {% if models_with_deletions | length > 0 %}
+                    {{ log("=== DELETION SUMMARY ===", info=True) }}
+                    {% for model, count in models_with_deletions %}
+                        {{ log("Model '" ~ model ~ "': " ~ count ~ " records deleted", info=True) }}
+                    {% endfor %}
+                    {{ log("=====================", info=True) }}
+                {% else %}
+                    {{ log("No records were deleted from any models", info=True) }}
+                {% endif %}
             {% endif %}
         {% endif %}
     {% endif %}
