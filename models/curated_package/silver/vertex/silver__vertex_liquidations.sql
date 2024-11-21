@@ -61,7 +61,7 @@ logs AS (
         modified_timestamp,
         _invocation_id
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0x494f937f5cc892f798248aa831acfb4ad7c4bf35edd8498c5fb431ce1e38b035'
         AND contract_address = '{{ clearinghouse }}'
