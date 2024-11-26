@@ -184,8 +184,8 @@ FINAL AS (
             ELSE FALSE
         END AS is_encoded_spread,
         decoded_spread_product_ids AS spread_product_ids,
-        fact_event_logs_id,
-        modified_timestamp
+        l.fact_event_logs_id,
+        l.modified_timestamp
     FROM
         v2_vertex_decode l
         LEFT JOIN health_groups p

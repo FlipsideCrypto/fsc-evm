@@ -191,8 +191,8 @@ order_fill_format AS (
             10,
             18
         ) AS quote_delta,
-        l.fact_event_logs_id,
-        l.modified_timestamp
+        fact_event_logs_id,
+        modified_timestamp
     FROM
         order_fill_decode_v2
 ),
