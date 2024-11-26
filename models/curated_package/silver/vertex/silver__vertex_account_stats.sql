@@ -182,7 +182,6 @@ SELECT
         SYSDATE(),
         NULL
     ) AS inserted_timestamp,
-    modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     FINAL f
