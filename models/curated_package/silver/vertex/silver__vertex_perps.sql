@@ -53,18 +53,13 @@ logs AS (
         origin_function_signature,
         tx_succeeded,
         contract_address,
-        block_hash,
         data,
         event_index,
         event_removed,
         topics,
-        modified_timestamp,
         fact_event_logs_id,
-        is_pending,
-        logs_id,
         inserted_timestamp,
-        modified_timestamp,
-        _invocation_id
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
@@ -191,8 +186,8 @@ order_fill_format AS (
             10,
             18
         ) AS quote_delta,
-        fact_event_logs_id,
-        modified_timestamp
+        l.fact_event_logs_id,
+        l.modified_timestamp
     FROM
         order_fill_decode_v2 l
     INNER JOIN vertex_products s
