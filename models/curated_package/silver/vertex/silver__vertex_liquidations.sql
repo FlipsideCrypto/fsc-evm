@@ -21,7 +21,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = '_log_id',
+    unique_key = 'fact_event_logs_id',
     cluster_by = ['block_timestamp::DATE'],
     tags = ['curated','reorg']
 ) }}
@@ -54,7 +54,7 @@ logs AS (
         event_removed,
         topics,
         modified_timestamp,
-        _log_id,
+        fact_event_logs_id,
         is_pending,
         logs_id,
         inserted_timestamp,
@@ -107,7 +107,7 @@ logs_pull_v2 AS (
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) AS is_encoded_spread,
-        _log_id,
+        fact_event_logs_id,
         modified_timestamp
     FROM
         logs
@@ -152,7 +152,7 @@ v2_vertex_decode AS (
                 WHEN is_encoded_spread = 1 THEN decoded_spread_product_ids [0] :: STRING
                 ELSE product_id
             END AS product_id,
-            _log_id,
+            fact_event_logs_id,
             modified_timestamp
             FROM
                 logs_pull_v2
@@ -189,7 +189,7 @@ FINAL AS (
             ELSE FALSE
         END AS is_encoded_spread,
         decoded_spread_product_ids AS spread_product_ids,
-        _log_id,
+        fact_event_logs_id,
         modified_timestamp
     FROM
         v2_vertex_decode l
@@ -204,7 +204,7 @@ FINAL AS (
         '{{ invocation_id }}' AS _invocation_id
     FROM
         FINAL qualify ROW_NUMBER() over(
-            PARTITION BY _log_id
+            PARTITION BY fact_event_logs_id
             ORDER BY
                 modified_timestamp DESC
         ) = 1

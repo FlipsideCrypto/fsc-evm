@@ -18,7 +18,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = '_log_id',
+    unique_key = 'fact_event_logs_id',
     cluster_by = ['block_timestamp::DATE'],
     tags = ['curated','reorg']
 ) }}
@@ -61,7 +61,7 @@ WITH perp_trades AS (
         base_delta_amount,
         quote_delta_amount_unadj,
         quote_delta_amount,
-        _log_id,
+        fact_event_logs_id,
         modified_timestamp,
         vertex_perps_id,
         inserted_timestamp,
@@ -132,7 +132,7 @@ FINAL AS (
         p.quote_delta_amount_unadj AS user_quote_delta_amount_unadj,
         e.quote_delta_amount AS edge_quote_delta_amount,
         p.quote_delta_amount AS user_quote_delta_amount,
-        e._log_id,
+        e.fact_event_logs_id,
         e.modified_timestamp
     FROM
         edge_trades e
@@ -189,7 +189,7 @@ FINAL AS (
         p.quote_delta_amount_unadj AS user_quote_delta_amount_unadj,
         e.quote_delta_amount AS edge_quote_delta_amount,
         p.quote_delta_amount AS user_quote_delta_amount,
-        e._log_id,
+        e.fact_event_logs_id,
         e.modified_timestamp
     FROM
         edge_trades e
@@ -216,6 +216,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    FINAL qualify(ROW_NUMBER() over(PARTITION BY fact_event_logs_id
 ORDER BY
     modified_timestamp DESC)) = 1

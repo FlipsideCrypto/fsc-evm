@@ -109,7 +109,7 @@ products AS (
         taker_fee,
         maker_fee,
         modified_timestamp,
-        _log_id,
+        fact_event_logs_id,
         vertex_products_id,
         inserted_timestamp,
         modified_timestamp,

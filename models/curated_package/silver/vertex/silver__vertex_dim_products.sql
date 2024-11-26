@@ -35,7 +35,7 @@ WITH logs_pull AS (
         block_number,
         block_timestamp,
         modified_timestamp,
-        _log_id
+        fact_event_logs_id
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
@@ -65,7 +65,7 @@ new_prod AS (
         block_number,
         block_timestamp,
         modified_timestamp,
-        _log_id
+        fact_event_logs_id
     FROM
         logs_pull
     WHERE
@@ -136,7 +136,7 @@ FINAL AS (
         p.taker_fee,
         p.maker_fee,
         modified_timestamp,
-        _log_id
+        fact_event_logs_id
     FROM
         new_prod l
         LEFT JOIN product_metadata p
