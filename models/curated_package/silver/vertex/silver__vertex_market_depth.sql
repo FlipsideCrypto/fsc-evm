@@ -10,7 +10,7 @@
 WITH market_depth AS ({% for item in range(55) %}
 
     SELECT
-        t.ticker_id, t.product_id, DATE_TRUNC('hour', TRY_TO_TIMESTAMP(t.timestamp)) AS HOUR, 'asks' AS orderbook_side, A.value [0] :: FLOAT AS price, A.value [1] :: FLOAT AS volume, SYSDATE() AS _inserted_timestamp
+        t.ticker_id, t.product_id, DATE_TRUNC('hour', TRY_TO_TIMESTAMP(t.timestamp)) AS HOUR, 'asks' AS orderbook_side, A.value [0] :: FLOAT AS price, A.value [1] :: FLOAT AS volume, SYSDATE() AS modified_timestamp
     FROM
         (
     SELECT
@@ -35,7 +35,7 @@ WITH market_depth AS ({% for item in range(55) %}
         row_num = {{ item + 1 }})) t, LATERAL FLATTEN(input => t.asks) A
     UNION ALL
     SELECT
-        t.ticker_id, t.product_id, DATE_TRUNC('hour', TRY_TO_TIMESTAMP(t.timestamp)) AS HOUR, 'bids' AS orderbook_side, A.value [0] :: FLOAT AS price, A.value [1] :: FLOAT AS volume, SYSDATE() AS _inserted_timestamp
+        t.ticker_id, t.product_id, DATE_TRUNC('hour', TRY_TO_TIMESTAMP(t.timestamp)) AS HOUR, 'bids' AS orderbook_side, A.value [0] :: FLOAT AS price, A.value [1] :: FLOAT AS volume, SYSDATE() AS modified_timestamp
     FROM
         (
     SELECT
@@ -89,7 +89,7 @@ WITH market_depth AS ({% for item in range(55) %}
                 -2
             ) AS round_price_100,
             volume,
-            _inserted_timestamp
+            modified_timestamp
         FROM
             market_depth
     )
