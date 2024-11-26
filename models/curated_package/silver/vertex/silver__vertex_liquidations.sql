@@ -46,7 +46,7 @@ logs AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        tx_status,
+        tx_succeeded,
         contract_address,
         block_hash,
         data,
