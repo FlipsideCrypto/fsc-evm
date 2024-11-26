@@ -4,7 +4,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - _LOG_ID
+            - fact_event_logs_id
       - vertex_product_level_recency:
           filter: product_type = 'spot' AND product_id <> 0
     columns:
@@ -154,7 +154,7 @@ models:
               column_type_list:
                 - STRING
                 - VARCHAR
-      - name: _LOG_ID
+      - name: fact_event_logs_id
         tests:
           - not_null
       - name: ORIGIN_FUNCTION_SIGNATURE

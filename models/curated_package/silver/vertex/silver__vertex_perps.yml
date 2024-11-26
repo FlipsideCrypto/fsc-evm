@@ -4,7 +4,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - _LOG_ID
+            - fact_event_logs_id
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -152,7 +152,7 @@ models:
               column_type_list:
                 - STRING
                 - VARCHAR
-      - name: _LOG_ID
+      - name: fact_event_logs_id
         tests:
           - not_null
       - name: ORIGIN_FUNCTION_SIGNATURE

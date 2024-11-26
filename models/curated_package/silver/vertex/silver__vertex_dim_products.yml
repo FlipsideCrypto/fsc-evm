@@ -37,6 +37,6 @@ models:
       - name: NAME
         tests:
           - not_null        
-      - name: _LOG_ID
+      - name: fact_event_logs_id
         tests:
           - not_null
