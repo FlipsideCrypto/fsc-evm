@@ -198,7 +198,7 @@ FROM
 )
 SELECT
     *,
-    modified_timestamp,
+    SYSDATE() AS inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['ticker_id','hour']
     ) }} AS vertex_market_stats_id,
