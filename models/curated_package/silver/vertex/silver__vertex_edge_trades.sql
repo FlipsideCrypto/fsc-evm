@@ -213,7 +213,7 @@ SELECT
         ['tx_hash','edge_event_index']
     ) }} AS vertex_edge_trade_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
+    modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY fact_event_logs_id

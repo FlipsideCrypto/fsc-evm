@@ -148,7 +148,7 @@ SELECT
         ['tx_hash','product_id']
     ) }} AS vertex_products_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
+    modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY product_id
