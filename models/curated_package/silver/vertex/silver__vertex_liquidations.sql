@@ -53,7 +53,7 @@ logs AS (
         event_index,
         event_removed,
         topics,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id,
         is_pending,
         logs_id,
@@ -67,9 +67,9 @@ logs AS (
         AND contract_address = '{{ clearinghouse }}'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -108,7 +108,7 @@ logs_pull_v2 AS (
             segmented_data [1] :: STRING
         ) AS is_encoded_spread,
         _log_id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         logs
     WHERE
@@ -153,7 +153,7 @@ v2_vertex_decode AS (
                 ELSE product_id
             END AS product_id,
             _log_id,
-            _inserted_timestamp
+            modified_timestamp
             FROM
                 logs_pull_v2
         ),
@@ -190,7 +190,7 @@ FINAL AS (
         END AS is_encoded_spread,
         decoded_spread_product_ids AS spread_product_ids,
         _log_id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         v2_vertex_decode l
         LEFT JOIN health_groups p
@@ -206,5 +206,5 @@ FINAL AS (
         FINAL qualify ROW_NUMBER() over(
             PARTITION BY _log_id
             ORDER BY
-                _inserted_timestamp DESC
+                modified_timestamp DESC
         ) = 1

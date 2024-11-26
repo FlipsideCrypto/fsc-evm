@@ -54,7 +54,7 @@ WITH logs_pull AS (
             segmented_data [1] :: STRING
         ) :: INT AS product_id,
         _log_id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
@@ -62,9 +62,9 @@ WITH logs_pull AS (
         AND contract_address = '{{ clearinghouse }}'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '36 hours'
+        MAX(modified_timestamp) - INTERVAL '36 hours'
     FROM
         {{ this }}
 )
@@ -100,7 +100,7 @@ product_id_join AS (
         END AS token_address,
         amount,
         l._log_id,
-        l._inserted_timestamp
+        l.modified_timestamp
     FROM
         logs_pull l
         LEFT JOIN {{ ref('silver__vertex_dim_products') }}
@@ -128,7 +128,7 @@ FINAL AS (
         amount / pow(10, 18) AS amount,
         (amount / pow(10, 18) * p.price) :: FLOAT AS amount_usd,
         A._log_id,
-        A._inserted_timestamp
+        A.modified_timestamp
     FROM
         product_id_join A
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
@@ -151,5 +151,5 @@ FROM
     FINAL qualify ROW_NUMBER() over(
         PARTITION BY _log_id
         ORDER BY
-            _inserted_timestamp DESC
+            modified_timestamp DESC
     ) = 1

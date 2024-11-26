@@ -58,7 +58,7 @@ logs AS (
         event_index,
         event_removed,
         topics,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id,
         is_pending,
         logs_id,
@@ -72,10 +72,10 @@ logs AS (
         AND contract_address = '{{ offchain_exchange }}'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(
-            _inserted_timestamp
+            modified_timestamp
         ) - INTERVAL '12 hours'
     FROM
         {{ this }}
@@ -134,7 +134,7 @@ order_fill_decode_v2 AS (
             segmented_data [7] :: STRING
         ) :: INT AS quoteDelta,
         l._log_id,
-        l._inserted_timestamp
+        l.modified_timestamp
     FROM
         logs l
 ),
@@ -192,7 +192,7 @@ order_fill_format AS (
             18
         ) AS quote_delta,
         _log_id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         order_fill_decode_v2 l
     INNER JOIN vertex_products s
@@ -249,7 +249,7 @@ FINAL AS (
         quote_delta_unadj AS quote_delta_amount_unadj,
         quote_delta AS quote_delta_amount,
         _log_id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         order_fill_format
 )
@@ -264,4 +264,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1

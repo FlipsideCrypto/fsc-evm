@@ -82,7 +82,7 @@ trade_snapshot AS (
         SUM(fee_amount) AS fee_amount,
         SUM(base_delta_amount) AS base_delta_amount,
         SUM(quote_delta_amount) AS quote_delta_amount,
-        MAX(_inserted_timestamp) AS _inserted_timestamp
+        MAX(modified_timestamp) AS modified_timestamp
     FROM
         {{ ref('silver__vertex_perps') }}
         p
@@ -108,7 +108,7 @@ products AS (
         health_group_symbol,
         taker_fee,
         maker_fee,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id,
         vertex_products_id,
         inserted_timestamp,
@@ -146,7 +146,7 @@ FINAL AS (
         s.product_type,
         s.quote_currency,
         s.quote_volume,
-        t._inserted_timestamp,
+        t.modified_timestamp,
     FROM
         market_stats s
         LEFT JOIN trade_snapshot t
@@ -185,7 +185,7 @@ SELECT
     s.product_type,
     s.quote_currency,
     s.quote_volume,
-    t._inserted_timestamp
+    t.modified_timestamp
 FROM
     {{ this }}
     s
@@ -207,4 +207,4 @@ FROM
     FINAL 
 WHERE FUNDING_RATE <> 0  qualify(ROW_NUMBER() over(PARTITION BY ticker_id, HOUR
 ORDER BY
-    _inserted_timestamp DESC NULLS LAST)) = 1
+    modified_timestamp DESC NULLS LAST)) = 1

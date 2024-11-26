@@ -62,7 +62,7 @@ WITH perp_trades AS (
         quote_delta_amount_unadj,
         quote_delta_amount,
         _log_id,
-        _inserted_timestamp,
+        modified_timestamp,
         vertex_perps_id,
         inserted_timestamp,
         modified_timestamp,
@@ -73,10 +73,10 @@ WITH perp_trades AS (
 
 {% if is_incremental() %}
 WHERE
-    _inserted_timestamp >= (
+    modified_timestamp >= (
     SELECT
         MAX(
-            _inserted_timestamp
+            modified_timestamp
         ) - INTERVAL '12 hours'
     FROM
         {{ this }}
@@ -133,7 +133,7 @@ FINAL AS (
         e.quote_delta_amount AS edge_quote_delta_amount,
         p.quote_delta_amount AS user_quote_delta_amount,
         e._log_id,
-        e._inserted_timestamp
+        e.modified_timestamp
     FROM
         edge_trades e
         LEFT JOIN (
@@ -190,7 +190,7 @@ FINAL AS (
         e.quote_delta_amount AS edge_quote_delta_amount,
         p.quote_delta_amount AS user_quote_delta_amount,
         e._log_id,
-        e._inserted_timestamp
+        e.modified_timestamp
     FROM
         edge_trades e
         LEFT JOIN (
@@ -218,4 +218,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1

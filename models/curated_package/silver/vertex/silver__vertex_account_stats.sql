@@ -15,10 +15,10 @@ new_subaccount_actions AS (
     FROM
         {{ ref('silver__vertex_perps') }}
     WHERE
-        _inserted_timestamp >= (
+        modified_timestamp >= (
             SELECT
                 MAX(
-                    _inserted_timestamp
+                    modified_timestamp
                 ) - INTERVAL '12 hours'
             FROM
                 {{ this }}
@@ -29,10 +29,10 @@ new_subaccount_actions AS (
     FROM
         {{ ref('silver__vertex_liquidations') }}
     WHERE
-        _inserted_timestamp >= (
+        modified_timestamp >= (
             SELECT
                 MAX(
-                    _inserted_timestamp
+                    modified_timestamp
                 ) - INTERVAL '12 hours'
             FROM
                 {{ this }}
@@ -60,7 +60,7 @@ trades_union AS (
         fee_amount,
         base_delta_amount,
         quote_delta_amount,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('silver__vertex_perps') }}
 
@@ -160,8 +160,8 @@ FINAL AS (
         ) AS total_liquidation_amount_quote,
         MAX(liquidation_count) AS total_liquidation_count,
         MAX(
-            t._inserted_timestamp
-        ) AS _inserted_timestamp
+            t.modified_timestamp
+        ) AS modified_timestamp
     FROM
         trades_union t
         LEFT JOIN liquidations l

@@ -34,7 +34,7 @@ WITH logs_pull AS (
         tx_hash,
         block_number,
         block_timestamp,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id
     FROM
         {{ ref('core__fact_event_logs') }}
@@ -43,15 +43,15 @@ WITH logs_pull AS (
     AND
         block_timestamp::DATE >= '2024-06-01' --LAUNCH MONTH
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(
-            _inserted_timestamp
+            modified_timestamp
         ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= CURRENT_DATE() - INTERVAL '7 day'
+AND modified_timestamp >= CURRENT_DATE() - INTERVAL '7 day'
 {% endif %}
 ),
 new_prod AS (
@@ -64,7 +64,7 @@ new_prod AS (
         tx_hash,
         block_number,
         block_timestamp,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id
     FROM
         logs_pull
@@ -135,7 +135,7 @@ FINAL AS (
         END AS health_group_symbol,
         p.taker_fee,
         p.maker_fee,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id
     FROM
         new_prod l
@@ -153,4 +153,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY product_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1
