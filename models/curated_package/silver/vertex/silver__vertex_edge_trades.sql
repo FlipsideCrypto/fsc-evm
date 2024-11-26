@@ -62,7 +62,6 @@ WITH perp_trades AS (
         quote_delta_amount_unadj,
         quote_delta_amount,
         fact_event_logs_id,
-        modified_timestamp,
         vertex_perps_id,
         inserted_timestamp,
         modified_timestamp,
