@@ -90,6 +90,7 @@ product_id_join AS (
         subaccount,
         l.product_id,
         p.symbol,
+        {% if target.database in ['BASE', 'BASE_DEV'] %}
         CASE
             WHEN p.symbol = 'USDC' THEN '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
             WHEN p.symbol = 'BENJI' THEN '0xbc45647ea894030a4e9801ec03479739fa2485f0'
@@ -97,6 +98,14 @@ product_id_join AS (
             WHEN p.symbol = 'ETH' THEN '0x4300000000000000000000000000000000000006'
             WHEN p.symbol = 'TRUMPWIN' THEN '0xe215d028551d1721c6b61675aec501b1224bd0a1'
             WHEN p.symbol = 'HARRISWIN' THEN '0xfbac82a384178ca5dd6df72965d0e65b1b8a028f'
+        {% endif %}
+        {% if target.database in ['MANTLE', 'MANTLE_DEV'] %}
+        CASE
+            WHEN p.symbol = 'USDC' THEN '0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9'
+            WHEN p.symbol = 'wMNT' THEN '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8'
+            WHEN p.symbol = 'METH' THEN '0xcda86a272531e8640cd7f1a92c01839911b90bb0'
+            WHEN p.symbol = 'WETH' THEN '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
+        {% endif %}
         END AS token_address,
         amount,
         l.fact_event_logs_id,

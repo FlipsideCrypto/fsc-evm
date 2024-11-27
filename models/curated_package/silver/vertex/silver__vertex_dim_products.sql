@@ -104,7 +104,7 @@ FINAL AS (
         l.block_number,
         l.block_timestamp,
         l.tx_hash,
-        l.product_id,
+        p.product_id,
         CASE
             WHEN l.product_id % 2 = 0 THEN 'perp'
             ELSE 'spot'
@@ -139,7 +139,7 @@ FINAL AS (
         fact_event_logs_id
     FROM
         new_prod l
-        LEFT JOIN product_metadata p
+        FULL OUTER JOIN product_metadata p
         ON l.product_id = p.product_id
 )
 SELECT
