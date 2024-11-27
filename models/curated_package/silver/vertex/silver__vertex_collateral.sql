@@ -1,6 +1,6 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
-{%- set token_mapping = var('token_mapping') -%}
+{%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
