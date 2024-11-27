@@ -20,7 +20,6 @@ SELECT
     digest,
     trader,
     subaccount,
-    version,
     trade_type,
     order_type,
     market_reduce_flag,
