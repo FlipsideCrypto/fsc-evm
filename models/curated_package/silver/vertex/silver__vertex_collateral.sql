@@ -1,6 +1,6 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
-{% set token_mapping = var('curated_package.token_mapping') %}
+{%- set token_mapping = model.meta.token_mapping -%}
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
