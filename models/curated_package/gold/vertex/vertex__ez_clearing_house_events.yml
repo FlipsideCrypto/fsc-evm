@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: vertex__ez_clearing_house_events
-    description: '{{ doc("vertex_ez_clearing_house_events") }}'
+    description: '{{ doc("vertex_clearing_house_events") }}'
 
     columns:
       - name: BLOCK_NUMBER
