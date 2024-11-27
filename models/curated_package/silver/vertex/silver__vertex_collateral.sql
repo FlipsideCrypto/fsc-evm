@@ -1,6 +1,7 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
-{%- set token_mapping = config.get('meta', {}).get('token_mapping', {}) -%}
+{%- set local_schema = graph.nodes.get('model.mantle_models.curated_package.silver__vertex_collateral') -%}
+{%- set token_mapping = local_schema.config.meta.token_mapping if local_schema else {} -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
