@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = 'ez_liquidations_id',
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(trader, symbol, subaccount,digest), SUBSTRING(subaccount, symbol)",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(trader, subaccount,digest), SUBSTRING(subaccount,trader)",
     tags = ['curated', 'gold_vertex']
 ) }}
 
