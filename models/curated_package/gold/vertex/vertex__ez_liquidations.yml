@@ -1,0 +1,54 @@
+version: 2
+models:
+  - name: vertex__ez_liquidations
+    description: '{{ doc("vertex_ez_liquidations") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("base_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("base_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("base_logs_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("base_logs_contract_address") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("base_event_name") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("base_event_index") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("nft_origin_sig") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("base_origin_from") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("base_origin_to") }}'
+      - name: DIGEST
+        description: '{{ doc("vertex_digest") }}'
+      - name: TRADER
+        description: '{{ doc("vertex_trader") }}'
+      - name: SUBACCOUNT
+        description: '{{ doc("vertex_subaccount") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("vertex_product_id_liq") }}'
+      - name: HEALTH_GROUP  
+        description: '{{ doc("vertex_health_group") }}'
+      - name: HEALTH_GROUP_SYMBOL
+        description: '{{ doc("vertex_health_group_symbol") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("vertex_amount_unadj") }}'
+      - name: AMOUNT
+        description: '{{ doc("vertex_amount") }}'
+      - name: AMOUNT_QUOTE_UNADJ
+        description: '{{ doc("vertex_amount_quote_unadj") }}'
+      - name: AMOUNT_QUOTE
+        description: '{{ doc("vertex_amount_quote") }}'
+      - name: IS_ENCODE_SPREAD
+        description: '{{ doc("vertex_is_encode_spread") }}'
+      - name: SPREAD_PRODUCT_IDS
+        description: '{{ doc("vertex_decoded_spread_product_ids") }}'
+      - name: EZ_LIQUIDATIONS_ID
+        description: '{{ doc("pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("modified_timestamp") }}' 
