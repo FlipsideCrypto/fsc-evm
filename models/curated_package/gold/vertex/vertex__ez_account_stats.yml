@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: vertex__ez_account_stats
-    description: '{{ doc("vertex_ez_account_stats") }}'
+    description: '{{ doc("vertex_account_stats") }}'
 
     columns:
       - name: SUBACCOUNT

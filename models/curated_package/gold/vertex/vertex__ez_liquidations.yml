@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: vertex__ez_liquidations
-    description: '{{ doc("vertex_ez_liquidations") }}'
+    description: '{{ doc("vertex_liquidations") }}'
 
     columns:
       - name: BLOCK_NUMBER

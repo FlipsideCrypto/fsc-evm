@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: vertex__ez_market_depth_stats
-    description: '{{ doc("vertex_ez_market_depth") }}'
+    description: '{{ doc("vertex_market_depth") }}'
 
     columns:
       - name: HOUR

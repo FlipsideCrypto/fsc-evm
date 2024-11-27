@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: vertex__ez_edge_trades
-    description: '{{ doc("vertex_ez_edge_trades") }}'
+    description: '{{ doc("vertex_edge_trades") }}'
 
     columns:
       - name: BLOCK_NUMBER
