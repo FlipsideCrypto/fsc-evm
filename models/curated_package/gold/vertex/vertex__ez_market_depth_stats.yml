@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: vertex__ez_market_depth_stats
+    description: '{{ doc("vertex_ez_market_depth") }}'
+
+    columns:
+      - name: HOUR
+        description: '{{ doc("vertex_hour") }}'
+      - name: TICKER_ID
+        description: '{{ doc("vertex_ticker_id") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("vertex_product_id") }}'
+      - name: ORDERBOOK_SIDE
+        description: '{{ doc("vertex_orderbook_side") }}'
+      - name: VOLUME
+        description: '{{ doc("vertex_orderbook_volume") }}'
+      - name: PRICE
+        description: '{{ doc("vertex_orderbook_price") }}'
+      - name: ROUND_PRICE_0_01
+        description: '{{ doc("vertex_orderbook_round_price_0_01") }}'
+      - name: ROUND_PRICE_0_1
+        description: '{{ doc("vertex_orderbook_round_price_0_1") }}'
+      - name: ROUND_PRICE_1
+        description: '{{ doc("vertex_orderbook_round_price_1") }}'
+      - name: ROUND_PRICE_10
+        description: '{{ doc("vertex_orderbook_round_price_10") }}'
+      - name: ROUND_PRICE_100
+        description: '{{ doc("vertex_orderbook_round_price_100") }}'
+      - name: EZ_MARKET_DEPTH_STATS_ID
+        description: '{{ doc("pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("modified_timestamp") }}' 

@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: vertex__dim_products
+    description: '{{ doc("vertex_dim_products") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("base_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("base_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("base_logs_tx_hash") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("vertex_product_id") }}'
+      - name: PRODUCT_TYPE
+        description: '{{ doc("vertex_product_type") }}'
+      - name: TICKER_ID
+        description: '{{ doc("vertex_ticker_id") }}'
+      - name: SYMBOL
+        description: '{{ doc("vertex_symbol") }}'
+      - name: NAME
+        description: '{{ doc("vertex_name") }}'
+      - name: DIM_PRODUCTS_ID
+        description: '{{ doc("pk") }}' 
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("modified_timestamp") }}' 

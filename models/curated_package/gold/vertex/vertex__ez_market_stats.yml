@@ -1,0 +1,58 @@
+version: 2
+models:
+  - name: vertex__ez_market_stats
+    description: '{{ doc("vertex_ez_market_stats") }}'
+
+    columns:
+      - name: HOUR
+        description: '{{ doc("vertex_hour") }}'
+      - name: TICKER_ID
+        description: '{{ doc("vertex_ticker_id") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("vertex_product_id") }}'
+      - name: SYMBOL
+        description: '{{ doc("vertex_symbol") }}'
+      - name: DISTINCT_SEQUENCER_BATCHES
+        description: '{{ doc("vertex_distinct_sequencer_batches") }}'
+      - name: DISTINCT_TRADER_COUNT
+        description: '{{ doc("vertex_trader_count") }}'
+      - name: DISTINCT_SUBACCOUNT_COUNT
+        description: '{{ doc("vertex_subaccount_count") }}'
+      - name: TRADE_COUNT
+        description: '{{ doc("vertex_total_trade_count") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("vertex_amount_usd") }}'
+      - name: FEE_AMOUNT
+        description: '{{ doc("vertex_fee_amount") }}'
+      - name: BASE_DELTA_AMOUNT
+        description: '{{ doc("vertex_base_delta_amount") }}'
+      - name: QUOTE_DELTA_AMOUNT
+        description: '{{ doc("vertex_quote_delta_amount") }}'
+      - name: BASE_VOLUME_24H
+        description: '{{ doc("vertex_base_volume_24h") }}'
+      - name: QUOTE_VOLUME_24H
+        description: '{{ doc("vertex_quote_volume_24h") }}'
+      - name: FUNDING_RATE
+        description: '{{ doc("vertex_funding_rate") }}'
+      - name: INDEX_PRICE
+        description: '{{ doc("vertex_index_price") }}'
+      - name: LAST_PRICE
+        description: '{{ doc("vertex_last_price") }}'
+      - name: MARK_PRICE
+        description: '{{ doc("vertex_mark_price") }}'
+      - name: NEXT_FUNDING_RATE_TIMESTAMP
+        description: '{{ doc("vertex_next_funding_rate") }}'
+      - name: OPEN_INTEREST
+        description: '{{ doc("vertex_open_interest") }}'
+      - name: OPEN_INTEREST_USD
+        description: '{{ doc("vertex_open_interest_usd") }}'
+      - name: PRODUCT_TYPE
+        description: '{{ doc("vertex_product_type") }}'
+      - name: QUOTE_CURRENCY
+        description: '{{ doc("vertex_quote_currency") }}'
+      - name: EZ_MARKET_STATS_ID
+        description: '{{ doc("pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("modified_timestamp") }}' 
