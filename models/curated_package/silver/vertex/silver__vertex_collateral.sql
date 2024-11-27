@@ -1,6 +1,7 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
-{%- set token_mapping = model.config.get('meta', {}).get('token_mapping', {}) -%}
+{%- set token_mapping = config.get('meta', {}).get('token_mapping', {}) -%}
+
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
 
