@@ -1,13 +1,6 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
-{%- set token_mapping = {
-    'USDC': '0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
-    'wMNT': '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8',
-    'METH': '0xcda86a272531e8640cd7f1a92c01839911b90bb0',
-    'WETH': '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
-} -%}
-{# {%- set local_schema = graph.nodes.get('model.mantle_models.silver.vertex.silver__vertex_collateral') -%}
-{%- set token_mapping = local_schema.config.meta.token_mapping if local_schema else {} -%} #}
+{%- set token_mapping = var('token_mapping') -%}
 
 {# Log configuration details #}
 {%- if flags.WHICH == 'compile' and execute -%}
