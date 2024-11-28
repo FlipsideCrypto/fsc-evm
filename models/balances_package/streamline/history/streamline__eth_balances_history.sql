@@ -36,11 +36,6 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
-    ),
     tags = ['streamline_balances_history']
 ) }}
 
@@ -125,7 +120,7 @@ ready_blocks AS (
         to_do
 
     {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+        LIMIT {{ testing_limit }}
     {% endif %}
 )
 SELECT
@@ -152,7 +147,7 @@ SELECT
     ) AS request
 FROM
     ready_blocks
-    
+
 {{ order_by_clause }}
 
 LIMIT {{ sql_limit }}

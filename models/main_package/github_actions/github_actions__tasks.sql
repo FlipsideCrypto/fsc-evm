@@ -3,4 +3,4 @@
     tags = ['gha_tasks']
 ) }}
 
-{{ fsc_utils.gha_tasks_view() }}
+{# {{ fsc_utils.gha_tasks_view() }} #}

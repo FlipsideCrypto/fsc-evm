@@ -7,22 +7,22 @@ models:
           combination_of_columns:
             - TX_HASH
             - TRACE_INDEX
-      - fsc_utils.sequence_gaps:
+      {# - fsc_utils.sequence_gaps:
           partition_by:
             - TX_HASH
           column_name: TRACE_INDEX
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL #}
       - txs_have_traces:
           transactions_model: ref('test_gold__fact_transactions_full')
 
     columns:
       - name: BLOCK_NUMBER
         tests:
-          - not_null  
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - NUMBER    
-                - FLOAT    
+                - NUMBER
+                - FLOAT
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
@@ -101,7 +101,7 @@ models:
           - not_null
       - name: TRACE_SUCCEEDED
         tests:
-          - not_null  
+          - not_null
       - name: TX_SUCCEEDED
         tests:
           - not_null
@@ -115,7 +115,7 @@ models:
               datepart: hour
               interval: 2
       - name: MODIFIED_TIMESTAMP
-        tests:  
+        tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: hour

@@ -39,16 +39,11 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
-    ),
     tags = ['streamline_core_history']
 ) }}
 
 {# Main query starts here #}
-WITH 
+WITH
 {% if not new_build %}
     last_3_days AS (
         SELECT block_number
@@ -60,7 +55,7 @@ WITH
 to_do AS (
     SELECT block_number
     FROM {{ ref("streamline__blocks") }}
-    WHERE 
+    WHERE
     block_number IS NOT NULL
     {% if not new_build %}
         AND block_number <= (SELECT block_number FROM last_3_days)
@@ -81,7 +76,7 @@ ready_blocks AS (
     FROM to_do
 
     {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+        LIMIT {{ testing_limit }}
     {% endif %}
 )
 
@@ -106,7 +101,7 @@ SELECT
     ) AS request
 FROM
     ready_blocks
-    
+
 {{ order_by_clause }}
 
 LIMIT {{ sql_limit }}

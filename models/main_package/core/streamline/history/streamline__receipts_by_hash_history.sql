@@ -43,18 +43,13 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
-    ),
     tags = ['streamline_core_history_receipts_by_hash']
 ) }}
 
 {# Main query starts here #}
 {# Start by invoking LQ for the last hour of blocks #}
 
-WITH 
+WITH
 {% if not new_build %}
     last_3_days AS (
         SELECT block_number
@@ -151,7 +146,7 @@ flat_tx_hashes AS (
         )
 ),
 to_do AS (
-    SELECT 
+    SELECT
         block_number,
         tx_hash
     FROM (
@@ -187,7 +182,7 @@ ready_blocks AS (
         to_do
 
     {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+        LIMIT {{ testing_limit }}
     {% endif %}
 )
 SELECT

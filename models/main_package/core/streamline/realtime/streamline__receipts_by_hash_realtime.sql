@@ -46,11 +46,6 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
-    ),
     tags = ['streamline_core_realtime_receipts_by_hash']
 ) }}
 
@@ -147,7 +142,7 @@ flat_tx_hashes AS (
 ),
 to_do AS (
 
-    SELECT 
+    SELECT
         block_number,
         tx_hash
     FROM (
@@ -204,7 +199,7 @@ ready_blocks AS (
     {% endif %}
 
     {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+        LIMIT {{ testing_limit }}
     {% endif %}
 )
 SELECT
