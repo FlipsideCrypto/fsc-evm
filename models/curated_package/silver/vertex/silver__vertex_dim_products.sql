@@ -137,7 +137,7 @@ FINAL AS (
         fact_event_logs_id
     FROM
         new_prod l
-        FULL OUTER JOIN product_metadata p
+        LEFT JOIN product_metadata p
         ON l.product_id = p.product_id
 )
 SELECT
