@@ -9,16 +9,7 @@ with recent_records as (
         {{ model }}
     where 
         {% if model.name == 'vertex_market_stats' %}
-            product_type = 'perp' AND product_id <> 0 AND BASE_VOLUME_24H > 0 AND product_id in (
-                select product_id
-                from (
-                    select product_id,
-                    min(hour) as min_hour 
-                    from {{model}}
-                    group by 1 
-                    having min_hour <= SYSDATE() - INTERVAL '2 days'
-                )
-            )
+            product_type = 'perp' AND product_id <> 0 AND BASE_VOLUME_24H > 0
             AND 
                 modified_timestamp >= SYSDATE() - INTERVAL '7 days'
         {% else %}
@@ -33,6 +24,17 @@ invalid_product_ids as (
     AND block_timestamp < sysdate() - INTERVAL '2 days'
     {% if filter %}
         AND {{ filter }}
+    {% endif %}
+    {% if model.name == 'vertex_market_stats' %} --stops from test erroring right after deployment
+    AND product_id in (
+        select product_id
+        from (
+            select product_id,
+            min(hour) as min_hour 
+            from {{model}}
+            group by 1 
+            having min_hour <= SYSDATE() - INTERVAL '2 days'
+        )
     {% endif %}
 )
 
