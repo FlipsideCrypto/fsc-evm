@@ -116,8 +116,8 @@ FINAL AS (
         p.symbol :: STRING AS symbol,
         p.name :: STRING AS NAME,
         CASE
-            WHEN l.product_id = 0 THEN NULL
-            ELSE FLOOR((l.product_id - 1) / 2)
+            WHEN p.product_id = 0 THEN NULL
+            ELSE FLOOR((p.product_id - 1) / 2)
         END AS health_group,
         CASE
             WHEN SPLIT(
