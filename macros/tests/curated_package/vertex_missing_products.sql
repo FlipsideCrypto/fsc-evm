@@ -8,7 +8,7 @@ with recent_records as (
     from 
         {{ model }}
     where 
-        {% if model == 'silver__vertex_market_stats' %}
+        {% if model.name == 'vertex_market_stats' %}
             product_type = 'perp' AND product_id <> 0 AND BASE_VOLUME_24H > 0 AND product_id in (
                 select product_id
                 from (
