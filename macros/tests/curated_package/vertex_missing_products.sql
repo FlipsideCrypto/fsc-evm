@@ -37,7 +37,7 @@ invalid_product_ids as (
             )
         )
     {% endif %}
-
+)
 select * 
 from invalid_product_ids
 
