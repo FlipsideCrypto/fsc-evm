@@ -34,9 +34,9 @@ invalid_product_ids as (
             from {{model}}
             group by 1 
             having min_hour <= SYSDATE() - INTERVAL '2 days'
+            )
         )
     {% endif %}
-)
 
 select * 
 from invalid_product_ids
