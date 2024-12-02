@@ -14,7 +14,7 @@ with recent_records as (
                 from (
                     select product_id,
                     min(hour) as min_hour 
-                    from {{this}}
+                    from {{model}}
                     group by 1 
                     having min_hour <= SYSDATE() - INTERVAL '2 days'
                 )
