@@ -3,8 +3,12 @@
     filter) %}
 
 with recent_records as (
-    select * from  {{model}}
-    where modified_timestamp >= SYSDATE() - INTERVAL '7 days'
+    select 
+        *
+    from 
+        {{ model }}
+    where 
+        modified_timestamp >= SYSDATE() - INTERVAL '7 days'
 ),
 
 invalid_product_ids as (
