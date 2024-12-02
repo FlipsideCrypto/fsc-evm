@@ -106,11 +106,11 @@ FINAL AS (
         l.tx_hash,
         p.product_id,
         CASE
-            WHEN l.product_id % 2 = 0 THEN 'perp'
+            WHEN p.product_id % 2 = 0 THEN 'perp'
             ELSE 'spot'
         END AS product_type,
         CASE
-            WHEN l.product_id = 0 THEN 'USDC'
+            WHEN p.product_id = 0 THEN 'USDC'
             ELSE p.ticker_id :: STRING
         END AS ticker_id,
         p.symbol :: STRING AS symbol,
