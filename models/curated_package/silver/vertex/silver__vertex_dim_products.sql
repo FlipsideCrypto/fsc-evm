@@ -40,8 +40,6 @@ WITH logs_pull AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0x3286b0394bf1350245290b7226c92ed186bd716f28938e62dbb895298f018172'
-    AND
-        block_timestamp::DATE >= '2024-06-01' --LAUNCH MONTH
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
