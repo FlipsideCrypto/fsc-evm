@@ -10,7 +10,7 @@
     tags = ['curated','reorg']
 ) }}
 
-{# Main query starts here #}
+
 WITH vertex_products AS (
 
     SELECT

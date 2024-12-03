@@ -7,7 +7,7 @@
     tags = 'curated'
 ) }}
 
-{# Main query starts here #}
+
 WITH apr AS (
     SELECT
         PARSE_JSON(

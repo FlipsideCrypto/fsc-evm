@@ -6,7 +6,7 @@
     tags = ['curated','reorg']
 ) }}
 
-{# Main query starts here #}
+
 WITH logs_pull AS (
 
     SELECT

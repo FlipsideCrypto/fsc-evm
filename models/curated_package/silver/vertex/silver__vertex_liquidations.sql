@@ -10,7 +10,7 @@
     tags = ['curated','reorg']
 ) }}
 
-{# Main query starts here #}
+
 WITH health_groups AS (
 
     SELECT

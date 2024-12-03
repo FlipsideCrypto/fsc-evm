@@ -7,7 +7,7 @@
     tags = 'curated'
 ) }}
 
-{# Main query starts here #}
+
 WITH api_pull AS (
 
     SELECT
