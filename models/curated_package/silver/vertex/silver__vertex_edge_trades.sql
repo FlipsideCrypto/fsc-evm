@@ -6,7 +6,7 @@
     tags = ['curated','reorg']
 ) }}
 
-{# Main query starts here #}
+
 WITH perp_trades AS (
 
     SELECT
