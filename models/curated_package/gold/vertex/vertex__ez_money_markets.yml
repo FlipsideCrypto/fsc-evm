@@ -24,5 +24,3 @@ models:
         description: '{{ doc("evm_modified_timestamp") }}'
       - name: VERTEX_MONEY_MARKETS_ID
         description: '{{ doc("evm_pk") }}'
-      - name: _INVOCATION_ID
-        description: '{{ doc("evm_invocation_id") }}'
