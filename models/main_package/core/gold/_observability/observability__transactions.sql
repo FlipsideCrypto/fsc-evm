@@ -1,5 +1,5 @@
-{% set observ_exclusion_list_transactions = var(
-    'OBSERV_EXCLUSION_LIST_TRANSACTIONS',
+{% set observ_uses_exclusion_list_transactions = var(
+    'OBSERV_USES_EXCLUSION_LIST_TRANSACTIONS',
     false
 ) %}
 {{ config(
@@ -106,7 +106,7 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if observ_exclusion_list_transactions %}
+        missing_block_number IS NOT NULL {% if observ_uses_exclusion_list_transactions %}
             AND missing_block_number NOT IN (
                 SELECT
                     block_number
