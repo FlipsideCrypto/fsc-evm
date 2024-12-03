@@ -1,7 +1,7 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
 
-{# Set up dbt configuration #}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',

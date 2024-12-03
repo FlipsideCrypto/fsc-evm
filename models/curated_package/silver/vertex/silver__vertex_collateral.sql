@@ -2,7 +2,7 @@
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
 {%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
 
-{# Set up dbt configuration #}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',

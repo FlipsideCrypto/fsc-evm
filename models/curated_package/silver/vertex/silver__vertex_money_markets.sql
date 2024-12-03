@@ -1,4 +1,4 @@
-{# Set up dbt configuration #}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
