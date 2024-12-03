@@ -1,3 +1,7 @@
+{% set observ_exclusion_list_logs = var(
+    'OBSERV_EXCLUSION_LIST_LOGS',
+    false
+) %}
 {{ config(
     materialized = 'incremental',
     unique_key = 'test_timestamp',
@@ -106,13 +110,14 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL
-        AND missing_block_number NOT IN (
-            SELECT
-                block_number
-            FROM
-                {{ ref('silver_observability__exclusion_list') }}
-        )
+        missing_block_number IS NOT NULL {% if observ_exclusion_list_logs %}
+            AND missing_block_number NOT IN (
+                SELECT
+                    block_number
+                FROM
+                    {{ ref('silver_observability__exclusion_list') }}
+            )
+        {% endif %}
 )
 SELECT
     'logs' AS test_name,
