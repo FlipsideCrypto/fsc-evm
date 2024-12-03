@@ -2,7 +2,7 @@ version: 2
 models:
   - name: silver__vertex_perps
     config:
-      macro: recent_test
+      test_macro: recent_test
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
