@@ -12,7 +12,7 @@ WITH apr AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || 'prod.vertexprotocol.com/v2/apr'
+                'https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/apr'
             )
         ):data AS response
 ),
