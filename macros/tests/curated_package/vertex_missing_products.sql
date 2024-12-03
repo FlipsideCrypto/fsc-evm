@@ -8,12 +8,9 @@ with recent_records as (
     from 
         {{ model }}
     where 
+        modified_timestamp >= SYSDATE() - INTERVAL '7 days'
         {% if model.name == 'vertex_market_stats' %}
-            product_type = 'perp' AND product_id <> 0 AND BASE_VOLUME_24H > 0
-            AND 
-                modified_timestamp >= SYSDATE() - INTERVAL '7 days'
-        {% else %}
-            modified_timestamp >= SYSDATE() - INTERVAL '7 days'
+            AND product_type = 'perp' AND product_id <> 0 AND BASE_VOLUME_24H > 0
         {% endif %}
 ),
 
