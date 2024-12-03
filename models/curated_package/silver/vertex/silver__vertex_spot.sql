@@ -1,7 +1,7 @@
 {# Set variables #}
 {%- set offchain_exchange = var('OFFCHAIN_EXCHANGE_CONTRACT', '') -%}
 
-{# Set up dbt configuration #}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',

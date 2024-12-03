@@ -1,4 +1,3 @@
-{# Set up dbt configuration #}
 {{ config(
     materialized = 'view',
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'CLOB, DEX, STATS',
