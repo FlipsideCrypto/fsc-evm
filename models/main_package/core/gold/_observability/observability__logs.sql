@@ -1,5 +1,5 @@
-{% set observ_exclusion_list_logs = var(
-    'OBSERV_EXCLUSION_LIST_LOGS',
+{% set observ_uses_exclusion_list_logs = var(
+    'OBSERV_USES_EXCLUSION_LIST_LOGS',
     false
 ) %}
 {{ config(
@@ -110,7 +110,7 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if observ_exclusion_list_logs %}
+        missing_block_number IS NOT NULL {% if observ_uses_exclusion_list_logs %}
             AND missing_block_number NOT IN (
                 SELECT
                     block_number
