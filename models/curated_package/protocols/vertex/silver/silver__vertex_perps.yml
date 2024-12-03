@@ -1,20 +1,28 @@
 version: 2
 models:
   - name: silver__vertex_perps
+    meta:
+      test_macro: recent_test
     config:
       test_macro: recent_test
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - fact_event_logs_id
+          config:
+            test_macro: recent_test
     columns:
       - name: BLOCK_NUMBER
         tests:
-          - not_null
+          - not_null:
+              config:
+                test_macro: recent_test
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
+              config:
+                test_macro: recent_test
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
