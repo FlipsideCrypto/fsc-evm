@@ -5,7 +5,6 @@
     tags = ['observability']
 ) }}
 
-{% if is_incremental() %}
 WITH lookback AS (
 
     SELECT
@@ -18,29 +17,32 @@ WITH lookback AS (
                 {{ ref('core__fact_blocks') }}
             WHERE
                 block_timestamp >= DATEADD('hour', -96, systimestamp())
-            UNION ALL
-                (
-                    SELECT
-                        missing_list [0]
-                    FROM
-                        {{ this }}
-                    ORDER BY
-                        test_timestamp DESC
-                    LIMIT
-                        1
-                ) {% if var('OBSERV_FULL_TEST') %}
-                UNION ALL
-                SELECT
-                    0
-                {% endif %}
-        )
+
+{% if is_incremental() %}
+UNION ALL
+    (
+        SELECT
+            missing_list [0]
+        FROM
+            {{ this }}
+        ORDER BY
+            test_timestamp DESC
+        LIMIT
+            1
+    )
+{% endif %}
+
+{% if var('OBSERV_FULL_TEST') %}
+UNION ALL
+SELECT
+    0
+{% endif %}
+)
 ),
 base AS (
-    {% else %}
-        WITH base AS (
-    {% endif %}
     SELECT
-        block_number, block_timestamp
+        block_number,
+        block_timestamp
     FROM
         {{ ref('core__fact_blocks') }}
     WHERE
@@ -48,11 +50,13 @@ base AS (
 
 {% if is_incremental() %}
 AND block_number >= (
-SELECT
-    block_number
-FROM
-    lookback)
-{% endif %}),
+    SELECT
+        block_number
+    FROM
+        lookback
+)
+{% endif %}
+),
 summary_stats AS (
     SELECT
         MIN(block_number) AS min_block,
