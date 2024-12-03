@@ -1,11 +1,13 @@
 version: 2
 models:
   - name: silver__vertex_perps
-    meta:
-      test_macro: recent_test
-    config:
-      test_macro: recent_test
     tests:
+      - recent_test:
+          config:
+            enabled: true
+            severity: error
+            store_failures: true
+            days: 1
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - fact_event_logs_id
