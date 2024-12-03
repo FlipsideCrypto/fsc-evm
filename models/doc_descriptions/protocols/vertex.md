@@ -5,6 +5,13 @@ All available Vertex products, these are automatically added as they are release
 
 {% enddocs %}
 
+{% docs vertex_money_markets %}
+
+Vertex integrates a decentralized money market directly into its DEX, enabling borrowing and lending of crypto assets using overcollateralized lending rules. Interest rates are dynamically adjusted based on supply and demand, incentivizing liquidity provision and balancing borrowing costs. The money market operates on-chain (e.g., on Arbitrum) and is managed through Vertex’s risk engine and clearinghouse, offering users automated borrowing via portfolio margin and passive yield opportunities on idle assets. This table tracks the money market products available on Vertex on an hourly basis.
+
+
+{% enddocs %}
+
 {% docs vertex_liquidations %}
 
 All Vertex liquidations. Once an account’s maintenance margin reaches $0, the account is eligible for liquidation. Liquidation events happen one by one, with the riskiest positions being liquidated first. Liquidations are based on the oracle price.
@@ -63,6 +70,24 @@ All edge trades paired with the associated trader/subaccount.
 {% docs vertex_symbol %}
 
 The specific Vertex product symbol, if it is a futures product it will have a -PERP suffix.
+
+{% enddocs %}
+
+{% docs vertex_deposit_apr %}
+
+The recorded deposit APR for the money market product in that hour.
+
+{% enddocs %}
+
+{% docs vertex_borrow_apr %}
+
+The recorded borrow APR for the money market product in that hour.
+
+{% enddocs %}
+
+{% docs vertex_tvl %}
+
+The sum total value locked for the money market product in that hour.
 
 {% enddocs %}
 
