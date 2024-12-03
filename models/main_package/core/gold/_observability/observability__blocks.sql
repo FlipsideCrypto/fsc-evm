@@ -5,6 +5,7 @@
     tags = ['observability']
 ) }}
 
+{% if is_incremental() %}
 WITH lookback AS (
 
     SELECT
@@ -35,9 +36,11 @@ WITH lookback AS (
         )
 ),
 base AS (
+    {% else %}
+        WITH base AS (
+    {% endif %}
     SELECT
-        block_number,
-        block_timestamp
+        block_number, block_timestamp
     FROM
         {{ ref('core__fact_blocks') }}
     WHERE
@@ -45,13 +48,11 @@ base AS (
 
 {% if is_incremental() %}
 AND block_number >= (
-    SELECT
-        block_number
-    FROM
-        lookback
-)
-{% endif %}
-),
+SELECT
+    block_number
+FROM
+    lookback)
+{% endif %}),
 summary_stats AS (
     SELECT
         MIN(block_number) AS min_block,
