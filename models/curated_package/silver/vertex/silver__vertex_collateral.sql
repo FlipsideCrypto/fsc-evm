@@ -2,22 +2,6 @@
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
 {%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
 
-{# Log configuration details #}
-{%- if flags.WHICH == 'compile' and execute -%}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    incremental_strategy = "' ~ config.get('incremental_strategy') ~ '",\n' %}
-    {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}
-    {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') ~ '\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-
-{%- endif -%}
-
 {# Set up dbt configuration #}
 {{ config(
     materialized = 'incremental',
@@ -91,40 +75,6 @@ product_id_join AS (
         subaccount,
         l.product_id,
         p.symbol,
-                    {# {% if target.database in ['BASE', 'BASE_DEV'] %}
-                    CASE
-                        WHEN p.symbol = 'USDC' THEN '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
-                        WHEN p.symbol = 'BENJI' THEN '0xbc45647ea894030a4e9801ec03479739fa2485f0'
-                        WHEN p.symbol = 'WETH' THEN '0x4300000000000000000000000000000000000006'
-                        WHEN p.symbol = 'ETH' THEN '0x4300000000000000000000000000000000000006'
-                        WHEN p.symbol = 'TRUMPWIN' THEN '0xe215d028551d1721c6b61675aec501b1224bd0a1'
-                        WHEN p.symbol = 'HARRISWIN' THEN '0xfbac82a384178ca5dd6df72965d0e65b1b8a028f'
-                    {% endif %}
-                    {% if target.database in ['MANTLE', 'MANTLE_DEV'] %}
-                    CASE
-                        WHEN p.symbol = 'USDC' THEN '0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9'
-                        WHEN p.symbol = 'wMNT' THEN '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8'
-                        WHEN p.symbol = 'METH' THEN '0xcda86a272531e8640cd7f1a92c01839911b90bb0'
-                        WHEN p.symbol = 'WETH' THEN '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
-                    {% endif %}
-                    {% if target.database in ['ARBITRUM', 'ARBITRUM_DEV'] %}
-                    CASE
-                        WHEN p.symbol = 'USDC' THEN '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'
-                        WHEN p.symbol = 'WETH' THEN '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
-                        WHEN p.symbol = 'WBTC' THEN '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f'
-                        WHEN p.symbol = 'ARB' THEN '0x912ce59144191c1204e64559fe8253a0e49e6548'
-                        WHEN p.symbol = 'USDT' THEN '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
-                        WHEN p.symbol = 'VRTX' THEN '0x95146881b86b3ee99e63705ec87afe29fcc044d9'
-                        WHEN p.symbol = 'TRUMPWIN' THEN '0xe215d028551d1721c6b61675aec501b1224bd0a1'
-                        WHEN p.symbol = 'HARRISWIN' THEN '0xFBAC82A384178cA5dd6DF72965d0e65b1b8A028f'
-                    {% endif %}
-                    {% if target.database in ['BLAST', 'BLAST_DEV'] %}
-                    CASE
-                        WHEN p.symbol = 'USDB' THEN '0x4300000000000000000000000000000000000003'
-                        WHEN p.symbol = 'WETH' THEN '0x4300000000000000000000000000000000000004'
-                        WHEN p.symbol = 'ETH' THEN '0x4300000000000000000000000000000000000004'
-                        WHEN p.symbol = 'BLAST' THEN '0xb1a5700fa2358173fe465e6ea4ff52e36e88e2ad'
-                    {% endif %} #}
         CASE
             {% for symbol, address in token_mapping.items() %}
                 WHEN p.symbol = '{{ symbol }}' THEN '{{ address }}'
