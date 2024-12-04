@@ -1,0 +1,278 @@
+evm_dbt_best_practices:
+  project_structure:
+    layers:
+      - name: bronze
+        purpose: "Initial data transformation, creating views on raw data sources"
+        location: "models/bronze/"
+        description: >
+          Bronze models are the first layer of transformation. They typically create views
+          on raw data sources, performing minimal transformations such as renaming columns,
+          casting data types, and basic filtering. These models should be as close to the
+          source data as possible while still providing a clean, usable interface for
+          downstream models.
+      - name: silver
+        purpose: "Intermediate transformations, often materialized as incremental tables"
+        location: "models/silver/"
+        description: >
+          Silver models build upon bronze models, performing more complex transformations
+          and joining data from multiple sources. They are often materialized as incremental
+          tables for performance reasons. Silver models should focus on data quality,
+          implementing business logic, and preparing data for final presentation in gold models.
+      - name: gold
+        purpose: "Final, user-facing views and tables"
+        location: "models/gold/"
+        description: >
+          Gold models are the final layer of transformation, designed for end-user consumption.
+          They should be intuitive, well-documented, and optimized for common query patterns.
+          Gold models often combine data from multiple silver models and may include
+          additional business logic or aggregations.
+
+  model_categories:
+    - core
+    - defi
+    - nft
+    - prices
+    - labels
+    - stats
+    description: >
+      Models are organized into these categories to group related functionality.
+      This helps with organization and allows for easier navigation of the project.
+
+  folder_structure:
+    reference: 
+      markdown:General:-DeFi:-Research-and-Curation.md
+      startLine: 169
+      endLine: 188
+    description: >
+      The folder structure follows a standardized pattern to ensure consistency
+      across different EVM chains and to make it easy for developers to find
+      and work with the relevant models.
+
+  naming_conventions:
+    models:
+      pattern: "{schema}_{category}__{entity}_{action}_{version}"
+      example: "silver_dex__fraxswap_swaps"
+      description: >
+        This naming convention allows for clear identification of the model's
+        purpose, category, and version. It helps in organizing and understanding
+        the model's place in the overall structure.
+    complete_models:
+      pattern: "{schema}_{category}__complete_{action}"
+      example: "silver_dex__complete_dex_liquidity_pools"
+      description: >
+        Complete models aggregate data from multiple protocol-specific models
+        within a category. They provide a unified view of all data for a particular
+        action across different protocols.
+    gold_models:
+      pattern: "{schema}__{dim/fact/ez}_{action}"
+      example: "defi__dim_dex_liquidity_pools"
+      description: >
+        Gold models follow a dimensional modeling approach, using prefixes like
+        'dim' for dimension tables, 'fact' for fact tables, and 'ez' for denormalized,
+        easy-to-query views.
+
+  configuration:
+    silver_models:
+      materialized: incremental
+      incremental_strategy: delete+insert
+      unique_key: 
+        - block_number
+        - platform
+        - version
+      cluster_by: 
+        - block_timestamp::DATE
+        - platform
+      tags: 
+        - curated
+        - reorg
+        - heal
+      description: >
+        Silver models are typically configured as incremental tables for efficient
+        updates. The delete+insert strategy allows for easy handling of data
+        updates and corrections. Clustering helps optimize query performance.
+    gold_models:
+      materialized: view
+      persist_docs:
+        relation: true
+        columns: true
+      description: >
+        Gold models are usually materialized as views for flexibility and to
+        ensure they always reflect the latest data from silver models. Persisting
+        documentation ensures that descriptions are available to users querying
+        the views directly.
+
+  best_practices:
+    - practice: "Use standardized column names across models"
+      description: >
+        Consistent column naming helps users understand and work with data
+        across different models and categories.
+    - practice: "Implement thorough testing, especially for silver models"
+      description: >
+        Tests ensure data quality and catch potential issues early in the
+        transformation process.
+    - practice: "Provide detailed descriptions for gold model tables and columns"
+      description: >
+        Comprehensive documentation helps end-users understand and correctly
+        use the data.
+    - practice: "Use the fsc_evm package for common macros and utilities"
+      description: >
+        The fsc_evm package provides standardized functions and utilities,
+        ensuring consistency across different EVM chain implementations.
+    - practice: "Follow established patterns for handling multiple protocol versions"
+      description: >
+        Consistent handling of protocol versions makes it easier to maintain
+        and update models as protocols evolve.
+    - practice: "Utilize CTEs for improved readability and maintainability"
+      description: >
+        Common Table Expressions (CTEs) help break down complex queries into
+        more manageable, self-documenting pieces.
+    - practice: "Implement search optimization on relevant columns"
+      description: >
+        Search optimization improves query performance for frequently used
+        filter conditions.
+    - practice: "Use ref() function for model references"
+      description: >
+        The ref() function ensures proper dependency management and allows
+        dbt to correctly order model execution.
+    - practice: "Limit raw data references to staging layer"
+      description: >
+        Confining raw data access to the staging layer helps maintain a clean
+        separation of concerns and makes it easier to manage changes to source data.
+    - practice: "Break complex models into smaller pieces"
+      description: >
+        Modular design improves maintainability and allows for easier testing
+        and debugging.
+    - practice: "Add tests to models, especially for primary keys"
+      description: >
+        Tests on primary keys and other critical columns help ensure data
+        integrity and catch potential issues early.
+    - practice: "Use custom schemas for logical groupings"
+      description: >
+        Custom schemas can help organize models into logical groups, improving
+        navigation and management of the dbt project.
+    - practice: "Choose materializations based on query patterns and build time"
+      description: >
+        The choice between views, tables, and incremental models should be
+        based on how the data will be queried and how often it needs to be updated.
+
+  code_style:
+    - practice: "Use consistent indentation and capitalization"
+      description: >
+        Consistent formatting improves readability and makes it easier for
+        different team members to work on the same codebase.
+    - practice: "Use meaningful aliases in JOINs"
+      description: >
+        Clear aliases make complex queries easier to understand and maintain.
+
+  testing:
+    silver_models:
+      required_tests:
+        - test: "Uniqueness on _log_id or other relevant columns"
+          description: >
+            Ensures that each record in the model is unique based on its key columns.
+        - test: "not_null tests on key columns"
+          description: >
+            Verifies that important columns always contain data.
+    gold_models:
+      requirements:
+        - requirement: "Detailed table and column descriptions"
+          description: >
+            Comprehensive documentation is crucial for end-user understanding and proper use of the data.
+
+  documentation:
+    - practice: "Use centralized column definitions for consistency"
+      description: >
+        Centralized definitions ensure that the same column is described consistently across different models.
+    - practice: "Maintain up-to-date README files"
+      description: >
+        README files provide an overview of the project structure and any important information for developers.
+
+  performance_optimization:
+    - practice: "Use incremental models for large datasets with frequent updates"
+      description: >
+        Incremental models allow for efficient processing of new or changed data without reprocessing the entire dataset.
+    - practice: "Implement efficient incremental strategies"
+      description: >
+        Choose appropriate incremental strategies (e.g., delete+insert, merge) based on the nature of the data and update patterns.
+    - practice: "Use appropriate clustering and partitioning"
+      description: >
+        Proper clustering and partitioning can significantly improve query performance and reduce compute costs.
+
+  error_handling:
+    - practice: "Implement proper error handling in SQL and Jinja code"
+      description: >
+        Robust error handling helps identify and diagnose issues quickly, improving the reliability of the data pipeline.
+    - practice: "Use appropriate logging for debugging"
+      description: >
+        Effective logging aids in troubleshooting and monitoring the performance of models.
+
+  security:
+    - practice: "Use hooks to manage object privileges"
+      description: >
+        Hooks allow for automated management of access controls, ensuring that the right users have the right level of access to models.
+    - practice: "Follow principle of least privilege for database access"
+      description: >
+        Limiting access rights to the minimum necessary for each user or process helps maintain data security.
+
+  streamline_deployment:
+    description: >
+      Streamline is a process for rapidly scaling data processing and ingestion using AWS Lambdas, 
+      Snowflake External Tables, and DBT Models. It's crucial to thoroughly test in staging/development 
+      environments before deploying to production due to cost and downstream implications.
+    steps:
+      - step: "Define variables in dbt_project.yml"
+        description: "Set up project-specific variables that will be used across models."
+      - step: "Import and install the latest packages"
+        description: "Ensure all necessary dependencies are available and up-to-date."
+      - step: "Add relevant DBT models"
+        description: "Implement models using appropriate macros for Streamline, Core, and other functionalities."
+      - step: "Deploy relevant External Tables"
+        description: "Set up the necessary external tables in Snowflake to interface with the ingested data."
+      - step: "Run Streamline Deployment commands"
+        description: "Execute the deployment process, carefully monitoring for any issues or errors."
+
+  block_reorgs:
+    handling:
+      description: >
+        Block reorganizations (reorgs) are handled by using a broader unique key in incremental models, 
+        typically including block_number, platform, and version. This allows for proper handling of 
+        data changes due to chain reorganizations.
+    workflow:
+      description: >
+        A specific workflow is implemented to detect and process block reorgs, ensuring that the 
+        data in the models accurately reflects the current state of the blockchain.
+
+  specific_model_guidelines:
+    dex_swaps:
+      description: >
+        DEX (Decentralized Exchange) swap models capture token exchange events. They should include 
+        details such as tokens involved, amounts, sender and receiver addresses, and relevant 
+        transaction information.
+    bridges:
+      description: >
+        Bridge models track cross-chain asset transfers. They should capture details like the source 
+        and destination chains, assets involved, amounts, and relevant addresses.
+    liquidity_pools:
+      description: >
+        Liquidity pool models track the creation and state of liquidity pools in various DeFi protocols. 
+        They should include details about the tokens in the pool, pool addresses, and relevant metadata.
+
+  labels_pipeline:
+    description: >
+      The Labels Pipeline involves Bronze, Silver, and Gold DBT models associated with various 
+      third-party APIs, seed files, and algorithms to collect, aggregate, and surface human-readable 
+      blockchain data. It's crucial to maintain up-to-date label sources and implement efficient 
+      aggregation strategies.
+
+  prices_pipeline:
+    description: >
+      The Prices Pipeline handles asset pricing and metadata. It uses third-party APIs like Coingecko 
+      and Coinmarketcap. The pipeline is designed to mitigate issues with API outages or incorrect data. 
+      It's important to regularly validate the accuracy and completeness of pricing data.
+
+  stats_pipeline:
+    description: >
+      The Stats Pipeline involves Silver and Gold DBT models that aggregate metrics by category. 
+      This enables easy analysis of blockchain stats while reducing computational resources. 
+      It's important to optimize these aggregations for performance and ensure they cover all 
+      relevant blockchain metrics.
