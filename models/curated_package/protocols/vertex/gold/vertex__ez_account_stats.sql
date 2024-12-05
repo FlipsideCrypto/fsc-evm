@@ -1,8 +1,15 @@
 {{ config(
     materialized = 'view',
-    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'CLOB, DEX, STATS',
-    } } },
-    tags = ['curated', 'gold_vertex']
+    persist_docs ={ "relation": true,
+    "columns": true },
+    meta ={ 
+        'database_tags':{ 
+            'table':{ 
+                'PROTOCOL': 'VERTEX',
+                'PURPOSE': 'CLOB, DEX, STATS' 
+            }
+        }
+    }
 ) }}
 
 SELECT
