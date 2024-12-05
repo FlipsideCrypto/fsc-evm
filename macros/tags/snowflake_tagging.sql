@@ -47,10 +47,10 @@
                     {{ log('--', info=False) }}
                     {% for table_tag in res.node.meta.database_tags.table %}
 
-                        {{ create_tag_if_missing(current_tags_in_schema,table_tag|upper) }}
+                        {{ fsc_evm.create_tag_if_missing(current_tags_in_schema,table_tag|upper) }}
                         {% set desired_tag_value = res.node.meta.database_tags.table[table_tag] %}
 
-                        {{set_table_tag_value_if_different(model_schema,model_alias,table_tag,desired_tag_value,existing_tags_for_table)}}
+                        {{ fsc_evm.set_table_tag_value_if_different(model_schema,model_alias,table_tag,desired_tag_value,existing_tags_for_table)}}
                     {% endfor %}
                     {{ log("========== Finished processing tags for "+model_alias+" ==========", info=False) }}
                 {% endif %}
