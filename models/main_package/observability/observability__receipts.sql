@@ -75,7 +75,9 @@ summary_stats AS (
 gap_test AS (
     SELECT
         IFF(
-            r.tx_hash IS NULL,
+            (
+                r.receipts_json :transactionHash :: STRING
+            ) IS NULL,
             b.block_number,
             NULL
         ) AS missing_block_number
@@ -87,7 +89,7 @@ gap_test AS (
         AND b.tx_hash = r.receipts_json :transactionHash :: STRING
         INNER JOIN summary_stats
     WHERE
-        r.tx_hash IS NULL
+        r.receipts_json :transactionHash :: STRING IS NULL
         AND b.block_number >= min_block
         AND b.block_number <= max_block
 ),

@@ -47,7 +47,7 @@ base AS (
     SELECT
         block_number,
         b.block_timestamp,
-        r.tx_hash
+        r.receipts_json :transactionHash :: STRING AS tx_hash
     FROM
         {{ ref('silver__receipts') }}
         r
