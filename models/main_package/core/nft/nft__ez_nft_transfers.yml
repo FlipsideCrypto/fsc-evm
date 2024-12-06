@@ -2,7 +2,7 @@ version: 2
 models:
   - name: nft__ez_nft_transfers
     description: '{{ doc("evm_ez_nft_transfer_table_doc") }}'
-      
+
     columns:
       - name: BLOCK_NUMBER
         description: '{{ doc("evm_block_number") }}'
@@ -29,7 +29,7 @@ models:
       - name: TOKEN_ID
         description: '{{ doc("evm_nft_token_id") }}'
       - name: QUANTITY
-        description: '{{ doc("evm_nft_erc1155_value") }}'
+        description: '{{ doc("evm_nft_quantity") }}'
       - name: TOKEN_STANDARD
         description: '{{ doc("evm_token_standard") }}'
       - name: NAME
