@@ -4,13 +4,11 @@ This table contains NFT sales on this EVM blockchain. More NFT marketplaces will
 
 {% enddocs %}
 
-
 {% docs evm_ez_nft_sales_table_doc %}
 
 This table contains NFT sale events from various marketplaces.
 
 {% enddocs %}
-
 
 {% docs evm_ez_nft_mint_table_doc %}
 
@@ -90,9 +88,9 @@ The token symbol for this NFT event.
 
 {% enddocs %}
 
-{% docs evm_nft_erc1155_value %}
+{% docs evm_nft_quantity %}
 
-If the NFT is an ERC-1155 contract, this field may be one or greater, representing the number of tokens. If it is not an ERC-1155 token, this value will be null.
+The number of NFTs transferred in this event by token_id. All ERC-721 tokens will have a value of 1 while ERC-1155 tokens may have a value of 1 or greater.
 
 {% enddocs %}
 
