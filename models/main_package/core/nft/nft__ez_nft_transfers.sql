@@ -1,33 +1,34 @@
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set nft_full_refresh = var('NFT_FULL_REFRESH', false) %}
+{% set uses_receipts_by_hash = var(
+    'GLOBAL_USES_RECEIPTS_BY_HASH',
+    false
+) %}
+{% set nft_full_refresh = var(
+    'NFT_FULL_REFRESH',
+    false
+) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
-
 {% if not nft_full_refresh %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = nft_full_refresh,
-    post_hook = post_hook,
-    tags = ['nft_core']
-) }}
-
+    {{ config (
+        materialized = "incremental",
+        incremental_strategy = 'delete+insert',
+        unique_key = unique_key,
+        cluster_by = ['block_timestamp::DATE'],
+        incremental_predicates = [fsc_evm.standard_predicate()],
+        full_refresh = nft_full_refresh,
+        post_hook = post_hook,
+        tags = ['nft_core']
+    ) }}
 {% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    post_hook = post_hook,
-    tags = ['nft_core']
-) }}
-
+    {{ config (
+        materialized = "incremental",
+        incremental_strategy = 'delete+insert',
+        unique_key = unique_key,
+        cluster_by = ['block_timestamp::DATE'],
+        incremental_predicates = [fsc_evm.standard_predicate()],
+        post_hook = post_hook,
+        tags = ['nft_core']
+    ) }}
 {% endif %}
 
 WITH base AS (
@@ -48,36 +49,45 @@ WITH base AS (
         origin_function_signature,
         tx_position,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        case 
-            when topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' then 'erc721_Transfer'
-            when topic_0 :: STRING = '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62' then 'erc1155_TransferSingle'
-            when topic_0 :: STRING = '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb' then 'erc1155_TransferBatch'
-        end as token_transfer_type,
-        case 
-            when token_transfer_type = 'erc721_Transfer' then CONCAT('0x', SUBSTR(topic_1 :: STRING, 27, 40)) 
-            when token_transfer_type = 'erc1155_TransferSingle' OR token_transfer_type = 'erc1155_TransferBatch' then CONCAT('0x', SUBSTR(topic_2 :: STRING, 27, 40))
-        end as from_address,
-        case 
-            when token_transfer_type = 'erc721_Transfer' then CONCAT('0x', SUBSTR(topic_2 :: STRING, 27, 40)) 
-            when token_transfer_type = 'erc1155_TransferSingle' OR token_transfer_type = 'erc1155_TransferBatch' then CONCAT('0x', SUBSTR(topic_3 :: STRING, 27, 40))
-        end as to_address,
-        case 
-            when token_transfer_type = 'erc721_Transfer' then utils.udf_hex_to_int(topic_3 :: STRING) :: STRING 
-            when token_transfer_type = 'erc1155_TransferSingle' then utils.udf_hex_to_int(segmented_data [0] :: STRING) :: STRING
-        end as token_id,
-        case
-            when token_transfer_type = 'erc721_Transfer' then null 
-            when token_transfer_type = 'erc1155_TransferSingle' then utils.udf_hex_to_int(segmented_data [1] :: STRING) :: STRING
-        end as quantity,
-        case 
-            when token_transfer_type = 'erc721_Transfer' then null 
-            when token_transfer_type = 'erc1155_TransferSingle' OR token_transfer_type = 'erc1155_TransferBatch' then CONCAT('0x', SUBSTR(topic_1 :: STRING, 27, 40))
-        end as operator_address
+        CASE
+            WHEN topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' THEN 'erc721_Transfer'
+            WHEN topic_0 :: STRING = '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62' THEN 'erc1155_TransferSingle'
+            WHEN topic_0 :: STRING = '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb' THEN 'erc1155_TransferBatch'
+        END AS token_transfer_type,
+        CASE
+            WHEN token_transfer_type = 'erc721_Transfer' THEN CONCAT('0x', SUBSTR(topic_1 :: STRING, 27, 40))
+            WHEN token_transfer_type = 'erc1155_TransferSingle'
+            OR token_transfer_type = 'erc1155_TransferBatch' THEN CONCAT('0x', SUBSTR(topic_2 :: STRING, 27, 40))
+        END AS from_address,
+        CASE
+            WHEN token_transfer_type = 'erc721_Transfer' THEN CONCAT('0x', SUBSTR(topic_2 :: STRING, 27, 40))
+            WHEN token_transfer_type = 'erc1155_TransferSingle'
+            OR token_transfer_type = 'erc1155_TransferBatch' THEN CONCAT('0x', SUBSTR(topic_3 :: STRING, 27, 40))
+        END AS to_address,
+        CASE
+            WHEN token_transfer_type = 'erc721_Transfer' THEN utils.udf_hex_to_int(
+                topic_3 :: STRING
+            ) :: STRING
+            WHEN token_transfer_type = 'erc1155_TransferSingle' THEN utils.udf_hex_to_int(
+                segmented_data [0] :: STRING
+            ) :: STRING
+        END AS token_id,
+        CASE
+            WHEN token_transfer_type = 'erc721_Transfer' THEN NULL
+            WHEN token_transfer_type = 'erc1155_TransferSingle' THEN utils.udf_hex_to_int(
+                segmented_data [1] :: STRING
+            ) :: STRING
+        END AS quantity,
+        CASE
+            WHEN token_transfer_type = 'erc721_Transfer' THEN NULL
+            WHEN token_transfer_type = 'erc1155_TransferSingle'
+            OR token_transfer_type = 'erc1155_TransferBatch' THEN CONCAT('0x', SUBSTR(topic_1 :: STRING, 27, 40))
+        END AS operator_address
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         tx_succeeded
-        and not event_removed
+        AND NOT event_removed
         AND (
             (
                 topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
@@ -276,12 +286,12 @@ all_transfers AS (
         token_transfer_type
     FROM
         base
-    where 
+    WHERE
         token_transfer_type <> 'erc1155_TransferBatch'
     UNION ALL
     SELECT
         block_number,
-        block_timestamp,    
+        block_timestamp,
         tx_hash,
         tx_position,
         event_index,
@@ -312,16 +322,19 @@ final_transfers AS (
         from_address,
         to_address,
         token_id,
-        quantity,
+        COALESCE(
+            quantity,
+            '1'
+        ) AS quantity,
         intra_event_index,
         token_transfer_type,
-        name AS name,
-        from_address = '0x0000000000000000000000000000000000000000' as is_mint,
-        case 
-            when token_transfer_type = 'erc721_Transfer' then 'erc721'
-            when token_transfer_type = 'erc1155_TransferSingle' then 'erc1155'
-            when token_transfer_type = 'erc1155_TransferBatch' then 'erc1155'
-        end as token_standard,
+        NAME AS NAME,
+        from_address = '0x0000000000000000000000000000000000000000' AS is_mint,
+        CASE
+            WHEN token_transfer_type = 'erc721_Transfer' THEN 'erc721'
+            WHEN token_transfer_type = 'erc1155_TransferSingle' THEN 'erc1155'
+            WHEN token_transfer_type = 'erc1155_TransferBatch' THEN 'erc1155'
+        END AS token_standard,
         {{ dbt_utils.generate_surrogate_key(
             ['tx_hash','event_index','intra_event_index']
         ) }} AS ez_nft_transfers_id,
@@ -329,8 +342,9 @@ final_transfers AS (
         SYSDATE() AS modified_timestamp
     FROM
         all_transfers A
-        LEFT JOIN {{ ref('core__dim_contracts') }} C 
-        on a.contract_address = c.address and c.name IS NOT NULL
+        LEFT JOIN {{ ref('core__dim_contracts') }} C
+        ON A.contract_address = C.address
+        AND C.name IS NOT NULL
     WHERE
         to_address IS NOT NULL
 )
@@ -349,7 +363,7 @@ SELECT
     token_id,
     quantity,
     token_standard,
-    name,
+    NAME,
     origin_function_signature,
     origin_from_address,
     origin_to_address,
@@ -361,7 +375,7 @@ FROM
 
 {% if is_incremental() %}
 UNION ALL
-SELECT 
+SELECT
     t.block_number,
     t.block_timestamp,
     t.tx_hash,
@@ -376,18 +390,22 @@ SELECT
     t.token_id,
     t.quantity,
     t.token_standard,
-    c.name,
+    C.name,
     t.origin_function_signature,
     t.origin_from_address,
     t.origin_to_address,
     t.ez_nft_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
-FROM {{ this }} t 
-INNER JOIN {{ ref('core__dim_contracts') }} c
-    ON t.contract_address = c.address
-    AND c.name IS NOT NULL
-    and c.modified_timestamp > current_date() - 30
-LEFT JOIN final_transfers f using (ez_nft_transfers_id)
-WHERE t.name IS NULL and f.ez_nft_transfers_id is null
+FROM
+    {{ this }}
+    t
+    INNER JOIN {{ ref('core__dim_contracts') }} C
+    ON t.contract_address = C.address
+    AND C.name IS NOT NULL
+    AND C.modified_timestamp > CURRENT_DATE() - 30
+    LEFT JOIN final_transfers f USING (ez_nft_transfers_id)
+WHERE
+    t.name IS NULL
+    AND f.ez_nft_transfers_id IS NULL
 {% endif %}
