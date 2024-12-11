@@ -7,13 +7,16 @@ models:
     columns:
       - name: TICKER_ID
         tests:
-          - not_null
+          - not_null:
+             timestamp_column: HOUR
       - name: PRODUCT_ID
         tests:
-          - not_null
+          - not_null:
+             timestamp_column: HOUR
       - name: HOUR
         tests:
-          - not_null
+          - not_null:
+             timestamp_column: HOUR
           - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
@@ -23,7 +26,8 @@ models:
                 - TIMESTAMP_NTZ
       - name: ORDERBOOK_SIDE
         tests:
-          - not_null
+          - not_null:
+             timestamp_column: HOUR
       - name: PRICE
         tests:
           - fsc_evm_expect_column_values_to_be_in_type_list:
