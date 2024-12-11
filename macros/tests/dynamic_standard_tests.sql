@@ -175,40 +175,6 @@
         )) }}
     {% endtest %}
 
-    {% test fsc_evm_expect_column_values_to_be_in_type_list(model, column_name, column_type_list) %}
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Column: " ~ column_name) %}
-            {% do print("Type list: " ~ column_type_list) %}
-        {% endif %}
-        
-        {% set row_condition = add_days_filter_to_row_condition() %}
-        
-        {{ return(dbt_expectations.test_expect_column_values_to_be_in_type_list(
-            model,
-            column_name,
-            column_type_list,
-            row_condition=row_condition
-        )) }}
-    {% endtest %}
-
-    {% test fsc_evm_expect_row_values_to_have_recent_data(model, datepart, interval) %}
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Datepart: " ~ datepart) %}
-            {% do print("Interval: " ~ interval) %}
-        {% endif %}
-        
-        {% set row_condition = add_days_filter_to_row_condition() %}
-        
-        {{ return(dbt_expectations.test_expect_row_values_to_have_recent_data(
-            model,
-            datepart,
-            interval,
-            row_condition=row_condition
-        )) }}
-    {% endtest %}
-
     {% test fsc_evm_expect_column_values_to_be_between(model, column_name, min_value=None, max_value=None) %}
         {% if execute %}
             {% do print("Model: " ~ model) %}
@@ -277,7 +243,7 @@
 
     {% endtest %}
 
-    --These tests have no changes, just here for prefix and if we want to change in the future
+    --These tests have no changes as a date filter is not needed, just here for prefix and if we want to change in the future
     {% test fsc_evm_expect_column_values_to_be_in_type_list(model, column_name, column_type_list) %}
         {{ return(dbt_expectations.test_expect_column_values_to_be_in_type_list(
             model,
