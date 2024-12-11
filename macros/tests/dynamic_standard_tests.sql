@@ -28,10 +28,6 @@
 {#                      DBT UTILS TESTS                          #}
 {# ============================================================= #}
     {% test fsc_evm_unique_combination_of_columns(model, combination_of_columns, quote_columns=false) %}
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Columns: " ~ combination_of_columns) %}
-        {% endif %}
 
         {% set days = var('days', none) %}
 
@@ -79,12 +75,6 @@
     {% endtest %}
 
     {% test fsc_evm_equality(model, compare_model, compare_columns=None) %}
-
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Compare Model: " ~ compare_model) %}
-            {% do print("Compare Columns: " ~ compare_columns) %}
-        {% endif %}
 
         {% set days = var('days', none) %}
 
@@ -159,11 +149,6 @@
 {#                      DBT EXPECTATIONS TESTS                   #}
 {# ============================================================= #}
     {% test fsc_evm_expect_column_values_to_match_regex(model, column_name, regex) %}
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Column: " ~ column_name) %}
-            {% do print("Regex: " ~ regex) %}
-        {% endif %}
         
         {% set filter_config = add_days_filter(model) %}
         
@@ -176,12 +161,6 @@
     {% endtest %}
 
     {% test fsc_evm_expect_column_values_to_be_between(model, column_name, min_value=None, max_value=None) %}
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Column: " ~ column_name) %}
-            {% do print("Min value: " ~ min_value) %}
-            {% do print("Max value: " ~ max_value) %}
-        {% endif %}
         
         {% set row_condition = add_days_filter_to_row_condition() %}
         
@@ -195,12 +174,6 @@
     {% endtest %}
 
     {% test fsc_evm_expect_column_values_to_be_in_set(model, column_name, value_set, quote_values=True) %}
-        {% if execute %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Column: " ~ column_name) %}
-            {% do print("Value Set: " ~ value_set) %}
-            {% do print("Quote Values: " ~ quote_values) %}
-        {% endif %}
 
         {% set days = var('days', none) %}
         {% set row_condition = "BLOCK_TIMESTAMP >= dateadd(day, -" ~ days ~ ", current_timestamp())" if days is not none else None %}
@@ -268,19 +241,16 @@
 {# ============================================================= #}
 {#                      DEFAULT DBT TESTS                        #}
 {# ============================================================= #}
-    {% macro snowflake__test_not_null(model, column_name) %}
+    {% macro snowflake__test_not_null(model, column_name, timestamp_column) %}
+
+        {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
         {% set days = var('days', none) %}
-        {% if execute %}
-            {% do print("==================== CUSTOM TEST DISPATCH STARTING ====================") %}
-            {% do print("Model: " ~ model) %}
-            {% do print("Days filter: " ~ var('days', none)) %}
-        {% endif %}
 
         {% if days is not none %}
             with filtered_data as (
                 select *
                 from {{ model }}
-                where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, sysdate())
+                where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
             )
             select *
             from filtered_data
@@ -292,13 +262,15 @@
         {% endif %}
     {% endmacro %}
 
-    {% macro snowflake__test_unique(model, column_name) %}
+    {% macro snowflake__test_unique(model, column_name, timestamp_column) %}
+        
+        {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
         {% set days = var('days', none) %}
         {% if days is not none %}
             with filtered_data as (
                 select *
                 from {{ model }}
-                where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, sysdate())
+                where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
             )
             select
                 {{ column_name }}
@@ -316,13 +288,15 @@
         {% endif %}
     {% endmacro %}
 
-    {% macro snowflake__test_accepted_values(model, column_name, values, quote=True) %}
+    {% macro snowflake__test_accepted_values(model, column_name, values, quote=True, timestamp_column) %}
+        
+        {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
         {% set days = var('days', none) %}
         {% if days is not none %}
             with filtered_data as (
                 select *
                 from {{ model }}
-                where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, sysdate())
+                where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
             )
             select *
             from filtered_data
@@ -352,13 +326,15 @@
         {% endif %}
     {% endmacro %}
 
-    {% macro snowflake__test_relationships(model, column_name, to, field) %}
+    {% macro snowflake__test_relationships(model, column_name, to, field, timestamp_column) %}
+
+        {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
         {% set days = var('days', none) %}
         {% if days is not none %}
             with filtered_data as (
                 select *
                 from {{ model }}
-                where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, sysdate())
+                where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
             )
             select *
             from filtered_data as child
@@ -377,18 +353,18 @@
 {# ============================================================= #}
 {#                      DEFAULT DBT TEST REGISTRATION            #}
 {# ============================================================= #}
-    {% macro test_not_null(model, column_name) %}
-        {{ return(adapter.dispatch('test_not_null')(model, column_name)) }}
+    {% macro test_not_null(model, column_name, timestamp_column) %}
+        {{ return(adapter.dispatch('test_not_null')(model, column_name, timestamp_column)) }}
     {% endmacro %}
 
-    {% macro test_unique(model, column_name) %}
-        {{ return(adapter.dispatch('test_unique')(model, column_name)) }}
+    {% macro test_unique(model, column_name, timestamp_column) %}
+        {{ return(adapter.dispatch('test_unique')(model, column_name, timestamp_column)) }}
     {% endmacro %}
 
-    {% macro test_accepted_values(model, column_name, values, quote=True) %}
-        {{ return(adapter.dispatch('test_accepted_values')(model, column_name, values, quote)) }}
+    {% macro test_accepted_values(model, column_name, values, quote=True, timestamp_column) %}
+        {{ return(adapter.dispatch('test_accepted_values')(model, column_name, values, quote, timestamp_column)) }}
     {% endmacro %}
 
-    {% macro test_relationships(model, column_name, to, field) %}
-        {{ return(adapter.dispatch('test_relationships')(model, column_name, to, field)) }}
+    {% macro test_relationships(model, column_name, to, field, timestamp_column) %}
+        {{ return(adapter.dispatch('test_relationships')(model, column_name, to, field, timestamp_column)) }}
     {% endmacro %}
