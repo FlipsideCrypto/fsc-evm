@@ -276,6 +276,29 @@
         from validation_errors
 
     {% endtest %}
+
+    --These tests have no changes, just here for prefix and if we want to change in the future
+    {% test fsc_evm_expect_column_values_to_be_in_type_list(model, column_name, column_type_list) %}
+        {{ return(dbt_expectations.test_expect_column_values_to_be_in_type_list(
+            model,
+            column_name,
+            column_type_list
+        )) }}
+    {% endtest %}
+
+    {% test fsc_evm_expect_row_values_to_have_recent_data(model,
+                                                    column_name,
+                                                    datepart,
+                                                    interval,
+                                                    row_condition=None) %}
+        {{ return(dbt_expectations.test_expect_row_values_to_have_recent_data(
+            model,
+            column_name,
+            datepart,
+            interval,
+            row_condition
+        )) }}
+    {% endtest %}
 {# ============================================================= #}
 {#                      DEFAULT DBT TESTS                        #}
 {# ============================================================= #}

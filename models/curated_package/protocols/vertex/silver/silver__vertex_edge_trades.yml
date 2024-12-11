@@ -2,31 +2,31 @@ version: 2
 models:
   - name: silver__vertex_edge_trades
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - fsc_evm_unique_combination_of_columns:
           combination_of_columns:
             - fact_event_logs_id
     columns:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
+          - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 14
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
       - name: TX_HASH
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
+          - fsc_evm_expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: EDGE_EVENT_INDEX
         tests:
@@ -37,7 +37,7 @@ models:
       - name: TRADER
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
+          - fsc_evm_expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: SYMBOL
         tests:
@@ -62,109 +62,109 @@ models:
           - not_null
       - name: EDGE_PRICE_AMOUNT_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_PRICE_AMOUNT_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_PRICE_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_PRICE_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_AMOUNT_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_AMOUNT_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_AMOUNT_USD
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_AMOUNT_USD
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_QUOTE_DELTA_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_QUOTE_DELTA_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_QUOTE_DELTA
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_QUOTE_DELTA
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_BASE_DELTA_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_BASE_DELTA_UNADJ
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: EDGE_BASE_DELTA
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: USER_BASE_DELTA
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT

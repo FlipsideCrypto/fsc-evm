@@ -14,10 +14,10 @@ models:
       - name: HOUR
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
+          - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
@@ -26,43 +26,43 @@ models:
           - not_null
       - name: PRICE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: ROUND_PRICE_0_01
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: ROUND_PRICE_0_1
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: ROUND_PRICE_1
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: ROUND_PRICE_10
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: ROUND_PRICE_100
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: VOLUME
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT

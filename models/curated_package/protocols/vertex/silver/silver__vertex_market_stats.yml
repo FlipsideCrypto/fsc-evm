@@ -2,7 +2,7 @@ version: 2
 models:
   - name: silver__vertex_market_stats
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - fsc_evm_unique_combination_of_columns:
           combination_of_columns:
             - HOUR
             - TICKER_ID
@@ -11,10 +11,10 @@ models:
       - name: HOUR
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
+          - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
@@ -27,61 +27,61 @@ models:
           - not_null
       - name: DISTINCT_SEQUENCE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: DISTINCT_TRADER_COUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: DISTINCT_SUBACCOUNT_COUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TRADE_COUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: AMOUNT_USD
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: FEE_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: BASE_DELTA_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: QUOTE_DELTA_AMOUNT
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: BASE_VOLUME
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: CONTRACT_PRICE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -90,25 +90,25 @@ models:
           - not_null
       - name: FUNDING_RATE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: INDEX_PRICE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: LAST_PRICE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: MARK_PRICE
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -117,13 +117,13 @@ models:
           - not_null
       - name: OPEN_INTEREST
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: OPEN_INTEREST_USD
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -135,7 +135,7 @@ models:
           - not_null
       - name: QUOTE_VOLUME
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
+          - fsc_evm_expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
