@@ -1,4 +1,22 @@
 {% macro add_days_filter(model, timestamp_column=none) %}
+    {% if timestamp_column is none %}
+        {# Get the appropriate timestamp column if none provided #}
+        {% set columns = adapter.get_columns_in_relation(model) %}
+        {% for column in columns %}
+            {% if column.name == 'MODIFIED_TIMESTAMP' %}
+                {% set timestamp_column = 'MODIFIED_TIMESTAMP' %}
+                {% break %}
+            {% elif column.name == '_INSERTED_TIMESTAMP' %}
+                {% set timestamp_column = '_INSERTED_TIMESTAMP' %}
+                {% break %}
+            {% elif column.name == 'BLOCK_TIMESTAMP' %}
+                {% set timestamp_column = 'BLOCK_TIMESTAMP' %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    {# Default to MODIFIED_TIMESTAMP if no suitable column found #}
     {% set timestamp_column = timestamp_column if timestamp_column is not none else 'MODIFIED_TIMESTAMP' %}
     
     {% set intervals = {
