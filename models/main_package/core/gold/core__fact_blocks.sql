@@ -63,9 +63,11 @@ SELECT
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
+    {% if not op_stack_chain %}
     utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
     ) :: bigint AS total_difficulty,
+    {% endif %}
     block_json :sha3Uncles :: STRING AS sha3_uncles,
     block_json :uncles AS uncle_blocks,
     utils.udf_hex_to_int(
@@ -76,8 +78,12 @@ SELECT
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
     {% if op_stack_chain %}
-    block_json :blobGasUsed :: STRING AS blob_gas_used,
-    block_json :excessBlobGas :: STRING AS excess_blob_gas,
+    utils.udf_hex_to_int(
+        block_json :blobGasUsed :: STRING
+    ) :: bigint AS blob_gas_used,
+    utils.udf_hex_to_int(
+        block_json :excessBlobGas :: STRING
+    ) :: bigint AS excess_blob_gas,
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
     block_json :withdrawals AS withdrawals,
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
