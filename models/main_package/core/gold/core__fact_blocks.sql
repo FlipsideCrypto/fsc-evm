@@ -2,6 +2,7 @@
 {% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) %}
 {% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+{% set op_stack_chain = var('GLOBAL_OP_STACK_CHAIN', false) %}
 
 
 {% if not gold_full_refresh %}
@@ -43,7 +44,7 @@ SELECT
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
-    {% if uses_mix_hash %}
+    {% if uses_mix_hash or op_stack_chain %}
     block_json :mixHash :: STRING AS mix_hash,
     {% endif %}
     block_json :extraData :: STRING AS extra_data,
@@ -54,7 +55,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :gasLimit :: STRING
     ) :: bigint AS gas_limit,
-    {% if uses_base_fee %}
+    {% if uses_base_fee or op_stack_chain %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
@@ -74,6 +75,13 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
+    {% if op_stack_chain %}
+    block_json :blobGasUsed :: STRING AS blob_gas_used,
+    block_json :excessBlobGas :: STRING AS excess_blob_gas,
+    block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
+    block_json :withdrawals AS withdrawals,
+    block_json :withdrawalsRoot :: STRING AS withdrawals_root,
+    {% endif %}
     {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

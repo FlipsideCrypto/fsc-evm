@@ -332,10 +332,7 @@ error_logic AS (
         {% else %}
             AND b0.tx_position = b1.tx_position
         {% endif %}
-        AND b0.trace_address LIKE CONCAT(
-            b1.trace_address,
-            '_%'
-        )
+        AND b0.trace_address RLIKE CONCAT('^', b1.trace_address, '(_[0-9]+)*$')
         LEFT JOIN errored_traces b2
         ON b0.block_number = b2.block_number
         {% if TRACES_SEI_MODE %}
