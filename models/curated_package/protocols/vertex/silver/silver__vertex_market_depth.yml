@@ -8,15 +8,15 @@ models:
       - name: TICKER_ID
         tests:
           - not_null:
-             timestamp_column: HOUR
+              timestamp_column: HOUR
       - name: PRODUCT_ID
         tests:
           - not_null:
-             timestamp_column: HOUR
+              timestamp_column: HOUR
       - name: HOUR
         tests:
           - not_null:
-             timestamp_column: HOUR
+              timestamp_column: HOUR
           - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
@@ -27,7 +27,7 @@ models:
       - name: ORDERBOOK_SIDE
         tests:
           - not_null:
-             timestamp_column: HOUR
+              timestamp_column: HOUR
       - name: PRICE
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -70,4 +70,3 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-

@@ -10,7 +10,7 @@ models:
     columns:
       - name: HOUR
         tests:
-           - not_null:
+          - not_null:
               timestamp_column: HOUR
           - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
@@ -21,13 +21,15 @@ models:
                 - TIMESTAMP_NTZ
       - name: TICKER_ID
         tests:
-           - not_null:
+          - not_null:
               timestamp_column: HOUR
       - name: SYMBOL
-           - not_null:
+        tests:
+          - not_null:
               timestamp_column: HOUR
       - name: PRODUCT_ID
-           - not_null:
+        tests:
+          - not_null:
               timestamp_column: HOUR
       - name: DISTINCT_SEQUENCE
         tests:
@@ -91,7 +93,7 @@ models:
                 - FLOAT
       - name: CONTRACT_PRICE_CURRENCY
         tests:
-           - not_null:
+          - not_null:
               timestamp_column: HOUR
       - name: FUNDING_RATE
         tests:
@@ -119,7 +121,7 @@ models:
                 - FLOAT
       - name: NEXT_FUNDING_RATE_TIMESTAMP
         tests:
-           - not_null:
+          - not_null:
               timestamp_column: HOUR
       - name: OPEN_INTEREST
         tests:
@@ -135,11 +137,11 @@ models:
                 - FLOAT
       - name: PRODUCT_TYPE
         tests:
-           - not_null:
+          - not_null:
               timestamp_column: HOUR
       - name: QUOTE_CURRENCY
         tests:
-           - not_null:
+          - not_null:
               timestamp_column: HOUR
       - name: QUOTE_VOLUME
         tests:
