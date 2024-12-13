@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - HOUR
             - TICKER_ID
+          timestamp_column: HOUR
       - vertex_missing_products
     columns:
       - name: HOUR
