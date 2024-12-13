@@ -15,7 +15,7 @@ models:
           - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
@@ -31,61 +31,61 @@ models:
               timestamp_column: HOUR
       - name: DISTINCT_SEQUENCE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: DISTINCT_TRADER_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: DISTINCT_SUBACCOUNT_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TRADE_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: AMOUNT_USD
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: FEE_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: BASE_DELTA_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: QUOTE_DELTA_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: BASE_VOLUME
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: CONTRACT_PRICE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -95,25 +95,25 @@ models:
               timestamp_column: HOUR
       - name: FUNDING_RATE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: INDEX_PRICE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: LAST_PRICE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: MARK_PRICE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -123,13 +123,13 @@ models:
               timestamp_column: HOUR
       - name: OPEN_INTEREST
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: OPEN_INTEREST_USD
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -143,7 +143,7 @@ models:
               timestamp_column: HOUR
       - name: QUOTE_VOLUME
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
