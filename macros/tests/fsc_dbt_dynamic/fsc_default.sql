@@ -1,13 +1,11 @@
-{% macro snowflake__test_not_null(model, column_name, timestamp_column) %}
-
-    {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
-    {% set days = var('days', none) %}
-
-    {% if days is not none %}
+{% macro snowflake__test_not_null(model, column_name, timestamp_column=none) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
+    
+    {% if filter.row_condition is not none %}
         with filtered_data as (
             select *
             from {{ model }}
-            where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
+            where {{ filter.row_condition }}
         )
         select *
         from filtered_data
@@ -19,15 +17,14 @@
     {% endif %}
 {% endmacro %}
 
-{% macro snowflake__test_unique(model, column_name, timestamp_column) %}
+{% macro snowflake__test_unique(model, column_name, timestamp_column=none) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
     
-    {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
-    {% set days = var('days', none) %}
-    {% if days is not none %}
+    {% if filter.row_condition is not none %}
         with filtered_data as (
             select *
             from {{ model }}
-            where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
+            where {{ filter.row_condition }}
         )
         select
             {{ column_name }}
@@ -45,15 +42,14 @@
     {% endif %}
 {% endmacro %}
 
-{% macro snowflake__test_accepted_values(model, column_name, values, quote=True, timestamp_column) %}
+{% macro snowflake__test_accepted_values(model, column_name, values, timestamp_column=none, quote=True) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
     
-    {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
-    {% set days = var('days', none) %}
-    {% if days is not none %}
+    {% if filter.row_condition is not none %}
         with filtered_data as (
             select *
             from {{ model }}
-            where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
+            where {{ filter.row_condition }}
         )
         select *
         from filtered_data
@@ -83,15 +79,14 @@
     {% endif %}
 {% endmacro %}
 
-{% macro snowflake__test_relationships(model, column_name, to, field, timestamp_column) %}
-
-    {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
-    {% set days = var('days', none) %}
-    {% if days is not none %}
+{% macro snowflake__test_relationships(model, column_name, to, field, timestamp_column=none) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
+    
+    {% if filter.row_condition is not none %}
         with filtered_data as (
             select *
             from {{ model }}
-            where {{ timestamp_column }} >= dateadd(day, -{{ days }}, sysdate())
+            where {{ filter.row_condition }}
         )
         select *
         from filtered_data as child
@@ -110,18 +105,18 @@
 {# ============================================================= #}
 {#                      DEFAULT DBT TEST REGISTRATION            #}
 {# ============================================================= #}
-{% macro test_not_null(model, column_name, timestamp_column) %}
+{% macro test_not_null(model, column_name, timestamp_column=none) %}
     {{ return(adapter.dispatch('test_not_null')(model, column_name, timestamp_column)) }}
 {% endmacro %}
 
-{% macro test_unique(model, column_name, timestamp_column) %}
+{% macro test_unique(model, column_name, timestamp_column=none) %}
     {{ return(adapter.dispatch('test_unique')(model, column_name, timestamp_column)) }}
 {% endmacro %}
 
-{% macro test_accepted_values(model, column_name, values, quote=True, timestamp_column) %}
-    {{ return(adapter.dispatch('test_accepted_values')(model, column_name, values, quote, timestamp_column)) }}
+{% macro test_accepted_values(model, column_name, values, timestamp_column=none, quote=True) %}
+    {{ return(adapter.dispatch('test_accepted_values')(model, column_name, values, timestamp_column, quote)) }}
 {% endmacro %}
 
-{% macro test_relationships(model, column_name, to, field, timestamp_column) %}
+{% macro test_relationships(model, column_name, to, field, timestamp_column=none) %}
     {{ return(adapter.dispatch('test_relationships')(model, column_name, to, field, timestamp_column)) }}
 {% endmacro %}
