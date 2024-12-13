@@ -1,5 +1,5 @@
 {% macro add_days_filter(model, timestamp_column=none) %}
-    {% set timestamp_column = timestamp_column if timestamp_column is not none else 'BLOCK_TIMESTAMP' %}
+    {% set timestamp_column = timestamp_column if timestamp_column is not none else 'MODIFIED_TIMESTAMP' %}
     
     {% set intervals = {
         'minutes': var('minutes', none),

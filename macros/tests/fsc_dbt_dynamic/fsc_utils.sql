@@ -1,4 +1,4 @@
-{% test fsc_evm_unique_combination_of_columns(model, combination_of_columns, timestamp_column='BLOCK_TIMESTAMP', quote_columns=false) %}
+{% test fsc_evm_unique_combination_of_columns(model, combination_of_columns, timestamp_column=none, quote_columns=false) %}
 
     {% if not quote_columns %}
         {%- set column_list=combination_of_columns %}
@@ -44,7 +44,7 @@
 
 {% endtest %}
 
-{% test fsc_evm_equality(model, compare_model, compare_columns=None, timestamp_column='BLOCK_TIMESTAMP') %}
+{% test fsc_evm_equality(model, compare_model, compare_columns=None, timestamp_column=none) %}
 
     {% set set_diff %}
         count(*) + coalesce(abs(
