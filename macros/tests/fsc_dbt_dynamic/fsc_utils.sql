@@ -1,6 +1,4 @@
-{% test fsc_evm_unique_combination_of_columns(model, combination_of_columns, quote_columns=false) %}
-
-    {% set days = var('days', none) %}
+{% test fsc_evm_unique_combination_of_columns(model, combination_of_columns, timestamp_column='BLOCK_TIMESTAMP', quote_columns=false) %}
 
     {% if not quote_columns %}
         {%- set column_list=combination_of_columns %}
@@ -16,12 +14,13 @@
     {% endif %}
 
     {%- set columns_csv=column_list | join(', ') %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
 
-    {% if days is not none %}
+    {% if filter.row_condition is not none %}
         with filtered_data as (
             select *
             from {{ model }}
-            where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, sysdate())
+            where {{ filter.row_condition }}
         ),
         validation_errors as (
             select
@@ -45,9 +44,7 @@
 
 {% endtest %}
 
-{% test fsc_evm_equality(model, compare_model, compare_columns=None) %}
-
-    {% set days = var('days', none) %}
+{% test fsc_evm_equality(model, compare_model, compare_columns=None, timestamp_column='BLOCK_TIMESTAMP') %}
 
     {% set set_diff %}
         count(*) + coalesce(abs(
@@ -71,17 +68,18 @@
     {%- endif -%}
 
     {% set compare_cols_csv = compare_columns | join(', ') %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
 
-    {% if days is not none %}
+    {% if filter.row_condition is not none %}
         with filtered_a as (
             select * 
             from {{ model }}
-            where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, current_timestamp())
+            where {{ filter.row_condition }}
         ),
         filtered_b as (
             select * 
             from {{ compare_model }}
-            where BLOCK_TIMESTAMP >= dateadd(day, -{{ days }}, current_timestamp())
+            where {{ filter.row_condition }}
         ),
         a_minus_b as (
             select {{compare_cols_csv}} from filtered_a

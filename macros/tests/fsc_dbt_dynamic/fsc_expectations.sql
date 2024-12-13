@@ -1,39 +1,34 @@
-{% test fsc_evm_expect_column_values_to_match_regex(model, column_name, regex) %}
-    
-    {% set filter_config = add_days_filter(model) %}
-    
+{% test fsc_evm_expect_column_values_to_match_regex(model, column_name, regex, timestamp_column=none) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
     {{ return(dbt_expectations.test_expect_column_values_to_match_regex(
         model,
         column_name,
         regex,
-        row_condition=filter_config.row_condition
+        row_condition=filter.row_condition
     )) }}
 {% endtest %}
 
-{% test fsc_evm_expect_column_values_to_be_between(model, column_name, min_value=None, max_value=None) %}
-    
-    {% set row_condition = add_days_filter_to_row_condition() %}
+{% test fsc_evm_expect_column_values_to_be_between(model, column_name, min_value=None, max_value=None, timestamp_column=none) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
     
     {{ return(dbt_expectations.test_expect_column_values_to_be_between(
         model,
         column_name,
         min_value,
         max_value,
-        row_condition=row_condition
+        row_condition=filter.row_condition
     )) }}
 {% endtest %}
 
-{% test fsc_evm_expect_column_values_to_be_in_set(model, column_name, value_set, quote_values=True) %}
-
-    {% set days = var('days', none) %}
-    {% set row_condition = "BLOCK_TIMESTAMP >= dateadd(day, -" ~ days ~ ", current_timestamp())" if days is not none else None %}
+{% test fsc_evm_expect_column_values_to_be_in_set(model, column_name, value_set, timestamp_column=none, quote_values=True) %}
+    {% set filter = add_days_filter(model, timestamp_column=timestamp_column) %}
 
     with all_values as (
         select
             {{ column_name }} as value_field
         from {{ model }}
-        {% if row_condition %}
-        where {{ row_condition }}
+        {% if filter.row_condition %}
+        where {{ filter.row_condition }}
         {% endif %}
     ),
     
@@ -50,7 +45,6 @@
     ),
     
     validation_errors as (
-        -- values from the model that are not in the set
         select
             v.value_field
         from
@@ -63,10 +57,9 @@
 
     select *
     from validation_errors
-
 {% endtest %}
 
---These tests have no changes as a date filter is not needed, just here for prefix and if we want to change in the future
+--These tests have no changes as a date filter is not needed
 {% test fsc_evm_expect_column_values_to_be_in_type_list(model, column_name, column_type_list) %}
     {{ return(dbt_expectations.test_expect_column_values_to_be_in_type_list(
         model,
