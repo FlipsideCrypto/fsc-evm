@@ -23,9 +23,11 @@ models:
           - not_null:
               timestamp_column: HOUR
       - name: SYMBOL
+        tests:
           - not_null:
               timestamp_column: HOUR
       - name: PRODUCT_ID
+        tests:
           - not_null:
               timestamp_column: HOUR
       - name: DEPOSIT_APR
