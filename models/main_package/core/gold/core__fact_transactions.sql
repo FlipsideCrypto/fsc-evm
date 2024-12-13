@@ -467,7 +467,7 @@ all_transactions AS (
         mint_precise_raw,
         mint_precise,
         {% endif %}
-        {% if uses_eth_value or op_stack_chain %}
+        {% if uses_eth_value %}
         eth_value,
         eth_value_precise_raw,
         eth_value_precise,
@@ -534,7 +534,7 @@ SELECT
     mint_precise_raw,
     mint_precise,
     {% endif %}
-    {% if uses_eth_value or op_stack_chain %}
+    {% if uses_eth_value %}
     eth_value,
     eth_value_precise_raw,
     eth_value_precise,
@@ -600,7 +600,7 @@ SELECT
     mint_precise_raw,
     mint_precise,
     {% endif %}
-    {% if uses_eth_value or op_stack_chain %}
+    {% if uses_eth_value %}
     eth_value,
     eth_value_precise_raw,
     eth_value_precise,
