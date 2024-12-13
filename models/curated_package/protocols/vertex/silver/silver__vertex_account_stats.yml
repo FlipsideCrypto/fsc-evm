@@ -14,7 +14,7 @@ models:
         tests:
           - not_null:
              timestamp_column: MODIFIED_TIMESTAMP
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
@@ -22,85 +22,85 @@ models:
         tests:
           - not_null:
              timestamp_column: MODIFIED_TIMESTAMP
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
       - name: ACCOUNT_AGE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TRADE_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: PERP_TRADES
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: SPOT_TRADES
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: LONG_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: SHORT_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_USD_VOLUME
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_FEE_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_BASE_DELTA_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_QUOTE_DELTA_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_LIQUIDATION_AMOUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_LIQUIDATION_AMOUNT_QUOTE
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOTAL_LIQUIDATION_AMOUNT_COUNT
         tests:
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
@@ -111,7 +111,7 @@ models:
           - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-          - fsc_evm_expect_column_values_to_be_in_type_list:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
