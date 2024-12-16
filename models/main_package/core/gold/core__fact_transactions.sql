@@ -149,7 +149,7 @@ WHERE
             value_precise :: FLOAT AS VALUE,
             {% if op_stack_chain %}
             transaction_json :yParity :: STRING AS y_parity,
-            transaction_json :depositReceiptVersion :: STRING AS deposit_receipt_version,
+            utils.udf_hex_to_int(transaction_json :depositReceiptVersion :: STRING):: bigint AS deposit_receipt_version,
             transaction_json :accessList AS access_list,
             {% endif %}
         FROM
@@ -215,10 +215,10 @@ WHERE
             txs.y_parity,
             txs.deposit_receipt_version,
             txs.access_list,
-            r.receipts_json :depositNonce :: STRING AS deposit_nonce,
-            r.receipts_json :l1BaseFeeScalar :: STRING AS l1_base_fee_scalar,
-            r.receipts_json :l1BlobBaseFee :: STRING AS l1_blob_base_fee,
-            r.receipts_json :l1BlobBaseFeeScalar :: STRING AS l1_blob_base_fee_scalar,
+            utils.udf_hex_to_int(r.receipts_json :depositNonce :: STRING):: bigint AS deposit_nonce,
+            utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
+            utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
+            utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             r.receipts_json :logsBloom :: STRING AS logs_bloom,
             {% endif %}
             {% if uses_l1_tx_fee_calc or op_stack_chain %}
@@ -371,10 +371,10 @@ missing_data AS (
         t.y_parity,
         t.deposit_receipt_version,
         t.access_list,
-        r.receipts_json :depositNonce :: STRING AS deposit_nonce,
-        r.receipts_json :l1BaseFeeScalar :: STRING AS l1_base_fee_scalar,
-        r.receipts_json :l1BlobBaseFee :: STRING AS l1_blob_base_fee,
-        r.receipts_json :l1BlobBaseFeeScalar :: STRING AS l1_blob_base_fee_scalar,
+        utils.udf_hex_to_int(r.receipts_json :depositNonce :: STRING):: bigint AS deposit_nonce,
+        utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
+        utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
+        utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         r.receipts_json :logsBloom :: STRING AS logs_bloom,
         {% endif %}
         {% if uses_l1_tx_fee_calc or op_stack_chain %}
