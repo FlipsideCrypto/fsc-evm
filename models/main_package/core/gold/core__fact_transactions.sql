@@ -205,7 +205,6 @@ WHERE
             utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
-            r.receipts_json :logsBloom :: STRING AS logs_bloom,
             {% endif %}
             {% if uses_l1_tx_fee_calc or ink_mode %}
             utils.udf_decimal_adjust(
@@ -356,7 +355,6 @@ missing_data AS (
         utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
-        r.receipts_json :logsBloom :: STRING AS logs_bloom,
         {% endif %}
         {% if uses_l1_tx_fee_calc or ink_mode %}
         utils.udf_decimal_adjust(
@@ -471,7 +469,6 @@ all_transactions AS (
         l1_base_fee_scalar,
         l1_blob_base_fee,
         l1_blob_base_fee_scalar,
-        logs_bloom,
         {% endif %}
         tx_fee,
         tx_fee_precise,
@@ -535,7 +532,6 @@ SELECT
     l1_base_fee_scalar,
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
-    logs_bloom,
     {% endif %}
     tx_fee_heal AS tx_fee,
     tx_fee_precise_heal AS tx_fee_precise,
@@ -597,7 +593,6 @@ SELECT
     l1_base_fee_scalar,
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
-    logs_bloom,
     {% endif %}
     tx_fee,
     tx_fee_precise,
