@@ -8,7 +8,7 @@
 {% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
-{% set ink_mode = TRUE if var('GLOBAL_PROD_DB_NAME').upper() =='INK' else FALSE %}
+{% set ink_mode = TRUE if var('GLOBAL_PROD_DB_NAME','').upper() =='INK' else FALSE %}
 
 {{ log("GLOBAL_PROD_DB_NAME = " ~ var('GLOBAL_PROD_DB_NAME'), info=True) }}
 {{ log("GLOBAL_PROD_DB_NAME.upper() = " ~ var('GLOBAL_PROD_DB_NAME').upper(), info=True) }}
