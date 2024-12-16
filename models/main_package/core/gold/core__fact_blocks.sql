@@ -2,7 +2,7 @@
 {% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) %}
 {% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-{% set ink_mode = TRUE if var('GLOBAL_PROD_DB_NAME').upper() =='INK' else FALSE %}
+{% set ink_mode = var('GLOBAL_PROD_DB_NAME').upper() == 'INK' %}
 
 {% if not gold_full_refresh %}
 
