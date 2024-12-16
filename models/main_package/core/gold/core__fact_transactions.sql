@@ -10,6 +10,8 @@
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set ink_mode = TRUE if var('GLOBAL_PROD_DB_NAME').upper() =='INK' else FALSE %}
 
+{{ log("GLOBAL_PROD_DB_NAME = " ~ var('GLOBAL_PROD_DB_NAME'), info=True) }}
+
 {% if not gold_full_refresh %}
 
 {{ config (
