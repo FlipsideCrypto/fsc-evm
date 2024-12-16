@@ -8,7 +8,7 @@
 {% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
-{% set op_stack_chain = var('GLOBAL_OP_STACK_CHAIN', false) %}
+{% set ink_mode = TRUE if var('GLOBAL_PROD_DB_NAME').upper() =='INK' else FALSE %}
 
 {% if not gold_full_refresh %}
 
@@ -72,14 +72,14 @@ WHERE
                 input_data,
                 10
             ) AS origin_function_signature,
-            {% if uses_chain_id or op_stack_chain %}
+            {% if uses_chain_id or ink_mode %}
             TRY_TO_NUMBER(
                 utils.udf_hex_to_int(
                     transaction_json :chainId :: STRING
                 )
             ) AS chain_id,
             {% endif %}
-            {% if uses_mint or op_stack_chain %}
+            {% if uses_mint or ink_mode %}
             utils.udf_hex_to_int(
                 transaction_json :mint :: STRING
             ) AS mint_precise_raw,
@@ -94,7 +94,7 @@ WHERE
             ) :: bigint AS nonce,
             transaction_json :r :: STRING AS r,
             transaction_json :s :: STRING AS s,
-            {% if uses_source_hash or op_stack_chain %}
+            {% if uses_source_hash or ink_mode %}
             transaction_json :sourceHash :: STRING AS source_hash,
             {% endif %}
             transaction_json :to :: STRING AS to_address1,
@@ -111,7 +111,7 @@ WHERE
             utils.udf_hex_to_int(
                 transaction_json :v :: STRING
             ) :: bigint AS v,
-            {% if uses_eip_1559 or op_stack_chain %}
+            {% if uses_eip_1559 or ink_mode %}
             TRY_TO_NUMBER(
                 utils.udf_hex_to_int(
                     transaction_json :maxFeePerGas :: STRING
@@ -147,7 +147,7 @@ WHERE
                 18
             ) AS value_precise,
             value_precise :: FLOAT AS VALUE,
-            {% if op_stack_chain %}
+            {% if ink_mode %}
             transaction_json :yParity :: STRING AS y_parity,
             utils.udf_hex_to_int(transaction_json :depositReceiptVersion :: STRING):: bigint AS deposit_receipt_version,
             transaction_json :accessList AS access_list,
@@ -164,10 +164,10 @@ WHERE
             txs.from_address,
             txs.to_address,
             txs.origin_function_signature,
-            {% if uses_chain_id or op_stack_chain %}
+            {% if uses_chain_id or ink_mode %}
             txs.chain_id,
             {% endif %}
-            {% if uses_mint or op_stack_chain %}
+            {% if uses_mint or ink_mode %}
             txs.mint,
             txs.mint_precise_raw,
             txs.mint_precise,
@@ -180,11 +180,11 @@ WHERE
             txs.value,
             txs.value_precise_raw,
             txs.value_precise,
-            {% if uses_eip_1559 or op_stack_chain %}
+            {% if uses_eip_1559 or ink_mode %}
             txs.max_fee_per_gas,
             txs.max_priority_fee_per_gas,
             {% endif %}
-            {% if uses_l1_columns or op_stack_chain %}
+            {% if uses_l1_columns or ink_mode %}
             COALESCE(
                 utils.udf_hex_to_int(
                     r.receipts_json :l1Fee :: STRING
@@ -211,7 +211,7 @@ WHERE
             ) AS l1_gas_price,
             {% endif %}
 
-            {% if op_stack_chain %}
+            {% if ink_mode %}
             txs.y_parity,
             txs.deposit_receipt_version,
             txs.access_list,
@@ -221,7 +221,7 @@ WHERE
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             r.receipts_json :logsBloom :: STRING AS logs_bloom,
             {% endif %}
-            {% if uses_l1_tx_fee_calc or op_stack_chain %}
+            {% if uses_l1_tx_fee_calc or ink_mode %}
             utils.udf_decimal_adjust(
                 (
                     txs.gas_price * utils.udf_hex_to_int(
@@ -273,7 +273,7 @@ WHERE
             ) :: bigint AS effective_gas_price,
             txs.r,
             txs.s,
-            {% if uses_source_hash or op_stack_chain %}
+            {% if uses_source_hash or ink_mode %}
             txs.source_hash,
             {% endif %}
             txs.v
@@ -321,10 +321,10 @@ missing_data AS (
         t.from_address,
         t.to_address,
         t.origin_function_signature,
-        {% if uses_chain_id or op_stack_chain %}
+        {% if uses_chain_id or ink_mode %}
         t.chain_id,
         {% endif %}
-        {% if uses_mint or op_stack_chain %}
+        {% if uses_mint or ink_mode %}
         t.mint,
         t.mint_precise_raw,
         t.mint_precise,
@@ -337,11 +337,11 @@ missing_data AS (
         t.value,
         t.value_precise_raw,
         t.value_precise,
-        {% if uses_eip_1559 or op_stack_chain %}
+        {% if uses_eip_1559 or ink_mode %}
         t.max_fee_per_gas,
         t.max_priority_fee_per_gas,
         {% endif %}
-        {% if uses_l1_columns or op_stack_chain %}
+        {% if uses_l1_columns or ink_mode %}
         COALESCE(
             utils.udf_hex_to_int(
                 r.receipts_json :l1Fee :: STRING
@@ -367,7 +367,7 @@ missing_data AS (
             0
         ) AS l1_gas_price_heal,
         {% endif %}
-        {% if op_stack_chain %}
+        {% if ink_mode %}
         t.y_parity,
         t.deposit_receipt_version,
         t.access_list,
@@ -377,7 +377,7 @@ missing_data AS (
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         r.receipts_json :logsBloom :: STRING AS logs_bloom,
         {% endif %}
-        {% if uses_l1_tx_fee_calc or op_stack_chain %}
+        {% if uses_l1_tx_fee_calc or ink_mode %}
         utils.udf_decimal_adjust(
             (
                 t.gas_price * utils.udf_hex_to_int(
@@ -426,7 +426,7 @@ missing_data AS (
         ) :: bigint AS effective_gas_price_heal,
         t.r,
         t.s,
-        {% if uses_source_hash or op_stack_chain %}
+        {% if uses_source_hash or ink_mode %}
         t.source_hash,
         {% endif %}
         t.v
@@ -459,10 +459,10 @@ all_transactions AS (
         from_address,
         to_address,
         origin_function_signature,
-        {% if uses_chain_id or op_stack_chain %}
+        {% if uses_chain_id or ink_mode %}
         chain_id,
         {% endif %}
-        {% if uses_mint or op_stack_chain %}
+        {% if uses_mint or ink_mode %}
         mint,
         mint_precise_raw,
         mint_precise,
@@ -475,17 +475,17 @@ all_transactions AS (
         VALUE,
         value_precise_raw,
         value_precise,
-        {% if uses_eip_1559 or op_stack_chain %}
+        {% if uses_eip_1559 or ink_mode %}
         max_fee_per_gas,
         max_priority_fee_per_gas,
         {% endif %}
-        {% if uses_l1_columns or op_stack_chain %}
+        {% if uses_l1_columns or ink_mode %}
         l1_fee,
         l1_fee_scalar,
         l1_gas_used,
         l1_gas_price,
         {% endif %}
-        {% if op_stack_chain %}
+        {% if ink_mode %}
         y_parity,
         deposit_receipt_version,
         access_list,
@@ -509,7 +509,7 @@ all_transactions AS (
         effective_gas_price,
         r,
         s,
-        {% if uses_source_hash or op_stack_chain %}
+        {% if uses_source_hash or ink_mode %}
         source_hash,
         {% endif %}
         v
@@ -526,10 +526,10 @@ SELECT
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_chain_id or op_stack_chain %}
+    {% if uses_chain_id or ink_mode %}
     chain_id,
     {% endif %}
-    {% if uses_mint or op_stack_chain %}
+    {% if uses_mint or ink_mode %}
     mint,
     mint_precise_raw,
     mint_precise,
@@ -542,17 +542,17 @@ SELECT
     VALUE,
     value_precise_raw,
     value_precise,
-    {% if uses_eip_1559 or op_stack_chain %}
+    {% if uses_eip_1559 or ink_mode %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
     {% endif %}
-    {% if uses_l1_columns or op_stack_chain %}
+    {% if uses_l1_columns or ink_mode %}
     l1_fee_heal AS l1_fee,
     l1_fee_scalar_heal AS l1_fee_scalar,
     l1_gas_used_heal AS l1_gas_used,
     l1_gas_price_heal AS l1_gas_price,
     {% endif %}
-    {% if op_stack_chain %}
+    {% if ink_mode %}
     y_parity,
     deposit_receipt_version,
     access_list,
@@ -576,7 +576,7 @@ SELECT
     effective_gas_price_heal AS effective_gas_price,
     r,
     s,
-    {% if uses_source_hash or op_stack_chain %}
+    {% if uses_source_hash or ink_mode %}
     source_hash,
     {% endif %}
     v
@@ -592,10 +592,10 @@ SELECT
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_chain_id or op_stack_chain %}
+    {% if uses_chain_id or ink_mode %}
     chain_id,
     {% endif %}
-    {% if uses_mint or op_stack_chain %}
+    {% if uses_mint or ink_mode %}
     mint,
     mint_precise_raw,
     mint_precise,
@@ -608,17 +608,17 @@ SELECT
     VALUE,
     value_precise_raw,
     value_precise,
-    {% if uses_eip_1559 or op_stack_chain %}
+    {% if uses_eip_1559 or ink_mode %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
     {% endif %}
-    {% if uses_l1_columns or op_stack_chain %}
+    {% if uses_l1_columns or ink_mode %}
     l1_fee,
     l1_fee_scalar,
     l1_gas_used,
     l1_gas_price,
     {% endif %}
-    {% if op_stack_chain %}
+    {% if ink_mode %}
     y_parity,
     deposit_receipt_version,
     access_list,
@@ -642,7 +642,7 @@ SELECT
     effective_gas_price,
     r,
     s,
-    {% if uses_source_hash or op_stack_chain %}
+    {% if uses_source_hash or ink_mode %}
     source_hash,
     {% endif %}
     v,

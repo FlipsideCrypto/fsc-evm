@@ -2,8 +2,7 @@
 {% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) %}
 {% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-{% set op_stack_chain = var('GLOBAL_OP_STACK_CHAIN', false) %}
-
+{% set ink_mode = TRUE if var('GLOBAL_PROD_DB_NAME').upper() =='INK' else FALSE %}
 
 {% if not gold_full_refresh %}
 
@@ -44,7 +43,7 @@ SELECT
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
-    {% if uses_mix_hash or op_stack_chain %}
+    {% if uses_mix_hash or ink_mode %}
     block_json :mixHash :: STRING AS mix_hash,
     {% endif %}
     block_json :extraData :: STRING AS extra_data,
@@ -55,7 +54,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :gasLimit :: STRING
     ) :: bigint AS gas_limit,
-    {% if uses_base_fee or op_stack_chain %}
+    {% if uses_base_fee or ink_mode %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
@@ -63,7 +62,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
-    {% if not op_stack_chain %}
+    {% if not ink_mode %}
     utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
     ) :: bigint AS total_difficulty,
@@ -77,7 +76,7 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if op_stack_chain %}
+    {% if ink_mode %}
     utils.udf_hex_to_int(
         block_json :blobGasUsed :: STRING
     ) :: bigint AS blob_gas_used,
