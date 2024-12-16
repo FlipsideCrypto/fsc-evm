@@ -585,6 +585,8 @@ SELECT
     {% endif %}
     {% if uses_l1_columns or ink_mode %}
     l1_fee,
+    l1_fee_precise_raw,
+    l1_fee_precise,
     l1_fee_scalar,
     l1_gas_used,
     l1_gas_price,
