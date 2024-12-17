@@ -19,6 +19,9 @@
 {% set source_hash_chains = ['INK'] %}
 {% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in source_hash_chains %}
 
+{% set blob_base_fee_chains = ['INK'] %}
+{% set uses_blob_base_fee = var('GLOBAL_USES_BLOB_BASE_FEE', false) or var('GLOBAL_PROD_DB_NAME').upper() in blob_base_fee_chains %}
+
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
@@ -213,6 +216,7 @@ WHERE
                 ) :: FLOAT,
                 0
             ) AS l1_gas_price,
+            utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
             {% endif %}
             {% if uses_y_parity %}
             txs.y_parity,
@@ -220,7 +224,7 @@ WHERE
             {% if uses_access_list %}
             txs.access_list,
             {% endif %}
-            utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
+            {% if uses_blob_base_fee %}
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             {% endif %}
@@ -366,6 +370,7 @@ missing_data AS (
             ) :: FLOAT,
             0
         ) AS l1_gas_price_heal,
+        utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
         {% endif %}
         {% if uses_y_parity %}
         t.y_parity,
@@ -373,7 +378,7 @@ missing_data AS (
         {% if uses_access_list %}
         t.access_list,
         {% endif %}
-        utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
+        {% if uses_blob_base_fee %}
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         {% endif %}
