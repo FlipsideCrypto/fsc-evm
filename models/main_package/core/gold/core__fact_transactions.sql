@@ -557,7 +557,7 @@ SELECT
     l1_fee_scalar_heal AS l1_fee_scalar,
     l1_gas_used_heal AS l1_gas_used,
     l1_gas_price_heal AS l1_gas_price,
-    l1_base_fee_scalar
+    l1_base_fee_scalar,
     {% endif %}
     {% if uses_y_parity %}
     y_parity,
