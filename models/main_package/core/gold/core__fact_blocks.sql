@@ -1,7 +1,7 @@
 {% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
 
 {# Prod DB Variables Start #}
-{# Columns enabled by default, with specific exclusions #}
+{# Columns included by default, with specific exclusions #}
 {% set excludes_base_fee = ['CORE'] %}
 {% set excludes_total_difficulty = ['INK'] %}
 

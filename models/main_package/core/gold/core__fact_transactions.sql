@@ -1,6 +1,6 @@
 
 {# Prod DB Variables Start #}
-{# Columns enabled by default, with specific exclusions #}
+{# Columns included by default, with specific exclusions #}
 {% set excludes_eip_1559 = ['CORE'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
