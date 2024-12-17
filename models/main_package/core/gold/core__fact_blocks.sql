@@ -1,8 +1,24 @@
 {% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
-{% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) %}
-{% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) %}
+
+{% set base_fee_chains = ['INK'] %}
+{% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) or var('GLOBAL_PROD_DB_NAME').upper() in base_fee_chains %}
+
+{% set mix_hash_chains = ['INK'] %}
+{% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in mix_hash_chains %}
+
+{% set excludes_total_difficulty_chains = ['INK'] %}
+{% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_total_difficulty_chains %}
+
+{% set blob_gas_used_chains = ['INK'] %}
+{% set uses_blob_gas_used = var('GLOBAL_USES_BLOB_GAS_USED', false) or var('GLOBAL_PROD_DB_NAME').upper() in blob_gas_used_chains %}
+
+{% set parent_beacon_block_root_chains = ['INK'] %}
+{% set uses_parent_beacon_block_root = var('GLOBAL_USES_PARENT_BEACON_BLOCK_ROOT', false) or var('GLOBAL_PROD_DB_NAME').upper() in parent_beacon_block_root_chains %}
+
+{% set withdrawals_chains = ['INK'] %}
+{% set uses_withdrawals = var('GLOBAL_USES_WITHDRAWALS', false) or var('GLOBAL_PROD_DB_NAME').upper() in withdrawals_chains %}
+
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-{% set ink_mode = var('GLOBAL_PROD_DB_NAME').upper() == 'INK' %}
 
 {% if not gold_full_refresh %}
 
@@ -43,7 +59,7 @@ SELECT
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
-    {% if uses_mix_hash or ink_mode %}
+    {% if uses_mix_hash %}
     block_json :mixHash :: STRING AS mix_hash,
     {% endif %}
     block_json :extraData :: STRING AS extra_data,
@@ -54,7 +70,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :gasLimit :: STRING
     ) :: bigint AS gas_limit,
-    {% if uses_base_fee or ink_mode %}
+    {% if uses_base_fee %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
@@ -62,7 +78,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
-    {% if not ink_mode %}
+    {% if uses_total_difficulty %}
     utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
     ) :: bigint AS total_difficulty,
@@ -76,14 +92,18 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if ink_mode %}
+    {% if uses_blob_gas_used %}
     utils.udf_hex_to_int(
         block_json :blobGasUsed :: STRING
     ) :: bigint AS blob_gas_used,
     utils.udf_hex_to_int(
         block_json :excessBlobGas :: STRING
     ) :: bigint AS excess_blob_gas,
+    {% endif %}
+    {% if uses_parent_beacon_block_root %}
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
+    {% endif %}
+    {% if uses_withdrawals %}
     block_json :withdrawals AS withdrawals,
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
