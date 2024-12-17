@@ -488,6 +488,7 @@ all_transactions AS (
         l1_fee_scalar,
         l1_gas_used,
         l1_gas_price,
+        l1_base_fee_scalar,
         {% endif %}
         {% if uses_y_parity %}
         y_parity,
@@ -495,7 +496,7 @@ all_transactions AS (
         {% if uses_access_list %}
         access_list,
         {% endif %}
-        l1_base_fee_scalar,
+        {% if uses_blob_base_fee %}
         l1_blob_base_fee,
         l1_blob_base_fee_scalar,
         {% endif %}
@@ -554,6 +555,7 @@ SELECT
     l1_fee_scalar_heal AS l1_fee_scalar,
     l1_gas_used_heal AS l1_gas_used,
     l1_gas_price_heal AS l1_gas_price,
+    l1_base_fee_scalar
     {% endif %}
     {% if uses_y_parity %}
     y_parity,
@@ -561,7 +563,7 @@ SELECT
     {% if uses_access_list %}
     access_list,
     {% endif %}
-    l1_base_fee_scalar,
+    {% if uses_blob_base_fee %}
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
     {% endif %}
@@ -620,9 +622,9 @@ SELECT
     l1_fee_scalar,
     l1_gas_used,
     l1_gas_price,
-    {% endif %}
-    {% if uses_y_parity %}
     l1_base_fee_scalar,
+    {% endif %}
+    {% if uses_blob_base_fee %}
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
     {% endif %}
