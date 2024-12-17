@@ -324,7 +324,6 @@ AND r.modified_timestamp >= (
 missing_data AS (
     SELECT
         t.block_number,
-        t.block_hash,
         b.block_timestamp AS block_timestamp_heal,
         t.tx_hash,
         t.from_address,
@@ -460,7 +459,6 @@ missing_data AS (
 all_transactions AS (
     SELECT
         block_number,
-        block_hash,
         block_timestamp,
         tx_hash,
         from_address,
@@ -527,13 +525,12 @@ all_transactions AS (
 UNION ALL
 SELECT
     block_number,
-    block_hash,
     block_timestamp_heal AS block_timestamp,
     tx_hash,
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_mint or ink_mode %}
+    {% if uses_mint %}
     mint,
     mint_precise_raw,
     mint_precise,
@@ -557,7 +554,7 @@ SELECT
     l1_fee_scalar_heal AS l1_fee_scalar,
     l1_gas_used_heal AS l1_gas_used,
     l1_gas_price_heal AS l1_gas_price,
-    l1_base_fee_scalar
+    l1_base_fee_scalar,
     {% endif %}
     {% if uses_y_parity %}
     y_parity,
