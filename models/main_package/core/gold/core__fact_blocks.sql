@@ -1,22 +1,16 @@
 {% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
 
-{% set base_fee_chains = ['INK'] %}
-{% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) or var('GLOBAL_PROD_DB_NAME').upper() in base_fee_chains %}
+{% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 
-{% set mix_hash_chains = ['INK'] %}
-{% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in mix_hash_chains %}
+{% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 
-{% set excludes_total_difficulty_chains = ['INK'] %}
-{% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_total_difficulty_chains %}
+{% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in ['INK'] %}
 
-{% set blob_gas_used_chains = ['INK'] %}
-{% set uses_blob_gas_used = var('GLOBAL_USES_BLOB_GAS_USED', false) or var('GLOBAL_PROD_DB_NAME').upper() in blob_gas_used_chains %}
+{% set uses_blob_gas_used = var('GLOBAL_USES_BLOB_GAS_USED', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 
-{% set parent_beacon_block_root_chains = ['INK'] %}
-{% set uses_parent_beacon_block_root = var('GLOBAL_USES_PARENT_BEACON_BLOCK_ROOT', false) or var('GLOBAL_PROD_DB_NAME').upper() in parent_beacon_block_root_chains %}
+{% set uses_parent_beacon_block_root = var('GLOBAL_USES_PARENT_BEACON_BLOCK_ROOT', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 
-{% set withdrawals_chains = ['INK'] %}
-{% set uses_withdrawals = var('GLOBAL_USES_WITHDRAWALS', false) or var('GLOBAL_PROD_DB_NAME').upper() in withdrawals_chains %}
+{% set uses_withdrawals = var('GLOBAL_USES_WITHDRAWALS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 

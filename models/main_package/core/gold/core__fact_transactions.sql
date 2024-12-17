@@ -1,28 +1,12 @@
-{% set eip_1559_chains = ['INK'] %}
-{% set uses_eip_1559 = var('GLOBAL_USES_EIP_1559', true) or var('GLOBAL_PROD_DB_NAME').upper() in eip_1559_chains %}
-
-{% set l1_columns_chains = ['INK'] %}
-{% set uses_l1_columns = var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in l1_columns_chains %}
-
-{% set l1_tx_fee_calc_chains = ['INK'] %}
-{% set uses_l1_tx_fee_calc = var('GLOBAL_USES_L1_TX_FEE_CALC', false) or var('GLOBAL_PROD_DB_NAME').upper() in l1_tx_fee_calc_chains %}
-
+{% set uses_eip_1559 = var('GLOBAL_USES_EIP_1559', true) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_l1_columns = var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_l1_tx_fee_calc = var('GLOBAL_USES_L1_TX_FEE_CALC', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 {% set uses_eth_value = var('GLOBAL_USES_ETH_VALUE', false) %}
-
-{% set mint_chains = ['INK'] %}
-{% set uses_mint = var('GLOBAL_USES_MINT', false) or var('GLOBAL_PROD_DB_NAME').upper() in mint_chains %}
-
-{% set y_parity_chains = ['INK'] %}
-{% set uses_y_parity = var('GLOBAL_USES_Y_PARITY', false) or var('GLOBAL_PROD_DB_NAME').upper() in y_parity_chains %}
-
-{% set access_list_chains = ['INK'] %}
-{% set uses_access_list = var('GLOBAL_USES_ACCESS_LIST', false) or var('GLOBAL_PROD_DB_NAME').upper() in access_list_chains %}
-
-{% set source_hash_chains = ['INK'] %}
-{% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in source_hash_chains %}
-
-{% set blob_base_fee_chains = ['INK'] %}
-{% set uses_blob_base_fee = var('GLOBAL_USES_BLOB_BASE_FEE', false) or var('GLOBAL_PROD_DB_NAME').upper() in blob_base_fee_chains %}
+{% set uses_mint = var('GLOBAL_USES_MINT', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_y_parity = var('GLOBAL_USES_Y_PARITY', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_access_list = var('GLOBAL_USES_ACCESS_LIST', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_blob_base_fee = var('GLOBAL_USES_BLOB_BASE_FEE', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
 
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
