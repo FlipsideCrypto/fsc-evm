@@ -1,14 +1,27 @@
 
 {# Prod DB Variables Start #}
-{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] %}
-{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
-{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
-{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in ['MANTLE'] %}
-{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
-{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in ['INK','MANTLE'] %}
-{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{# Columns enabled by default, with specific exclusions #}
+{% set excludes_eip_1559 = ['CORE'] %}
+
+{# Columns excluded by default, with explicit inclusion #}
+{% set includes_l1_columns = ['INK', 'MANTLE'] %}
+{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE'] %}
+{% set includes_eth_value = ['MANTLE'] %}
+{% set includes_mint = ['INK', 'MANTLE'] %}
+{% set includes_y_parity = ['INK'] %}
+{% set includes_access_list = ['INK'] %}
+{% set includes_source_hash = ['INK','MANTLE'] %}
+{% set includes_blob_base_fee = ['INK'] %}
+
+{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}
+{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_columns %}
+{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_tx_fee_calc %}
+{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in includes_eth_value %}
+{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in includes_mint %}
+{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in includes_y_parity %}
+{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in includes_access_list %}
+{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_source_hash %}
+{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_base_fee %}
 {# Prod DB Variables End #}
 
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
