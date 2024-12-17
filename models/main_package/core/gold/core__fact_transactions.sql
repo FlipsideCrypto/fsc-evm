@@ -157,7 +157,7 @@ WHERE
             ) AS value_precise,
             value_precise :: FLOAT AS VALUE,
             {% if uses_y_parity %}
-            transaction_json :yParity :: STRING AS y_parity,
+            utils.udf_hex_to_int(transaction_json :yParity :: STRING):: bigint AS y_parity,
             {% endif %}
             {% if uses_access_list %}
             transaction_json :accessList AS access_list,
