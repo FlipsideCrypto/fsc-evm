@@ -19,10 +19,10 @@ models:
       - name: MINER
         description: '{{ doc("evm_miner") }}'
       - name: >-
-          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_USES_BASE_FEE', true) else '0' }}
+          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] else '0' }}
         description: '{{ doc("evm_base_fee_per_gas") }}'
       - name: >-
-          {{ 'MIX_HASH' if var('GLOBAL_USES_MIX_HASH', false) else '1' }}
+          {{ 'MIX_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '1' }}
         description: '{{ doc("evm_mix_hash") }}'
       - name: EXTRA_DATA
         description: '{{ doc("evm_extra_data") }}'
@@ -34,7 +34,8 @@ models:
         description: '{{ doc("evm_gas_limit") }}'
       - name: DIFFICULTY
         description: '{{ doc("evm_difficulty") }}'
-      - name: TOTAL_DIFFICULTY
+      - name: >-
+          {{ 'TOTAL_DIFFICULTY' if var('GLOBAL_PROD_DB_NAME').upper() not in ['INK'] else '2' }}
         description: '{{ doc("evm_total_difficulty") }}'
       - name: SHA3_UNCLES
         description: '{{ doc("evm_sha3_uncles") }}'
@@ -50,6 +51,21 @@ models:
         description: '{{ doc("evm_transactions_root") }}'
       - name: LOGS_BLOOM
         description: '{{ doc("evm_logs_bloom")  }}'
+      - name: >-
+          {{ 'BLOB_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '3' }}
+        description: '{{ doc("evm_blob_gas_used") }}'
+      - name: >-
+          {{ 'EXCESS_BLOB_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '4' }}
+        description: '{{ doc("evm_excess_blob_gas") }}'
+      - name: >-
+          {{ 'PARENT_BEACON_BLOCK_ROOT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '5' }}
+        description: '{{ doc("evm_parent_beacon_block_root") }}'
+      - name: >-
+          {{ 'WITHDRAWALS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '6' }}
+        description: '{{ doc("evm_withdrawals") }}'
+      - name: >-
+          {{ 'WITHDRAWALS_ROOT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '7' }}
+        description: '{{ doc("evm_withdrawals_root") }}'
       - name: FACT_BLOCKS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP
