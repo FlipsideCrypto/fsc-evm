@@ -562,19 +562,21 @@ SELECT
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_mint or ink_mode %}
-    mint,
-    mint_precise_raw,
-    mint_precise,
-    {% endif %}
-    {% if uses_eth_value %}
-    eth_value,
-    eth_value_precise_raw,
-    eth_value_precise,
-    {% endif %}
     VALUE,
     value_precise_raw,
     value_precise,
+    tx_fee,
+    tx_fee_precise,
+    tx_succeeded,
+    tx_type,
+    nonce,
+    tx_position,
+    input_data,
+    gas_price,
+    gas_used,
+    gas_limit,
+    cumulative_gas_used,
+    effective_gas_price,
     {% if uses_eip_1559 or ink_mode %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
@@ -588,30 +590,30 @@ SELECT
     l1_gas_price,
     {% endif %}
     {% if ink_mode %}
-    y_parity,
-    access_list,
     l1_base_fee_scalar,
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
     {% endif %}
-    tx_fee,
-    tx_fee_precise,
-    tx_succeeded,
-    tx_type,
-    nonce,
-    tx_position,
-    input_data,
-    gas_price,
-    gas_used,
-    gas_limit,
-    cumulative_gas_used,
-    effective_gas_price,
+    {% if uses_mint or ink_mode %}
+    mint,
+    mint_precise_raw,
+    mint_precise,
+    {% endif %}
+    {% if uses_eth_value %}
+    eth_value,
+    eth_value_precise_raw,
+    eth_value_precise,
+    {% endif %}
+    {% if ink_mode %}
+    y_parity,
+    access_list,
+    {% endif %}
     r,
     s,
+    v,
     {% if uses_source_hash or ink_mode %}
     source_hash,
     {% endif %}
-    v,
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
