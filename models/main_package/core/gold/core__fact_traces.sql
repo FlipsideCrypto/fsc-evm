@@ -2,9 +2,9 @@
 {% set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000) %}
 {% set full_reload_mode = var('TRACES_FULL_RELOAD_MODE', false) %}
 {% set uses_overflow_steps = var('TRACES_USES_OVERFLOW_STEPS', false) %}
-{% set TRACES_ARB_MODE = var('TRACES_ARB_MODE', false) %}
-{% set TRACES_SEI_MODE = var('TRACES_SEI_MODE', false) %}
-{% set TRACES_KAIA_MODE = var('TRACES_KAIA_MODE', false) %}
+{% set TRACES_ARB_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'ARBITRUM' %}
+{% set TRACES_SEI_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'SEI' %}
+{% set TRACES_KAIA_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'KAIA' %}
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
