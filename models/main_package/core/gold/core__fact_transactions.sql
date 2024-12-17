@@ -459,7 +459,6 @@ missing_data AS (
 all_transactions AS (
     SELECT
         block_number,
-        block_hash,
         block_timestamp,
         tx_hash,
         from_address,
@@ -526,7 +525,6 @@ all_transactions AS (
 UNION ALL
 SELECT
     block_number,
-    block_hash,
     block_timestamp_heal AS block_timestamp,
     tx_hash,
     from_address,
