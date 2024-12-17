@@ -533,7 +533,7 @@ SELECT
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_mint or ink_mode %}
+    {% if uses_mint %}
     mint,
     mint_precise_raw,
     mint_precise,
