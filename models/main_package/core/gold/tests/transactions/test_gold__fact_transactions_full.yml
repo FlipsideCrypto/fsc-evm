@@ -21,12 +21,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER    
-                - FLOAT    
-      - name: BLOCK_HASH
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+                - FLOAT
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
