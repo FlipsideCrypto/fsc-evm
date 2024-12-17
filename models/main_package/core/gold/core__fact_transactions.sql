@@ -1,12 +1,15 @@
-{% set uses_eip_1559 = var('GLOBAL_USES_EIP_1559', true) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_l1_columns = var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_l1_tx_fee_calc = var('GLOBAL_USES_L1_TX_FEE_CALC', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_eth_value = var('GLOBAL_USES_ETH_VALUE', false) %}
-{% set uses_mint = var('GLOBAL_USES_MINT', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_y_parity = var('GLOBAL_USES_Y_PARITY', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_access_list = var('GLOBAL_USES_ACCESS_LIST', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-{% set uses_blob_base_fee = var('GLOBAL_USES_BLOB_BASE_FEE', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+
+{# Prod DB Variables Start #}
+{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] %}
+{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
+{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
+{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in ['MANTLE'] %}
+{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
+{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in ['INK','MANTLE'] %}
+{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{# Prod DB Variables End #}
 
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}

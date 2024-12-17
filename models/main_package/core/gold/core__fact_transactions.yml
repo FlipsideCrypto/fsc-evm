@@ -53,52 +53,52 @@ models:
       - name: V
         description: '{{ doc("evm_v") }}'
       - name: >-
-          {{ 'ETH_VALUE' if var('GLOBAL_USES_ETH_VALUE', false) else '0' }}
+          {{ 'ETH_VALUE' if var('GLOBAL_PROD_DB_NAME').upper() in ['MANTLE'] else '0' }}
         description: '{{ doc("evm_eth_value") }}'
       - name: >-
-          {{ 'MINT' if var('GLOBAL_USES_MINT', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '1' }}
+          {{ 'MINT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '1' }}
         description: '{{ doc("evm_mint") }}'
       - name: >-
-          {{ 'SOURCE_HASH' if var('GLOBAL_USES_SOURCE_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '2' }}
+          {{ 'SOURCE_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '2' }}
         description: '{{ doc("evm_source_hash") }}'
       - name: >-
-          {{ 'MAX_FEE_PER_GAS' if var('GLOBAL_USES_EIP_1559', true) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '3' }}
+          {{ 'MAX_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '3' }}
         description: '{{ doc("evm_max_fee_per_gas") }}'
       - name: >-
-          {{ 'MAX_PRIORITY_FEE_PER_GAS' if var('GLOBAL_USES_EIP_1559', true) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '4' }}
+          {{ 'MAX_PRIORITY_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '4' }}
         description: '{{ doc("evm_max_priority_fee_per_gas") }}'
       - name: >-
-          {{ 'L1_FEE' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '6' }}
+          {{ 'L1_FEE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '6' }}
         description: '{{ doc("evm_l1_fee") }}'
       - name: >-
-          {{ 'L1_FEE_PRECISE_RAW' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '7' }}
+          {{ 'L1_FEE_PRECISE_RAW' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '7' }}
         description: '{{ doc("evm_l1_fee_precise_raw") }}'
       - name: >-
-          {{ 'L1_FEE_PRECISE' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '8' }}
+          {{ 'L1_FEE_PRECISE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '8' }}
         description: '{{ doc("evm_l1_fee_precise") }}'
       - name: >-
-          {{ 'L1_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '9' }}
+          {{ 'L1_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '9' }}
         description: '{{ doc("evm_l1_fee_scalar") }}'
       - name: >-
-          {{ 'L1_GAS_PRICE' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '10' }}
+          {{ 'L1_GAS_PRICE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '10' }}
         description: '{{ doc("evm_l1_gas_price") }}'
       - name: >-
-          {{ 'L1_GAS_USED' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '11' }}
+          {{ 'L1_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] else '11' }}
         description: '{{ doc("evm_l1_gas_used") }}'
       - name: >-
-          {{ 'Y_PARITY' if var('GLOBAL_USES_Y_PARITY', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '12' }}
+          {{ 'Y_PARITY' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '12' }}
         description: '{{ doc("evm_y_parity") }}'
       - name: >-
-          {{ 'ACCESS_LIST' if var('GLOBAL_USES_ACCESS_LIST', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '13' }}
+          {{ 'ACCESS_LIST' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '13' }}
         description: '{{ doc("evm_access_list") }}'
       - name: >-
-          {{ 'L1_BASE_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '14' }}
+          {{ 'L1_BASE_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '14' }}
         description: '{{ doc("evm_l1_base_fee_scalar") }}'
       - name: >-
-          {{ 'L1_BLOB_BASE_FEE' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '15' }}
+          {{ 'L1_BLOB_BASE_FEE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '15' }}
         description: '{{ doc("evm_l1_blob_base_fee") }}'
       - name: >-
-          {{ 'L1_BLOB_BASE_FEE_SCALAR' if var('GLOBAL_USES_L1_COLUMNS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '16' }}
+          {{ 'L1_BLOB_BASE_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] else '16' }}
         description: '{{ doc("evm_l1_blob_base_fee_scalar") }}'
       - name: FACT_TRANSACTIONS_ID
         description: '{{ doc("evm_pk") }}'

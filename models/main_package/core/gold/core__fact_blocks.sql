@@ -1,16 +1,13 @@
 {% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
 
-{% set uses_base_fee = var('GLOBAL_USES_BASE_FEE', true) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-
-{% set uses_mix_hash = var('GLOBAL_USES_MIX_HASH', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-
+{# Prod DB Variables Start #}
+{% set uses_base_fee = var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] %}
+{% set uses_mix_hash = var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE'] %}
 {% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in ['INK'] %}
-
-{% set uses_blob_gas_used = var('GLOBAL_USES_BLOB_GAS_USED', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-
-{% set uses_parent_beacon_block_root = var('GLOBAL_USES_PARENT_BEACON_BLOCK_ROOT', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
-
-{% set uses_withdrawals = var('GLOBAL_USES_WITHDRAWALS', false) or var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_blob_gas_used = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_parent_beacon_block_root = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{% set uses_withdrawals = var('GLOBAL_PROD_DB_NAME').upper() in ['INK'] %}
+{# Prod DB Variables End #}
 
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
