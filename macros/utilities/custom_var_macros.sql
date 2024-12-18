@@ -58,7 +58,7 @@
                 {% else %}
                     {{ return(value | int) }}
                 {% endif %}
-            {% elif data_type in ['boolean', 'bool'] %}
+            {% elif data_type == 'boolean' %}
                 {{ return(value | lower == 'true') }}
             {% else %}
                 {{ return(value) }}
