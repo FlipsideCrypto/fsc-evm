@@ -4,7 +4,7 @@
         {{ return(var(var_name)) }}
     {% endif %}
 
-    {# Query to get variable value from custom variables table #}
+    {# Query to get variable values from custom variables table #}
     {% set query %}
         SELECT 
             variable_name,
@@ -17,7 +17,6 @@
         ORDER BY variable_name
     {% endset %}
     
-    {# Only execute query during actual dbt run, not during compile #}
     {% if execute %}
         {% set results = run_query(query) %}
         
@@ -39,7 +38,6 @@
             {{ return(mapping) }}
         {% endif %}
     {% else %}
-        {# During compile phase, return empty string #}
-        {{ return('') }}
+        {{ return(default) }}
     {% endif %}
 {% endmacro %}
