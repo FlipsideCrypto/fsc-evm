@@ -2,15 +2,17 @@ version: 2
 models:
   - name: silver__vertex_money_markets
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - fsc_evm_unique_combination_of_columns:
           combination_of_columns:
             - HOUR
             - TICKER_ID
+          timestamp_column: HOUR
     columns:
       - name: HOUR
         tests:
-          - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
+          - not_null:
+              timestamp_column: HOUR
+          - fsc_evm_expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -19,11 +21,16 @@ models:
                 - TIMESTAMP_NTZ
       - name: TICKER_ID
         tests:
-          - not_null
+          - not_null:
+              timestamp_column: HOUR
       - name: SYMBOL
-          - not_null
+        tests:
+          - not_null:
+              timestamp_column: HOUR
       - name: PRODUCT_ID
-          - not_null
+        tests:
+          - not_null:
+              timestamp_column: HOUR
       - name: DEPOSIT_APR
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
