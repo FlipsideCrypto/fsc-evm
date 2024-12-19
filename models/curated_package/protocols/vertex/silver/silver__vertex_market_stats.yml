@@ -2,18 +2,16 @@ version: 2
 models:
   - name: silver__vertex_market_stats
     tests:
-      - fsc_evm_unique_combination_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - HOUR
             - TICKER_ID
-          timestamp_column: HOUR
       - vertex_missing_products
     columns:
       - name: HOUR
         tests:
-          - not_null:
-              timestamp_column: HOUR
-          - fsc_evm_expect_row_values_to_have_recent_data:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -22,16 +20,11 @@ models:
                 - TIMESTAMP_NTZ
       - name: TICKER_ID
         tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: SYMBOL
-        tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: PRODUCT_ID
-        tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: DISTINCT_SEQUENCE
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -94,8 +87,7 @@ models:
                 - FLOAT
       - name: CONTRACT_PRICE_CURRENCY
         tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: FUNDING_RATE
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -122,8 +114,7 @@ models:
                 - FLOAT
       - name: NEXT_FUNDING_RATE_TIMESTAMP
         tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: OPEN_INTEREST
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -138,12 +129,10 @@ models:
                 - FLOAT
       - name: PRODUCT_TYPE
         tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: QUOTE_CURRENCY
         tests:
-          - not_null:
-              timestamp_column: HOUR
+          - not_null
       - name: QUOTE_VOLUME
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:

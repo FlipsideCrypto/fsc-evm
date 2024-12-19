@@ -2,7 +2,7 @@ version: 2
 models:
   - name: silver__vertex_dim_products
     tests:
-      - fsc_evm_unique_combination_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - PRODUCT_ID
     columns:
@@ -23,7 +23,7 @@ models:
       - name: TX_HASH
         tests:
           - not_null
-          - fsc_evm_expect_column_values_to_match_regex:
+          - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: PRODUCT_TYPE
         tests:
