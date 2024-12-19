@@ -12,7 +12,7 @@
             parent_key,
             key,
             value
-        FROM {{ ref('silver__variables_seed_test') }}
+        FROM {{ ref('bronze__fsc_evm_variables') }}
         WHERE key = '{{ var_name }}'
            OR parent_key = '{{ var_name }}'
         ORDER BY key
