@@ -30,3 +30,4 @@ WHERE
         FROM
             {{ ref("streamline__get_chainhead") }}
     )
+    and _id > 0
