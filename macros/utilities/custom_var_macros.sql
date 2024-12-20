@@ -7,23 +7,28 @@
     {# Query to get variable values from custom variables table #}
     {% set query %}
         SELECT 
+            var_id,
             category,
+            sub_category,
             data_type,
             parent_key,
             key,
-            value
-        FROM {{ ref('bronze__fsc_evm_variables') }}
-        WHERE key = '{{ var_name }}'
-           OR parent_key = '{{ var_name }}'
+            VALUE,
+            is_required,
+            is_enabled
+        FROM {{ ref('silver__ez_fsc_evm_vars') }}
+        WHERE (key = '{{ var_name }}'
+           OR parent_key = '{{ var_name }}')
+           AND is_enabled
         ORDER BY key
     {% endset %}
     
     {% if execute %}
         {% set results = run_query(query) %}
-        {% set category = results.rows[0][0].lower() %}
-        {% set data_type = results.rows[0][1].lower() %}
-        {% set parent_key = results.rows[0][2] %}
-        {% set value = results.rows[0][4] %}
+        {% set data_type = results.rows[0][3].lower() %}
+        {% set parent_key = results.rows[0][4] %}
+        {% set value = results.rows[0][6] %}
+        {% set is_enabled = results.rows[0][8] %}
         
         {# If no results found, return the default value #}
         {% if results.rows | length == 0 %}
@@ -68,7 +73,7 @@
             {% set mapping = {} %}
             {% for row in results.rows %}
                 {# key: value pairings based on parent_key #}
-                {% do mapping.update({row[3]: row[4]}) %} 
+                {% do mapping.update({row[5]: row[6]}) %} 
             {% endfor %}
             {{ return(mapping) }}
         {% endif %}
