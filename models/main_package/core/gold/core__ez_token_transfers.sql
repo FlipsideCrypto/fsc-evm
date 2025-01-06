@@ -110,42 +110,58 @@ from base
 union all 
 
 select 
-    t.block_number,
-    t.block_timestamp,
-    t.tx_hash,
-    t.tx_position,
-    t.event_index,
-    t.from_address,
-    t.to_address,
-    t.contract_address,
-    t.token_standard,
+    t0.block_number,
+    t0.block_timestamp,
+    t0.tx_hash,
+    t0.tx_position,
+    t0.event_index,
+    t0.from_address,
+    t0.to_address,
+    t0.contract_address,
+    t0.token_standard,
     c0.name,
     c0.symbol,
     c0.decimals,
-    t.raw_amount_precise,
-    t.raw_amount,
-    iff(c0.decimals is null, null, utils.udf_decimal_adjust(t.raw_amount_precise, c0.decimals)) as amount_precise_heal,
+    t0.raw_amount_precise,
+    t0.raw_amount,
+    iff(c0.decimals is null, null, utils.udf_decimal_adjust(t0.raw_amount_precise, c0.decimals)) as amount_precise_heal,
     amount_precise_heal::float as amount_heal,
-    iff(c0.decimals is not null and price is not null, round(amount_heal * price, 2), null) as amount_usd_heal,
-    t.origin_function_signature,
-    t.origin_from_address,
-    t.origin_to_address,
-    t.ez_token_transfers_id,
+    iff(c0.decimals is not null and p0.price is not null, round(amount_heal * p0.price, 2), null) as amount_usd_heal,
+    t0.origin_function_signature,
+    t0.origin_from_address,
+    t0.origin_to_address,
+    t0.ez_token_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
-from {{ this }} t 
+from {{ this }} t0 
 left join {{ ref('core__dim_contracts') }} c0
-    on t.contract_address = c0.address
+    on t0.contract_address = c0.address
     and (c0.decimals is not null or c0.symbol is not null or c0.name is not null)
-left join {{ ref('price__ez_prices_hourly') }} p
-    on DATE_TRUNC('hour', t.block_timestamp) = HOUR
-    and t.contract_address = p.token_address
+left join {{ ref('price__ez_prices_hourly') }} p0
+    on DATE_TRUNC('hour', t0.block_timestamp) = HOUR
+    and t0.contract_address = p0.token_address
 left join base b using (ez_token_transfers_id)
-where (
-    (t.decimals is null and c0.decimals is not null) or  -- Only heal decimals if new data exists
-    (t.amount_usd is null and price is not null and t.decimals is not null) or  -- Only heal USD if we have price and decimals
-    (t.symbol is null and c0.symbol is not null) or  -- Only heal symbol if new data exists
-    (t.name is null and c0.name is not null)  -- Only heal name if new data exists
+where b.ez_token_transfers_id is null
+    and (
+    t0.block_number IN (
+        select distinct t1.block_number from {{ this }} t1 where t1.decimals is null
+        and t1.modified_timestamp <= (select max(modified_timestamp) from {{ this }})
+        and exists (select 1 from {{ ref('core__dim_contracts') }} c1 where c1.modified_timestamp > DATEADD('DAY', -14, SYSDATE()) and c1.decimals is not null and t1.contract_address = c1.address)
+    ) -- Only heal decimals if new data exists
+    OR t0.block_number IN (
+        select distinct t2.block_number from {{ this }} t2 where t2.symbol is null
+        and t2.modified_timestamp <= (select max(modified_timestamp) from {{ this }})
+        and exists (select 1 from {{ ref('core__dim_contracts') }} c2 where c2.modified_timestamp > DATEADD('DAY', -14, SYSDATE()) and c2.symbol is not null and t2.contract_address = c2.address)
+    ) -- Only heal symbol if new data exists
+    OR t0.block_number IN (
+        select distinct t3.block_number from {{ this }} t3 where t3.name is null
+        and t3.modified_timestamp <= (select max(modified_timestamp) from {{ this }})
+        and exists (select 1 from {{ ref('core__dim_contracts') }} c3 where c3.modified_timestamp > DATEADD('DAY', -14, SYSDATE()) and c3.name is not null and t3.contract_address = c3.address)
+    ) -- Only heal name if new data exists
+    OR t0.block_number IN (
+        select distinct t4.block_number from {{ this }} t4 where t4.amount_usd is null
+        and t4.modified_timestamp <= (select max(modified_timestamp) from {{ this }})
+        and exists (select 1 from {{ ref('price__ez_prices_hourly') }} p1 where p1.modified_timestamp > DATEADD('DAY', -14, SYSDATE()) and p1.price is not null and t4.decimals is not null and t4.contract_address = p1.token_address and p1.hour = DATE_TRUNC('hour', t4.block_timestamp))
+    ) -- Only heal USD if we have price and decimals
 )
-and b.ez_token_transfers_id is null
 {% endif %}
