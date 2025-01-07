@@ -471,5 +471,3 @@
             CAST(NULL AS STRING) AS _invocation_id
         WHERE 1 = 0
     {% endif %}
-
-{% endmacro %}
