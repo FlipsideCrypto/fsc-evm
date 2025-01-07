@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: silver__dates
+    description: "Dates table for scores"

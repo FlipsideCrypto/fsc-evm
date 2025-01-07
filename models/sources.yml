@@ -64,3 +64,12 @@ sources:
     schema: silver
     tables:
       - name: verified_abis
+  - name: data_science_silver
+    database: datascience
+    schema: silver
+    tables:
+      - name: evm_event_sigs
+      - name: evm_known_event_names
+      - name: evm_known_event_sigs
+      - name: evm_wrapped_assets
+      - name: dates
