@@ -1,4 +1,6 @@
 -- depends_on: {{ ref('scores__actions_daily') }}
+-- depends_on: {{ ref('core__dim_labels') }}
+-- depends_on: {{ ref('core__dim_contracts') }}
 
 {% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
 {% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
