@@ -8,7 +8,7 @@
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
     version = 1,
-    tags = ['scores_package']
+    tags = ['scores']
 ) }}
 
     {% if is_incremental() %}

@@ -2,7 +2,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['scores_package']
+    tags = ['scores']
 ) }}
 
 {% if execute %}

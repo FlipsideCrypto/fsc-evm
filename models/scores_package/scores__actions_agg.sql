@@ -13,7 +13,7 @@
     cluster_by = "score_date",
     version = 1,
     full_refresh = false,
-    tags = ['scores_package']
+    tags = ['scores']
 ) }}
 
     {% set score_dates_query %}
