@@ -336,7 +336,7 @@
         LEFT JOIN {{ ref('scores__known_event_sigs') }} s ON s.event_sig = e.event_sig
         LEFT JOIN {{ ref('scores__known_event_names') }} n ON e.event_name ILIKE '%' || n.event_name || '%'
         LEFT JOIN {{ ref('scores__wrapped_assets') }} w ON e.contract_address = w.wrapped_asset_address AND w.blockchain = '{{ blockchain }}'
-        LEFT JOIN {{ ref('scores__scoring_activity_categories') }} a ON a.metric = metric_name and a.blockchain = '{{ blockchain }}'
+        LEFT JOIN {{ ref('scores__scoring_activity_categories') }} a ON a.metric = metric_name
         WHERE
             e.event_sig NOT IN (
                 '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', -- transfers
