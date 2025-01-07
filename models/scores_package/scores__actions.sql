@@ -91,7 +91,6 @@
         {% if is_incremental() %}
             AND 1=1
         {% else %}
-            AND block_timestamp :: DATE >= '{{ start_date }}'
             AND block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
         {% endif %}
     ),
@@ -130,8 +129,7 @@
         {% if is_incremental() %}
             1=1
         {% else %}
-            l.block_timestamp :: DATE >= '{{ start_date }}'
-            AND l.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
+            l.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
         {% endif %}
     ),
     decoded_event_logs AS (
@@ -164,8 +162,7 @@
         {% if is_incremental() %}
             1=1
         {% else %}
-            dl.block_timestamp :: DATE >= '{{ start_date }}'
-            AND dl.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
+            dl.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
         {% endif %}
     ),
     native_transfers AS (
@@ -199,8 +196,7 @@
         {% if is_incremental() %}
             1=1
         {% else %}
-            tr.block_timestamp :: DATE >= '{{ start_date }}'
-            AND tr.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
+            tr.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
         {% endif %}
         AND value > 0
         AND trace_succeeded
