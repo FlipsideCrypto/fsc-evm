@@ -1,5 +1,5 @@
 version: 2
 
 models:
-  - name: silver__wrapped_assets
+  - name: scores__wrapped_assets
     description: "This table contains a the wrapped assets for EVM chains. It is needed to correctly score deposits and withdrawals for wrapped assets."
