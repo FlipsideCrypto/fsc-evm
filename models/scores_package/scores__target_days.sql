@@ -1,3 +1,5 @@
+{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
+
 {{ config (
     materialized = "view",
     tags = ['scores_package']
