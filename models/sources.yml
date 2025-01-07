@@ -73,3 +73,4 @@ sources:
       - name: evm_known_event_sigs
       - name: evm_wrapped_assets
       - name: dates
+      - name: scoring_activity_categories
