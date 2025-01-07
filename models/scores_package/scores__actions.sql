@@ -1,7 +1,8 @@
 -- depends_on: {{ ref('scores__target_days') }}
 
-{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
 {% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
+{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
+
 
 {{ config (
     materialized = "incremental",
