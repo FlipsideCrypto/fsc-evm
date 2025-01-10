@@ -347,31 +347,32 @@ final_transfers AS (
         AND C.name IS NOT NULL
     WHERE
         to_address IS NOT NULL
-)
-SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    tx_position,
-    event_index,
-    intra_event_index,
-    token_transfer_type,
-    is_mint,
-    from_address,
-    to_address,
-    contract_address,
-    token_id,
-    quantity,
-    token_standard,
-    NAME,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    ez_nft_transfers_id,
-    inserted_timestamp,
-    modified_timestamp
-FROM
-    final_transfers
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        tx_position,
+        event_index,
+        intra_event_index,
+        token_transfer_type,
+        is_mint,
+        from_address,
+        to_address,
+        contract_address,
+        token_id,
+        quantity,
+        token_standard,
+        NAME,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        ez_nft_transfers_id,
+        inserted_timestamp,
+        modified_timestamp
+    FROM
+        final_transfers
 
 {% if is_incremental() %}
 UNION ALL
@@ -409,3 +410,14 @@ WHERE
     t.name IS NULL
     AND f.ez_nft_transfers_id IS NULL
 {% endif %}
+)
+SELECT
+    *
+FROM
+    FINAL qualify ROW_NUMBER() over (
+        PARTITION BY tx_hash,
+        event_index,
+        intra_event_index
+        ORDER BY
+            modified_timestamp DESC
+    ) = 1
