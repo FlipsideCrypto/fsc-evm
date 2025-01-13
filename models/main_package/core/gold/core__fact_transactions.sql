@@ -13,6 +13,7 @@
 {% set includes_source_hash = ['INK','MANTLE'] %}
 {% set includes_blob_base_fee = ['INK'] %}
 
+{# Set Variables using inclusions and exclusions #}
 {% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}
 {% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_columns %}
 {% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_tx_fee_calc %}

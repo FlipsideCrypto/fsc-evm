@@ -11,8 +11,7 @@
 {% set includes_parent_beacon_block_root = ['INK'] %}
 {% set includes_withdrawals = ['INK'] %}
 
-{# set variables based on prod db name #}
-
+{# Set Variables using inclusions and exclusions #}
 {% set uses_base_fee = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_base_fee %}
 {% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_total_difficulty %}
 

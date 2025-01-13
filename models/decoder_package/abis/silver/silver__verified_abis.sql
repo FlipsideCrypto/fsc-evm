@@ -23,13 +23,13 @@ WITH base AS (
     SELECT
         contract_address,
         {% if uses_etherscan %}
-        PARSE_JSON(
-            abi_data :data :result
-        ) AS DATA,
+            PARSE_JSON(
+                abi_data :data :result
+            ) AS DATA,
         {% else %}
-        PARSE_JSON(
-            abi_data :data :abi
-        ) AS DATA,
+            PARSE_JSON(
+                abi_data :data :abi
+            ) AS DATA,
         {% endif %}
         _inserted_timestamp
     FROM
@@ -39,9 +39,9 @@ WITH base AS (
         ) }}
     WHERE
         {% if uses_etherscan %}
-        abi_data :data :message :: STRING = 'OK'
+            abi_data :data :message :: STRING = 'OK'
         {% else %}
-        abi_data :data :message IS NULL
+            abi_data :data :abi IS NOT NULL
         {% endif %}
 
 {% if is_incremental() %}

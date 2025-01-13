@@ -2,7 +2,7 @@
 {% set block_explorer_abi_url = var('BLOCK_EXPLORER_ABI_URL', '') %}
 {% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
 {% set block_explorer_abi_interaction_limit = var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT', 250) %}
-{% set bronze_full_refresh = var('BRONZE_FULL_REFRESH', false) %}
+{% set bronze_full_refresh = var('BRONZE_CONTRACT_ABIS_FULL_REFRESH', false) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 
