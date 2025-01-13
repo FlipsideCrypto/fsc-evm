@@ -4,6 +4,7 @@
 
 {# Columns excluded by default, with explicit inclusion #}
 
+{# Set Variables using inclusions and exclusions #}
 {% set uses_etherscan = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_etherscan %}
 {# Prod DB Variables End #}
 
