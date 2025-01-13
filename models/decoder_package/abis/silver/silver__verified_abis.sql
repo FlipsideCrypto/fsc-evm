@@ -1,3 +1,12 @@
+{# Prod DB Variables Start #}
+{# Columns included by default, with specific exclusions #}
+{% set excludes_etherscan = ['INK'] %}
+
+{# Columns excluded by default, with explicit inclusion #}
+
+{% set uses_etherscan = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_etherscan %}
+{# Prod DB Variables End #}
+
 {% set abi_block_explorer_name = var('BLOCK_EXPLORER_NAME','') %}
 
 {{ config (
@@ -12,9 +21,15 @@ WITH base AS (
 
     SELECT
         contract_address,
+        {% if uses_etherscan %}
         PARSE_JSON(
             abi_data :data :result
         ) AS DATA,
+        {% else %}
+        PARSE_JSON(
+            abi_data :data :abi
+        ) AS DATA,
+        {% endif %}
         _inserted_timestamp
     FROM
         {{ source(
@@ -22,7 +37,11 @@ WITH base AS (
             'contract_abis'
         ) }}
     WHERE
+        {% if uses_etherscan %}
         abi_data :data :message :: STRING = 'OK'
+        {% else %}
+        abi_data :data :message IS NULL
+        {% endif %}
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (

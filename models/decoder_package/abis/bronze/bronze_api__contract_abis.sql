@@ -24,7 +24,7 @@
 ) }}
 
 {% else %}
--- depends_on: {{ ref('_retry_abis') }}
+
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
@@ -95,7 +95,7 @@ batched AS (
             CONCAT(
                 '{{ block_explorer_abi_url }}',
                 rn.contract_address
-                {% if block_explorer_vault_path <> '' %}
+                {% if block_explorer_vault_path != '' %}
                 ,'&apikey={key}'
                 {% endif %}
             ),
