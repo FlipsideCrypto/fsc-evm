@@ -94,8 +94,10 @@ batched AS (
         live.udf_api('GET',
             CONCAT(
                 '{{ block_explorer_abi_url }}',
-                rn.contract_address,
-                '&apikey={key}'
+                rn.contract_address
+                {% if block_explorer_vault_path <> '' %}
+                ,'&apikey={key}'
+                {% endif %}
             ),
             {'User-Agent': 'FlipsideStreamline'},
             {},
