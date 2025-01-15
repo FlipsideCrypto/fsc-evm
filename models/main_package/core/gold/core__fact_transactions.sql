@@ -4,14 +4,14 @@
 {% set excludes_eip_1559 = ['CORE'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
-{% set includes_l1_columns = ['INK', 'MANTLE'] %}
-{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE'] %}
+{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
 {% set includes_eth_value = ['MANTLE'] %}
-{% set includes_mint = ['INK', 'MANTLE'] %}
-{% set includes_y_parity = ['INK'] %}
-{% set includes_access_list = ['INK'] %}
-{% set includes_source_hash = ['INK','MANTLE'] %}
-{% set includes_blob_base_fee = ['INK'] %}
+{% set includes_mint = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_y_parity = ['INK', 'SWELL'] %}
+{% set includes_access_list = ['INK', 'SWELL'] %}
+{% set includes_source_hash = ['INK','MANTLE','SWELL'] %}
+{% set includes_blob_base_fee = ['INK','SWELL'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}

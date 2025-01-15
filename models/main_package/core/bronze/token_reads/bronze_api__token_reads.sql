@@ -5,7 +5,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = false,
-    tags = ['bronze_core']
+    tags = ['bronze_core', 'recent_test']
 ) }}
 
 WITH base AS (

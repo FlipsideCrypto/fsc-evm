@@ -3,13 +3,13 @@
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
 {% set excludes_base_fee = ['CORE'] %}
-{% set excludes_total_difficulty = ['INK'] %}
+{% set excludes_total_difficulty = ['INK','SWELL'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE'] %}
-{% set includes_blob_gas_used = ['INK'] %}
-{% set includes_parent_beacon_block_root = ['INK'] %}
-{% set includes_withdrawals = ['INK'] %}
+{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_blob_gas_used = ['INK', 'SWELL'] %}
+{% set includes_parent_beacon_block_root = ['INK', 'SWELL'] %}
+{% set includes_withdrawals = ['INK', 'SWELL'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_base_fee = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_base_fee %}
