@@ -1,6 +1,6 @@
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
-{% set excludes_etherscan = ['INK'] %}
+{% set excludes_etherscan = ['INK', 'SWELL'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
 
