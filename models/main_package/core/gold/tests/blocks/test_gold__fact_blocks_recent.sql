@@ -1,6 +1,6 @@
 {{ config (
     materialized = "view",
-    tags = ['recent_test', 'ez_prices_model']
+    tags = ['recent_test']
 ) }}
 
 SELECT
