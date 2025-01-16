@@ -20,6 +20,7 @@ sources:
       - name: receipts_v2
       - name: traces
       - name: traces_v2
+      - name: debug_traceblockbynumber
       - name: confirm_blocks
       - name: confirm_blocks_v2
       - name: decoded_logs
