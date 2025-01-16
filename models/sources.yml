@@ -74,3 +74,10 @@ sources:
       - name: evm_wrapped_assets
       - name: dates
       - name: scoring_activity_categories
+  - name: prod_silver
+    database: "{{ target.database }}"
+    schema: silver
+    tables:
+      - name: overflowed_traces
+      - name: overflowed_receipts
+      - name: overflowed_logs

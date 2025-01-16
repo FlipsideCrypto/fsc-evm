@@ -113,7 +113,8 @@ FROM
         schema_name ~ '__overflowed_traces'
     ) }}
 WHERE
-    1 = 1
+    1 = 1 
+        and block_number is not null
 
 {% if is_incremental() and not full_reload_mode %}
 AND modified_timestamp > (
