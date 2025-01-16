@@ -1,5 +1,5 @@
 {# Set variables #}
-{% set source_name = 'TRACES' %}
+{% set source_name = 'DEBUG_TRACEBLOCKBYNUMBER' if var('GLOBAL_USES_SINGLE_FLIGHT_METHOD',false) else 'TRACES' %}
 {% set source_version = '' %}
 {% set model_type = 'FR' %}
 
