@@ -12,14 +12,8 @@
 {% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {# Log configuration details #}
-{{ log_bronze_details(
-    source_name = source_name,
-    source_version = source_version,
-    model_type = model_type,
-    partition_function = partition_function,
-    partition_join_key = partition_join_key,
-    block_number = block_number,
-    uses_receipts_by_hash = uses_receipts_by_hash
+{{ log_model_details(
+    default_vars
 ) }}
 
 {# Set up dbt configuration #}

@@ -3,6 +3,9 @@
 
 {% set build_mode = var('SILVER_CONFIRM_BLOCKS_RELOAD', false) %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not silver_full_refresh %}
 
 {{ config (

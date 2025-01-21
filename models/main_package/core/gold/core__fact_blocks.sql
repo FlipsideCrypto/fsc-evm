@@ -23,6 +23,9 @@
 
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not gold_full_refresh %}
 
 {{ config (

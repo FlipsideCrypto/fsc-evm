@@ -2,6 +2,10 @@
     'OBSERV_USES_EXCLUSION_LIST_LOGS',
     false
 ) %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     unique_key = 'test_timestamp',

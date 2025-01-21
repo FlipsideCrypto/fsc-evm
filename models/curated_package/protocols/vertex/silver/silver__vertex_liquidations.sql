@@ -1,6 +1,8 @@
 {# Set variables #}
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
 
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config(
     materialized = 'incremental',

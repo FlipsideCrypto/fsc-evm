@@ -1,3 +1,6 @@
+{# Log configuration details #}
+{{ log_model_details() }}
+
 -- depends_on: {{ ref('bronze__decoded_logs') }}
 {{ config (
     materialized = "incremental",

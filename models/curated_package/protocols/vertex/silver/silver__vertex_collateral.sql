@@ -2,6 +2,8 @@
 {%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
 {%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
 
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config(
     materialized = 'incremental',

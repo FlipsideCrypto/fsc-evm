@@ -25,19 +25,9 @@
 {%- set method = streamline_params['method'] -%}
 
 {# Log configuration details #}
-{{ log_streamline_details(
-    model_name=model_name,
-    model_type=model_type,
-    uses_receipts_by_hash=uses_receipts_by_hash,
-    node_url=node_url,
-    model_quantum_state=model_quantum_state,
-    sql_limit=sql_limit,
-    testing_limit=testing_limit,
-    order_by_clause=order_by_clause,
-    new_build=new_build,
-    streamline_params=streamline_params,
-    method_params=method_params,
-    method=method
+{{ log_model_details(
+    streamline_params,
+    default_vars
 ) }}
 
 {# Set up dbt configuration #}

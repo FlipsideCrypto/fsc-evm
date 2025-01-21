@@ -1,5 +1,5 @@
 {# Log configuration details #}
-{{ log_model_config() }}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config(

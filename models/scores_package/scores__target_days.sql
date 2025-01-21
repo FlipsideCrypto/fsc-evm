@@ -1,5 +1,8 @@
 {% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config (
     materialized = "view",
     tags = ['scores']

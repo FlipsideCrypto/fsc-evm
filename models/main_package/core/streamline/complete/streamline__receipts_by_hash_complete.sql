@@ -11,8 +11,7 @@
 {# Log configuration details #}
 {{ log_complete_details(
     post_hook = post_hook,
-    full_refresh_type = full_refresh_type,
-    uses_receipts_by_hash = uses_receipts_by_hash
+    full_refresh_type = full_refresh_type
 ) }}
 
 {# Set up dbt configuration #}

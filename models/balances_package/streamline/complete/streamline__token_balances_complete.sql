@@ -7,10 +7,7 @@
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_token_balances_id)" %}
 
 {# Log configuration details #}
-{{ log_complete_details(
-    post_hook = post_hook,
-    full_refresh_type = full_refresh_type
-) }}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 -- depends on: {{ ref('bronze__' ~ source_name.lower()) }}

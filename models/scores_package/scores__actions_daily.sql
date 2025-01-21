@@ -1,6 +1,8 @@
 {% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
 {% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config (
     materialized = "incremental",

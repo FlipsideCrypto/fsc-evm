@@ -6,10 +6,8 @@
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}
 
 {# Log configuration details #}
-{{ log_bronze_details(
-    source_name = source_name,
-    source_version = source_version,
-    model_type = model_type
+{{ log_model_details(
+    default_vars
 ) }}
 
 {# Set up dbt configuration #}

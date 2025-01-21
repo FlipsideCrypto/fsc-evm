@@ -20,6 +20,9 @@
     {% set unique_key = "block_number" %}
 {% endif %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not gold_full_refresh %}
 
 {{ config (

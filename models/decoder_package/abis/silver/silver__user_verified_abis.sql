@@ -1,5 +1,8 @@
 {% set chain = var('GLOBAL_PROD_DB_NAME','') %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "id",

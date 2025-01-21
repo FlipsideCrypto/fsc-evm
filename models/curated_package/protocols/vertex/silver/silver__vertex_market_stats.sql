@@ -1,3 +1,5 @@
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config(
     materialized = 'incremental',

@@ -22,7 +22,7 @@
 {%- set method = streamline_params['method'] -%}
 
 {# Log configuration details #}
-{{ log_model_config(
+{{ log_model_details(
     streamline_params,
     default_vars
 ) }}
