@@ -12,7 +12,9 @@
 {% set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] %}
 
 {# Log configuration details #}
-{{ log_model_details() }}
+{{ log_model_details(
+    default_vars
+) }}
 
 {# Set up dbt configuration #}
 {{ config (
