@@ -18,6 +18,12 @@ Streamline Parameters:
 Default Variables:
 {{ default_vars | tojson(indent=2) }}
 */
+
 {% endif %}
+
+/*
+Raw Code:
+{{ model.raw_code }}
+*/
 {%- endif -%}
 {% endmacro %}
