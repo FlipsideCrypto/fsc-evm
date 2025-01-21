@@ -1,4 +1,4 @@
-{% macro log_model_config(streamline_params=false, default_vars=false) %}
+{% macro log_model_details(streamline_params=false, default_vars=false) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 /* 
