@@ -1,6 +1,6 @@
 {% set block_explorer_abi_limit = var('BLOCK_EXPLORER_ABI_LIMIT', 50) %}
 {% set block_explorer_abi_url = var('BLOCK_EXPLORER_ABI_URL', '') %}
-{% set block_explorer_abi_suffix = var('BLOCK_EXPLORER_ABI_URL_SUFFIX', '') %}
+{% set block_explorer_abi_url_suffix = var('BLOCK_EXPLORER_ABI_URL_SUFFIX', '') %}
 {% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
 {% set block_explorer_abi_interaction_limit = var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT', 250) %}
 {% set bronze_full_refresh = var('BRONZE_CONTRACT_ABIS_FULL_REFRESH', false) %}
@@ -99,7 +99,7 @@ batched AS (
                 {% if block_explorer_vault_path != '' %}
                 ,'&apikey={key}'
                 {% endif %}
-                {% if block_explorer_abi_suffix != '' %}
+                {% if block_explorer_abi_url_suffix != '' %}
                 ,'{{ block_explorer_abi_url_suffix }}'
                 {% endif %}
             ),
