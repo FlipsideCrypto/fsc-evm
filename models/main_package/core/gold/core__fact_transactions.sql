@@ -1,7 +1,7 @@
 
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
-{% set excludes_eip_1559 = ['CORE'] %}
+{% set excludes_eip_1559 = ['CORE','RONIN'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
 {% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
