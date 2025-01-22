@@ -26,8 +26,8 @@
 
 {# Log configuration details #}
 {{ log_model_details(
-    streamline_params,
-    default_vars
+    vars = default_vars,    
+    params = streamline_params    
 ) }}
 
 {# Set up dbt configuration #}

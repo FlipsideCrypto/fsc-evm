@@ -9,8 +9,8 @@
 } -%}
 
 {# Log configuration details #}
-{{ log_model_details(
-    streamline_params
+{{ log_model_details( 
+    params = streamline_params    
 ) }}
 
 {# Set up dbt configuration #}

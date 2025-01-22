@@ -7,7 +7,7 @@
 
 {# Log configuration details #}
 {{ log_model_details(
-    default_vars
+    vars = default_vars
 ) }}
 
 {# Set up dbt configuration #}
