@@ -1,6 +1,7 @@
 {# Set variables #}
 {%- set model_name = 'RECEIPTS' -%}
 {%- set model_type = 'HISTORY' -%}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
@@ -80,6 +81,10 @@ to_do AS (
 ,ready_blocks AS (
     SELECT block_number
     FROM to_do
+
+    {% if min_block is not none %}
+        WHERE block_number >= {{ min_block }}
+    {% endif %}
 
     {% if testing_limit is not none %}
         LIMIT {{ testing_limit }} 
