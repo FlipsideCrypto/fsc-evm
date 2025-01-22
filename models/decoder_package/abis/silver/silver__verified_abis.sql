@@ -47,7 +47,7 @@ WITH base AS (
         {% if uses_etherscan %}
             abi_data :data :message :: STRING = 'OK'
         {% elif uses_result_output_abi %}
-            abi_data :data :result :output :abi IS NOT NULL
+            abi_data :data :result IS NOT NULL
         {% else %}
             abi_data :data :abi IS NOT NULL
         {% endif %}
