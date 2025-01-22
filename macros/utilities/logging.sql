@@ -1,4 +1,4 @@
-{% macro log_model_details(streamline_params=false, default_vars=false) %}
+{% macro log_model_details(vars=false, params=false) %}
 
 {%- if flags.WHICH == 'compile' and execute -%}
 /* 
@@ -6,17 +6,17 @@ DBT Model Config:
 {{ model.config | tojson(indent=2) }}
 */
     
-{% if default_vars %}
+{% if vars is not false %}
 /*
-Default Variables:
-{{ default_vars | tojson(indent=2) }}
+Variables:
+{{ vars | tojson(indent=2) }}
 */
 {% endif %}
 
-{% if streamline_params %}
+{% if params is not false %}
 /*
-Streamline Parameters: 
-{{ streamline_params | tojson(indent=2) }}
+Parameters: 
+{{ params | tojson(indent=2) }}
 */
 {% endif %}
 
