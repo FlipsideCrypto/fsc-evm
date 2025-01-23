@@ -1,6 +1,6 @@
 {% macro log_model_details(vars=false, params=false) %}
 
-{%- if flags.WHICH == 'compile' and execute -%}
+{%- if (flags.WHICH == 'compile' or 'dev' in target.name) and execute -%}
 /* 
 DBT Model Config:
 {{ model.config | tojson(indent=2) }}
