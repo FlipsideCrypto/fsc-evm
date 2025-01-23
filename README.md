@@ -30,17 +30,16 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
 5. Tag your commit with a version number using `git tag -a v1.1.0 -m "version 1.1.0"`.
 6. Push your tags to the remote repository with `git push origin --tags`.
 7. Add official `Release` notes to the repo with the new tag.
-
   * Each `Release` should be formatted with the following template:
     ```
     Release Title: <vx.y.z release title>
     - Description of changes
     - ...
+
     **Full Changelog**: <link to the commits included in this new version> (hint: click the "Generate Release Notes" button on the release page to automatically generate this link)
     ```
-
 8. In the `packages.yml` file of your other dbt project, specify the new version of the package with:
-   
+
 Alternatively, you can use the `makefile` to create a new tag and push it to the remote repository:
 
 ```
