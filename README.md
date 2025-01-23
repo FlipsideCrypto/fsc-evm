@@ -35,7 +35,6 @@ The recommended development flow for making changes to `fsc-evm` is as follows:
    - Note: If you do not delete `package-lock.yml`, you likely won't pull in your latest changes, even if you run `dbt clean && dbt deps`.
 6. Once the `fsc-evm` PR is ready, proceed to the [Adding Release Versions](#adding-release-versions) section.
 
-
 ---
 
 ## Adding Release Versions
