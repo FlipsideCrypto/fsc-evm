@@ -6,7 +6,7 @@
 {% set excludes_total_difficulty = ['INK','SWELL'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN'] %}
 {% set includes_blob_gas_used = ['INK', 'SWELL'] %}
 {% set includes_parent_beacon_block_root = ['INK', 'SWELL'] %}
 {% set includes_withdrawals = ['INK', 'SWELL'] %}

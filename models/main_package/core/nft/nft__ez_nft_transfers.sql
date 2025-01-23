@@ -103,7 +103,7 @@ WITH base AS (
 {% if is_incremental() %}
 AND modified_timestamp > (
     SELECT
-        MAX(modified_timestamp)
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
     FROM
         {{ this }}
 )
