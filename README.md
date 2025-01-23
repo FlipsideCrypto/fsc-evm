@@ -23,22 +23,24 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
 
 ## Adding Release Versions
 
-1. Make the necessary changes to your code in your dbt package repository (e.g., fsc-utils).
-2. Commit your changes with `git add .` and `git commit -m "Your commit message"`.
-3. Push your commits to the remote repository with `git push ...`.
-4. Tag your commit with a version number using `git tag -a v1.1.0 -m "version 1.1.0"`.
-5. Push your tags to the remote repository with `git push origin --tags`.
-6. Add official `Release` notes to the repo with the new tag.
+1. Submit your changes as a PR and wait for approval/review before proceeding with version tagging.
+2. Make the necessary changes to your code in your dbt package repository (e.g., fsc-utils).
+3. Commit your changes with `git add .` and `git commit -m "Your commit message"`.
+4. Push your commits to the remote repository with `git push ...`.
+5. Tag your commit with a version number using `git tag -a v1.1.0 -m "version 1.1.0"`.
+6. Push your tags to the remote repository with `git push origin --tags`.
+7. Add official `Release` notes to the repo with the new tag.
+
   * Each `Release` should be formatted with the following template:
     ```
     Release Title: <vx.y.z release title>
     - Description of changes
     - ...
-
     **Full Changelog**: <link to the commits included in this new version> (hint: click the "Generate Release Notes" button on the release page to automatically generate this link)
     ```
-7. In the `packages.yml` file of your other dbt project, specify the new version of the package with:
 
+8. In the `packages.yml` file of your other dbt project, specify the new version of the package with:
+   
 Alternatively, you can use the `makefile` to create a new tag and push it to the remote repository:
 
 ```
