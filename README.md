@@ -21,6 +21,23 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
 
 ---
 
+## Recommended Development Flow
+
+The recommended development flow for making changes to `fsc-evm` is as follows:
+
+1. Create a new branch in `fsc-evm` with your changes (e.g. `AN-1234/dummy-branch`). When ready to test in another project, push your branch to the repository.
+2. In your project (e.g. `swell-models`), update the version in `packages.yml` to your branch `AN-1234/dummy-branch`.
+3. Run `make cleanup_time` to pull in the current remote version of your branch.
+   - This will delete `package-lock.yml` and run `dbt clean && dbt deps`.
+4. Begin testing changes in project repository.
+5. If more changes are needed to the `fsc-evm` branch:
+   - Make sure to push them up and re-run `make cleanup_time` in the project.
+   - Note: If you do not delete `package-lock.yml`, you likely won't pull in your latest changes, even if you run `dbt clean && dbt deps`.
+6. Once the `fsc-evm` PR is ready, proceed to the [Adding Release Versions](#adding-release-versions) section.
+
+
+---
+
 ## Adding Release Versions
 
 1. First get PR approval/review before proceeding with version tagging.
