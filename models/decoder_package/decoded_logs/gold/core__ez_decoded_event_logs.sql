@@ -1,5 +1,8 @@
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)' %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "ez_decoded_event_logs_id",

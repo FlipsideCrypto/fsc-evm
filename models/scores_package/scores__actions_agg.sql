@@ -6,6 +6,9 @@
 {% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
 {% set score_date_limit = var('SCORES_DATE_LIMIT', 30) %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "score_date",

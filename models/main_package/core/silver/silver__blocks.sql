@@ -1,6 +1,9 @@
 -- depends_on: {{ ref('bronze__blocks') }}
 {% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not silver_full_refresh %}
 
 {{ config (

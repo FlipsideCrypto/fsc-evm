@@ -2,23 +2,7 @@
 {%- set token_address = var('STATS_TOKEN_ADDRESS', '') -%}
 
 {# Log configuration details #}
-{%- if flags.WHICH == 'compile' and execute -%}
-
-    {{ log("=== Current Variable Settings ===", info=True) }}
-
-    {{ log("STATS_TOKEN_ADDRESS: " ~ token_address, info=True) }}
-    {{ log("", info=True) }}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    meta = ' ~ config.get('meta') ~ '\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-
-{%- endif -%}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config(

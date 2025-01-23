@@ -1,3 +1,6 @@
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     unique_key = 'ez_clearing_house_events_id',

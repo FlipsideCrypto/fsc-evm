@@ -1,3 +1,6 @@
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'view',
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'CLOB, DEX, STATS',
