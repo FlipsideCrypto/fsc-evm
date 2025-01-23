@@ -23,7 +23,7 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
 
 ## Adding Release Versions
 
-1. Submit your changes as a PR and wait for approval/review before proceeding with version tagging.
+1. First get PR approval/review before proceeding with version tagging.
 2. Make the necessary changes to your code in your dbt package repository (e.g., fsc-utils).
 3. Commit your changes with `git add .` and `git commit -m "Your commit message"`.
 4. Push your commits to the remote repository with `git push ...`.
