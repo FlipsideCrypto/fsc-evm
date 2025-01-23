@@ -1,22 +1,7 @@
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, label_type, label_subtype, address_name, label), SUBSTRING(address, label_type, label_subtype, address_name, label); DELETE FROM {{ this }} WHERE address in (SELECT address FROM {{ ref('silver__labels') }} WHERE _is_deleted = TRUE);" %}
 
-{%- if flags.WHICH == 'compile' and execute -%}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '"\n' %}
-    {% set config_log = config_log ~ '    unique_key = ' ~ config.get('unique_key') ~ '\n' %}
-    {% set config_log = config_log ~ '    incremental_strategy = "' ~ config.get('incremental_strategy') ~ '"\n' %}
-    {% set config_log = config_log ~ '    merge_exclude_columns = ' ~ config.get('merge_exclude_columns') ~ '\n' %}
-    {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ '\n' %}
-    {% set config_log = config_log ~ '    post_hook = ' ~ post_hook ~ '\n' %}
-    {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') ~ '\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-
-{%- endif -%}
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config(
     materialized = 'incremental',

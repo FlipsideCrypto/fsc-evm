@@ -5,14 +5,8 @@
 {% set block_explorer_abi_interaction_limit = var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT', 250) %}
 {% set bronze_full_refresh = var('BRONZE_CONTRACT_ABIS_FULL_REFRESH', false) %}
 
-{%- if flags.WHICH == 'compile' and execute -%}
-
-    {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log("BLOCK_EXPLORER_ABI_LIMIT: " ~ block_explorer_abi_limit, info=True) }}
-    {{ log("BLOCK_EXPLORER_ABI_URL: " ~ block_explorer_abi_url, info=True) }}
-    {{ log("BLOCK_EXPLORER_ABI_API_KEY_PATH: " ~ block_explorer_vault_path, info=True) }}
-
-{%- endif -%}
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {% if not bronze_full_refresh %}
 -- depends_on: {{ ref('_retry_abis') }}

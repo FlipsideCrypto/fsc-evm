@@ -2,22 +2,7 @@
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(token_address, symbol, name),SUBSTRING(token_address, symbol, name)" %}
 
 {# Log configuration details #}
-{%- if flags.WHICH == 'compile' and execute -%}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    incremental_strategy = "' ~ config.get('incremental_strategy') ~ '",\n' %}
-    {% set config_log = config_log ~ '    unique_key = "' ~ config.get('unique_key') ~ '",\n' %}    
-    {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ ',\n' %}
-    {% set config_log = config_log ~ '    post_hook = "' ~ config.get('post_hook') ~ '",\n' %}
-    {% set config_log = config_log ~ '    tags = ' ~ config.get('tags') ~ '\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-
-{%- endif -%}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config(

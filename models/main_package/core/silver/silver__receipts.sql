@@ -4,6 +4,9 @@
 {% set source_name = 'RECEIPTS_BY_HASH' if uses_receipts_by_hash else 'RECEIPTS' %}
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, block_number)" if uses_receipts_by_hash else "" %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 -- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
 
 {% if not silver_full_refresh %}

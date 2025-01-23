@@ -12,6 +12,9 @@
 
 {% set abi_block_explorer_name = var('BLOCK_EXPLORER_NAME','') %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",

@@ -2,21 +2,8 @@
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)" %}
 
-{%- if flags.WHICH == 'compile' and execute -%}
-
-    {{ log("=== Current Variable Settings ===", info=True) }}
-    {{ log("MAX_SEQUENCE_NUMBER: " ~ max_num, info=True) }}
-
-    {% set config_log = '\n' %}
-    {% set config_log = config_log ~ '\n=== DBT Model Config ===\n'%}
-    {% set config_log = config_log ~ '\n{{ config (\n' %}
-    {% set config_log = config_log ~ '    materialized = "' ~ config.get('materialized') ~ '",\n' %}
-    {% set config_log = config_log ~ '    cluster_by = ' ~ config.get('cluster_by') ~ ',\n' %}
-    {% set config_log = config_log ~ '    post_hook = "' ~ post_hook ~ '",\n' %}
-    {% set config_log = config_log ~ ') }}\n' %}
-    {{ log(config_log, info=True) }}
-    {{ log("", info=True) }}
-{%- endif -%}
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config(
     materialized = 'incremental',

@@ -3,6 +3,9 @@
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not gold_full_refresh %}
 
 {{ config (
