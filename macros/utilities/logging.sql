@@ -1,12 +1,16 @@
 {% macro log_model_details(vars=false, params=false) %}
 
-{%- if (flags.WHICH == 'compile' or 'dev' in target.name) and execute -%}
+{%- if execute -%}
 /* 
 DBT Model Config:
 {{ model.config | tojson(indent=2) }}
 */
     
 {% if vars is not false %}
+
+{% if var('LOG_MODEL_DETAILS', false) %}
+{{ log( vars | tojson(indent=2), info=True) }}
+{% endif %}
 /*
 Variables:
 {{ vars | tojson(indent=2) }}
@@ -14,6 +18,10 @@ Variables:
 {% endif %}
 
 {% if params is not false %}
+
+{% if var('LOG_MODEL_DETAILS', false) %}
+{{ log( params | tojson(indent=2), info=True) }}
+{% endif %}
 /*
 Parameters: 
 {{ params | tojson(indent=2) }}
