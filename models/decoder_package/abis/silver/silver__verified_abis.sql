@@ -7,7 +7,7 @@
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_etherscan = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_etherscan %}
-{% set uses_result_output_abi = var('GLOBAL_PROD_DB_NAME').upper() in includes_result_output %}
+{% set uses_result_output_abi = var('GLOBAL_PROD_DB_NAME').upper() in includes_result_output_abi %}
 {# Prod DB Variables End #}
 
 {% set abi_block_explorer_name = var('BLOCK_EXPLORER_NAME','') %}
