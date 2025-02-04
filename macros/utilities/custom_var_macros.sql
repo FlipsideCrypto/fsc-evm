@@ -25,15 +25,16 @@
     
     {% if execute %}
         {% set results = run_query(query) %}
-        {% set data_type = results.rows[0][3].lower() %}
-        {% set parent_key = results.rows[0][4] %}
-        {% set value = results.rows[0][6] %}
-        {% set is_enabled = results.rows[0][8] %}
         
         {# If no results found, return the default value #}
         {% if results.rows | length == 0 %}
             {{ return(default) }}
         {% endif %}
+
+        {% set data_type = results.rows[0][3].lower() %}
+        {% set parent_key = results.rows[0][4] %}
+        {% set value = results.rows[0][6] %}
+        {% set is_enabled = results.rows[0][8] %}
         
         {# Check if this is a simple variable (no parent key) or a mapping (has parent key) #}
         {% if parent_key is none or parent_key == '' %}
