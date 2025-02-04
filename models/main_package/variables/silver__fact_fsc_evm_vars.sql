@@ -8,8 +8,9 @@
 ) }}
 
 SELECT
-    var_id,
     chain,
+    key,
+    parent_key,
     VALUE,
     is_enabled
 FROM

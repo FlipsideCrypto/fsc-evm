@@ -6,26 +6,33 @@
 ) }}
 
 SELECT
-    var_id,
-    chain,
-    category,
-    sub_category,
-    data_type,
-    parent_key,
-    key,
-    VALUE,
-    is_required,
-    CASE
-        WHEN is_enabled IS NULL THEN FALSE
-        ELSE is_enabled
-    END AS is_enabled
+    m.var_id,
+    v.chain,
+    m.category,
+    m.sub_category,
+    m.data_type,
+    m.key,
+    m.parent_key,
+    v.value,
+    m.is_required,
+    IFNULL(
+        v.is_enabled,
+        FALSE
+    ) AS is_enabled
 FROM
-    {{ source(
-        'fsc_evm_bronze',
-        'fsc_evm_vars_master_config'
-    ) }} C
-    INNER JOIN {{ source(
-        'fsc_evm_bronze',
-        'fsc_evm_vars_chain_values'
+    {{ ref(
+        'silver__dim_fsc_evm_vars'
     ) }}
-    v USING (var_id)
+    m
+    INNER JOIN {{ ref(
+        'silver__fact_fsc_evm_vars'
+    ) }}
+    v
+    ON m.key = v.key
+    AND COALESCE(
+        m.parent_key,
+        'NULL'
+    ) = COALESCE(
+        v.parent_key,
+        'NULL'
+    )

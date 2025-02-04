@@ -10,8 +10,8 @@ SELECT
     category,
     sub_category,
     data_type,
-    parent_key,
     key,
+    parent_key,
     is_required
 FROM
     {{ source(
