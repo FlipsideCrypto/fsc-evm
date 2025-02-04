@@ -8,4 +8,7 @@ SELECT
     VALUE,
     is_enabled
 FROM
-    {{ ref('bronze__fsc_evm_vars_chain_values') }}
+    {{ source(
+        'fsc_evm_bronze',
+        'fsc_evm_vars_chain_values'
+    ) }}

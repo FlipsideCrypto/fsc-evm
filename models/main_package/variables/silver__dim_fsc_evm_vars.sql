@@ -11,4 +11,7 @@ SELECT
     key,
     is_required
 FROM
-    {{ ref('bronze__fsc_evm_vars_master_config') }}
+    {{ source(
+        'fsc_evm_bronze',
+        'fsc_evm_vars_master_config'
+    ) }}
