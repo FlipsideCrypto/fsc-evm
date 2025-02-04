@@ -1,3 +1,8 @@
+{%- set database = target.database.lower() | replace('_dev', '') -%}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'view'
 ) }}
@@ -12,3 +17,5 @@ FROM
         'fsc_evm_bronze',
         'fsc_evm_vars_chain_values'
     ) }}
+WHERE
+    chain = '{{ database }}'

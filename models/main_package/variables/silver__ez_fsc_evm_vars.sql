@@ -1,9 +1,13 @@
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'view'
 ) }}
 
 SELECT
     var_id,
+    chain,
     category,
     sub_category,
     data_type,
