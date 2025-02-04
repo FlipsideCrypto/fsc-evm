@@ -11,7 +11,12 @@ SELECT
     key,
     VALUE,
     is_required,
-    is_enabled
+    CASE
+        WHEN is_enabled IS NULL THEN FALSE
+        ELSE is_enabled
+    END AS is_enabled 
+    -- because of the left join, values for certain vars may not be defined in the chain_values seed, 
+    -- resulting in is_enabled being NULL. FALSE prevents these vars from being picked up by get_var()
 FROM
     {{ source(
         'fsc_evm_bronze',
