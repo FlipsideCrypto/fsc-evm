@@ -8,12 +8,11 @@
     {% set query %}
         SELECT 
             var_id,
-            chain,
             category,
             sub_category,
             data_type,
-            key,
             parent_key,
+            key,
             VALUE,
             is_required,
             is_enabled
