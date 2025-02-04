@@ -14,15 +14,13 @@ SELECT
     CASE
         WHEN is_enabled IS NULL THEN FALSE
         ELSE is_enabled
-    END AS is_enabled 
-    -- because of the left join, values for certain vars may not be defined in the chain_values seed, 
-    -- resulting in is_enabled being NULL. FALSE prevents these vars from being picked up by get_var()
+    END AS is_enabled
 FROM
     {{ source(
         'fsc_evm_bronze',
         'fsc_evm_vars_master_config'
     ) }} C
-    LEFT JOIN {{ source(
+    INNER JOIN {{ source(
         'fsc_evm_bronze',
         'fsc_evm_vars_chain_values'
     ) }}
