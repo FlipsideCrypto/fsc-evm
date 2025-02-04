@@ -20,6 +20,7 @@ sources:
       - name: receipts_v2
       - name: traces
       - name: traces_v2
+      - name: debug_traceblockbynumber
       - name: confirm_blocks
       - name: confirm_blocks_v2
       - name: decoded_logs
@@ -64,3 +65,13 @@ sources:
     schema: silver
     tables:
       - name: verified_abis
+  - name: data_science_silver
+    database: datascience
+    schema: silver
+    tables:
+      - name: evm_event_sigs
+      - name: evm_known_event_names
+      - name: evm_known_event_sigs
+      - name: evm_wrapped_assets
+      - name: dates
+      - name: scoring_activity_categories

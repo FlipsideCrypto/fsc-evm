@@ -1,6 +1,7 @@
 {# Set variables #}
 {%- set model_name = 'BLOCKS_TRANSACTIONS' -%}
 {%- set model_type = 'HISTORY' -%}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
 {%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
@@ -22,18 +23,9 @@
 {%- set method = streamline_params['method'] -%}
 
 {# Log configuration details #}
-{{ log_streamline_details(
-    model_name=model_name,
-    model_type=model_type,
-    node_url=node_url,
-    model_quantum_state=model_quantum_state,
-    sql_limit=sql_limit,
-    testing_limit=testing_limit,
-    order_by_clause=order_by_clause,
-    new_build=new_build,
-    streamline_params=streamline_params,
-    method_params=method_params,
-    method=method
+{{ log_model_details(
+    vars = default_vars,    
+    params = streamline_params    
 ) }}
 
 {# Set up dbt configuration #}
@@ -79,6 +71,10 @@ to_do AS (
 ready_blocks AS (
     SELECT block_number
     FROM to_do
+
+    {% if min_block is not none %}
+        WHERE block_number >= {{ min_block }}
+    {% endif %}
 
     {% if testing_limit is not none %}
         LIMIT {{ testing_limit }} 

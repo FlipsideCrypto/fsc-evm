@@ -2,6 +2,9 @@
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not gold_full_refresh %}
 
 {{ config (

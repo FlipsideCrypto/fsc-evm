@@ -1,13 +1,36 @@
+
+{# Prod DB Variables Start #}
+{# Columns included by default, with specific exclusions #}
+{% set excludes_eip_1559 = ['CORE','RONIN'] %}
+
+{# Columns excluded by default, with explicit inclusion #}
+{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_eth_value = ['MANTLE'] %}
+{% set includes_mint = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_y_parity = ['INK', 'SWELL'] %}
+{% set includes_access_list = ['INK', 'SWELL'] %}
+{% set includes_source_hash = ['INK','MANTLE','SWELL'] %}
+{% set includes_blob_base_fee = ['INK','SWELL'] %}
+
+{# Set Variables using inclusions and exclusions #}
+{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}
+{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_columns %}
+{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_tx_fee_calc %}
+{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in includes_eth_value %}
+{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in includes_mint %}
+{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in includes_y_parity %}
+{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in includes_access_list %}
+{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_source_hash %}
+{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_base_fee %}
+{# Prod DB Variables End #}
+
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set uses_eip_1559 = var('GLOBAL_USES_EIP_1559', true) %}
-{% set uses_l1_columns = var('GLOBAL_USES_L1_COLUMNS', false) %}
-{% set uses_l1_tx_fee_calc = var('GLOBAL_USES_L1_TX_FEE_CALC', false) %}
-{% set uses_chain_id = var('GLOBAL_USES_CHAIN_ID', true) %}
-{% set uses_eth_value = var('GLOBAL_USES_ETH_VALUE', false) %}
-{% set uses_mint = var('GLOBAL_USES_MINT', false) %}
-{% set uses_source_hash = var('GLOBAL_USES_SOURCE_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {% if not gold_full_refresh %}
 
@@ -71,13 +94,6 @@ WHERE
                 input_data,
                 10
             ) AS origin_function_signature,
-            {% if uses_chain_id %}
-            TRY_TO_NUMBER(
-                utils.udf_hex_to_int(
-                    transaction_json :chainId :: STRING
-                )
-            ) AS chain_id,
-            {% endif %}
             {% if uses_mint %}
             utils.udf_hex_to_int(
                 transaction_json :mint :: STRING
@@ -145,7 +161,13 @@ WHERE
                 value_precise_raw,
                 18
             ) AS value_precise,
-            value_precise :: FLOAT AS VALUE 
+            value_precise :: FLOAT AS VALUE,
+            {% if uses_y_parity %}
+            utils.udf_hex_to_int(transaction_json :yParity :: STRING):: bigint AS y_parity,
+            {% endif %}
+            {% if uses_access_list %}
+            transaction_json :accessList AS access_list,
+            {% endif %}
         FROM
             base
     ),
@@ -158,9 +180,6 @@ WHERE
             txs.from_address,
             txs.to_address,
             txs.origin_function_signature,
-            {% if uses_chain_id %}
-            txs.chain_id,
-            {% endif %}
             {% if uses_mint %}
             txs.mint,
             txs.mint_precise_raw,
@@ -179,12 +198,12 @@ WHERE
             txs.max_priority_fee_per_gas,
             {% endif %}
             {% if uses_l1_columns %}
+            utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw,
             COALESCE(
-                utils.udf_hex_to_int(
-                    r.receipts_json :l1Fee :: STRING
-                ) :: FLOAT,
+                l1_fee_precise_raw :: FLOAT,
                 0
             ) AS l1_fee,
+            utils.udf_decimal_adjust(l1_fee_precise_raw, 18) as l1_fee_precise,
             COALESCE(
                 (
                     r.receipts_json :l1FeeScalar :: STRING
@@ -203,6 +222,17 @@ WHERE
                 ) :: FLOAT,
                 0
             ) AS l1_gas_price,
+            utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
+            {% endif %}
+            {% if uses_y_parity %}
+            txs.y_parity,
+            {% endif %}
+            {% if uses_access_list %}
+            txs.access_list,
+            {% endif %}
+            {% if uses_blob_base_fee %}
+            utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
+            utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             {% endif %}
             {% if uses_l1_tx_fee_calc %}
             utils.udf_decimal_adjust(
@@ -298,15 +328,11 @@ AND r.modified_timestamp >= (
 missing_data AS (
     SELECT
         t.block_number,
-        t.block_hash,
         b.block_timestamp AS block_timestamp_heal,
         t.tx_hash,
         t.from_address,
         t.to_address,
         t.origin_function_signature,
-        {% if uses_chain_id %}
-        t.chain_id,
-        {% endif %}
         {% if uses_mint %}
         t.mint,
         t.mint_precise_raw,
@@ -325,12 +351,12 @@ missing_data AS (
         t.max_priority_fee_per_gas,
         {% endif %}
         {% if uses_l1_columns %}
+        utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw_heal,
         COALESCE(
-            utils.udf_hex_to_int(
-                r.receipts_json :l1Fee :: STRING
-            ) :: FLOAT,
+            l1_fee_precise_raw_heal :: FLOAT,
             0
         ) AS l1_fee_heal,
+        utils.udf_decimal_adjust(l1_fee_precise_raw_heal, 18) as l1_fee_precise_heal,
         COALESCE(
             (
                 r.receipts_json :l1FeeScalar :: STRING
@@ -349,6 +375,17 @@ missing_data AS (
             ) :: FLOAT,
             0
         ) AS l1_gas_price_heal,
+        utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
+        {% endif %}
+        {% if uses_y_parity %}
+        t.y_parity,
+        {% endif %}
+        {% if uses_access_list %}
+        t.access_list,
+        {% endif %}
+        {% if uses_blob_base_fee %}
+        utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
+        utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         {% endif %}
         {% if uses_l1_tx_fee_calc %}
         utils.udf_decimal_adjust(
@@ -426,15 +463,11 @@ missing_data AS (
 all_transactions AS (
     SELECT
         block_number,
-        block_hash,
         block_timestamp,
         tx_hash,
         from_address,
         to_address,
         origin_function_signature,
-        {% if uses_chain_id %}
-        chain_id,
-        {% endif %}
         {% if uses_mint %}
         mint,
         mint_precise_raw,
@@ -454,9 +487,22 @@ all_transactions AS (
         {% endif %}
         {% if uses_l1_columns %}
         l1_fee,
+        l1_fee_precise_raw,
+        l1_fee_precise,
         l1_fee_scalar,
         l1_gas_used,
         l1_gas_price,
+        l1_base_fee_scalar,
+        {% endif %}
+        {% if uses_y_parity %}
+        y_parity,
+        {% endif %}
+        {% if uses_access_list %}
+        access_list,
+        {% endif %}
+        {% if uses_blob_base_fee %}
+        l1_blob_base_fee,
+        l1_blob_base_fee_scalar,
         {% endif %}
         tx_fee,
         tx_fee_precise,
@@ -483,15 +529,11 @@ all_transactions AS (
 UNION ALL
 SELECT
     block_number,
-    block_hash,
     block_timestamp_heal AS block_timestamp,
     tx_hash,
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_chain_id %}
-    chain_id,
-    {% endif %}
     {% if uses_mint %}
     mint,
     mint_precise_raw,
@@ -510,10 +552,23 @@ SELECT
     max_priority_fee_per_gas,
     {% endif %}
     {% if uses_l1_columns %}
-    l1_fee_heal AS l1_fee,
+    l1_fee_precise_heal AS l1_fee,
+    l1_fee_precise_raw_heal AS l1_fee_precise_raw,
+    l1_fee_precise_heal AS l1_fee_precise,
     l1_fee_scalar_heal AS l1_fee_scalar,
     l1_gas_used_heal AS l1_gas_used,
     l1_gas_price_heal AS l1_gas_price,
+    l1_base_fee_scalar,
+    {% endif %}
+    {% if uses_y_parity %}
+    y_parity,
+    {% endif %}
+    {% if uses_access_list %}
+    access_list,
+    {% endif %}
+    {% if uses_blob_base_fee %}
+    l1_blob_base_fee,
+    l1_blob_base_fee_scalar,
     {% endif %}
     tx_fee_heal AS tx_fee,
     tx_fee_precise_heal AS tx_fee_precise,
@@ -539,38 +594,14 @@ FROM
 )
 SELECT
     block_number,
-    block_hash,
     block_timestamp,
     tx_hash,
     from_address,
     to_address,
     origin_function_signature,
-    {% if uses_chain_id %}
-    chain_id,
-    {% endif %}
-    {% if uses_mint %}
-    mint,
-    mint_precise_raw,
-    mint_precise,
-    {% endif %}
-    {% if uses_eth_value %}
-    eth_value,
-    eth_value_precise_raw,
-    eth_value_precise,
-    {% endif %}
     VALUE,
     value_precise_raw,
     value_precise,
-    {% if uses_eip_1559 %}
-    max_fee_per_gas,
-    max_priority_fee_per_gas,
-    {% endif %}
-    {% if uses_l1_columns %}
-    l1_fee,
-    l1_fee_scalar,
-    l1_gas_used,
-    l1_gas_price,
-    {% endif %}
     tx_fee,
     tx_fee_precise,
     tx_succeeded,
@@ -583,12 +614,45 @@ SELECT
     gas_limit,
     cumulative_gas_used,
     effective_gas_price,
+    {% if uses_eip_1559 %}
+    max_fee_per_gas,
+    max_priority_fee_per_gas,
+    {% endif %}
+    {% if uses_l1_columns %}
+    l1_fee,
+    l1_fee_precise_raw,
+    l1_fee_precise,
+    l1_fee_scalar,
+    l1_gas_used,
+    l1_gas_price,
+    l1_base_fee_scalar,
+    {% endif %}
+    {% if uses_blob_base_fee %}
+    l1_blob_base_fee,
+    l1_blob_base_fee_scalar,
+    {% endif %}
+    {% if uses_mint %}
+    mint,
+    mint_precise_raw,
+    mint_precise,
+    {% endif %}
+    {% if uses_eth_value %}
+    eth_value,
+    eth_value_precise_raw,
+    eth_value_precise,
+    {% endif %}
+    {% if uses_y_parity %}
+    y_parity,
+    {% endif %}
+    {% if uses_access_list %}
+    access_list,
+    {% endif %}
     r,
     s,
+    v,
     {% if uses_source_hash %}
     source_hash,
     {% endif %}
-    v,
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

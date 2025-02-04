@@ -1,13 +1,11 @@
-{% set uses_receipts_by_hash = var(
-    'GLOBAL_USES_RECEIPTS_BY_HASH',
-    false
-) %}
-{% set nft_full_refresh = var(
-    'NFT_FULL_REFRESH',
-    false
-) %}
+{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH',false) %}
+{% set nft_full_refresh = var('NFT_FULL_REFRESH',false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {% if not nft_full_refresh %}
     {{ config (
         materialized = "incremental",
@@ -105,7 +103,7 @@ WITH base AS (
 {% if is_incremental() %}
 AND modified_timestamp > (
     SELECT
-        MAX(modified_timestamp)
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
     FROM
         {{ this }}
 )
@@ -347,31 +345,32 @@ final_transfers AS (
         AND C.name IS NOT NULL
     WHERE
         to_address IS NOT NULL
-)
-SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    tx_position,
-    event_index,
-    intra_event_index,
-    token_transfer_type,
-    is_mint,
-    from_address,
-    to_address,
-    contract_address,
-    token_id,
-    quantity,
-    token_standard,
-    NAME,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    ez_nft_transfers_id,
-    inserted_timestamp,
-    modified_timestamp
-FROM
-    final_transfers
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        tx_position,
+        event_index,
+        intra_event_index,
+        token_transfer_type,
+        is_mint,
+        from_address,
+        to_address,
+        contract_address,
+        token_id,
+        quantity,
+        token_standard,
+        NAME,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        ez_nft_transfers_id,
+        inserted_timestamp,
+        modified_timestamp
+    FROM
+        final_transfers
 
 {% if is_incremental() %}
 UNION ALL
@@ -409,3 +408,14 @@ WHERE
     t.name IS NULL
     AND f.ez_nft_transfers_id IS NULL
 {% endif %}
+)
+SELECT
+    *
+FROM
+    FINAL qualify ROW_NUMBER() over (
+        PARTITION BY tx_hash,
+        event_index,
+        intra_event_index
+        ORDER BY
+            modified_timestamp DESC
+    ) = 1

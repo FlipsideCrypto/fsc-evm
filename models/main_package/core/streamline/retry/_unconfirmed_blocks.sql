@@ -1,3 +1,6 @@
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'ephemeral'
 ) }}
@@ -19,7 +22,6 @@
         LEFT JOIN {{ ref("test_gold__fact_transactions_recent") }}
         txs USING (
             block_number,
-            block_hash,
             tx_hash
         )
     WHERE

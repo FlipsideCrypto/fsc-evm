@@ -205,3 +205,45 @@ The eth value for the transaction
 The unique identifier for the chain the transaction was executed on.
 
 {% enddocs %}
+
+{% docs evm_l1_fee_precise_raw %}
+
+The raw l1 fee for the transaction, in Gwei.
+
+{% enddocs %}
+
+{% docs evm_l1_fee_precise %}
+
+The precise l1 fee for the transaction, in Gwei.
+
+{% enddocs %}
+
+{% docs evm_y_parity %}
+
+The y parity for the transaction.
+
+{% enddocs %}
+
+{% docs evm_access_list %}
+
+The access list for the transaction.
+
+{% enddocs %}
+
+{% docs evm_l1_base_fee_scalar %}
+
+The scalar l1 base fee for the transaction.
+
+{% enddocs %}
+
+{% docs evm_l1_blob_base_fee %}
+
+The blob base fee for the transaction.
+
+{% enddocs %}
+
+{% docs evm_l1_blob_base_fee_scalar %}
+
+The scalar blob base fee for the transaction.
+
+{% enddocs %}

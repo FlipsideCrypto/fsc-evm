@@ -1,11 +1,14 @@
 {%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
 {%- set node_secret_path = var('GLOBAL_NODE_SECRET_PATH', '') -%}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = false,
-    tags = ['bronze_core']
+    tags = ['bronze_core', 'recent_test']
 ) }}
 
 WITH base AS (

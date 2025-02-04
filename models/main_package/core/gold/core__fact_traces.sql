@@ -2,9 +2,9 @@
 {% set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000) %}
 {% set full_reload_mode = var('TRACES_FULL_RELOAD_MODE', false) %}
 {% set uses_overflow_steps = var('TRACES_USES_OVERFLOW_STEPS', false) %}
-{% set TRACES_ARB_MODE = var('TRACES_ARB_MODE', false) %}
-{% set TRACES_SEI_MODE = var('TRACES_SEI_MODE', false) %}
-{% set TRACES_KAIA_MODE = var('TRACES_KAIA_MODE', false) %}
+{% set TRACES_ARB_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'ARBITRUM' %}
+{% set TRACES_SEI_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'SEI' %}
+{% set TRACES_KAIA_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'KAIA' %}
 {% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
 {% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
@@ -19,6 +19,9 @@
 {% else %}
     {% set unique_key = "block_number" %}
 {% endif %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {% if not gold_full_refresh %}
 
@@ -332,10 +335,7 @@ error_logic AS (
         {% else %}
             AND b0.tx_position = b1.tx_position
         {% endif %}
-        AND b0.trace_address LIKE CONCAT(
-            b1.trace_address,
-            '_%'
-        )
+        AND b0.trace_address RLIKE CONCAT('^', b1.trace_address, '(_[0-9]+)*$')
         LEFT JOIN errored_traces b2
         ON b0.block_number = b2.block_number
         {% if TRACES_SEI_MODE %}
