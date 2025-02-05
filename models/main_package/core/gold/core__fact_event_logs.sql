@@ -106,7 +106,7 @@ new_logs AS (
         l.tx_succeeded
     FROM
         flattened_logs l
-        LEFT JOIN {{ ref('core__fact_blocks') }}
+        LEFT JOIN {{ ref('fsc_evm', 'core__fact_blocks') }}
         b
         ON l.block_number = b.block_number
 
@@ -118,7 +118,7 @@ AND b.modified_timestamp >= (
         {{ this }}
 )
 {% endif %}
-LEFT JOIN {{ ref('core__fact_transactions') }}
+LEFT JOIN {{ ref('fsc_evm', 'core__fact_transactions') }}
 txs
 ON l.tx_hash = txs.tx_hash
 AND l.block_number = txs.block_number
@@ -156,11 +156,11 @@ missing_data AS (
     FROM
         {{ this }}
         t
-        LEFT JOIN {{ ref('core__fact_transactions') }}
+        LEFT JOIN {{ ref('fsc_evm', 'core__fact_transactions') }}
         txs
         ON t.tx_hash = txs.tx_hash
         AND t.block_number = txs.block_number
-        LEFT JOIN {{ ref('core__fact_blocks') }}
+        LEFT JOIN {{ ref('fsc_evm', 'core__fact_blocks') }}
         b
         ON t.block_number = b.block_number
     WHERE

@@ -44,7 +44,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['gold_core']
-) }}    
+) }}
 
 {% endif %}
 
@@ -595,7 +595,7 @@ aggregated_errors AS (
                         {% endif %}
                         FROM
                             json_traces f
-                            LEFT OUTER JOIN {{ ref('core__fact_transactions') }}
+                            LEFT OUTER JOIN {{ ref('fsc_evm', 'core__fact_transactions') }}
                             t
                             ON {% if TRACES_SEI_MODE %}
                                 f.tx_hash = t.tx_hash
@@ -669,7 +669,7 @@ heal_missing_data AS (
     FROM
         {{ this }}
         t
-        JOIN {{ ref('core__fact_transactions') }}
+        JOIN {{ ref('fsc_evm', 'core__fact_transactions') }}
         txs
         {% if TRACES_SEI_MODE %}
             ON t.tx_hash = txs.tx_hash

@@ -63,7 +63,7 @@ WITH base AS (
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
     FROM
-        {{ ref('core__fact_traces') }}
+        {{ ref('fsc_evm', 'core__fact_traces') }}
         tr
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         ON DATE_TRUNC(
