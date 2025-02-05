@@ -44,9 +44,9 @@
     "method_params": rpc_config['method_params']
 } -%}
 
-{%- set async_requests_var = (model_name ~ '_' ~ model_type ~ '_async_concurrent_requests').upper() -%}
-{%- if var(async_requests_var, none) is not none -%}
-    {%- do params.update({"async_concurrent_requests": var(async_requests_var)}) -%}
+{%- set async_concurrent_requests = (model_name ~ '_' ~ model_type ~ '_async_concurrent_requests').upper() -%}
+{%- if var(async_concurrent_requests, none) is not none -%}
+    {%- do params.update({"async_concurrent_requests": var(async_concurrent_requests)}) -%}
 {%- endif -%}
 
 {%- if rpc_config.get('exploded_key') is not none -%}
