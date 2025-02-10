@@ -92,7 +92,7 @@ AND (
     FROM
         {{ this }}
 )
-{% else %}
+{% elif full_reload_start_block > 0 %}
     AND block_number <= {{ full_reload_start_block }}
 {% endif %}
 
