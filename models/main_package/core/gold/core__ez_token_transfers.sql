@@ -79,7 +79,7 @@ WITH base AS (
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }}
+        {{ ref('fsc_evm', 'core__fact_event_logs') }}
         f
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p
