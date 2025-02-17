@@ -43,12 +43,12 @@ WITH base AS (
 ),
 new_records as (
     SELECT
-        block_number,
-        block_timestamp,
-        tx_hash,
+        b.block_number as block_number,
+        block_timestamp as block_timestamp,
+        b.tx_hash as tx_hash,
         tx_position,
-        event_index,
-        contract_address,
+        b.event_index as event_index,
+        b.contract_address as contract_address,
         topics,
         topic_0,
         topic_1,
