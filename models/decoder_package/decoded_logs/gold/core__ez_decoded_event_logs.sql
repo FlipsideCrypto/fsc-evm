@@ -66,13 +66,13 @@ new_records as (
         name as contract_name
     FROM base b 
     LEFT JOIN {{ ref('core__fact_event_logs') }} fel
-    USING (block_number, event_index)
-    LEFT JOIN {{ ref('core__dim_contracts') }} dc
-    ON b.contract_address = dc.address and dc.name IS NOT NULL
-    WHERE 1=1 
+    on b.block_number = fel.block_number and b.event_index = fel.event_index
     {% if is_incremental() %}
         and fel.inserted_timestamp > dateadd('day', -3, sysdate())
     {% endif %}
+    LEFT JOIN {{ ref('core__dim_contracts') }} dc
+    ON b.contract_address = dc.address and dc.name IS NOT NULL
+    WHERE 1=1
 )
 {% if is_incremental() %},
 missing_tx_data AS (
