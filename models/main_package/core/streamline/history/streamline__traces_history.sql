@@ -21,6 +21,8 @@
 {%- set method_params = streamline_params['method_params'] -%}
 {%- set method = streamline_params['method'] -%}
 
+{%- set traces_request_start_block = var('TRACES_REQUEST_START_BLOCK', none) %}
+
 {# Log configuration details #}
 {{ log_model_details(
     vars = default_vars,    
@@ -56,7 +58,9 @@ to_do AS (
     {% if not new_build %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
-
+    {% if traces_request_start_block is not none %}
+        AND block_number >= {{ traces_request_start_block }}
+    {% endif %}
     EXCEPT
 
     {# Exclude blocks that have already been processed #}
