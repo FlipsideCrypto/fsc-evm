@@ -65,7 +65,7 @@ WITH retry AS (
                 contract_address
             FROM
                 {{ source(
-                    'streamline',
+                    'bronze_abi',
                     'complete_contract_abis'
                 ) }}
             WHERE
