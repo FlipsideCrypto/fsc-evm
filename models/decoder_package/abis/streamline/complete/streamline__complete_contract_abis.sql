@@ -57,6 +57,16 @@ FROM
         _inserted_timestamp
     FROM
         {{ ref('bronze_api__contract_abis') }}
+    {% else %}
+    UNION ALL
+    SELECT
+        1 AS partition_key,
+        '0x0000000000000000000000000000000000000000' AS contract_address,
+        NULL as abi_data,
+        {{ dbt_utils.generate_surrogate_key(
+            ['contract_address']
+        ) }} AS complete_contract_abis_id,
+        '2000-01-01'::timestamp as _inserted_timestamp
     {% endif %}
 {% endif %}
 
