@@ -1,3 +1,6 @@
+{% set block_explorer_abi_url_suffix = var('BLOCK_EXPLORER_ABI_URL_SUFFIX', '') %}
+{% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
+
 {{ config (
     materialized = "view",
     post_hook = fsc_utils.if_data_call_function_v2(
@@ -54,9 +57,16 @@ SELECT
         'GET',
         CONCAT(
             '{{ var('BLOCK_EXPLORER_ABI_URL') }}',
-            contract_address,
-            '&apikey={key}'
-        ),{ 'User-Agent': 'FlipsideStreamline' },{},
+            contract_address
+            {% if block_explorer_vault_path != '' %}
+            ,'&apikey={key}'
+            {% endif %}
+            {% if block_explorer_abi_url_suffix != '' %}
+            ,'{{ block_explorer_abi_url_suffix }}'
+            {% endif %}
+        ),
+        { 'User-Agent': 'FlipsideStreamline' },
+        NULL,
         '{{ var('BLOCK_EXPLORER_ABI_API_KEY_PATH') }}'
     ) AS request
 FROM

@@ -44,17 +44,20 @@ SELECT
     _inserted_timestamp
 FROM
     {{ ref('bronze__contract_abis_fr') }}
-UNION ALL
-SELECT
-    1 AS partition_key,
-    contract_address,
-    abi_data,
-    {{ dbt_utils.generate_surrogate_key(
-        ['contract_address']
-    ) }} AS complete_contract_abis_id,
-    _inserted_timestamp
-FROM
-    {{ ref('bronze_api__contract_abis') }}
+
+    {% if var( 'BLOCK_EXPLORER_ABI_USES_BRONZE_API_TABLE',false ) %}
+    UNION ALL
+    SELECT
+        1 AS partition_key,
+        contract_address,
+        abi_data,
+        {{ dbt_utils.generate_surrogate_key(
+            ['contract_address']
+        ) }} AS complete_contract_abis_id,
+        _inserted_timestamp
+    FROM
+        {{ ref('bronze_api__contract_abis') }}
+    {% endif %}
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY complete_contract_abis_id
