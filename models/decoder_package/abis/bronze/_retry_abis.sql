@@ -1,6 +1,5 @@
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config (
     materialized = "ephemeral"
 ) }}
@@ -23,8 +22,7 @@ WITH retry AS (
         ) }}
         v USING (contract_address)
     WHERE
-        r.total_interaction_count >= 250
-        -- high interaction count
+        r.total_interaction_count >= 250 -- high interaction count
         AND GREATEST(
             max_inserted_timestamp_logs,
             max_inserted_timestamp_traces
@@ -35,12 +33,12 @@ WITH retry AS (
                 contract_address
             FROM
                 {{ source(
-                    'bronze_api',
-                    'contract_abis'
+                    'streamline',
+                    'complete_contract_abis'
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND abi_data:error is null
+                AND abi_data :error IS NULL
         )
     ORDER BY
         total_interaction_count DESC
@@ -67,12 +65,12 @@ WITH retry AS (
                 contract_address
             FROM
                 {{ source(
-                    'bronze_api',
-                    'contract_abis'
+                    'streamline',
+                    'complete_contract_abis'
                 ) }}
             WHERE
                 _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND abi_data:error is null
+                AND abi_data :error IS NULL
         )
     UNION ALL
     SELECT
