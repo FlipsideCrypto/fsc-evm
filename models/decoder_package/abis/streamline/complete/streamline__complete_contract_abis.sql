@@ -1,4 +1,4 @@
--- depends on: {{ ref('bronze__streamline_contract_abis') }}
+-- depends on: {{ ref('bronze__contract_abis') }}
 {{ config (
     materialized = 'incremental',
     unique_key = 'complete_contract_abis_id',
