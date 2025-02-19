@@ -47,7 +47,7 @@ WITH base AS (
 ) }}
 #}
 {{ source(
-    'streamline',
+    'bronze_abi',
     'complete_contract_abis'
 ) }}
 WHERE
