@@ -6,7 +6,7 @@
     unique_key = ["contract_address", "implementation_contract"],
     cluster_by = ["start_timestamp::date"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    tags = ['silver_core']
+    tags = ['silver_core', 'phase_2']
 ) }}
 
 WITH base AS (
