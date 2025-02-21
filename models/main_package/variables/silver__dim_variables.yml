@@ -1,0 +1,29 @@
+version: 2
+models:
+  - name: silver__dim_variables
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DIM_VARIABLES_ID
+    columns:
+      - name: INDEX
+        tests:
+          - not_null
+      - name: PACKAGE
+        tests:
+          - not_null
+      - name: CATEGORY
+        tests:
+          - not_null
+      - name: DATA_TYPE
+        tests:
+          - not_null
+      - name: KEY
+        tests:
+          - not_null
+      - name: PARENT_KEY
+        tests:
+          - not_null
+      - name: DIM_VARIABLES_ID
+        tests:
+          - not_null

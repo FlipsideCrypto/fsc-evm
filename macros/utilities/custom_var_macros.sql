@@ -7,14 +7,13 @@
     {# Query to get variable values from custom variables table #}
     {% set query %}
         SELECT 
-            var_id,
+            index,
+            package,
             category,
-            sub_category,
             data_type,
             parent_key,
             key,
             VALUE,
-            is_required,
             is_enabled
         FROM {{ ref('silver__ez_fsc_evm_vars') }}
         WHERE (key = '{{ var_name }}'
@@ -34,7 +33,7 @@
         {% set data_type = results.rows[0][3].lower() %}
         {% set parent_key = results.rows[0][4] %}
         {% set value = results.rows[0][6] %}
-        {% set is_enabled = results.rows[0][8] %}
+        {% set is_enabled = results.rows[0][7] %}
         
         {# Check if this is a simple variable (no parent key) or a mapping (has parent key) #}
         {% if parent_key is none or parent_key == '' %}

@@ -12,7 +12,10 @@ SELECT
     key,
     parent_key,
     VALUE,
-    is_enabled
+    is_enabled,
+    {{ dbt_utils.generate_surrogate_key(
+        ['chain', 'key', 'parent_key']
+    ) }} AS fact_variables_id
 FROM
     {{ source(
         'fsc_evm_bronze',

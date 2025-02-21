@@ -6,15 +6,17 @@
 ) }}
 
 SELECT
-    var_id,
+    INDEX,
+    PACKAGE,
     category,
-    sub_category,
     data_type,
     key,
     parent_key,
-    is_required
+    {{ dbt_utils.generate_surrogate_key(
+        ['key', 'parent_key']
+    ) }} AS dim_variables_id
 FROM
-    {{ ref(
+    {{ source(
         'fsc_evm_bronze',
         'master_variable_keys'
     ) }}

@@ -6,26 +6,28 @@
 ) }}
 
 SELECT
-    m.var_id,
+    m.index,
     v.chain,
+    m.package,
     m.category,
-    m.sub_category,
     m.data_type,
     m.key,
     m.parent_key,
     v.value,
-    m.is_required,
     IFNULL(
         v.is_enabled,
         FALSE
-    ) AS is_enabled
+    ) AS is_enabled,
+    {{ dbt_utils.generate_surrogate_key(
+        ['v.chain', 'm.key', 'm.parent_key']
+    ) }} AS ez_variables_id
 FROM
     {{ ref(
-        'silver__dim_fsc_evm_vars'
+        'silver__dim_variables'
     ) }}
     m
     INNER JOIN {{ ref(
-        'silver__fact_fsc_evm_vars'
+        'silver__fact_variables'
     ) }}
     v
     ON m.key = v.key
