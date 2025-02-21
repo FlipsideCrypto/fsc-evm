@@ -1,6 +1,6 @@
 {# Set variables #}
-{%- set token_addresses = var('PRICES_TOKEN_ADDRESSES', none) -%}
-{%- set blockchains = var('PRICES_TOKEN_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{%- set token_addresses = get_var('PRICES_TOKEN_ADDRESSES', none) -%}
+{%- set blockchains = get_var('PRICES_TOKEN_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}
