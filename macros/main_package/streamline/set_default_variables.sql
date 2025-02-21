@@ -26,12 +26,10 @@
 
 {% macro set_default_variables_bronze(source_name, model_type) %}
 
-{%- set partition_function = var(source_name ~ model_type ~ '_PARTITION_FUNCTION', 
- "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)") 
--%}
-{%- set partition_join_key = var(source_name ~ model_type ~ '_PARTITION_JOIN_KEY', 'partition_key') -%}
-{%- set block_number = var(source_name ~ model_type ~ '_BLOCK_NUMBER', true) -%}
-{%- set balances = var(source_name ~ model_type ~ '_BALANCES', false) -%}
+{%- set partition_function = "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)" -%}
+{%- set partition_join_key = 'partition_key' -%}
+{%- set block_number = true -%}
+{%- set balances = false -%}
 {%- set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) -%}
 
 {%- set variables = {

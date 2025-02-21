@@ -85,9 +85,9 @@ models:
           {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] else '0' }}
         tests:
           - not_null:
-              enabled: "{{ var('GLOBAL_USES_BASE_FEE', true) }}"
+              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] }}"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              enabled: "{{ var('GLOBAL_USES_BASE_FEE', true) }}"
+              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] }}"
               column_type_list:
                 - NUMBER
                 - FLOAT
