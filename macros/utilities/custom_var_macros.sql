@@ -15,7 +15,7 @@
             key,
             VALUE,
             is_enabled
-        FROM {{ ref('silver__ez_fsc_evm_vars') }}
+        FROM {{ ref('silver__ez_variables') }}
         WHERE (key = '{{ variable_key }}'
            OR parent_key = '{{ variable_key }}')
            AND is_enabled
