@@ -2,7 +2,8 @@
 {{ log_model_details() }}
 
 {{ config(
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['vars']
 ) }}
 
 SELECT
