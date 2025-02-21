@@ -16,7 +16,7 @@ SELECT
     _inserted_timestamp
 FROM
     {{ ref('bronze__confirm_blocks_fr_v2') }}
-{% if var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) %}
+{% if get_var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) %}
 UNION ALL
 SELECT
     _partition_by_block_id AS partition_key,

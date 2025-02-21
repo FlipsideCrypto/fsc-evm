@@ -9,7 +9,7 @@
 SELECT
     _id,
     (
-        ({{ var('MAIN_SL_BLOCKS_PER_HOUR',0) }} / 60) * {{ var('MAIN_SL_CHAINHEAD_DELAY_MINUTES',3) }}
+        ({{ get_var('MAIN_SL_BLOCKS_PER_HOUR',0) }} / 60) * {{ get_var('MAIN_SL_CHAINHEAD_DELAY_MINUTES',3) }}
     ) :: INT AS block_number_delay, --minute-based block delay
     (_id - block_number_delay) :: INT AS block_number,
     utils.udf_int_to_hex(block_number) AS block_number_hex

@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set offchain_exchange = var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') -%}
+{%- set offchain_exchange = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}

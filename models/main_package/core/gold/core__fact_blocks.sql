@@ -1,4 +1,4 @@
-{% set prod_network = var('GLOBAL_CHAIN_NETWORK', 'mainnet') %}
+{% set prod_network = get_var('GLOBAL_CHAIN_NETWORK', 'mainnet') %}
 
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
@@ -12,16 +12,16 @@
 {% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
 
 {# Set Variables using inclusions and exclusions #}
-{% set uses_base_fee = var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_base_fee %}
-{% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_total_difficulty %}
+{% set uses_base_fee = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_base_fee %}
+{% set uses_total_difficulty = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_total_difficulty %}
 
-{% set uses_mix_hash = var('GLOBAL_PROD_DB_NAME','').upper() in includes_mix_hash %}
-{% set uses_blob_gas_used = var('GLOBAL_PROD_DB_NAME','').upper() in includes_blob_gas_used %}
-{% set uses_parent_beacon_block_root = var('GLOBAL_PROD_DB_NAME','').upper() in includes_parent_beacon_block_root %}
-{% set uses_withdrawals = var('GLOBAL_PROD_DB_NAME','').upper() in includes_withdrawals %}
+{% set uses_mix_hash = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_mix_hash %}
+{% set uses_blob_gas_used = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_blob_gas_used %}
+{% set uses_parent_beacon_block_root = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_parent_beacon_block_root %}
+{% set uses_withdrawals = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_withdrawals %}
 {# Prod DB Variables End #}
 
-{% set gold_full_refresh = var('GLOBAL_GOLD_FR_ENABLED', false) %}
+{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

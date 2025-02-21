@@ -2,7 +2,7 @@
 {%- set package_name = 'MAIN' -%}
 {%- set model_name = 'TRACES' -%}
 {%- set model_type = 'HISTORY' -%}
-{%- set min_block = var('MAIN_SL_START_BLOCK', none) -%}
+{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
 
 {%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
 
@@ -23,7 +23,7 @@
 {%- set method_params = streamline_params['method_params'] -%}
 {%- set method = streamline_params['method'] -%}
 
-{%- set traces_request_start_block = var('TRACES_REQUEST_START_BLOCK', none) %}
+{%- set traces_request_start_block = get_var('TRACES_REQUEST_START_BLOCK', none) %}
 
 {# Log configuration details #}
 {{ log_model_details(

@@ -1,5 +1,5 @@
-{% set uses_receipts_by_hash = var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
-{% set gold_full_refresh = var('GLOBAL_GOLD_FR_ENABLED', false) %}
+{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
+{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
 {# Log configuration details #}

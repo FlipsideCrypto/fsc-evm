@@ -1,10 +1,10 @@
-{%- set testing_limit = var('DECODER_SL_DECODED_LOGS_REALTIME_TESTING_LIMIT', none) -%}
+{%- set testing_limit = get_var('DECODER_SL_DECODED_LOGS_REALTIME_TESTING_LIMIT', none) -%}
 
 {%- set streamline_params = { 
-    "external_table": var("DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE", "decoded_logs"),
-    "sql_limit": var("DECODER_SL_DECODED_LOGS_REALTIME_SQL_LIMIT", 10000000),
-    "producer_batch_size": var("DECODER_SL_DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE", 400000),
-    "worker_batch_size": var("DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE", 200000),
+    "external_table": get_var("DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE", "decoded_logs"),
+    "sql_limit": get_var("DECODER_SL_DECODED_LOGS_REALTIME_SQL_LIMIT", 10000000),
+    "producer_batch_size": get_var("DECODER_SL_DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE", 400000),
+    "worker_batch_size": get_var("DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE", 200000),
     "sql_source": "decoded_logs_realtime"
 } -%}
 

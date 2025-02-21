@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('bronze__confirm_blocks') }}
-{% set silver_full_refresh = var('GLOBAL_SILVER_FR_ENABLED', false) %}
+{% set silver_full_refresh = get_var('GLOBAL_SILVER_FR_ENABLED', false) %}
 
-{% set build_mode = var('MAIN_CORE_SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED', false) %}
+{% set build_mode = get_var('MAIN_CORE_SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

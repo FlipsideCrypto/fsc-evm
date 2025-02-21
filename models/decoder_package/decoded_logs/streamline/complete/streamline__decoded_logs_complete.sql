@@ -3,7 +3,7 @@
 {%- set source_name = 'DECODED_LOGS' -%}
 {%- set model_type = 'COMPLETE' -%}
 
-{%- set full_refresh_type = var((package_name ~ '_SL_' ~ source_name ~ '_' ~ model_type ~ '_FR_ENABLED').upper(), false) -%}
+{%- set full_refresh_type = get_var((package_name ~ '_SL_' ~ source_name ~ '_' ~ model_type ~ '_FR_ENABLED').upper(), false) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_log_id)" %}
 

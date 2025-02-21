@@ -2,7 +2,7 @@
 {%- set package_name = 'MAIN' -%}
 {%- set model_name = 'BLOCKS_TRANSACTIONS' -%}
 {%- set model_type = 'REALTIME' -%}
-{%- set min_block = var('MAIN_SL_START_BLOCK', none) -%}
+{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
 
 {%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
 
