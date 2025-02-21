@@ -41,31 +41,35 @@ WITH base AS (
 
         _inserted_timestamp
     FROM
-        {# {{ source(
-        'bronze_api',
-        'contract_abis'
-) }}
-#}
-{{ source(
-    'bronze_abi',
-    'complete_contract_abis'
-) }}
-WHERE
-    {% if uses_etherscan %}
-        abi_data :data :message :: STRING = 'OK' {% elif uses_result_output_abi %}
-        abi_data :data :result IS NOT NULL
+
+{% if is_incremental() %}
+{% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
+    -- edge case for ethereum
+    {{ ref('bronze__contract_abis') }}
+{% else %}
+    {{ ref('bronze__streamline_contract_abis') }}
+{% endif %}
+{% else %}
+    {% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
+        {{ ref('bronze__contract_abis_fr') }}
     {% else %}
-        abi_data :data :abi IS NOT NULL
+        {{ ref('bronze__streamline_fr_contract_abis') }}
     {% endif %}
+    WHERE
+        {% if uses_etherscan %}
+            abi_data :data :message :: STRING = 'OK' {% elif uses_result_output_abi %}
+            abi_data :data :result IS NOT NULL
+        {% else %}
+            abi_data :data :abi IS NOT NULL
+        {% endif %}
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp)
+        COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP)
     FROM
-        {{ this }}
-)
-{% endif %}
+        {{ this }})
+    {% endif %}
 ),
 block_explorer_abis AS (
     SELECT
