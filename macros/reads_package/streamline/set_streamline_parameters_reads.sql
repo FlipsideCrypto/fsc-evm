@@ -1,4 +1,4 @@
-{% macro set_streamline_parameters_reads(model_name, model_type) %}
+{% macro set_streamline_parameters_reads(package_name, model_name, model_type) %}
 
 {%- set rpc_config_details = {
     "reads": {
