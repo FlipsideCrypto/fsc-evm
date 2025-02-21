@@ -90,13 +90,13 @@ models:
                 - NUMBER
                 - FLOAT
       - name: >-
-          {{ 'MIX_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL'] else '1' }}
+          {{ 'MIX_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB'] else '1' }}
         tests:
           - not_null:
-              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL'] }}"
+              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB'] }}"
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL'] }}"
+              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB'] }}"
       - name: DIFFICULTY
         tests:
           - not_null
@@ -105,12 +105,12 @@ models:
                 - NUMBER
                 - FLOAT
       - name: >-
-          {{ 'TOTAL_DIFFICULTY' if var('GLOBAL_PROD_DB_NAME').upper() not in ['INK', 'SWELL'] else '2' }}
+          {{ 'TOTAL_DIFFICULTY' if var('GLOBAL_PROD_DB_NAME').upper() not in ['INK', 'SWELL', 'BOB'] else '2' }}
         tests:
           - not_null:
-              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() not in ['INK', 'SWELL'] }}"
+              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() not in ['INK', 'SWELL', 'BOB'] }}"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() not in ['INK', 'SWELL'] }}"
+              enabled: "{{ var('GLOBAL_PROD_DB_NAME').upper() not in ['INK', 'SWELL', 'BOB'] }}"
               column_type_list:
                 - NUMBER
                 - FLOAT

@@ -7,10 +7,10 @@
 {% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
 {% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
 {% set includes_eth_value = ['MANTLE'] %}
-{% set includes_mint = ['INK', 'MANTLE', 'SWELL'] %}
-{% set includes_y_parity = ['INK', 'SWELL'] %}
-{% set includes_access_list = ['INK', 'SWELL'] %}
-{% set includes_source_hash = ['INK','MANTLE','SWELL'] %}
+{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
+{% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
 {% set includes_blob_base_fee = ['INK','SWELL'] %}
 
 {# Set Variables using inclusions and exclusions #}
