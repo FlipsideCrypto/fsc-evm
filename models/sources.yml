@@ -75,3 +75,9 @@ sources:
       - name: evm_wrapped_assets
       - name: dates
       - name: scoring_activity_categories
+  - name: fsc_evm_bronze
+    database: "{{ target.database }}"
+    schema: bronze
+    tables:
+      - name: master_variable_keys
+      - name: master_variable_values

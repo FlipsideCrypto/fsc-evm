@@ -14,7 +14,7 @@ SELECT
     parent_key,
     is_required
 FROM
-    {{ source(
+    {{ ref(
         'fsc_evm_bronze',
-        'fsc_evm_vars_master_config'
+        'master_variable_keys'
     ) }}

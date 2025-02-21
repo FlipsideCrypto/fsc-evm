@@ -16,7 +16,7 @@ SELECT
 FROM
     {{ source(
         'fsc_evm_bronze',
-        'fsc_evm_vars_chain_values'
+        'master_variable_values'
     ) }}
 WHERE
     chain = '{{ database }}'
