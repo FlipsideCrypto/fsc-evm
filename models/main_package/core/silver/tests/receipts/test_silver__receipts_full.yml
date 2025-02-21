@@ -12,7 +12,7 @@ models:
         tests:
           - not_null
       - name: >-
-          {{ 'TX_HASH' if var('GLOBAL_USES_RECEIPTS_BY_HASH', false) else 'ARRAY_INDEX' }}
+          {{ 'TX_HASH' if var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) else 'ARRAY_INDEX' }}
         tests:
           - not_null
       - name: RECEIPTS_JSON

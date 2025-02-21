@@ -1,4 +1,4 @@
-{% macro set_streamline_parameters(model_name, model_type, multiplier=1) %}
+{% macro set_streamline_parameters(package_name, model_name, model_type, multiplier=1) %}
 
 {%- set rpc_config_details = {
     "blocks_transactions": {
@@ -32,19 +32,19 @@
 {%- set rpc_config = rpc_config_details[model_name.lower()] -%}
 
 {%- set params = {
-    "external_table": var((model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name.lower()),
-    "sql_limit": var((model_name ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('GLOBAL_BLOCKS_PER_HOUR',0) * multiplier),
-    "producer_batch_size": var((model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('GLOBAL_BLOCKS_PER_HOUR',0) * multiplier),
+    "external_table": var((package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name.lower()),
+    "sql_limit": var((package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * var('MAIN_SL_BLOCKS_PER_HOUR',0) * multiplier),
+    "producer_batch_size": var((package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * var('MAIN_SL_BLOCKS_PER_HOUR',0) * multiplier),
     "worker_batch_size": var(
-        (model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * var('GLOBAL_BLOCKS_PER_HOUR',0) * multiplier) // (rpc_config.get('lambdas', 1))
+        (package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
+        (2 * var('MAIN_SL_BLOCKS_PER_HOUR',0) * multiplier) // (rpc_config.get('lambdas', 1))
     ),
     "sql_source": (model_name ~ '_' ~ model_type).lower(),
     "method": rpc_config['method'],
     "method_params": rpc_config['method_params']
 } -%}
 
-{%- set async_concurrent_requests = (model_name ~ '_' ~ model_type ~ '_async_concurrent_requests').upper() -%}
+{%- set async_concurrent_requests = (package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_async_concurrent_requests').upper() -%}
 {%- if var(async_concurrent_requests, none) is not none -%}
     {%- do params.update({"async_concurrent_requests": var(async_concurrent_requests)}) -%}
 {%- endif -%}

@@ -10,7 +10,7 @@
 {% set uses_result_output_abi = var('GLOBAL_PROD_DB_NAME','').upper() in includes_result_output_abi %}
 {# Prod DB Variables End #}
 
-{% set abi_block_explorer_name = var('BLOCK_EXPLORER_NAME','') %}
+{% set abi_block_explorer_name = var('DECODER_ABIS_EXPLORER_NAME','') %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

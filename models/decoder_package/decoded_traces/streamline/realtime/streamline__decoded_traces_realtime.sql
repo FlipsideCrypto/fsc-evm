@@ -3,10 +3,10 @@
 {%- set model_type = 'REALTIME' -%}
 
 {%- set streamline_params = { 
-    "external_table": var("DECODED_TRACES_REALTIME_EXTERNAL_TABLE", "decoded_traces"),
-    "sql_limit": var("DECODED_TRACES_REALTIME_SQL_LIMIT", 10000000),
-    "producer_batch_size": var("DECODED_TRACES_REALTIME_PRODUCER_BATCH_SIZE", 400000),
-    "worker_batch_size": var("DECODED_TRACES_REALTIME_WORKER_BATCH_SIZE", 200000),
+    "external_table": var("DECODER_SL_DECODED_TRACES_REALTIME_EXTERNAL_TABLE", "decoded_traces"),
+    "sql_limit": var("DECODER_SL_DECODED_TRACES_REALTIME_SQL_LIMIT", 10000000),
+    "producer_batch_size": var("DECODER_SL_DECODED_TRACES_REALTIME_PRODUCER_BATCH_SIZE", 400000),
+    "worker_batch_size": var("DECODER_SL_DECODED_TRACES_REALTIME_WORKER_BATCH_SIZE", 200000),
     "sql_source": "decoded_traces_realtime"
 } -%}
 

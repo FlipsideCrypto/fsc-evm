@@ -1,5 +1,7 @@
 chain,key,parent_key,value,is_enabled
 fsc_evm,GLOBAL_PROD_DB_NAME,NULL,fsc_evm,TRUE
+mantle,GLOBAL_PROD_DB_NAME,NULL,mantle,TRUE
+mantle,GLOBAL_NODE_VAULT_PATH,NULL,Vault/prod/mantle/quicknode/mainnet,TRUE
 mantle,GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS,NULL,0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8,TRUE
 mantle,MAIN_PRICES_NATIVE_SYMBOLS,NULL,MNT,TRUE
 mantle,MAIN_PRICES_PROVIDER_PLATFORMS,NULL,mantle,TRUE
@@ -13,4 +15,4 @@ mantle,wMNT,CURATED_VERTEX_TOKEN_MAPPING,0x78c1b0c915c4faa5fffa6cabf0219da63d7f4
 mantle,METH,CURATED_VERTEX_TOKEN_MAPPING,0xcda86a272531e8640cd7f1a92c01839911b90bb0,TRUE
 mantle,WETH,CURATED_VERTEX_TOKEN_MAPPING,0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111,TRUE
 swell,GLOBAL_PROD_DB_NAME,NULL,swell,TRUE
-swell,GLOBAL_NODE_SECRET_PATH,NULL,Vault/prod/swell/ankr/mainnet,TRUE
+swell,GLOBAL_NODE_VAULT_PATH,NULL,Vault/prod/swell/ankr/mainnet,TRUE

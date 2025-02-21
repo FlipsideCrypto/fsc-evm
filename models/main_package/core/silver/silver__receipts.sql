@@ -1,5 +1,5 @@
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
+{% set uses_receipts_by_hash = var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
+{% set silver_full_refresh = var('GLOBAL_SILVER_FR_ENABLED', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set source_name = 'RECEIPTS_BY_HASH' if uses_receipts_by_hash else 'RECEIPTS' %}
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, block_number)" if uses_receipts_by_hash else "" %}

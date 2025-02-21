@@ -1,5 +1,5 @@
 {% set observ_uses_exclusion_list_logs = var(
-    'OBSERV_USES_EXCLUSION_LIST_LOGS',
+    'MAIN_OBSERV_LOGS_EXCLUSION_LIST_ENABLED',
     false
 ) %}
 
@@ -40,7 +40,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if var('OBSERV_FULL_TEST') %}
+{% if var('MAIN_OBSERV_FULL_TEST_ENABLED') %}
 UNION ALL
 SELECT
     0

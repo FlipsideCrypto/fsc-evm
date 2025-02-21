@@ -1,4 +1,4 @@
-{%- set blockchains = var('LABELS_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
+{%- set blockchains = var('MAIN_LABELS_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}

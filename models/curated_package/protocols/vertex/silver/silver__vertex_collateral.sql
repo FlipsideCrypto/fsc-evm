@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
+{%- set clearinghouse = var('CURATED_VERTEX_CLEARINGHOUSE_CONTRACT', '') -%}
 {%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
 
 {# Log configuration details #}

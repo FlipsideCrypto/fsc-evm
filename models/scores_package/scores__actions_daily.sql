@@ -1,5 +1,5 @@
 {% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
+{% set full_reload_mode = var('SCORES_FULL_RELOAD_ENABLED', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

@@ -1,4 +1,4 @@
-{% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
+{% set prod_network = var('GLOBAL_CHAIN_NETWORK', 'mainnet') %}
 
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
@@ -21,7 +21,7 @@
 {% set uses_withdrawals = var('GLOBAL_PROD_DB_NAME','').upper() in includes_withdrawals %}
 {# Prod DB Variables End #}
 
-{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+{% set gold_full_refresh = var('GLOBAL_GOLD_FR_ENABLED', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

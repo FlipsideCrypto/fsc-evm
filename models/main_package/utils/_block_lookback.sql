@@ -5,7 +5,7 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set uses_lookback = var('GLOBAL_USES_LOOKBACK', True) %}
+{% set uses_lookback = var('MAIN_SL_BLOCK_LOOKBACK_ENABLED', True) %}
 
 {% if not uses_lookback %}
 

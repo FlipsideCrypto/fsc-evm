@@ -6,7 +6,7 @@
       "worker_batch_size": var("DECODED_LOGS_HISTORY_WORKER_BATCH_SIZE", 100000)
   } -%}
 
-  {% set wait_time = var("DECODED_LOGS_HISTORY_WAIT_TIME", 60) %}
+  {% set wait_time = var('DECODER_SL_DECODED_LOGS_HISTORY_WAIT_SECONDS', 60) %}
 
   {% set find_months_query %}
     SELECT 
