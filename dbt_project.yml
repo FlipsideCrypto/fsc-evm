@@ -33,8 +33,8 @@ clean-targets: # directories to be removed by `dbt clean`
 
 models:
   fsc_evm:
-    +enabled: false
-    main_package:
+    +enabled: false # Disable all models by default
+    main_package: # Only enable models that are required to run in the fsc_evm environment
       variables:
         +enabled: true
 
