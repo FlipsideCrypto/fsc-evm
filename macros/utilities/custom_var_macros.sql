@@ -1,7 +1,7 @@
-{% macro get_var(var_name, default=none) %}
+{% macro get_var(variable_key, default=none) %}
     {# Check if variable exists in dbt's built-in var() function. If it does, return the value. #}
-    {% if var(var_name, none) is not none %}
-        {{ return(var(var_name)) }}
+    {% if var(variable_key, none) is not none %}
+        {{ return(var(variable_key)) }}
     {% endif %}
 
     {# Query to get variable values from custom variables table #}
@@ -16,8 +16,8 @@
             VALUE,
             is_enabled
         FROM {{ ref('silver__ez_fsc_evm_vars') }}
-        WHERE (key = '{{ var_name }}'
-           OR parent_key = '{{ var_name }}')
+        WHERE (key = '{{ variable_key }}'
+           OR parent_key = '{{ variable_key }}')
            AND is_enabled
         ORDER BY key
     {% endset %}
