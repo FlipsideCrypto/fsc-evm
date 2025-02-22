@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set platforms = get_get_var('MAIN_PRICES_PROVIDER_PLATFORMS', '') -%}
+{%- set platforms = get_var('MAIN_PRICES_PROVIDER_PLATFORMS', '') -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}

@@ -1,6 +1,6 @@
 {# Set variables #}
-{%- set symbols = get_get_var('MAIN_PRICES_NATIVE_SYMBOLS', '') -%}
-{%- set blockchains = get_get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', get_get_var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{%- set symbols = get_var('MAIN_PRICES_NATIVE_SYMBOLS', '') -%}
+{%- set blockchains = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}
