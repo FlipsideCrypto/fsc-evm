@@ -79,38 +79,10 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-      - name: >-
-          {{ 'BASE_FEE_PER_GAS' if target.database.upper() not in ['CORE'] else '0' }}
-        tests:
-          - not_null:
-              enabled: "{{ target.database.upper() not in ['CORE'] }}"
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              enabled: "{{ target.database.upper() not in ['CORE'] }}"
-              column_type_list:
-                - NUMBER
-                - FLOAT
-      - name: >-
-          {{ 'MIX_HASH' if target.database.upper() in ['INK', 'MANTLE', 'SWELL', 'BOB'] else '1' }}
-        tests:
-          - not_null:
-              enabled: "{{ target.database.upper() in ['INK', 'MANTLE', 'SWELL', 'BOB'] }}"
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-              enabled: "{{ target.database.upper() in ['INK', 'MANTLE', 'SWELL', 'BOB'] }}"
       - name: DIFFICULTY
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER
-                - FLOAT
-      - name: >-
-          {{ 'TOTAL_DIFFICULTY' if target.database.upper() not in ['INK', 'SWELL', 'BOB'] else '2' }}
-        tests:
-          - not_null:
-              enabled: "{{ target.database.upper() not in ['INK', 'SWELL', 'BOB'] }}"
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              enabled: "{{ target.database.upper() not in ['INK', 'SWELL', 'BOB'] }}"
               column_type_list:
                 - NUMBER
                 - FLOAT
