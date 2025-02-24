@@ -1,28 +1,40 @@
 
 {# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_eip_1559 = ['CORE','RONIN'] %}
+{# Query RPC settings for current chain #}
+{% set rpc_settings_query %}
+    select 
+        tx_has_access_list,
+        tx_has_max_fee_per_gas,
+        tx_has_max_priority_fee_per_gas,
+        tx_has_blob_gas_price,
+        tx_has_source_hash,
+        tx_has_mint,
+        tx_has_eth_value,
+        tx_has_y_parity,
+        tx_has_l1_columns,
+        tx_has_l1_tx_fee_calc,
+        tx_has_blob_base_fee,
+        tx_has_eip_1559
+    from {{ target.database }}.utils.rpc_settings
+{% endset %}
 
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
-{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
-{% set includes_eth_value = ['MANTLE'] %}
-{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
-{% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
-{% set includes_blob_base_fee = ['INK','SWELL'] %}
+{% set results = run_query(rpc_settings_query) %}
 
-{# Set Variables using inclusions and exclusions #}
-{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}
-{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_columns %}
-{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_tx_fee_calc %}
-{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in includes_eth_value %}
-{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in includes_mint %}
-{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in includes_y_parity %}
-{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in includes_access_list %}
-{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_source_hash %}
-{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_base_fee %}
+{% if execute %}
+    {% set row = results.rows[0] %}
+    {% set uses_access_list = row['tx_has_access_list'] %}
+    {% set uses_max_fee_per_gas = row['tx_has_max_fee_per_gas'] %}
+    {% set uses_max_priority_fee_per_gas = row['tx_has_max_priority_fee_per_gas'] %}
+    {% set uses_blob_gas_price = row['tx_has_blob_gas_price'] %}
+    {% set uses_source_hash = row['tx_has_source_hash'] %}
+    {% set uses_mint = row['tx_has_mint'] %}
+    {% set uses_eth_value = row['tx_has_eth_value'] %}
+    {% set uses_y_parity = row['tx_has_y_parity'] %}
+    {% set uses_l1_columns = row['tx_has_l1_columns'] %}
+    {% set uses_l1_tx_fee_calc = row['tx_has_l1_tx_fee_calc'] %}
+    {% set uses_blob_base_fee = row['tx_has_blob_base_fee'] %}
+    {% set uses_eip_1559 = row['tx_has_eip_1559'] %}
+{% endif %}
 {# Prod DB Variables End #}
 
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
