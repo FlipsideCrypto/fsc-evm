@@ -19,7 +19,8 @@
     TX_HAS_Y_PARITY,
     TX_HAS_L1_COLUMNS,
     TX_HAS_L1_TX_FEE_CALC,
-    TX_HAS_BLOB_BASE_FEE
+    TX_HAS_BLOB_BASE_FEE,
+    TX_HAS_EIP_1559
   from {{ target.database }}.utils.rpc_settings
 {% endset %}
 
@@ -38,6 +39,7 @@
 {% set uses_l1_columns = row['TX_HAS_L1_COLUMNS'] %}
 {% set uses_l1_tx_fee_calc = row['TX_HAS_L1_TX_FEE_CALC'] %}
 {% set uses_blob_base_fee = row['TX_HAS_BLOB_BASE_FEE'] %}
+{% set uses_eip_1559 = row['TX_HAS_EIP_1559'] %}
 
 {% if not gold_full_refresh %}
 {{ config (

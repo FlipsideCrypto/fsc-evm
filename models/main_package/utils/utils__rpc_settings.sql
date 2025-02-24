@@ -34,5 +34,6 @@ SELECT
     array_contains('yParity'::VARIANT, transaction_fields) as tx_has_y_parity,
     array_contains('l1Fee'::VARIANT, receipts_fields) as tx_has_l1_columns,
     array_contains('l1FeeScalar'::VARIANT, receipts_fields) as tx_has_l1_tx_fee_calc,
-    array_contains('l1BlobBaseFee'::VARIANT, receipts_fields) as tx_has_blob_base_fee
+    array_contains('l1BlobBaseFee'::VARIANT, receipts_fields) as tx_has_blob_base_fee,
+    array_contains('maxFeePerGas'::VARIANT, transaction_fields) as tx_has_eip_1559
 FROM latest_compatibility
