@@ -33,19 +33,19 @@ models:
       abis:
         streamline:
           +schema: "streamline"
-            complete:
-              streamline__complete_contract_abis:
-                +enabled: "{{ var('GLOBAL_PROD_DB_NAME') != 'ethereum' }}"
-              streamline_ethereum__complete_contract_abis:
-                +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'ethereum' }}"
-                +alias: "streamline__complete_contract_abis"
+          complete:
+            streamline__complete_contract_abis:
+              +enabled: "{{ var('GLOBAL_PROD_DB_NAME') != 'ethereum' }}"
+            streamline_ethereum__complete_contract_abis:
+              +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'ethereum' }}"
+              +alias: "streamline__complete_contract_abis"
         bronze:
           +schema: "bronze"
-            ethereum:
-              +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'ethereum' }}"
-            core:
-              +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'core' }}"
-              +alias: "core__test_core"
+          ethereum:
+            +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'ethereum' }}"
+          core:
+            +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'core' }}"
+            +alias: "core__test_core"
 
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
