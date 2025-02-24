@@ -4,12 +4,12 @@
 {# Query RPC settings for current chain #}
 {% set rpc_settings_query %}
   select 
-    blocks_has_base_fee,
-    blocks_has_total_difficulty,
-    blocks_has_mix_hash,
-    blocks_has_blob_gas_used,
-    blocks_has_parent_beacon_block_root,
-    blocks_has_withdrawals
+    cast(blocks_has_base_fee as string) as blocks_has_base_fee,
+    cast(blocks_has_total_difficulty as string) as blocks_has_total_difficulty,
+    cast(blocks_has_mix_hash as string) as blocks_has_mix_hash,
+    cast(blocks_has_blob_gas_used as string) as blocks_has_blob_gas_used,
+    cast(blocks_has_parent_beacon_block_root as string) as blocks_has_parent_beacon_block_root,
+    cast(blocks_has_withdrawals as string) as blocks_has_withdrawals
   from {{ target.database }}.utils.rpc_settings
 {% endset %}
 
@@ -17,17 +17,17 @@
 
 {% if execute %}
   {% set row = results.rows[0] %}
-  {{ log("Row values:", info=True) }}
+  {{ log("Row values as strings:", info=True) }}
   {{ log("base_fee: " ~ row['blocks_has_base_fee'], info=True) }}
   {{ log("total_difficulty: " ~ row['blocks_has_total_difficulty'], info=True) }}
   {{ log("mix_hash: " ~ row['blocks_has_mix_hash'], info=True) }}
   
-  {% set uses_base_fee = row['blocks_has_base_fee'] %}
-  {% set uses_total_difficulty = row['blocks_has_total_difficulty'] %}
-  {% set uses_mix_hash = row['blocks_has_mix_hash'] %}
-  {% set uses_blob_gas_used = row['blocks_has_blob_gas_used'] %}
-  {% set uses_parent_beacon_block_root = row['blocks_has_parent_beacon_block_root'] %}
-  {% set uses_withdrawals = row['blocks_has_withdrawals'] %}
+  {% set uses_base_fee = (row['blocks_has_base_fee'] | lower == 'true') %}
+  {% set uses_total_difficulty = (row['blocks_has_total_difficulty'] | lower == 'true') %}
+  {% set uses_mix_hash = (row['blocks_has_mix_hash'] | lower == 'true') %}
+  {% set uses_blob_gas_used = (row['blocks_has_blob_gas_used'] | lower == 'true') %}
+  {% set uses_parent_beacon_block_root = (row['blocks_has_parent_beacon_block_root'] | lower == 'true') %}
+  {% set uses_withdrawals = (row['blocks_has_withdrawals'] | lower == 'true') %}
 {% endif %}
 {# Prod DB Variables End #}
 
