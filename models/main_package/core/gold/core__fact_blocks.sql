@@ -1,24 +1,30 @@
 {% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
 
 {# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_base_fee = ['CORE'] %}
-{% set excludes_total_difficulty = ['INK','SWELL','BOB'] %}
+{# Query RPC settings for current chain #}
+{% set rpc_settings_query %}
+  select 
+    blocks_has_base_fee,
+    blocks_has_total_difficulty,
+    blocks_has_mix_hash,
+    blocks_has_blob_gas_used,
+    blocks_has_parent_beacon_block_root,
+    blocks_has_withdrawals
+  from {{ source('utils', 'rpc_settings') }}
+  where chain_name = '{{ var('GLOBAL_PROD_DB_NAME').upper() }}'
+{% endset %}
 
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
+{% set results = run_query(rpc_settings_query) %}
 
-{# Set Variables using inclusions and exclusions #}
-{% set uses_base_fee = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_base_fee %}
-{% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_total_difficulty %}
-
-{% set uses_mix_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_mix_hash %}
-{% set uses_blob_gas_used = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_gas_used %}
-{% set uses_parent_beacon_block_root = var('GLOBAL_PROD_DB_NAME').upper() in includes_parent_beacon_block_root %}
-{% set uses_withdrawals = var('GLOBAL_PROD_DB_NAME').upper() in includes_withdrawals %}
+{% if execute %}
+  {% set row = results.rows[0] %}
+  {% set uses_base_fee = row.blocks_has_base_fee %}
+  {% set uses_total_difficulty = row.blocks_has_total_difficulty %}
+  {% set uses_mix_hash = row.blocks_has_mix_hash %}
+  {% set uses_blob_gas_used = row.blocks_has_blob_gas_used %}
+  {% set uses_parent_beacon_block_root = row.blocks_has_parent_beacon_block_root %}
+  {% set uses_withdrawals = row.blocks_has_withdrawals %}
+{% endif %}
 {# Prod DB Variables End #}
 
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
