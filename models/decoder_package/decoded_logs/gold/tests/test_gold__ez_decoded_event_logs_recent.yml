@@ -9,7 +9,6 @@ models:
           fact_logs_model: ref('test_gold__fact_event_logs_recent')
       - find_missing_decoded_logs:
           fact_logs_model: ref('test_gold__fact_event_logs_recent')
-          wrapped_asset_address: "{{ get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') }}"
 
     columns:
       - name: BLOCK_NUMBER
