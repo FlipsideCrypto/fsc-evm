@@ -1,46 +1,36 @@
+
+{# Prod DB Variables Start #}
+{# Columns included by default, with specific exclusions #}
+{% set excludes_eip_1559 = ['CORE','RONIN'] %}
+
+{# Columns excluded by default, with explicit inclusion #}
+{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_eth_value = ['MANTLE'] %}
+{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
+{% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
+{% set includes_blob_base_fee = ['INK','SWELL'] %}
+
+{# Set Variables using inclusions and exclusions #}
+{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}
+{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_columns %}
+{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_tx_fee_calc %}
+{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in includes_eth_value %}
+{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in includes_mint %}
+{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in includes_y_parity %}
+{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in includes_access_list %}
+{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_source_hash %}
+{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_base_fee %}
+{# Prod DB Variables End #}
+
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
-
-{# Get RPC feature flags from settings #}
-{% set rpc_settings_query %}
-  select 
-    TX_HAS_ACCESS_LIST,
-    TX_HAS_MAX_FEE_PER_GAS,
-    TX_HAS_MAX_PRIORITY_FEE_PER_GAS,
-    TX_HAS_BLOB_GAS_PRICE,
-    TX_HAS_SOURCE_HASH,
-    TX_HAS_MINT,
-    TX_HAS_ETH_VALUE,
-    TX_HAS_Y_PARITY,
-    TX_HAS_L1_COLUMNS,
-    TX_HAS_L1_TX_FEE_CALC,
-    TX_HAS_BLOB_BASE_FEE,
-    TX_HAS_EIP_1559
-  from {{ target.database }}.utils.rpc_settings
-{% endset %}
-
-{% set results = run_query(rpc_settings_query) %}
-{% set row = results.rows[0] %}
-
-{# Set feature flags from RPC settings #}
-{% set uses_access_list = row['TX_HAS_ACCESS_LIST'] %}
-{% set uses_max_fee_per_gas = row['TX_HAS_MAX_FEE_PER_GAS'] %}
-{% set uses_max_priority_fee_per_gas = row['TX_HAS_MAX_PRIORITY_FEE_PER_GAS'] %}
-{% set uses_blob_gas_price = row['TX_HAS_BLOB_GAS_PRICE'] %}
-{% set uses_source_hash = row['TX_HAS_SOURCE_HASH'] %}
-{% set uses_mint = row['TX_HAS_MINT'] %}
-{% set uses_eth_value = row['TX_HAS_ETH_VALUE'] %}
-{% set uses_y_parity = row['TX_HAS_Y_PARITY'] %}
-{% set uses_l1_columns = row['TX_HAS_L1_COLUMNS'] %}
-{% set uses_l1_tx_fee_calc = row['TX_HAS_L1_TX_FEE_CALC'] %}
-{% set uses_blob_base_fee = row['TX_HAS_BLOB_BASE_FEE'] %}
-{% set uses_eip_1559 = row['TX_HAS_EIP_1559'] %}
-
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
-
 
 {% if not gold_full_refresh %}
 
@@ -53,7 +43,9 @@
     full_refresh = gold_full_refresh,
     tags = ['gold_core']
 ) }}
+
 {% else %}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -62,6 +54,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['gold_core']
 ) }}
+
 {% endif %}
 
 WITH base AS (
