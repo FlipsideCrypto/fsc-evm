@@ -55,13 +55,14 @@ WITH base AS (
     {% else %}
         {{ ref('bronze__streamline_fr_contract_abis') }}
     {% endif %}
-    WHERE
-        {% if uses_etherscan %}
-            abi_data :data :message :: STRING = 'OK' {% elif uses_result_output_abi %}
-            abi_data :data :result IS NOT NULL
-        {% else %}
-            abi_data :data :abi IS NOT NULL
-        {% endif %}
+{% endif %}
+WHERE
+    {% if uses_etherscan %}
+        abi_data :data :message :: STRING = 'OK' {% elif uses_result_output_abi %}
+        abi_data :data :result IS NOT NULL
+    {% else %}
+        abi_data :data :abi IS NOT NULL
+    {% endif %}
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -69,7 +70,6 @@ AND _inserted_timestamp >= (
         COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP)
     FROM
         {{ this }})
-    {% endif %}
     {% endif %}
 ),
 block_explorer_abis AS (
