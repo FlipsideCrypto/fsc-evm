@@ -1,5 +1,4 @@
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
 {# Get RPC feature flags from settings #}
@@ -37,12 +36,14 @@
 {% set uses_blob_base_fee = row['TX_HAS_BLOB_BASE_FEE'] %}
 {% set uses_eip_1559 = row['TX_HAS_EIP_1559'] %}
 
+{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 
 {% if not gold_full_refresh %}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
