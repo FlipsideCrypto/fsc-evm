@@ -60,13 +60,13 @@ SELECT
             ,'&apikey={key}'
             {% endif %}
             {% if var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') | default('') != '' %}
-            ,var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX')
+            ,'{{ var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') }}'
             {% endif %}
         ),
         { 'User-Agent': 'FlipsideStreamline' },
         NULL
         {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
-            ,var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH')
+            ,{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}
             {% endif %}
     ) AS request
 FROM
