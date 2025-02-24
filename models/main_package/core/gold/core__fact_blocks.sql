@@ -15,7 +15,7 @@
 
 {% set results = run_query(rpc_settings_query) %}
 
-{{ log(results | tojson(indent=2), info=True) }}
+{{ log(results, info=True) }}
 
 {% if execute %}
   {% set row = results.rows[0] %}
