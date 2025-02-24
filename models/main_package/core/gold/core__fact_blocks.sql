@@ -15,6 +15,8 @@
 
 {% set results = run_query(rpc_settings_query) %}
 
+{{ log(results | tojson(indent=2), info=True) }}
+
 {% if execute %}
   {% set row = results.rows[0] %}
   {% set uses_base_fee = row.blocks_has_base_fee %}
