@@ -15,6 +15,9 @@
 
 {% set results = run_query(rpc_settings_query) %}
 
+{# Debug logging #}
+{{ log("Number of rows returned: " ~ results.rows | length, info=True) }}
+
 {% if execute %}
   {% set row = results.rows[0] %}
   {% set uses_base_fee = row.blocks_has_base_fee %}
@@ -23,6 +26,14 @@
   {% set uses_blob_gas_used = row.blocks_has_blob_gas_used %}
   {% set uses_parent_beacon_block_root = row.blocks_has_parent_beacon_block_root %}
   {% set uses_withdrawals = row.blocks_has_withdrawals %}
+  
+  {# Debug logging #}
+  {{ log("uses_base_fee: " ~ uses_base_fee, info=True) }}
+  {{ log("uses_total_difficulty: " ~ uses_total_difficulty, info=True) }}
+  {{ log("uses_mix_hash: " ~ uses_mix_hash, info=True) }}
+  {{ log("uses_blob_gas_used: " ~ uses_blob_gas_used, info=True) }}
+  {{ log("uses_parent_beacon_block_root: " ~ uses_parent_beacon_block_root, info=True) }}
+  {{ log("uses_withdrawals: " ~ uses_withdrawals, info=True) }}
 {% endif %}
 {# Prod DB Variables End #}
 
