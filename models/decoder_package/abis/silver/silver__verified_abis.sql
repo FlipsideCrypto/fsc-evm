@@ -8,7 +8,7 @@
 
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
-{% set excludes_etherscan = ['INK', 'SWELL', 'RONIN'] %}
+{% set excludes_etherscan = ['INK', 'SWELL', 'RONIN', 'BOB'] %}
 {# Columns excluded by default, with explicit inclusion #}
 {% set includes_result_output_abi = ['RONIN'] %}
 {# Set Variables using inclusions and exclusions #}
