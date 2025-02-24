@@ -1,5 +1,3 @@
-{% set block_explorer_abi_url_suffix = var('BLOCK_EXPLORER_ABI_URL_SUFFIX', '') %}
-{% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
 
 {{ config (
     materialized = "view",
@@ -30,12 +28,12 @@ WITH recent_relevant_contracts AS (
         s USING (contract_address)
     WHERE
         s.contract_address IS NULL
-        AND total_interaction_count > {{ var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT') }}
+        AND total_interaction_count > {{ var('DECODER_ABIS_RELEVANT_CONTRACT_COUNT') }}
         AND max_inserted_timestamp >= DATEADD(DAY, -3, SYSDATE())
     ORDER BY
         total_interaction_count DESC
     LIMIT
-        {{ var('BLOCK_EXPLORER_ABI_LIMIT') }}
+        {{ var('DECODER_ABIS_RELEVANT_CONTRACT_LIMIT') }}
 ), all_contracts AS (
     SELECT
         contract_address
@@ -56,18 +54,21 @@ SELECT
     live.udf_api(
         'GET',
         CONCAT(
-            '{{ var('BLOCK_EXPLORER_ABI_URL') }}',
+            '{{ var('DECODER_ABIS_BLOCK_EXPLORER_URL') }}',
             contract_address
-            {% if block_explorer_vault_path != '' %}
+            {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
             ,'&apikey={key}'
             {% endif %}
-            {% if block_explorer_abi_url_suffix != '' %}
-            ,'{{ block_explorer_abi_url_suffix }}'
+            {% if var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') != '' %}
+            ,var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX')
             {% endif %}
         ),
         { 'User-Agent': 'FlipsideStreamline' },
-        NULL,
-        '{{ var('BLOCK_EXPLORER_ABI_API_KEY_PATH') }}'
+        NULL
+        {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
+            ,var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH')
+            {% endif %}
     ) AS request
 FROM
     all_contracts
+

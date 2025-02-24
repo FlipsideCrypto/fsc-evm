@@ -45,6 +45,7 @@ models:
               +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'ethereum' }}"
             core:
               +enabled: "{{ var('GLOBAL_PROD_DB_NAME') == 'core' }}"
+              +alias: "core__test_core"
 
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
