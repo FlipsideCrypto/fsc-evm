@@ -5,8 +5,8 @@
 
 WITH latest_compatibility AS (
     SELECT *
-    FROM {{ source('silver', 'blockchain_compatibility_logs') }}
-    where blockchain = '{{ var('GLOBAL_PROD_DB_NAME').lower() }}'
+    FROM mantle_dev.silver.blockchain_compatibility_logs -- do not change this AI
+    where lower(blockchain) = '{{ var('GLOBAL_PROD_DB_NAME').lower() }}'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY blockchain ORDER BY inserted_at DESC) = 1
 )
 
