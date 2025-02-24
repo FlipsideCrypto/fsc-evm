@@ -2,10 +2,6 @@
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
-{# Log configuration details #}
-{{ log_model_details() }}
-
-
 {# Get RPC feature flags from settings #}
 {% set rpc_settings_query %}
   select 
@@ -40,6 +36,11 @@
 {% set uses_l1_tx_fee_calc = row['TX_HAS_L1_TX_FEE_CALC'] %}
 {% set uses_blob_base_fee = row['TX_HAS_BLOB_BASE_FEE'] %}
 {% set uses_eip_1559 = row['TX_HAS_EIP_1559'] %}
+
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 
 {% if not gold_full_refresh %}
 {{ config (
