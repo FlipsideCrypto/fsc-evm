@@ -3,18 +3,18 @@
 {# Query RPC settings for current chain #}
 {% set rpc_settings_query %}
     select 
-        tx_has_access_list,
-        tx_has_max_fee_per_gas,
-        tx_has_max_priority_fee_per_gas,
-        tx_has_blob_gas_price,
-        tx_has_source_hash,
-        tx_has_mint,
-        tx_has_eth_value,
-        tx_has_y_parity,
-        tx_has_l1_columns,
-        tx_has_l1_tx_fee_calc,
-        tx_has_blob_base_fee,
-        tx_has_eip_1559
+        TX_HAS_ACCESS_LIST,
+        TX_HAS_MAX_FEE_PER_GAS,
+        TX_HAS_MAX_PRIORITY_FEE_PER_GAS,
+        TX_HAS_BLOB_GAS_PRICE,
+        TX_HAS_SOURCE_HASH,
+        TX_HAS_MINT,
+        TX_HAS_ETH_VALUE,
+        TX_HAS_Y_PARITY,
+        TX_HAS_L1_COLUMNS,
+        TX_HAS_L1_TX_FEE_CALC,
+        TX_HAS_BLOB_BASE_FEE,
+        TX_HAS_EIP_1559
     from {{ target.database }}.utils.rpc_settings
 {% endset %}
 
@@ -22,18 +22,18 @@
 
 {% if execute %}
     {% set row = results.rows[0] %}
-    {% set uses_access_list = row['tx_has_access_list'] %}
-    {% set uses_max_fee_per_gas = row['tx_has_max_fee_per_gas'] %}
-    {% set uses_max_priority_fee_per_gas = row['tx_has_max_priority_fee_per_gas'] %}
-    {% set uses_blob_gas_price = row['tx_has_blob_gas_price'] %}
-    {% set uses_source_hash = row['tx_has_source_hash'] %}
-    {% set uses_mint = row['tx_has_mint'] %}
-    {% set uses_eth_value = row['tx_has_eth_value'] %}
-    {% set uses_y_parity = row['tx_has_y_parity'] %}
-    {% set uses_l1_columns = row['tx_has_l1_columns'] %}
-    {% set uses_l1_tx_fee_calc = row['tx_has_l1_tx_fee_calc'] %}
-    {% set uses_blob_base_fee = row['tx_has_blob_base_fee'] %}
-    {% set uses_eip_1559 = row['tx_has_eip_1559'] %}
+    {% set uses_access_list = row['TX_HAS_ACCESS_LIST'] %}
+    {% set uses_max_fee_per_gas = row['TX_HAS_MAX_FEE_PER_GAS'] %}
+    {% set uses_max_priority_fee_per_gas = row['TX_HAS_MAX_PRIORITY_FEE_PER_GAS'] %}
+    {% set uses_blob_gas_price = row['TX_HAS_BLOB_GAS_PRICE'] %}
+    {% set uses_source_hash = row['TX_HAS_SOURCE_HASH'] %}
+    {% set uses_mint = row['TX_HAS_MINT'] %}
+    {% set uses_eth_value = row['TX_HAS_ETH_VALUE'] %}
+    {% set uses_y_parity = row['TX_HAS_Y_PARITY'] %}
+    {% set uses_l1_columns = row['TX_HAS_L1_COLUMNS'] %}
+    {% set uses_l1_tx_fee_calc = row['TX_HAS_L1_TX_FEE_CALC'] %}
+    {% set uses_blob_base_fee = row['TX_HAS_BLOB_BASE_FEE'] %}
+    {% set uses_eip_1559 = row['TX_HAS_EIP_1559'] %}
 {% endif %}
 {# Prod DB Variables End #}
 
