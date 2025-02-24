@@ -4,24 +4,31 @@
 {# Query RPC settings for current chain #}
 {% set rpc_settings_query %}
   select 
-    *
-  from {{ target.database }}.utils.rpc_settings;
+    BLOCKS_HAS_BASE_FEE,
+    BLOCKS_HAS_TOTAL_DIFFICULTY,
+    BLOCKS_HAS_MIX_HASH,
+    BLOCKS_HAS_BLOB_GAS_USED,
+    BLOCKS_HAS_PARENT_BEACON_BLOCK_ROOT,
+    BLOCKS_HAS_WITHDRAWALS
+  from {{ target.database }}.utils.rpc_settings
 {% endset %}
 
 {% set results = run_query(rpc_settings_query) %}
 
 {% if execute %}
-  {{ log("Full table results:", info=True) }}
-  {{ log(results.table, info=True) }}
-  {{ log("Number of rows: " ~ results.rows | length, info=True) }}
+  {% set row = results.rows[0] %}
+  {% set uses_base_fee = row['BLOCKS_HAS_BASE_FEE'] %}
+  {% set uses_total_difficulty = row['BLOCKS_HAS_TOTAL_DIFFICULTY'] %}
+  {% set uses_mix_hash = row['BLOCKS_HAS_MIX_HASH'] %}
+  {% set uses_blob_gas_used = row['BLOCKS_HAS_BLOB_GAS_USED'] %}
+  {% set uses_parent_beacon_block_root = row['BLOCKS_HAS_PARENT_BEACON_BLOCK_ROOT'] %}
+  {% set uses_withdrawals = row['BLOCKS_HAS_WITHDRAWALS'] %}
   
-  {% if results.rows | length > 0 %}
-    {% set row = results.rows[0] %}
-    {{ log("First row keys: " ~ row.keys(), info=True) }}
-    {{ log("First row values: " ~ row.values(), info=True) }}
-  {% else %}
-    {{ log("No rows returned from query!", info=True) }}
-  {% endif %}
+  {# Debug logging #}
+  {{ log("Feature flags:", info=True) }}
+  {{ log("uses_base_fee: " ~ uses_base_fee, info=True) }}
+  {{ log("uses_total_difficulty: " ~ uses_total_difficulty, info=True) }}
+  {{ log("uses_mix_hash: " ~ uses_mix_hash, info=True) }}
 {% endif %}
 {# Prod DB Variables End #}
 
