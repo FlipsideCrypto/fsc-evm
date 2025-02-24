@@ -10,7 +10,7 @@
         "worker_batch_size" :"1",
         "sql_source" :"{{this.identifier}}" }
     ),
-    tags = ['streamline_abis_realtime']
+    tags = ['bronze_abis']
 ) }}
 
 WITH recent_relevant_contracts AS (

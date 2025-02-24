@@ -1,3 +1,11 @@
+{% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
+    -- depends on: {{ ref('bronze__contract_abis') }}
+    -- depends on: {{ ref('bronze__contract_abis_fr') }}
+{% else %}
+    -- depends on: {{ ref('bronze__streamline_contract_abis') }}
+    -- depends on: {{ ref('bronze__streamline_fr_contract_abis') }}
+{% endif %}
+
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
 {% set excludes_etherscan = ['INK', 'SWELL', 'RONIN'] %}
