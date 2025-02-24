@@ -66,7 +66,7 @@ SELECT
         { 'User-Agent': 'FlipsideStreamline' },
         NULL
         {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
-            ,{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}
+            ,'{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}'
             {% endif %}
     ) AS request
 FROM
