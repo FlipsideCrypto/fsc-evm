@@ -1,7 +1,6 @@
 {% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
 
-{# Prod DB Variables Start #}
-{# Query RPC settings for current chain #}
+{# Get RPC feature flags from settings #}
 {% set rpc_settings_query %}
   select 
     BLOCKS_HAS_BASE_FEE,
@@ -14,23 +13,23 @@
 {% endset %}
 
 {% set results = run_query(rpc_settings_query) %}
+{% set row = results.rows[0] %}
+
+{# Set feature flags from RPC settings #}
+{% set uses_base_fee = row['BLOCKS_HAS_BASE_FEE'] %}
+{% set uses_total_difficulty = row['BLOCKS_HAS_TOTAL_DIFFICULTY'] %}
+{% set uses_mix_hash = row['BLOCKS_HAS_MIX_HASH'] %}
+{% set uses_blob_gas_used = row['BLOCKS_HAS_BLOB_GAS_USED'] %}
+{% set uses_parent_beacon_block_root = row['BLOCKS_HAS_PARENT_BEACON_BLOCK_ROOT'] %}
+{% set uses_withdrawals = row['BLOCKS_HAS_WITHDRAWALS'] %}
 
 {% if execute %}
-  {% set row = results.rows[0] %}
-  {% set uses_base_fee = row['BLOCKS_HAS_BASE_FEE'] %}
-  {% set uses_total_difficulty = row['BLOCKS_HAS_TOTAL_DIFFICULTY'] %}
-  {% set uses_mix_hash = row['BLOCKS_HAS_MIX_HASH'] %}
-  {% set uses_blob_gas_used = row['BLOCKS_HAS_BLOB_GAS_USED'] %}
-  {% set uses_parent_beacon_block_root = row['BLOCKS_HAS_PARENT_BEACON_BLOCK_ROOT'] %}
-  {% set uses_withdrawals = row['BLOCKS_HAS_WITHDRAWALS'] %}
-  
   {# Debug logging #}
   {{ log("Feature flags:", info=True) }}
   {{ log("uses_base_fee: " ~ uses_base_fee, info=True) }}
   {{ log("uses_total_difficulty: " ~ uses_total_difficulty, info=True) }}
   {{ log("uses_mix_hash: " ~ uses_mix_hash, info=True) }}
 {% endif %}
-{# Prod DB Variables End #}
 
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 
