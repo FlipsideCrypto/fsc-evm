@@ -16,18 +16,18 @@
 {% set results = run_query(rpc_settings_query) %}
 
 {% if execute %}
-  {{ log("Results rows: " ~ results.rows, info=True) }}
-  {{ log("First row: " ~ results.rows[0], info=True) }}
-  
   {% set row = results.rows[0] %}
-  {% set uses_base_fee = row.blocks_has_base_fee %}
-  {% set uses_total_difficulty = row.blocks_has_total_difficulty %}
-  {% set uses_mix_hash = row.blocks_has_mix_hash %}
-  {% set uses_blob_gas_used = row.blocks_has_blob_gas_used %}
-  {% set uses_parent_beacon_block_root = row.blocks_has_parent_beacon_block_root %}
-  {% set uses_withdrawals = row.blocks_has_withdrawals %}
-
-  {{ log("uses_base_fee: " ~ uses_base_fee, info=True) }}
+  {{ log("Row values:", info=True) }}
+  {{ log("base_fee: " ~ row['blocks_has_base_fee'], info=True) }}
+  {{ log("total_difficulty: " ~ row['blocks_has_total_difficulty'], info=True) }}
+  {{ log("mix_hash: " ~ row['blocks_has_mix_hash'], info=True) }}
+  
+  {% set uses_base_fee = row['blocks_has_base_fee'] %}
+  {% set uses_total_difficulty = row['blocks_has_total_difficulty'] %}
+  {% set uses_mix_hash = row['blocks_has_mix_hash'] %}
+  {% set uses_blob_gas_used = row['blocks_has_blob_gas_used'] %}
+  {% set uses_parent_beacon_block_root = row['blocks_has_parent_beacon_block_root'] %}
+  {% set uses_withdrawals = row['blocks_has_withdrawals'] %}
 {% endif %}
 {# Prod DB Variables End #}
 
