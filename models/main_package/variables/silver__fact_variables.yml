@@ -12,9 +12,6 @@ models:
       - name: KEY
         tests:
           - not_null
-      - name: PARENT_KEY
-        tests:
-          - not_null
       - name: VALUE
         tests:
           - not_null

@@ -15,16 +15,10 @@ models:
       - name: PACKAGE
         tests:
           - not_null
-      - name: CATEGORY
-        tests:
-          - not_null
       - name: DATA_TYPE
         tests:
           - not_null
       - name: KEY
-        tests:
-          - not_null
-      - name: PARENT_KEY
         tests:
           - not_null
       - name: VALUE
