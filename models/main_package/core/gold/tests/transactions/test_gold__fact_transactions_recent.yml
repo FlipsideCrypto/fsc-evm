@@ -107,20 +107,16 @@ models:
       - name: V
         tests:
           - not_null
-      - name: >-
-          {{ 'L1_FEE' if get_var('GLOBAL_PROD_DB_NAME','').upper() in ['INK', 'MANTLE', 'SWELL'] else '0' }}
+      - name: L1_FEE
         tests:
           - not_null
-      - name: >-
-          {{ 'L1_FEE_SCALAR' if get_var('GLOBAL_PROD_DB_NAME','').upper() in ['INK', 'MANTLE', 'SWELL'] else '1' }}
+      - name: L1_FEE_SCALAR
         tests:
           - not_null
-      - name: >-
-          {{ 'L1_GAS_PRICE' if get_var('GLOBAL_PROD_DB_NAME','').upper() in ['INK', 'MANTLE', 'SWELL'] else '2' }}
+      - name: L1_GAS_PRICE
         tests:
           - not_null
-      - name: >-
-          {{ 'L1_GAS_USED' if get_var('GLOBAL_PROD_DB_NAME','').upper() in ['INK', 'MANTLE', 'SWELL'] else '3' }}
+      - name: L1_GAS_USED
         tests:
           - not_null
       - name: FACT_TRANSACTIONS_ID

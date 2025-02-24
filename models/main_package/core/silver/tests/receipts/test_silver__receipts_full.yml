@@ -11,8 +11,7 @@ models:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-      - name: >-
-          {{ 'TX_HASH' if get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) else 'ARRAY_INDEX' }}
+      - name: TX_HASH
         tests:
           - not_null
       - name: RECEIPTS_JSON
