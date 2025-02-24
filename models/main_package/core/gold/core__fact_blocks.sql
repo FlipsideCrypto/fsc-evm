@@ -23,12 +23,6 @@
   {% set uses_blob_gas_used = row['BLOCKS_HAS_BLOB_GAS_USED'] %}
   {% set uses_parent_beacon_block_root = row['BLOCKS_HAS_PARENT_BEACON_BLOCK_ROOT'] %}
   {% set uses_withdrawals = row['BLOCKS_HAS_WITHDRAWALS'] %}
-  
-  {# Debug logging #}
-  {{ log("Feature flags:", info=True) }}
-  {{ log("uses_base_fee: " ~ uses_base_fee, info=True) }}
-  {{ log("uses_total_difficulty: " ~ uses_total_difficulty, info=True) }}
-  {{ log("uses_mix_hash: " ~ uses_mix_hash, info=True) }}
 {% endif %}
 {# Prod DB Variables End #}
 
