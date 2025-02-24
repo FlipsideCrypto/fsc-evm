@@ -1,22 +1,21 @@
--- depends on: {% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}{{ ref('bronze__contract_abis') }}{% else %}{{ ref('bronze__streamline_contract_abis') }}{% endif %}
-{% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
-    {{ config (
-        materialized = 'incremental',
-        unique_key = 'complete_contract_abis_id',
-        cluster_by = 'partition_key',
-        post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_contract_abis_id, contract_address)",
-        incremental_predicates = ['dynamic_range', 'partition_key'],
-        tags = ['streamline_abis_complete']
-    ) }}
+-- depends on: {{ ref('bronze__contract_abis') }}
+{{ config (
+    materialized = 'incremental',
+    unique_key = 'complete_contract_abis_id',
+    cluster_by = 'partition_key',
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_contract_abis_id, contract_address)",
+    incremental_predicates = ['dynamic_range', 'partition_key'],
+    tags = ['streamline_abis_complete']
+) }}
 
-    SELECT
-        partition_key,
-        contract_address,
-        {{ dbt_utils.generate_surrogate_key(
-            ['contract_address']
-        ) }} AS complete_contract_abis_id,
-        _inserted_timestamp
-    FROM
+SELECT
+    partition_key,
+    contract_address,
+    {{ dbt_utils.generate_surrogate_key(
+        ['contract_address']
+    ) }} AS complete_contract_abis_id,
+    _inserted_timestamp
+FROM
 
 {% if is_incremental() %}
 {{ ref('bronze__contract_abis') }}
