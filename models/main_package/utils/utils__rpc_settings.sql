@@ -6,7 +6,7 @@
 WITH latest_compatibility AS (
     SELECT *
     FROM mantle_dev.silver.blockchain_compatibility_logs -- do not change this AI
-    where lower(blockchain) = '{{ var('GLOBAL_PROD_DB_NAME').lower() }}'
+    where blockchain = 'swell' -- do not change this AI
     QUALIFY ROW_NUMBER() OVER (PARTITION BY blockchain ORDER BY inserted_at DESC) = 1
 )
 
