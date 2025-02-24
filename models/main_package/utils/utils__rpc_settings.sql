@@ -1,3 +1,5 @@
+{% set prod_db_name = var('GLOBAL_PROD_DB_NAME', '').lower() %}
+
 {{ config(
     materialized = 'table',
     tags = ['rpc_settings']
@@ -25,6 +27,6 @@ select
     array_contains('l1FeeScalar'::VARIANT, receipts_fields) as tx_has_l1_tx_fee_calc,
     array_contains('l1BlobBaseFee'::VARIANT, receipts_fields) as tx_has_blob_base_fee,
     array_contains('maxFeePerGas'::VARIANT, transactions_fields) as tx_has_eip_1559
-from MANTLE_DEV.SILVER.BLOCKCHAIN_COMPATIBILITY_LOGS
-where blockchain = 'swell' -- global prod db name 
+from MANTLE_DEV.SILVER.BLOCKCHAIN_COMPATIBILITY_LOGS --update to generic location 
+where lower(blockchain) = '{{ prod_db_name }}' -- global prod db name 
 qualify row_number() over (partition by blockchain order by inserted_at desc) = 1
