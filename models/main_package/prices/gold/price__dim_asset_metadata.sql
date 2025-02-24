@@ -10,7 +10,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'dim_asset_metadata_id',
     post_hook = post_hook,
-    tags = ['gold_prices']
+    tags = ['gold_prices','phase_2']
 ) }}
 
 {# Main query starts here #}

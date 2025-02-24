@@ -7,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_native_prices_id',
     cluster_by = ['hour::DATE'],
-    tags = ['silver_prices']
+    tags = ['silver_prices','phase_2']
 ) }}
 
 {# Main query starts here #}
