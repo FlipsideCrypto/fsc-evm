@@ -5,7 +5,7 @@
 
 WITH latest_compatibility AS (
     SELECT *
-    FROM {{ target.database }}.SILVER.BLOCKCHAIN_COMPATIBILITY_LOGS
+    FROM {{ source('silver', 'blockchain_compatibility_logs') }}
     where blockchain = '{{ var('GLOBAL_PROD_DB_NAME').lower() }}'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY blockchain ORDER BY inserted_at DESC) = 1
 )
