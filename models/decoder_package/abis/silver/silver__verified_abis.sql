@@ -70,6 +70,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }})
     {% endif %}
+    {% endif %}
 ),
 block_explorer_abis AS (
     SELECT
