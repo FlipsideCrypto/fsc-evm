@@ -10,8 +10,7 @@
     blocks_has_blob_gas_used,
     blocks_has_parent_beacon_block_root,
     blocks_has_withdrawals
-  from {{ source('utils', 'rpc_settings') }}
-  where chain_name = '{{ var('GLOBAL_PROD_DB_NAME').upper() }}'
+  from {{ ref('utils__rpc_settings') }}
 {% endset %}
 
 {% set results = run_query(rpc_settings_query) %}
