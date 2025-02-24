@@ -59,7 +59,7 @@ SELECT
             {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
             ,'&apikey={key}'
             {% endif %}
-            {% if var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') != '' %}
+            {% if var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') | default('') != '' %}
             ,var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX')
             {% endif %}
         ),
