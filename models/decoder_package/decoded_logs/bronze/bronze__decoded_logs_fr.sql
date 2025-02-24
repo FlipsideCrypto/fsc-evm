@@ -11,7 +11,7 @@ SELECT
     *
 FROM
     {{ ref('bronze__decoded_logs_fr_v2') }}
-{% if var('GLOBAL_USES_STREAMLINE_V1', false) %}
+{% if get_var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) %}
 UNION ALL
 SELECT
     *

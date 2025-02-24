@@ -15,7 +15,7 @@ WITH api_pull AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://archive.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/contracts'
+                'https://archive.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/contracts'
             )
         ) :data AS response
 ),

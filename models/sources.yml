@@ -9,7 +9,7 @@ sources:
   - name: bronze_streamline
     database: streamline
     schema: >-
-      {{ var('GLOBAL_PROD_DB_NAME', '') ~ ('_dev' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", false) else '') }}
+      {{ target.database.upper() ~ ('_DEV' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", false) else '') }}
     tables:
       - name: blocks
       - name: blocks_v2
@@ -40,7 +40,8 @@ sources:
       - name: reads
       - name: reads_v2
   - name: crosschain_silver
-    database: "{{ 'crosschain' if target.database.upper() == var('GLOBAL_PROD_DB_NAME', '').upper() else 'crosschain_dev' }}"
+    database: >-
+      {{ 'CROSSCHAIN_DEV' if '_DEV' in target.database.upper() else 'CROSSCHAIN' }}
     schema: silver
     tables:
       - name: labels_combined
@@ -75,3 +76,10 @@ sources:
       - name: evm_wrapped_assets
       - name: dates
       - name: scoring_activity_categories
+  - name: fsc_evm_bronze
+    database: >-
+      {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
+    schema: bronze
+    tables:
+      - name: master_variable_keys
+      - name: master_variable_values
