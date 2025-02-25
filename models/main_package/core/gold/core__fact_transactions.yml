@@ -54,49 +54,35 @@ models:
         description: '{{ doc("evm_v") }}'
       - name: ETH_VALUE
         description: '{{ doc("evm_eth_value") }}'
-      - name: >-
-          {{ 'MINT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '1' }}
+      - name: MINT
         description: '{{ doc("evm_mint") }}'
-      - name: >-
-          {{ 'SOURCE_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '2' }}
+      - name: SOURCE_HASH
         description: '{{ doc("evm_source_hash") }}'
-      - name: >-
-          {{ 'MAX_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '3' }}
+      - name: MAX_FEE_PER_GAS
         description: '{{ doc("evm_max_fee_per_gas") }}'
-      - name: >-
-          {{ 'MAX_PRIORITY_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '4' }}
+      - name: MAX_PRIORITY_FEE_PER_GAS
         description: '{{ doc("evm_max_priority_fee_per_gas") }}'
-      - name: >-
-          {{ 'L1_FEE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '6' }}
+      - name: L1_FEE
         description: '{{ doc("evm_l1_fee") }}'
-      - name: >-
-          {{ 'L1_FEE_PRECISE_RAW' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '7' }}
+      - name: L1_FEE_PRECISE_RAW
         description: '{{ doc("evm_l1_fee_precise_raw") }}'
-      - name: >-
-          {{ 'L1_FEE_PRECISE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '8' }}
+      - name: L1_FEE_PRECISE
         description: '{{ doc("evm_l1_fee_precise") }}'
-      - name: >-
-          {{ 'L1_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '9' }}
+      - name: L1_FEE_SCALAR
         description: '{{ doc("evm_l1_fee_scalar") }}'
-      - name: >-
-          {{ 'L1_GAS_PRICE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '10' }}
+      - name: L1_GAS_PRICE
         description: '{{ doc("evm_l1_gas_price") }}'
-      - name: >-
-          {{ 'L1_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '11' }}
+      - name: L1_GAS_USED
         description: '{{ doc("evm_l1_gas_used") }}'
-      - name: >-
-          {{ 'Y_PARITY' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOB', 'BOBA'] else '12' }}
+      - name: Y_PARITY
         description: '{{ doc("evm_y_parity") }}'
       - name: ACCESS_LIST
         description: '{{ doc("evm_access_list") }}'
-      - name: >-
-          {{ 'L1_BASE_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOBA'] else '14' }}
+      - name: L1_BASE_FEE_SCALAR
         description: '{{ doc("evm_l1_base_fee_scalar") }}'
-      - name: >-
-          {{ 'L1_BLOB_BASE_FEE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOBA'] else '15' }}
+      - name: L1_BLOB_BASE_FEE
         description: '{{ doc("evm_l1_blob_base_fee") }}'
-      - name: >-
-          {{ 'L1_BLOB_BASE_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOBA'] else '16' }}
+      - name: L1_BLOB_BASE_FEE_SCALAR
         description: '{{ doc("evm_l1_blob_base_fee_scalar") }}'
       - name: FACT_TRANSACTIONS_ID
         description: '{{ doc("evm_pk") }}'

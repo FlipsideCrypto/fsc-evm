@@ -13,7 +13,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_decoded_logs','phase_3']
+    tags = ['bronze_decoded_logs']
 ) }}
 
 {# Main query starts here #}

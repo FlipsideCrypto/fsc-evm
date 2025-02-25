@@ -4,14 +4,14 @@
 {% set excludes_eip_1559 = ['CORE','RONIN'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
-{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL', 'BOBA'] %}
-{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL', 'BOBA'] %}
+{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
+{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
 {% set includes_eth_value = ['MANTLE'] %}
-{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] %}
+{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
 {% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
 {% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB', 'BOBA'] %}
-{% set includes_blob_base_fee = ['INK','SWELL','BOBA'] %}
+{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
+{% set includes_blob_base_fee = ['INK','SWELL'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_eip_1559 = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_eip_1559 %}
@@ -41,7 +41,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
-    tags = ['gold_core', 'phase_1']
+    tags = ['gold_core']
 ) }}
 
 {% else %}
@@ -52,7 +52,7 @@
     unique_key = unique_key,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core', 'phase_1']
+    tags = ['gold_core']
 ) }}
 
 {% endif %}

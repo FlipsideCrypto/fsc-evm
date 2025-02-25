@@ -20,7 +20,7 @@
     unique_key = "contract_address",
     merge_update_columns = ["contract_address"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
-    tags = ['silver_abis','phase_2']
+    tags = ['silver_abis']
 ) }}
 
 WITH base AS (
