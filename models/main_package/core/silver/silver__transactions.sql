@@ -1,6 +1,6 @@
 -- depends_on: {{ ref('bronze__transactions') }}
 
-{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
+{% set silver_full_refresh = get_var('GLOBAL_SILVER_FR_ENABLED', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

@@ -5,8 +5,8 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = var(
-    'TRACES_REALTIME_NEW_BUILD',
+{% set new_build = get_var(
+    'MAIN_SL_TRACES_REALTIME_NEW_BUILD_ENABLED',
     false
 ) %}
 

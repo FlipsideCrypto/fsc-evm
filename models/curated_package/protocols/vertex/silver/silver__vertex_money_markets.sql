@@ -14,7 +14,7 @@ WITH apr AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/apr'
+                'https://gateway.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/apr'
             )
         ):data AS response
 ),
@@ -23,7 +23,7 @@ SELECT
     DATE_TRUNC('hour', SYSDATE()) AS HOUR,
     CONCAT(
         f.value:symbol::string,
-        {% if var('GLOBAL_PROD_DB_NAME') == 'blast' %}
+        {% if get_var('GLOBAL_PROD_DB_NAME') == 'blast' %}
             '_USDB'
         {% else %}
             '_USDC'

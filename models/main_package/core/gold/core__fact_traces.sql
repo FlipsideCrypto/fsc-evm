@@ -1,14 +1,14 @@
-{% set full_reload_start_block = var('TRACES_FULL_RELOAD_START_BLOCK', 0) %}
-{% set full_reload_blocks = var('TRACES_FULL_RELOAD_BLOCKS', 1000000) %}
-{% set full_reload_mode = var('TRACES_FULL_RELOAD_MODE', false) %}
-{% set uses_overflow_steps = var('TRACES_USES_OVERFLOW_STEPS', false) %}
-{% set TRACES_ARB_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'ARBITRUM' %}
-{% set TRACES_SEI_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'SEI' %}
-{% set TRACES_KAIA_MODE = var('GLOBAL_PROD_DB_NAME').upper() == 'KAIA' %}
-{% set schema_name = var('TRACES_SCHEMA_NAME', 'silver') %}
-{% set uses_tx_status = var('TRACES_USES_TX_STATUS', false) %}
-{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
+{% set full_reload_start_block = get_var('MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK', 0) %}
+{% set full_reload_blocks = get_var('MAIN_CORE_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) %}
+{% set full_reload_mode = get_var('MAIN_CORE_TRACES_FULL_RELOAD_ENABLED', false) %}
+{% set uses_overflow_steps = get_var('MAIN_CORE_TRACES_OVERFLOW_ENABLED', false) %}
+{% set TRACES_ARB_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'ARBITRUM' %}
+{% set TRACES_SEI_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'SEI' %}
+{% set TRACES_KAIA_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'KAIA' %}
+{% set schema_name = get_var('MAIN_CORE_TRACES_SCHEMA_NAME', 'silver') %}
+{% set uses_tx_status = get_var('MAIN_CORE_TRACES_TX_STATUS_ENABLED', false) %}
+{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
+{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
 
 {% if uses_receipts_by_hash %}
     {% if TRACES_SEI_MODE %}
