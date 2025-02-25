@@ -5,7 +5,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
-    tags = ['silver_core', 'phase_2']
+    tags = ['silver_core']
 ) }}
 
 WITH emitted_events AS (

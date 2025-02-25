@@ -6,7 +6,7 @@
     unique_key = "contract_address",
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,bytecode), SUBSTRING(contract_address,bytecode)",
-    tags = ['gold_abis','phase_3']
+    tags = ['gold_abis']
 ) }}
 
 SELECT

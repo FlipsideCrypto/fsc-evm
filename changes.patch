@@ -1,0 +1,876 @@
+diff --git a/models/decoder_package/abis/bronze/bronze_api__contract_abis.sql b/models/decoder_package/abis/bronze/bronze_api__contract_abis.sql
+index c427d66..53683ce 100644
+--- a/models/decoder_package/abis/bronze/bronze_api__contract_abis.sql
++++ b/models/decoder_package/abis/bronze/bronze_api__contract_abis.sql
+@@ -16,7 +16,7 @@
+     unique_key = "contract_address",
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+     full_refresh = false,
+-    tags = ['bronze_abis', 'phase_2']
++    tags = ['bronze_abis']
+ ) }}
+ 
+ {% else %}
+@@ -25,7 +25,7 @@
+     materialized = 'incremental',
+     unique_key = "contract_address",
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+-    tags = ['bronze_abis', 'phase_2']
++    tags = ['bronze_abis']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/decoder_package/abis/gold/core__dim_contract_abis.sql b/models/decoder_package/abis/gold/core__dim_contract_abis.sql
+index b21674d..c249aa1 100644
+--- a/models/decoder_package/abis/gold/core__dim_contract_abis.sql
++++ b/models/decoder_package/abis/gold/core__dim_contract_abis.sql
+@@ -6,7 +6,7 @@
+     unique_key = "contract_address",
+     merge_exclude_columns = ["inserted_timestamp"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,bytecode), SUBSTRING(contract_address,bytecode)",
+-    tags = ['gold_abis','phase_3']
++    tags = ['gold_abis']
+ ) }}
+ 
+ SELECT
+diff --git a/models/decoder_package/abis/silver/silver__abis.sql b/models/decoder_package/abis/silver/silver__abis.sql
+index 106dec8..beb14b4 100644
+--- a/models/decoder_package/abis/silver/silver__abis.sql
++++ b/models/decoder_package/abis/silver/silver__abis.sql
+@@ -8,7 +8,7 @@
+     unique_key = "contract_address",
+     merge_exclude_columns = ["inserted_timestamp"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,abi_hash,bytecode), SUBSTRING(contract_address,abi_hash,bytecode)",
+-    tags = ['silver_abis','phase_2']
++    tags = ['silver_abis']
+ ) }}
+ 
+ WITH verified_abis AS (
+diff --git a/models/decoder_package/abis/silver/silver__bytecode_abis.sql b/models/decoder_package/abis/silver/silver__bytecode_abis.sql
+index 70e570d..2b41da1 100644
+--- a/models/decoder_package/abis/silver/silver__bytecode_abis.sql
++++ b/models/decoder_package/abis/silver/silver__bytecode_abis.sql
+@@ -4,7 +4,7 @@
+ {{ config (
+     materialized = "incremental",
+     unique_key = "contract_address",
+-    tags = ['silver_abis','phase_2']
++    tags = ['silver_abis']
+ ) }}
+ 
+ WITH contracts_with_abis AS (
+diff --git a/models/decoder_package/abis/silver/silver__complete_event_abis.sql b/models/decoder_package/abis/silver/silver__complete_event_abis.sql
+index ecbbe4a..938867a 100644
+--- a/models/decoder_package/abis/silver/silver__complete_event_abis.sql
++++ b/models/decoder_package/abis/silver/silver__complete_event_abis.sql
+@@ -6,7 +6,7 @@
+     unique_key = ["parent_contract_address","event_signature","start_block"],
+     merge_exclude_columns = ["inserted_timestamp"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+-    tags = ['silver_abis','phase_2']
++    tags = ['silver_abis']
+ ) }}
+ 
+ WITH new_abis AS (
+diff --git a/models/decoder_package/abis/silver/silver__flat_event_abis.sql b/models/decoder_package/abis/silver/silver__flat_event_abis.sql
+index 274903c..46962b9 100644
+--- a/models/decoder_package/abis/silver/silver__flat_event_abis.sql
++++ b/models/decoder_package/abis/silver/silver__flat_event_abis.sql
+@@ -7,7 +7,7 @@
+     unique_key = "contract_address",
+     cluster_by = "_inserted_timestamp::date",
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY (contract_address)",
+-    tags = ['silver_abis','phase_2']
++    tags = ['silver_abis']
+ ) }}
+ 
+ WITH abi_base AS (
+diff --git a/models/decoder_package/abis/silver/silver__user_verified_abis.sql b/models/decoder_package/abis/silver/silver__user_verified_abis.sql
+index b5e16c9..f763087 100644
+--- a/models/decoder_package/abis/silver/silver__user_verified_abis.sql
++++ b/models/decoder_package/abis/silver/silver__user_verified_abis.sql
+@@ -6,7 +6,7 @@
+ {{ config (
+     materialized = "incremental",
+     unique_key = "id",
+-    tags = ['silver_abis','phase_2']
++    tags = ['silver_abis']
+ ) }}
+ 
+ WITH base AS (
+diff --git a/models/decoder_package/abis/silver/silver__verified_abis.sql b/models/decoder_package/abis/silver/silver__verified_abis.sql
+index 1e7ab34..17ee29d 100644
+--- a/models/decoder_package/abis/silver/silver__verified_abis.sql
++++ b/models/decoder_package/abis/silver/silver__verified_abis.sql
+@@ -20,7 +20,7 @@
+     unique_key = "contract_address",
+     merge_update_columns = ["contract_address"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+-    tags = ['silver_abis','phase_2']
++    tags = ['silver_abis']
+ ) }}
+ 
+ WITH base AS (
+diff --git a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs.sql b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs.sql
+index 0ddba1b..9195854 100644
+--- a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs.sql
++++ b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs.sql
+@@ -13,7 +13,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_decoded_logs','phase_3']
++    tags = ['bronze_decoded_logs']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr.sql b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr.sql
+index dd43545..a83a52e 100644
+--- a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr.sql
++++ b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr.sql
+@@ -4,7 +4,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_decoded_logs','phase_3']
++    tags = ['bronze_decoded_logs']
+ ) }}
+ 
+ SELECT
+diff --git a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v1.sql b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v1.sql
+index dcc1ace..8c122fa 100644
+--- a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v1.sql
++++ b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v1.sql
+@@ -13,7 +13,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_decoded_logs_streamline_v1','phase_3']
++    tags = ['bronze_decoded_logs_streamline_v1']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v2.sql b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v2.sql
+index 70dc16a..7fcbda7 100644
+--- a/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v2.sql
++++ b/models/decoder_package/decoded_logs/bronze/bronze__decoded_logs_fr_v2.sql
+@@ -13,7 +13,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_decoded_logs','phase_3']
++    tags = ['bronze_decoded_logs']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/decoder_package/decoded_logs/gold/core__ez_decoded_event_logs.sql b/models/decoder_package/decoded_logs/gold/core__ez_decoded_event_logs.sql
+index 4ca5113..b7451eb 100644
+--- a/models/decoder_package/decoded_logs/gold/core__ez_decoded_event_logs.sql
++++ b/models/decoder_package/decoded_logs/gold/core__ez_decoded_event_logs.sql
+@@ -11,7 +11,7 @@
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = false,
+     post_hook = post_hook,
+-    tags = ['gold_decoded_logs','phase_3']
++    tags = ['gold_decoded_logs']
+ ) }}
+ 
+ WITH base AS (
+diff --git a/models/decoder_package/decoded_logs/silver/silver__decoded_logs.sql b/models/decoder_package/decoded_logs/silver/silver__decoded_logs.sql
+index 4852ad5..9b17abb 100644
+--- a/models/decoder_package/decoded_logs/silver/silver__decoded_logs.sql
++++ b/models/decoder_package/decoded_logs/silver/silver__decoded_logs.sql
+@@ -9,7 +9,7 @@
+     cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = false,
+-    tags = ['silver_decoded_logs','phase_3']
++    tags = ['silver_decoded_logs']
+ ) }}
+ 
+ WITH base_data AS (
+diff --git a/models/decoder_package/decoded_logs/streamline/complete/streamline__decoded_logs_complete.sql b/models/decoder_package/decoded_logs/streamline/complete/streamline__decoded_logs_complete.sql
+index 9409291..16c8d20 100644
+--- a/models/decoder_package/decoded_logs/streamline/complete/streamline__decoded_logs_complete.sql
++++ b/models/decoder_package/decoded_logs/streamline/complete/streamline__decoded_logs_complete.sql
+@@ -21,7 +21,7 @@
+     merge_update_columns = ["_log_id"],
+     post_hook = post_hook,
+     full_refresh = full_refresh_type,
+-    tags = ['streamline_decoded_logs_complete','phase_3']
++    tags = ['streamline_decoded_logs_complete']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/decoder_package/decoded_logs/streamline/realtime/streamline__decoded_logs_realtime.sql b/models/decoder_package/decoded_logs/streamline/realtime/streamline__decoded_logs_realtime.sql
+index 3c691d4..b69b9c3 100644
+--- a/models/decoder_package/decoded_logs/streamline/realtime/streamline__decoded_logs_realtime.sql
++++ b/models/decoder_package/decoded_logs/streamline/realtime/streamline__decoded_logs_realtime.sql
+@@ -28,7 +28,7 @@
+         } 
+     ), 
+     fsc_utils.if_data_call_wait()],
+-    tags = ['streamline_decoded_logs_realtime','phase_3']
++    tags = ['streamline_decoded_logs_realtime']
+ ) }}
+ 
+ WITH target_blocks AS (
+diff --git a/models/main_package/core/bronze/token_reads/bronze_api__token_reads.sql b/models/main_package/core/bronze/token_reads/bronze_api__token_reads.sql
+index 1fbe085..0f49fb4 100644
+--- a/models/main_package/core/bronze/token_reads/bronze_api__token_reads.sql
++++ b/models/main_package/core/bronze/token_reads/bronze_api__token_reads.sql
+@@ -8,7 +8,7 @@
+     materialized = 'incremental',
+     unique_key = "contract_address",
+     full_refresh = false,
+-    tags = ['bronze_core', 'recent_test', 'phase_2']
++    tags = ['bronze_core', 'recent_test']
+ ) }}
+ 
+ WITH base AS (
+diff --git a/models/main_package/core/gold/core__dim_contracts.sql b/models/main_package/core/gold/core__dim_contracts.sql
+index 383dedd..1b37dd8 100644
+--- a/models/main_package/core/gold/core__dim_contracts.sql
++++ b/models/main_package/core/gold/core__dim_contracts.sql
+@@ -6,7 +6,7 @@
+     unique_key = 'address',
+     merge_exclude_columns = ["inserted_timestamp"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, symbol, name), SUBSTRING(address, symbol, name)",
+-    tags = ['gold_core','phase_2']
++    tags = ['gold_core']
+ ) }}
+ 
+ SELECT
+diff --git a/models/main_package/core/gold/core__ez_native_transfers.sql b/models/main_package/core/gold/core__ez_native_transfers.sql
+index 093384b..aae2379 100644
+--- a/models/main_package/core/gold/core__ez_native_transfers.sql
++++ b/models/main_package/core/gold/core__ez_native_transfers.sql
+@@ -18,7 +18,7 @@
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = gold_full_refresh,
+     post_hook = post_hook,
+-    tags = ['gold_core', 'ez_prices_model','phase_2']
++    tags = ['gold_core', 'ez_prices_model']
+ ) }}
+ 
+ {% else %}
+@@ -30,7 +30,7 @@
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     post_hook = post_hook,
+-    tags = ['gold_core', 'ez_prices_model','phase_2']
++    tags = ['gold_core', 'ez_prices_model']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/gold/core__ez_token_transfers.sql b/models/main_package/core/gold/core__ez_token_transfers.sql
+index b141db6..5f194e9 100644
+--- a/models/main_package/core/gold/core__ez_token_transfers.sql
++++ b/models/main_package/core/gold/core__ez_token_transfers.sql
+@@ -16,7 +16,7 @@
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = gold_full_refresh,
+     post_hook = post_hook,
+-    tags = ['gold_core', 'ez_prices_model','phase_2']
++    tags = ['gold_core', 'ez_prices_model']
+ ) }}
+ 
+ {% else %}
+@@ -28,7 +28,7 @@
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     post_hook = post_hook,
+-    tags = ['gold_core', 'ez_prices_model','phase_2']
++    tags = ['gold_core', 'ez_prices_model']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/gold/core__fact_blocks.sql b/models/main_package/core/gold/core__fact_blocks.sql
+index bec4d56..3ab8125 100644
+--- a/models/main_package/core/gold/core__fact_blocks.sql
++++ b/models/main_package/core/gold/core__fact_blocks.sql
+@@ -6,10 +6,10 @@
+ {% set excludes_total_difficulty = ['INK','SWELL','BOB'] %}
+ 
+ {# Columns excluded by default, with explicit inclusion #}
+-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB', 'BOBA'] %}
+-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
+-{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
+-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
++{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB'] %}
++{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB'] %}
++{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB'] %}
++{% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
+ 
+ {# Set Variables using inclusions and exclusions #}
+ {% set uses_base_fee = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_base_fee %}
+@@ -35,7 +35,7 @@
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = gold_full_refresh,
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% else %}
+@@ -46,7 +46,7 @@
+     unique_key = "block_number",
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/gold/core__fact_blocks.yml b/models/main_package/core/gold/core__fact_blocks.yml
+index 25cfd4e..6c257ac 100644
+--- a/models/main_package/core/gold/core__fact_blocks.yml
++++ b/models/main_package/core/gold/core__fact_blocks.yml
+@@ -20,8 +20,7 @@ models:
+         description: '{{ doc("evm_miner") }}'
+       - name: BASE_FEE_PER_GAS
+         description: '{{ doc("evm_base_fee_per_gas") }}'
+-      - name: >-
+-          {{ 'MIX_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '1' }}
++      - name: MIX_HASH
+         description: '{{ doc("evm_mix_hash") }}'
+       - name: EXTRA_DATA
+         description: '{{ doc("evm_extra_data") }}'
+@@ -33,8 +32,7 @@ models:
+         description: '{{ doc("evm_gas_limit") }}'
+       - name: DIFFICULTY
+         description: '{{ doc("evm_difficulty") }}'
+-      - name: >-
+-          {{ 'TOTAL_DIFFICULTY' if var('GLOBAL_PROD_DB_NAME').upper() not in ['INK','SWELL','BOB', 'BOBA'] else '2' }}
++      - name: TOTAL_DIFFICULTY
+         description: '{{ doc("evm_total_difficulty") }}'
+       - name: SHA3_UNCLES
+         description: '{{ doc("evm_sha3_uncles") }}'
+@@ -50,20 +48,15 @@ models:
+         description: '{{ doc("evm_transactions_root") }}'
+       - name: LOGS_BLOOM
+         description: '{{ doc("evm_logs_bloom")  }}'
+-      - name: >-
+-          {{ 'BLOB_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '3' }}
++      - name: BLOB_GAS_USED
+         description: '{{ doc("evm_blob_gas_used") }}'
+-      - name: >-
+-          {{ 'EXCESS_BLOB_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '4' }}
++      - name: EXCESS_BLOB_GAS
+         description: '{{ doc("evm_excess_blob_gas") }}'
+-      - name: >-
+-          {{ 'PARENT_BEACON_BLOCK_ROOT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '5' }}
++      - name: PARENT_BEACON_BLOCK_ROOT
+         description: '{{ doc("evm_parent_beacon_block_root") }}'
+-      - name: >-
+-          {{ 'WITHDRAWALS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '6' }}
++      - name: WITHDRAWALS
+         description: '{{ doc("evm_withdrawals") }}'
+-      - name: >-
+-          {{ 'WITHDRAWALS_ROOT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '7' }}
++      - name: WITHDRAWALS_ROOT
+         description: '{{ doc("evm_withdrawals_root") }}'
+       - name: FACT_BLOCKS_ID
+         description: '{{ doc("evm_pk") }}'
+diff --git a/models/main_package/core/gold/core__fact_event_logs.sql b/models/main_package/core/gold/core__fact_event_logs.sql
+index 682a19c..5f35ab3 100644
+--- a/models/main_package/core/gold/core__fact_event_logs.sql
++++ b/models/main_package/core/gold/core__fact_event_logs.sql
+@@ -14,7 +14,7 @@
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = gold_full_refresh,
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% else %}
+@@ -25,7 +25,7 @@
+     unique_key = unique_key,
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/gold/core__fact_traces.sql b/models/main_package/core/gold/core__fact_traces.sql
+index 493231c..bcf8af2 100644
+--- a/models/main_package/core/gold/core__fact_traces.sql
++++ b/models/main_package/core/gold/core__fact_traces.sql
+@@ -32,7 +32,7 @@
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = gold_full_refresh,
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% else %}
+@@ -43,7 +43,7 @@
+     unique_key = unique_key,
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}    
+ 
+ {% endif %}
+diff --git a/models/main_package/core/gold/core__fact_transactions.sql b/models/main_package/core/gold/core__fact_transactions.sql
+index 63e9ba9..a86f213 100644
+--- a/models/main_package/core/gold/core__fact_transactions.sql
++++ b/models/main_package/core/gold/core__fact_transactions.sql
+@@ -4,14 +4,14 @@
+ {% set excludes_eip_1559 = ['CORE','RONIN'] %}
+ 
+ {# Columns excluded by default, with explicit inclusion #}
+-{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL', 'BOBA'] %}
+-{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL', 'BOBA'] %}
++{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
++{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
+ {% set includes_eth_value = ['MANTLE'] %}
+-{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] %}
++{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
+ {% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
+ {% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
+-{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB', 'BOBA'] %}
+-{% set includes_blob_base_fee = ['INK','SWELL','BOBA'] %}
++{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
++{% set includes_blob_base_fee = ['INK','SWELL'] %}
+ 
+ {# Set Variables using inclusions and exclusions #}
+ {% set uses_eip_1559 = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_eip_1559 %}
+@@ -41,7 +41,7 @@
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = gold_full_refresh,
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% else %}
+@@ -52,7 +52,7 @@
+     unique_key = unique_key,
+     cluster_by = ['block_timestamp::DATE'],
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['gold_core', 'phase_1']
++    tags = ['gold_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/gold/core__fact_transactions.yml b/models/main_package/core/gold/core__fact_transactions.yml
+index 2e0a40d..c9709c4 100644
+--- a/models/main_package/core/gold/core__fact_transactions.yml
++++ b/models/main_package/core/gold/core__fact_transactions.yml
+@@ -54,49 +54,35 @@ models:
+         description: '{{ doc("evm_v") }}'
+       - name: ETH_VALUE
+         description: '{{ doc("evm_eth_value") }}'
+-      - name: >-
+-          {{ 'MINT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '1' }}
++      - name: MINT
+         description: '{{ doc("evm_mint") }}'
+-      - name: >-
+-          {{ 'SOURCE_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '2' }}
++      - name: SOURCE_HASH
+         description: '{{ doc("evm_source_hash") }}'
+-      - name: >-
+-          {{ 'MAX_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '3' }}
++      - name: MAX_FEE_PER_GAS
+         description: '{{ doc("evm_max_fee_per_gas") }}'
+-      - name: >-
+-          {{ 'MAX_PRIORITY_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '4' }}
++      - name: MAX_PRIORITY_FEE_PER_GAS
+         description: '{{ doc("evm_max_priority_fee_per_gas") }}'
+-      - name: >-
+-          {{ 'L1_FEE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '6' }}
++      - name: L1_FEE
+         description: '{{ doc("evm_l1_fee") }}'
+-      - name: >-
+-          {{ 'L1_FEE_PRECISE_RAW' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '7' }}
++      - name: L1_FEE_PRECISE_RAW
+         description: '{{ doc("evm_l1_fee_precise_raw") }}'
+-      - name: >-
+-          {{ 'L1_FEE_PRECISE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '8' }}
++      - name: L1_FEE_PRECISE
+         description: '{{ doc("evm_l1_fee_precise") }}'
+-      - name: >-
+-          {{ 'L1_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '9' }}
++      - name: L1_FEE_SCALAR
+         description: '{{ doc("evm_l1_fee_scalar") }}'
+-      - name: >-
+-          {{ 'L1_GAS_PRICE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '10' }}
++      - name: L1_GAS_PRICE
+         description: '{{ doc("evm_l1_gas_price") }}'
+-      - name: >-
+-          {{ 'L1_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOBA'] else '11' }}
++      - name: L1_GAS_USED
+         description: '{{ doc("evm_l1_gas_used") }}'
+-      - name: >-
+-          {{ 'Y_PARITY' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOB', 'BOBA'] else '12' }}
++      - name: Y_PARITY
+         description: '{{ doc("evm_y_parity") }}'
+       - name: ACCESS_LIST
+         description: '{{ doc("evm_access_list") }}'
+-      - name: >-
+-          {{ 'L1_BASE_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOBA'] else '14' }}
++      - name: L1_BASE_FEE_SCALAR
+         description: '{{ doc("evm_l1_base_fee_scalar") }}'
+-      - name: >-
+-          {{ 'L1_BLOB_BASE_FEE' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOBA'] else '15' }}
++      - name: L1_BLOB_BASE_FEE
+         description: '{{ doc("evm_l1_blob_base_fee") }}'
+-      - name: >-
+-          {{ 'L1_BLOB_BASE_FEE_SCALAR' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'SWELL', 'BOBA'] else '16' }}
++      - name: L1_BLOB_BASE_FEE_SCALAR
+         description: '{{ doc("evm_l1_blob_base_fee_scalar") }}'
+       - name: FACT_TRANSACTIONS_ID
+         description: '{{ doc("evm_pk") }}'
+diff --git a/models/main_package/core/silver/silver__blocks.sql b/models/main_package/core/silver/silver__blocks.sql
+index a6d1d84..8056c38 100644
+--- a/models/main_package/core/silver/silver__blocks.sql
++++ b/models/main_package/core/silver/silver__blocks.sql
+@@ -14,7 +14,7 @@
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = silver_full_refresh,
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% else %}
+@@ -26,7 +26,7 @@
+     cluster_by = ['modified_timestamp::DATE','partition_key'],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/silver/silver__contracts.sql b/models/main_package/core/silver/silver__contracts.sql
+index fc93b1f..0606a89 100644
+--- a/models/main_package/core/silver/silver__contracts.sql
++++ b/models/main_package/core/silver/silver__contracts.sql
+@@ -5,7 +5,7 @@
+     materialized = 'incremental',
+     unique_key = 'contract_address',
+     merge_exclude_columns = ["inserted_timestamp"],
+-    tags = ['silver_core','phase_2']
++    tags = ['silver_core']
+ ) }}
+ 
+ WITH base_metadata AS (
+diff --git a/models/main_package/core/silver/silver__created_contracts.sql b/models/main_package/core/silver/silver__created_contracts.sql
+index 9ed023d..ab524b4 100644
+--- a/models/main_package/core/silver/silver__created_contracts.sql
++++ b/models/main_package/core/silver/silver__created_contracts.sql
+@@ -6,7 +6,7 @@
+     unique_key = "created_contract_address",
+     merge_exclude_columns = ["inserted_timestamp"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(block_timestamp, tx_hash, created_contract_address, creator_address), SUBSTRING(created_contract_address, creator_address)",
+-    tags = ['silver_core', 'phase_2']
++    tags = ['silver_core']
+ ) }}
+ 
+ SELECT
+diff --git a/models/main_package/core/silver/silver__proxies.sql b/models/main_package/core/silver/silver__proxies.sql
+index c7e11ed..6b2db83 100644
+--- a/models/main_package/core/silver/silver__proxies.sql
++++ b/models/main_package/core/silver/silver__proxies.sql
+@@ -6,7 +6,7 @@
+     unique_key = ["contract_address", "implementation_contract"],
+     cluster_by = ["start_timestamp::date"],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+-    tags = ['silver_core', 'phase_2']
++    tags = ['silver_core']
+ ) }}
+ 
+ WITH base AS (
+diff --git a/models/main_package/core/silver/silver__receipts.sql b/models/main_package/core/silver/silver__receipts.sql
+index 0fa6511..f934eb4 100644
+--- a/models/main_package/core/silver/silver__receipts.sql
++++ b/models/main_package/core/silver/silver__receipts.sql
+@@ -18,7 +18,7 @@
+     post_hook = post_hook,
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = silver_full_refresh,
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% else %}
+@@ -30,7 +30,7 @@
+     cluster_by = ['modified_timestamp::DATE','partition_key'],
+     post_hook = post_hook,
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/silver/silver__relevant_contracts.sql b/models/main_package/core/silver/silver__relevant_contracts.sql
+index f00e4ac..f6cf4bc 100644
+--- a/models/main_package/core/silver/silver__relevant_contracts.sql
++++ b/models/main_package/core/silver/silver__relevant_contracts.sql
+@@ -5,7 +5,7 @@
+     materialized = 'incremental',
+     unique_key = "contract_address",
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+-    tags = ['silver_core', 'phase_2']
++    tags = ['silver_core']
+ ) }}
+ 
+ WITH emitted_events AS (
+diff --git a/models/main_package/core/silver/silver__traces.sql b/models/main_package/core/silver/silver__traces.sql
+index 569188d..ed7509b 100644
+--- a/models/main_package/core/silver/silver__traces.sql
++++ b/models/main_package/core/silver/silver__traces.sql
+@@ -23,7 +23,7 @@
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = silver_full_refresh,
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% else %}
+@@ -35,7 +35,7 @@
+     cluster_by = ['modified_timestamp::DATE','partition_key'],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/core/silver/silver__transactions.sql b/models/main_package/core/silver/silver__transactions.sql
+index cedbab1..b388d6d 100644
+--- a/models/main_package/core/silver/silver__transactions.sql
++++ b/models/main_package/core/silver/silver__transactions.sql
+@@ -15,7 +15,7 @@
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+     incremental_predicates = [fsc_evm.standard_predicate()],
+     full_refresh = silver_full_refresh,
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% else %}
+@@ -27,7 +27,7 @@
+     cluster_by = ['modified_timestamp::DATE','partition_key'],
+     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+     incremental_predicates = [fsc_evm.standard_predicate()],
+-    tags = ['silver_core', 'phase_1']
++    tags = ['silver_core']
+ ) }}
+ 
+ {% endif %}
+diff --git a/models/main_package/prices/bronze/bronze__complete_native_asset_metadata.sql b/models/main_package/prices/bronze/bronze__complete_native_asset_metadata.sql
+index 2e0fb86..0f6287a 100644
+--- a/models/main_package/prices/bronze/bronze__complete_native_asset_metadata.sql
++++ b/models/main_package/prices/bronze/bronze__complete_native_asset_metadata.sql
+@@ -8,7 +8,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_prices','phase_2']
++    tags = ['bronze_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/bronze/bronze__complete_native_prices.sql b/models/main_package/prices/bronze/bronze__complete_native_prices.sql
+index 328eec9..f7a4ea1 100644
+--- a/models/main_package/prices/bronze/bronze__complete_native_prices.sql
++++ b/models/main_package/prices/bronze/bronze__complete_native_prices.sql
+@@ -8,7 +8,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_prices','phase_2']
++    tags = ['bronze_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/bronze/bronze__complete_provider_asset_metadata.sql b/models/main_package/prices/bronze/bronze__complete_provider_asset_metadata.sql
+index 79ecfe5..770c784 100644
+--- a/models/main_package/prices/bronze/bronze__complete_provider_asset_metadata.sql
++++ b/models/main_package/prices/bronze/bronze__complete_provider_asset_metadata.sql
+@@ -7,7 +7,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_prices','phase_2']
++    tags = ['bronze_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/bronze/bronze__complete_provider_prices.sql b/models/main_package/prices/bronze/bronze__complete_provider_prices.sql
+index c45aa85..1a2b82a 100644
+--- a/models/main_package/prices/bronze/bronze__complete_provider_prices.sql
++++ b/models/main_package/prices/bronze/bronze__complete_provider_prices.sql
+@@ -4,7 +4,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_prices','phase_2']
++    tags = ['bronze_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/bronze/bronze__complete_token_asset_metadata.sql b/models/main_package/prices/bronze/bronze__complete_token_asset_metadata.sql
+index 5d8e0d2..af6dbbb 100644
+--- a/models/main_package/prices/bronze/bronze__complete_token_asset_metadata.sql
++++ b/models/main_package/prices/bronze/bronze__complete_token_asset_metadata.sql
+@@ -8,7 +8,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_prices','phase_2']
++    tags = ['bronze_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/bronze/bronze__complete_token_prices.sql b/models/main_package/prices/bronze/bronze__complete_token_prices.sql
+index 251f696..bd8fe74 100644
+--- a/models/main_package/prices/bronze/bronze__complete_token_prices.sql
++++ b/models/main_package/prices/bronze/bronze__complete_token_prices.sql
+@@ -8,7 +8,7 @@
+ {# Set up dbt configuration #}
+ {{ config (
+     materialized = 'view',
+-    tags = ['bronze_prices','phase_2']
++    tags = ['bronze_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/gold/price__dim_asset_metadata.sql b/models/main_package/prices/gold/price__dim_asset_metadata.sql
+index c518b89..1dcfd07 100644
+--- a/models/main_package/prices/gold/price__dim_asset_metadata.sql
++++ b/models/main_package/prices/gold/price__dim_asset_metadata.sql
+@@ -10,7 +10,7 @@
+     incremental_strategy = 'delete+insert',
+     unique_key = 'dim_asset_metadata_id',
+     post_hook = post_hook,
+-    tags = ['gold_prices','phase_2']
++    tags = ['gold_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/gold/price__ez_asset_metadata.sql b/models/main_package/prices/gold/price__ez_asset_metadata.sql
+index 88cb759..7ab09f9 100644
+--- a/models/main_package/prices/gold/price__ez_asset_metadata.sql
++++ b/models/main_package/prices/gold/price__ez_asset_metadata.sql
+@@ -10,7 +10,7 @@
+     incremental_strategy = 'delete+insert',
+     unique_key = 'ez_asset_metadata_id',
+     post_hook = post_hook,
+-    tags = ['gold_prices','phase_2']
++    tags = ['gold_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/gold/price__ez_prices_hourly.sql b/models/main_package/prices/gold/price__ez_prices_hourly.sql
+index 89379af..2196176 100644
+--- a/models/main_package/prices/gold/price__ez_prices_hourly.sql
++++ b/models/main_package/prices/gold/price__ez_prices_hourly.sql
+@@ -11,7 +11,7 @@
+     unique_key = 'ez_prices_hourly_id',
+     cluster_by = ['hour::DATE'],
+     post_hook = post_hook,
+-    tags = ['gold_prices','phase_2']
++    tags = ['gold_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/gold/price__fact_prices_ohlc_hourly.sql b/models/main_package/prices/gold/price__fact_prices_ohlc_hourly.sql
+index ea4a94e..e436f1d 100644
+--- a/models/main_package/prices/gold/price__fact_prices_ohlc_hourly.sql
++++ b/models/main_package/prices/gold/price__fact_prices_ohlc_hourly.sql
+@@ -11,7 +11,7 @@
+     unique_key = 'fact_prices_ohlc_hourly_id',
+     cluster_by = ['hour::DATE','provider'],
+     post_hook = post_hook,
+-    tags = ['gold_prices','phase_2']
++    tags = ['gold_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/silver/silver__complete_native_asset_metadata.sql b/models/main_package/prices/silver/silver__complete_native_asset_metadata.sql
+index af80154..853c342 100644
+--- a/models/main_package/prices/silver/silver__complete_native_asset_metadata.sql
++++ b/models/main_package/prices/silver/silver__complete_native_asset_metadata.sql
+@@ -6,7 +6,7 @@
+     materialized = 'incremental',
+     incremental_strategy = 'delete+insert',
+     unique_key = 'complete_native_asset_metadata_id',
+-    tags = ['silver_prices','phase_2']
++    tags = ['silver_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/silver/silver__complete_native_prices.sql b/models/main_package/prices/silver/silver__complete_native_prices.sql
+index 48faee8..5297eea 100644
+--- a/models/main_package/prices/silver/silver__complete_native_prices.sql
++++ b/models/main_package/prices/silver/silver__complete_native_prices.sql
+@@ -7,7 +7,7 @@
+     incremental_strategy = 'delete+insert',
+     unique_key = 'complete_native_prices_id',
+     cluster_by = ['hour::DATE'],
+-    tags = ['silver_prices','phase_2']
++    tags = ['silver_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/silver/silver__complete_provider_asset_metadata.sql b/models/main_package/prices/silver/silver__complete_provider_asset_metadata.sql
+index f2f51b7..2105a80 100644
+--- a/models/main_package/prices/silver/silver__complete_provider_asset_metadata.sql
++++ b/models/main_package/prices/silver/silver__complete_provider_asset_metadata.sql
+@@ -6,7 +6,7 @@
+     materialized = 'incremental',
+     incremental_strategy = 'delete+insert',
+     unique_key = 'complete_provider_asset_metadata_id',
+-    tags = ['silver_prices','phase_2']
++    tags = ['silver_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/silver/silver__complete_provider_prices.sql b/models/main_package/prices/silver/silver__complete_provider_prices.sql
+index 3203a4d..faadbae 100644
+--- a/models/main_package/prices/silver/silver__complete_provider_prices.sql
++++ b/models/main_package/prices/silver/silver__complete_provider_prices.sql
+@@ -7,7 +7,7 @@
+     incremental_strategy = 'delete+insert',
+     unique_key = 'complete_provider_prices_id',
+     cluster_by = ['recorded_hour::DATE','provider'],
+-    tags = ['silver_prices','phase_2']
++    tags = ['silver_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/silver/silver__complete_token_asset_metadata.sql b/models/main_package/prices/silver/silver__complete_token_asset_metadata.sql
+index 9ce8a53..5c8a722 100644
+--- a/models/main_package/prices/silver/silver__complete_token_asset_metadata.sql
++++ b/models/main_package/prices/silver/silver__complete_token_asset_metadata.sql
+@@ -6,7 +6,7 @@
+     materialized = 'incremental',
+     incremental_strategy = 'delete+insert',
+     unique_key = 'complete_token_asset_metadata_id',
+-    tags = ['silver_prices','phase_2']
++    tags = ['silver_prices']
+ ) }}
+ 
+ {# Main query starts here #}
+diff --git a/models/main_package/prices/silver/silver__complete_token_prices.sql b/models/main_package/prices/silver/silver__complete_token_prices.sql
+index b7920a6..9b2df3a 100644
+--- a/models/main_package/prices/silver/silver__complete_token_prices.sql
++++ b/models/main_package/prices/silver/silver__complete_token_prices.sql
+@@ -7,7 +7,7 @@
+     incremental_strategy = 'delete+insert',
+     unique_key = 'complete_token_prices_id',
+     cluster_by = ['hour::DATE'],
+-    tags = ['silver_prices','phase_2']
++    tags = ['silver_prices']
+ ) }}
+ 
+ {# Main query starts here #}
