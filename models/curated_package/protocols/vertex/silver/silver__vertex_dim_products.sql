@@ -58,7 +58,7 @@ api_pull AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/api/v2/assets'
+                'https://gateway.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/api/v2/assets'
 
             )
         ) :data AS response

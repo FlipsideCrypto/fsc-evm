@@ -18,8 +18,7 @@ models:
         description: '{{ doc("evm_size") }}'
       - name: MINER
         description: '{{ doc("evm_miner") }}'
-      - name: >-
-          {{ 'BASE_FEE_PER_GAS' if var('GLOBAL_PROD_DB_NAME').upper() not in ['CORE'] else '0' }}
+      - name: BASE_FEE_PER_GAS
         description: '{{ doc("evm_base_fee_per_gas") }}'
       - name: >-
           {{ 'MIX_HASH' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK', 'MANTLE', 'SWELL', 'BOB', 'BOBA'] else '1' }}

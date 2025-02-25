@@ -1,4 +1,7 @@
 {% test find_missing_decoded_logs(model, fact_logs_model, wrapped_asset_address) %}
+
+{% set wrapped_asset_address = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
+
 SELECT
     l.block_number,
     l.fact_event_logs_id

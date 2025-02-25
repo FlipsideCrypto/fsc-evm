@@ -1,14 +1,16 @@
 {# Set variables #}
+{%- set package_name = 'MAIN' -%}
 {%- set model_name = 'RECEIPTS_BY_HASH' -%}
 {%- set model_type = 'HISTORY' -%}
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
+{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
 
-{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
 
-{%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
+{%- set multiplier = get_var('MAIN_SL_RECEIPTS_BY_HASH_AVG_TXNS_PER_BLOCK', 1) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set streamline_params = set_streamline_parameters(
+    package_name=package_name,
     model_name=model_name,
     model_type=model_type,
     multiplier=multiplier

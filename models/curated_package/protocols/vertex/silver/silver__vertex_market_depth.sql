@@ -21,7 +21,7 @@ WITH market_depth AS ({% for item in range(55) %}
     FROM
         (
     SELECT
-        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
+        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
     FROM
         (
     SELECT
@@ -46,7 +46,7 @@ WITH market_depth AS ({% for item in range(55) %}
     FROM
         (
     SELECT
-        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
+        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
     FROM
         (
     SELECT
