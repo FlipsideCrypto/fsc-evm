@@ -292,7 +292,7 @@ WHERE
             txs.v
         FROM
             transactions_fields txs
-            LEFT JOIN {{ ref('core__fact_blocks') }}
+            LEFT JOIN {{ ref('fsc_evm', 'core__fact_blocks') }}
             b
             ON txs.block_number = b.block_number
 
@@ -406,7 +406,7 @@ missing_data AS (
         utils.udf_decimal_adjust(
             t.gas_price * utils.udf_hex_to_int(
                 r.receipts_json :gasUsed :: STRING
-            ) :: bigint, 
+            ) :: bigint,
             9
         ) AS tx_fee_precise_heal,
         {% endif %}
@@ -443,7 +443,7 @@ missing_data AS (
     FROM
         {{ this }}
         t
-        LEFT JOIN {{ ref('core__fact_blocks') }}
+        LEFT JOIN {{ ref('fsc_evm', 'core__fact_blocks') }}
         b
         ON t.block_number = b.block_number
         LEFT JOIN {{ ref('silver__receipts') }}

@@ -60,12 +60,12 @@ new_records as (
         origin_to_address,
         origin_function_signature,
         tx_succeeded,
-        event_name, 
+        event_name,
         full_decoded_log,
         decoded_log,
         name as contract_name
-    FROM base b 
-    LEFT JOIN {{ ref('core__fact_event_logs') }} fel
+    FROM base b
+    LEFT JOIN {{ ref('fsc_evm', 'core__fact_event_logs') }} fel
     on b.block_number = fel.block_number and b.event_index = fel.event_index
     {% if is_incremental() %}
         and fel.inserted_timestamp > dateadd('day', -3, sysdate())
@@ -94,12 +94,12 @@ missing_tx_data AS (
         fel.origin_to_address,
         fel.origin_function_signature,
         fel.tx_succeeded,
-        t.event_name, 
+        t.event_name,
         t.full_decoded_log,
         t.decoded_log,
         t.contract_name
     FROM {{ this }} t
-    INNER JOIN {{ ref('core__fact_event_logs') }} fel 
+    INNER JOIN {{ ref('fsc_evm', 'core__fact_event_logs') }} fel
     USING (block_number, event_index)
     WHERE t.tx_succeeded IS NULL OR t.block_timestamp IS NULL and fel.block_timestamp IS NOT NULL
 ),
@@ -122,7 +122,7 @@ missing_contract_data AS (
         origin_to_address,
         origin_function_signature,
         tx_succeeded,
-        event_name, 
+        event_name,
         full_decoded_log,
         decoded_log,
         dc.name as contract_name
@@ -132,7 +132,7 @@ missing_contract_data AS (
     WHERE t.contract_name IS NULL
 )
 {% endif %}
-, 
+,
 FINAL as (
     SELECT
         block_number,
@@ -152,7 +152,7 @@ FINAL as (
         origin_to_address,
         origin_function_signature,
         tx_succeeded,
-        event_name, 
+        event_name,
         full_decoded_log,
         decoded_log,
         contract_name
@@ -160,7 +160,7 @@ FINAL as (
         new_records
 
     {% if is_incremental() %}
-    UNION ALL 
+    UNION ALL
     SELECT
         block_number,
         block_timestamp,
@@ -179,13 +179,13 @@ FINAL as (
         origin_to_address,
         origin_function_signature,
         tx_succeeded,
-        event_name, 
+        event_name,
         full_decoded_log,
         decoded_log,
         contract_name
     FROM
         missing_tx_data
-    UNION ALL 
+    UNION ALL
     SELECT
         block_number,
         block_timestamp,
@@ -204,7 +204,7 @@ FINAL as (
         origin_to_address,
         origin_function_signature,
         tx_succeeded,
-        event_name, 
+        event_name,
         full_decoded_log,
         decoded_log,
         contract_name
@@ -212,7 +212,7 @@ FINAL as (
         missing_contract_data
     {% endif %}
 )
-SELECT 
+SELECT
     block_number,
     block_timestamp,
     tx_hash,
@@ -230,7 +230,7 @@ SELECT
     origin_to_address,
     origin_function_signature,
     tx_succeeded,
-    event_name, 
+    event_name,
     full_decoded_log,
     decoded_log,
     contract_name,
