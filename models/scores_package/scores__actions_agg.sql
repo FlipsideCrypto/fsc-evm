@@ -2,9 +2,9 @@
 -- depends_on: {{ ref('core__dim_labels') }}
 -- depends_on: {{ ref('core__dim_contracts') }}
 
-{% set blockchain = get_var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
-{% set score_date_limit = get_var('SCORES_LIMIT_DAYS', 30) %}
+{% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
+{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
+{% set score_date_limit = var('SCORES_DATE_LIMIT', 30) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set clearinghouse = get_var('CURATED_VERTEX_CLEARINGHOUSE_CONTRACT', '') -%}
+{%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}

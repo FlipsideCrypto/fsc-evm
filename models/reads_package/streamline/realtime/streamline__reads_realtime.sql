@@ -1,13 +1,11 @@
 {# Set variables #}
-{%- set package_name = 'MAIN' -%}
 {%- set model_name = 'READS' -%}
 {%- set model_type = 'REALTIME' -%}
 
-{%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set streamline_params = set_streamline_parameters_reads(
-    package_name=package_name,
     model_name=model_name,
     model_type=model_type
 ) -%}

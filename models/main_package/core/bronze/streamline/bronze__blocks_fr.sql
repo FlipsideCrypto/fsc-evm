@@ -16,7 +16,7 @@ SELECT
     _inserted_timestamp
 FROM
     {{ ref('bronze__blocks_fr_v2') }}
-{% if get_var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) %}
+{% if var('GLOBAL_USES_STREAMLINE_V1', false) %}
 UNION ALL
 SELECT
     _partition_by_block_id AS partition_key,
@@ -29,7 +29,7 @@ SELECT
 FROM
    {{ ref('bronze__blocks_fr_v1') }}
 {% endif %}
-{% if get_var('MAIN_SL_BLOCKS_TRANSACTIONS_PATH_ENABLED', false) %}
+{% if var('GLOBAL_USES_BLOCKS_TRANSACTIONS_PATH', false) %}
 UNION ALL
 SELECT
     partition_key,

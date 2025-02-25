@@ -1,4 +1,4 @@
-{% set abi_block_explorer_name = get_var('DECODER_ABIS_EXPLORER_NAME','') %}
+{% set abi_block_explorer_name = var('BLOCK_EXPLORER_NAME','') %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

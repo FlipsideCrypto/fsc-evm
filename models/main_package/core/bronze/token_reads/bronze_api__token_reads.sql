@@ -1,5 +1,5 @@
-{%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
-{%- set node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') -%}
+{%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
+{%- set node_secret_path = var('GLOBAL_NODE_SECRET_PATH', '') -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}
