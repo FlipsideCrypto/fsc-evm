@@ -1,8 +1,9 @@
 {# Set variables #}
+{%- set package_name = 'READS' -%}
 {%- set source_name = 'READS' -%}
 {%- set model_type = 'COMPLETE' -%}
 
-{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), false) -%}
+{%- set full_refresh_type = get_var((package_name ~ '_SL_' ~ source_name ~ '_' ~ model_type ~ '_FR_ENABLED').upper(), false) -%}
 
 {% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_reads_id)" %}
 

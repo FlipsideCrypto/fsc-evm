@@ -5,8 +5,8 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = var(
-    'BLOCKS_TRANSACTIONS_REALTIME_NEW_BUILD',
+{% set new_build = get_var(
+    'MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_NEW_BUILD_ENABLED',
     false
 ) %}
 {% if new_build %}

@@ -14,19 +14,19 @@
 {% set includes_blob_base_fee = ['INK','SWELL','BOBA'] %}
 
 {# Set Variables using inclusions and exclusions #}
-{% set uses_eip_1559 = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_eip_1559 %}
-{% set uses_l1_columns = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_columns %}
-{% set uses_l1_tx_fee_calc = var('GLOBAL_PROD_DB_NAME').upper() in includes_l1_tx_fee_calc %}
-{% set uses_eth_value = var('GLOBAL_PROD_DB_NAME').upper() in includes_eth_value %}
-{% set uses_mint = var('GLOBAL_PROD_DB_NAME').upper() in includes_mint %}
-{% set uses_y_parity = var('GLOBAL_PROD_DB_NAME').upper() in includes_y_parity %}
-{% set uses_access_list = var('GLOBAL_PROD_DB_NAME').upper() in includes_access_list %}
-{% set uses_source_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_source_hash %}
-{% set uses_blob_base_fee = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_base_fee %}
+{% set uses_eip_1559 = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_eip_1559 %}
+{% set uses_l1_columns = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_l1_columns %}
+{% set uses_l1_tx_fee_calc = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_l1_tx_fee_calc %}
+{% set uses_eth_value = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_eth_value %}
+{% set uses_mint = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_mint %}
+{% set uses_y_parity = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_y_parity %}
+{% set uses_access_list = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_access_list %}
+{% set uses_source_hash = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_source_hash %}
+{% set uses_blob_base_fee = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_blob_base_fee %}
 {# Prod DB Variables End #}
 
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
+{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 
 {# Log configuration details #}

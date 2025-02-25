@@ -1,4 +1,4 @@
-{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
+{% set full_reload_mode = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
