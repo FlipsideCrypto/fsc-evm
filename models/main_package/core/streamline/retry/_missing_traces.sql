@@ -1,20 +1,7 @@
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config(
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = get_var(
-    'MAIN_SL_TRACES_REALTIME_NEW_BUILD_ENABLED',
-    false
-) %}
-
-{% if new_build %}
-
-    SELECT
-        -1 AS block_number
-    {% else %}
     SELECT
         DISTINCT tx.block_number
     FROM
@@ -28,4 +15,3 @@
     WHERE
         tr.tx_hash IS NULL
         AND tx.block_timestamp > DATEADD('day', -5, SYSDATE())
-{% endif %}
