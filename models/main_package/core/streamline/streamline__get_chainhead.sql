@@ -1,6 +1,6 @@
-{%- set model_quantum_state = get_var('MAIN_SL_CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
+{%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
 
-{%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
+{%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -28,7 +28,7 @@ SELECT
             'params',
             []
         ),
-        '{{ get_var('GLOBAL_NODE_VAULT_PATH','') }}'
+        '{{ var('GLOBAL_NODE_SECRET_PATH') }}'
     ) AS resp,
     utils.udf_hex_to_int(
         resp :data :result :: STRING

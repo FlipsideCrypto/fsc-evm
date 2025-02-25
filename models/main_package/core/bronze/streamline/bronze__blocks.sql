@@ -1,6 +1,6 @@
 {# Set variables #}
 {% set source_name = 'BLOCKS' %}
-{% set source_version = 'V2' if get_var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) or get_var('MAIN_SL_BLOCKS_TRANSACTIONS_PATH_ENABLED', false) else '' %}
+{% set source_version = 'V2' if var('GLOBAL_USES_STREAMLINE_V1', false) or var('GLOBAL_USES_BLOCKS_TRANSACTIONS_PATH', false) else '' %}
 {% set model_type = '' %}
 
 {%- set default_vars = set_default_variables_bronze(source_name, model_type) -%}

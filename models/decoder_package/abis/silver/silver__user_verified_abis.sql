@@ -1,4 +1,4 @@
-{% set chain = get_var('GLOBAL_PROD_DB_NAME','') %}
+{% set chain = var('GLOBAL_PROD_DB_NAME','') %}
 
 {# Log configuration details #}
 {{ log_model_details() }}

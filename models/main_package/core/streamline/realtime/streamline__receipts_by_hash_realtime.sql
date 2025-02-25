@@ -1,17 +1,15 @@
 {# Set variables #}
-{%- set package_name = 'MAIN' -%}
 {%- set model_name = 'RECEIPTS_BY_HASH' -%}
 {%- set model_type = 'REALTIME' -%}
-{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
-{%- set txs_model_built = get_var('MAIN_SL_RECEIPTS_BY_HASH_TXNS_MODEL_ENABLED', True) -%}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
+{%- set txs_model_built = var('GLOBAL_TXS_MODEL_BUILT', True) -%}
 
-{%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
-{%- set multiplier = get_var('MAIN_SL_RECEIPTS_BY_HASH_AVG_TXNS_PER_BLOCK', 1) -%}
+{%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set streamline_params = set_streamline_parameters(
-    package_name=package_name,
     model_name=model_name,
     model_type=model_type,
     multiplier=multiplier
@@ -66,7 +64,7 @@ WITH numbered_blocks AS (
             ORDER BY
                 block_number DESC
             LIMIT
-                {{ get_var('MAIN_SL_BLOCKS_PER_HOUR', sql_limit) }}
+                {{ var('GLOBAL_BLOCKS_PER_HOUR', sql_limit) }}
         )
 ), batched_blocks AS (
     SELECT

@@ -1,9 +1,9 @@
-{% set block_explorer_abi_limit = get_var('DECODER_ABIS_EXPLORER_LIMIT', 50) %}
-{% set block_explorer_abi_url = get_var('DECODER_ABIS_EXPLORER_URL', '') %}
-{% set block_explorer_abi_url_suffix = get_var('DECODER_ABIS_EXPLORER_URL_SUFFIX', '') %}
-{% set block_explorer_vault_path = get_var('DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH', '') %}
-{% set block_explorer_abi_interaction_limit = get_var('DECODER_ABIS_EXPLORER_INTERACTION_LIMIT', 250) %}
-{% set bronze_full_refresh = get_var('DECODER_ABIS_CONTRACT_ABIS_FR_ENABLED', false) %}
+{% set block_explorer_abi_limit = var('BLOCK_EXPLORER_ABI_LIMIT', 50) %}
+{% set block_explorer_abi_url = var('BLOCK_EXPLORER_ABI_URL', '') %}
+{% set block_explorer_abi_url_suffix = var('BLOCK_EXPLORER_ABI_URL_SUFFIX', '') %}
+{% set block_explorer_vault_path = var('BLOCK_EXPLORER_ABI_API_KEY_PATH', '') %}
+{% set block_explorer_abi_interaction_limit = var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT', 250) %}
+{% set bronze_full_refresh = var('BRONZE_CONTRACT_ABIS_FULL_REFRESH', false) %}
 
 
 {# Log configuration details #}
