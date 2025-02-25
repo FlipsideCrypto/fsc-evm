@@ -1,7 +1,7 @@
-{% set native_token_address = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS','') %}
-{% set native_price_start_date = get_var('MAIN_CORE_NATIVE_PRICES_START_DATE','2024-01-01') %}
-{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
+{% set native_token_address = var('GLOBAL_WRAPPED_ASSET_ADDRESS','') %}
+{% set native_price_start_date = var('NATIVE_PRICE_START_DATE','2024-01-01') %}
+{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
+{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
 

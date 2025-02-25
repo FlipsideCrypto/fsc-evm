@@ -1,5 +1,5 @@
-{% set observ_uses_exclusion_list_receipts = get_var(
-    'MAIN_OBSERV_RECEIPTS_EXCLUSION_LIST_ENABLED',
+{% set observ_uses_exclusion_list_receipts = var(
+    'OBSERV_USES_EXCLUSION_LIST_RECEIPTS',
     false
 ) %}
 
@@ -40,7 +40,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if get_var('MAIN_OBSERV_FULL_TEST_ENABLED') %}
+{% if var('OBSERV_FULL_TEST') %}
 UNION ALL
 SELECT
     0

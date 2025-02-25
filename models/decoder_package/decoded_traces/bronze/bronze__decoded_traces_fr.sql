@@ -10,7 +10,7 @@ SELECT
     *
 FROM
     {{ ref('bronze__decoded_traces_fr_v2') }}
-{% if get_var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) %}
+{% if var('GLOBAL_USES_STREAMLINE_V1', false) %}
 UNION ALL
 SELECT
     *

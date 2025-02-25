@@ -1,5 +1,5 @@
 {# Set variables #}
-{%- set token_address = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') -%}
+{%- set token_address = var('STATS_TOKEN_ADDRESS', '') -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}

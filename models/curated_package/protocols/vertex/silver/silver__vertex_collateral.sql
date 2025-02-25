@@ -1,6 +1,6 @@
 {# Set variables #}
-{%- set clearinghouse = get_var('CURATED_VERTEX_CLEARINGHOUSE_CONTRACT', '') -%}
-{%- set token_mapping = get_var('TOKEN_MAPPING',{}) -%}
+{%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
+{%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
 
 {# Log configuration details #}
 {{ log_model_details() }}

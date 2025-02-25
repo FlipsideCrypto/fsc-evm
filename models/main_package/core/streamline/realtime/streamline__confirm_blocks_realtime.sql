@@ -1,14 +1,12 @@
 {# Set variables #}
-{%- set package_name = 'MAIN' -%}
 {%- set model_name = 'CONFIRM_BLOCKS' -%}
 {%- set model_type = 'REALTIME' -%}
-{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
+{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
 
-{%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
+{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
 
 {# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
 {%- set streamline_params = set_streamline_parameters(
-    package_name=package_name,
     model_name=model_name,
     model_type=model_type
 ) -%}

@@ -8,7 +8,7 @@ DBT Model Config:
     
 {% if vars is not false %}
 
-{% if get_var('GLOBAL_LOGGING_MODEL_LOGS_ENABLED', false) %}
+{% if var('LOG_MODEL_DETAILS', false) %}
 {{ log( vars | tojson(indent=2), info=True) }}
 {% endif %}
 /*
@@ -19,7 +19,7 @@ Variables:
 
 {% if params is not false %}
 
-{% if get_var('GLOBAL_LOGGING_MODEL_LOGS_ENABLED', false) %}
+{% if var('LOG_MODEL_DETAILS', false) %}
 {{ log( params | tojson(indent=2), info=True) }}
 {% endif %}
 /*

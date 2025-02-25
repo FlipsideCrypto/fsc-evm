@@ -5,12 +5,12 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = get_var(
-    'MAIN_SL_RECEIPTS_REALTIME_NEW_BUILD_ENABLED',
+{% set new_build = var(
+    'RECEIPTS_REALTIME_NEW_BUILD',
     false
 ) %}
-{% set new_build_by_hash = get_var(
-    'MAIN_SL_RECEIPTS_BY_HASH_REALTIME_NEW_BUILD_ENABLED',
+{% set new_build_by_hash = var(
+    'RECEIPTS_BY_HASH_REALTIME_NEW_BUILD',
     false
 ) %}
 
