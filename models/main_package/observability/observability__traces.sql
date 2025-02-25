@@ -1,5 +1,5 @@
-{% set observ_uses_exclusion_list_traces = var(
-    'OBSERV_USES_EXCLUSION_LIST_TRACES',
+{% set observ_uses_exclusion_list_traces = get_var(
+    'MAIN_OBSERV_TRACES_EXCLUSION_LIST_ENABLED',
     false
 ) %}
 
@@ -40,7 +40,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if var('OBSERV_FULL_TEST') %}
+{% if get_var('MAIN_OBSERV_FULL_TEST_ENABLED') %}
 UNION ALL
 SELECT
     0
