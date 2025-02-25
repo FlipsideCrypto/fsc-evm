@@ -1,46 +1,17 @@
-{# Set variables #}
-{%- set package_name = 'MAIN' -%}
-{%- set model_name = 'RECEIPTS_BY_HASH' -%}
-{%- set model_type = 'REALTIME' -%}
-{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
-{%- set txs_model_built = get_var('MAIN_SL_RECEIPTS_BY_HASH_TXNS_MODEL_ENABLED', True) -%}
-
-{%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
-
-{%- set multiplier = get_var('MAIN_SL_RECEIPTS_BY_HASH_AVG_TXNS_PER_BLOCK', 1) -%}
-
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set streamline_params = set_streamline_parameters(
-    package_name=package_name,
-    model_name=model_name,
-    model_type=model_type,
-    multiplier=multiplier
-) -%}
-
-{%- set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] -%}
-{%- set node_url = default_vars['node_url'] -%}
-{%- set node_secret_path = default_vars['node_secret_path'] -%}
-{%- set model_quantum_state = default_vars['model_quantum_state'] -%}
-{%- set sql_limit = streamline_params['sql_limit'] -%}
-{%- set testing_limit = default_vars['testing_limit'] -%}
-{%- set order_by_clause = default_vars['order_by_clause'] -%}
-{%- set new_build = default_vars['new_build'] -%}
-{%- set method_params = streamline_params['method_params'] -%}
-{%- set method = streamline_params['method'] -%}
-
-{# Log configuration details #}
-{{ log_model_details(
-    vars = default_vars,    
-    params = streamline_params    
-) }}
-
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
     post_hook = fsc_utils.if_data_call_function_v2(
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
+        params = {
+            "external_table": "receipts_by_hash",
+            "sql_limit": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT}},
+            "producer_batch_size": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_PRODUCER_BATCH_SIZE}},
+            "worker_batch_size": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_WORKER_BATCH_SIZE}},
+            "async_concurrent_requests": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_ASYNC_CONCURRENT_REQUESTS}},
+            "sql_source" :"{{this.identifier}}"
+        }
     ),
     tags = ['streamline_core_realtime_receipts_by_hash']
 ) }}
@@ -66,7 +37,7 @@ WITH numbered_blocks AS (
             ORDER BY
                 block_number DESC
             LIMIT
-                {{ get_var('MAIN_SL_BLOCKS_PER_HOUR', sql_limit) }}
+                {{ MAIN_SL_BLOCKS_PER_HOUR }}
         )
 ), batched_blocks AS (
     SELECT
@@ -148,11 +119,8 @@ to_do AS (
         FROM
             flat_tx_hashes
         WHERE 1=1
-        {% if min_block is not none %}
-            AND block_number >= {{ min_block }}
-        {% endif %}
 
-        {% if txs_model_built %}
+        {% if not MAIN_SL_NEW_BUILD_ENABLED %}
         UNION ALL
         SELECT
             block_number,
@@ -169,9 +137,9 @@ to_do AS (
         block_number,
         tx_hash
     FROM
-        {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
+        {{ ref('streamline__receipts_by_hash_complete') }}
     WHERE 1=1
-        {% if not new_build %}
+        {% if not MAIN_SL_NEW_BUILD_ENABLED %}
             AND block_number >= (SELECT block_number FROM {{ ref('_block_lookback') }})
         {% endif %}
 ),
@@ -182,7 +150,7 @@ ready_blocks AS (
     FROM
         to_do
 
-    {% if not new_build %}
+    {% if not MAIN_SL_NEW_BUILD_ENABLED %}
 
         UNION
         SELECT
@@ -194,8 +162,8 @@ ready_blocks AS (
 
     {% endif %}
 
-    {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+    {% if MAIN_SL_TESTING_LIMIT is not none %}
+        LIMIT {{ MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 SELECT
@@ -211,19 +179,19 @@ SELECT
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', 'streamline'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ method }}',
-            'params', {{ method_params }}
+            'method', 'eth_getTransactionReceipt',
+            'params', ARRAY_CONSTRUCT(tx_hash)
         ),
         '{{ node_secret_path }}'
     ) AS request
 FROM
     ready_blocks
 
-{{ order_by_clause }}
+ORDER BY block_number DESC
 
-LIMIT {{ sql_limit }}
+LIMIT {{ MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT }}

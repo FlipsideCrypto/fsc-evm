@@ -1,33 +1,4 @@
-{% set full_reload_start_block = get_var('MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK', 0) %}
-{% set full_reload_blocks = get_var('MAIN_CORE_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) %}
-{% set full_reload_mode = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_ENABLED', false) %}
-{% set TRACES_ARB_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'ARBITRUM' %}
-{% set TRACES_SEI_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'SEI' %}
-{% set TRACES_KAIA_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'KAIA' %}
-{% set use_partition_key = get_var('MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED', true) %}
-{% set schema_name = get_var('MAIN_CORE_TRACES_SCHEMA_NAME', 'bronze') %}
-{% set silver_full_refresh = get_var('GLOBAL_SILVER_FR_ENABLED', false) %}
-
-{# Log configuration details #}
-{{ log_model_details() }}
-
 -- depends_on: {{ ref('bronze__traces') }}
-
-{% if not silver_full_refresh %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = silver_full_refresh,
-    tags = ['silver_core']
-) }}
-
-{% else %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -38,26 +9,20 @@
     tags = ['silver_core']
 ) }}
 
-{% endif %}
 
     WITH bronze_traces AS (
         SELECT
             block_number,
-            {% if use_partition_key %}
-                partition_key,
-            {% else %}
-                _partition_by_block_id AS partition_key,
-            {% endif %}
-
+            partition_key,
             VALUE :array_index :: INT AS tx_position,
             DATA :result AS full_traces,
-            {% if TRACES_SEI_MODE %}
+            {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
                 DATA :txHash :: STRING AS tx_hash,
             {% endif %}
             _inserted_timestamp
         FROM
 
-{% if is_incremental() and not full_reload_mode %}
+{% if is_incremental() and not MAIN_CORE_TRACES_FULL_RELOAD_ENABLED %}
 {{ ref(schema_name ~ '__traces') }}
 WHERE
     _inserted_timestamp >= (
@@ -66,14 +31,14 @@ WHERE
         FROM
             {{ this }}
     ) AND DATA :result IS NOT NULL 
-    {% if TRACES_ARB_MODE %}
+    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
         AND block_number > 22207817
     {% endif %}
 
-    {% elif is_incremental() and full_reload_mode %}
+    {% elif is_incremental() and MAIN_CORE_TRACES_FULL_RELOAD_ENABLED %}
     {{ ref(schema_name ~ '__traces_fr') }}
 WHERE
-    {% if use_partition_key %}
+    
         partition_key BETWEEN (
             SELECT
                 MAX(partition_key) - 100000
@@ -86,34 +51,16 @@ WHERE
             FROM
                 {{ this }}
         )
-    {% else %}
-        _partition_by_block_id BETWEEN (
-            SELECT
-                MAX(_partition_by_block_id) - 100000
-            FROM
-                {{ this }}
-        )
-        AND (
-            SELECT
-                MAX(_partition_by_block_id) + {{ full_reload_blocks }}
-            FROM
-                {{ this }}
-        )
-    {% endif %}
 
-    {% if TRACES_ARB_MODE %}
+    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
         AND block_number > 22207817
     {% endif %}
 {% else %}
     {{ ref(schema_name ~ '__traces_fr') }}
 WHERE
-    {% if use_partition_key %}
-        partition_key <= {{ full_reload_start_block }}
-    {% else %}
-        _partition_by_block_id <= {{ full_reload_start_block }}
-    {% endif %}
+    partition_key <= {{ MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK }}
 
-    {% if TRACES_ARB_MODE %}
+    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
         AND block_number > 22207817
     {% endif %}
 {% endif %}
@@ -125,7 +72,7 @@ ORDER BY
 flatten_traces AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
             tx_hash,
         {% else %}
             tx_position,
@@ -156,13 +103,13 @@ flatten_traces AS (
                 'output',
                 'time',
                 'revertReason' 
-                {% if TRACES_ARB_MODE %},
+                {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %},
                     'afterEVMTransfers',
                     'beforeEVMTransfers',
                     'result.afterEVMTransfers',
                     'result.beforeEVMTransfers'
                 {% endif %}
-                {% if TRACES_KAIA_MODE %},
+                {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'KAIA' %},
                     'reverted',
                     'result.reverted'
                 {% endif %}
@@ -206,16 +153,16 @@ flatten_traces AS (
         f.index IS NULL
         AND f.key != 'calls'
         AND f.path != 'result' 
-        {% if TRACES_ARB_MODE %}
+        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
         {% endif %}
-        {% if TRACES_KAIA_MODE %}
+        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'KAIA' %}
             and f.key not in ('message', 'contract')
         {% endif %}
     GROUP BY
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
             tx_hash,
         {% else %}
             tx_position,
@@ -226,7 +173,7 @@ flatten_traces AS (
 )
 SELECT
     block_number,
-    {% if TRACES_SEI_MODE %}
+    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
         tx_hash,
     {% else %}
         tx_position,
@@ -239,7 +186,7 @@ SELECT
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number'] + 
-        (['tx_hash'] if TRACES_SEI_MODE else ['tx_position']) + 
+        (['tx_hash'] if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' else ['tx_position']) + 
         ['trace_address']
     ) }} AS traces_id,
     SYSDATE() AS inserted_timestamp,
