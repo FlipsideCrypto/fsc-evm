@@ -1,5 +1,8 @@
 {% macro return_vars() %}
 
+{%- set blocks_per_hour = get_var('MAIN_SL_BLOCKS_PER_HOUR', 0) -%}
+{%- set transactions_per_block = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 0) -%}
+
 {# Global Variables #}
 {%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
 {%- set node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') -%}
