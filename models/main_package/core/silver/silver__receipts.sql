@@ -10,8 +10,6 @@
     tags = ['silver_core']
 ) }}
 
-{% endif %}
-
 WITH bronze_receipts AS (
     SELECT 
         block_number,
