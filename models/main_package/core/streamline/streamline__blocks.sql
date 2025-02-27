@@ -1,6 +1,3 @@
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config (
     materialized = "view",
     tags = ['streamline_core_complete']
@@ -9,7 +6,7 @@
 SELECT
     _id,
     (
-        ({{ get_var('MAIN_SL_BLOCKS_PER_HOUR',0) }} / 60) * {{ get_var('MAIN_SL_CHAINHEAD_DELAY_MINUTES',3) }}
+        ({{ MAIN_SL_BLOCKS_PER_HOUR }} / 60) * {{ MAIN_SL_CHAINHEAD_DELAY_MINUTES }}
     ) :: INT AS block_number_delay, --minute-based block delay
     (_id - block_number_delay) :: INT AS block_number,
     utils.udf_int_to_hex(block_number) AS block_number_hex

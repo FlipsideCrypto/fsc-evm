@@ -1,9 +1,3 @@
-{%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
-{%- set node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') -%}
-
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
