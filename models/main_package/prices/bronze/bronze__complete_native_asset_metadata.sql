@@ -1,6 +1,5 @@
 {# Set variables #}
-{%- set symbols = get_var('MAIN_PRICES_NATIVE_SYMBOLS', '') -%}
-{%- set blockchains = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{{ return_vars() }}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -32,13 +31,13 @@ FROM
         'complete_native_asset_metadata'
     ) }}
 WHERE
-    blockchain IN ({% if blockchains is string %}
-        '{{ blockchains }}'
+    blockchain IN ({% if MAIN_PRICES_NATIVE_BLOCKCHAINS is string %}
+        '{{ MAIN_PRICES_NATIVE_BLOCKCHAINS }}'
     {% else %}
-        {{ blockchains | replace('[', '') | replace(']', '') }}
+        {{ MAIN_PRICES_NATIVE_BLOCKCHAINS | replace('[', '') | replace(']', '') }}
     {% endif %})
-    AND symbol IN ({% if symbols is string %}
-        '{{ symbols }}'
+    AND symbol IN ({% if MAIN_PRICES_NATIVE_SYMBOLS is string %}
+        '{{ MAIN_PRICES_NATIVE_SYMBOLS }}'
     {% else %}
-        {{ symbols | replace('[', '') | replace(']', '') }}
+        {{ MAIN_PRICES_NATIVE_SYMBOLS | replace('[', '') | replace(']', '') }}
     {% endif %})
