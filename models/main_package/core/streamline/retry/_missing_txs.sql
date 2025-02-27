@@ -1,19 +1,6 @@
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config(
     materialized = 'ephemeral'
 ) }}
-
-{% set new_build = get_var(
-    'MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_NEW_BUILD_ENABLED',
-    false
-) %}
-{% if new_build %}
-
-    SELECT
-        -1 AS block_number
-    {% else %}
         WITH transactions AS (
             SELECT
                 block_number,
@@ -37,4 +24,3 @@
         transactions
     WHERE
         tx_position - prev_tx_position <> 1
-    {% endif %}

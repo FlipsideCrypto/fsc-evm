@@ -1,25 +1,4 @@
 -- depends_on: {{ ref('bronze__confirm_blocks') }}
-{% set silver_full_refresh = get_var('GLOBAL_SILVER_FR_ENABLED', false) %}
-
-{% set build_mode = get_var('MAIN_CORE_SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED', false) %}
-
-{# Log configuration details #}
-{{ log_model_details() }}
-
-{% if not silver_full_refresh %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = silver_full_refresh,
-    tags = ['silver_confirm_blocks']
-) }}
-
-{% else %}
 
 {{ config (
     materialized = "incremental",
@@ -30,8 +9,6 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['silver_confirm_blocks']
 ) }}
-
-{% endif %}
 
 WITH bronze_confirm_blocks AS (
     SELECT 
@@ -43,7 +20,7 @@ WITH bronze_confirm_blocks AS (
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
-        {% if build_mode %}
+        {% if SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED %}
             {{ ref('bronze__confirm_blocks') }}
             WHERE block_number >= (
                 SELECT COALESCE(MAX(block_number), 0) FROM {{ this }}
