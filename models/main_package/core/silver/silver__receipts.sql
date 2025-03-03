@@ -1,4 +1,4 @@
--- depends_on: {{ ref('bronze__' ~ MAIN_CORE_RECEIPTS_SOURCE_NAME.lower()) }}
+-- depends_on: {{ ref('bronze__' ~ project_dict.MAIN_CORE_RECEIPTS_SOURCE_NAME | lower) }}
 
 {{ config(
     materialized = 'incremental',
@@ -23,7 +23,7 @@ WITH bronze_receipts AS (
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
-    {{ ref('bronze__' ~ MAIN_CORE_RECEIPTS_SOURCE_NAME.lower()) }}
+    {{ ref('bronze__' ~ project_dict.MAIN_CORE_RECEIPTS_SOURCE_NAME | lower) }}
     WHERE _inserted_timestamp >= (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
@@ -35,7 +35,7 @@ WITH bronze_receipts AS (
         DATA IS NOT NULL
     {% endif %}
     {% else %}
-    {{ ref('bronze__' ~ MAIN_CORE_RECEIPTS_SOURCE_NAME.lower() ~ '_fr') }}
+    {{ ref('bronze__' ~ project_dict.MAIN_CORE_RECEIPTS_SOURCE_NAME | lower ~ '_fr') }}
     WHERE 
     {% if USES_RECEIPTS_BY_HASH %}
         DATA:result IS NOT NULL

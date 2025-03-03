@@ -92,7 +92,7 @@
 {%- set PRICES_START_DATE = get_var('MAIN_CORE_NATIVE_PRICES_START_DATE','2024-01-01') -%}
 
 {# Make all variables available to the dbt context #}
-{% do return({
+{% set vars_dict = {
   'GLOBAL_PROD_DB_NAME': GLOBAL_PROD_DB_NAME,
   'GLOBAL_CHAIN_NETWORK': GLOBAL_CHAIN_NETWORK,
   'GLOBAL_NODE_URL': GLOBAL_NODE_URL,
@@ -155,6 +155,12 @@
   'MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE': MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE,
   'MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS': MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
   'PRICES_START_DATE': PRICES_START_DATE
-}) %}
+} %}
+
+{# Add all variables to the project_dict #}
+{% do project_dict.update(vars_dict) %}
+  
+{# Return the dictionary for direct use in on-run-start #}
+{{ return(vars_dict) }}
 
 {% endmacro %}
