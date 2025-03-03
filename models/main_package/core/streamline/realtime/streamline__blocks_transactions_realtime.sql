@@ -5,15 +5,15 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": "blocks",
-            "sql_limit": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT,
-            "producer_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_PRODUCER_BATCH_SIZE,
-            "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_WORKER_BATCH_SIZE,
-            "async_concurrent_requests": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+            "sql_limit": get_config_var('MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT'),
+            "producer_batch_size": get_config_var('MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_PRODUCER_BATCH_SIZE'),
+            "worker_batch_size": get_config_var('MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_WORKER_BATCH_SIZE'),
+            "async_concurrent_requests": get_config_var('MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_ASYNC_CONCURRENT_REQUESTS'),
             "exploded_key": ['result', 'result.transactions'],
             "sql_source" :"{{this.identifier}}"
         }
     ),
-    tags = ['streamline_core_realtime']
+    tags = ['streamline_core_realtime', 'return_vars2']
 ) }}
 
 {# Main query starts here #}
@@ -24,7 +24,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
     block_number IS NOT NULL
-    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not get_config_var('MAIN_SL_NEW_BUILD_ENABLED') %}
         AND block_number >= (SELECT block_number FROM {{ ref("_block_lookback") }})
     {% endif %}
 
@@ -34,7 +34,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks_complete") }} b
     INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
     WHERE 1=1
-    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not get_config_var('MAIN_SL_NEW_BUILD_ENABLED') %}
         AND block_number >= (SELECT block_number FROM {{ ref("_block_lookback") }})
     {% endif %}
 ),
@@ -42,7 +42,7 @@ ready_blocks AS (
     SELECT block_number
     FROM to_do
 
-    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not get_config_var('MAIN_SL_NEW_BUILD_ENABLED') %}
         UNION
         SELECT block_number
         FROM {{ ref("_unconfirmed_blocks") }}
@@ -51,8 +51,8 @@ ready_blocks AS (
         FROM {{ ref("_missing_txs") }}
     {% endif %}
 
-    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
-        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
+    {% if get_config_var('MAIN_SL_TESTING_LIMIT') is not none %}
+        LIMIT {{ get_config_var('MAIN_SL_TESTING_LIMIT') }} 
     {% endif %}
 )
 
@@ -62,7 +62,7 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        vars.GLOBAL_NODE_URL,
+        get_config_var('GLOBAL_NODE_URL'),
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
             'fsc-quantum-state', 'streamline'
@@ -73,11 +73,11 @@ SELECT
             'method', 'eth_getBlockByNumber',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
         ),
-        vars.GLOBAL_NODE_SECRET_PATH
+        get_config_var('GLOBAL_NODE_SECRET_PATH')
     ) AS request
 FROM
     ready_blocks
     
 ORDER BY block_number DESC
 
-LIMIT {{ vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT }}
+LIMIT {{ get_config_var('MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT') }}
