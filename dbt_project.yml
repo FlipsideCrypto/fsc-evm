@@ -33,14 +33,31 @@ clean-targets: # directories to be removed by `dbt clean`
 
 models:
   fsc_evm:
-    +enabled: false # Disable all models by default
-    +pre-hook: "{{ model_init() }}"  # Apply initialization and logging to all enabled models
-    main_package: # Only enable models that are required to run in the fsc_evm environment
+    +enabled: false
+    +pre-hook: "{% do log('Model execution started', info=true) %}"
+    init:
+      +enabled: true
+    main_package:
       variables:
         +enabled: true
       core:
-        +full_refresh: "{{ full_refresh() }}"
+        +enabled: true
 
 vars:
   "dbt_date:time_zone": GMT
-  "GLOBAL_INIT_REQUIRED": true
+  
+  # Global Variables
+  "GLOBAL_PROD_DB_NAME": ""
+  "GLOBAL_CHAIN_NETWORK": "mainnet"
+  "GLOBAL_NODE_URL": "{URL}"
+  "GLOBAL_NODE_PROVIDER": ""
+  "GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS": ""
+  
+  # Streamline Variables
+  "MAIN_SL_BLOCKS_PER_HOUR": 0
+  "MAIN_SL_TRANSACTIONS_PER_BLOCK": 0
+  "MAIN_SL_CHAINHEAD_DELAY_MINUTES": 3
+  
+  # Feature Flags
+  "MAIN_CORE_RECEIPTS_BY_HASH_ENABLED": false
+  "MAIN_SL_NEW_BUILD_ENABLED": false
