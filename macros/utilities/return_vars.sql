@@ -157,6 +157,6 @@
   'PRICES_START_DATE': PRICES_START_DATE
 } %}
 
-{{ return(vars_dict.get(var_name, default)) }}
+{{ return(vars_dict) }}
 
 {% endmacro %}

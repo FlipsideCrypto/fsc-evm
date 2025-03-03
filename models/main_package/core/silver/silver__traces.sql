@@ -22,8 +22,8 @@
             _inserted_timestamp
         FROM
 
-{% if is_incremental() and not MAIN_CORE_TRACES_FULL_RELOAD_ENABLED %}
-{{ ref(schema_name ~ '__traces') }}
+{% if is_incremental() and not get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_ENABLED') %}
+{{ ref(get_config_var('MAIN_CORE_TRACES_SOURCE_NAME') ~ '__traces') }}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -31,12 +31,12 @@ WHERE
         FROM
             {{ this }}
     ) AND DATA :result IS NOT NULL 
-    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
+    {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'ARB' %}
         AND block_number > 22207817
     {% endif %}
 
-    {% elif is_incremental() and MAIN_CORE_TRACES_FULL_RELOAD_ENABLED %}
-    {{ ref(schema_name ~ '__traces_fr') }}
+    {% elif is_incremental() and get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_ENABLED') %}
+    {{ ref(get_config_var('MAIN_CORE_TRACES_SOURCE_NAME') ~ '__traces_fr') }}
 WHERE
     
         partition_key BETWEEN (
@@ -47,20 +47,20 @@ WHERE
         )
         AND (
             SELECT
-                MAX(partition_key) + {{ full_reload_blocks }}
+                MAX(partition_key) + {{ get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_BLOCKS_PER_RUN') }}
             FROM
                 {{ this }}
         )
 
-    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
+    {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'ARB' %}
         AND block_number > 22207817
     {% endif %}
 {% else %}
-    {{ ref(schema_name ~ '__traces_fr') }}
+    {{ ref(get_config_var('MAIN_CORE_TRACES_SOURCE_NAME') ~ '__traces_fr') }}
 WHERE
-    partition_key <= {{ MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK }}
+    partition_key <= {{ get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK') }}
 
-    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
+    {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'ARB' %}
         AND block_number > 22207817
     {% endif %}
 {% endif %}
@@ -72,7 +72,7 @@ ORDER BY
 flatten_traces AS (
     SELECT
         block_number,
-        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
+        {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'SEI' %}
             tx_hash,
         {% else %}
             tx_position,
@@ -103,13 +103,13 @@ flatten_traces AS (
                 'output',
                 'time',
                 'revertReason' 
-                {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %},
+                {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'ARB' %},
                     'afterEVMTransfers',
                     'beforeEVMTransfers',
                     'result.afterEVMTransfers',
                     'result.beforeEVMTransfers'
                 {% endif %}
-                {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'KAIA' %},
+                {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'KAIA' %},
                     'reverted',
                     'result.reverted'
                 {% endif %}
@@ -153,16 +153,16 @@ flatten_traces AS (
         f.index IS NULL
         AND f.key != 'calls'
         AND f.path != 'result' 
-        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'ARB' %}
+        {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'ARB' %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
         {% endif %}
-        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'KAIA' %}
+        {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'KAIA' %}
             and f.key not in ('message', 'contract')
         {% endif %}
     GROUP BY
         block_number,
-        {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
+        {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'SEI' %}
             tx_hash,
         {% else %}
             tx_position,
@@ -173,7 +173,7 @@ flatten_traces AS (
 )
 SELECT
     block_number,
-    {% if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' %}
+    {% if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'SEI' %}
         tx_hash,
     {% else %}
         tx_position,
@@ -186,7 +186,7 @@ SELECT
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number'] + 
-        (['tx_hash'] if MAIN_CORE_TRACES_BLOCKCHAIN_MODE == 'SEI' else ['tx_position']) + 
+        (['tx_hash'] if get_config_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE') == 'SEI' else ['tx_position']) + 
         ['trace_address']
     ) }} AS traces_id,
     SYSDATE() AS inserted_timestamp,
