@@ -34,8 +34,9 @@ clean-targets: # directories to be removed by `dbt clean`
 models:
   fsc_evm:
     +enabled: false # Disable all models by default
+    +pre-hook: "{{ log_model_details() }}"  # Apply logging to all enabled models
     main_package: # Only enable models that are required to run in the fsc_evm environment
-      +on-run-start: "{{ log_model_details() }}; {{ return_vars() }}"
+      +on-run-start: "{{ return_vars() }}"
       variables:
         +enabled: true
       core:
