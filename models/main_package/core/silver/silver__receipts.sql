@@ -8,7 +8,6 @@
     tags = ['core', 'silver', 'receipts']
 ) }}
 
-
 WITH bronze_receipts AS (
     SELECT 
         block_number,
@@ -23,7 +22,7 @@ WITH bronze_receipts AS (
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
-    {{ ref('bronze__' ~ source_name.lower()) }}
+    {{ ref('bronze__' ~ MAIN_CORE_RECEIPTS_SOURCE_NAME.lower()) }}
     WHERE _inserted_timestamp >= (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
@@ -35,7 +34,7 @@ WITH bronze_receipts AS (
         DATA IS NOT NULL
     {% endif %}
     {% else %}
-    {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
+    {{ ref('bronze__' ~ MAIN_CORE_RECEIPTS_SOURCE_NAME.lower() ~ '_fr') }}
     WHERE 
     {% if USES_RECEIPTS_BY_HASH %}
         DATA:result IS NOT NULL
