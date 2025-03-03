@@ -8,7 +8,6 @@
     tags = ['core', 'silver', 'receipts']
 ) }}
 
-{% endif %}
 
 WITH bronze_receipts AS (
     SELECT 
