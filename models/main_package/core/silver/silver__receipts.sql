@@ -8,6 +8,7 @@
     tags = ['core', 'silver', 'receipts']
 ) }}
 
+
 WITH bronze_receipts AS (
     SELECT 
         block_number,
