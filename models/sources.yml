@@ -65,6 +65,11 @@ sources:
     schema: silver
     tables:
       - name: verified_abis
+  - name: ethereum_logs
+    database: ethereum
+    schema: core
+    tables:
+      - name: op_stack_state_hashes
   - name: data_science_silver
     database: datascience
     schema: silver
@@ -74,4 +79,4 @@ sources:
       - name: evm_known_event_sigs
       - name: evm_wrapped_assets
       - name: dates
-      - name: scoring_activity_categories
+      - name: scoring_activity_categoriesarc
