@@ -8,8 +8,6 @@
     tags = ['gold_core', 'ez_prices_model']
 ) }}
 
-{% endif %}
-
 WITH base AS (
 
     SELECT
