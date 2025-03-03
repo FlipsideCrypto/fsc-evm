@@ -32,9 +32,10 @@
 
 {%- set MAIN_SL_TESTING_LIMIT = get_var('MAIN_SL_TESTING_LIMIT', none) -%}
 {%- set MAIN_SL_NEW_BUILD_ENABLED = get_var('MAIN_SL_NEW_BUILD_ENABLED', false) -%}
-{%- set MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 0) -%} --required
-{%- set MAIN_SL_TRANSACTIONS_PER_BLOCK = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 0) -%} --required
+{%- set MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 240) -%} --required
+{%- set MAIN_SL_TRANSACTIONS_PER_BLOCK = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 100) -%} --required
 
+{# Define helper variables for calculations #}
 {%- set blocks_per_hour = MAIN_SL_BLOCKS_PER_HOUR -%}
 {%- set transactions_per_block = MAIN_SL_TRANSACTIONS_PER_BLOCK -%}
 

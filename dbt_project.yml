@@ -34,10 +34,9 @@ clean-targets: # directories to be removed by `dbt clean`
 models:
   fsc_evm:
     +enabled: false
-    +pre-hook: "{% do log('Model execution started', info=true) %}"
-    init:
-      +enabled: true
+    +pre-hook: "{{ log_model_details() }}"
     main_package:
+      +on-run-start: "{{ return_vars() }}"
       variables:
         +enabled: true
       core:
@@ -53,9 +52,9 @@ vars:
   "GLOBAL_NODE_PROVIDER": "example_provider"
   "GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS": "0x0000000000000000000000000000000000000000"
   
-  # Streamline Variables - Set reasonable defaults
-  "MAIN_SL_BLOCKS_PER_HOUR": 240  # ~4 blocks per minute for Ethereum
-  "MAIN_SL_TRANSACTIONS_PER_BLOCK": 100  # Conservative estimate
+  # Streamline Variables
+  "MAIN_SL_BLOCKS_PER_HOUR": 240
+  "MAIN_SL_TRANSACTIONS_PER_BLOCK": 100
   "MAIN_SL_CHAINHEAD_DELAY_MINUTES": 3
   
   # Feature Flags
