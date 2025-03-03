@@ -157,10 +157,6 @@
   'PRICES_START_DATE': PRICES_START_DATE
 } %}
 
-{# Add all variables to the project_dict #}
-{% do project_dict.update(vars_dict) %}
-  
-{# Return the dictionary for direct use in on-run-start #}
-{{ return(vars_dict) }}
+{{ return(vars_dict.get(var_name, default)) }}
 
 {% endmacro %}
