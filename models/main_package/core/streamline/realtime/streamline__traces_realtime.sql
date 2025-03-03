@@ -5,10 +5,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": "traces",
-            "sql_limit": {{MAIN_SL_TRACES_REALTIME_SQL_LIMIT}},
-            "producer_batch_size": {{MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE}},
-            "worker_batch_size": {{MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE}},
-            "async_concurrent_requests": {{MAIN_SL_TRACES_REALTIME_ASYNC_CONCURRENT_REQUESTS}},
+            "sql_limit": vars.MAIN_SL_TRACES_REALTIME_SQL_LIMIT,
+            "producer_batch_size": vars.MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE,
+            "async_concurrent_requests": vars.MAIN_SL_TRACES_REALTIME_ASYNC_CONCURRENT_REQUESTS,
             "exploded_key": ['result'],
             "sql_source" :"{{this.identifier}}"
         }
@@ -24,14 +24,14 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
         block_number IS NOT NULL
-    {% if not MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number >= (SELECT block_number FROM {{ ref("_block_lookback") }})
     {% endif %}
-    {% if MAIN_SL_MIN_BLOCK is not none %}
-        AND block_number >= {{ MAIN_SL_MIN_BLOCK }}
+    {% if vars.MAIN_SL_MIN_BLOCK is not none %}
+        AND block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
     {% endif %}
-    {% if traces_request_start_block is not none %}
-        AND block_number >= {{ traces_request_start_block }}
+    {% if vars.traces_request_start_block is not none %}
+        AND block_number >= {{ vars.traces_request_start_block }}
     {% endif %}
 
     EXCEPT
@@ -40,7 +40,7 @@ to_do AS (
     SELECT block_number
     FROM {{ ref('streamline__traces_complete') }}
     WHERE 1=1
-    {% if not MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number >= (SELECT block_number FROM {{ ref("_block_lookback") }})
     {% endif %}
 )
@@ -50,7 +50,7 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
-    {% if not MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         UNION
         SELECT block_number
         FROM {{ ref("_unconfirmed_blocks") }}
@@ -59,8 +59,8 @@ to_do AS (
         FROM {{ ref("_missing_traces") }}
     {% endif %}
 
-    {% if MAIN_SL_TESTING_LIMIT is not none %}
-        LIMIT {{ MAIN_SL_TESTING_LIMIT }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 
@@ -88,4 +88,4 @@ FROM
     
 ORDER BY block_number DESC
 
-LIMIT {{ MAIN_SL_SQL_LIMIT }}
+LIMIT {{ vars.MAIN_SL_SQL_LIMIT }}

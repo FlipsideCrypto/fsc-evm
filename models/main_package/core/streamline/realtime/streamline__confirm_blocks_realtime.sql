@@ -5,10 +5,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": "confirm_blocks",
-            "sql_limit": {{MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT}},
-            "producer_batch_size": {{MAIN_SL_CONFIRM_BLOCKS_REALTIME_PRODUCER_BATCH_SIZE}},
-            "worker_batch_size": {{MAIN_SL_CONFIRM_BLOCKS_REALTIME_WORKER_BATCH_SIZE}},
-            "async_concurrent_requests": {{MAIN_SL_CONFIRM_BLOCKS_REALTIME_ASYNC_CONCURRENT_REQUESTS}},
+            "sql_limit": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT,
+            "producer_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_WORKER_BATCH_SIZE,
+            "async_concurrent_requests": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
             "sql_source" :"{{this.identifier}}"
         }
     ),
@@ -59,8 +59,8 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
-    {% if MAIN_SL_TESTING_LIMIT is not none %}
-        LIMIT {{ MAIN_SL_TESTING_LIMIT }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 
@@ -88,4 +88,4 @@ FROM
     
 ORDER BY block_number DESC
 
-LIMIT {{ MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT }}
+LIMIT {{ vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT }}

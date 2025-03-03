@@ -1,12 +1,17 @@
 {{ config(
-    materialized='ephemeral',
+    materialized='table',
     tags=['variables']
 ) }}
 
--- Call the return_vars macro to initialize variables
-{% do return_vars() %}
-
--- Return a dummy result
+-- Return a simple table with the variable values
 SELECT 
-    'Variables initialized' as status,
-    CURRENT_TIMESTAMP() as timestamp 
+    'MAIN_SL_BLOCKS_PER_HOUR' as variable_name,
+    {{ var('MAIN_SL_BLOCKS_PER_HOUR', 240) }} as variable_value
+UNION ALL
+SELECT 
+    'MAIN_SL_TRANSACTIONS_PER_BLOCK' as variable_name,
+    {{ var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 100) }} as variable_value
+UNION ALL
+SELECT 
+    'MAIN_CORE_RECEIPTS_BY_HASH_ENABLED' as variable_name,
+    {{ var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) }} as variable_value 

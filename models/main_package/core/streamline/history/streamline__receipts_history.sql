@@ -5,10 +5,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": "receipts",
-            "sql_limit": {{MAIN_SL_RECEIPTS_HISTORY_SQL_LIMIT}},
-            "producer_batch_size": {{MAIN_SL_RECEIPTS_HISTORY_PRODUCER_BATCH_SIZE}},
-            "worker_batch_size": {{MAIN_SL_RECEIPTS_HISTORY_WORKER_BATCH_SIZE}},
-            "async_concurrent_requests": {{MAIN_SL_RECEIPTS_HISTORY_ASYNC_CONCURRENT_REQUESTS}},
+            "sql_limit": vars.MAIN_SL_RECEIPTS_HISTORY_SQL_LIMIT,
+            "producer_batch_size": vars.MAIN_SL_RECEIPTS_HISTORY_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.MAIN_SL_RECEIPTS_HISTORY_WORKER_BATCH_SIZE,
+            "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
             "exploded_key": ['result'],
             "sql_source" :"{{this.identifier}}"
         }
@@ -44,8 +44,8 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
-    {% if MAIN_SL_TESTING_LIMIT is not none %}
-        LIMIT {{ MAIN_SL_TESTING_LIMIT }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 
@@ -55,7 +55,7 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        vars.GLOBAL_NODE_URL,
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
             'fsc-quantum-state', 'streamline'
@@ -66,11 +66,11 @@ SELECT
             'method', 'eth_getBlockReceipts',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))
         ),
-        '{{ node_secret_path }}'
+        vars.GLOBAL_NODE_SECRET_PATH
     ) AS request
 FROM
     ready_blocks
     
 ORDER BY block_number DESC
 
-LIMIT {{ MAIN_SL_RECEIPTS_HISTORY_SQL_LIMIT }}
+LIMIT {{ vars.MAIN_SL_RECEIPTS_HISTORY_SQL_LIMIT }}

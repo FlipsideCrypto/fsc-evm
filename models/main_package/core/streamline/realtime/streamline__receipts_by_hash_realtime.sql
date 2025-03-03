@@ -6,10 +6,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": "receipts_by_hash",
-            "sql_limit": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT}},
-            "producer_batch_size": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_PRODUCER_BATCH_SIZE}},
-            "worker_batch_size": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_WORKER_BATCH_SIZE}},
-            "async_concurrent_requests": {{MAIN_SL_RECEIPTS_BY_HASH_REALTIME_ASYNC_CONCURRENT_REQUESTS}},
+            "sql_limit": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT,
+            "producer_batch_size": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_WORKER_BATCH_SIZE,
+            "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_ASYNC_CONCURRENT_REQUESTS,
             "sql_source" :"{{this.identifier}}"
         }
     ),
@@ -37,7 +37,7 @@ WITH numbered_blocks AS (
             ORDER BY
                 block_number DESC
             LIMIT
-                {{ MAIN_SL_BLOCKS_PER_HOUR }}
+                vars.MAIN_SL_BLOCKS_PER_HOUR
         )
 ), batched_blocks AS (
     SELECT
@@ -120,7 +120,7 @@ to_do AS (
             flat_tx_hashes
         WHERE 1=1
 
-        {% if not MAIN_SL_NEW_BUILD_ENABLED %}
+        {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         UNION ALL
         SELECT
             block_number,
@@ -139,7 +139,7 @@ to_do AS (
     FROM
         {{ ref('streamline__receipts_by_hash_complete') }}
     WHERE 1=1
-        {% if not MAIN_SL_NEW_BUILD_ENABLED %}
+        {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
             AND block_number >= (SELECT block_number FROM {{ ref('_block_lookback') }})
         {% endif %}
 ),
@@ -150,7 +150,7 @@ ready_blocks AS (
     FROM
         to_do
 
-    {% if not MAIN_SL_NEW_BUILD_ENABLED %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
 
         UNION
         SELECT
@@ -162,8 +162,8 @@ ready_blocks AS (
 
     {% endif %}
 
-    {% if MAIN_SL_TESTING_LIMIT is not none %}
-        LIMIT {{ MAIN_SL_TESTING_LIMIT }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 SELECT
@@ -194,4 +194,4 @@ FROM
 
 ORDER BY block_number DESC
 
-LIMIT {{ MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT }}
+LIMIT {{ vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT }}
