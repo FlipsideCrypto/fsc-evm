@@ -48,14 +48,14 @@ WITH bronze_receipts AS (
 SELECT 
     block_number,
     partition_key,
-    {% if USES_RECEIPTS_BY_HASH %}
+    {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
         tx_hash,
     {% else %}
         array_index,
     {% endif %}
     receipts_json,
     _inserted_timestamp,
-    {% if USES_RECEIPTS_BY_HASH %}
+    {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
         {{ dbt_utils.generate_surrogate_key(['block_number','tx_hash']) }} AS receipts_id,
     {% else %}
         {{ dbt_utils.generate_surrogate_key(['block_number','array_index']) }} AS receipts_id,
@@ -64,7 +64,7 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_receipts
-{% if USES_RECEIPTS_BY_HASH %}
+{% if get_config_var('USES_RECEIPTS_BY_HASH') %}
 QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
 {% else %}
 QUALIFY(ROW_NUMBER() OVER (PARTITION BY block_number, array_index ORDER BY _inserted_timestamp DESC)) = 1
