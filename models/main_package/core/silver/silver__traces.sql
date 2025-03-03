@@ -23,7 +23,7 @@
         FROM
 
 {% if is_incremental() and not get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_ENABLED') %}
-{{ ref(get_config_var('MAIN_CORE_TRACES_SOURCE_NAME') ~ '__traces') }}
+{{ ref('bronze__traces') }}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -36,7 +36,7 @@ WHERE
     {% endif %}
 
     {% elif is_incremental() and get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_ENABLED') %}
-    {{ ref(get_config_var('MAIN_CORE_TRACES_SOURCE_NAME') ~ '__traces_fr') }}
+    {{ ref('bronze__traces_fr') }}
 WHERE
     
         partition_key BETWEEN (
@@ -56,7 +56,7 @@ WHERE
         AND block_number > 22207817
     {% endif %}
 {% else %}
-    {{ ref(get_config_var('MAIN_CORE_TRACES_SOURCE_NAME') ~ '__traces_fr') }}
+    {{ ref('bronze__traces_fr') }}
 WHERE
     partition_key <= {{ get_config_var('MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK') }}
 
