@@ -1,13 +1,11 @@
 -- depends_on: {{ ref('bronze__' ~ MAIN_CORE_RECEIPTS_SOURCE_NAME.lower()) }}
 
-{{ config (
-    materialized = "incremental",
+{{ config(
+    materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = MAIN_CORE_UNIQUE_KEY,
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_core']
+    cluster_by = ['block_number'],
+    unique_key = get_unique_key(),
+    tags = ['core', 'silver', 'receipts']
 ) }}
 
 {% endif %}

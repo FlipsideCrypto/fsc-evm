@@ -39,7 +39,7 @@ models:
       variables:
         +enabled: true
       core:
-        +enabled: true
+        +enabled: false
 
 vars:
   "dbt_date:time_zone": GMT
