@@ -1,6 +1,3 @@
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config (
     materialized = "view",
     tags = ['recent_test', 'ez_prices_model']

@@ -39,10 +39,7 @@ models:
       variables:
         +enabled: true
       core:
-        streamline:
-          +full_refresh: "{{ GLOBAL_STREAMLINE_FR_ENABLED }}"
-        silver:
-          +full_refresh: "{{ GLOBAL_SILVER_FR_ENABLED }}"
+        +full_refresh: "{{ full_refresh() }}"
 
 vars:
   "dbt_date:time_zone": GMT

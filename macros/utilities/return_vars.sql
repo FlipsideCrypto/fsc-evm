@@ -1,9 +1,15 @@
 {% macro return_vars() %}
 
 {# Global Variables #}
-{%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
-{%- set node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') -%}
+
+{%- set GLOBAL_PROD_DB_NAME = get_var('GLOBAL_PROD_DB_NAME', '') -%} --required
+{%- set GLOBAL_CHAIN_NETWORK = get_var('GLOBAL_CHAIN_NETWORK', 'mainnet') -%}
+{%- set GLOBAL_NODE_URL = get_var('GLOBAL_NODE_URL', '{URL}') -%}
+{%- set GLOBAL_NODE_PROVIDER = get_var('GLOBAL_NODE_PROVIDER', '') -%} --required
+{%- set GLOBAL_NODE_VAULT_PATH = get_var('GLOBAL_NODE_VAULT_PATH', 'Vault/prod/' ~ GLOBAL_PROD_DB_NAME.lower() ~ '/' ~ GLOBAL_NODE_PROVIDER.lower() ~ '/' ~ GLOBAL_CHAIN_NETWORK.lower()) -%} --this doesnt make sense, should be provider/chain/network
+
 {%- set USES_RECEIPTS_BY_HASH = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) -%}
+{%- set GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS','') -%} --required
 
 {# Bronze Variables #}
 
@@ -13,24 +19,20 @@
 
 {# Silver Variables #}
 
-{%- set raw_silver_fr_enabled = get_var('GLOBAL_SILVER_FR_ENABLED', false) -%} {# default is false, pass in true to enable #}
-{%- set GLOBAL_SILVER_FR_ENABLED = none if raw_silver_fr_enabled else false -%} {# sets to none if true, still requires --full-refresh, otherwise will use incremental #}
-{%- set MAIN_CORE_RECEIPTS_UNIQUE_KEY = 'tx_hash' if USES_RECEIPTS_BY_HASH else 'block_number' -%}
+{%- set MAIN_CORE_UNIQUE_KEY = 'tx_hash' if USES_RECEIPTS_BY_HASH else 'block_number' -%}
 {%- set MAIN_CORE_RECEIPTS_SOURCE_NAME = 'RECEIPTS_BY_HASH' if USES_RECEIPTS_BY_HASH else 'RECEIPTS' -%}
 {%- set MAIN_CORE_TRACES_BLOCKCHAIN_MODE = get_var('MAIN_CORE_TRACES_BLOCKCHAIN_MODE', none) -%}
 {%- set MAIN_CORE_TRACES_FULL_RELOAD_ENABLED = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_ENABLED', false) -%}
 {%- set MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_START_BLOCK', 0) -%}
 {%- set MAIN_CORE_TRACES_FULL_RELOAD_BLOCKS_PER_RUN = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) -%}
 
+{# Gold Variables #}
 
 {# Streamline Variables #}
 
-{%- set raw_streamline_fr_enabled = get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) -%} 
-{%- set GLOBAL_STREAMLINE_FR_ENABLED = none if raw_streamline_fr_enabled else false -%} 
-
 {%- set MAIN_SL_TESTING_LIMIT = get_var('MAIN_SL_TESTING_LIMIT', none) -%}
 {%- set MAIN_SL_NEW_BUILD_ENABLED = get_var('MAIN_SL_NEW_BUILD_ENABLED', false) -%}
-{%- set MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 0) -%}
+{%- set MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 0) -%} --required
 {%- set MAIN_SL_TRANSACTIONS_PER_BLOCK = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 0) -%}
 
 {%- set MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 0) -%}
@@ -93,5 +95,9 @@
 {%- set MAIN_SL_CONFIRM_BLOCKS_HISTORY_PRODUCER_BATCH_SIZE = get_var('MAIN_SL_CONFIRM_BLOCKS_HISTORY_PRODUCER_BATCH_SIZE', 10 * blocks_per_hour) -%}
 {%- set MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE = get_var('MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE', blocks_per_hour) -%}
 {%- set MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS = get_var('MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS', 10) -%}
+
+{# Prices Variables #}
+
+{%- set PRICES_START_DATE = get_var('MAIN_CORE_NATIVE_PRICES_START_DATE','2024-01-01') -%}
 
 {% endmacro %}
