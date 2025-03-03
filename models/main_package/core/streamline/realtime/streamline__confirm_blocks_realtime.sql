@@ -5,10 +5,10 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": "confirm_blocks",
-            "sql_limit": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT,
-            "producer_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_PRODUCER_BATCH_SIZE,
-            "worker_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_WORKER_BATCH_SIZE,
-            "async_concurrent_requests": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+            "sql_limit": "{{var('MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT')}}",
+            "producer_batch_size": "{{var('MAIN_SL_CONFIRM_BLOCKS_REALTIME_PRODUCER_BATCH_SIZE')}}",
+            "worker_batch_size": "{{var('MAIN_SL_CONFIRM_BLOCKS_REALTIME_WORKER_BATCH_SIZE')}}",
+            "async_concurrent_requests": "{{var('MAIN_SL_CONFIRM_BLOCKS_REALTIME_ASYNC_CONCURRENT_REQUESTS')}}",
             "sql_source" :"{{this.identifier}}"
         }
     ),
@@ -88,4 +88,4 @@ FROM
     
 ORDER BY block_number DESC
 
-LIMIT {{ vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT }}
+LIMIT {{ var('MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT') }}

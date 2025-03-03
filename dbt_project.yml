@@ -24,6 +24,9 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_modules"
   - "dbt_packages"
 
+# Set the on-run-start hook at the project level
+on-run-start: "{{ return_vars() }}"
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
@@ -33,29 +36,7 @@ clean-targets: # directories to be removed by `dbt clean`
 
 models:
   fsc_evm:
-    +enabled: false
-    +pre-hook: "{{ log_model_details() }}"
-    main_package:
+    +enabled: false # Disable all models by default
+    main_package: # Only enable models that are required to run in the fsc_evm environment
       variables:
         +enabled: true
-      core:
-        +enabled: false
-
-vars:
-  "dbt_date:time_zone": GMT
-  
-  # Global Variables
-  "GLOBAL_PROD_DB_NAME": "example_db"
-  "GLOBAL_CHAIN_NETWORK": "mainnet"
-  "GLOBAL_NODE_URL": "{URL}"
-  "GLOBAL_NODE_PROVIDER": "example_provider"
-  "GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS": "0x0000000000000000000000000000000000000000"
-  
-  # Streamline Variables
-  "MAIN_SL_BLOCKS_PER_HOUR": 240
-  "MAIN_SL_TRANSACTIONS_PER_BLOCK": 100
-  "MAIN_SL_CHAINHEAD_DELAY_MINUTES": 3
-  
-  # Feature Flags
-  "MAIN_CORE_RECEIPTS_BY_HASH_ENABLED": false
-  "MAIN_SL_NEW_BUILD_ENABLED": false
