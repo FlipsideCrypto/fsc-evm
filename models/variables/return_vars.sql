@@ -1,9 +1,9 @@
 {{ config(
-    tags=['return_vars'],
+    tags=['variables_init'],
     materialized='table'
 ) }}
 
-{% do return_vars() %}
+{% do load_all_variables() %}
 
 -- Return a dummy table with the initialization status
 SELECT 

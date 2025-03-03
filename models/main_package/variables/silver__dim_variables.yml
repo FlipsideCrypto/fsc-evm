@@ -18,6 +18,9 @@ models:
       - name: KEY
         tests:
           - not_null
+      - name: DEFAULT_VALUE
+        tests:
+          - not_null
       - name: DIM_VARIABLES_ID
         tests:
           - not_null

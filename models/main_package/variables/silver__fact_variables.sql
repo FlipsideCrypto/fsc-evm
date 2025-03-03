@@ -1,8 +1,5 @@
 {%- set database = target.database.lower() | replace('_dev', '') -%}
 
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config(
     materialized = 'view',
     tags = ['silver_vars']
