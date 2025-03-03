@@ -34,9 +34,8 @@ clean-targets: # directories to be removed by `dbt clean`
 models:
   fsc_evm:
     +enabled: false # Disable all models by default
-    +pre-hook: "{{ log_model_details() }}"  # Apply logging to all enabled models
+    +pre-hook: "{{ model_init() }}"  # Apply initialization and logging to all enabled models
     main_package: # Only enable models that are required to run in the fsc_evm environment
-      +on-run-start: "{{ return_vars() }}"
       variables:
         +enabled: true
       core:
@@ -44,3 +43,4 @@ models:
 
 vars:
   "dbt_date:time_zone": GMT
+  "GLOBAL_INIT_REQUIRED": true
