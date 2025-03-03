@@ -36,7 +36,6 @@ models:
     +enabled: false
     +pre-hook: "{{ log_model_details() }}"
     main_package:
-      +on-run-start: "{{ return_vars() }}"
       variables:
         +enabled: true
       core:

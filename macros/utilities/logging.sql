@@ -1,6 +1,12 @@
 {% macro log_model_details(vars=false, params=false) %}
 
 {%- if execute -%}
+
+{# Initialize variables if needed #}
+{% if not this.is_ephemeral() %}
+    {% do return_vars() %}
+{% endif %}
+
 /* 
 DBT Model Config:
 {{ model.config | tojson(indent=2) }}
