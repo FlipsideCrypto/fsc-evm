@@ -1,5 +1,10 @@
 {% macro return_vars() %}
 
+{# Only compute this once per run #}
+{% if var('_return_vars_cache', none) is not none %}
+  {{ return(var('_return_vars_cache')) }}
+{% endif %}
+
 {# Global Variables #}
 {%- set GLOBAL_PROD_DB_NAME = get_var('GLOBAL_PROD_DB_NAME', '') -%} --required
 {%- set GLOBAL_CHAIN_NETWORK = get_var('GLOBAL_CHAIN_NETWORK', 'mainnet') -%}
@@ -157,6 +162,10 @@
   'PRICES_START_DATE': PRICES_START_DATE
 } %}
 
-{{ return(vars_dict) }}
+  {# Cache the result #}
+  {% do var('_return_vars_cache', vars_dict) %}
+
+  {# Return the dictionary for use in get_config_var #}
+  {{ return(vars_dict) }}
 
 {% endmacro %}
