@@ -1,4 +1,4 @@
-{% set vars = cached_vars() %}
+{% set vars = get_global_vars() %}
 
 {{
   config(
