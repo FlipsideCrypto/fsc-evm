@@ -22,11 +22,19 @@
             'GLOBAL_CHAIN_NETWORK': 'swell',
             'MAIN_SL_BLOCKS_PER_HOUR': 1500,
             'GLOBAL_PROD_DB_NAME': 'swell'
+            'VERTEX_CONTRACTS': {
+                'ABI': '0x0000000000000000000000000000000000000000',
+                'ADDRESS': '0x0000000000000000000000000000000000000000'
+            }
         },
         'ethereum': {
             'GLOBAL_CHAIN_NETWORK': 'ethereum',
             'MAIN_SL_BLOCKS_PER_HOUR': 300,
-            'GLOBAL_PROD_DB_NAME': 'ethereum'
+            'GLOBAL_PROD_DB_NAME': 'ethereum',
+            'VERTEX_CONTRACTS': {
+                'ABI': '0x0000000000000000000000000000000000000000',
+                'ADDRESS': '0x0000000000000000000000000000000000000000'
+            }
         },
         'global': {
             'GLOBAL_CHAIN_NETWORK': 'unknown',
