@@ -1,5 +1,7 @@
 {% macro set_streamline_parameters(package_name, model_name, model_type, multiplier=1) %}
 
+{%- set vars = return_vars() -%}
+
 {%- set rpc_config_details = {
     "blocks_transactions": {
         "method": 'eth_getBlockByNumber',
@@ -31,22 +33,26 @@
 
 {%- set rpc_config = rpc_config_details[model_name.lower()] -%}
 
+{%- set model_var_prefix = (package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type).upper() -%}
+
+{%- set external_table_var = model_var_prefix ~ '_external_table' -%}
+{%- set sql_limit_var = model_var_prefix ~ '_sql_limit' -%}
+{%- set producer_batch_size_var = model_var_prefix ~ '_producer_batch_size' -%}
+{%- set worker_batch_size_var = model_var_prefix ~ '_worker_batch_size' -%}
+{%- set async_concurrent_requests_var = model_var_prefix ~ '_async_concurrent_requests' -%}
+
 {%- set params = {
-    "external_table": get_var((package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_external_table').upper(), model_name.lower()),
-    "sql_limit": get_var((package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_sql_limit').upper(), 2 * get_var('MAIN_SL_BLOCKS_PER_HOUR',0) * multiplier),
-    "producer_batch_size": get_var((package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_producer_batch_size').upper(), 2 * get_var('MAIN_SL_BLOCKS_PER_HOUR',0) * multiplier),
-    "worker_batch_size": get_var(
-        (package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_worker_batch_size').upper(), 
-        (2 * get_var('MAIN_SL_BLOCKS_PER_HOUR',0) * multiplier) // (rpc_config.get('lambdas', 1))
-    ),
+    "external_table": vars[external_table_var] if external_table_var in vars else model_name.lower(),
+    "sql_limit": vars[sql_limit_var],
+    "producer_batch_size": vars[producer_batch_size_var],
+    "worker_batch_size": vars[worker_batch_size_var],
     "sql_source": (model_name ~ '_' ~ model_type).lower(),
     "method": rpc_config['method'],
     "method_params": rpc_config['method_params']
 } -%}
 
-{%- set async_concurrent_requests = (package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_async_concurrent_requests').upper() -%}
-{%- if get_var(async_concurrent_requests, none) is not none -%}
-    {%- do params.update({"async_concurrent_requests": get_var(async_concurrent_requests)}) -%}
+{%- if async_concurrent_requests_var in vars -%}
+    {%- do params.update({"async_concurrent_requests": vars[async_concurrent_requests_var]}) -%}
 {%- endif -%}
 
 {%- if rpc_config.get('exploded_key') is not none -%}

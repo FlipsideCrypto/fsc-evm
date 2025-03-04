@@ -2,6 +2,8 @@
   {# Set all variables on the namespace #}
   {% set ns = namespace() %}
   
+  {# Set Variables and Default Values, organized by category #}
+  
   {# Global Variables #}
   {% set ns.node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
   {% set ns.node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
@@ -102,6 +104,11 @@
   
   {% set ns.MAIN_PRICES_NATIVE_SYMBOLS = get_var('MAIN_PRICES_NATIVE_SYMBOLS', '') %}
   {% set ns.MAIN_PRICES_NATIVE_BLOCKCHAINS = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME', '').lower()) %}
+  
+  {# Vertex Variables #}
+  {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
+  {% set ns.CURATED_VERTEX_CLEARINGHOUSE_CONTRACT = get_var('CURATED_VERTEX_CLEARINGHOUSE_CONTRACT', '') %}
+  {% set ns.CURATED_VERTEX_TOKEN_MAPPING = get_var('CURATED_VERTEX_TOKEN_MAPPING', {}) %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}
