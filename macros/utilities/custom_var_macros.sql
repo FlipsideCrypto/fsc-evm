@@ -101,13 +101,23 @@
           {# Create a context dictionary instead of using namespace #}
           {% set temp_context = {} %}
           {% for var_key, var_value in all_vars.items() %}
-            {% do temp_context.update({var_key: var_value}) %}
+            {# Handle both regular values and Snowflake relations #}
+            {% if var_value is mapping %}
+              {% do temp_context.update({var_key: var_value}) %}
+            {% else %}
+              {% do temp_context.update({var_key: var_value|string}) %}
+            {% endif %}
           {% endfor %}
           
           {# Evaluate the template in the context of current vars #}
-          {% set rendered_value = none %}
           {% if execute %}
-            {% set rendered_value = modules.jinja2.Template(template).render(**temp_context) %}
+            {% set rendered_value = none %}
+            {% set template_str = template %}
+            {% if template is not string %}
+              {% set template_str = template|string %}
+            {% endif %}
+            
+            {% set rendered_value = modules.jinja2.Template(template_str).render(**temp_context) %}
             {% if rendered_value %}
               {% do all_vars.update({key: rendered_value}) %}
             {% endif %}
