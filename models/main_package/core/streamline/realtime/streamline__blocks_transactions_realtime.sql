@@ -15,9 +15,9 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
             "external_table": model_name.lower(),
-            "sql_limit": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT,
-            "producer_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_PRODUCER_BATCH_SIZE,
-            "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_WORKER_BATCH_SIZE,
+            "sql_limit": vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_SQL_LIMIT'],
+            "producer_batch_size": vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_PRODUCER_BATCH_SIZE'],
+            "worker_batch_size": vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_WORKER_BATCH_SIZE'],
             "sql_source": (model_name ~ '_' ~ model_type).lower(),
             "exploded_key": ['result', 'result.transactions']
         }

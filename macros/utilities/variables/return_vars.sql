@@ -5,8 +5,8 @@
   {# Set Variables and Default Values, organized by category #}
   
   {# Global Variables #}
-  {% set ns.node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
-  {% set ns.node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
+  {% set ns.NODE_URL = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
+  {% set ns.NODE_SECRET_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
   {% set ns.USES_RECEIPTS_BY_HASH = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
   
   {# Bronze Variables #}
