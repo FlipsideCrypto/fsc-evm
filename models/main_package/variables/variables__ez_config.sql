@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view',
-    tags = ['silver_vars']
+    tags = ['vars']
 ) }}
 
 SELECT
