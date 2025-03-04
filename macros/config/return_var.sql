@@ -13,6 +13,11 @@
     
     {# Define our configuration structure #}
     {% set config = {
+        'default': {
+            'GLOBAL_CHAIN_NETWORK': 'unknown',
+            'MAIN_SL_BLOCKS_PER_HOUR': 0,
+            'GLOBAL_PROD_DB_NAME': ''
+        },
         'mantle': {
             'GLOBAL_CHAIN_NETWORK': 'mantle',
             'MAIN_SL_BLOCKS_PER_HOUR': 1800,
@@ -22,24 +27,11 @@
             'GLOBAL_CHAIN_NETWORK': 'swell',
             'MAIN_SL_BLOCKS_PER_HOUR': 1500,
             'GLOBAL_PROD_DB_NAME': 'swell'
-            'VERTEX_CONTRACTS': {
-                'ABI': '0x0000000000000000000000000000000000000000',
-                'ADDRESS': '0x0000000000000000000000000000000000000000'
-            }
         },
         'ethereum': {
             'GLOBAL_CHAIN_NETWORK': 'ethereum',
             'MAIN_SL_BLOCKS_PER_HOUR': 300,
-            'GLOBAL_PROD_DB_NAME': 'ethereum',
-            'VERTEX_CONTRACTS': {
-                'ABI': '0x0000000000000000000000000000000000000000',
-                'ADDRESS': '0x0000000000000000000000000000000000000000'
-            }
-        },
-        'default': {
-            'GLOBAL_CHAIN_NETWORK': 'unknown',
-            'MAIN_SL_BLOCKS_PER_HOUR': 0,
-            'GLOBAL_PROD_DB_NAME': ''
+            'GLOBAL_PROD_DB_NAME': 'ethereum'
         }
     } %}
     
