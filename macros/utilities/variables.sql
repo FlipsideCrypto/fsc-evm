@@ -189,3 +189,7 @@
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}
 {% endmacro %}
+
+{% macro on_run_start() %}
+  {% do context.set({"vars": return_vars()}) %}
+{% endmacro %}
