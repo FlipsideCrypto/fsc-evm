@@ -49,41 +49,37 @@
         }
     } %}
     
-    {# Helper function to resolve variable references #}
-    {% macro resolve_value(value, chain) %}
-        {% if value is string and ' * ' in value %}
-            {% set parts = value.split(' * ') %}
-            {% set var_name = parts[1].strip() %}
-            {% set multiplier = parts[0].strip() | int %}
-            
-            {% if chain in config and var_name in config[chain] %}
-                {% set referenced_value = config[chain][var_name] %}
-            {% elif var_name in config['global'] %}
-                {% set referenced_value = config['global'][var_name] %}
-            {% else %}
-                {% set referenced_value = 0 %}
-            {% endif %}
-            
-            {% if referenced_value is number %}
-                {{ return(multiplier * referenced_value) }}
-            {% else %}
-                {{ return(value) }}  {# Return as is if not a number #}
-            {% endif %}
+    {# Get the value for the key from the appropriate config #}
+    {% if chain_name in config and key in config[chain_name] %}
+        {% set value = config[chain_name][key] %}
+    {% elif key in config['global'] %}
+        {% set value = config['global'][key] %}
+    {% else %}
+        {{ return(default) }}
+    {% endif %}
+    
+    {# Resolve variable references if needed #}
+    {% if value is string and ' * ' in value %}
+        {% set parts = value.split(' * ') %}
+        {% set multiplier = parts[0].strip() | int %}
+        {% set var_name = parts[1].strip() %}
+        
+        {# Get the referenced variable value #}
+        {% if chain_name in config and var_name in config[chain_name] %}
+            {% set referenced_value = config[chain_name][var_name] %}
+        {% elif var_name in config['global'] %}
+            {% set referenced_value = config['global'][var_name] %}
+        {% else %}
+            {% set referenced_value = 0 %}
+        {% endif %}
+        
+        {# Calculate the final value #}
+        {% if referenced_value is number %}
+            {{ return(multiplier * referenced_value) }}
         {% else %}
             {{ return(value) }}
         {% endif %}
-    {% endmacro %}
-    
-    {# Check if the key exists in our config #}
-    {% if chain_name in config and key in config[chain_name] %}
-        {% set value = config[chain_name][key] %}
-        {{ return(resolve_value(value, chain_name)) }}
-    {% elif key in config['global'] %}
-        {# Fall back to global config if the key exists there #}
-        {% set value = config['global'][key] %}
-        {{ return(resolve_value(value, chain_name)) }}
     {% else %}
-        {# Return the default if the key isn't found anywhere #}
-        {{ return(default) }}
+        {{ return(value) }}
     {% endif %}
 {% endmacro %}
