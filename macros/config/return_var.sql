@@ -5,6 +5,7 @@
     2. Supports nested configs under chain-specific names
     3. Falls back to global defaults when a specific chain config isn't available
     4. Supports expressions in the default parameter
+    5. Supports referencing other variables with special syntax
     #}
     
     {# Extract chain name from the project name #}
@@ -13,11 +14,15 @@
     
     {# Define our configuration structure #}
     {% set config = {
-        'default': {
+        'global': {
             'GLOBAL_CHAIN_NETWORK': 'unknown',
             'MAIN_SL_BLOCKS_PER_HOUR': 0,
             'GLOBAL_PROD_DB_NAME': '',
-            'CHAINHEAD_SQL_LIMIT': '2 * MAIN_SL_BLOCKS_PER_HOUR'
+            'CHAINHEAD_SQL_LIMIT': '2 * MAIN_SL_BLOCKS_PER_HOUR',  # Reference to another variable
+            'VERTEX_CONTRACTS': {
+                'ABI': '0x0000000000000000000000000000000000000000',
+                'ADDRESS': '0x0000000000000000000000000000000000000000'
+            }
         },
         'mantle': {
             'GLOBAL_CHAIN_NETWORK': 'mantle',
@@ -27,12 +32,20 @@
         'swell': {
             'GLOBAL_CHAIN_NETWORK': 'swell',
             'MAIN_SL_BLOCKS_PER_HOUR': 1500,
-            'GLOBAL_PROD_DB_NAME': 'swell'
+            'GLOBAL_PROD_DB_NAME': 'swell',
+            'VERTEX_CONTRACTS': {
+                'ABI': '0x0000000000000000000000000000000000000000',
+                'ADDRESS': '0x0000000000000000000000000000000000000000'
+            }
         },
         'ethereum': {
             'GLOBAL_CHAIN_NETWORK': 'ethereum',
             'MAIN_SL_BLOCKS_PER_HOUR': 300,
-            'GLOBAL_PROD_DB_NAME': 'ethereum'
+            'GLOBAL_PROD_DB_NAME': 'ethereum',
+            'VERTEX_CONTRACTS': {
+                'ABI': '0x0000000000000000000000000000000000000000',
+                'ADDRESS': '0x0000000000000000000000000000000000000000'
+            }
         }
     } %}
     
@@ -45,8 +58,8 @@
             
             {% if chain in config and var_name in config[chain] %}
                 {% set referenced_value = config[chain][var_name] %}
-            {% elif var_name in config['default'] %}
-                {% set referenced_value = config['default'][var_name] %}
+            {% elif var_name in config['global'] %}
+                {% set referenced_value = config['global'][var_name] %}
             {% else %}
                 {% set referenced_value = 0 %}
             {% endif %}
@@ -65,9 +78,9 @@
     {% if chain_name in config and key in config[chain_name] %}
         {% set value = config[chain_name][key] %}
         {{ return(resolve_value(value, chain_name)) }}
-    {% elif key in config['default'] %}
+    {% elif key in config['global'] %}
         {# Fall back to global config if the key exists there #}
-        {% set value = config['default'][key] %}
+        {% set value = config['global'][key] %}
         {{ return(resolve_value(value, chain_name)) }}
     {% else %}
         {# Return the default if the key isn't found anywhere #}
