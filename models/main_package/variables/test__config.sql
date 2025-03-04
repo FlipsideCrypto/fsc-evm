@@ -1,3 +1,5 @@
+{% set vars = cached_vars() %}
+
 {{
   config(
     materialized = 'table',
