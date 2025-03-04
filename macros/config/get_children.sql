@@ -11,52 +11,24 @@
     #}
     
     {% if execute %}
-        -- Try to get children from the config module
-        {% set config_module = modules.importlib.import_module('analysis.config') %}
-        {% set children = config_module.get_children(parent_key) %}
+        -- Look up the hierarchical config
+        {% set hier_config_path %}{{project_path}}/../logs/config_cache/config_hierarchical_{{target.name}}.json{% endset %}
         
-        {% if children %}
-            {{ return(children) }}
-        {% endif %}
-        
-        -- If not found, try to look it up in the cached hierarchical config file
-        {% set project_name = project_name %}
-        {% set fsc_evm_dir = modules.os.path.dirname(project_path) %}
-        
-        -- Get the chain name from config
-        {% set chain_config_path = modules.os.path.join(fsc_evm_dir, 'logs', 'config_cache', 'config_' ~ project_name ~ '.json') %}
-        {% set chain_name = '' %}
-        
-        {% if modules.os.path.exists(chain_config_path) %}
-            {% set config_file = open(chain_config_path, 'r') %}
-            {% set config = modules.json.loads(config_file.read()) %}
+        {% if modules.os.path.exists(hier_config_path) %}
+            {% set config_file = modules.open(hier_config_path, 'r') %}
+            {% set hier_config = modules.json.loads(config_file.read()) %}
             {% do config_file.close() %}
             
-            {% if 'GLOBAL_CHAIN_NETWORK' in config %}
-                {% set chain_name = config['GLOBAL_CHAIN_NETWORK'] %}
+            {% if parent_key in hier_config and 'children' in hier_config[parent_key] %}
+                {% set result = {} %}
+                {% for child_key, child_data in hier_config[parent_key]['children'].items() %}
+                    {% do result.update({child_key: child_data['value']}) %}
+                {% endfor %}
+                {{ return(result) }}
             {% endif %}
         {% endif %}
         
-        -- If we have a chain name, look up the hierarchical config
-        {% if chain_name %}
-            {% set hier_config_path = modules.os.path.join(fsc_evm_dir, 'logs', 'config_cache', 'config_hierarchical_' ~ chain_name ~ '.json') %}
-            
-            {% if modules.os.path.exists(hier_config_path) %}
-                {% set config_file = open(hier_config_path, 'r') %}
-                {% set hier_config = modules.json.loads(config_file.read()) %}
-                {% do config_file.close() %}
-                
-                {% if parent_key in hier_config and 'children' in hier_config[parent_key] %}
-                    {% set result = {} %}
-                    {% for child_key, child_data in hier_config[parent_key]['children'].items() %}
-                        {% do result.update({child_key: child_data['value']}) %}
-                    {% endfor %}
-                    {{ return(result) }}
-                {% endif %}
-            {% endif %}
-        {% endif %}
-        
-        -- If still not found, return empty dict
+        -- If not found, return empty dict
         {{ return({}) }}
     {% else %}
         {{ return({}) }}
