@@ -63,11 +63,12 @@ SELECT
             ,'{{ var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') }}'
             {% endif %}
         ),
-        { 'User-Agent': 'FlipsideStreamline' },
-        NULL
-        {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
-            ,'{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}'
-            {% endif %}
+        OBJECT_CONSTRUCT(
+            'Content-Type', 'application/json',
+            'fsc-quantum-state', 'livequery'
+        ),
+        NULL,
+        '{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}'
     ) AS request
 FROM
     all_contracts
