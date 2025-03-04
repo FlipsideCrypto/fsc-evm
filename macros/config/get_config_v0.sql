@@ -7,24 +7,24 @@
     
     {% set config = {
         'mantle-models': {
-            'CHAIN_NETWORK': 'mantle',
-            'BLOCKS_PER_HOUR': 1800,
-            'PROD_DB_NAME': 'mantle'
+            'CHAIN_NETWORK': "'mantle'",
+            'BLOCKS_PER_HOUR': '1800',
+            'PROD_DB_NAME': "'mantle'"
         },
         'ethereum-models': {
-            'CHAIN_NETWORK': 'ethereum',
-            'BLOCKS_PER_HOUR': 225,
-            'PROD_DB_NAME': 'ethereum'
+            'CHAIN_NETWORK': "'ethereum'",
+            'BLOCKS_PER_HOUR': '225',
+            'PROD_DB_NAME': "'ethereum'"
         },
         'base-models': {
-            'CHAIN_NETWORK': 'base',
-            'BLOCKS_PER_HOUR': 1800,
-            'PROD_DB_NAME': 'base'
+            'CHAIN_NETWORK': "'base'",
+            'BLOCKS_PER_HOUR': '1800',
+            'PROD_DB_NAME': "'base'"
         }
     } %}
 
     {# Get the project name from the target database #}
-    {% set project = target.database.split('.')[0] %}
+    {% set project = target.database.split('.')[0] ~ '-models' %}
     
     {# Split the key to check if it's a global parameter or project-specific #}
     {% set key_parts = key.split('.') %}
