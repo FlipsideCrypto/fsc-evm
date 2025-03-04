@@ -18,7 +18,7 @@
             'GLOBAL_CHAIN_NETWORK': 'unknown',
             'MAIN_SL_BLOCKS_PER_HOUR': 0,
             'GLOBAL_PROD_DB_NAME': '',
-            'CHAINHEAD_SQL_LIMIT': '2 * MAIN_SL_BLOCKS_PER_HOUR',  # Reference to another variable
+            'CHAINHEAD_SQL_LIMIT': '2 * MAIN_SL_BLOCKS_PER_HOUR', {# This is a default value that can be overridden by the chain-specific configs #}
             'VERTEX_CONTRACTS': {
                 'ABI': '0x0000000000000000000000000000000000000000',
                 'ADDRESS': '0x0000000000000000000000000000000000000000'
