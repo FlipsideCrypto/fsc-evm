@@ -1,3 +1,5 @@
+{% set vars = return_vars() %}
+
 {{
   config(
     materialized = 'table',
