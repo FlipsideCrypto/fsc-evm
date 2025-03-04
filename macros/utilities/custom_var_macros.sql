@@ -104,14 +104,14 @@
             {% do temp_context.update({var_key: var_value}) %}
           {% endfor %}
           
+          {# Evaluate the template in the context of current vars #}
           {% set rendered_value = none %}
-          {% try %}
-            {# Evaluate the template in the context of current vars #}
-            {% set rendered_value = render(template, temp_context) %}
-            {% do all_vars.update({key: rendered_value}) %}
-          {% except %}
-            {# If it fails, probably due to dependencies, we'll try again in next pass #}
-          {% endtry %}
+          {% if execute %}
+            {% set rendered_value = modules.jinja2.Template(template).render(**temp_context) %}
+            {% if rendered_value %}
+              {% do all_vars.update({key: rendered_value}) %}
+            {% endif %}
+          {% endif %}
         {% endif %}
       {% endfor %}
     {% endfor %}
