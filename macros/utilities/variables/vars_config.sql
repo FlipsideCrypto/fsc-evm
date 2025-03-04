@@ -22,6 +22,9 @@
         'swell': {
             'GLOBAL_PROD_DB_NAME': 'swell',
             'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/swell/ankr/mainnet'
+        },
+        'fsc_evm': {
+            'GLOBAL_PROD_DB_NAME': 'fsc_evm'
         }
     } %}
     
