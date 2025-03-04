@@ -16,7 +16,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
     post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model']
+    tags = ['gold_core', 'ez_prices_model','phase_2']
 ) }}
 
 {% else %}
@@ -28,7 +28,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model']
+    tags = ['gold_core', 'ez_prices_model','phase_2']
 ) }}
 
 {% endif %}

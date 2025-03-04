@@ -5,6 +5,7 @@
 {% set block_explorer_abi_interaction_limit = var('BLOCK_EXPLORER_ABI_INTERACTION_LIMIT', 250) %}
 {% set bronze_full_refresh = var('BRONZE_CONTRACT_ABIS_FULL_REFRESH', false) %}
 
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -98,7 +99,7 @@ batched AS (
                 {% endif %}
             ),
             {'User-Agent': 'FlipsideStreamline'},
-            {},
+            null,
             '{{ block_explorer_vault_path }}'
         ) AS abi_data
     FROM

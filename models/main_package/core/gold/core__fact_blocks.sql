@@ -3,13 +3,13 @@
 {# Prod DB Variables Start #}
 {# Columns included by default, with specific exclusions #}
 {% set excludes_base_fee = ['CORE'] %}
-{% set excludes_total_difficulty = ['INK','SWELL'] %}
+{% set excludes_total_difficulty = ['INK','SWELL','BOB'] %}
 
 {# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL'] %}
-{% set includes_parent_beacon_block_root = ['INK', 'SWELL'] %}
-{% set includes_withdrawals = ['INK', 'SWELL'] %}
+{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB', 'BOBA'] %}
+{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
+{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
+{% set includes_withdrawals = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_base_fee = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_base_fee %}
@@ -35,7 +35,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
-    tags = ['gold_core']
+    tags = ['gold_core', 'phase_1']
 ) }}
 
 {% else %}
@@ -46,7 +46,7 @@
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
+    tags = ['gold_core', 'phase_1']
 ) }}
 
 {% endif %}
