@@ -2,7 +2,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['silver_vars']
+    tags = ['vars']
 ) }}
 
 SELECT
@@ -13,7 +13,7 @@ SELECT
     is_enabled,
     {{ dbt_utils.generate_surrogate_key(
         ['chain', 'key', 'parent_key']
-    ) }} AS fact_variables_id
+    ) }} AS value_id
 FROM
     {{ source(
         'fsc_evm_bronze',

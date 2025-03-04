@@ -15,7 +15,7 @@
             key,
             VALUE,
             is_enabled
-        FROM {{ ref('silver__ez_variables') }}
+        FROM {{ ref('variables__ez_config') }}
         WHERE (key = '{{ variable_key }}'
            OR parent_key = '{{ variable_key }}')
            AND is_enabled

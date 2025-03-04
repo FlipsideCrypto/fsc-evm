@@ -1,4 +1,4 @@
-.PHONY: new_repo_tag
+.PHONY: new_repo_tag seed_vars
 
 new_repo_tag:
 	@echo "Last 3 tags:"
@@ -27,3 +27,7 @@ new_repo_tag:
 	else \
 		echo "No tag name entered. Operation cancelled."; \
 	fi
+
+seed_vars:
+	dbt seed -m bronze__master_variable_keys
+	dbt seed -m bronze__master_variable_values
