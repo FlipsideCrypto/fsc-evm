@@ -1,33 +1,11 @@
 {# Set variables #}
+{%- set vars = return_vars() -%}
 {%- set package_name = 'MAIN' -%}
 {%- set model_name = 'BLOCKS_TRANSACTIONS' -%}
 {%- set model_type = 'REALTIME' -%}
-{%- set min_block = get_var('MAIN_SL_START_BLOCK', none) -%}
-
-{%- set default_vars = set_default_variables_streamline(package_name, model_name, model_type) -%}
-
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set streamline_params = set_streamline_parameters(
-    package_name=package_name,
-    model_name=model_name,
-    model_type=model_type
-) -%}
-
-{%- set node_url = default_vars['node_url'] -%}
-{%- set node_secret_path = default_vars['node_secret_path'] -%}
-{%- set model_quantum_state = default_vars['model_quantum_state'] -%}
-{%- set sql_limit = streamline_params['sql_limit'] -%}
-{%- set testing_limit = default_vars['testing_limit'] -%}
-{%- set order_by_clause = default_vars['order_by_clause'] -%}
-{%- set new_build = default_vars['new_build'] -%}
-{%- set method_params = streamline_params['method_params'] -%}
-{%- set method = streamline_params['method'] -%}
 
 {# Log configuration details #}
-{{ log_model_details(
-    vars = default_vars,    
-    params = streamline_params    
-) }}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config (
@@ -35,14 +13,21 @@
     post_hook = fsc_utils.if_data_call_function_v2(
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
+        params = {
+            "external_table": model_name.lower(),
+            "sql_limit": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT,
+            "producer_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_WORKER_BATCH_SIZE,
+            "sql_source": (model_name ~ '_' ~ model_type).lower(),
+            "exploded_key": ['result', 'result.transactions']
+        }
     ),
     tags = ['streamline_core_realtime']
 ) }}
 
 {# Main query starts here #}
 WITH 
-{% if not new_build %}
+{% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
     last_3_days AS (
         SELECT block_number
         FROM {{ ref("_block_lookback") }}
@@ -55,12 +40,12 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
     block_number IS NOT NULL
-    {% if not new_build %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 
-    {% if min_block is not none %}
-        AND block_number >= {{ min_block }}
+    {% if vars.MAIN_SL_MIN_BLOCK is not none %}
+        AND block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
     {% endif %}
 
     EXCEPT
@@ -69,7 +54,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks_complete") }} b
     INNER JOIN {{ ref("streamline__transactions_complete") }} t USING(block_number)
     WHERE 1=1
-    {% if not new_build %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 ),
@@ -77,7 +62,7 @@ ready_blocks AS (
     SELECT block_number
     FROM to_do
 
-    {% if not new_build %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         UNION
         SELECT block_number
         FROM {{ ref("_unconfirmed_blocks") }}
@@ -86,8 +71,8 @@ ready_blocks AS (
         FROM {{ ref("_missing_txs") }}
     {% endif %}
 
-    {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 
@@ -97,22 +82,22 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        '{{ vars.NODE_URL }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', 'streamline'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ method }}',
-            'params', {{ method_params }}
+            'method', 'eth_getBlockByNumber',
+            'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
         ),
-        '{{ node_secret_path }}'
+        '{{ vars.NODE_SECRET_PATH }}'
     ) AS request
 FROM
     ready_blocks
     
-{{ order_by_clause }}
+ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ sql_limit }}
+LIMIT {{ vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_SQL_LIMIT'] }}
