@@ -1,13 +1,20 @@
 {% macro return_var(key, default='') %}
     {# 
     Enhanced version that:
-    1. Uses the project name from dbt_project.yml
-    2. Supports nested configs under chain-specific names
-    3. Falls back to default_values when a specific chain config isn't available
-    4. Supports expressions in the default parameter
-    5. Supports referencing other variables with special syntax
-    6. Uses DBT vars for configuration
+    1. Checks for command-line variable overrides first
+    2. Uses the project name from dbt_project.yml
+    3. Supports nested configs under chain-specific names
+    4. Falls back to default_values when a specific chain config isn't available
+    5. Supports expressions in the default parameter
+    6. Supports referencing other variables with special syntax
+    7. Uses DBT vars for configuration
     #}
+    
+    {# Check for direct command-line override first #}
+    {% if var(key, none) is not none %}
+        {% set value = var(key) %}
+        {{ return(value) }}
+    {% endif %}
     
     {# Extract chain name from the project name #}
     {% set project_name = project_name %}
@@ -31,8 +38,11 @@
         {% set multiplier = parts[0].strip() | int %}
         {% set var_name = parts[1].strip() %}
         
-        {# Get the referenced variable value #}
-        {% if chain_name in config and var_name in config[chain_name] %}
+        {# Check for command-line override of the referenced variable #}
+        {% if var(var_name, none) is not none %}
+            {% set referenced_value = var(var_name) %}
+        {# Otherwise, check in the config #}
+        {% elif chain_name in config and var_name in config[chain_name] %}
             {% set referenced_value = config[chain_name][var_name] %}
         {% elif 'default_values' in config and var_name in config['default_values'] %}
             {% set referenced_value = config['default_values'][var_name] %}
