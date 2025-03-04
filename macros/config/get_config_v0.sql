@@ -7,19 +7,19 @@
     
     {% set config = {
         'mantle-models': {
-            'CHAIN_NETWORK': "'mantle'",
-            'BLOCKS_PER_HOUR': '1800',
-            'PROD_DB_NAME': "'mantle'"
+            'GLOBAL_CHAIN_NETWORK': 'mantle',
+            'MAIN_SL_BLOCKS_PER_HOUR': 1800,
+            'GLOBAL_PROD_DB_NAME': 'mantle'
         },
         'ethereum-models': {
-            'CHAIN_NETWORK': "'ethereum'",
-            'BLOCKS_PER_HOUR': '225',
-            'PROD_DB_NAME': "'ethereum'"
+            'GLOBAL_CHAIN_NETWORK': 'ethereum',
+            'MAIN_SL_BLOCKS_PER_HOUR': 225,
+            'GLOBAL_PROD_DB_NAME': 'ethereum'
         },
         'base-models': {
-            'CHAIN_NETWORK': "'base'",
-            'BLOCKS_PER_HOUR': '1800',
-            'PROD_DB_NAME': "'base'"
+            'GLOBAL_CHAIN_NETWORK': 'base',
+            'MAIN_SL_BLOCKS_PER_HOUR': 1800,
+            'GLOBAL_PROD_DB_NAME': 'base'
         }
     } %}
 
