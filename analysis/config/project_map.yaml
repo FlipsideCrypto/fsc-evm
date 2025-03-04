@@ -1,0 +1,69 @@
+# Mapping between project names and chain information
+# This includes both chain ID and chain name
+
+# Ethereum mainnet
+ethereum-models:
+  chain_id: 1
+  chain_name: ethereum
+
+# EVM L2s and sidechains
+arbitrum-models:
+  chain_id: 42161
+  chain_name: arbitrum
+  
+optimism-models:
+  chain_id: 10
+  chain_name: optimism
+  
+polygon-models:
+  chain_id: 137
+  chain_name: polygon
+  
+base-models:
+  chain_id: 8453
+  chain_name: base
+  
+avalanche-models:
+  chain_id: 43114
+  chain_name: avalanche
+  
+bsc-models:
+  chain_id: 56
+  chain_name: bsc
+  
+fantom-models:
+  chain_id: 250
+  chain_name: fantom
+  
+gnosis-models:
+  chain_id: 100
+  chain_name: gnosis
+
+mantle-models:
+  chain_id: 5000
+  chain_name: mantle
+
+swell-models:
+  chain_id: 1000
+  chain_name: swell
+
+# Test networks
+goerli-models:
+  chain_id: 5
+  chain_name: goerli
+  
+sepolia-models:
+  chain_id: 11155111
+  chain_name: sepolia
+  
+arbitrum-goerli-models:
+  chain_id: 421613
+  chain_name: arbitrum-goerli
+  
+optimism-goerli-models:
+  chain_id: 420
+  chain_name: optimism-goerli
+  
+polygon-mumbai-models:
+  chain_id: 80001
+  chain_name: polygon-mumbai
