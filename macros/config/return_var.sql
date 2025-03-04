@@ -36,7 +36,7 @@
                 'ADDRESS': '0x0000000000000000000000000000000000000000'
             }
         },
-        'global': {
+        'default': {
             'GLOBAL_CHAIN_NETWORK': 'unknown',
             'MAIN_SL_BLOCKS_PER_HOUR': 0,
             'GLOBAL_PROD_DB_NAME': ''
@@ -46,9 +46,9 @@
     {# Check if the key exists in our config #}
     {% if chain_name in config and key in config[chain_name] %}
         {{ return(config[chain_name][key]) }}
-    {% elif key in config['global'] %}
-        {# Fall back to global config if the key exists there #}
-        {{ return(config['global'][key]) }}
+    {% elif key in config['default'] %}
+        {# Fall back to default config if the key exists there #}
+        {{ return(config['default'][key]) }}
     {% else %}
         {# Return the default if the key isn't found anywhere #}
         {{ return(default) }}
