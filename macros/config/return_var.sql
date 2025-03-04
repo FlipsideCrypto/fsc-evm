@@ -13,9 +13,9 @@
     {% set project_name = project_name %}
     {% set chain_name = project_name.split('_')[0] if '_' in project_name else project_name %}
     
-    {# Load configuration from JSON file using dbt's load_aml utility #}
+    {# Load configuration from JSON file using dbt's get_file_contents utility #}
     {% set config_path = 'chain_config.json' %}
-    {% set config = fromjson(load_file_contents(config_path)) %}
+    {% set config = fromjson(get_file_contents(config_path)) %}
     
     {# Get the value for the key from the appropriate config #}
     {% if chain_name in config and key in config[chain_name] %}
