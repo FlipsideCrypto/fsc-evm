@@ -3,13 +3,28 @@
 {% endmacro %}
 
 {% macro get_global_vars() %}
-  {# Use the global dictionary to cache variable results #}
-  {% if not context.get('_cached_global_vars') %}
-    {% do context.update({'_cached_global_vars': _get_global_vars()}) %}
-    {% do log("Global variables initialized for the first time", info=true) %}
-  {% else %}
-    {% do log("Using cached global variables", info=true) %}
-  {% endif %}
+  {% set cache_file = '/tmp/dbt_vars_cache_' ~ project_name ~ '.json' %}
   
-  {% do return(context._cached_global_vars) %}
+  {% if execute %}
+    {% set file_exists = modules.os.path.exists(cache_file) %}
+    
+    {% if file_exists %}
+      {% do log("Reading vars from cache file", info=true) %}
+      {% set f = modules.builtins.open(cache_file, 'r') %}
+      {% set cached_vars = fromjson(f.read()) %}
+      {% do f.close() %}
+      {{ return(cached_vars) }}
+    {% else %}
+      {% do log("Cache file not found, initializing global vars", info=true) %}
+      {% set global_vars = _get_global_vars() %}
+      
+      {% set f = modules.builtins.open(cache_file, 'w') %}
+      {% do f.write(tojson(global_vars)) %}
+      {% do f.close() %}
+      
+      {{ return(global_vars) }}
+    {% endif %}
+  {% else %}
+    {{ return({}) }}
+  {% endif %}
 {% endmacro %}
