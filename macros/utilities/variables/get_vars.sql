@@ -2,37 +2,41 @@
     {# Get the nested structure from vars_config() #}
     {% set nested_vars = vars_config() %}
     
+    {# Determine current chain based on database name #}
+    {% set target_db = target.database.lower() | replace('_dev', '') %}
+    
     {# Convert the nested structure to the flat format expected by get_var() #}
     {% set flat_vars = [] %}
     
     {% for chain, vars in nested_vars.items() %}
-        {% for key, value in vars.items() %}
-            {% if value is mapping %}
-                {# Handle nested mappings (where parent_key is not none) #}
-                {% for subkey, subvalue in value.items() %}
+        {% if chain == target_db %}
+            {% for key, value in vars.items() %}
+                {% if value is mapping %}
+                    {# Handle nested mappings (where parent_key is not none) #}
+                    {% for subkey, subvalue in value.items() %}
+                        {% do flat_vars.append({
+                            'chain': chain,
+                            'key': subkey,
+                            'parent_key': key,
+                            'value': subvalue,
+                            'is_enabled': true
+                        }) %}
+                    {% endfor %}
+                {% else %}
                     {% do flat_vars.append({
                         'chain': chain,
-                        'key': subkey,
-                        'parent_key': key,
-                        'value': subvalue,
+                        'key': key,
+                        'parent_key': none,
+                        'value': value,
                         'is_enabled': true
                     }) %}
-                {% endfor %}
-            {% else %}
-                {% do flat_vars.append({
-                    'chain': chain,
-                    'key': key,
-                    'parent_key': none,
-                    'value': value,
-                    'is_enabled': true
-                }) %}
-            {% endif %}
-        {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     {% endfor %}
     
     {{ return(flat_vars) }}
 {% endmacro %}
-
 
 {% macro get_var(variable_key, default=none) %}
     {# Check if variable exists in dbt's built-in var() function. If it does, return the value. #}
