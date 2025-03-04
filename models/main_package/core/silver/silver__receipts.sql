@@ -1,4 +1,4 @@
--- depends_on: {{ ref('bronze__' ~ get_config_var('MAIN_CORE_RECEIPTS_SOURCE_NAME') | lower) }}
+-- depends_on: {{ ref('bronze__' ~ get_var('MAIN_CORE_RECEIPTS_SOURCE_NAME') | lower) }}
 
 {{ config(
     materialized = 'incremental',
@@ -13,7 +13,7 @@ WITH bronze_receipts AS (
     SELECT 
         block_number,
         partition_key,
-        {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
+        {% if get_var('USES_RECEIPTS_BY_HASH') %}
             tx_hash,
             DATA:result AS receipts_json,
         {% else %}
@@ -23,21 +23,21 @@ WITH bronze_receipts AS (
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
-    {{ ref('bronze__' ~ get_config_var('MAIN_CORE_RECEIPTS_SOURCE_NAME') | lower) }}
+    {{ ref('bronze__' ~ get_var('MAIN_CORE_RECEIPTS_SOURCE_NAME') | lower) }}
     WHERE _inserted_timestamp >= (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
     ) AND 
-    {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
+    {% if get_var('USES_RECEIPTS_BY_HASH') %}
         DATA:result IS NOT NULL
     {% else %}
         DATA IS NOT NULL
     {% endif %}
     {% else %}
-    {{ ref('bronze__' ~ get_config_var('MAIN_CORE_RECEIPTS_SOURCE_NAME') | lower ~ '_fr') }}
+    {{ ref('bronze__' ~ get_var('MAIN_CORE_RECEIPTS_SOURCE_NAME') | lower ~ '_fr') }}
     WHERE 
-    {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
+    {% if get_var('USES_RECEIPTS_BY_HASH') %}
         DATA:result IS NOT NULL
     {% else %}
         DATA IS NOT NULL
@@ -48,14 +48,14 @@ WITH bronze_receipts AS (
 SELECT 
     block_number,
     partition_key,
-    {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
+    {% if get_var('USES_RECEIPTS_BY_HASH') %}
         tx_hash,
     {% else %}
         array_index,
     {% endif %}
     receipts_json,
     _inserted_timestamp,
-    {% if get_config_var('USES_RECEIPTS_BY_HASH') %}
+    {% if get_var('USES_RECEIPTS_BY_HASH') %}
         {{ dbt_utils.generate_surrogate_key(['block_number','tx_hash']) }} AS receipts_id,
     {% else %}
         {{ dbt_utils.generate_surrogate_key(['block_number','array_index']) }} AS receipts_id,
@@ -64,7 +64,7 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_receipts
-{% if get_config_var('USES_RECEIPTS_BY_HASH') %}
+{% if get_var('USES_RECEIPTS_BY_HASH') %}
 QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number DESC, _inserted_timestamp DESC) = 1
 {% else %}
 QUALIFY(ROW_NUMBER() OVER (PARTITION BY block_number, array_index ORDER BY _inserted_timestamp DESC)) = 1

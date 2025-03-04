@@ -20,7 +20,7 @@ WITH bronze_confirm_blocks AS (
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
-        {% if get_config_var('SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED') %}
+        {% if get_var('SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED') %}
             {{ ref('bronze__confirm_blocks') }}
             WHERE block_number >= (
                 SELECT COALESCE(MAX(block_number), 0) FROM {{ this }}
