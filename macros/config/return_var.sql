@@ -8,6 +8,7 @@
     5. Supports expressions in the default parameter
     6. Supports referencing other variables with special syntax
     7. Uses DBT vars for configuration
+    8. Supports nested values with dot notation (e.g., "VERTEX_CONTRACTS.ABI")
     #}
     
     {# Check for direct command-line override first #}
@@ -23,13 +24,49 @@
     {# Get config from dbt vars #}
     {% set config = var('chain_config', {}) %}
     
-    {# Get the value for the key from the appropriate config #}
-    {% if chain_name in config and key in config[chain_name] %}
-        {% set value = config[chain_name][key] %}
-    {% elif 'default_values' in config and key in config['default_values'] %}
-        {% set value = config['default_values'][key] %}
+    {# Check if key has dot notation for nested value #}
+    {% if '.' in key %}
+        {% set key_parts = key.split('.') %}
+        {% set parent_key = key_parts[0] %}
+        {% set child_key = key_parts[1] %}
+        
+        {# Get the parent value from the appropriate config #}
+        {% if chain_name in config and parent_key in config[chain_name] %}
+            {% set parent_value = config[chain_name][parent_key] %}
+            {% if parent_value is mapping and child_key in parent_value %}
+                {% set value = parent_value[child_key] %}
+            {% else %}
+                {# Try default values if chain-specific nested value not found #}
+                {% if 'default_values' in config and parent_key in config['default_values'] %}
+                    {% set parent_value = config['default_values'][parent_key] %}
+                    {% if parent_value is mapping and child_key in parent_value %}
+                        {% set value = parent_value[child_key] %}
+                    {% else %}
+                        {{ return(default) }}
+                    {% endif %}
+                {% else %}
+                    {{ return(default) }}
+                {% endif %}
+            {% endif %}
+        {% elif 'default_values' in config and parent_key in config['default_values'] %}
+            {% set parent_value = config['default_values'][parent_key] %}
+            {% if parent_value is mapping and child_key in parent_value %}
+                {% set value = parent_value[child_key] %}
+            {% else %}
+                {{ return(default) }}
+            {% endif %}
+        {% else %}
+            {{ return(default) }}
+        {% endif %}
     {% else %}
-        {{ return(default) }}
+        {# Regular non-nested key handling #}
+        {% if chain_name in config and key in config[chain_name] %}
+            {% set value = config[chain_name][key] %}
+        {% elif 'default_values' in config and key in config['default_values'] %}
+            {% set value = config['default_values'][key] %}
+        {% else %}
+            {{ return(default) }}
+        {% endif %}
     {% endif %}
     
     {# Resolve variable references if needed #}
@@ -41,13 +78,9 @@
         {# Check for command-line override of the referenced variable #}
         {% if var(var_name, none) is not none %}
             {% set referenced_value = var(var_name) %}
-        {# Otherwise, check in the config #}
-        {% elif chain_name in config and var_name in config[chain_name] %}
-            {% set referenced_value = config[chain_name][var_name] %}
-        {% elif 'default_values' in config and var_name in config['default_values'] %}
-            {% set referenced_value = config['default_values'][var_name] %}
+        {# Otherwise, check in the config using recursive call to handle possible nested values #}
         {% else %}
-            {% set referenced_value = 0 %}
+            {% set referenced_value = return_var(var_name, 0) %}
         {% endif %}
         
         {# Calculate the final value #}
