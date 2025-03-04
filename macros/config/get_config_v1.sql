@@ -43,7 +43,6 @@
             'MAIN_SL_BLOCKS_PER_HOUR': 300,
             'GLOBAL_PROD_DB_NAME': 'ethereum'
         },
-        # Add more chains as needed
         'global': {
             'GLOBAL_CHAIN_NETWORK': 'unknown',
             'MAIN_SL_BLOCKS_PER_HOUR': 0,
