@@ -21,11 +21,11 @@ SELECT
     ) }} AS ez_variables_id
 FROM
     {{ ref(
-        'silver__dim_variables'
+        'variables__dim_keys'
     ) }}
     m
     INNER JOIN {{ ref(
-        'silver__fact_variables'
+        'variables__fact_values'
     ) }}
     v
     ON m.key = v.key
