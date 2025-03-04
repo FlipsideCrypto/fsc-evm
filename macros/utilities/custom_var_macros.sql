@@ -14,7 +14,7 @@
           key, 
           data_type,
           default_value
-        from {{ ref('bronze__master_variable_keys') }}
+        from fsc_evm_dev.bronze.master_variable_keys
       {% endset %}
       
       {% set default_results = run_query(defaults_query) %}
@@ -37,7 +37,7 @@
           key,
           parent_key,
           value
-        from {{ ref('bronze__master_variable_values') }}
+        from fsc_evm_dev.bronze.master_variable_values
         where chain = '{{ current_chain }}'
         and is_enabled = true
       {% endset %}

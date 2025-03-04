@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('bronze__master_variable_keys') }}
 {{ config (
     materialized = "view",
     post_hook = fsc_utils.if_data_call_function_v2(
