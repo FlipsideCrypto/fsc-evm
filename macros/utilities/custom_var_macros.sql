@@ -98,10 +98,10 @@
     {% for _ in range(3) %}  {# 3 passes should handle most dependency chains #}
       {% for key, template in template_vars.items() %}
         {% if key not in all_vars or all_vars[key] is none %}
-          {# Try to render the template with current values #}
-          {% set temp_context = namespace() %}
+          {# Create a context dictionary instead of using namespace #}
+          {% set temp_context = {} %}
           {% for var_key, var_value in all_vars.items() %}
-            {% set temp_context[var_key] = var_value %}
+            {% do temp_context.update({var_key: var_value}) %}
           {% endfor %}
           
           {% set rendered_value = none %}
