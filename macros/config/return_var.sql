@@ -13,22 +13,15 @@
     {% set project_name = project_name %}
     {% set chain_name = project_name.split('_')[0] if '_' in project_name else project_name %}
     
-    {# Load configuration from JSON file #}
-    {% set config_path = modules.os.path.join(project_root, 'macros', 'config', 'chain_config.json') %}
-    {% if modules.os.path.exists(config_path) %}
-        {% set config_file = modules.open(config_path, 'r') %}
-        {% set config_json = config_file.read() %}
-        {% do config_file.close() %}
-        {% set config = fromjson(config_json) %}
-    {% else %}
-        {{ exceptions.raise_compiler_error("Configuration file not found at: " ~ config_path) }}
-    {% endif %}
+    {# Load configuration from JSON file using dbt's load_aml utility #}
+    {% set config_path = 'chain_config.json' %}
+    {% set config = fromjson(load_file_contents(config_path)) %}
     
     {# Get the value for the key from the appropriate config #}
     {% if chain_name in config and key in config[chain_name] %}
         {% set value = config[chain_name][key] %}
-    {% elif key in config['default_values'] %}
-        {% set value = config['default_values'][key] %}
+    {% elif key in config['global'] %}
+        {% set value = config['global'][key] %}
     {% else %}
         {{ return(default) }}
     {% endif %}
@@ -42,8 +35,8 @@
         {# Get the referenced variable value #}
         {% if chain_name in config and var_name in config[chain_name] %}
             {% set referenced_value = config[chain_name][var_name] %}
-        {% elif var_name in config['default_values'] %}
-            {% set referenced_value = config['default_values'][var_name] %}
+        {% elif var_name in config['global'] %}
+            {% set referenced_value = config['global'][var_name] %}
         {% else %}
             {% set referenced_value = 0 %}
         {% endif %}
