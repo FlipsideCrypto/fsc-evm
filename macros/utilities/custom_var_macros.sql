@@ -2,7 +2,7 @@
   {# This macro loads all variables and computes derived values just once per dbt run #}
   {# It's silently invoked by get_var - users don't need to call this directly #}
   
-  {% if not this.vars_initialized or this.chain != var('chain', none) %}
+  {% if not context.get('vars_initialized', false) or context.get('current_chain', none) != var('chain', none) %}
     {% set current_chain = var('chain', none) %}
     
     {# STEP 1: Load default variable definitions with metadata #}
@@ -158,7 +158,7 @@
     {% endfor %}
     
     {# Store the variables and chain in the context #}
-    {% do this.update({'vars_initialized': true, 'chain': current_chain, 'vars': final_vars}) %}
+    {% set _ = context.update({'vars_initialized': true, 'current_chain': current_chain, 'custom_vars': final_vars}) %}
   {% endif %}
 {% endmacro %}
 
@@ -176,16 +176,16 @@
     {% set parent = parts[0] %}
     {% set child = parts[1] %}
     
-    {% if parent in this.vars and this.vars[parent] is mapping and child in this.vars[parent] %}
-      {{ return(this.vars[parent][child]) }}
+    {% if parent in context.custom_vars and context.custom_vars[parent] is mapping and child in context.custom_vars[parent] %}
+      {{ return(context.custom_vars[parent][child]) }}
     {% else %}
       {{ return(default_value) }}
     {% endif %}
   {% endif %}
   
   {# Check our variable dictionary #}
-  {% if var_name in this.vars %}
-    {{ return(this.vars[var_name]) }}
+  {% if var_name in context.custom_vars %}
+    {{ return(context.custom_vars[var_name]) }}
   {% else %}
     {{ return(default_value) }}
   {% endif %}

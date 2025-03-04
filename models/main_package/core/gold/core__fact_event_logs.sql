@@ -1,7 +1,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = get_unique_key(),
+    unique_key = get_var('UNIQUE_KEY'),
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     tags = ['gold_core']

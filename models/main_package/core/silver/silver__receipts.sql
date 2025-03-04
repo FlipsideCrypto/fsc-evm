@@ -4,7 +4,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_number'],
-    unique_key = get_unique_key(),
+    unique_key = get_var('UNIQUE_KEY'),
     tags = ['core', 'silver', 'receipts']
 ) }}
 
