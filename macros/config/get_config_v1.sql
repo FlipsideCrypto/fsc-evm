@@ -1,4 +1,4 @@
-{% macro get_config(key, default='') %}
+{% macro get_config_v1(key, default='') %}
     {# 
     Enhanced version that:
     1. Uses the project name from dbt_project.yml
