@@ -46,3 +46,5 @@ SELECT
     *
 FROM
     flattened_data
+WHERE
+    chain = '{{ database }}'
