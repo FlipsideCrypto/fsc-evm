@@ -31,8 +31,5 @@ clean-targets: # directories to be removed by `dbt clean`
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
-on-run-start:
-  - "{{ init_config() }}"
-
 vars:
   "dbt_date:time_zone": GMT
