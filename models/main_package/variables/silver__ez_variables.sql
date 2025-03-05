@@ -1,5 +1,6 @@
 {{ config(
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['project_vars']
 ) }}
 
 {%- set project = target.database.lower() | replace('_dev', '') -%}

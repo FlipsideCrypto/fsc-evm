@@ -1,5 +1,6 @@
 {{ config(
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['project_vars']
 ) }}
 
 {%- set vars_data = vars_config(all_projects=true) -%}
