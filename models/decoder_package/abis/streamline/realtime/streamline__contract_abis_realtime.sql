@@ -65,7 +65,7 @@ SELECT
         ),
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', 'livequery'
+            'fsc-quantum-state', 'auto'
         ),
         NULL,
         '{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}'
