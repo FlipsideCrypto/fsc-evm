@@ -1,6 +1,7 @@
 import re
 
 def extract_variables_from_return_vars(file_path):
+    # Reads the return_vars.sql file and extracts all variable definitions using regex
     with open(file_path, 'r') as f:
         content = f.read()
     
@@ -49,6 +50,7 @@ def extract_variables_from_return_vars(file_path):
     return variables
 
 def generate_master_keys_macro(variables):
+    # Creates a structured macro that organizes all variables by package and category
     # Reorganize variables by package and category
     organized_vars = {}
     for key, info in variables.items():
@@ -104,10 +106,11 @@ def generate_master_keys_macro(variables):
     
     return macro_content
 
-# Extract variables and generate macro
+# Main execution block
+# Extract variables from return_vars.sql and generate a master_vars_keys macro
 variables = extract_variables_from_return_vars('macros/utilities/variables/return_vars.sql')
 macro_content = generate_master_keys_macro(variables)
 
-# Write to file
+# Write the generated macro to a file
 with open('macros/utilities/variables/project_vars/_master_keys.sql', 'w') as f:
     f.write(macro_content)

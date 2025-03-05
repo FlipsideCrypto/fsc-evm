@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view',
-    tags = ['project_vars']
+    tags = ['silver_vars']
 ) }}
 
 {%- set vars_data = vars_config(all_projects=true) -%}
@@ -51,6 +51,9 @@ SELECT
     project,
     key,
     VALUE,
-    parent_key
+    parent_key,
+    {{ dbt_utils.generate_surrogate_key(
+        ['project', 'key', 'parent_key']
+    ) }} AS fact_variables_id
 FROM
     flattened_data

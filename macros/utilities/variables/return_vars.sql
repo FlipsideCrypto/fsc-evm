@@ -1,4 +1,7 @@
 {% macro return_vars() %}
+  {# This macro sets and returns all configurable variables used throughout the project,
+     organizing them by category (Global, Bronze, Silver, Streamline, etc.) with default values #}
+  
   {# Set all variables on the namespace #}
   {% set ns = namespace() %}
   

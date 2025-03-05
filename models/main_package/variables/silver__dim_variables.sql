@@ -1,5 +1,6 @@
 {{ config(
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['silver_vars']
 ) }}
 
 {%- set master_vars = master_keys_config() -%}
@@ -26,6 +27,9 @@ SELECT
     category,
     key,
     data_type,
-    default_value
+    default_value,
+    {{ dbt_utils.generate_surrogate_key(
+        ['key']
+    ) }} AS dim_variables_id
 FROM
     flattened_data

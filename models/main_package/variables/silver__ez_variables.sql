@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view',
-    tags = ['project_vars']
+    tags = ['silver_vars']
 ) }}
 
 {%- set project = target.database.lower() | replace('_dev', '') -%}
@@ -12,11 +12,14 @@ SELECT
     VALUE,
     parent_key,
     data_type,
-    default_value
+    default_value,
+    {{ dbt_utils.generate_surrogate_key(
+        ['f.key', 'f.parent_key']
+    ) }} AS ez_variables_id
 FROM
     {{ ref('silver__fact_variables') }} f
-INNER JOIN
+LEFT JOIN
     {{ ref('silver__dim_variables') }} d
     ON f.key = d.key
 WHERE
-    project = '{{ project }}'
+    f.project = '{{ project }}'

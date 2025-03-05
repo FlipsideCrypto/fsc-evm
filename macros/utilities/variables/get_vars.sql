@@ -1,30 +1,75 @@
+{% macro vars_config(all_projects=false) %}
+    {# Retrieves variable configurations from project-specific macros.
+       When all_projects=True, gets variables from all projects.
+       Otherwise, gets variables only for the current project based on target database. #}
+    
+    {# Initialize empty dictionary for all variables #}
+    {% set target_vars = {} %}
+    
+    {# Determine current project based on database name #}
+    {% set target_db = target.database.lower() | replace('_dev', '') %}
+    
+    {% if all_projects %}
+        {# Get all macro names in the context #}
+        {% set all_macros = context.keys() %}
+        
+        {# Filter for project variable macros (those ending with _vars) #}
+        {% for macro_name in all_macros %}
+            {% if macro_name.endswith('_vars') %}
+                {# Extract project name from macro name #}
+                {% set project_name = macro_name.replace('_vars', '') %}
+                
+                {# Call the project macro and add to target_vars #}
+                {% set project_config = context[macro_name]() %}
+                
+                {# Only include if the result is a mapping #}
+                {% if project_config is mapping %}
+                    {% do target_vars.update({project_name: project_config}) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {# Construct the macro name for this project #}
+        {% set project_macro = target_db ~ '_vars' %}
+        
+        {# Try to call the macro directly #}
+        {% if context.get(project_macro) is not none %}
+            {% set project_config = context[project_macro]() %}
+            {% do target_vars.update({target_db: project_config}) %}
+        {% endif %}
+    {% endif %}
+    
+    {{ return(target_vars) }}
+{% endmacro %}
+
 {% macro flatten_vars() %}
+    {# Converts the nested variable structure from vars_config() into a flat list of dictionaries.
+       Each dictionary contains project, key, parent_key, value properties. #}
+    
     {# Get the nested structure from vars_config() #}
     {% set nested_vars = vars_config() %}
     
     {# Convert the nested structure to the flat format expected by get_var() #}
     {% set flat_vars = [] %}
     
-    {% for chain, vars in nested_vars.items() %}
+    {% for project, vars in nested_vars.items() %}
         {% for key, value in vars.items() %}
             {% if value is mapping %}
                 {# Handle nested mappings (where parent_key is not none) #}
                 {% for subkey, subvalue in value.items() %}
                     {% do flat_vars.append({
-                        'chain': chain,
+                        'project': project,
                         'key': subkey,
                         'parent_key': key,
-                        'value': subvalue,
-                        'is_enabled': true
+                        'value': subvalue
                     }) %}
                 {% endfor %}
             {% else %}
                 {% do flat_vars.append({
-                    'chain': chain,
+                    'project': project,
                     'key': key,
                     'parent_key': none,
-                    'value': value,
-                    'is_enabled': true
+                    'value': value
                 }) %}
             {% endif %}
         {% endfor %}
@@ -34,6 +79,10 @@
 {% endmacro %}
 
 {% macro get_var(variable_key, default=none) %}
+    {# Retrieves a variable by key from either dbt's built-in var() function or from project configs.
+       Handles type conversion for strings, numbers, booleans, arrays, and JSON objects.
+       Returns the default value if the variable is not found. #}
+    
     {# Check if variable exists in dbt's built-in var() function. If it does, return the value. #}
     {% if var(variable_key, none) is not none %}
         {{ return(var(variable_key)) }}
@@ -46,7 +95,7 @@
         {# Filter variables based on the requested key #}
         {% set filtered_vars = [] %}
         {% for var_item in all_vars %}
-            {% if (var_item.key == variable_key or var_item.parent_key == variable_key) and var_item.is_enabled %}
+            {% if (var_item.key == variable_key or var_item.parent_key == variable_key) %}
                 {% do filtered_vars.append(var_item) %}
             {% endif %}
         {% endfor %}
@@ -59,7 +108,6 @@
         {% set first_var = filtered_vars[0] %}
         {% set parent_key = first_var.parent_key %}
         {% set value = first_var.value %}
-        {% set is_enabled = first_var.is_enabled %}
         
         {# Check if this is a simple variable (no parent key) or a mapping (has parent key) #}
         {% if parent_key is none or parent_key == '' %}
