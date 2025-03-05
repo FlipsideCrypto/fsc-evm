@@ -4,6 +4,7 @@
 ) }}
 
 {%- set vars_data = vars_config(all_projects=true) -%}
+{%- set project = target.database.lower() | replace('_dev', '') -%}
 
 WITH flattened_data AS (
     {% for project, project_config in vars_data.items() %}
@@ -57,3 +58,5 @@ SELECT
     ) }} AS fact_variables_id
 FROM
     flattened_data
+WHERE
+    project = '{{ project }}'

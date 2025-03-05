@@ -3,8 +3,6 @@
     tags = ['silver_vars']
 ) }}
 
-{%- set project = target.database.lower() | replace('_dev', '') -%}
-
 SELECT
     PACKAGE,
     category,
@@ -23,5 +21,3 @@ FROM
     d
     ON f.key = d.key
     OR f.parent_key = d.key
-WHERE
-    f.project = '{{ project }}'
