@@ -1,6 +1,6 @@
 {% macro master_keys_config() %}
     {# Flattens a nested dictionary of configuration keys into a single-level dictionary
-       for easier access to key configurations throughout the project #}
+       for easier access to the master variable keys available throughout the project #}
     
     {# Get the master keys dictionary #}
     {% set master_keys = master_vars_keys() %}

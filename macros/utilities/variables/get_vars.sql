@@ -1,5 +1,5 @@
 {% macro vars_config(all_projects=false) %}
-    {# Retrieves variable configurations from project-specific macros.
+    {# Retrieves variable configurations and values from project-specific macros.
        When all_projects=True, gets variables from all projects.
        Otherwise, gets variables only for the current project based on target database. #}
     
