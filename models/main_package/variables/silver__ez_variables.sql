@@ -6,7 +6,7 @@
 {%- set project = target.database.lower() | replace('_dev', '') -%}
 
 SELECT
-    package,
+    PACKAGE,
     category,
     f.key,
     VALUE,
@@ -17,9 +17,11 @@ SELECT
         ['f.key', 'f.parent_key']
     ) }} AS ez_variables_id
 FROM
-    {{ ref('silver__fact_variables') }} f
-LEFT JOIN
-    {{ ref('silver__dim_variables') }} d
+    {{ ref('silver__fact_variables') }}
+    f
+    LEFT JOIN {{ ref('silver__dim_variables') }}
+    d
     ON f.key = d.key
+    OR f.parent_key = d.key
 WHERE
     f.project = '{{ project }}'
