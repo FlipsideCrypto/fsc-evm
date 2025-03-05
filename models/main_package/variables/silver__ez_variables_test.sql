@@ -43,7 +43,10 @@ WITH flattened_data AS (
     {% endfor %}
 )
 SELECT
-    *
+    chain,
+    key,
+    value,
+    parent_key
 FROM
     flattened_data
 WHERE
