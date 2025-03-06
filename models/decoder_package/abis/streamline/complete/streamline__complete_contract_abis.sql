@@ -5,7 +5,7 @@
     cluster_by = 'partition_key',
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_contract_abis_id, contract_address)",
     incremental_predicates = ['dynamic_range', 'partition_key'],
-    tags = ['bronze_abis']
+    tags = ['streamline_abis_complete']
 ) }}
 
 SELECT

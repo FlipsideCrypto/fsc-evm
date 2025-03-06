@@ -1,5 +1,6 @@
 {{ config (
-    materialized = 'view'
+    materialized = 'view',
+    tags = ['bronze_abis']
 ) }}
 
 WITH externals AS (
