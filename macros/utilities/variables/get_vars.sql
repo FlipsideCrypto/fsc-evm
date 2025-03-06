@@ -78,11 +78,79 @@
     {{ return(flat_vars) }}
 {% endmacro %}
 
+{% macro get_var_logs(variable_key, default) %}
+    {# Logs variable information to the terminal and a table in the database.
+       Dependent on GET_VAR_LOGS_ENABLED and execute flags. #}
+       
+    {% if var('GET_VAR_LOGS_ENABLED', false) and execute %}
+        {% set package = variable_key.split('_')[0] %}
+        {% set category = variable_key.split('_')[1] %}
+        
+        {# Determine the data type of the default value #}
+        {% set default_type = none %}
+        {% if default is not none %}
+            {% if default is string %}
+                {% set default_type = 'STRING' %}
+                {% set default = '\'\'' ~ default ~ '\'\'' %}
+            {% elif default is number %}
+                {% set default_type = 'NUMBER' %}
+            {% elif default is boolean %}
+                {% set default_type = 'BOOLEAN' %}
+            {% elif default is mapping %}
+                {% set default_type = 'OBJECT' %}
+            {% elif default is sequence and default is not string %}
+                {% set default_type = 'ARRAY' %}
+            {% elif default is undefined %}
+                {% set default_type = 'UNDEFINED' %}
+            {% elif default is none %}
+                {% set default_type = 'NONE' %}
+            {% elif default is iterable and default is not string %}
+                {% set default_type = 'ITERABLE' %}
+            {% else %}
+                {% set default_type = 'UNKNOWN' %}
+            {% endif %}
+        {% endif %}
+        
+        {% set log_query %}
+            CREATE TABLE IF NOT EXISTS {{target.database}}.bronze._master_keys (
+                package STRING,
+                category STRING,
+                variable_key STRING,
+                default_value STRING,
+                default_type STRING,
+                _inserted_timestamp TIMESTAMP_NTZ DEFAULT SYSDATE()
+            );
+            
+            INSERT INTO {{target.database}}.bronze.master_keys (
+                package, 
+                category, 
+                variable_key, 
+                default_value,
+                default_type
+            )
+            VALUES (
+                '{{ package }}', 
+                '{{ category }}', 
+                '{{ variable_key }}', 
+                '{{ default }}',
+                '{{ default_type }}'
+            );
+        {% endset %}
+        {% do run_query(log_query) %}
+        
+        {# Update terminal logs to include type information #}
+        {% do log(package ~ "|" ~ category ~ "|" ~ variable_key ~ "|" ~ default ~ "|" ~ default_type, info=True) %}
+    {% endif %}
+{% endmacro %}
+
 {% macro get_var(variable_key, default=none) %}
     {# Retrieves a variable by key from either dbt's built-in var() function or from project configs.
        Handles type conversion for strings, numbers, booleans, arrays, and JSON objects.
        Returns the default value if the variable is not found. #}
-    
+
+    {# Log variable info if enabled #}
+    {% do get_var_logs(variable_key, default) %}
+
     {# Check if variable exists in dbt's built-in var() function. If it does, return the value. #}
     {% if var(variable_key, none) is not none %}
         {{ return(var(variable_key)) }}
