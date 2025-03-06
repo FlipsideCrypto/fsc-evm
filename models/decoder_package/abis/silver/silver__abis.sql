@@ -1,8 +1,9 @@
-{% set abi_block_explorer_name = var('BLOCK_EXPLORER_NAME','') %}
-
+{% set decoder_abis_block_explorer_name = var(
+    'DECODER_ABIS_BLOCK_EXPLORER_NAME',
+    ''
+) %}
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -12,6 +13,7 @@
 ) }}
 
 WITH verified_abis AS (
+
     SELECT
         contract_address,
         DATA,
@@ -23,7 +25,7 @@ WITH verified_abis AS (
     FROM
         {{ ref('silver__verified_abis') }}
     WHERE
-        abi_source = lower('{{ abi_block_explorer_name }}')
+        abi_source = LOWER('{{ decoder_abis_block_explorer_name }}')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -37,7 +39,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = lower('{{ abi_block_explorer_name }}')
+        abi_source = LOWER('{{ decoder_abis_block_explorer_name }}')
 )
 {% endif %}
 ),
@@ -85,15 +87,15 @@ bytecode_abis AS (
 
 {% if is_incremental() %}
 WHERE
-        _inserted_timestamp >= (
-            SELECT
-                COALESCE(
-                    MAX(
-                        _inserted_timestamp
-                    ),
-                    '1970-01-01'
-                )
-            FROM
+    _inserted_timestamp >= (
+        SELECT
+            COALESCE(
+                MAX(
+                    _inserted_timestamp
+                ),
+                '1970-01-01'
+            )
+        FROM
             {{ this }}
         WHERE
             abi_source = 'bytecode_matched'
