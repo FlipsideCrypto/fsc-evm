@@ -18,8 +18,8 @@
 {% set uses_result_output_abi = var('GLOBAL_PROD_DB_NAME').upper() in includes_result_output_abi %}
 {# Prod DB Variables End #}
 
-{% set abi_block_explorer_name = var(
-    'BLOCK_EXPLORER_NAME',
+{% set decoder_abis_block_explorer_name = var(
+    'DECODER_ABIS_BLOCK_EXPLORER_NAME',
     ''
 ) %}
 {# Log configuration details #}
@@ -88,7 +88,7 @@ block_explorer_abis AS (
         contract_address,
         DATA,
         _inserted_timestamp,
-        LOWER('{{ abi_block_explorer_name }}') AS abi_source
+        LOWER('{{ decoder_abis_block_explorer_name }}') AS abi_source
     FROM
         base
 ),
