@@ -58,5 +58,8 @@ SELECT
     ) }} AS fact_variables_id
 FROM
     flattened_data
+
+{% if project != 'fsc_evm' %}
 WHERE
     project = '{{ project }}'
+{% endif %}
