@@ -4,15 +4,16 @@
 ) }}
 
 SELECT
-    PACKAGE,
-    category,
+    f.project,
+    d.PACKAGE,
+    d.CATEGORY,
     f.key,
-    VALUE,
-    parent_key,
-    data_type,
-    default_value,
+    f.value,
+    f.parent_key,
+    d.default_value,
+    d.default_type,
     {{ dbt_utils.generate_surrogate_key(
-        ['f.key', 'f.parent_key']
+        ['f.project', 'f.key', 'f.parent_key']
     ) }} AS ez_variables_id
 FROM
     {{ ref('silver__fact_variables') }}

@@ -81,7 +81,7 @@
 {% macro get_var_logs(variable_key, default) %}
     {# Logs variable information to the terminal and a table in the database.
        Dependent on GET_VAR_LOGS_ENABLED and execute flags. #}
-       
+
     {% if var('GET_VAR_LOGS_ENABLED', false) and execute %}
         {% set package = variable_key.split('_')[0] %}
         {% set category = variable_key.split('_')[1] %}
@@ -121,7 +121,7 @@
                 _inserted_timestamp TIMESTAMP_NTZ DEFAULT SYSDATE()
             );
             
-            INSERT INTO {{target.database}}.bronze.master_keys (
+            INSERT INTO {{target.database}}.bronze._master_keys (
                 package, 
                 category, 
                 variable_key, 

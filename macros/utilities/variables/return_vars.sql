@@ -1,6 +1,7 @@
 {% macro return_vars() %}
   {# This macro sets and returns all configurable variables used throughout the project,
-     organizing them by category (Global, Bronze, Silver, Streamline, etc.) with default values #}
+     organizing them by category (Global, Bronze, Silver, Streamline, etc.) with default values.
+     IMPORTANT: Only call get_var() once per variable #}
   
   {# Set all variables on the namespace #}
   {% set ns = namespace() %}
@@ -108,7 +109,7 @@
   {# Prices Variables #}
   
   {% set ns.MAIN_PRICES_NATIVE_SYMBOLS = get_var('MAIN_PRICES_NATIVE_SYMBOLS', '') %}
-  {% set ns.MAIN_PRICES_NATIVE_BLOCKCHAINS = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME', '').lower()) %}
+  {% set ns.MAIN_PRICES_NATIVE_BLOCKCHAINS = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', ns.GLOBAL_PROD_DB_NAME.lower()) %}
   
   {# Vertex Variables #}
   {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
