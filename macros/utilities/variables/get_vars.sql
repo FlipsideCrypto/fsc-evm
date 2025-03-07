@@ -86,29 +86,33 @@
         {% set package = variable_key.split('_')[0] %}
         {% set category = variable_key.split('_')[1] %}
         
-        {# Determine the data type of the default value #}
-        {% set default_type = none %}
+        {# Determine the data type of the default value #}       
         {% if default is not none %}
             {% if default is string %}
                 {% set default_type = 'STRING' %}
-                {% set default = '\'\'' ~ default ~ '\'\'' %}
+                {% set default_value = '\'\'' ~ default ~ '\'\'' %}
             {% elif default is number %}
                 {% set default_type = 'NUMBER' %}
+                {% set default_value = default %}
             {% elif default is boolean %}
                 {% set default_type = 'BOOLEAN' %}
+                {% set default_value = default %}
             {% elif default is mapping %}
                 {% set default_type = 'OBJECT' %}
+                {% set default_value = default | tojson %}
             {% elif default is sequence and default is not string %}
                 {% set default_type = 'ARRAY' %}
-            {% elif default is undefined %}
-                {% set default_type = 'UNDEFINED' %}
-            {% elif default is none %}
-                {% set default_type = 'NONE' %}
+                {% set default_value = default | tojson %}
             {% elif default is iterable and default is not string %}
                 {% set default_type = 'ITERABLE' %}
+                {% set default_value = 'ITERABLE' %}
             {% else %}
                 {% set default_type = 'UNKNOWN' %}
+                {% set default_value = 'UNKNOWN' %}
             {% endif %}
+        {% else %}
+            {% set default_type = none %}
+            {% set default_value = none %}
         {% endif %}
         
         {% set log_query %}
@@ -132,14 +136,14 @@
                 '{{ package }}', 
                 '{{ category }}', 
                 '{{ variable_key }}', 
-                '{{ default }}',
+                '{{ default_value }}',
                 '{{ default_type }}'
             );
         {% endset %}
         {% do run_query(log_query) %}
         
         {# Update terminal logs to include type information #}
-        {% do log(package ~ "|" ~ category ~ "|" ~ variable_key ~ "|" ~ default ~ "|" ~ default_type, info=True) %}
+        {% do log(package ~ "|" ~ category ~ "|" ~ variable_key ~ "|" ~ default_value ~ "|" ~ default_type, info=True) %}
     {% endif %}
 {% endmacro %}
 
