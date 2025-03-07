@@ -1,5 +1,5 @@
-{# Set variables #}
-{%- set platforms = get_var('MAIN_PRICES_PROVIDER_PLATFORMS', '') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -31,8 +31,8 @@ FROM
         'complete_provider_asset_metadata'
     ) }}
 WHERE
-    platform IN ({% if platforms is string %}
-        '{{ platforms }}'
+    platform IN ({% if vars.MAIN_PRICES_PROVIDER_PLATFORMS is string %}
+        '{{ vars.MAIN_PRICES_PROVIDER_PLATFORMS }}'
     {% else %}
-        {{ platforms | replace('[', '') | replace(']', '') }}
+        {{ vars.MAIN_PRICES_PROVIDER_PLATFORMS | replace('[', '') | replace(']', '') }}
     {% endif %}) -- platforms specific to the target blockchain
