@@ -1,6 +1,5 @@
-{%- set model_quantum_state = get_var('MAIN_SL_CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
-
-{%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -13,10 +12,10 @@
 SELECT
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', 'livequery'
         ),
         OBJECT_CONSTRUCT(
             'id',
@@ -28,7 +27,7 @@ SELECT
             'params',
             []
         ),
-        '{{ get_var('GLOBAL_NODE_VAULT_PATH','') }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS resp,
     utils.udf_hex_to_int(
         resp :data :result :: STRING

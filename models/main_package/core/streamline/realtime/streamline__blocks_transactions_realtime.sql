@@ -1,8 +1,5 @@
-{# Set variables #}
-{%- set vars = return_vars() -%}
-{%- set package_name = 'MAIN' -%}
-{%- set model_name = 'BLOCKS_TRANSACTIONS' -%}
-{%- set model_type = 'REALTIME' -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -14,11 +11,12 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
-            "external_table": model_name.lower(),
-            "sql_limit": vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_SQL_LIMIT'],
-            "producer_batch_size": vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_PRODUCER_BATCH_SIZE'],
-            "worker_batch_size": vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_WORKER_BATCH_SIZE'],
-            "sql_source": (model_name ~ '_' ~ model_type).lower(),
+            "external_table": 'blocks_transactions',
+            "sql_limit": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT,
+            "producer_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_WORKER_BATCH_SIZE,
+            "async_concurrent_requests": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+            "sql_source": 'blocks_transactions_realtime',
             "exploded_key": ['result', 'result.transactions']
         }
     ),
@@ -82,7 +80,7 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ vars.NODE_URL }}',
+        '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
             'fsc-quantum-state', 'streamline'
@@ -93,11 +91,11 @@ SELECT
             'method', 'eth_getBlockByNumber',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
         ),
-        '{{ vars.NODE_SECRET_PATH }}'
+        '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
     ) AS request
 FROM
     ready_blocks
     
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars[package_name ~ '_SL_' ~ model_name ~ '_' ~ model_type ~ '_SQL_LIMIT'] }}
+LIMIT {{ vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT }}
