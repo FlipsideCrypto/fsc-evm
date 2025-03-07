@@ -2,9 +2,8 @@
 -- depends_on: {{ ref('core__dim_labels') }}
 -- depends_on: {{ ref('core__dim_contracts') }}
 
-{% set blockchain = get_var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
-{% set score_date_limit = get_var('SCORES_LIMIT_DAYS', 30) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -23,7 +22,7 @@
         SELECT block_date as score_date
         FROM {{ ref('scores__target_days') }}
         
-        {% if not full_reload_mode %}
+        {% if not vars.SCORES_FULL_RELOAD_ENABLED %}
             WHERE score_date > dateadd('day', -120, sysdate())
         {% endif %}
 
@@ -31,14 +30,14 @@
             EXCEPT 
             SELECT DISTINCT score_date 
             FROM {{ this }}
-            {% if not full_reload_mode %}
+            {% if not vars.SCORES_FULL_RELOAD_ENABLED %}
                 WHERE score_date > dateadd('day', -120, sysdate())
             {% endif %}
         {% endif %}
 
         ORDER BY score_date ASC
-        {% if score_date_limit %}
-            LIMIT {{ score_date_limit }}
+        {% if vars.SCORES_LIMIT_DAYS %}
+            LIMIT {{ vars.SCORES_LIMIT_DAYS }}
         {% endif %}
     {% endset %}
 
@@ -54,16 +53,16 @@
          {% if score_dates_list|length > 0 %}
             {{ log("==========================================", info=True) }}
             {% if score_dates_list|length == 1 %}
-                {{ log("Calculating action totals for blockchain: " ~ blockchain, info=True) }}
+                {{ log("Calculating action totals for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
                 {{ log("For score date: " ~ score_dates_list[0], info=True) }}
             {% else %}
-                {{ log("Calculating action totals for blockchain: " ~ blockchain, info=True) }}
+                {{ log("Calculating action totals for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
                 {{ log("For score dates: " ~ score_dates_list|join(', '), info=True) }}
             {% endif %}
             {{ log("==========================================", info=True) }}
         {% else %}
             {{ log("==========================================", info=True) }}
-            {{ log("No action totals to calculate for blockchain: " ~ blockchain, info=True) }}
+            {{ log("No action totals to calculate for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
             {{ log("==========================================", info=True) }}
         {% endif %} 
     {% endif %} 
@@ -92,7 +91,7 @@
                     n_validators,
                     CURRENT_TIMESTAMP AS calculation_time,
                     CAST('{{ score_date }}' AS DATE) AS score_date,
-                    '{{ blockchain }}' AS blockchain,
+                    '{{ vars.GLOBAL_PROD_DB_NAME }}' AS blockchain,
                     {{ dbt_utils.generate_surrogate_key(['user_address', "'" ~ blockchain ~ "'", "'" ~ score_date ~ "'"]) }} AS actions_agg_id,
                     '{{ model.config.version }}' AS score_version,
                     SYSDATE() AS inserted_timestamp,

@@ -1,5 +1,5 @@
-{% set blockchain = get_var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -40,12 +40,12 @@
             {% set new_data_count = new_data_results.columns[0].values()[0] %}
             
             {% if new_data_count > 0 %}
-                {{ log("Processing action data for blockchain: " ~ blockchain ~ " modified after: " ~ max_modified_timestamp, info=True) }}
+                {{ log("Processing action data for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME ~ " modified after: " ~ max_modified_timestamp, info=True) }}
             {% else %}
-                {{ log("No new action data to aggregate daily for blockchain: " ~ blockchain, info=True) }}
+                {{ log("No new action data to aggregate daily for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
             {% endif %}
         {% else %}
-            {{ log("Aggregating daily action data for blockchain: " ~ blockchain, info=True) }}
+            {{ log("Aggregating daily action data for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
         {% endif %}
         {{ log("==========================================", info=True) }}
     {% endif %}
@@ -378,7 +378,7 @@ SELECT
         n_txn,
         0
     ) AS n_txn,
-    '{{ blockchain }}' AS blockchain,
+    '{{ vars.GLOBAL_PROD_DB_NAME }}' AS blockchain,
     {{ dbt_utils.generate_surrogate_key(
         ['ad.block_date','ad.user_address', "'" ~ blockchain ~ "'"]
     ) }} AS actions_daily_id,

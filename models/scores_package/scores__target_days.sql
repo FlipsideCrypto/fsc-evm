@@ -1,4 +1,5 @@
-{% set full_reload_mode = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -10,8 +11,8 @@
 
 {% if execute %}
     {{ log("==========================================", info=True) }}
-    {{ log("Generating date spine for blockchain: " ~ blockchain, info=True) }}
-    {{ log("Backfill mode: " ~ full_reload_mode, info=True) }}
+    {{ log("Generating date spine for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
+    {{ log("Backfill mode: " ~ vars.SCORES_FULL_RELOAD_ENABLED, info=True) }}
     {{ log("==========================================", info=True) }}
 {% endif %}
 
@@ -21,14 +22,14 @@ WITH chain_dates AS (
         count(distinct date_trunc('hour', block_timestamp)) AS n_hours
     FROM {{ ref('core__fact_blocks') }}
 
-{% if not full_reload_mode %}
+{% if not vars.SCORES_FULL_RELOAD_ENABLED %}
     WHERE block_timestamp :: DATE > DATEADD('day', -120, SYSDATE() :: DATE)
 {% endif %}
     GROUP BY ALL
 ),
 date_spine AS (
 
-{% if full_reload_mode %}
+{% if vars.SCORES_FULL_RELOAD_ENABLED %}
     SELECT
         date_day
     FROM
@@ -61,7 +62,7 @@ exclude_first_90_days AS (
     FROM
         day_of_chain
 
-{% if full_reload_mode %}
+{% if vars.SCORES_FULL_RELOAD_ENABLED %}
     WHERE chain_day >= 90
 {% endif %}
 

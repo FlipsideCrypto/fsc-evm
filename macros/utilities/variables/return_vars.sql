@@ -113,6 +113,10 @@
 
   {# Labels Variables #}
   {% set ns.MAIN_LABELS_BLOCKCHAINS = get_var('MAIN_LABELS_BLOCKCHAINS', ns.GLOBAL_PROD_DB_NAME.lower()) %}
+
+  {# Scores Variables #}
+  {% set ns.SCORES_FULL_RELOAD_ENABLED = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
+  {% set ns.SCORES_LIMIT_DAYS = get_var('SCORES_LIMIT_DAYS', 30) %}
   
   {# Vertex Variables #}
   {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
