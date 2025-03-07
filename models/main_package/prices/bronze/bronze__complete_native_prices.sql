@@ -35,13 +35,18 @@ FROM
         'complete_native_prices'
     ) }}
 WHERE
-    blockchain IN ({% if blockchains is string %}
-        '{{ blockchains }}'
+    {% if symbols == 'ETH' %}
+        blockchain = 'ethereum'
+        AND symbol = 'ETH'
     {% else %}
-        {{ blockchains | replace('[', '') | replace(']', '') }}
-    {% endif %})
-    AND symbol IN ({% if symbols is string %}
-        '{{ symbols }}'
-    {% else %}
-        {{ symbols | replace('[', '') | replace(']', '') }}
-    {% endif %})
+        blockchain IN ({% if blockchains is string %}
+            '{{ blockchains }}'
+        {% else %}
+            {{ blockchains | replace('[', '') | replace(']', '') }}
+        {% endif %})
+        AND symbol IN ({% if symbols is string %}
+            '{{ symbols }}'
+        {% else %}
+            {{ symbols | replace('[', '') | replace(']', '') }}
+        {% endif %})
+    {% endif %}
