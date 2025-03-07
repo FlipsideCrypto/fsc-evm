@@ -1,4 +1,5 @@
-{%- set blockchains = get_var('MAIN_LABELS_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME').lower() ) -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -27,9 +28,9 @@ FROM
         'labels_combined'
     ) }}
 WHERE
-    blockchain IN ({% if blockchains is string %}
-        '{{ blockchains }}'
+    blockchain IN ({% if vars.MAIN_LABELS_BLOCKCHAINS is string %}
+        '{{ vars.MAIN_LABELS_BLOCKCHAINS }}'
     {% else %}
-        {{ blockchains | replace('[', '') | replace(']', '') }}
+        {{ vars.MAIN_LABELS_BLOCKCHAINS | replace('[', '') | replace(']', '') }}
     {% endif %})
     AND address LIKE '0x%'
