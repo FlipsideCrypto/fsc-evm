@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -14,7 +17,7 @@ WITH apr AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/apr'
+                'https://gateway.' || '{{ vars.GLOBAL_PROD_DB_NAME }}' || '-prod.vertexprotocol.com/v2/apr'
             )
         ):data AS response
 ),
@@ -23,7 +26,7 @@ SELECT
     DATE_TRUNC('hour', SYSDATE()) AS HOUR,
     CONCAT(
         f.value:symbol::string,
-        {% if get_var('GLOBAL_PROD_DB_NAME') == 'blast' %}
+        {% if vars.GLOBAL_PROD_DB_NAME == 'blast' %}
             '_USDB'
         {% else %}
             '_USDC'
