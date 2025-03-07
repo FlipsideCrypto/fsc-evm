@@ -11,6 +11,7 @@
   {# Global Variables #}
   {% set ns.GLOBAL_PROD_DB_NAME = get_var('GLOBAL_PROD_DB_NAME', '') %}
   {% set ns.NODE_URL = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
+  {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
   {% set ns.NODE_SECRET_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
   {% set ns.USES_RECEIPTS_BY_HASH = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
   
