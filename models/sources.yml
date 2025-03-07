@@ -81,5 +81,4 @@ sources:
       {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
     schema: bronze
     tables:
-      - name: master_variable_keys
-      - name: master_variable_values
+      - name: _master_keys

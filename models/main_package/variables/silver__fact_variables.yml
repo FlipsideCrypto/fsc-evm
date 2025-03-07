@@ -6,16 +6,13 @@ models:
           combination_of_columns:
             - FACT_VARIABLES_ID
     columns:
-      - name: CHAIN
+      - name: PROJECT
         tests:
           - not_null
       - name: KEY
         tests:
           - not_null
       - name: VALUE
-        tests:
-          - not_null
-      - name: IS_ENABLED
         tests:
           - not_null
       - name: FACT_VARIABLES_ID

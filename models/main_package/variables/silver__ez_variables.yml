@@ -6,16 +6,7 @@ models:
           combination_of_columns:
             - EZ_VARIABLES_ID
     columns:
-      - name: INDEX
-        tests:
-          - not_null
-      - name: CHAIN
-        tests:
-          - not_null
-      - name: PACKAGE
-        tests:
-          - not_null
-      - name: DATA_TYPE
+      - name: PROJECT
         tests:
           - not_null
       - name: KEY
@@ -24,7 +15,10 @@ models:
       - name: VALUE
         tests:
           - not_null
-      - name: IS_ENABLED
+      - name: DEFAULT_VALUE
+        tests:
+          - not_null
+      - name: DEFAULT_TYPE
         tests:
           - not_null
       - name: EZ_VARIABLES_ID

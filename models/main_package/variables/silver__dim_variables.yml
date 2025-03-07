@@ -6,16 +6,13 @@ models:
           combination_of_columns:
             - DIM_VARIABLES_ID
     columns:
-      - name: INDEX
-        tests:
-          - not_null
-      - name: PACKAGE
-        tests:
-          - not_null
-      - name: DATA_TYPE
-        tests:
-          - not_null
       - name: KEY
+        tests:
+          - not_null
+      - name: DEFAULT_VALUE
+        tests:
+          - not_null
+      - name: DEFAULT_TYPE
         tests:
           - not_null
       - name: DIM_VARIABLES_ID
