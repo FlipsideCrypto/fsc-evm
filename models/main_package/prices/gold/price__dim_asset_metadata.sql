@@ -1,6 +1,3 @@
-{# Set variables #}
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)" %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -9,7 +6,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'dim_asset_metadata_id',
-    post_hook = post_hook,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)",
     tags = ['gold_prices']
 ) }}
 

@@ -1,6 +1,3 @@
-{# Set variables #}
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id),SUBSTRING(asset_id)" %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -10,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'fact_prices_ohlc_hourly_id',
     cluster_by = ['hour::DATE','provider'],
-    post_hook = post_hook,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id),SUBSTRING(asset_id)",
     tags = ['gold_prices']
 ) }}
 
