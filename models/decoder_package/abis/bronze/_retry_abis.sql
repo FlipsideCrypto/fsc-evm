@@ -1,6 +1,5 @@
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config (
     materialized = "ephemeral"
 ) }}
@@ -8,7 +7,7 @@
 WITH retry AS (
 
     SELECT
-        contract_address,
+        r.contract_address,
         GREATEST(
             latest_call_block,
             latest_event_block
@@ -22,26 +21,20 @@ WITH retry AS (
             'verified_abis'
         ) }}
         v USING (contract_address)
+        LEFT JOIN {{ source(
+            'bronze_abi',
+            'complete_contract_abis'
+        ) }} C
+        ON r.contract_address = C.contract_address
+        AND C._inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days'
     WHERE
-        r.total_interaction_count >= 250
-        -- high interaction count
+        r.total_interaction_count >= 250 -- high interaction count
         AND GREATEST(
             max_inserted_timestamp_logs,
             max_inserted_timestamp_traces
         ) >= CURRENT_DATE - INTERVAL '30 days' -- recent activity
         AND v.contract_address IS NULL -- no verified abi
-        AND r.contract_address NOT IN (
-            SELECT
-                contract_address
-            FROM
-                {{ source(
-                    'bronze_api',
-                    'contract_abis'
-                ) }}
-            WHERE
-                _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND abi_data:error is null
-        )
+        AND C.contract_address IS NULL
     ORDER BY
         total_interaction_count DESC
     LIMIT
@@ -60,20 +53,15 @@ WITH retry AS (
         ) }}
         v
         ON v.contract_address = p.implementation_contract
+        LEFT JOIN {{ source(
+            'bronze_abi',
+            'complete_contract_abis'
+        ) }} C
+        ON p.implementation_contract = C.contract_address
+        AND C._inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days'
     WHERE
         v.contract_address IS NULL
-        AND p.contract_address NOT IN (
-            SELECT
-                contract_address
-            FROM
-                {{ source(
-                    'bronze_api',
-                    'contract_abis'
-                ) }}
-            WHERE
-                _inserted_timestamp >= CURRENT_DATE - INTERVAL '30 days' -- this won't let us retry the same contract within 30 days
-                AND abi_data:error is null
-        )
+        AND C.contract_address IS NULL
     UNION ALL
     SELECT
         contract_address,
