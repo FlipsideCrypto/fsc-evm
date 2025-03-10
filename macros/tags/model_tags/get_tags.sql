@@ -34,8 +34,6 @@
         {% do tags.append(filename) %}
     {% endif %}
     
-    {% do tags.append(clean_filename) %}
-    
     {# Add any additional tags provided #}
     {% if additional_tags is not none %}
         {% do tags.extend(additional_tags) %}
