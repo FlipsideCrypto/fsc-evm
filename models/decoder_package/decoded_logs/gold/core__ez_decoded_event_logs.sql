@@ -1,4 +1,5 @@
-{% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)' %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -9,8 +10,8 @@
     incremental_strategy = 'delete+insert',
     cluster_by = "block_timestamp::date",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = false,
-    post_hook = post_hook,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
+    post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)',
     tags = ['gold_decoded_logs']
 ) }}
 

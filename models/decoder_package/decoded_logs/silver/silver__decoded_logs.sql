@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -8,7 +11,7 @@
     incremental_strategy = 'delete+insert',
     cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = false,
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver_decoded_logs']
 ) }}
 
