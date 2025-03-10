@@ -1,4 +1,4 @@
-{% set native_token_address = var('GLOBAL_WRAPPED_ASSET_ADDRESS','') %}
+{% set native_token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' if var('MAIN_PRICES_TOKEN_WETH_ENABLED', false) else var('GLOBAL_WRAPPED_ASSET_ADDRESS','') %}
 {% set native_price_start_date = var('NATIVE_PRICE_START_DATE','2024-01-01') %}
 {% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
