@@ -9,7 +9,7 @@
   {# Set Variables and Default Values, organized by category #}
   
   {# Global Variables #}
-  {% set ns.GLOBAL_PROD_DB_NAME = get_var('GLOBAL_PROD_DB_NAME', '') %}
+  {% set ns.GLOBAL_PROJECT_NAME = get_var('GLOBAL_PROJECT_NAME', '') %}
   {% set ns.GLOBAL_NODE_URL = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
   {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
@@ -23,13 +23,11 @@
   {# Core Variables #}
   {% set ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
 
-  {% set ns.MAIN_CORE_TRACES_ARB_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'ARBITRUM' %}
-  {% set ns.MAIN_CORE_TRACES_SEI_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'SEI' %}
-  {% set ns.MAIN_CORE_TRACES_KAIA_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'KAIA' %}
+  {% set ns.MAIN_CORE_TRACES_ARB_MODE = ns.GLOBAL_PROJECT_NAME.upper() == 'ARBITRUM' %}
+  {% set ns.MAIN_CORE_TRACES_SEI_MODE = ns.GLOBAL_PROJECT_NAME.upper() == 'SEI' %}
+  {% set ns.MAIN_CORE_TRACES_KAIA_MODE = ns.GLOBAL_PROJECT_NAME.upper() == 'KAIA' %}
 
   {# Core Silver Variables #}
-  
-
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME = 'RECEIPTS_BY_HASH' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'RECEIPTS' %}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_POST_HOOK = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, block_number)" if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else "" %}
@@ -142,13 +140,13 @@
   
   {# Prices Variables #}
   {% set ns.MAIN_PRICES_NATIVE_SYMBOLS = get_var('MAIN_PRICES_NATIVE_SYMBOLS', '') %}
-  {% set ns.MAIN_PRICES_NATIVE_BLOCKCHAINS = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', ns.GLOBAL_PROD_DB_NAME.lower()) %}
+  {% set ns.MAIN_PRICES_NATIVE_BLOCKCHAINS = get_var('MAIN_PRICES_NATIVE_BLOCKCHAINS', ns.GLOBAL_PROJECT_NAME.lower()) %}
   {% set ns.MAIN_PRICES_PROVIDER_PLATFORMS = get_var('MAIN_PRICES_PROVIDER_PLATFORMS', '') %}
   {% set ns.MAIN_PRICES_TOKEN_ADDRESSES = get_var('MAIN_PRICES_TOKEN_ADDRESSES', none) %}
-  {% set ns.MAIN_PRICES_TOKEN_BLOCKCHAINS = get_var('MAIN_PRICES_TOKEN_BLOCKCHAINS', ns.GLOBAL_PROD_DB_NAME.lower()) %}
+  {% set ns.MAIN_PRICES_TOKEN_BLOCKCHAINS = get_var('MAIN_PRICES_TOKEN_BLOCKCHAINS', ns.GLOBAL_PROJECT_NAME.lower()) %}
 
   {# Labels Variables #}
-  {% set ns.MAIN_LABELS_BLOCKCHAINS = get_var('MAIN_LABELS_BLOCKCHAINS', ns.GLOBAL_PROD_DB_NAME.lower()) %}
+  {% set ns.MAIN_LABELS_BLOCKCHAINS = get_var('MAIN_LABELS_BLOCKCHAINS', ns.GLOBAL_PROJECT_NAME.lower()) %}
 
   {# Scores Variables #}
   {% set ns.SCORES_FULL_RELOAD_ENABLED = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}

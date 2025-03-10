@@ -6,8 +6,8 @@
 {% set includes_result_output_abi = ['RONIN'] %}
 
 {# Set Variables using inclusions and exclusions #}
-{% set uses_etherscan = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_etherscan %}
-{% set uses_result_output_abi = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_result_output_abi %}
+{% set uses_etherscan = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_etherscan %}
+{% set uses_result_output_abi = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_result_output_abi %}
 {# Prod DB Variables End #}
 
 {% set abi_block_explorer_name = get_var('DECODER_ABIS_EXPLORER_NAME','') %}

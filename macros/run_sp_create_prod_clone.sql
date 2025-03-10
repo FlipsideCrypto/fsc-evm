@@ -1,5 +1,5 @@
 {% macro run_sp_create_prod_clone() %}
-    {% set prod_db_name = get_var('GLOBAL_PROD_DB_NAME', '') | upper %}
+    {% set prod_db_name = get_var('GLOBAL_PROJECT_NAME', '') | upper %}
     {% set dev_suffix = var('DEV_DATABASE_SUFFIX', '_DEV') %}
     {% set clone_role = var('CLONE_ROLE', 'internal_dev') %}
 

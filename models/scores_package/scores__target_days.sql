@@ -11,7 +11,7 @@
 
 {% if execute %}
     {{ log("==========================================", info=True) }}
-    {{ log("Generating date spine for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
+    {{ log("Generating date spine for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
     {{ log("Backfill mode: " ~ vars.SCORES_FULL_RELOAD_ENABLED, info=True) }}
     {{ log("==========================================", info=True) }}
 {% endif %}

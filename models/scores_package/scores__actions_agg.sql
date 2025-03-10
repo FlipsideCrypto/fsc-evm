@@ -53,16 +53,16 @@
          {% if score_dates_list|length > 0 %}
             {{ log("==========================================", info=True) }}
             {% if score_dates_list|length == 1 %}
-                {{ log("Calculating action totals for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
+                {{ log("Calculating action totals for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
                 {{ log("For score date: " ~ score_dates_list[0], info=True) }}
             {% else %}
-                {{ log("Calculating action totals for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
+                {{ log("Calculating action totals for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
                 {{ log("For score dates: " ~ score_dates_list|join(', '), info=True) }}
             {% endif %}
             {{ log("==========================================", info=True) }}
         {% else %}
             {{ log("==========================================", info=True) }}
-            {{ log("No action totals to calculate for blockchain: " ~ vars.GLOBAL_PROD_DB_NAME, info=True) }}
+            {{ log("No action totals to calculate for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
             {{ log("==========================================", info=True) }}
         {% endif %} 
     {% endif %} 
@@ -91,7 +91,7 @@
                     n_validators,
                     CURRENT_TIMESTAMP AS calculation_time,
                     CAST('{{ score_date }}' AS DATE) AS score_date,
-                    '{{ vars.GLOBAL_PROD_DB_NAME }}' AS blockchain,
+                    '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
                     {{ dbt_utils.generate_surrogate_key(['user_address', "'" ~ blockchain ~ "'", "'" ~ score_date ~ "'"]) }} AS actions_agg_id,
                     '{{ model.config.version }}' AS score_version,
                     SYSDATE() AS inserted_timestamp,
