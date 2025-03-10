@@ -1,24 +1,33 @@
-{%- macro get_path_tags(model_name, additional_tags=[]) -%}
+{%- macro get_path_tags(model, additional_tags=[]) -%}
     {% set tags = [] %}
-    
-    {# Get the full path from the model name #}
-    {% set path = model_name.split('/') %}
+
+    {{ log(model.original_file_path, info=True) }}
+    {# Original tag generation logic #}
+
+    {% set path_str = model.original_file_path | string %}
+    {% set path = path_str.split('/') %}
     
     {# Skip 'models' directory if it exists #}
     {% set start_index = 1 if path[0] == 'models' else 0 %}
     
     {# Process each directory in the path #}
-    {% for part in path[start_index:-1] %}  {# -1 to exclude the filename #}
+    {% for part in path[start_index:-1] %}
         {% do tags.append(part) %}
     {% endfor %}
     
     {# Process the filename without extension #}
     {% set filename = path[-1] | replace('.sql', '') | replace('.yml', '') %}
     
-    {# Remove prefixes like bronze__, silver__, gold__, core__ #}
-    {% set clean_filename = filename | replace('bronze__', '') | replace('silver__', '') | replace('gold__', '') | replace('core__', '') %}
-    
-    {% do tags.append(clean_filename) %}
+    {# Split on __ and take the last part as the model name #}
+    {% set name_parts = filename.split('__') %}
+    {% if name_parts|length > 1 %}
+        {# Add the prefix as a tag #}
+        {% do tags.append(name_parts[0]) %}
+        {# Add the actual model name #}
+        {% do tags.append(name_parts[-1]) %}
+    {% else %}
+        {% do tags.append(filename) %}
+    {% endif %}
     
     {# Add any additional tags provided #}
     {% if additional_tags is not none %}
@@ -27,4 +36,4 @@
     
     {# Return unique tags to avoid duplicates #}
     {{ return(tags | unique | list) }}
-{%- endmacro -%} 
+{%- endmacro -%}
