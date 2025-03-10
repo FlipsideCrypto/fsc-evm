@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: test_silver__receipts_recent
-    description: "This is a view used to test the last three days of receipts."
+  - name: test_silver__receipts_by_hash_full
+    description: "This is a view used to test all of the silver receipts model."
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -11,7 +11,7 @@ models:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-      - name: ARRAY_INDEX
+      - name: TX_HASH
         tests:
           - not_null
       - name: RECEIPTS_JSON
