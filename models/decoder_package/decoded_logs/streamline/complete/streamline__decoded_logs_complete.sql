@@ -5,7 +5,7 @@
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
--- depends_on: {{ ref('bronze__decoded_logs' }}
+-- depends_on: {{ ref('bronze__decoded_logs') }}
 
 {% if vars.GLOBAL_STREAMLINE_FR_ENABLED %}
 {{ config (
