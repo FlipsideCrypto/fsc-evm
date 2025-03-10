@@ -78,11 +78,11 @@
     {{ return(flat_vars) }}
 {% endmacro %}
 
-{% macro get_var_logs(variable_key, default) %}
+{% macro write_vars(variable_key, default) %}
     {# Logs variable information to the terminal and a table in the database.
-       Dependent on GET_VAR_LOGS_ENABLED and execute flags. #}
+       Dependent on WRITE_VARS_ENABLED and execute flags. #}
 
-    {% if var('GET_VAR_LOGS_ENABLED', false) and execute %}
+    {% if var('WRITE_VARS_ENABLED', false) and execute %}
         {% set package = variable_key.split('_')[0] %}
         {% set category = variable_key.split('_')[1] %}
         
@@ -153,7 +153,7 @@
        Returns the default value if the variable is not found. #}
 
     {# Log variable info if enabled #}
-    {% do get_var_logs(variable_key, default) %}
+    {% do write_vars(variable_key, default) %}
 
     {# Check if variable exists in dbt's built-in var() function. If it does, return the value. #}
     {% if var(variable_key, none) is not none %}

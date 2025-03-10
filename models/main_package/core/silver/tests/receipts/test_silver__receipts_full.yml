@@ -11,8 +11,7 @@ models:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-      - name: >-
-          {{ 'TX_HASH' if target.database.upper() in ['CORE', 'RONIN'] else 'ARRAY_INDEX' }}
+      - name: ARRAY_INDEX
         tests:
           - not_null
       - name: RECEIPTS_JSON

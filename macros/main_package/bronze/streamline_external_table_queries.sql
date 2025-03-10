@@ -3,8 +3,7 @@
         source_version,
         partition_function,
         balances,
-        block_number,
-        uses_receipts_by_hash
+        block_number
     ) %}
 
     {% if source_version != '' %}
@@ -41,7 +40,7 @@
                 ) :id :: STRING
             ) :: INT AS block_number
         {% endif %}
-        {% if uses_receipts_by_hash %},
+        {% if var.MAIN_SL_RECEIPTS_BY_HASH_ENABLED %},
             s.value :"TX_HASH" :: STRING AS tx_hash
         {% endif %}
         FROM
@@ -72,10 +71,8 @@
         source_name,
         source_version,
         partition_function,
-        partition_join_key,
         balances,
-        block_number,
-        uses_receipts_by_hash
+        block_number
     ) %}
 
     {% if source_version != '' %}
@@ -113,7 +110,7 @@ SELECT
         ) :id :: STRING
     ) :: INT AS block_number
 {% endif %}
-{% if uses_receipts_by_hash %},
+{% if var.MAIN_SL_RECEIPTS_BY_HASH_ENABLED %},
     s.value :"TX_HASH" :: STRING AS tx_hash
 {% endif %}
 FROM
@@ -124,7 +121,7 @@ FROM
     s
     JOIN meta b
     ON b.file_name = metadata$filename
-    AND b.partition_key = s.{{ partition_join_key }}
+    AND b.partition_key = s.partition_key
 
     {% if balances %}
         JOIN {{ ref('_block_ranges') }}
@@ -135,7 +132,7 @@ FROM
         )
     {% endif %}
 WHERE
-    b.partition_key = s.{{ partition_join_key }}
+    b.partition_key = s.partition_key
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
 {% endmacro %}

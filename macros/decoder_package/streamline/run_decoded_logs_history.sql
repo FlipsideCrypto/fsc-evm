@@ -1,6 +1,6 @@
 {% macro run_decoded_logs_history() %}
 
-{% set blockchain = get_var('GLOBAL_PROD_DB_NAME','').lower() %}
+{% set blockchain = get_var('GLOBAL_PROJECT_NAME','').lower() %}
 
 {% set check_for_new_user_abis_query %}
     select 1

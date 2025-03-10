@@ -1,34 +1,18 @@
-{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
-{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
+    unique_key = vars.MAIN_CORE_GOLD_FACT_EVENT_LOGS_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold_core']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
-) }}
-
-{% endif %}
 
 WITH base AS (
 

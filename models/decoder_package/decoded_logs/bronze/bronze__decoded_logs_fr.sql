@@ -7,14 +7,8 @@
     tags = ['bronze_decoded_logs']
 ) }}
 
-SELECT
-    *
-FROM
-    {{ ref('bronze__decoded_logs_fr_v2') }}
-{% if get_var('GLOBAL_SL_STREAMLINE_V1_ENABLED', false) %}
-UNION ALL
-SELECT
-    *
-FROM
-    {{ ref('bronze__decoded_logs_fr_v1') }}
-{% endif %}
+{# Main query starts here #}
+{{ streamline_external_table_query_decoder_fr(
+    source_name = 'decoded_logs',
+    source_version = ''
+) }}

@@ -14,15 +14,15 @@
 {% set includes_blob_base_fee = ['INK','SWELL'] %}
 
 {# Set Variables using inclusions and exclusions #}
-{% set uses_eip_1559 = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_eip_1559 %}
-{% set uses_l1_columns = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_l1_columns %}
-{% set uses_l1_tx_fee_calc = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_l1_tx_fee_calc %}
-{% set uses_eth_value = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_eth_value %}
-{% set uses_mint = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_mint %}
-{% set uses_y_parity = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_y_parity %}
-{% set uses_access_list = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_access_list %}
-{% set uses_source_hash = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_source_hash %}
-{% set uses_blob_base_fee = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_blob_base_fee %}
+{% set uses_eip_1559 = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_eip_1559 %}
+{% set uses_l1_columns = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_l1_columns %}
+{% set uses_l1_tx_fee_calc = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_l1_tx_fee_calc %}
+{% set uses_eth_value = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_eth_value %}
+{% set uses_mint = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_mint %}
+{% set uses_y_parity = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_y_parity %}
+{% set uses_access_list = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_access_list %}
+{% set uses_source_hash = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_source_hash %}
+{% set uses_blob_base_fee = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_blob_base_fee %}
 {# Prod DB Variables End #}
 
 {% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}

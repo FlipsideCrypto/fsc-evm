@@ -1,5 +1,5 @@
-{%- set node_url = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
-{%- set node_secret_path = get_var('GLOBAL_NODE_VAULT_PATH', '') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
-    full_refresh = false,
+    full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
     tags = ['bronze_core', 'recent_test']
 ) }}
 
@@ -88,10 +88,10 @@ node_call AS (
         *,
         live.udf_api(
             'POST',
-            '{{ node_url }}',
+            '{{ vars.GLOBAL_NODE_URL }}',
             {},
             batch_rpc_request,
-           '{{ node_secret_path }}'
+           '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
         ) AS response
     FROM
         batch_reads

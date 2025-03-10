@@ -1,57 +1,23 @@
-{% set full_reload_start_block = get_var('MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK', 0) %}
-{% set full_reload_blocks = get_var('MAIN_CORE_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) %}
-{% set full_reload_mode = get_var('MAIN_CORE_TRACES_FULL_RELOAD_ENABLED', false) %}
-{% set uses_overflow_steps = get_var('MAIN_CORE_TRACES_OVERFLOW_ENABLED', false) %}
-{% set TRACES_ARB_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'ARBITRUM' %}
-{% set TRACES_SEI_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'SEI' %}
-{% set TRACES_KAIA_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'KAIA' %}
-{% set schema_name = get_var('MAIN_CORE_TRACES_SCHEMA_NAME', 'silver') %}
-{% set uses_tx_status = get_var('MAIN_CORE_TRACES_TX_STATUS_ENABLED', false) %}
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
-{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
-
-{% if uses_receipts_by_hash %}
-    {% if TRACES_SEI_MODE %}
-        {% set unique_key = "concat(block_number, '-', tx_hash)" %}
-    {% else %}
-        {% set unique_key = "concat(block_number, '-', tx_position)" %}
-    {% endif %}
-{% else %}
-    {% set unique_key = "block_number" %}
-{% endif %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
+    unique_key = vars.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold_core']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
-) }}    
-
-{% endif %}
 
 WITH silver_traces AS (
     SELECT
             block_number,
-            {% if TRACES_SEI_MODE %}
+            {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                 tx_hash,
             {% else %}
                 tx_position,
@@ -64,18 +30,18 @@ WITH silver_traces AS (
             'regular' AS source
         FROM
             {{ ref(
-                schema_name ~ '__traces'
+                'bronze__traces'
             ) }}
         WHERE
             1 = 1
 
-{% if is_incremental() and not full_reload_mode %}
+{% if is_incremental() and not vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
 AND modified_timestamp > (
     SELECT
         COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
     FROM
         {{ this }}
-) {% elif is_incremental() and full_reload_mode %}
+) {% elif is_incremental() and vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
 AND block_number BETWEEN (
     SELECT
         MAX(
@@ -88,19 +54,19 @@ AND (
     SELECT
         MAX(
             block_number
-        ) + {{ full_reload_blocks }}
+        ) + {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_BLOCKS_PER_RUN }}
     FROM
         {{ this }}
 )
 {% else %}
-    AND block_number <= {{ full_reload_start_block }}
+    AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
 {% endif %}
 
-{% if uses_overflow_steps %}
+{% if vars.MAIN_CORE_GOLD_TRACES_OVERFLOW_ENABLED %}
 UNION ALL
 SELECT
     block_number,
-    {% if TRACES_SEI_MODE %}
+    {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
         tx_hash,
     {% else %}
         tx_position,
@@ -113,17 +79,17 @@ SELECT
     'overflow' AS source
 FROM
     {{ ref(
-        schema_name ~ '__overflowed_traces'
+        'silver__overflowed_traces'
     ) }}
 WHERE
     1 = 1
 
-{% if is_incremental() and not full_reload_mode %}
+{% if is_incremental() and not vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
 AND modified_timestamp > (
     SELECT
         DATEADD('hour', -2, MAX(modified_timestamp))
     FROM
-        {{ this }}) {% elif is_incremental() and full_reload_mode %}
+        {{ this }}) {% elif is_incremental() and vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
         AND block_number BETWEEN (
             SELECT
                 MAX(
@@ -136,16 +102,16 @@ AND modified_timestamp > (
             SELECT
                 MAX(
                     block_number
-                ) + {{ full_reload_blocks }}
+                ) + {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_BLOCKS_PER_RUN }}
             FROM
                 {{ this }}
         )
     {% else %}
-        AND block_number <= {{ full_reload_start_block }}
+        AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
     {% endif %}
     {% endif %}
 
-    {% if TRACES_ARB_MODE %}
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
     UNION ALL
     SELECT
         block_number,
@@ -165,12 +131,12 @@ AND modified_timestamp > (
     WHERE
         1 = 1
 
-{% if is_incremental() and not full_reload_mode %}
+{% if is_incremental() and not vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
 AND modified_timestamp > (
     SELECT
         DATEADD('hour', -2, MAX(modified_timestamp))
     FROM
-        {{ this }}) {% elif is_incremental() and full_reload_mode %}
+        {{ this }}) {% elif is_incremental() and vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
         AND block_number BETWEEN (
             SELECT
                 MAX(
@@ -183,19 +149,19 @@ AND modified_timestamp > (
             SELECT
                 MAX(
                     block_number
-                ) + {{ full_reload_blocks }}
+                ) + {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_BLOCKS_PER_RUN }}
             FROM
                 {{ this }}
         )
     {% else %}
-        AND block_number <= {{ full_reload_start_block }}
+        AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
     {% endif %}
     {% endif %}
 ),
 sub_traces AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -206,7 +172,7 @@ sub_traces AS (
         silver_traces
     GROUP BY
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -216,7 +182,7 @@ sub_traces AS (
 trace_index_array AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -227,7 +193,7 @@ trace_index_array AS (
         (
             SELECT
                 block_number,
-                {% if TRACES_SEI_MODE %}
+                {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                     tx_hash,
                 {% else %}
                     tx_position,
@@ -246,7 +212,7 @@ trace_index_array AS (
         )
     GROUP BY
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -256,7 +222,7 @@ trace_index_array AS (
 trace_index_sub_traces AS (
     SELECT
         b.block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             b.tx_hash,
         {% else %}
             b.tx_position,
@@ -269,7 +235,7 @@ trace_index_sub_traces AS (
         number_array,
         ROW_NUMBER() over (
             PARTITION BY b.block_number,
-            {% if TRACES_SEI_MODE %}
+            {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                 b.tx_hash
             {% else %}
                 b.tx_position
@@ -284,7 +250,7 @@ trace_index_sub_traces AS (
         silver_traces b
         LEFT JOIN sub_traces s
         ON b.block_number = s.block_number
-        AND {% if TRACES_SEI_MODE %}
+        AND {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                 b.tx_hash = s.tx_hash
             {% else %}
                 b.tx_position = s.tx_position
@@ -292,7 +258,7 @@ trace_index_sub_traces AS (
         AND b.trace_address = s.parent_trace_address
         JOIN trace_index_array n
         ON b.block_number = n.block_number
-        AND {% if TRACES_SEI_MODE %}
+        AND {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                 b.tx_hash = n.tx_hash
             {% else %}
                 b.tx_position = n.tx_position
@@ -302,7 +268,7 @@ trace_index_sub_traces AS (
 errored_traces AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -317,7 +283,7 @@ errored_traces AS (
 error_logic AS (
     SELECT
         b0.block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             b0.tx_hash,
         {% else %}
             b0.tx_position,
@@ -330,7 +296,7 @@ error_logic AS (
         trace_index_sub_traces b0
         LEFT JOIN errored_traces b1
         ON b0.block_number = b1.block_number
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             AND b0.tx_hash = b1.tx_hash
         {% else %}
             AND b0.tx_position = b1.tx_position
@@ -338,7 +304,7 @@ error_logic AS (
         AND b0.trace_address RLIKE CONCAT('^', b1.trace_address, '(_[0-9]+)*$')
         LEFT JOIN errored_traces b2
         ON b0.block_number = b2.block_number
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             AND b0.tx_hash = b2.tx_hash
         {% else %}
             AND b0.tx_position = b2.tx_position
@@ -348,7 +314,7 @@ error_logic AS (
 aggregated_errors AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -362,7 +328,7 @@ aggregated_errors AS (
         error_logic
     GROUP BY
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -370,11 +336,11 @@ aggregated_errors AS (
         trace_address,
         error,
         origin_error),
-        json_traces AS {% if not TRACES_ARB_MODE %}
+        json_traces AS {% if not vars.MAIN_CORE_TRACES_ARB_MODE %}
             (
                 SELECT
                     block_number,
-                    {% if TRACES_SEI_MODE %}
+                    {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                         tx_hash,
                     {% else %}
                         tx_position,
@@ -385,7 +351,7 @@ aggregated_errors AS (
                     trace_index,
                     trace_succeeded,
                     trace_json :error :: STRING AS error_reason,
-                    {% if TRACES_KAIA_MODE %}
+                    {% if vars.MAIN_CORE_TRACES_KAIA_MODE %}
                         coalesce(
                             trace_json :revertReason :: STRING,
                             trace_json :reverted :message :: STRING
@@ -424,7 +390,7 @@ aggregated_errors AS (
                     trace_index_sub_traces
                     JOIN aggregated_errors USING (
                         block_number,
-                        {% if TRACES_SEI_MODE %}
+                        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                             tx_hash,
                         {% else %}
                             tx_position,
@@ -552,7 +518,7 @@ aggregated_errors AS (
                     incremental_traces AS (
                         SELECT
                             f.block_number,
-                            {% if TRACES_SEI_MODE %}
+                            {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                                 f.tx_hash,
                             {% else %}
                                 t.tx_hash,
@@ -561,7 +527,7 @@ aggregated_errors AS (
                             t.origin_function_signature,
                             t.from_address AS origin_from_address,
                             t.to_address AS origin_to_address,
-                            {% if TRACES_SEI_MODE %}
+                            {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                                 t.position AS tx_position,
                             {% else %}
                             f.tx_position,
@@ -584,12 +550,12 @@ aggregated_errors AS (
                             f.traces_id,
                             f.trace_succeeded,
                             f.trace_address,
-                            {% if uses_tx_status %}
+                            {% if vars.MAIN_CORE_GOLD_TRACES_TX_STATUS_ENABLED %}
                             t.tx_status AS tx_succeeded
                             {% else %}
                             t.tx_succeeded
                             {% endif %}
-                            {% if TRACES_ARB_MODE %},
+                            {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
                             f.before_evm_transfers,
                             f.after_evm_transfers
                         {% endif %}
@@ -597,14 +563,14 @@ aggregated_errors AS (
                             json_traces f
                             LEFT OUTER JOIN {{ ref('core__fact_transactions') }}
                             t
-                            ON {% if TRACES_SEI_MODE %}
+                            ON {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                                 f.tx_hash = t.tx_hash
                             {% else %}
                                 f.tx_position = t.tx_position
                             {% endif %}
                             AND f.block_number = t.block_number
 
-{% if is_incremental() and not full_reload_mode %}
+{% if is_incremental() and not vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
 AND t.modified_timestamp >= (
     SELECT
         DATEADD('hour', -24, MAX(modified_timestamp))
@@ -625,7 +591,7 @@ overflow_blocks AS (
 heal_missing_data AS (
     SELECT
         t.block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             t.tx_hash,
         {% else %}
             txs.tx_hash,
@@ -634,7 +600,7 @@ heal_missing_data AS (
         txs.origin_function_signature AS origin_function_signature_heal,
         txs.from_address AS origin_from_address_heal,
         txs.to_address AS origin_to_address_heal,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             txs.position AS tx_position,
         {% else %}
             t.tx_position,
@@ -657,12 +623,12 @@ heal_missing_data AS (
         t.fact_traces_id AS traces_id,
         t.trace_succeeded,
         t.trace_address,
-        {% if uses_tx_status %}
+        {% if vars.MAIN_CORE_GOLD_TRACES_TX_STATUS_ENABLED %}
         txs.tx_status AS tx_succeeded_heal
         {% else %}
         txs.tx_succeeded AS tx_succeeded_heal
         {% endif %}
-        {% if TRACES_ARB_MODE %},
+        {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
         t.before_evm_transfers_heal,
         t.after_evm_transfers_heal
     {% endif %}
@@ -671,14 +637,14 @@ heal_missing_data AS (
         t
         JOIN {{ ref('core__fact_transactions') }}
         txs
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             ON t.tx_hash = txs.tx_hash
         {% else %}
             ON t.tx_position = txs.tx_position
         {% endif %}
         AND t.block_number = txs.block_number
     WHERE
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             t.tx_position IS NULL
         {% else %}
             t.tx_hash IS NULL
@@ -714,7 +680,7 @@ all_traces AS (
         trace_succeeded,
         trace_address,
         tx_succeeded
-    {% if TRACES_ARB_MODE %},
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
         before_evm_transfers,
         after_evm_transfers
     {% endif %}
@@ -749,7 +715,7 @@ SELECT
     trace_succeeded,
     trace_address,
     tx_succeeded_heal AS tx_succeeded
-{% if TRACES_ARB_MODE %},
+{% if vars.MAIN_CORE_TRACES_ARB_MODE %},
     before_evm_transfers_heal AS before_evm_transfers,
     after_evm_transfers_heal AS after_evm_transfers
 {% endif %}
@@ -782,7 +748,7 @@ SELECT
     trace_succeeded,
     trace_address,
     tx_succeeded
-    {% if TRACES_ARB_MODE %},
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
     before_evm_transfers,
     after_evm_transfers
 {% endif %}
@@ -813,7 +779,7 @@ SELECT
     origin_from_address,
     origin_to_address,
     origin_function_signature,
-    {% if TRACES_ARB_MODE %}
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         before_evm_transfers,
         after_evm_transfers,
     {% endif %}
@@ -827,6 +793,6 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index
+    all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if vars.MAIN_CORE_TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index
 ORDER BY
     modified_timestamp DESC, block_timestamp DESC nulls last)) = 1

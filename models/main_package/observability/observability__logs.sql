@@ -1,7 +1,5 @@
-{% set observ_uses_exclusion_list_logs = get_var(
-    'MAIN_OBSERV_LOGS_EXCLUSION_LIST_ENABLED',
-    false
-) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -40,7 +38,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if get_var('MAIN_OBSERV_FULL_TEST_ENABLED') %}
+{% if vars.MAIN_OBSERV_FULL_TEST_ENABLED %}
 UNION ALL
 SELECT
     0
@@ -114,7 +112,7 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if observ_uses_exclusion_list_logs %}
+        missing_block_number IS NOT NULL {% if vars.MAIN_OBSERV_LOGS_EXCLUSION_LIST_ENABLED %}
             AND missing_block_number NOT IN (
                 SELECT
                     block_number

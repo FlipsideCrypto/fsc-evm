@@ -1,6 +1,5 @@
-{# Set variables #}
-{%- set token_addresses = get_var('MAIN_PRICES_TOKEN_ADDRESSES', none) -%}
-{%- set blockchains = get_var('MAIN_PRICES_TOKEN_BLOCKCHAINS', get_var('GLOBAL_PROD_DB_NAME', '').lower() ) -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -38,15 +37,15 @@ FROM
         'complete_token_prices'
     ) }}
 WHERE
-    blockchain IN ({% if blockchains is string %}
-        '{{ blockchains }}'
+    blockchain IN ({% if vars.MAIN_PRICES_TOKEN_BLOCKCHAINS is string %}
+        '{{ vars.MAIN_PRICES_TOKEN_BLOCKCHAINS }}'
     {% else %}
-        {{ blockchains | replace('[', '') | replace(']', '') }}
+        {{ vars.MAIN_PRICES_TOKEN_BLOCKCHAINS | replace('[', '') | replace(']', '') }}
     {% endif %})
-    {% if token_addresses is not none %}
-        AND token_address IN ({% if token_addresses is string %}
-            '{{ token_addresses }}'
+    {% if vars.MAIN_PRICES_TOKEN_ADDRESSES is not none %}
+        AND token_address IN ({% if vars.MAIN_PRICES_TOKEN_ADDRESSES is string %}
+            '{{ vars.MAIN_PRICES_TOKEN_ADDRESSES }}'
         {% else %}
-            {{ token_addresses | replace('[', '') | replace(']', '') }}
+            {{ vars.MAIN_PRICES_TOKEN_ADDRESSES | replace('[', '') | replace(']', '') }}
         {% endif %})
     {% endif %}

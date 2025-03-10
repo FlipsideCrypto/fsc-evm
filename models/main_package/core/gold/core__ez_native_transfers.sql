@@ -1,39 +1,19 @@
-{% set native_token_address = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS','') %}
-{% set native_price_start_date = get_var('MAIN_CORE_NATIVE_PRICES_START_DATE','2024-01-01') %}
-{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
-{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
-{% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
+    unique_key = vars.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
-    post_hook = post_hook,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
     tags = ['gold_core', 'ez_prices_model']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model']
-) }}
-
-{% endif %}
 
 WITH base AS (
 
@@ -70,7 +50,7 @@ WITH base AS (
             'hour',
             block_timestamp
         ) = HOUR
-        AND token_address = '{{ native_token_address }}'
+        AND token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
     WHERE
         tr.value > 0
         AND tr.tx_succeeded
@@ -143,10 +123,10 @@ FROM
         'hour',
         block_timestamp
     ) = HOUR
-    AND token_address = '{{ native_token_address }}'
+    AND token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
     LEFT JOIN base b USING (ez_native_transfers_id)
 WHERE
     t.amount_usd IS NULL
-    AND t.block_timestamp :: DATE >= '{{ native_price_start_date }}'
+    AND t.block_timestamp :: DATE >= '{{ vars.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE }}'
     AND b.ez_native_transfers_id IS NULL
 {% endif %}
