@@ -7,17 +7,6 @@
 {# Set up dbt configuration #}
 -- depends_on: {{ ref('bronze__decoded_logs') }}
 
-{% if vars.GLOBAL_STREAMLINE_FR_ENABLED %}
-{{ config (
-    materialized = "incremental",
-    unique_key = "_log_id",
-    cluster_by = "ROUND(block_number, -3)",
-    incremental_predicates = ["dynamic_range", "block_number"],
-    merge_update_columns = ["_log_id"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_log_id)",
-    tags = ['streamline_decoded_logs_complete']
-) }}
-{% else %}
 {{ config (
     materialized = "incremental",
     unique_key = "_log_id",
@@ -28,7 +17,6 @@
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline_decoded_logs_complete']
 ) }}
-{% endif %}
 
 {# Main query starts here #}
 SELECT

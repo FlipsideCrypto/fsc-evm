@@ -4,16 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if vars.GLOBAL_GOLD_FR_ENABLED %}
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = vars.MAIN_CORE_GOLD_FACT_EVENT_LOGS_UNIQUE_KEY,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
-) }}
-{% else %}
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -23,7 +13,6 @@
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold_core']
 ) }}
-{% endif %}
 
 WITH base AS (
 

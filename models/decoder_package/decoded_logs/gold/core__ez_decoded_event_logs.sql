@@ -4,17 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if vars.GLOBAL_GOLD_FR_ENABLED %}
-{{ config (
-    materialized = "incremental",
-    unique_key = "ez_decoded_event_logs_id",
-    incremental_strategy = 'delete+insert',
-    cluster_by = "block_timestamp::date",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)',
-    tags = ['gold_decoded_logs']
-) }}
-{% else %}
 {{ config (
     materialized = "incremental",
     unique_key = "ez_decoded_event_logs_id",
@@ -25,7 +14,6 @@
     post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)',
     tags = ['gold_decoded_logs']
 ) }}
-{% endif %}
 
 WITH base AS (
 

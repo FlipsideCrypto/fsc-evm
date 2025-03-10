@@ -6,16 +6,6 @@
 
 -- depends_on: {{ ref('bronze__decoded_logs') }}
 
-{% if vars.GLOBAL_SILVER_FR_ENABLED %}
-{{ config (
-    materialized = "incremental",
-    unique_key = "decoded_logs_id",
-    incremental_strategy = 'delete+insert',
-    cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_decoded_logs']
-) }}
-{% else %}
 {{ config (
     materialized = "incremental",
     unique_key = "decoded_logs_id",
@@ -25,7 +15,6 @@
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver_decoded_logs']
 ) }}
-{% endif %}
 
 WITH base_data AS (
 

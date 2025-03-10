@@ -4,20 +4,12 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if vars.GLOBAL_BRONZE_FR_ENABLED %}
-{{ config(
-    materialized = 'incremental',
-    unique_key = "contract_address",
-    tags = ['bronze_core', 'recent_test']
-) }}
-{% else %}
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
     tags = ['bronze_core', 'recent_test']
 ) }}
-{% endif %}
 
 WITH base AS (
 

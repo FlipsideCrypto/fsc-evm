@@ -15,10 +15,10 @@
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
   {% set ns.GLOBAL_NODE_SECRET_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
 
-  {% set ns.GLOBAL_BRONZE_FR_ENABLED = get_var('GLOBAL_BRONZE_FR_ENABLED', false) %} 
-  {% set ns.GLOBAL_SILVER_FR_ENABLED = get_var('GLOBAL_SILVER_FR_ENABLED', false) %} 
-  {% set ns.GLOBAL_GOLD_FR_ENABLED = get_var('GLOBAL_GOLD_FR_ENABLED', false) %} 
-  {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) %} 
+  {% set ns.GLOBAL_BRONZE_FR_ENABLED = none if get_var('GLOBAL_BRONZE_FR_ENABLED', false) else false %} {# Sets to none if true, still requires --full-refresh, otherwise will use incremental #}
+  {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 
+  {% set ns.GLOBAL_GOLD_FR_ENABLED = none if get_var('GLOBAL_GOLD_FR_ENABLED', false) else false %} 
+  {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
   
   {# Core Variables #}
   {% set ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}

@@ -6,17 +6,6 @@
 
 -- depends_on: {{ ref('bronze__' ~ vars.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME.lower()) }}
 
-{% if vars.GLOBAL_SILVER_FR_ENABLED %}
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = vars.MAIN_CORE_SILVER_RECEIPTS_UNIQUE_KEY,
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = vars.MAIN_CORE_SILVER_RECEIPTS_POST_HOOK,
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_core']
-) }}
-{% else %}
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -27,7 +16,6 @@
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver_core']
 ) }}
-{% endif %}
 
 WITH bronze_receipts AS (
     SELECT 
