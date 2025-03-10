@@ -1,4 +1,4 @@
-%- macro load_tag_mapping() -%}
+{%- macro load_tag_mapping() -%}
     {% set tag_mapping = get_tag_dictionary() %}
     {{ log("Loaded tag mappings: " ~ tag_mapping, info=True) }}
     {{ return(tag_mapping) }}
