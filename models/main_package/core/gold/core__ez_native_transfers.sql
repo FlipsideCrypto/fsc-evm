@@ -4,6 +4,17 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{% if vars.GLOBAL_GOLD_FR_ENABLED %}
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = vars.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_UNIQUE_KEY,
+    cluster_by = ['block_timestamp::DATE'],
+    incremental_predicates = [fsc_evm.standard_predicate()],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
+    tags = ['gold_core', 'ez_prices_model']
+) }}
+{% else %}
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -14,6 +25,7 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
     tags = ['gold_core', 'ez_prices_model']
 ) }}
+{% endif %}
 
 WITH base AS (
 

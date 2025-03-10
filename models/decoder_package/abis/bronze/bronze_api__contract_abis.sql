@@ -5,6 +5,15 @@
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('_retry_abis') }}
+
+{% if vars.GLOBAL_BRONZE_FR_ENABLED %}
+{{ config(
+    materialized = 'incremental',
+    unique_key = "contract_address",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+    tags = ['bronze_abis']
+) }}
+{% else %}
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
@@ -12,6 +21,7 @@
     full_refresh = vars.GLOBAL_BRONZE_FULL_REFRESH,
     tags = ['bronze_abis']
 ) }}
+{% endif %}
 
 WITH base AS (
 
