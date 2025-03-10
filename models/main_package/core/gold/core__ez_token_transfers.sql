@@ -17,7 +17,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
     post_hook = post_hook,
-    tags = get_path_tags(this.path, model_tags)
+    tags = get_path_tags(model, model_tags)
 ) }}
 
 {% else %}
@@ -29,7 +29,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     post_hook = post_hook,
-    tags = get_path_tags(this.path, model_tags)
+    tags = get_path_tags(model, model_tags)
 ) }}
 
 {% endif %}
