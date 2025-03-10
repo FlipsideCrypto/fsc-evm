@@ -20,9 +20,16 @@
   {% set ns.GLOBAL_GOLD_FR_ENABLED = none if get_var('GLOBAL_GOLD_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
   
-  {# Core Silver Variables #}
+  {# Core Variables #}
   {% set ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
+
+  {% set ns.MAIN_CORE_TRACES_ARB_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'ARBITRUM' %}
+  {% set ns.MAIN_CORE_TRACES_SEI_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'SEI' %}
+  {% set ns.MAIN_CORE_TRACES_KAIA_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'KAIA' %}
+
+  {# Core Silver Variables #}
   
+
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME = 'RECEIPTS_BY_HASH' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'RECEIPTS' %}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_POST_HOOK = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, block_number)" if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else "" %}
@@ -33,11 +40,30 @@
   {% set ns.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_START_BLOCK = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_START_BLOCK', 0) %}
   {% set ns.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_BLOCKS_PER_RUN = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) %}
   {% set ns.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED = get_var('MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED', true) %}
-  {% set ns.MAIN_CORE_SILVER_TRACES_ARB_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'ARBITRUM' %}
-  {% set ns.MAIN_CORE_SILVER_TRACES_SEI_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'SEI' %}
-  {% set ns.MAIN_CORE_SILVER_TRACES_KAIA_MODE = ns.GLOBAL_PROD_DB_NAME.upper() == 'KAIA' %}
 
   {# Core Gold Variables #}
+  {% set ns.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
+  {% set ns.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE = get_var('MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE','2024-01-01') %}
+
+  {% set ns.MAIN_CORE_GOLD_EZ_TOKEN_TRANSFERS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
+
+  {% set ns.MAIN_CORE_GOLD_FACT_EVENT_LOGS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
+
+  {% set ns.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED = get_var('MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED', false) %}
+  {% set ns.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK = get_var('MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK', 0) %}
+  {% set ns.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_BLOCKS_PER_RUN = get_var('MAIN_CORE_GOLD_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) %}
+  {% set ns.MAIN_CORE_GOLD_TRACES_OVERFLOW_ENABLED = get_var('MAIN_CORE_GOLD_TRACES_OVERFLOW_ENABLED', false) %}
+  {% set ns.MAIN_CORE_GOLD_TRACES_TX_STATUS_ENABLED = get_var('MAIN_CORE_GOLD_TRACES_TX_STATUS_ENABLED', false) %}
+  {% set ns.MAIN_CORE_GOLD_TRACES_SCHEMA_NAME = get_var('MAIN_CORE_GOLD_TRACES_SCHEMA_NAME', 'silver') %}
+  {% if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+    {% if ns.MAIN_CORE_TRACES_SEI_MODE %}
+        {% set ns.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY = "concat(block_number, '-', tx_hash)" %}
+    {% else %}
+        {% set ns.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY = "concat(block_number, '-', tx_position)" %}
+    {% endif %}
+  {% else %}
+      {% set ns.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY = "block_number" %}
+  {% endif %}
 
   {# Streamline Variables #}
   {% set ns.MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 1) %}
