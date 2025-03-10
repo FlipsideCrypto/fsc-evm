@@ -1,9 +1,14 @@
+{%- macro load_tag_mapping() -%}
+    {% set tag_mapping = get_tag_dictionary() %}
+    {{ log("Loaded tag mappings: " ~ tag_mapping, info=True) }}
+    {{ return(tag_mapping) }}
+{%- endmacro -%}
+
 {%- macro get_path_tags(model, additional_tags=[]) -%}
     {% set tags = [] %}
 
     {{ log(model.original_file_path, info=True) }}
-    {# Original tag generation logic #}
-
+    
     {% set path_str = model.original_file_path | string %}
     {% set path = path_str.split('/') %}
     
@@ -29,11 +34,29 @@
         {% do tags.append(filename) %}
     {% endif %}
     
+    {% do tags.append(clean_filename) %}
+    
     {# Add any additional tags provided #}
     {% if additional_tags is not none %}
         {% do tags.extend(additional_tags) %}
     {% endif %}
     
+    {{ log("Initial tags: " ~ tags, info=True) }}
+    
+    {# Load tag mapping from YAML #}
+    {% set tag_mapping = load_tag_mapping() %}
+    
+    {# Apply tag mapping rules #}
+    {% set final_tags = tags.copy() %}
+    {% for tag in tags %}
+        {% if tag in tag_mapping %}
+            {% do final_tags.extend(tag_mapping[tag]) %}
+            {{ log("Added tags from '" ~ tag ~ "': " ~ tag_mapping[tag], info=True) }}
+        {% endif %}
+    {% endfor %}
+    
+    {{ log("Final tags: " ~ final_tags | unique | list, info=True) }}
+    
     {# Return unique tags to avoid duplicates #}
-    {{ return(tags | unique | list) }}
+    {{ return(final_tags | unique | list) }}
 {%- endmacro -%}
