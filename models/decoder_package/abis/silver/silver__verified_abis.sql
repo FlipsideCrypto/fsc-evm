@@ -1,16 +1,5 @@
-{# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_etherscan = ['INK', 'SWELL', 'RONIN', 'BOB'] %}
-
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_result_output_abi = ['RONIN'] %}
-
-{# Set Variables using inclusions and exclusions #}
-{% set uses_etherscan = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_etherscan %}
-{% set uses_result_output_abi = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_result_output_abi %}
-{# Prod DB Variables End #}
-
-{% set abi_block_explorer_name = get_var('DECODER_ABIS_EXPLORER_NAME','') %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -47,9 +36,9 @@ WITH base AS (
             'contract_abis'
         ) }}
     WHERE
-        {% if uses_etherscan %}
+        {% if vars.DECODER_ABIS_ETHERSCAN_ENABLED %}
             abi_data :data :message :: STRING = 'OK'
-        {% elif uses_result_output_abi %}
+        {% elif vars.DECODER_ABIS_RESULT_OUTPUT_ABI_ENABLED %}
             abi_data :data :result IS NOT NULL
         {% else %}
             abi_data :data :abi IS NOT NULL
@@ -69,7 +58,7 @@ block_explorer_abis AS (
         contract_address,
         DATA,
         _inserted_timestamp,
-        lower('{{ abi_block_explorer_name }}') AS abi_source
+        lower('{{ vars.DECODER_ABIS_EXPLORER_NAME }}') AS abi_source
     FROM
         base
 ),

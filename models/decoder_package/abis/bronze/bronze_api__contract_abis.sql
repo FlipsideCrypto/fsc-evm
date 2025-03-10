@@ -1,34 +1,17 @@
-{% set block_explorer_abi_limit = get_var('DECODER_ABIS_EXPLORER_LIMIT', 50) %}
-{% set block_explorer_abi_url = get_var('DECODER_ABIS_EXPLORER_URL', '') %}
-{% set block_explorer_abi_url_suffix = get_var('DECODER_ABIS_EXPLORER_URL_SUFFIX', '') %}
-{% set block_explorer_vault_path = get_var('DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH', '') %}
-{% set block_explorer_abi_interaction_limit = get_var('DECODER_ABIS_EXPLORER_INTERACTION_LIMIT', 250) %}
-{% set bronze_full_refresh = get_var('DECODER_ABIS_CONTRACT_ABIS_FR_ENABLED', false) %}
-
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not bronze_full_refresh %}
 -- depends_on: {{ ref('_retry_abis') }}
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
-    full_refresh = false,
+    full_refresh = vars.GLOBAL_BRONZE_FULL_REFRESH,
     tags = ['bronze_abis']
 ) }}
-
-{% else %}
-
-{{ config(
-    materialized = 'incremental',
-    unique_key = "contract_address",
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
-    tags = ['bronze_abis']
-) }}
-
-{% endif %}
 
 WITH base AS (
 
@@ -39,7 +22,7 @@ WITH base AS (
         {{ ref('silver__relevant_contracts') }}
     WHERE
         1 = 1
-        AND total_interaction_count > {{ block_explorer_abi_interaction_limit }}
+        AND total_interaction_count > {{ vars.DECODER_ABIS_EXPLORER_INTERACTION_LIMIT }}
 
 {% if is_incremental() %}
 AND contract_address NOT IN (
@@ -55,7 +38,7 @@ AND contract_address NOT IN (
 ORDER BY
     total_event_count DESC
 LIMIT
-    {{ block_explorer_abi_limit }}
+    {{ vars.DECODER_ABIS_EXPLORER_LIMIT }}
 ), 
 all_contracts AS (
     SELECT
@@ -83,24 +66,27 @@ row_nos AS (
 ),
 batched AS (
     {% for item in range(
-            block_explorer_abi_limit * 2
+            vars.DECODER_ABIS_EXPLORER_LIMIT * 2
         ) %}
     SELECT
         rn.contract_address,
         live.udf_api('GET',
             CONCAT(
-                '{{ block_explorer_abi_url }}',
+                '{{ vars.DECODER_ABIS_EXPLORER_URL }}',
                 rn.contract_address
-                {% if block_explorer_vault_path != '' %}
+                {% if vars.DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH != '' %}
                 ,'&apikey={key}'
                 {% endif %}
-                {% if block_explorer_abi_url_suffix != '' %}
-                ,'{{ block_explorer_abi_url_suffix }}'
+                {% if vars.DECODER_ABIS_EXPLORER_URL_SUFFIX != '' %}
+                ,'{{ vars.DECODER_ABIS_EXPLORER_URL_SUFFIX }}'
                 {% endif %}
             ),
-            {'User-Agent': 'FlipsideStreamline'},
-            null,
-            '{{ block_explorer_vault_path }}'
+            OBJECT_CONSTRUCT(
+            'Content-Type', 'application/json',
+            'fsc-quantum-state', 'livequery'
+            ),
+            NULL,
+            '{{ vars.DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH }}'
         ) AS abi_data
     FROM
         row_nos rn

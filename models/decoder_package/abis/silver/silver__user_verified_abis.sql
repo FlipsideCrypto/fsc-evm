@@ -1,4 +1,5 @@
-{% set chain = get_var('GLOBAL_PROJECT_NAME','') %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -24,7 +25,7 @@ WITH base AS (
             "user_abis"
         ) }}
     WHERE
-        blockchain = '{{ chain }}'
+        blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         AND NOT duplicate_abi
 
 {% if is_incremental() %}
