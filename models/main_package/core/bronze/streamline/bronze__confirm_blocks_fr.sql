@@ -14,7 +14,7 @@
 {{ streamline_external_table_query_fr(
     source_name = 'confirm_blocks',
     source_version = '',
-    partition_function = 'CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)',
+    partition_function = "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
     partition_join_key = 'partition_key',
     balances = false,
     block_number = true
