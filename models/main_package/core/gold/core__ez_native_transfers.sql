@@ -4,7 +4,7 @@
 {% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
-
+{% set model_tags = ['gold_core', 'ez_prices_model','phase_2'] %}
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -18,7 +18,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = gold_full_refresh,
     post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model','phase_2']
+    tags = get_path_tags(model, model_tags)
 ) }}
 
 {% else %}
@@ -30,7 +30,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model','phase_2']
+    tags = get_path_tags(model, model_tags)
 ) }}
 
 {% endif %}
