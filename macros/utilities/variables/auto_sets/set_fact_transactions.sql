@@ -21,7 +21,7 @@
             array_contains('{{ item.field }}'::VARIANT, {{ item.source }}) as fact_transactions_has_{{ item.field }},
         {% endfor %}
         1 as dummy  -- Prevents trailing comma issue
-    from {{ ref('rpc__gold_settings') }}
+    from {{ ref('rpc__node_responses') }}
     {% endset %}
 
     {% set results = run_query(rpc_settings_query) %}
