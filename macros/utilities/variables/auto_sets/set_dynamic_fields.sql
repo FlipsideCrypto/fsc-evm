@@ -37,19 +37,21 @@
         1 as dummy  -- Prevents trailing comma issue
     from {{ ref('rpc__node_responses') }}
     {% endset %}
+
     {% set results = run_query(rpc_settings_query) %}
+
+
     {% if execute %}
         {% set row = results.rows[0] %}
         {% set return_dict = {} %}
-
-        {% for item in fields_to_check %}
+        {% for field in fields_to_check %}
             {% do return_dict.update({
-                item.field|lower: row[item.field|lower]
+                field: row[field|lower]
             }) %}
         {% endfor %}
-
         {% do return(return_dict) %}
     {% else %}
         {% do return({}) %}
     {% endif %}
+
 {% endmacro %}
