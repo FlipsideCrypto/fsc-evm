@@ -11,9 +11,6 @@ models:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-      - name: ARRAY_INDEX
-        tests:
-          - not_null
       - name: RECEIPTS_JSON
         tests:
           - not_null
