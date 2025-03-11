@@ -5,14 +5,13 @@
 {{ log_model_details() }}
 
 {{ config(
-    materialized = 'view',
+    materialized = 'table',
     tags = ['rpc_settings']
 ) }}
 
 select 
     blockchain,
     receipts_by_block,
-    blocks_fields,
     array_contains('baseFeePerGas'::VARIANT, blocks_fields) as blocks_has_base_fee,
     array_contains('totalDifficulty'::VARIANT, blocks_fields) as blocks_has_total_difficulty,
     array_contains('mixHash'::VARIANT, blocks_fields) as blocks_has_mix_hash,
