@@ -1,17 +1,11 @@
-{# Set variables #}
-{%- set package_name = 'DECODER' -%}
-{%- set source_name = 'DECODED_LOGS' -%}
-{%- set model_type = 'COMPLETE' -%}
-
-{%- set full_refresh_type = get_var((package_name ~ '_SL_' ~ source_name ~ '_' ~ model_type ~ '_FR_ENABLED').upper(), false) -%}
-
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_log_id)" %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
--- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
+-- depends_on: {{ ref('bronze__decoded_logs') }}
 
 {{ config (
     materialized = "incremental",
@@ -19,8 +13,8 @@
     cluster_by = "ROUND(block_number, -3)",
     incremental_predicates = ["dynamic_range", "block_number"],
     merge_update_columns = ["_log_id"],
-    post_hook = post_hook,
-    full_refresh = full_refresh_type,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_log_id)",
+    full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline_decoded_logs_complete']
 ) }}
 
@@ -36,7 +30,7 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM
     {% if is_incremental() %}
-        {{ ref('bronze__' ~ source_name.lower()) }}
+        {{ ref('bronze__decoded_logs') }}
     WHERE
         _inserted_timestamp >= (
             SELECT
@@ -45,7 +39,7 @@ FROM
                 {{ this }}
         )
     {% else %}
-        {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
+        {{ ref('bronze__decoded_logs_fr') }}
     {% endif %}
 
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY id ORDER BY _inserted_timestamp DESC)) = 1

@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -58,7 +61,7 @@ api_pull AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ get_var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/api/v2/assets'
+                'https://gateway.' || '{{ vars.GLOBAL_PROJECT_NAME }}' || '-prod.vertexprotocol.com/api/v2/assets'
 
             )
         ) :data AS response

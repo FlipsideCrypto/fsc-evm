@@ -1,20 +1,11 @@
-{% set full_reload_start_block = get_var('MAIN_CORE_TRACES_FULL_RELOAD_START_BLOCK', 0) %}
-{% set full_reload_blocks = get_var('MAIN_CORE_TRACES_FULL_RELOAD_BLOCKS_PER_RUN', 1000000) %}
-{% set full_reload_mode = get_var('MAIN_CORE_SILVER_TRACES_FULL_RELOAD_ENABLED', false) %}
-{% set TRACES_ARB_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'ARBITRUM' %}
-{% set TRACES_SEI_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'SEI' %}
-{% set TRACES_KAIA_MODE = get_var('GLOBAL_PROD_DB_NAME','').upper() == 'KAIA' %}
-{% set use_partition_key = get_var('MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED', true) %}
-{% set schema_name = get_var('MAIN_CORE_TRACES_SCHEMA_NAME', 'bronze') %}
-{% set silver_full_refresh = get_var('GLOBAL_SILVER_FR_ENABLED', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('bronze__traces') }}
 
-{% if not silver_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -22,28 +13,14 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = silver_full_refresh,
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver_core']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_core']
-) }}
-
-{% endif %}
 
     WITH bronze_traces AS (
         SELECT
             block_number,
-            {% if use_partition_key %}
+            {% if vars.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED %}
                 partition_key,
             {% else %}
                 _partition_by_block_id AS partition_key,
@@ -51,14 +28,14 @@
 
             VALUE :array_index :: INT AS tx_position,
             DATA :result AS full_traces,
-            {% if TRACES_SEI_MODE %}
+            {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
                 DATA :txHash :: STRING AS tx_hash,
             {% endif %}
             _inserted_timestamp
         FROM
 
-{% if is_incremental() and not full_reload_mode %}
-{{ ref(schema_name ~ '__traces') }}
+{% if is_incremental() and not vars.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_ENABLED %}
+{{ ref('bronze__traces') }}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -66,14 +43,14 @@ WHERE
         FROM
             {{ this }}
     ) AND DATA :result IS NOT NULL 
-    {% if TRACES_ARB_MODE %}
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
 
-    {% elif is_incremental() and full_reload_mode %}
-    {{ ref(schema_name ~ '__traces_fr') }}
+    {% elif is_incremental() and vars.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_ENABLED %}
+    {{ ref('bronze__traces_fr') }}
 WHERE
-    {% if use_partition_key %}
+    {% if vars.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED %}
         partition_key BETWEEN (
             SELECT
                 MAX(partition_key) - 100000
@@ -82,7 +59,7 @@ WHERE
         )
         AND (
             SELECT
-                MAX(partition_key) + {{ full_reload_blocks }}
+                MAX(partition_key) + {{ vars.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_BLOCKS_PER_RUN }}
             FROM
                 {{ this }}
         )
@@ -95,25 +72,25 @@ WHERE
         )
         AND (
             SELECT
-                MAX(_partition_by_block_id) + {{ full_reload_blocks }}
+                MAX(_partition_by_block_id) + {{ vars.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_BLOCKS_PER_RUN }}
             FROM
                 {{ this }}
         )
     {% endif %}
 
-    {% if TRACES_ARB_MODE %}
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
 {% else %}
-    {{ ref(schema_name ~ '__traces_fr') }}
+    {{ ref('bronze__traces_fr') }}
 WHERE
-    {% if use_partition_key %}
-        partition_key <= {{ full_reload_start_block }}
+    {% if vars.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED %}
+        partition_key <= {{ vars.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_START_BLOCK }}
     {% else %}
-        _partition_by_block_id <= {{ full_reload_start_block }}
+        _partition_by_block_id <= {{ vars.MAIN_CORE_SILVER_TRACES_FULL_RELOAD_START_BLOCK }}
     {% endif %}
 
-    {% if TRACES_ARB_MODE %}
+    {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
 {% endif %}
@@ -125,7 +102,7 @@ ORDER BY
 flatten_traces AS (
     SELECT
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -156,13 +133,13 @@ flatten_traces AS (
                 'output',
                 'time',
                 'revertReason' 
-                {% if TRACES_ARB_MODE %},
+                {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
                     'afterEVMTransfers',
                     'beforeEVMTransfers',
                     'result.afterEVMTransfers',
                     'result.beforeEVMTransfers'
                 {% endif %}
-                {% if TRACES_KAIA_MODE %},
+                {% if vars.MAIN_CORE_TRACES_KAIA_MODE %},
                     'reverted',
                     'result.reverted'
                 {% endif %}
@@ -206,16 +183,16 @@ flatten_traces AS (
         f.index IS NULL
         AND f.key != 'calls'
         AND f.path != 'result' 
-        {% if TRACES_ARB_MODE %}
+        {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
         {% endif %}
-        {% if TRACES_KAIA_MODE %}
+        {% if vars.MAIN_CORE_TRACES_KAIA_MODE %}
             and f.key not in ('message', 'contract')
         {% endif %}
     GROUP BY
         block_number,
-        {% if TRACES_SEI_MODE %}
+        {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
             tx_hash,
         {% else %}
             tx_position,
@@ -226,7 +203,7 @@ flatten_traces AS (
 )
 SELECT
     block_number,
-    {% if TRACES_SEI_MODE %}
+    {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
         tx_hash,
     {% else %}
         tx_position,
@@ -239,7 +216,7 @@ SELECT
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number'] + 
-        (['tx_hash'] if TRACES_SEI_MODE else ['tx_position']) + 
+        (['tx_hash'] if vars.MAIN_CORE_TRACES_SEI_MODE else ['tx_position']) + 
         ['trace_address']
     ) }} AS traces_id,
     SYSDATE() AS inserted_timestamp,

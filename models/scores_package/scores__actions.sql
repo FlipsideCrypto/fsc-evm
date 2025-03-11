@@ -1,8 +1,10 @@
 -- depends_on: {{ ref('scores__target_days') }}
 
-{% set blockchain = get_var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = get_var('SCORES_FULL_RELOAD_ENABLED', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config (
     materialized = "incremental",
@@ -18,14 +20,14 @@
         WITH target_days AS (
             SELECT block_date 
             FROM {{ ref('scores__target_days') }}
-            {% if not full_reload_mode %}
+            {% if not vars.SCORES_FULL_RELOAD_ENABLED %}
                 WHERE block_date > dateadd('day', -120, sysdate())
             {% endif %}
         ),
         processed_days AS (
             SELECT DISTINCT block_date
             FROM {{ this }}
-            {% if not full_reload_mode %}
+            {% if not vars.SCORES_FULL_RELOAD_ENABLED %}
                 WHERE block_date > dateadd('day', -120, sysdate())
             {% endif %}
         ),
@@ -45,12 +47,12 @@
             {% set block_dates = results.columns[0].values() %}
             {% if block_dates|length > 0 %}
                 {{ log("==========================================", info=True) }}
-                {{ log("Loading action data for blockchain: " ~ blockchain, info=True) }}
+                {{ log("Loading action data for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
                 {{ log("For block dates: " ~ block_dates|join(', '), info=True) }}
                 {{ log("==========================================", info=True) }}
             {% else %}
                 {{ log("==========================================", info=True) }}
-                {{ log("No new action data to process for blockchain: " ~ blockchain, info=True) }}
+                {{ log("No new action data to process for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
                 {{ log("==========================================", info=True) }}
             {% endif %}
         {% else %}
@@ -336,7 +338,7 @@
         LEFT JOIN {{ ref('core__dim_labels') }} l ON contract_address = l.address
         LEFT JOIN {{ ref('scores__known_event_sigs') }} s ON s.event_sig = e.event_sig
         LEFT JOIN {{ ref('scores__known_event_names') }} n ON e.event_name ILIKE '%' || n.event_name || '%'
-        LEFT JOIN {{ ref('scores__wrapped_assets') }} w ON e.contract_address = w.wrapped_asset_address AND w.blockchain = '{{ blockchain }}'
+        LEFT JOIN {{ ref('scores__wrapped_assets') }} w ON e.contract_address = w.wrapped_asset_address AND w.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         LEFT JOIN {{ ref('scores__scoring_activity_categories') }} a ON a.metric = metric_name
         WHERE
             e.event_sig NOT IN (
@@ -440,7 +442,7 @@
         action_details,
         metric_name,
         metric_rank,
-        '{{ blockchain }}' AS blockchain,
+        '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
         {{ dbt_utils.generate_surrogate_key(['tx_hash', 'index', 'action_type', "'" ~ blockchain ~ "'"]) }} AS actions_id,
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp,

@@ -1,17 +1,8 @@
-{%- set testing_limit = get_var('DECODER_SL_DECODED_LOGS_REALTIME_TESTING_LIMIT', none) -%}
-
-{%- set streamline_params = { 
-    "external_table": get_var("DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE", "decoded_logs"),
-    "sql_limit": get_var("DECODER_SL_DECODED_LOGS_REALTIME_SQL_LIMIT", 10000000),
-    "producer_batch_size": get_var("DECODER_SL_DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE", 400000),
-    "worker_batch_size": get_var("DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE", 200000),
-    "sql_source": "decoded_logs_realtime"
-} -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
-{{ log_model_details( 
-    params = streamline_params    
-) }}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config (
@@ -20,11 +11,11 @@
         func = 'streamline.udf_bulk_decode_logs_v2', 
         target = "{{this.schema}}.{{this.identifier}}", 
         params = {
-            "external_table": streamline_params['external_table'],
-            "sql_limit": streamline_params['sql_limit'],
-            "producer_batch_size": streamline_params['producer_batch_size'],
-            "worker_batch_size": streamline_params['worker_batch_size'],
-            "sql_source": streamline_params['sql_source']
+            "external_table": vars.DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE,
+            "sql_limit": vars.DECODER_SL_DECODED_LOGS_REALTIME_SQL_LIMIT,
+            "producer_batch_size": vars.DECODER_SL_DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE,
+            "worker_batch_size": vars.DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE,
+            "sql_source": "decoded_logs_realtime"
         } 
     ), 
     fsc_utils.if_data_call_wait()],
@@ -104,7 +95,7 @@ WHERE
             e._log_id = l._log_id
     )
 
-{% if testing_limit is not none %}
+{% if vars.DECODER_SL_TESTING_LIMIT is not none %}
     LIMIT
-        {{ testing_limit }}
+        {{ vars.DECODER_SL_TESTING_LIMIT }}
 {% endif %}

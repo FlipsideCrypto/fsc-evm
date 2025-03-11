@@ -1,4 +1,5 @@
-{% set abi_block_explorer_name = get_var('DECODER_ABIS_EXPLORER_NAME','') %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -23,7 +24,7 @@ WITH verified_abis AS (
     FROM
         {{ ref('silver__verified_abis') }}
     WHERE
-        abi_source = lower('{{ abi_block_explorer_name }}')
+        abi_source = lower('{{ vars.DECODER_ABIS_EXPLORER_NAME }}')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -37,7 +38,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = lower('{{ abi_block_explorer_name }}')
+        abi_source = lower('{{ vars.DECODER_ABIS_EXPLORER_NAME }}')
 )
 {% endif %}
 ),

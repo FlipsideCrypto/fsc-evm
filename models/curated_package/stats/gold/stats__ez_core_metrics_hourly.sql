@@ -1,5 +1,5 @@
-{# Set variables #}
-{%- set token_address = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -42,4 +42,4 @@ FROM
     LEFT JOIN {{ ref('price__ez_prices_hourly') }}
     p
     ON s.block_timestamp_hour = p.hour
-    AND p.token_address = '{{ token_address }}' --Wrapped Native Token Address for target blockchain
+    AND p.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}' --Wrapped Native Token Address for target blockchain
