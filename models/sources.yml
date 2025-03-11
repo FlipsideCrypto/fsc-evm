@@ -82,3 +82,9 @@ sources:
     schema: bronze
     tables:
       - name: _master_keys
+  - name: fsc_evm_admin
+    database: >-
+      {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
+    schema: admin
+    tables:
+      - name: blockchain_compatibility_logs
