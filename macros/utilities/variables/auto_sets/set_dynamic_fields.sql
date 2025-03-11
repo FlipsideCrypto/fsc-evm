@@ -32,7 +32,7 @@
     {% set rpc_settings_query %}
     select 
         {% for item in fields_to_check %}
-            array_contains('{{ item.field }}'::VARIANT, {{ item.source }}) as {{ item.field|lower }},
+            array_contains('{{ item.field }}'::VARIANT, {{ item.source }}) as {{ item.field }},
         {% endfor %}
         1 as dummy  -- Prevents trailing comma issue
     from {{ ref('rpc__node_responses') }}
@@ -46,7 +46,7 @@
         
         {% for item in fields_to_check %}
             {% do return_dict.update({
-                item.field|lower: row[item.field|lower]
+                item.field: row[item.field]
             }) %}
         {% endfor %}
         
