@@ -46,10 +46,11 @@
         {% set return_dict = {} %}
         {% for field in fields_to_check %}
             {% do return_dict.update({
-                field.field: row[field.field|lower]
+                field.field|lower: row[field.field|lower]
             }) %}
         {% endfor %}
         {% do return(return_dict) %}
+        {{ log(return_dict, info=True) }}
     {% else %}
         {% do return({}) %}
     {% endif %}
