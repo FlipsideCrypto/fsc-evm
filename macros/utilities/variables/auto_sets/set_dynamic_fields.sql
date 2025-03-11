@@ -28,9 +28,6 @@
         {% endif %}
     {% endfor %}
     
-    {# Add logging for debugging #}
-    {{ log('Fields to check for ' ~ gold_model ~ ': ' ~ fields_to_check, info=True) }}
-    
     {# Query RPC settings for current chain #}
     {% set rpc_settings_query %}
     select 
@@ -41,23 +38,52 @@
     from {{ ref('rpc__node_responses') }}
     {% endset %}
 
-    {{ log('RPC settings query: ' ~ rpc_settings_query, info=True) }}
-
     {% set results = run_query(rpc_settings_query) %}
 
-
     {% if execute %}
-        {% set row = results.rows[0] %}
+        {# Get the result row and create return dictionary #}
         {% set return_dict = {} %}
-        {% for field in fields_to_check %}
-            {% do return_dict.update({
-                field.field: row[field.field|lower]
-            }) %}
-        {% endfor %}
         
-        {{ log('Return dictionary: ' ~ return_dict, info=True) }}
+        {% if results.rows | length > 0 %}
+            {% set row = results.rows[0] %}
+            
+            {# Process each field and explicitly handle boolean values #}
+            {% for field in fields_to_check %}
+                {% set field_name = field.field %}
+                {% set column_name = field.field|lower %}
+                
+                {# Check if the column exists in the results #}
+                {% if column_name in row %}
+                    {% set field_value = row[column_name] %}
+                    
+                    {# Handle boolean values explicitly #}
+                    {% if field_value is sameas true %}
+                        {% do return_dict.update({field_name: true}) %}
+                    {% elif field_value is sameas false %}
+                        {% do return_dict.update({field_name: false}) %}
+                    {% else %}
+                        {# If not a boolean, use the value as is #}
+                        {% do return_dict.update({field_name: field_value}) %}
+                    {% endif %}
+                {% else %}
+                    {# If column doesn't exist in results, default to false #}
+                    {% do return_dict.update({field_name: false}) %}
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            {# No rows returned, set all fields to false #}
+            {% for field in fields_to_check %}
+                {% do return_dict.update({field.field: false}) %}
+            {% endfor %}
+        {% endif %}
+        
+        {# Log the final dictionary for debugging #}
+        {{ log('Return dictionary for ' ~ gold_model ~ ': ' ~ return_dict, info=True) }}
+        
+        {# Return the constructed dictionary #}
         {% do return(return_dict) %}
     {% else %}
+        {# In parsing mode, return empty dict #}
         {% do return({}) %}
     {% endif %}
 
