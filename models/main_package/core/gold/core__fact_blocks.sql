@@ -1,55 +1,22 @@
-{% set prod_network = get_var('GLOBAL_CHAIN_NETWORK', 'mainnet') %}
 
-{# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_base_fee = ['CORE'] %}
-{% set excludes_total_difficulty = ['INK','SWELL','BOB'] %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
-
-{# Set Variables using inclusions and exclusions #}
-{% set uses_base_fee = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_base_fee %}
-{% set uses_total_difficulty = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_total_difficulty %}
-
-{% set uses_mix_hash = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_mix_hash %}
-{% set uses_blob_gas_used = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_blob_gas_used %}
-{% set uses_parent_beacon_block_root = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_parent_beacon_block_root %}
-{% set uses_withdrawals = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_withdrawals %}
-{# Prod DB Variables End #}
-
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
+{# Set fact_block specific variables #}
+{{ set_fact_blocks_vars() }}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold_core']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
-) }}
-
-{% endif %}
 
 SELECT
     block_number,

@@ -1,61 +1,22 @@
 
-{# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_eip_1559 = ['CORE','RONIN'] %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_l1_columns = ['INK', 'MANTLE', 'SWELL'] %}
-{% set includes_l1_tx_fee_calc = ['INK', 'MANTLE', 'SWELL'] %}
-{% set includes_eth_value = ['MANTLE'] %}
-{% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
-{% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
-{% set includes_blob_base_fee = ['INK','SWELL'] %}
-
-{# Set Variables using inclusions and exclusions #}
-{% set uses_eip_1559 = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_eip_1559 %}
-{% set uses_l1_columns = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_l1_columns %}
-{% set uses_l1_tx_fee_calc = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_l1_tx_fee_calc %}
-{% set uses_eth_value = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_eth_value %}
-{% set uses_mint = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_mint %}
-{% set uses_y_parity = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_y_parity %}
-{% set uses_access_list = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_access_list %}
-{% set uses_source_hash = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_source_hash %}
-{% set uses_blob_base_fee = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_blob_base_fee %}
-{# Prod DB Variables End #}
-
-{% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
-{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
+{# Set fact_transaction specific variables #}
+{{ set_fact_transactions_vars() }}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
+    unique_key = vars.MAIN_CORE_GOLD_FACT_TRANSACTIONS_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold_core']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
-) }}
-
-{% endif %}
 
 WITH base AS (
 
