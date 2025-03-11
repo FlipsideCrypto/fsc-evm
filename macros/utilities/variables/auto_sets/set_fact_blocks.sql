@@ -7,7 +7,6 @@
         'blobGasUsed',
         'parentBeaconBlockRoot',
         'withdrawals'
-        # Add new fields here in the future
     ] %}
     
     {% set rpc_settings_query %}

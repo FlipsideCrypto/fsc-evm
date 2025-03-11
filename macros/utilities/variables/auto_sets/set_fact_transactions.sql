@@ -12,7 +12,6 @@
         {'field': 'l1Fee', 'source': 'receipts_fields'},
         {'field': 'l1FeeScalar', 'source': 'receipts_fields'},
         {'field': 'l1BlobBaseFee', 'source': 'receipts_fields'}
-        # Add new fields here in the future
     ] %}
     
     {# Query RPC settings for current chain #}
