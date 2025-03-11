@@ -55,7 +55,7 @@ WHERE
                 input_data,
                 10
             ) AS origin_function_signature,
-            {% if tx_settings.uses_mint %}
+            {% if tx_settings.fact_transactions_has_mint %}
             utils.udf_hex_to_int(
                 transaction_json :mint :: STRING
             ) AS mint_precise_raw,
@@ -70,7 +70,7 @@ WHERE
             ) :: bigint AS nonce,
             transaction_json :r :: STRING AS r,
             transaction_json :s :: STRING AS s,
-            {% if tx_settings.uses_source_hash %}
+            {% if tx_settings.fact_transactions_has_sourceHash %}
             transaction_json :sourceHash :: STRING AS source_hash,
             {% endif %}
             transaction_json :to :: STRING AS to_address1,
@@ -87,7 +87,7 @@ WHERE
             utils.udf_hex_to_int(
                 transaction_json :v :: STRING
             ) :: bigint AS v,
-            {% if tx_settings.uses_eip_1559 %}
+            {% if tx_settings.fact_transactions_has_maxFeePerGas %}
             TRY_TO_NUMBER(
                 utils.udf_hex_to_int(
                     transaction_json :maxFeePerGas :: STRING
@@ -105,7 +105,7 @@ WHERE
                         9
             ) AS max_priority_fee_per_gas,
             {% endif %}
-            {% if tx_settings.uses_eth_value %}
+            {% if tx_settings.fact_transactions_has_ethValue %}
             utils.udf_hex_to_int(
                 transaction_json :ethValue :: STRING
             ) AS eth_value_precise_raw,
@@ -123,10 +123,10 @@ WHERE
                 18
             ) AS value_precise,
             value_precise :: FLOAT AS VALUE,
-            {% if tx_settings.uses_y_parity %}
+            {% if tx_settings.fact_transactions_has_yParity %}
             utils.udf_hex_to_int(transaction_json :yParity :: STRING):: bigint AS y_parity,
             {% endif %}
-            {% if tx_settings.uses_access_list %}
+            {% if tx_settings.fact_transactions_has_accessList %}
             transaction_json :accessList AS access_list,
             {% endif %}
         FROM
@@ -141,12 +141,12 @@ WHERE
             txs.from_address,
             txs.to_address,
             txs.origin_function_signature,
-            {% if tx_settings.uses_mint %}
+            {% if tx_settings.fact_transactions_has_mint %}
             txs.mint,
             txs.mint_precise_raw,
             txs.mint_precise,
             {% endif %}
-            {% if tx_settings.uses_eth_value %}
+            {% if tx_settings.fact_transactions_has_ethValue %}
             txs.eth_value,
             txs.eth_value_precise_raw,
             txs.eth_value_precise,
@@ -154,11 +154,11 @@ WHERE
             txs.value,
             txs.value_precise_raw,
             txs.value_precise,
-            {% if tx_settings.uses_eip_1559 %}
+            {% if tx_settings.fact_transactions_has_maxFeePerGas %}
             txs.max_fee_per_gas,
             txs.max_priority_fee_per_gas,
             {% endif %}
-            {% if tx_settings.uses_l1_columns %}
+            {% if tx_settings.fact_transactions_has_l1Fee %}
             utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw,
             COALESCE(
                 l1_fee_precise_raw :: FLOAT,
@@ -185,17 +185,17 @@ WHERE
             ) AS l1_gas_price,
             utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
             {% endif %}
-            {% if tx_settings.uses_y_parity %}
+            {% if tx_settings.fact_transactions_has_yParity %}
             txs.y_parity,
             {% endif %}
-            {% if tx_settings.uses_access_list %}
+            {% if tx_settings.fact_transactions_has_accessList %}
             txs.access_list,
             {% endif %}
-            {% if tx_settings.uses_blob_base_fee %}
+            {% if tx_settings.fact_transactions_has_blobBaseFee %}
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             {% endif %}
-            {% if tx_settings.uses_l1_tx_fee_calc %}
+            {% if tx_settings.fact_transactions_has_l1FeeScalar %}
             utils.udf_decimal_adjust(
                 (
                     txs.gas_price * utils.udf_hex_to_int(
@@ -247,7 +247,7 @@ WHERE
             ) :: bigint AS effective_gas_price,
             txs.r,
             txs.s,
-            {% if tx_settings.uses_source_hash %}
+            {% if tx_settings.fact_transactions_has_sourceHash %}
             txs.source_hash,
             {% endif %}
             txs.v
@@ -294,12 +294,12 @@ missing_data AS (
         t.from_address,
         t.to_address,
         t.origin_function_signature,
-        {% if tx_settings.uses_mint %}
+        {% if tx_settings.fact_transactions_has_mint %}
         t.mint,
         t.mint_precise_raw,
         t.mint_precise,
         {% endif %}
-        {% if tx_settings.uses_eth_value %}
+        {% if tx_settings.fact_transactions_has_ethValue %}
         t.eth_value,
         t.eth_value_precise_raw,
         t.eth_value_precise,
@@ -307,11 +307,11 @@ missing_data AS (
         t.value,
         t.value_precise_raw,
         t.value_precise,
-        {% if tx_settings.uses_eip_1559 %}
+        {% if tx_settings.fact_transactions_has_maxFeePerGas %}
         t.max_fee_per_gas,
         t.max_priority_fee_per_gas,
         {% endif %}
-        {% if tx_settings.uses_l1_columns %}
+        {% if tx_settings.fact_transactions_has_l1Fee %}
         utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw_heal,
         COALESCE(
             l1_fee_precise_raw_heal :: FLOAT,
@@ -338,17 +338,17 @@ missing_data AS (
         ) AS l1_gas_price_heal,
         utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
         {% endif %}
-        {% if tx_settings.uses_y_parity %}
+        {% if tx_settings.fact_transactions_has_yParity %}
         t.y_parity,
         {% endif %}
-        {% if tx_settings.uses_access_list %}
+        {% if tx_settings.fact_transactions_has_accessList %}
         t.access_list,
         {% endif %}
-        {% if tx_settings.uses_blob_base_fee %}
+        {% if tx_settings.fact_transactions_has_blobBaseFee %}
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         {% endif %}
-        {% if tx_settings.uses_l1_tx_fee_calc %}
+        {% if tx_settings.fact_transactions_has_l1FeeScalar %}
         utils.udf_decimal_adjust(
             (
                 t.gas_price * utils.udf_hex_to_int(
@@ -397,7 +397,7 @@ missing_data AS (
         ) :: bigint AS effective_gas_price_heal,
         t.r,
         t.s,
-        {% if tx_settings.uses_source_hash %}
+        {% if tx_settings.fact_transactions_has_sourceHash %}
         t.source_hash,
         {% endif %}
         t.v
@@ -429,12 +429,12 @@ all_transactions AS (
         from_address,
         to_address,
         origin_function_signature,
-        {% if tx_settings.uses_mint %}
+        {% if tx_settings.fact_transactions_has_mint %}
         mint,
         mint_precise_raw,
         mint_precise,
         {% endif %}
-        {% if tx_settings.uses_eth_value %}
+        {% if tx_settings.fact_transactions_has_ethValue %}
         eth_value,
         eth_value_precise_raw,
         eth_value_precise,
@@ -442,11 +442,11 @@ all_transactions AS (
         VALUE,
         value_precise_raw,
         value_precise,
-        {% if tx_settings.uses_eip_1559 %}
+        {% if tx_settings.fact_transactions_has_maxFeePerGas %}
         max_fee_per_gas,
         max_priority_fee_per_gas,
         {% endif %}
-        {% if tx_settings.uses_l1_columns %}
+        {% if tx_settings.fact_transactions_has_l1Fee %}
         l1_fee,
         l1_fee_precise_raw,
         l1_fee_precise,
@@ -455,13 +455,13 @@ all_transactions AS (
         l1_gas_price,
         l1_base_fee_scalar,
         {% endif %}
-        {% if tx_settings.uses_y_parity %}
+        {% if tx_settings.fact_transactions_has_yParity %}
         y_parity,
         {% endif %}
-        {% if tx_settings.uses_access_list %}
+        {% if tx_settings.fact_transactions_has_accessList %}
         access_list,
         {% endif %}
-        {% if tx_settings.uses_blob_base_fee %}
+        {% if tx_settings.fact_transactions_has_blobBaseFee %}
         l1_blob_base_fee,
         l1_blob_base_fee_scalar,
         {% endif %}
@@ -479,7 +479,7 @@ all_transactions AS (
         effective_gas_price,
         r,
         s,
-        {% if tx_settings.uses_source_hash %}
+        {% if tx_settings.fact_transactions_has_sourceHash %}
         source_hash,
         {% endif %}
         v
@@ -495,12 +495,12 @@ SELECT
     from_address,
     to_address,
     origin_function_signature,
-    {% if tx_settings.uses_mint %}
+    {% if tx_settings.fact_transactions_has_mint %}
     mint,
     mint_precise_raw,
     mint_precise,
     {% endif %}
-    {% if tx_settings.uses_eth_value %}
+    {% if tx_settings.fact_transactions_has_ethValue %}
     eth_value,
     eth_value_precise_raw,
     eth_value_precise,
@@ -508,11 +508,11 @@ SELECT
     VALUE,
     value_precise_raw,
     value_precise,
-    {% if tx_settings.uses_eip_1559 %}
+    {% if tx_settings.fact_transactions_has_maxFeePerGas %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
     {% endif %}
-    {% if tx_settings.uses_l1_columns %}
+    {% if tx_settings.fact_transactions_has_l1Fee %}
     l1_fee_precise_heal AS l1_fee,
     l1_fee_precise_raw_heal AS l1_fee_precise_raw,
     l1_fee_precise_heal AS l1_fee_precise,
@@ -521,13 +521,13 @@ SELECT
     l1_gas_price_heal AS l1_gas_price,
     l1_base_fee_scalar,
     {% endif %}
-    {% if tx_settings.uses_y_parity %}
+    {% if tx_settings.fact_transactions_has_yParity %}
     y_parity,
     {% endif %}
-    {% if tx_settings.uses_access_list %}
+    {% if tx_settings.fact_transactions_has_accessList %}
     access_list,
     {% endif %}
-    {% if tx_settings.uses_blob_base_fee %}
+    {% if tx_settings.fact_transactions_has_blobBaseFee %}
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
     {% endif %}
@@ -545,7 +545,7 @@ SELECT
     effective_gas_price_heal AS effective_gas_price,
     r,
     s,
-    {% if tx_settings.uses_source_hash %}
+    {% if tx_settings.fact_transactions_has_sourceHash %}
     source_hash,
     {% endif %}
     v
@@ -575,11 +575,11 @@ SELECT
     gas_limit,
     cumulative_gas_used,
     effective_gas_price,
-    {% if tx_settings.uses_eip_1559 %}
+    {% if tx_settings.fact_transactions_has_maxFeePerGas %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
     {% endif %}
-    {% if tx_settings.uses_l1_columns %}
+    {% if tx_settings.fact_transactions_has_l1Fee %}
     l1_fee,
     l1_fee_precise_raw,
     l1_fee_precise,
@@ -588,30 +588,30 @@ SELECT
     l1_gas_price,
     l1_base_fee_scalar,
     {% endif %}
-    {% if tx_settings.uses_blob_base_fee %}
+    {% if tx_settings.fact_transactions_has_blobBaseFee %}
     l1_blob_base_fee,
     l1_blob_base_fee_scalar,
     {% endif %}
-    {% if tx_settings.uses_mint %}
+    {% if tx_settings.fact_transactions_has_mint %}
     mint,
     mint_precise_raw,
     mint_precise,
     {% endif %}
-    {% if tx_settings.uses_eth_value %}
+    {% if tx_settings.fact_transactions_has_ethValue %}
     eth_value,
     eth_value_precise_raw,
     eth_value_precise,
     {% endif %}
-    {% if tx_settings.uses_y_parity %}
+    {% if tx_settings.fact_transactions_has_yParity %}
     y_parity,
     {% endif %}
-    {% if tx_settings.uses_access_list %}
+    {% if tx_settings.fact_transactions_has_accessList %}
     access_list,
     {% endif %}
     r,
     s,
     v,
-    {% if tx_settings.uses_source_hash %}
+    {% if tx_settings.fact_transactions_has_sourceHash %}
     source_hash,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
