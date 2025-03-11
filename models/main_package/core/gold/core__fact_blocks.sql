@@ -7,9 +7,9 @@
 
 {# Columns excluded by default, with explicit inclusion #}
 {% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'ETHEREUM', 'BSC'] %}
 {% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_withdrawals = ['INK', 'SWELL', 'BOB, 'ETHEREUM', 'GNOSIS', 'BSC'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_base_fee = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_base_fee %}
@@ -79,6 +79,14 @@ SELECT
     {% if uses_base_fee %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
+    ) :: bigint AS base_fee_per_gas,
+    {% endif %}
+    {% if uses_blobs %}
+    utils.udf_hex_to_int(
+        block_json :blobGasUsed :: STRING
+    ) :: bigint AS base_fee_per_gas,
+    utils.udf_hex_to_int(
+        block_json :excessBlobGas :: STRING
     ) :: bigint AS base_fee_per_gas,
     {% endif %}
     utils.udf_hex_to_int(
