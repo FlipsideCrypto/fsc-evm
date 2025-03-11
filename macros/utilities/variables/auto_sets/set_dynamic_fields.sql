@@ -32,30 +32,24 @@
     {% set rpc_settings_query %}
     select 
         {% for item in fields_to_check %}
-            array_contains('{{ item.field }}'::VARIANT, {{ item.source }}) as field_{{ loop.index }},
+            array_contains('{{ item.field }}'::VARIANT, {{ item.source }}) as {{ item.field|lower }},
         {% endfor %}
         1 as dummy  -- Prevents trailing comma issue
     from {{ ref('rpc__node_responses') }}
-    limit 1
     {% endset %}
-
     {% set results = run_query(rpc_settings_query) %}
-
     {% if execute %}
         {% set row = results.rows[0] %}
-        
-        {# Create a dictionary with field values #}
-        {% set field_dict = {} %}
-        
-        {% for i in range(fields_to_check | length) %}
-            {% set field_name = fields_to_check[i].field %}
-            {% set field_value = row['field_' ~ (i+1)] %}
-            {% set _ = field_dict.update({field_name: field_value}) %}
-            {{ log('Field ' ~ field_name ~ ' = ' ~ field_value, info=true) }}
+        {% set return_dict = {} %}
+
+        {% for item in fields_to_check %}
+            {% do return_dict.update({
+                item.field|lower: row[item.field|lower]
+            }) %}
         {% endfor %}
-        
-        {{ return(field_dict) }}
+
+        {% do return(return_dict) %}
     {% else %}
-        {{ return({}) }}
+        {% do return({}) %}
     {% endif %}
 {% endmacro %}
