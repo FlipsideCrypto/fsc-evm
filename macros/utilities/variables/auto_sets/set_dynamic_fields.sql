@@ -45,13 +45,20 @@
         {% set return_dict = {} %}
         
         {% for item in fields_to_check %}
+            {# Create a dictionary-like object that supports both dot and bracket notation #}
             {% do return_dict.update({
                 item.field: row[item.field]
             }) %}
         {% endfor %}
         
-        {% do return(return_dict) %}
+        {# Make the dictionary support attribute access (dot notation) #}
+        {% set attr_dict = namespace() %}
+        {% for key, value in return_dict.items() %}
+            {% do attr_dict.__setattr__(key, value) %}
+        {% endfor %}
+        
+        {% do return(attr_dict) %}
     {% else %}
-        {% do return({}) %}
+        {% do return(namespace()) %}
     {% endif %}
 {% endmacro %}
