@@ -1,8 +1,7 @@
-
 {# Get variables #}
 {% set vars = return_vars() %}
 
-{# Set fact_block specific variables #}
+{# Set fact_blocks specific variables #}
 {% set fact_blocks = set_dynamic_fields('fact_blocks') %}
 
 {# Log configuration details #}
