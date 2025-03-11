@@ -32,7 +32,7 @@ SELECT
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
-    {% if fact_blocks.mixHash %}
+    {% if fact_blocks['mixHash'] %}
     block_json :mixHash :: STRING AS mix_hash,
     {% endif %}
     block_json :extraData :: STRING AS extra_data,
@@ -43,7 +43,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :gasLimit :: STRING
     ) :: bigint AS gas_limit,
-    {% if fact_blocks.baseFeePerGas %}
+    {% if fact_blocks['baseFeePerGas'] %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
@@ -51,7 +51,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
-    {% if fact_blocks.totalDifficulty %}
+    {% if fact_blocks['totalDifficulty'] %}
     utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
     ) :: bigint AS total_difficulty,
@@ -65,7 +65,7 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if fact_blocks.blobGasUsed %}
+    {% if fact_blocks['blobGasUsed'] %}
     utils.udf_hex_to_int(
         block_json :blobGasUsed :: STRING
     ) :: bigint AS blob_gas_used,
@@ -73,10 +73,10 @@ SELECT
         block_json :excessBlobGas :: STRING
     ) :: bigint AS excess_blob_gas,
     {% endif %}
-    {% if fact_blocks.parentBeaconBlockRoot %}
+    {% if fact_blocks['parentBeaconBlockRoot'] %}
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
     {% endif %}
-    {% if fact_blocks.withdrawals %}
+    {% if fact_blocks['withdrawals'] %}
     block_json :withdrawals AS withdrawals,
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
