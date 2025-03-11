@@ -8,7 +8,7 @@
         BLOCKS_HAS_BLOB_GAS_USED,
         BLOCKS_HAS_PARENT_BEACON_BLOCK_ROOT,
         BLOCKS_HAS_WITHDRAWALS
-    from {{ ref('utils__rpc_settings') }}
+    from utils.gold_rpc_settings
     {% endset %}
 
     {% set results = run_query(rpc_settings_query) %}
