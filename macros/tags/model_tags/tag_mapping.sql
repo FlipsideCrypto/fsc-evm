@@ -1,5 +1,5 @@
 {#
-    Sets folder level tags, which will be inherited by all models in that folder
+    Sets model specific tags
 #}
 {%- macro get_tag_dictionary() -%}
     {% set tag_mapping = {
