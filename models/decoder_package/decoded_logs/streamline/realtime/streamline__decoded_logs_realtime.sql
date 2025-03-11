@@ -8,6 +8,8 @@
     "sql_source": "decoded_logs_realtime"
 } -%}
 
+{%- set new_build = var('DECODED_LOGS_REALTIME_NEW_BUILD', false) -%}
+
 {# Log configuration details #}
 {{ log_model_details( 
     params = streamline_params    
@@ -28,7 +30,7 @@
         } 
     ), 
     fsc_utils.if_data_call_wait()],
-    tags = ['streamline_decoded_logs_realtime','phase_3']
+    tags = ['streamline_decoded_logs_realtime']
 ) }}
 
 WITH target_blocks AS (
@@ -74,6 +76,23 @@ candidate_logs AS (
     WHERE
         l.tx_succeeded
         AND l.inserted_timestamp :: DATE >= DATEADD('day', -2, SYSDATE())
+    {% if not new_build %}
+    UNION
+    SELECT
+        l.block_number,
+        l.tx_hash,
+        l.event_index,
+        l.contract_address,
+        l.topics,
+        l.data,
+        CONCAT(
+            l.tx_hash :: STRING,
+            '-',
+            l.event_index :: STRING
+        ) AS _log_id
+    FROM
+        {{ ref('_decoded_logs_exist') }}
+    {% endif %}
 )
 SELECT
     l.block_number,
