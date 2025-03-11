@@ -31,4 +31,4 @@ select
     array_contains('l1BlobBaseFee'::VARIANT, receipts_fields) as tx_has_blob_base_fee,
     array_contains('maxFeePerGas'::VARIANT, transactions_fields) as tx_has_eip_1559
 from
-    {{ ref('utils__rpc_responses') }}
+    {{ ref('rpc__node_responses') }}
