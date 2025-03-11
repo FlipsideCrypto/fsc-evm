@@ -28,6 +28,9 @@
         {% endif %}
     {% endfor %}
     
+    {# Add logging for debugging #}
+    {{ log('Fields to check for ' ~ gold_model ~ ': ' ~ fields_to_check, info=True) }}
+    
     {# Query RPC settings for current chain #}
     {% set rpc_settings_query %}
     select 
@@ -38,6 +41,8 @@
     from {{ ref('rpc__node_responses') }}
     {% endset %}
 
+    {{ log('RPC settings query: ' ~ rpc_settings_query, info=True) }}
+
     {% set results = run_query(rpc_settings_query) %}
 
 
@@ -46,11 +51,12 @@
         {% set return_dict = {} %}
         {% for field in fields_to_check %}
             {% do return_dict.update({
-                field.field|lower: row[field.field|lower]
+                field.field: row[field.field|lower]
             }) %}
         {% endfor %}
+        
+        {{ log('Return dictionary: ' ~ return_dict, info=True) }}
         {% do return(return_dict) %}
-        {{ log(return_dict, info=True) }}
     {% else %}
         {% do return({}) %}
     {% endif %}
