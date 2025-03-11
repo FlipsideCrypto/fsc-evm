@@ -12,6 +12,7 @@
 {% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
 {% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
 {% set includes_blob_base_fee = ['INK','SWELL'] %}
+{% set includes_arbitrum_gas = ['ARBITRUM'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_eip_1559 = get_var('GLOBAL_PROD_DB_NAME','').upper() not in excludes_eip_1559 %}
@@ -23,6 +24,7 @@
 {% set uses_access_list = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_access_list %}
 {% set uses_source_hash = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_source_hash %}
 {% set uses_blob_base_fee = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_blob_base_fee %}
+{% set uses_arbitrum_gas = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_arbitrum_gas %}
 {# Prod DB Variables End #}
 
 {% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
@@ -224,6 +226,20 @@ WHERE
             ) AS l1_gas_price,
             utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
             {% endif %}
+            {% if uses_arbitrum_gas %}
+            COALESCE(
+                utils.udf_hex_to_int(
+                    r.receipts_json :gasUsedForL1 :: STRING
+                ) :: FLOAT,
+                0
+            ) AS gas_used_for_l1,
+            COALESCE(
+                utils.udf_hex_to_int(
+                    r.receipts_json :l1BlockNumber :: STRING
+                ) :: bigint,
+                0
+            ) AS l1_block_number,
+            {% endif %}
             {% if uses_y_parity %}
             txs.y_parity,
             {% endif %}
@@ -377,6 +393,20 @@ missing_data AS (
         ) AS l1_gas_price_heal,
         utils.udf_hex_to_int(r.receipts_json :l1BaseFeeScalar :: STRING):: bigint AS l1_base_fee_scalar,
         {% endif %}
+        {% if uses_arbitrum_gas %}
+            COALESCE(
+                utils.udf_hex_to_int(
+                    r.receipts_json :gasUsedForL1 :: STRING
+                ) :: FLOAT,
+                0
+            ) AS gas_used_for_l1_heal,
+            COALESCE(
+                utils.udf_hex_to_int(
+                    r.receipts_json :l1BlockNumber :: STRING
+                ) :: bigint,
+                0
+            ) AS l1_block_number_heal,
+        {% endif %}
         {% if uses_y_parity %}
         t.y_parity,
         {% endif %}
@@ -494,6 +524,10 @@ all_transactions AS (
         l1_gas_price,
         l1_base_fee_scalar,
         {% endif %}
+        {% if uses_arbitrum_gas %}
+        gas_used_for_l1,
+        l1_block_number,
+        {% endif %}
         {% if uses_y_parity %}
         y_parity,
         {% endif %}
@@ -560,6 +594,10 @@ SELECT
     l1_gas_price_heal AS l1_gas_price,
     l1_base_fee_scalar,
     {% endif %}
+    {% if uses_arbitrum_gas %}
+    gas_used_for_l1_heal AS gas_used_for_l1,
+    l1_block_number_heal AS l1_block_number,
+    {% endif %}
     {% if uses_y_parity %}
     y_parity,
     {% endif %}
@@ -609,7 +647,12 @@ SELECT
     nonce,
     tx_position,
     input_data,
+    {% if uses_arbitrum_gas %}
+    gas_price as gas_price_bid,
+    effective_gas_price as gas_price_paid,
+    {% else %}
     gas_price,
+    {% endif %}
     gas_used,
     gas_limit,
     cumulative_gas_used,
@@ -640,6 +683,10 @@ SELECT
     eth_value,
     eth_value_precise_raw,
     eth_value_precise,
+    {% endif %}
+    {% if uses_arbitrum_gas %}
+    gas_used_for_l1,
+    l1_block_number,
     {% endif %}
     {% if uses_y_parity %}
     y_parity,
