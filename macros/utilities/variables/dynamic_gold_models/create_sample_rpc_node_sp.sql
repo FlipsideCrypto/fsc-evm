@@ -63,16 +63,25 @@
                         ):data:result::string
                     )::int as block_number
                 ),
-                random_numbers AS (
-                    select random_num from (
+                recent_blocks AS (
                     SELECT 
-                        MOD(ABS(RANDOM()) * ROW_NUMBER() OVER (ORDER BY RANDOM()), 
-                            (SELECT block_number FROM chainhead)) + 1 as random_num
+                        chainhead.block_number - seq4() as block_num
+                    FROM chainhead, TABLE(GENERATOR(ROWCOUNT => 10))
+                    WHERE chainhead.block_number - seq4() > 0
+                ),
+                random_blocks AS (
+                    SELECT 
+                        MOD(ABS(RANDOM()), (SELECT block_number FROM chainhead)) + 1 as block_num
                     FROM TABLE(GENERATOR(ROWCOUNT => 50))
-                    ) WHERE random_num > 0 
+                    WHERE block_num > 0
+                ),
+                random_numbers AS (
+                    SELECT block_num as random_num FROM recent_blocks
+                    UNION ALL
+                    SELECT block_num as random_num FROM random_blocks
                 ),
                 block_range as (
-                    select array_agg(random_num) as block_range from random_numbers
+                    SELECT array_agg(random_num) as block_range FROM random_numbers
                 ),
                 sample_receipts AS (
                     SELECT 
