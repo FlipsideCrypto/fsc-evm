@@ -34,7 +34,7 @@
         {% for item in fields_to_check %}
             array_contains('{{ item.field }}'::VARIANT, {{ item.source }}) as "{{ item.field }}" {% if not loop.last %},{% endif %}
         {% endfor %}
-    FROM {{ ref('admin__rpc_details') }}
+    FROM {{ ref('admin__fact_rpc_details') }}
     LIMIT 1
     {% endset %}
 
