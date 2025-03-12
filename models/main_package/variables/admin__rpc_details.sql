@@ -17,11 +17,11 @@ select
     transactions_fields,
     receipts_fields,
     traces_fields,
-    inserted_at
+    inserted_at as rpc_sampled_at
 from
     {{ source(
         "fsc_evm_admin",
         "blockchain_compatibility_logs"
     ) }}
 where lower(blockchain) = lower('{{ vars.GLOBAL_PROJECT_NAME }}')
-qualify row_number() over (partition by blockchain order by inserted_at desc) = 1
+qualify row_number() over (partition by blockchain order by rpc_sampled_at desc) = 1
