@@ -14,7 +14,7 @@
                 blockchain string,
                 network string,
                 receipts_by_block boolean,
-                blocks_per_hour float,
+                blocks_per_hour number,
                 result variant,
                 blocks_fields array,
                 transactions_fields array,
@@ -174,26 +174,35 @@
                         monad.utils.udf_hex_to_int(response:timestamp::string)::number as unix_timestamp
                     FROM sample_blocks
                     WHERE response is not null
-                    ORDER BY block_number
+                    ORDER BY block_number desc
+                    limit 2
+                ),
+                min_max_blocks AS (
+                    SELECT 
+                        MIN(block_number) as min_block,
+                        MAX(block_number) as max_block
+                    FROM block_timestamps
+                ),
+                min_max_timestamps AS (
+                    SELECT 
+                        b1.unix_timestamp as min_timestamp,
+                        b2.unix_timestamp as max_timestamp,
+                        mm.min_block,
+                        mm.max_block
+                    FROM min_max_blocks mm
+                    JOIN block_timestamps b1 ON b1.block_number = mm.min_block
+                    JOIN block_timestamps b2 ON b2.block_number = mm.max_block
                 ),
                 block_time_analysis AS (
-            SELECT 
-                -- Calculate time per block difference
-                SUM(unix_timestamp_diff) / SUM(block_diff) as avg_block_time_seconds,
-                -- Calculate blocks per hour
-                3600 / (SUM(unix_timestamp_diff) / SUM(block_diff)) as blocks_per_hour
-            FROM (
-                SELECT 
-                    block_number,
-                    unix_timestamp,
-                    CASE WHEN ROW_NUMBER() OVER (ORDER BY block_number) > 1 THEN 1 ELSE 0 END as is_valid_pair,
-                    unix_timestamp - LAG(unix_timestamp, 1, unix_timestamp) OVER (ORDER BY block_number) as unix_timestamp_diff,
-                    block_number - LAG(block_number, 1, block_number) OVER (ORDER BY block_number) as block_diff
-                FROM block_timestamps
-            )
-            WHERE is_valid_pair = 1 
-            AND block_diff > 0
-        ),
+                    SELECT 
+                        min_block,
+                        max_block,
+                        min_timestamp,
+                        max_timestamp,
+                        (max_timestamp - min_timestamp) / (max_block - min_block) as avg_block_time_seconds,
+                        3600 / ((max_timestamp - min_timestamp) / (max_block - min_block)) as blocks_per_hour
+                    FROM min_max_timestamps
+                ),
                 compatibility_check AS (
                     SELECT 
                         chainhead.block_number,
