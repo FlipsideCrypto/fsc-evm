@@ -1,4 +1,4 @@
-{% macro create_compatibility_macro() %}
+{% macro create_sample_rpc_node_sp() %}
     {% if var("UPDATE_UDFS_AND_SPS", false) %}
 
         {% set create_admin_schema_sql %}
@@ -8,7 +8,7 @@
         {% do run_query(create_admin_schema_sql) %}
 
         {% set create_admin_logs_table_sql %}
-            create table if not exists admin.blockchain_compatibility_logs (
+            create table if not exists admin.rpc_node_logs (
                 log_id number autoincrement,
                 inserted_at timestamp_ntz default sysdate(),
                 blockchain string,
@@ -29,7 +29,7 @@
 
         {% set sp_compatibility_check_sql %}
 
-        CREATE OR REPLACE PROCEDURE ADMIN.BLOCKCHAIN_COMPATIBILITY_CHECK(
+        CREATE OR REPLACE PROCEDURE admin.sample_rpc_node(
             BLOCKCHAIN STRING,
             NETWORK STRING,
             NODE_URL STRING
@@ -245,7 +245,7 @@
             );
 
             -- Log the result
-            INSERT INTO BLOCKCHAIN_COMPATIBILITY_LOGS (
+            INSERT INTO admin.rpc_node_logs (
                 BLOCKCHAIN,
                 NETWORK,
                 RECEIPTS_BY_BLOCK,
@@ -281,7 +281,7 @@
                 );
                 
                 -- Log the error result
-                INSERT INTO BLOCKCHAIN_COMPATIBILITY_LOGS (
+                INSERT INTO admin.rpc_node_logs (
                     BLOCKCHAIN,
                     NETWORK,
                     RECEIPTS_BY_BLOCK,
@@ -310,6 +310,6 @@
         {% endset %}
 
         {% do run_query(sp_compatibility_check_sql) %}
-        {{ log("Created stored procedure: ADMIN.BLOCKCHAIN_COMPATIBILITY_CHECK", info=True) }}
+        {{ log("Created stored procedure: admin.sample_rpc_node", info=True) }}
     {% endif %}
 {% endmacro %}

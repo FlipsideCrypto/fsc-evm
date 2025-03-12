@@ -87,4 +87,4 @@ sources:
       {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
     schema: admin
     tables:
-      - name: blockchain_compatibility_logs
+      - name: rpc_node_logs

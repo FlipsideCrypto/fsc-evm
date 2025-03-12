@@ -21,7 +21,7 @@ select
 from
     {{ source(
         "fsc_evm_admin",
-        "blockchain_compatibility_logs"
+        "rpc_node_logs"
     ) }}
 where lower(blockchain) = lower('{{ vars.GLOBAL_PROJECT_NAME }}')
 qualify row_number() over (partition by blockchain order by rpc_sampled_at desc) = 1
