@@ -7,9 +7,9 @@
 
 {# Columns excluded by default, with explicit inclusion #}
 {% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'ETHEREUM', 'BSC'] %}
 {% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_withdrawals = ['INK', 'SWELL', 'BOB', 'ETHEREUM', 'BSC', 'GNOSIS'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_base_fee = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_base_fee %}
