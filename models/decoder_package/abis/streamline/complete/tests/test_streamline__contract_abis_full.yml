@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_bronze__contract_abis_full
+  - name: test_streamline__contract_abis_full
 
     columns:
       - name: _INSERTED_TIMESTAMP
