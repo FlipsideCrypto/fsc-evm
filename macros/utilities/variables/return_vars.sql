@@ -14,6 +14,7 @@
   {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
   {% set ns.GLOBAL_NODE_SECRET_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
+  {% set ns.GLOBAL_NETWORK_NAME = get_var('GLOBAL_NETWORK_NAME', 'mainnet') %}
 
   {% set ns.GLOBAL_BRONZE_FR_ENABLED = none if get_var('GLOBAL_BRONZE_FR_ENABLED', false) else false %} {# Sets to none if true, still requires --full-refresh, otherwise will use incremental #}
   {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 
@@ -40,6 +41,7 @@
   {% set ns.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED = get_var('MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED', true) %}
 
   {# Core Gold Variables #}
+  {% set ns.MAIN_CORE_GOLD_FACT_TRANSACTIONS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
   {% set ns.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
   {% set ns.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE = get_var('MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE','2024-01-01') %}
 

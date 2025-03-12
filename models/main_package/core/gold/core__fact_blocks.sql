@@ -1,55 +1,21 @@
-{% set prod_network = get_var('GLOBAL_CHAIN_NETWORK', 'mainnet') %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
-{# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_base_fee = ['CORE'] %}
-{% set excludes_total_difficulty = ['INK','SWELL','BOB'] %}
-
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB'] %}
-
-{# Set Variables using inclusions and exclusions #}
-{% set uses_base_fee = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_base_fee %}
-{% set uses_total_difficulty = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_total_difficulty %}
-
-{% set uses_mix_hash = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_mix_hash %}
-{% set uses_blob_gas_used = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_blob_gas_used %}
-{% set uses_parent_beacon_block_root = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_parent_beacon_block_root %}
-{% set uses_withdrawals = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_withdrawals %}
-{# Prod DB Variables End #}
-
-{% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
+{# Set fact_blocks specific variables #}
+{% set rpc_vars = set_dynamic_fields('fact_blocks') %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
-    tags = ['gold_core']
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
+    tags = ['gold_core', 'testing_tag']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core']
-) }}
-
-{% endif %}
 
 SELECT
     block_number,
@@ -57,7 +23,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :timestamp :: STRING
     ) :: TIMESTAMP AS block_timestamp,
-    '{{ prod_network }}' AS network,
+    '{{ vars.GLOBAL_NETWORK_NAME }}' AS network,
     ARRAY_SIZE(
         block_json :transactions
     ) AS tx_count,
@@ -65,7 +31,7 @@ SELECT
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
-    {% if uses_mix_hash %}
+    {% if rpc_vars.mixHash %}
     block_json :mixHash :: STRING AS mix_hash,
     {% endif %}
     block_json :extraData :: STRING AS extra_data,
@@ -76,7 +42,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :gasLimit :: STRING
     ) :: bigint AS gas_limit,
-    {% if uses_base_fee %}
+    {% if rpc_vars.baseFeePerGas %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
@@ -84,7 +50,7 @@ SELECT
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
-    {% if uses_total_difficulty %}
+    {% if rpc_vars.totalDifficulty %}
     utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
     ) :: bigint AS total_difficulty,
@@ -98,7 +64,7 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if uses_blob_gas_used %}
+    {% if rpc_vars.blobGasUsed %}
     utils.udf_hex_to_int(
         block_json :blobGasUsed :: STRING
     ) :: bigint AS blob_gas_used,
@@ -106,10 +72,10 @@ SELECT
         block_json :excessBlobGas :: STRING
     ) :: bigint AS excess_blob_gas,
     {% endif %}
-    {% if uses_parent_beacon_block_root %}
+    {% if rpc_vars.parentBeaconBlockRoot %}
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
     {% endif %}
-    {% if uses_withdrawals %}
+    {% if rpc_vars.withdrawals %}
     block_json :withdrawals AS withdrawals,
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
