@@ -1,6 +1,6 @@
 {% macro streamline_external_table_query_decoder(
         source_name,
-        source_version
+        source_version=''
     ) %}
     
     {% if source_version != '' %}
@@ -52,7 +52,7 @@
 
 {% macro streamline_external_table_query_decoder_fr(
         source_name,
-        source_version
+        source_version=''
     ) %}
     
     {% if source_version != '' %}

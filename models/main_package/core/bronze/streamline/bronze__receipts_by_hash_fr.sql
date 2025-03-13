@@ -13,8 +13,5 @@
 {# Main query starts here #}
 {{ streamline_external_table_query_fr(
     source_name = 'receipts_by_hash',
-    source_version = '',
-    partition_function = "CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
-    balances = false,
-    block_number = true
+    tx_hash = vars.MAIN_SL_RECEIPTS_BY_HASH_ENABLED
 ) }}
