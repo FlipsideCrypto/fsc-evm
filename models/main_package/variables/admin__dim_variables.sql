@@ -3,7 +3,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['silver_vars']
+    tags = ['admin_vars']
 ) }}
 
 SELECT
@@ -18,7 +18,7 @@ SELECT
     ) }} AS dim_variables_id
 FROM
     {{ source(
-        'fsc_evm_bronze',
+        'fsc_evm_admin',
         '_master_keys'
     ) }}
     qualify(ROW_NUMBER() over (PARTITION BY variable_key

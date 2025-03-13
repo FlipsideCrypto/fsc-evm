@@ -76,9 +76,9 @@ sources:
       - name: evm_wrapped_assets
       - name: dates
       - name: scoring_activity_categories
-  - name: fsc_evm_bronze
+  - name: fsc_evm_admin
     database: >-
       {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
-    schema: bronze
+    schema: admin
     tables:
       - name: _master_keys
