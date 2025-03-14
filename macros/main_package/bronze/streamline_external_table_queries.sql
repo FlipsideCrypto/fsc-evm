@@ -1,9 +1,10 @@
 {% macro streamline_external_table_query(
         source_name,
-        source_version,
-        partition_function,
-        balances,
-        block_number
+        source_version='',
+        partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
+        balances=false,
+        block_number=true,
+        tx_hash=false
     ) %}
 
     {% if source_version != '' %}
@@ -69,10 +70,12 @@
 
 {% macro streamline_external_table_query_fr(
         source_name,
-        source_version,
-        partition_function,
-        balances,
-        block_number
+        source_version='',
+        partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
+        partition_join_key='partition_key',
+        balances=false,
+        block_number=true,
+        tx_hash=false
     ) %}
 
     {% if source_version != '' %}
@@ -110,7 +113,7 @@ SELECT
         ) :id :: STRING
     ) :: INT AS block_number
 {% endif %}
-{% if var.MAIN_SL_RECEIPTS_BY_HASH_ENABLED %},
+{% if tx_hash %},
     s.value :"TX_HASH" :: STRING AS tx_hash
 {% endif %}
 FROM
@@ -121,7 +124,7 @@ FROM
     s
     JOIN meta b
     ON b.file_name = metadata$filename
-    AND b.partition_key = s.partition_key
+    AND b.partition_key = s.{{ partition_join_key }}
 
     {% if balances %}
         JOIN {{ ref('_block_ranges') }}
@@ -132,7 +135,7 @@ FROM
         )
     {% endif %}
 WHERE
-    b.partition_key = s.partition_key
+    b.partition_key = s.{{ partition_join_key }}
     AND DATA :error IS NULL
     AND DATA IS NOT NULL
 {% endmacro %}

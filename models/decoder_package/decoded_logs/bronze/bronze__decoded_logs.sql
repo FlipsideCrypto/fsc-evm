@@ -9,6 +9,5 @@
 
 {# Main query starts here #}
 {{ streamline_external_table_query_decoder(
-    source_name = 'decoded_logs',
-    source_version = ''
+    source_name = 'decoded_logs'
 ) }}
