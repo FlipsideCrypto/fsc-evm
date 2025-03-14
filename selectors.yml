@@ -1,0 +1,24 @@
+--need to see how this would work when ran from local repo
+selectors:
+  - name: recent_tests
+    description: "All recent tests"
+    definition:
+      test_name:*recent*
+  - name: unique_tests
+    description: "All unique tests"
+    definition:
+      test_name:*unique*
+  - name: null_tests
+    description: "All null tests"
+    definition:
+      test_name:*null*
+  - name: other_tests
+    description: "Tests that don't match recent, unique, or null patterns"
+    definition:
+      union:
+        - test_type: generic
+        - test_type: singular
+        - exclude:
+            - test_name:*recent*
+            - test_name:*unique*
+            - test_name:*null*
