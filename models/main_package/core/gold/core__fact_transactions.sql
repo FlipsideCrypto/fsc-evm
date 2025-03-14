@@ -250,33 +250,6 @@ WHERE
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             {% endif %}
-            {% if uses_l1_tx_fee_calc %}
-            utils.udf_decimal_adjust(
-                (
-                    txs.gas_price * utils.udf_hex_to_int(
-                        r.receipts_json :gasUsed :: STRING
-                    ) :: bigint
-                ) + FLOOR(
-                    l1_gas_price * l1_gas_used * l1_fee_scalar
-                ) + IFF(
-                    l1_fee_scalar = 0,
-                    l1_fee,
-                    0
-                ),
-                18
-            ) AS tx_fee_precise,
-            {% else %}
-            utils.udf_decimal_adjust(
-                txs.gas_price * utils.udf_hex_to_int(
-                    r.receipts_json :gasUsed :: STRING
-                ) :: bigint,
-                18
-            ) AS tx_fee_precise,
-            {% endif %}
-            COALESCE(
-                tx_fee_precise :: FLOAT,
-                0
-            ) AS tx_fee,
             CASE
                 WHEN r.receipts_json :status :: STRING = '0x1' THEN TRUE
                 WHEN r.receipts_json :status :: STRING = '0x0' THEN FALSE
@@ -297,9 +270,46 @@ WHERE
             utils.udf_hex_to_int(
                 r.receipts_json :cumulativeGasUsed :: STRING
             ) :: bigint AS cumulative_gas_used,
-            utils.udf_hex_to_int(
-                r.receipts_json :effectiveGasPrice :: STRING
-            ) :: bigint AS effective_gas_price,
+            utils.udf_decimal_adjust(
+                utils.udf_hex_to_int(
+                    r.receipts_json :effectiveGasPrice :: STRING
+                ) :: bigint,
+                9
+            ) AS effective_gas_price,
+            {% if uses_l1_tx_fee_calc %}
+            utils.udf_decimal_adjust(
+                (
+                    txs.gas_price * utils.udf_hex_to_int(
+                        r.receipts_json :gasUsed :: STRING
+                    ) :: bigint
+                ) + FLOOR(
+                    l1_gas_price * l1_gas_used * l1_fee_scalar
+                ) + IFF(
+                    l1_fee_scalar = 0,
+                    l1_fee,
+                    0
+                ),
+                18
+            ) AS tx_fee_precise,
+            {% elif uses_arbitrum_gas %}
+            utils.udf_decimal_adjust(
+                effective_gas_price * utils.udf_hex_to_int(
+                    r.receipts_json :gasUsed :: STRING
+                ) :: bigint,
+                18
+            ) AS tx_fee_precise,
+            {% else %}
+            utils.udf_decimal_adjust(
+                txs.gas_price * utils.udf_hex_to_int(
+                    r.receipts_json :gasUsed :: STRING
+                ) :: bigint,
+                18
+            ) AS tx_fee_precise,
+            {% endif %}
+            COALESCE(
+                tx_fee_precise :: FLOAT,
+                0
+            ) AS tx_fee,
             txs.r,
             txs.s,
             {% if uses_source_hash %}
@@ -417,9 +427,36 @@ missing_data AS (
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         {% endif %}
+        CASE
+            WHEN r.receipts_json :status :: STRING = '0x1' THEN TRUE
+            WHEN r.receipts_json :status :: STRING = '0x0' THEN FALSE
+            ELSE NULL
+        END AS tx_succeeded_heal,
+        t.tx_type,
+        t.nonce,
+        t.tx_position,
+        t.input_data,
+        {% if uses_arbitrum_gas %}
+        t.gas_price_bid as gas_price,
+        {% else %}
+        t.gas_price,
+        {% endif %}
+        utils.udf_hex_to_int(
+            r.receipts_json :gasUsed :: STRING
+        ) :: bigint AS gas_used_heal,
+        t.gas_limit,
+        utils.udf_hex_to_int(
+            r.receipts_json :cumulativeGasUsed :: STRING
+        ) :: bigint AS cumulative_gas_used_heal,
+        utils.udf_decimal_adjust(
+            utils.udf_hex_to_int(
+                r.receipts_json :effectiveGasPrice :: STRING
+            ) :: bigint,
+            9
+        ) AS effective_gas_price_heal,
         {% if uses_l1_tx_fee_calc %}
         utils.udf_decimal_adjust(
-            (
+            ( 
                 t.gas_price * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
                 ) :: bigint
@@ -430,6 +467,13 @@ missing_data AS (
                 l1_fee,
                 0
             ),
+            18
+        ) AS tx_fee_precise_heal,
+        {% elif uses_arbitrum_gas %}
+        utils.udf_decimal_adjust(
+            effective_gas_price_heal * utils.udf_hex_to_int(
+                r.receipts_json :gasUsed :: STRING
+            ) :: bigint,
             18
         ) AS tx_fee_precise_heal,
         {% else %}
@@ -444,26 +488,6 @@ missing_data AS (
             tx_fee_precise_heal :: FLOAT,
             0
         ) AS tx_fee_heal,
-        CASE
-            WHEN r.receipts_json :status :: STRING = '0x1' THEN TRUE
-            WHEN r.receipts_json :status :: STRING = '0x0' THEN FALSE
-            ELSE NULL
-        END AS tx_succeeded_heal,
-        t.tx_type,
-        t.nonce,
-        t.tx_position,
-        t.input_data,
-        t.gas_price,
-        utils.udf_hex_to_int(
-            r.receipts_json :gasUsed :: STRING
-        ) :: bigint AS gas_used_heal,
-        t.gas_limit,
-        utils.udf_hex_to_int(
-            r.receipts_json :cumulativeGasUsed :: STRING
-        ) :: bigint AS cumulative_gas_used_heal,
-        utils.udf_hex_to_int(
-            r.receipts_json :effectiveGasPrice :: STRING
-        ) :: bigint AS effective_gas_price_heal,
         t.r,
         t.s,
         {% if uses_source_hash %}
@@ -656,7 +680,9 @@ SELECT
     gas_used,
     gas_limit,
     cumulative_gas_used,
+    {% if not uses_arbitrum_gas %}
     effective_gas_price,
+    {% endif %}
     {% if uses_eip_1559 %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
@@ -685,8 +711,8 @@ SELECT
     eth_value_precise,
     {% endif %}
     {% if uses_arbitrum_gas %}
-    gas_used_for_l1,
     l1_block_number,
+    gas_used_for_l1,
     {% endif %}
     {% if uses_y_parity %}
     y_parity,
