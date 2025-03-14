@@ -1,4 +1,3 @@
---need to see how this would work when ran from local repo
 selectors:
   - name: recent_tests
     description: "All recent tests"
