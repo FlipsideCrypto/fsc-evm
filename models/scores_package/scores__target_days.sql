@@ -60,10 +60,7 @@ exclude_first_90_days AS (
         block_date
     FROM
         day_of_chain
-
-{% if full_reload_mode %}
     WHERE chain_day >= 90
-{% endif %}
 
 ),
 eligible_dates AS (
