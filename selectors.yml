@@ -1,16 +1,50 @@
 selectors:
+  - name: curated_not_null_tests
+    description: "Not null tests for curated models"
+    definition:
+      intersection:
+        - test_name:*not_null*
+        - model.tag:curated
+    config:
+      severity: warn
+      error_if_exceeds: 15
+      warn_if_exceeds: 5
+      tags: ['curated', 'data_quality']
+
   - name: recent_tests
     description: "All recent tests"
     definition:
       test_name:*recent*
+    config:
+      severity: warn
+      error_if_exceeds: 15
+      warn_if_exceeds: 5
+      tags: ['recent', 'data_quality']
+
   - name: unique_tests
     description: "All unique tests"
     definition:
       test_name:*unique*
+    config:
+      severity: error
+      error_if_exceeds: 5
+      warn_if_exceeds: 2
+      tags: ['unique', 'data_quality']
+
   - name: null_tests
     description: "All null tests"
     definition:
       test_name:*null*
+    config:
+      severity: error
+      error_if_exceeds: 1
+      warn_if_exceeds: 0
+      tags: ['null', 'data_quality']
+      exclude:
+        - intersection:
+            - test_name:*not_null*
+            - model.tag:curated
+
   - name: other_tests
     description: "Tests that don't match recent, unique, or null patterns"
     definition:
@@ -21,3 +55,6 @@ selectors:
             - test_name:*recent*
             - test_name:*unique*
             - test_name:*null*
+    config:
+      severity: error
+      tags: ['other', 'data_quality']
