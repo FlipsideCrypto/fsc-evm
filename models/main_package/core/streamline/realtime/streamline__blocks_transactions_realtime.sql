@@ -17,7 +17,7 @@
             "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
             "sql_source": 'blocks_transactions_realtime',
-            "exploded_key": ['result', 'result.transactions']
+            "exploded_key": tojson(['result', 'result.transactions'])
         }
     ),
     tags = ['streamline_core_realtime']

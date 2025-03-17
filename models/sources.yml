@@ -8,8 +8,7 @@ sources:
       - name: workflows
   - name: bronze_streamline
     database: streamline
-    schema: >-
-      {{ target.database.upper() ~ ('_DEV' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", false) else '') }}
+    schema: "{{ target.database }}"
     tables:
       - name: blocks
       - name: blocks_v2

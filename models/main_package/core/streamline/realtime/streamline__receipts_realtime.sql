@@ -17,7 +17,7 @@
             "worker_batch_size": vars.MAIN_SL_RECEIPTS_REALTIME_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
             "sql_source": 'receipts_realtime',
-            "exploded_key": ['result']
+            "exploded_key": tojson(['result'])
         }
     ),
     tags = ['streamline_core_realtime_receipts']

@@ -17,7 +17,7 @@
             "worker_batch_size": vars.MAIN_SL_RECEIPTS_HISTORY_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
             "sql_source": 'receipts_history',
-            "exploded_key": ['result']
+            "exploded_key": tojson(['result'])
         }
     ),
     tags = ['streamline_core_history_receipts']
