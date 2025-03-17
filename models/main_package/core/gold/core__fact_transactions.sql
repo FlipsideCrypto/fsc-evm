@@ -9,10 +9,11 @@
 {% set includes_eth_value = ['MANTLE'] %}
 {% set includes_mint = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
 {% set includes_y_parity = ['INK', 'SWELL', 'BOB'] %}
-{% set includes_access_list = ['INK', 'SWELL', 'BOB'] %}
+{% set includes_access_list = ['INK', 'MANTLE', 'SWELL', 'BOB'] %}
 {% set includes_source_hash = ['INK','MANTLE','SWELL', 'BOB'] %}
 {% set includes_blob_base_fee = ['INK','SWELL'] %}
 {% set includes_arbitrum_gas = ['ARBITRUM'] %}
+{% set includes_blob_versioned_hashes = ['ETHEREUM', 'BSC'] %}
 
 {# Set Variables using inclusions and exclusions #}
 {% set uses_eip_1559 = get_var('GLOBAL_PROJECT_NAME','').upper() not in excludes_eip_1559 %}
@@ -25,6 +26,7 @@
 {% set uses_source_hash = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_source_hash %}
 {% set uses_blob_base_fee = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_blob_base_fee %}
 {% set uses_arbitrum_gas = get_var('GLOBAL_PROD_DB_NAME','').upper() in includes_arbitrum_gas %}
+{% set uses_blob_versioned_hashes = get_var('GLOBAL_PROJECT_NAME','').upper() in includes_blob_versioned_hashes %}
 {# Prod DB Variables End #}
 
 {% set uses_receipts_by_hash = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
@@ -146,6 +148,15 @@ WHERE
                         9
             ) AS max_priority_fee_per_gas,
             {% endif %}
+            {% if uses_blob_versioned_hashes %}
+            transaction_json :blobVersionedHashes AS blob_versioned_hashes, 
+            utils.udf_hex_to_int(
+                    transaction_json :maxFeePerBlobGas :: STRING
+                ) / pow(
+                    10,
+                    9
+            ) AS max_fee_per_blob_gas, 
+            {% endif %}
             {% if uses_eth_value %}
             utils.udf_hex_to_int(
                 transaction_json :ethValue :: STRING
@@ -198,6 +209,12 @@ WHERE
             {% if uses_eip_1559 %}
             txs.max_fee_per_gas,
             txs.max_priority_fee_per_gas,
+            {% endif %}
+            {% if uses_blob_versioned_hashes %} 
+            txs.blob_versioned_hashes,
+            txs.max_fee_per_blob_gas,
+            utils.udf_hex_to_int(r.receipts_json :blobGasPrice :: STRING) / pow(10,9) as blob_gas_price,
+            utils.udf_hex_to_int(r.receipts_json :blobGasUsed :: STRING) as blob_gas_used,
             {% endif %}
             {% if uses_l1_columns %}
             utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw,
@@ -376,6 +393,12 @@ missing_data AS (
         t.max_fee_per_gas,
         t.max_priority_fee_per_gas,
         {% endif %}
+        {% if uses_blob_versioned_hashes %} 
+        t.blob_versioned_hashes,
+        t.max_fee_per_blob_gas,
+        utils.udf_hex_to_int(r.receipts_json :blobGasPrice :: STRING) / pow(10,9) as blob_gas_price_heal,
+        utils.udf_hex_to_int(r.receipts_json :blobGasUsed :: STRING) as blob_gas_used_heal,
+        {% endif %}
         {% if uses_l1_columns %}
         utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw_heal,
         COALESCE(
@@ -539,6 +562,12 @@ all_transactions AS (
         max_fee_per_gas,
         max_priority_fee_per_gas,
         {% endif %}
+        {% if uses_blob_versioned_hashes %} -- new 
+        blob_versioned_hashes,
+        max_fee_per_blob_gas,
+        blob_gas_used,
+        blob_gas_price,
+        {% endif %}
         {% if uses_l1_columns %}
         l1_fee,
         l1_fee_precise_raw,
@@ -608,6 +637,12 @@ SELECT
     {% if uses_eip_1559 %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
+    {% endif %}
+    {% if uses_blob_versioned_hashes %} -- new 
+    blob_versioned_hashes,
+    max_fee_per_blob_gas,
+    blob_gas_used_heal AS blob_gas_used,
+    blob_gas_price_heal AS blob_gas_price,
     {% endif %}
     {% if uses_l1_columns %}
     l1_fee_precise_heal AS l1_fee,
@@ -686,6 +721,12 @@ SELECT
     {% if uses_eip_1559 %}
     max_fee_per_gas,
     max_priority_fee_per_gas,
+    {% endif %}
+    {% if uses_blob_versioned_hashes %} -- new 
+    blob_versioned_hashes,
+    max_fee_per_blob_gas,
+    blob_gas_used,
+    blob_gas_price,
     {% endif %}
     {% if uses_l1_columns %}
     l1_fee,
