@@ -52,10 +52,10 @@ models:
       - name: LOGS_BLOOM
         description: '{{ doc("evm_logs_bloom")  }}'
       - name: >-
-          {{ 'BLOB_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '3' }}
+          {{ 'BLOB_GAS_USED' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA', 'RONIN'] else '3' }}
         description: '{{ doc("evm_blob_gas_used") }}'
       - name: >-
-          {{ 'EXCESS_BLOB_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '4' }}
+          {{ 'EXCESS_BLOB_GAS' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA', 'RONIN'] else '4' }}
         description: '{{ doc("evm_excess_blob_gas") }}'
       - name: >-
           {{ 'PARENT_BEACON_BLOCK_ROOT' if var('GLOBAL_PROD_DB_NAME').upper() in ['INK','SWELL','BOB', 'BOBA'] else '5' }}
