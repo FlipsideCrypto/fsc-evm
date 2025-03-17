@@ -7,7 +7,7 @@
 
 {# Columns excluded by default, with explicit inclusion #}
 {% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB', 'BOBA'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
+{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'BOBA', 'RONIN'] %}
 {% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
 {% set includes_withdrawals = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
 
