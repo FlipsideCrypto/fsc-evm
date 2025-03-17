@@ -13,7 +13,7 @@
   {% set ns.GLOBAL_NODE_URL = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
   {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
-  {% set ns.GLOBAL_NODE_SECRET_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
+  {% set ns.GLOBAL_NODE_VAULT_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
 
   {% set ns.GLOBAL_BRONZE_FR_ENABLED = none if get_var('GLOBAL_BRONZE_FR_ENABLED', false) else false %} {# Sets to none if true, still requires --full-refresh, otherwise will use incremental #}
   {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 

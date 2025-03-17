@@ -86,7 +86,7 @@ rpc_requests AS (
                 'livequery'
             ),
             batch_request,
-            '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+            '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS resp
     FROM
         batched_calls
@@ -196,7 +196,7 @@ SELECT
             'method', 'eth_getTransactionReceipt',
             'params', ARRAY_CONSTRUCT(tx_hash)
         ),
-        '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks

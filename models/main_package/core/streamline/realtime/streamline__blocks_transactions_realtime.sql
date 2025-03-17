@@ -91,7 +91,7 @@ SELECT
             'method', 'eth_getBlockByNumber',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
         ),
-        '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks
