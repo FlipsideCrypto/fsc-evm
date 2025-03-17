@@ -27,3 +27,12 @@ new_repo_tag:
 	else \
 		echo "No tag name entered. Operation cancelled."; \
 	fi
+
+copy-selectors:
+	@if [ -f dbt_packages/fsc_evm/selectors.yml ]; then \
+		cp dbt_packages/fsc_evm/selectors.yml ./selectors.yml && \
+		echo "Successfully copied selectors.yml to project root"; \
+	else \
+		echo "Error: dbt_packages/fsc_evm/selectors.yml not found"; \
+		exit 1; \
+	fi

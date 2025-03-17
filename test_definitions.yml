@@ -1,0 +1,15 @@
+test_tags:
+  curated: &curated_tags
+    - curated
+    - reorg
+    - production
+  
+  finance: &finance_tags
+    - finance
+    - daily
+
+
+default_test_config: &default_test_config
+  severity: error
+  tags: ['critical', 'data_quality']
+  enabled: true
