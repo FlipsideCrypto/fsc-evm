@@ -32,7 +32,7 @@
         filter_condition = none
     ) -%}
 
-    {% if where %}
+        {% if where and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
         {% if "__timestamp_filter__" in where %}
             {% set columns = adapter.get_columns_in_relation(relation) %}
             {% set column_names = columns | map(attribute='name') | list %}
