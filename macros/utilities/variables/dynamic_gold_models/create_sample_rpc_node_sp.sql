@@ -340,6 +340,13 @@
             {% endset %}
 
             {% do run_query(sp_compatibility_check_sql) %}
+            {% set permissions_sql %}
+                grant usage on procedure admin.sample_rpc_node to role internal_dev;
+                grant usage on procedure admin.sample_rpc_node to role dbt_cloud_fsc_evm;
+            {% endset %}
+
+            {% do run_query(permissions_sql) %}
+
             {{ log("Created stored procedure: admin.sample_rpc_node", info=True) }}
         {% endif %}
     {% endif %}

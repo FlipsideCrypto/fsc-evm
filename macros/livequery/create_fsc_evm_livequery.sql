@@ -1,5 +1,14 @@
 {% macro create_fsc_evm_livequery() %}
     {% if var("UPDATE_UDFS_AND_SPS", false) and target.database.lower() in ['fsc_evm', 'fsc_evm_dev'] %}
+
+        {% set drop_schemas_sql %}
+            DROP SCHEMA IF EXISTS _LIVE;
+            DROP SCHEMA IF EXISTS _UTILS;
+            DROP SCHEMA IF EXISTS LIVE;
+            DROP SCHEMA IF EXISTS UTILS;
+        {% endset %}
+        {% do run_query(drop_schemas_sql) %}
+
         {% set create_schemas_sql %}
             CREATE SCHEMA IF NOT EXISTS _LIVE;
             CREATE SCHEMA IF NOT EXISTS _UTILS;
@@ -225,9 +234,29 @@ def hex_to_int(hex) -> str:
             ';
         {% endset %}
 
+        {% set permissions_sql %}
+            GRANT USAGE on SCHEMA _LIVE to INTERNAL_DEV;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA _LIVE TO INTERNAL_DEV; 
+            GRANT USAGE on SCHEMA _UTILS to INTERNAL_DEV;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA _UTILS TO INTERNAL_DEV; 
+            GRANT USAGE on SCHEMA LIVE to INTERNAL_DEV;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA LIVE TO INTERNAL_DEV; 
+            GRANT USAGE on SCHEMA UTILS to INTERNAL_DEV;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA UTILS TO INTERNAL_DEV; 
+            GRANT USAGE on SCHEMA _LIVE to DBT_CLOUD_FSC_EVM;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA _LIVE TO DBT_CLOUD_FSC_EVM; 
+            GRANT USAGE on SCHEMA _UTILS to DBT_CLOUD_FSC_EVM;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA _UTILS TO DBT_CLOUD_FSC_EVM; 
+            GRANT USAGE on SCHEMA LIVE to DBT_CLOUD_FSC_EVM;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA LIVE TO DBT_CLOUD_FSC_EVM; 
+            GRANT USAGE on SCHEMA UTILS to DBT_CLOUD_FSC_EVM;
+            GRANT USAGE ON ALL FUNCTIONS IN SCHEMA UTILS TO DBT_CLOUD_FSC_EVM; 
+        {% endset %}
+
         {% do run_query(create_internal_live) %}
         {% do run_query(create_whoami_sql) %}
         {% do run_query(create_udf_api_sql) %}
         {% do run_query(create_utils_sql) %}
+        {% do run_query(permissions_sql) %}
     {% endif %}
 {% endmacro %}
