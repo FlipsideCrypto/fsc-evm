@@ -191,4 +191,5 @@
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}
+  
 {% endmacro %}
