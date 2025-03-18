@@ -17,7 +17,7 @@
             "worker_batch_size": vars.MAIN_SL_TRACES_HISTORY_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_TRACES_HISTORY_ASYNC_CONCURRENT_REQUESTS,
             "sql_source": 'traces_history',
-            "exploded_key": ['result']
+            "exploded_key": tojson(['result'])
         }
     ),
     tags = ['streamline_core_history']
@@ -86,7 +86,7 @@ SELECT
             'method', 'debug_traceBlockByNumber',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s'))
         ),
-        '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks

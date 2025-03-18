@@ -116,7 +116,7 @@
         {% endif %}
         
         {% set log_query %}
-            CREATE TABLE IF NOT EXISTS {{target.database}}.bronze._master_keys (
+            CREATE TABLE IF NOT EXISTS {{target.database}}.admin._master_keys (
                 package STRING,
                 category STRING,
                 variable_key STRING,
@@ -125,7 +125,7 @@
                 _inserted_timestamp TIMESTAMP_NTZ DEFAULT SYSDATE()
             );
             
-            INSERT INTO {{target.database}}.bronze._master_keys (
+            INSERT INTO {{target.database}}.admin._master_keys (
                 package, 
                 category, 
                 variable_key, 

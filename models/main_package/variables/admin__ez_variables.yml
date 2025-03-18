@@ -1,10 +1,10 @@
 version: 2
 models:
-  - name: silver__fact_variables
+  - name: admin__ez_variables
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - FACT_VARIABLES_ID
+            - EZ_VARIABLES_ID
     columns:
       - name: PROJECT
         tests:
@@ -15,6 +15,12 @@ models:
       - name: VALUE
         tests:
           - not_null
-      - name: FACT_VARIABLES_ID
+      - name: DEFAULT_VALUE
+        tests:
+          - not_null
+      - name: DEFAULT_TYPE
+        tests:
+          - not_null
+      - name: EZ_VARIABLES_ID
         tests:
           - not_null

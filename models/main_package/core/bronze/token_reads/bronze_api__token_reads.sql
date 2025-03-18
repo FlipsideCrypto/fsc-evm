@@ -91,7 +91,7 @@ node_call AS (
             '{{ vars.GLOBAL_NODE_URL }}',
             {},
             batch_rpc_request,
-           '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+           '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS response
     FROM
         batch_reads

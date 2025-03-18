@@ -17,7 +17,7 @@
             "worker_batch_size": vars.MAIN_SL_RECEIPTS_HISTORY_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
             "sql_source": 'receipts_history',
-            "exploded_key": ['result']
+            "exploded_key": tojson(['result'])
         }
     ),
     tags = ['streamline_core_history_receipts']
@@ -84,7 +84,7 @@ SELECT
             'method', 'eth_getBlockReceipts',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))
         ),
-        '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks

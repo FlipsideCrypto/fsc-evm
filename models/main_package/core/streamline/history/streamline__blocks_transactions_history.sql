@@ -17,7 +17,7 @@
             "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_HISTORY_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_BLOCKS_TRANSACTIONS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
             "sql_source": 'blocks_transactions_history',
-            "exploded_key": ['result', 'result.transactions']
+            "exploded_key": tojson(['result', 'result.transactions'])
         }
     ),
     tags = ['streamline_core_history']
@@ -82,7 +82,7 @@ SELECT
             'method', 'eth_getBlockByNumber',
             'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number), TRUE)
         ),
-        '{{ vars.GLOBAL_NODE_SECRET_PATH }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks
