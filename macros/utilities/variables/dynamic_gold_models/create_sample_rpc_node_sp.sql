@@ -341,7 +341,9 @@
 
             {% do run_query(sp_compatibility_check_sql) %}
             {% set permissions_sql %}
+                grant usage on schema admin to internal_dev;
                 grant usage on procedure admin.sample_rpc_node to role internal_dev;
+                grant usage on schema admin to dbt_cloud_fsc_evm;
                 grant usage on procedure admin.sample_rpc_node to role dbt_cloud_fsc_evm;
             {% endset %}
 
