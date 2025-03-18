@@ -10,7 +10,7 @@
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
     version = 1,
-    tags = ['scores']
+    tags = get_path_tags(model)
 ) }}
 
     {% if is_incremental() %}

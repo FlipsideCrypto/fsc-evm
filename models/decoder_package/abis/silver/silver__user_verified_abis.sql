@@ -7,7 +7,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "id",
-    tags = ['silver_abis']
+    tags = get_path_tags(model)
 ) }}
 
 WITH base AS (

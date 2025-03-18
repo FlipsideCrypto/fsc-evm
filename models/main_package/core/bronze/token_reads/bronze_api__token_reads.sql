@@ -8,7 +8,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
-    tags = ['bronze_core', 'recent_test']
+    tags = get_path_tags(model)
 ) }}
 
 WITH base AS (

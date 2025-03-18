@@ -3,7 +3,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['admin_vars']
+    tags = get_path_tags(model)
 ) }}
 
 {%- set vars_data = vars_config(all_projects=true) -%}

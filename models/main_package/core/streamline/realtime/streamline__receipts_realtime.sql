@@ -20,7 +20,7 @@
             "exploded_key": tojson(['result'])
         }
     ),
-    tags = ['streamline_core_realtime_receipts']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

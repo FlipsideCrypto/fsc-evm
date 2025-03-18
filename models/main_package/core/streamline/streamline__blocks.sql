@@ -6,7 +6,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['streamline_core_complete']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

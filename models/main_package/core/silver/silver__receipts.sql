@@ -14,7 +14,7 @@
     post_hook = vars.MAIN_CORE_SILVER_RECEIPTS_POST_HOOK,
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver_core']
+    tags = get_path_tags(model)
 ) }}
 
 WITH bronze_receipts AS (

@@ -15,7 +15,7 @@
     merge_update_columns = ["_log_id"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_log_id)",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline_decoded_logs_complete']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

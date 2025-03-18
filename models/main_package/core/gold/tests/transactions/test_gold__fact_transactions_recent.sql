@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['recent_test']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

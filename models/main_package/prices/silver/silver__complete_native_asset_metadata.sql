@@ -6,7 +6,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_native_asset_metadata_id',
-    tags = ['silver_prices']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

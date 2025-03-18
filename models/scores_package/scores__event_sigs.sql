@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['scores']
+    tags = get_path_tags(model)
 ) }}
 
 select * from {{ source('data_science_silver', 'evm_event_sigs') }}
