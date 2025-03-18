@@ -56,3 +56,13 @@ selectors:
             - tag:decoded_logs
             - tag:streamline
         - tag:bronze__decoded_logs
+
+  - name: get_abis
+    description: "ABI models"
+    definition:
+      union:
+        - tag:bronze__contract_abis
+        - tag:bronze__contract_abis_fr
+        - intersection:
+            - tag:abis
+            - tag:streamline
