@@ -15,7 +15,7 @@
         incremental_predicates = [fsc_evm.standard_predicate()],
         full_refresh = nft_full_refresh,
         post_hook = post_hook,
-        tags = ['nft_core']
+        tags = get_path_tags(model)
     ) }}
 {% else %}
     {{ config (
@@ -25,7 +25,7 @@
         cluster_by = ['block_timestamp::DATE'],
         incremental_predicates = [fsc_evm.standard_predicate()],
         post_hook = post_hook,
-        tags = ['nft_core']
+        tags = get_path_tags(model)
     ) }}
 {% endif %}
 

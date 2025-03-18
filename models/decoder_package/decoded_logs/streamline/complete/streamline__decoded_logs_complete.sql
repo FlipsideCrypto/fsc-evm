@@ -21,7 +21,7 @@
     merge_update_columns = ["_log_id"],
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_decoded_logs_complete']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

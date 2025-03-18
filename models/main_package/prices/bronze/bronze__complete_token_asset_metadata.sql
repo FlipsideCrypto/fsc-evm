@@ -8,7 +8,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_prices']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

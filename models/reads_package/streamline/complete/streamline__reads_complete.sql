@@ -20,7 +20,7 @@
     merge_update_columns = ["complete_reads_id"],
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_reads_complete']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

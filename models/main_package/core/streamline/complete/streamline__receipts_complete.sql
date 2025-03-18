@@ -19,7 +19,7 @@
     cluster_by = "ROUND(block_number, -3)",
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_core_complete_receipts']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

@@ -21,7 +21,7 @@
     merge_update_columns = ["_call_id"],
     post_hook = post_hook,
     full_refresh = full_refresh_type,
-    tags = ['streamline_decoded_traces_complete']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

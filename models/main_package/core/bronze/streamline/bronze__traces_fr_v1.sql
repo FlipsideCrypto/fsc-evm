@@ -19,7 +19,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_core_streamline_v1']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

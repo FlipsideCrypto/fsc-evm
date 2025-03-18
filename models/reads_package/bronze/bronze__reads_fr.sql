@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = 'view',
-    tags = ['bronze_reads']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

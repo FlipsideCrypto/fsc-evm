@@ -10,7 +10,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'ez_asset_metadata_id',
     post_hook = post_hook,
-    tags = ['gold_prices']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

@@ -6,7 +6,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'product_id',
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['curated','reorg']
+    tags = get_path_tags(model)
 ) }}
 
 

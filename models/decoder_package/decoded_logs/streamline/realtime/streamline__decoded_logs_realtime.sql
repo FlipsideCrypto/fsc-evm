@@ -28,7 +28,7 @@
         } 
     ), 
     fsc_utils.if_data_call_wait()],
-    tags = ['streamline_decoded_logs_realtime']
+    tags = get_path_tags(model)
 ) }}
 
 WITH target_blocks AS (

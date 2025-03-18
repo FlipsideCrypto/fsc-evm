@@ -2,7 +2,7 @@
 {% set gold_full_refresh = get_var('GLOBAL_GOLD_FR_ENABLED', false) %}
 {% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
 {% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
-{% set model_tags = ['ez_prices_model', 'phase_2'] %}  {# Define model-specific tags #}
+{% set model_tags = get_path_tags(model) %}  {# Define model-specific tags #}
 
 {# Log configuration details #}
 {{ log_model_details() }}

@@ -16,7 +16,7 @@
     unique_key = "contract_address",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
     full_refresh = false,
-    tags = ['bronze_abis']
+    tags = get_path_tags(model)
 ) }}
 
 {% else %}
@@ -25,7 +25,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
-    tags = ['bronze_abis']
+    tags = get_path_tags(model)
 ) }}
 
 {% endif %}

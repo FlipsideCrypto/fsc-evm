@@ -3,7 +3,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['gha_tasks']
+    tags = get_path_tags(model)
 ) }}
 
 {{ fsc_utils.gha_tasks_view() }}

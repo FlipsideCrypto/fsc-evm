@@ -7,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_token_prices_id',
     cluster_by = ['hour::DATE'],
-    tags = ['silver_prices']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

@@ -11,7 +11,7 @@
     unique_key = 'fact_prices_ohlc_hourly_id',
     cluster_by = ['hour::DATE','provider'],
     post_hook = post_hook,
-    tags = ['gold_prices']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

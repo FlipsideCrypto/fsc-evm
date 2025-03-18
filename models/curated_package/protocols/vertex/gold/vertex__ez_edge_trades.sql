@@ -6,7 +6,7 @@
     unique_key = 'ez_edge_trades_id',
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(trader, symbol, subaccount), SUBSTRING(subaccount, symbol)",
-    tags = ['curated', 'gold_vertex']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

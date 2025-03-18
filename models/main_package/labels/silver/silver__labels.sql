@@ -7,7 +7,7 @@
     incremental_strategy = 'merge',
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = 'modified_timestamp::DATE',
-    tags = ['silver_labels']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

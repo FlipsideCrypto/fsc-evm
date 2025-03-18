@@ -18,7 +18,7 @@
     post_hook = post_hook,
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = silver_full_refresh,
-    tags = ['silver_core']
+    tags = get_path_tags(model)
 ) }}
 
 {% else %}
@@ -30,7 +30,7 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = post_hook,
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_core']
+    tags = get_path_tags(model)
 ) }}
 
 {% endif %}

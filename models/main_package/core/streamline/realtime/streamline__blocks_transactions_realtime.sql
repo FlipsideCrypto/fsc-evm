@@ -37,7 +37,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params = streamline_params
     ),
-    tags = ['streamline_core_realtime']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

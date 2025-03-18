@@ -16,7 +16,7 @@
     cluster_by = "score_date",
     version = 1,
     full_refresh = false,
-    tags = ['scores']
+    tags = get_path_tags(model)
 ) }}
 
     {% set score_dates_query %}

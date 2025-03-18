@@ -10,7 +10,7 @@
     cluster_by = 'round(_id,-3)',
     post_hook = post_hook,
     full_refresh = false,
-    tags = ['utils']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

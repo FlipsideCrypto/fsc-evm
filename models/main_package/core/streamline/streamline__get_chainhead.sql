@@ -7,7 +7,7 @@
 
 {{ config (
     materialized = 'table',
-    tags = ['streamline_core_complete','chainhead']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

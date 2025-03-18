@@ -11,7 +11,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = false,
     post_hook = post_hook,
-    tags = ['gold_decoded_logs']
+    tags = get_path_tags(model)
 ) }}
 
 WITH base AS (
