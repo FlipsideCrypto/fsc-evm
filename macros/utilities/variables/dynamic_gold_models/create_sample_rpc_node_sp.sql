@@ -26,15 +26,16 @@
             {% endset %}
 
             {% do run_query(create_admin_logs_table_sql) %}
-            
 
             {% set sp_compatibility_check_sql %}
 
             CREATE OR REPLACE PROCEDURE admin.sample_rpc_node(
                 BLOCKCHAIN STRING,
-                NETWORK STRING,
                 NODE_PROVIDER STRING,
-                RANDOM_BLOCK_COUNT NUMBER DEFAULT 50
+                NETWORK STRING DEFAULT 'mainnet',
+                RANDOM_BLOCK_SAMPLE_SIZE NUMBER DEFAULT 50,
+                VAULT_PATH_OVERRIDE STRING DEFAULT NULL,
+                NODE_URL_OVERRIDE STRING DEFAULT NULL
             )
             RETURNS VARIANT
             LANGUAGE SQL
@@ -49,10 +50,12 @@
                     WITH node_provider_details as (
                         SELECT
                             CASE
+                                WHEN :VAULT_PATH_OVERRIDE IS NOT NULL then :VAULT_PATH_OVERRIDE
                                 WHEN lower(:NODE_PROVIDER) IN ('drpc') then 'Vault/prod/evm/drpc'
                                 WHEN lower(:NODE_PROVIDER) IN ('quicknode') then 'Vault/prod/evm/quicknode/' || :BLOCKCHAIN || '/' || :NETWORK
                             END as vault_path,
                             CASE
+                                WHEN :NODE_URL_OVERRIDE IS NOT NULL then :NODE_URL_OVERRIDE
                                 WHEN lower(:NODE_PROVIDER) IN ('drpc') and lower(:NETWORK) = 'mainnet' then 'https://lb.drpc.org/ogrpc?network=' || :BLOCKCHAIN || '&dkey={KEY}'
                                 WHEN lower(:NODE_PROVIDER) IN ('drpc') and lower(:NETWORK) <> 'mainnet' then 'https://lb.drpc.org/ogrpc?network=' || :BLOCKCHAIN || '-' || :NETWORK || '&dkey={KEY}'
                                 WHEN lower(:NODE_PROVIDER) IN ('quicknode') then '{URL}'
@@ -87,7 +90,7 @@
                     random_blocks AS (
                         SELECT 
                             MOD(ABS(RANDOM()), (SELECT block_number FROM chainhead)) + 1 as block_num
-                        FROM TABLE(GENERATOR(ROWCOUNT => :RANDOM_BLOCK_COUNT))
+                        FROM TABLE(GENERATOR(ROWCOUNT => :RANDOM_BLOCK_SAMPLE_SIZE))
                         WHERE block_num > 0
                     ),
                     random_numbers AS (
