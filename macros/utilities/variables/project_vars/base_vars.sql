@@ -9,7 +9,7 @@
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'Base',
         'DECODER_ABIS_EXPLORER_NAME': 'basescan',
         'DECODER_ABIS_EXPLORER_URL': 'https://api.basescan.org/api?module=contract&action=getabi&address=',
-        'DECODER_ABIS_EXPLORER_API_KEY_PATH': 'Vault/prod/block_explorers/base_scan',
+        'DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH': 'Vault/prod/block_explorers/base_scan',
         'MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE': 900,
         'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 450
     } %}
