@@ -33,3 +33,26 @@ selectors:
         - test_type: singular
         - exclude:
             - test_name:*recent*
+
+  - name: main
+    description: "Main GHA scheduled run"
+    definition:
+      method: tag
+      value: main_package
+      exclude:
+        - tag:streamline
+        - tag:github_actions
+        - tag:tests
+        - intersection:
+            - tag:prices
+            - tag:bronze
+        - tag:observability
+
+  - name: send_logs
+    description: "Streamline decoded logs run"
+    definition:
+      union:
+        - intersection:
+            - tag:decoded_logs
+            - tag:streamline
+        - tag:bronze__decoded_logs
