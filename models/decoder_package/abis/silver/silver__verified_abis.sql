@@ -1,7 +1,11 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
+-- depends_on: {{ ref('bronze__contract_abis') }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -38,10 +42,17 @@ WHERE
         SELECT
             COALESCE(MAX(_inserted_timestamp), '1970-01-01')
         FROM
-            {{ this }})
+            {{ this }}
+            )
+        AND {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
+                VALUE :data :message :: STRING = 'OK' 
+            {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
+                VALUE :data :result IS NOT NULL
+            {% else %}
+                VALUE :data :abi IS NOT NULL
+            {% endif %}
         {% else %}
             {{ ref('bronze__contract_abis_fr') }}
-        {% endif %}
         WHERE
             {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
                 VALUE :data :message :: STRING = 'OK' 
@@ -50,6 +61,7 @@ WHERE
             {% else %}
                 VALUE :data :abi IS NOT NULL
             {% endif %}
+        {% endif %}
     ),
     block_explorer_abis AS (
         SELECT
