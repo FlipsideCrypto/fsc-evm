@@ -7,9 +7,10 @@
         'MAIN_SL_BLOCKS_PER_HOUR': 1200,
         'MAIN_PRICES_NATIVE_SYMBOLS': ['GNO','XDAI'],
         'MAIN_PRICES_PROVIDER_PLATFORMS': ['Gnosis','Gnosis Chain'],
-        'DECODER_ABIS_EXPLORER_NAME': 'gnosisscan',
-        'DECODER_ABIS_EXPLORER_URL': 'https://api.gnosisscan.io/api?module=contract&action=getabi&address=',
-        'DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH': 'Vault/prod/block_explorers/gnosis_scan'
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'gnosisscan',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.gnosisscan.io/api?module=contract&action=getabi&address=',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/gnosis_scan',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}

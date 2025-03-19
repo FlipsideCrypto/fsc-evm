@@ -7,9 +7,10 @@
         'MAIN_SL_BLOCKS_PER_HOUR': 1200,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'BNB',
         'MAIN_PRICES_PROVIDER_PLATFORMS': ['BNB','BNB Smart Chain (BEP20)'],
-        'DECODER_ABIS_EXPLORER_NAME': 'bscscan',
-        'DECODER_ABIS_EXPLORER_URL': 'https://api.bscscan.com/api?module=contract&action=getabi&address=',
-        'DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH': 'Vault/prod/block_explorers/bsc_scan'
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'bscscan',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.bscscan.com/api?module=contract&action=getabi&address=',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/bsc_scan',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}

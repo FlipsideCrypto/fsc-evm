@@ -7,8 +7,9 @@
         'MAIN_PRICES_NATIVE_SYMBOLS': 'ETH',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'ethereum',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'bob-network',
-        'DECODER_ABIS_EXPLORER_NAME': 'GoBOB',
-        'DECODER_ABIS_EXPLORER_URL': 'https://explorer-bob-mainnet-0.t.conduit.xyz/api/v2/smart-contracts/'
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'GoBOB',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer-bob-mainnet-0.t.conduit.xyz/api/v2/smart-contracts/',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}

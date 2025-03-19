@@ -6,8 +6,9 @@
         'MAIN_SL_BLOCKS_PER_HOUR': 1800,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'AVAX',
         'MAIN_PRICES_PROVIDER_PLATFORMS': ['Avalanche', 'Avalanche C-Chain'],
-        'DECODER_ABIS_EXPLORER_NAME': 'snowtrace',
-        'DECODER_ABIS_EXPLORER_URL': 'https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api?module=contract&action=getabi&address='
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'snowtrace',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api?module=contract&action=getabi&address=',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}

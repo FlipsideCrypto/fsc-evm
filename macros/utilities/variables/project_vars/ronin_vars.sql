@@ -7,9 +7,10 @@
         'MAIN_SL_BLOCKS_PER_HOUR': 1200,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'RON',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'ronin',
-        'DECODER_ABIS_EXPLORER_NAME': 'RoninChain',
-        'DECODER_ABIS_EXPLORER_URL': 'https://explorer-kintsugi.roninchain.com/v2/2020/contract/',
-        'DECODER_ABIS_EXPLORER_URL_SUFFIX': '/abi',
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'RoninChain',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer-kintsugi.roninchain.com/v2/2020/contract/',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX': '/abi',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_SL_CHAINHEAD_DELAY_MINUTES': 6
     } %}
     

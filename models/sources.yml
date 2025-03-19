@@ -7,8 +7,9 @@ sources:
     tables:
       - name: workflows
   - name: bronze_streamline
-    database: streamline
-    schema: "{{ target.database }}"
+    database: >-
+      {{ 'FSC_EVM_DEV' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else 'FSC_EVM' }}
+    schema: streamline      
     tables:
       - name: blocks
       - name: blocks_v2
@@ -38,6 +39,12 @@ sources:
       - name: beacon_validators_v2
       - name: reads
       - name: reads_v2
+  - name: complete_streamline
+    database: >-
+      {{ 'FSC_EVM_DEV' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else 'FSC_EVM' }}
+    schema: streamline
+    tables:
+      - name: complete_contract_abis
   - name: crosschain_silver
     database: >-
       {{ 'CROSSCHAIN_DEV' if '_DEV' in target.database.upper() else 'CROSSCHAIN' }}

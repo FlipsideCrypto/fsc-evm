@@ -7,8 +7,9 @@
         'MAIN_PRICES_NATIVE_SYMBOLS': 'ETH',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'ethereum',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'Swell',
-        'DECODER_ABIS_EXPLORER_NAME': 'SwellExplorer',
-        'DECODER_ABIS_EXPLORER_URL': 'https://explorer.swellnetwork.io/api/v2/smart-contracts/'
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'SwellExplorer',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer.swellnetwork.io/api/v2/smart-contracts/',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}

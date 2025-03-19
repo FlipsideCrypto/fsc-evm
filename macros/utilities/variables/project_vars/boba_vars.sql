@@ -7,8 +7,9 @@
         'MAIN_PRICES_NATIVE_SYMBOLS': 'ETH',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'ethereum',
         'MAIN_PRICES_PROVIDER_PLATFORMS': ['boba network', 'boba'],
-        'DECODER_ABIS_EXPLORER_NAME': 'routescan',
-        'DECODER_ABIS_EXPLORER_URL': 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan/api?module=contract&action=getabi&address='
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'routescan',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan/api?module=contract&action=getabi&address=',
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}
