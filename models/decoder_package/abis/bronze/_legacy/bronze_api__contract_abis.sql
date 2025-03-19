@@ -38,8 +38,9 @@ AND contract_address NOT IN (
 {% endif %}
 ORDER BY
     total_event_count DESC
-LIMIT
-    {{ vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT }}
+{# LIMIT
+    {{ vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT }} #}
+LIMIT 0 -- currently disabled, remove to enable model
 ), 
 all_contracts AS (
     SELECT
@@ -47,13 +48,13 @@ all_contracts AS (
     FROM
         base
 
-{% if is_incremental() %}
+{# {% if is_incremental() %}
 UNION
 SELECT
     contract_address
 FROM
     {{ ref('_retry_abis') }}
-{% endif %}
+{% endif %} #}
 ),
 row_nos AS (
     SELECT

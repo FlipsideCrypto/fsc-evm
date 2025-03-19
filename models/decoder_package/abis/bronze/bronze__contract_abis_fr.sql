@@ -5,6 +5,8 @@
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
+-- depends_on: {{ ref('bronze_api__contract_abis') }}
+
 {{ config (
     materialized = 'view',
     tags = ['bronze_abis']
