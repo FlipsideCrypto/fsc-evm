@@ -10,13 +10,6 @@
     tags = ['bronze_abis']
 ) }}
 
-{# Main query starts here #}
-WITH streamline_abis AS (
-    {{ streamline_external_table_query_fr(
-        source_name = 'contract_abis',
-        contract_address = true
-    ) }}
-)
 SELECT
     partition_key,
     contract_address,
@@ -26,7 +19,7 @@ SELECT
     file_name,
     _inserted_timestamp
 FROM
-    streamline_abis
+    {{ ref('bronze__contract_abis_fr_v2') }}
 
 {% if vars.DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED %}
 UNION ALL
