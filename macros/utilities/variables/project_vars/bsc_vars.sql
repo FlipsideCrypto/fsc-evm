@@ -2,7 +2,7 @@
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'bsc',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/bsc/quicknode/mainnet',
-        'GLOBAL_NODE_URL': '{service}/{Authentication}'
+        'GLOBAL_NODE_URL': '{service}/{Authentication}',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
         'MAIN_SL_BLOCKS_PER_HOUR': 1200,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'BNB',
