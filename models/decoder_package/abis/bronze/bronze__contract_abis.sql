@@ -10,5 +10,6 @@
 {# Main query starts here #}
 {{ streamline_external_table_query(
     source_name = 'contract_abis',
+    block_number = false,
     contract_address = true
 ) }}

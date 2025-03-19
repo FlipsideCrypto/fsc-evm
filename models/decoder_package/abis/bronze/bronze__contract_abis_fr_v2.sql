@@ -9,6 +9,7 @@
 
 {# Main query starts here #}
 {{ streamline_external_table_query_fr(
-        source_name = 'contract_abis',
-        contract_address = true
+    source_name = 'contract_abis',
+    block_number = false,
+    contract_address = true
 ) }}
