@@ -7,8 +7,7 @@ sources:
     tables:
       - name: workflows
   - name: bronze_streamline
-    database: >-
-      {{ 'FSC_EVM_DEV' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else 'FSC_EVM' }}
+    database: "{{ target.database }}"
     schema: streamline      
     tables:
       - name: blocks
@@ -40,8 +39,7 @@ sources:
       - name: reads
       - name: reads_v2
   - name: complete_streamline
-    database: >-
-      {{ 'FSC_EVM_DEV' if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else 'FSC_EVM' }}
+    database: "{{ target.database }}"
     schema: streamline
     tables:
       - name: complete_contract_abis
