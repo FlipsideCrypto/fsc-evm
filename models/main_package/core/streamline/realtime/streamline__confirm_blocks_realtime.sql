@@ -19,7 +19,7 @@
             "sql_source": 'confirm_blocks_realtime'
         }
     ),
-    tags = ['streamline_core_realtime_confirm_blocks']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

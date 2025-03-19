@@ -19,7 +19,7 @@
             "sql_source": 'confirm_blocks_history'
         }
     ),
-    tags = ['streamline_core_history_confirm_blocks']
+    tags = get_path_tags(model)
 ) }}
 
 {# Main query starts here #}

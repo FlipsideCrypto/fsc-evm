@@ -3,7 +3,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['admin_vars']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT

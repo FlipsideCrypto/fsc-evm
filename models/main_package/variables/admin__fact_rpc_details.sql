@@ -6,7 +6,7 @@
 
 {{ config(
     materialized = 'table',
-    tags = ['rpc_settings']
+    tags = get_path_tags(model)
 ) }}
 
 select 

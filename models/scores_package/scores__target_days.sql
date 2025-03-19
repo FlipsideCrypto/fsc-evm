@@ -6,7 +6,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['scores']
+    tags = get_path_tags(model)
 ) }}
 
 {% if execute %}

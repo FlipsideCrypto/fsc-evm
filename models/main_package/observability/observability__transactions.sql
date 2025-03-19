@@ -8,7 +8,7 @@
     materialized = 'incremental',
     unique_key = 'test_timestamp',
     full_refresh = false,
-    tags = ['observability']
+    tags = get_path_tags(model)
 ) }}
 
 WITH lookback AS (

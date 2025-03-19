@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['recent_test_confirm_blocks']
+    tags = get_path_tags(model)
 ) }}
 
 {%- set default_hours = -24 * 5 -%}

@@ -1,0 +1,106 @@
+selectors:
+
+  - name: chainhead_models
+    description: "Standard chainhead models"
+    definition:
+      union:
+        - intersection:
+            - tag:streamline
+            - tag:complete
+            - exclude:
+                - tag:streamline__receipts_by_hash_complete
+                - tag:streamline__confirm_blocks_complete
+        - intersection:
+            - tag:streamline
+            - tag:realtime
+            - exclude:
+                - tag:streamline__receipts_by_hash_realtime
+                - tag:streamline__confirm_blocks_realtime
+
+  - name: main
+    description: "Main GHA scheduled run"
+    definition:
+      method: tag
+      value: main_package
+      exclude:
+        - tag:streamline
+        - tag:github_actions
+        - tag:tests
+        - intersection:
+            - tag:prices
+            - tag:bronze
+        - tag:observability
+
+  - name: send_logs
+    description: "Streamline decoded logs run"
+    definition:
+      union:
+        - intersection:
+            - tag:decoded_logs
+            - tag:streamline
+        - tag:bronze__decoded_logs
+
+  - name: decoded_logs
+    description: "Update silver and Gold tables with latest decoded logs"
+    definition:
+      union:
+        - tag:decoded_logs
+        - exclude:
+          - tag:streamline
+          - tag:tests
+
+  - name: get_abis
+    description: "ABI models"
+    definition:
+      union:
+        - tag:bronze__contract_abis
+        - tag:bronze__contract_abis_fr
+        - intersection:
+            - tag:abis
+            - tag:streamline
+
+  - name: abis
+    description: "Update abis models"
+    definition:
+      intersection:
+        - tag:decoder_package
+        - tag:abis
+        - exclude:
+            - tag:streamline
+            - tag:bronze
+            - tag:tests
+
+  - name: recent_tests
+    description: "All recent tests"
+    definition:
+      test_name:*recent*
+
+  - name: unique_tests
+    description: "All unique tests"
+    definition:
+      test_name:*unique*
+
+  - name: null_tests
+    description: "All null tests"
+    definition:
+      test_name:*null*
+
+  - name: other_tests
+    description: "Tests that don't match recent, unique, or null patterns"
+    definition:
+      union:
+        - test_type: generic
+        - test_type: singular
+        - exclude:
+            - test_name:*recent*
+            - test_name:*unique*
+            - test_name:*null*
+  
+  - name: non_recent_tests
+    description: "Tests that don't match recent patterns"
+    definition:
+      union:
+        - test_type: generic
+        - test_type: singular
+        - exclude:
+            - test_name:*recent*

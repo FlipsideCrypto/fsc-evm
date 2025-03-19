@@ -7,7 +7,7 @@
     unique_key = "contract_address",
     cluster_by = "_inserted_timestamp::date",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY (contract_address)",
-    tags = ['silver_abis']
+    tags = get_path_tags(model)
 ) }}
 
 WITH abi_base AS (

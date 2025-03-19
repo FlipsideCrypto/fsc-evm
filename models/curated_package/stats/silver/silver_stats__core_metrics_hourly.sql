@@ -7,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_timestamp_hour",
     cluster_by = ['block_timestamp_hour::DATE'],
-    tags = ['curated', 'silver_stats', 'daily_test']
+    tags = get_path_tags(model)
 ) }}
 
 {# run incremental timestamp value first then use it as a static value #}

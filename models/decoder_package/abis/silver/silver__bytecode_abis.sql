@@ -4,7 +4,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
-    tags = ['silver_abis']
+    tags = get_path_tags(model)
 ) }}
 
 WITH contracts_with_abis AS (

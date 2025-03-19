@@ -6,7 +6,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['bronze_labels']
+    tags = get_path_tags(model)
 ) }}
 
 SELECT
