@@ -1,6 +1,6 @@
 {% macro create_sps() %}
     {% if var("UPDATE_UDFS_AND_SPS", false) %}
-        {% set prod_db_name = get_var('GLOBAL_PROJECT_NAME', '') | upper %}
+        {% set prod_db_name = (target.database | replace('_dev', '') | upper) %}
         {% if target.database | upper == prod_db_name and target.name == 'prod' %}
             {% set schema_name = var("SPS_SCHEMA_NAME", '_internal') %}
             {% do run_query("CREATE SCHEMA IF NOT EXISTS " ~ schema_name) %}
