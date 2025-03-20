@@ -68,6 +68,8 @@ SELECT
     utils.udf_hex_to_int(
         block_json :blobGasUsed :: STRING
     ) :: bigint AS blob_gas_used,
+    {% endif %}
+    {% if rpc_vars.excessBlobGas %}
     utils.udf_hex_to_int(
         block_json :excessBlobGas :: STRING
     ) :: bigint AS excess_blob_gas,
@@ -77,6 +79,8 @@ SELECT
     {% endif %}
     {% if rpc_vars.withdrawals %}
     block_json :withdrawals AS withdrawals,
+    {% endif %}
+    {% if rpc_vars.withdrawalsRoot %}
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
