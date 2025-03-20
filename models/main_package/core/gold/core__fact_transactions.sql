@@ -271,7 +271,7 @@ WHERE
                 ),
                 18
             ) AS tx_fee_precise,
-            {% elif vars.GLOBAL_PROJECT_NAME = 'arbitrum' %}
+            {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             utils.udf_decimal_adjust(
                 effective_gas_price * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
@@ -442,7 +442,7 @@ missing_data AS (
         {% if rpc_vars.l1BlobBaseFeeScalar %}
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
         {% endif %}
-        {% if vars.GLOBAL_PROJECT_NAME = 'arbitrum' %}
+        {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
         t.gas_price_bid as gas_price, 
         {% else %}
         t.gas_price,
@@ -472,7 +472,7 @@ missing_data AS (
             ),
             18
         ) AS tx_fee_precise_heal,
-        {% elif vars.GLOBAL_PROJECT_NAME = 'arbitrum' %}
+        {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             utils.udf_decimal_adjust(
                 effective_gas_price_heal * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
@@ -735,7 +735,7 @@ SELECT
     nonce,
     tx_position,
     input_data,
-    {% if vars.GLOBAL_PROJECT_NAME = 'arbitrum' %}
+    {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
     gas_price as gas_price_bid, 
     effective_gas_price as gas_price_paid,
     {% else %}
