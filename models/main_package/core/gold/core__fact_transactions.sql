@@ -176,7 +176,7 @@ WHERE
             {% if rpc_vars.blobGasPrice %}
             utils.udf_hex_to_int(r.receipts_json :blobGasPrice :: STRING) / pow(10, 9) as blob_gas_price,
             {% endif %}
-            {% if rpc_vars.blobGasUsed}
+            {% if rpc_vars.blobGasUsed %}
             utils.udf_hex_to_int(r.receipts_json :blobGasUsed :: STRING) as blob_gas_used,
             {% endif %}
             {% if rpc_vars.l1Fee %}
@@ -376,7 +376,7 @@ missing_data AS (
         {% if rpc_vars.blobGasPrice %}
         utils.udf_hex_to_int(r.receipts_json :blobGasPrice :: STRING) / pow(10, 9) as blob_gas_price_heal,
         {% endif %}
-        {% if rpc_vars.blobGasUsed}
+        {% if rpc_vars.blobGasUsed %}
         utils.udf_hex_to_int(r.receipts_json :blobGasUsed :: STRING) as blob_gas_used_heal,
         {% endif %}
         {% if rpc_vars.l1Fee %}
@@ -559,7 +559,7 @@ all_transactions AS (
         {% if rpc_vars.maxFeePerBlobGas %}
         max_fee_per_blob_gas,   
         {% endif %}
-        {% if rpc_vars.blobGasUsed}
+        {% if rpc_vars.blobGasUsed %}
         blob_gas_used,
         {% endif %}
         {% if rpc_vars.blobGasPrice %}
@@ -655,7 +655,7 @@ SELECT
     {% if rpc_vars.maxFeePerBlobGas %}
     max_fee_per_blob_gas,   
     {% endif %}
-    {% if rpc_vars.blobGasUsed}
+    {% if rpc_vars.blobGasUsed %}
     blob_gas_used_heal AS blob_gas_used,
     {% endif %}
     {% if rpc_vars.blobGasPrice %}
@@ -757,7 +757,7 @@ SELECT
     {% if rpc_vars.maxFeePerBlobGas %}
     max_fee_per_blob_gas,   
     {% endif %}
-    {% if rpc_vars.blobGasUsed}
+    {% if rpc_vars.blobGasUsed %}
     blob_gas_used,
     {% endif %}
     {% if rpc_vars.blobGasPrice %}
@@ -768,7 +768,7 @@ SELECT
     l1_fee_precise_raw,
     l1_fee_precise,
     {% endif %}
-    {% if rpc_vars.l1FeeScalar}
+    {% if rpc_vars.l1FeeScalar %}
     l1_fee_scalar,
     {% endif %}
     {% if rpc_vars.l1GasUsed %}
