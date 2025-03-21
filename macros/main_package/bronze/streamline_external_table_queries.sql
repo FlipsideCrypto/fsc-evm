@@ -4,7 +4,8 @@
         partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
         balances=false,
         block_number=true,
-        tx_hash=false
+        tx_hash=false,
+        contract_address=false
     ) %}
 
     {% if source_version != '' %}
@@ -28,11 +29,11 @@
             b.file_name,
             b._inserted_timestamp
 
-            {% if balances %},
+            {% if balances %}, --for balances
             r.block_timestamp :: TIMESTAMP AS block_timestamp
         {% endif %}
 
-        {% if block_number %},
+        {% if block_number %}, --for streamline 2.0+
             COALESCE(
                 s.value :"BLOCK_NUMBER" :: STRING,
                 s.metadata :request :"data" :id :: STRING,
@@ -41,7 +42,15 @@
                 ) :id :: STRING
             ) :: INT AS block_number
         {% endif %}
-        {% if var.MAIN_SL_RECEIPTS_BY_HASH_ENABLED %},
+
+        {% if contract_address %}, --for contract_abis
+            COALESCE(
+                VALUE :"CONTRACT_ADDRESS",
+                VALUE :"contract_address"
+            ) :: STRING AS contract_address
+        {% endif %}
+
+        {% if tx_hash %}, --for receipts_by_hash
             s.value :"TX_HASH" :: STRING AS tx_hash
         {% endif %}
         FROM
@@ -75,7 +84,8 @@
         partition_join_key='partition_key',
         balances=false,
         block_number=true,
-        tx_hash=false
+        tx_hash=false,
+        contract_address=false
     ) %}
 
     {% if source_version != '' %}
@@ -99,11 +109,11 @@ SELECT
     b.file_name,
     b._inserted_timestamp
 
-    {% if balances %},
+    {% if balances %}, --for balances
     r.block_timestamp :: TIMESTAMP AS block_timestamp
 {% endif %}
 
-{% if block_number %},
+{% if block_number %}, --for streamline 2.0+
     COALESCE(
         s.value :"BLOCK_NUMBER" :: STRING,
         s.value :"block_number" :: STRING,
@@ -113,7 +123,15 @@ SELECT
         ) :id :: STRING
     ) :: INT AS block_number
 {% endif %}
-{% if tx_hash %},
+
+{% if contract_address %}, --for contract_abis
+    COALESCE(
+        VALUE :"CONTRACT_ADDRESS",
+        VALUE :"contract_address"
+    ) :: STRING AS contract_address
+{% endif %}
+
+{% if tx_hash %}, --for receipts_by_hash
     s.value :"TX_HASH" :: STRING AS tx_hash
 {% endif %}
 FROM

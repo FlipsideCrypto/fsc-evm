@@ -7,8 +7,8 @@ sources:
     tables:
       - name: workflows
   - name: bronze_streamline
-    database: streamline
-    schema: "{{ target.database }}"
+    database: "{{ target.database }}"
+    schema: streamline      
     tables:
       - name: blocks
       - name: blocks_v2
@@ -38,6 +38,11 @@ sources:
       - name: beacon_validators_v2
       - name: reads
       - name: reads_v2
+  - name: complete_streamline
+    database: "{{ target.database }}"
+    schema: streamline
+    tables:
+      - name: complete_contract_abis
   - name: crosschain_silver
     database: >-
       {{ 'CROSSCHAIN_DEV' if '_DEV' in target.database.upper() else 'CROSSCHAIN' }}
@@ -50,11 +55,6 @@ sources:
       - name: complete_provider_prices
       - name: complete_token_asset_metadata
       - name: complete_token_prices
-  - name: bronze_api
-    database: "{{ target.database }}"
-    schema: bronze_api
-    tables:
-      - name: contract_abis
   - name: crosschain_public
     database: crosschain
     schema: bronze_public
@@ -81,9 +81,4 @@ sources:
     schema: admin
     tables:
       - name: _master_keys
-  - name: fsc_evm_admin
-    database: >-
-      {{ 'FSC_EVM_DEV' if '_DEV' in target.database.upper() else 'FSC_EVM' }}
-    schema: admin
-    tables:
       - name: rpc_node_logs

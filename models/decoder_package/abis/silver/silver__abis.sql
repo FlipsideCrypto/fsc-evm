@@ -24,7 +24,7 @@ WITH verified_abis AS (
     FROM
         {{ ref('silver__verified_abis') }}
     WHERE
-        abi_source = lower('{{ vars.DECODER_ABIS_EXPLORER_NAME }}')
+        abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -38,7 +38,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = lower('{{ vars.DECODER_ABIS_EXPLORER_NAME }}')
+        abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 )
 {% endif %}
 ),

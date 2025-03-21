@@ -4,6 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('bronze__contract_abis') }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -16,105 +18,109 @@ WITH base AS (
 
     SELECT
         contract_address,
-        {% if uses_etherscan %}
+        {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
             PARSE_JSON(
-                abi_data :data :result
+                VALUE :data :result
             ) AS DATA,
-        {% elif uses_result_output_abi %}
+        {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
             PARSE_JSON(
-                abi_data :data :result :output :abi
+                VALUE :data :result :output :abi
             ) AS DATA,
         {% else %}
             PARSE_JSON(
-                abi_data :data :abi
+                VALUE :data :abi
             ) AS DATA,
-        {% endif %}
-        _inserted_timestamp
-    FROM
-        {{ source(
-            'bronze_api',
-            'contract_abis'
-        ) }}
-    WHERE
-        {% if vars.DECODER_ABIS_ETHERSCAN_ENABLED %}
-            abi_data :data :message :: STRING = 'OK'
-        {% elif vars.DECODER_ABIS_RESULT_OUTPUT_ABI_ENABLED %}
-            abi_data :data :result IS NOT NULL
-        {% else %}
-            abi_data :data :abi IS NOT NULL
         {% endif %}
 
+        _inserted_timestamp
+    FROM
+
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
-    SELECT
-        MAX(_inserted_timestamp)
-    FROM
-        {{ this }}
-)
-{% endif %}
-),
-block_explorer_abis AS (
-    SELECT
-        contract_address,
-        DATA,
-        _inserted_timestamp,
-        lower('{{ vars.DECODER_ABIS_EXPLORER_NAME }}') AS abi_source
-    FROM
-        base
-),
-user_abis AS (
-    SELECT
-        contract_address,
-        abi,
-        discord_username,
-        _inserted_timestamp,
-        'user' AS abi_source,
-        abi_hash
-    FROM
-        {{ ref('silver__user_verified_abis') }}
+{{ ref('bronze__contract_abis') }}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01')
+        FROM
+            {{ this }}
+            )
+        AND {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
+                VALUE :data :message :: STRING = 'OK' 
+            {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
+                VALUE :data :result IS NOT NULL
+            {% else %}
+                VALUE :data :abi IS NOT NULL
+            {% endif %}
+        {% else %}
+            {{ ref('bronze__contract_abis_fr') }}
+        WHERE
+            {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
+                VALUE :data :message :: STRING = 'OK' 
+            {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
+                VALUE :data :result IS NOT NULL
+            {% else %}
+                VALUE :data :abi IS NOT NULL
+            {% endif %}
+        {% endif %}
+    ),
+    block_explorer_abis AS (
+        SELECT
+            contract_address,
+            DATA,
+            _inserted_timestamp,
+            LOWER('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}') AS abi_source
+        FROM
+            base
+    ),
+    user_abis AS (
+        SELECT
+            contract_address,
+            abi,
+            discord_username,
+            _inserted_timestamp,
+            'user' AS abi_source,
+            abi_hash
+        FROM
+            {{ ref('silver__user_verified_abis') }}
 
 {% if is_incremental() %}
 WHERE
     _inserted_timestamp >= (
         SELECT
-            COALESCE(
-                MAX(_inserted_timestamp),
-                '1970-01-01'
-            )
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01')
         FROM
             {{ this }}
         WHERE
-            abi_source = 'user'
-    )
-    AND contract_address NOT IN (
+            abi_source = 'user')
+            AND contract_address NOT IN (
+                SELECT
+                    contract_address
+                FROM
+                    {{ this }}
+            )
+        {% endif %}
+    ),
+    all_abis AS (
         SELECT
-            contract_address
+            contract_address,
+            DATA,
+            _inserted_timestamp,
+            abi_source,
+            NULL AS discord_username,
+            SHA2(DATA) AS abi_hash
         FROM
-            {{ this }}
+            block_explorer_abis
+        UNION
+        SELECT
+            contract_address,
+            PARSE_JSON(abi) AS DATA,
+            _inserted_timestamp,
+            'user' AS abi_source,
+            discord_username,
+            abi_hash
+        FROM
+            user_abis
     )
-{% endif %}
-),
-all_abis AS (
-    SELECT
-        contract_address,
-        DATA,
-        _inserted_timestamp,
-        abi_source,
-        NULL AS discord_username,
-        SHA2(DATA) AS abi_hash
-    FROM
-        block_explorer_abis
-    UNION
-    SELECT
-        contract_address,
-        PARSE_JSON(abi) AS DATA,
-        _inserted_timestamp,
-        'user' AS abi_source,
-        discord_username,
-        abi_hash
-    FROM
-        user_abis
-)
 SELECT
     contract_address,
     DATA,
@@ -123,8 +129,6 @@ SELECT
     discord_username,
     abi_hash
 FROM
-    all_abis
-
-qualify(ROW_NUMBER() over(PARTITION BY contract_address
+    all_abis qualify(ROW_NUMBER() over(PARTITION BY contract_address
 ORDER BY
     _INSERTED_TIMESTAMP DESC)) = 1

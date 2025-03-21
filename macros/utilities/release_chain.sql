@@ -1,6 +1,6 @@
 {% macro release_chain(schema_name, role_name) %}
 
-{% set prod_db_name = get_var('GLOBAL_PROJECT_NAME', '') | upper %}
+{% set prod_db_name = (target.database | replace('_dev', '') | upper) %}
 
     {% if target.database | upper == prod_db_name and target.name == 'prod' %}
         {% do run_query("GRANT USAGE ON DATABASE " ~ prod_db_name ~ " TO ROLE " ~ role_name ~ ";") %}

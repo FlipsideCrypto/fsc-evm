@@ -11,7 +11,7 @@
     unique_key = "contract_address",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
     full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
-    tags = ['bronze_abis']
+    tags = ['stale']
 ) }}
 
 WITH base AS (
@@ -23,7 +23,7 @@ WITH base AS (
         {{ ref('silver__relevant_contracts') }}
     WHERE
         1 = 1
-        AND total_interaction_count > {{ vars.DECODER_ABIS_EXPLORER_INTERACTION_LIMIT }}
+        AND total_interaction_count > {{ vars.DECODER_SL_CONTRACT_ABIS_INTERACTION_COUNT }}
 
 {% if is_incremental() %}
 AND contract_address NOT IN (
@@ -39,7 +39,7 @@ AND contract_address NOT IN (
 ORDER BY
     total_event_count DESC
 LIMIT
-    {{ vars.DECODER_ABIS_EXPLORER_LIMIT }}
+    {{ vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT }}
 ), 
 all_contracts AS (
     SELECT
@@ -67,19 +67,19 @@ row_nos AS (
 ),
 batched AS (
     {% for item in range(
-            vars.DECODER_ABIS_EXPLORER_LIMIT * 2
+            vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT * 2
         ) %}
     SELECT
         rn.contract_address,
         live.udf_api('GET',
             CONCAT(
-                '{{ vars.DECODER_ABIS_EXPLORER_URL }}',
+                '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL }}',
                 rn.contract_address
-                {% if vars.DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH != '' %}
+                {% if vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH != '' %}
                 ,'&apikey={key}'
                 {% endif %}
-                {% if vars.DECODER_ABIS_EXPLORER_URL_SUFFIX != '' %}
-                ,'{{ vars.DECODER_ABIS_EXPLORER_URL_SUFFIX }}'
+                {% if vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX != '' %}
+                ,'{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX }}'
                 {% endif %}
             ),
             OBJECT_CONSTRUCT(
@@ -87,7 +87,7 @@ batched AS (
             'fsc-quantum-state', 'livequery'
             ),
             NULL,
-            '{{ vars.DECODER_ABIS_EXPLORER_API_KEY_VAULT_PATH }}'
+            '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH }}'
         ) AS abi_data
     FROM
         row_nos rn

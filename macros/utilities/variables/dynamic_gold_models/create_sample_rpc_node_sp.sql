@@ -35,7 +35,8 @@
                 NETWORK STRING DEFAULT 'mainnet',
                 RANDOM_BLOCK_SAMPLE_SIZE NUMBER DEFAULT 50,
                 VAULT_PATH_OVERRIDE STRING DEFAULT NULL,
-                NODE_URL_OVERRIDE STRING DEFAULT NULL
+                NODE_URL_OVERRIDE STRING DEFAULT NULL,
+                EXCLUDE_TRACES BOOLEAN DEFAULT FALSE
             )
             RETURNS VARIANT
             LANGUAGE SQL
@@ -146,24 +147,27 @@
                     sample_traces AS (
                         SELECT 
                             random_num as block_number,
-                            live.udf_api(
-                                'POST',
-                                node_url,
-                                OBJECT_CONSTRUCT(
-                                    'Content-Type', 'application/json',
-                                    'fsc-quantum-state', 'LiveQuery'
-                                ),
-                                OBJECT_CONSTRUCT(
-                                    'id', random_num,
-                                    'jsonrpc', '2.0',
-                                    'method', 'debug_traceBlockByNumber',
-                                    'params', ARRAY_CONSTRUCT(
-                                        utils.udf_int_to_hex(random_num),
-                                        OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s')
-                                    )
-                                ),
-                                vault_path
-                            ):data:result as response
+                            IFF(NOT :EXCLUDE_TRACES,
+                                live.udf_api(
+                                    'POST',
+                                    node_url,
+                                    OBJECT_CONSTRUCT(
+                                        'Content-Type', 'application/json',
+                                        'fsc-quantum-state', 'LiveQuery'
+                                    ),
+                                    OBJECT_CONSTRUCT(
+                                        'id', random_num,
+                                        'jsonrpc', '2.0',
+                                        'method', 'debug_traceBlockByNumber',
+                                        'params', ARRAY_CONSTRUCT(
+                                            utils.udf_int_to_hex(random_num),
+                                            OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s')
+                                        )
+                                    ),
+                                    vault_path
+                                ):data:result,
+                                NULL
+                            ) as response
                         FROM random_numbers
                         JOIN node_provider_details ON 1=1
                     ),
@@ -342,9 +346,9 @@
             {% do run_query(sp_compatibility_check_sql) %}
             {% set permissions_sql %}
                 grant usage on schema admin to internal_dev;
-                grant usage on procedure admin.sample_rpc_node to role internal_dev;
+                grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean) to role internal_dev;
                 grant usage on schema admin to dbt_cloud_fsc_evm;
-                grant usage on procedure admin.sample_rpc_node to role dbt_cloud_fsc_evm;
+                grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean) to role dbt_cloud_fsc_evm;
             {% endset %}
 
             {% do run_query(permissions_sql) %}
