@@ -147,7 +147,6 @@
                     sample_traces AS (
                         SELECT 
                             random_num as block_number,
-<<<<<<< HEAD
                             IFF(NOT :EXCLUDE_TRACES,
                                 live.udf_api(
                                     'POST',
@@ -169,26 +168,6 @@
                                 ):data:result,
                                 NULL
                             ) as response
-=======
-                            live.udf_api(
-                                'POST',
-                                node_url,
-                                OBJECT_CONSTRUCT(
-                                    'Content-Type', 'application/json',
-                                    'fsc-quantum-state', 'LiveQuery'
-                                ),
-                                OBJECT_CONSTRUCT(
-                                    'id', random_num,
-                                    'jsonrpc', '2.0',
-                                    'method', 'debug_traceBlockByNumber',
-                                    'params', ARRAY_CONSTRUCT(
-                                        utils.udf_int_to_hex(random_num),
-                                        OBJECT_CONSTRUCT('tracer', 'callTracer', 'timeout', '120s')
-                                    )
-                                ),
-                                vault_path
-                            ):data:result as response
->>>>>>> 298235c494090054725fe128a334b8044a58c701
                         FROM random_numbers
                         JOIN node_provider_details ON 1=1
                     ),
@@ -367,15 +346,9 @@
             {% do run_query(sp_compatibility_check_sql) %}
             {% set permissions_sql %}
                 grant usage on schema admin to internal_dev;
-<<<<<<< HEAD
                 grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean) to role internal_dev;
                 grant usage on schema admin to dbt_cloud_fsc_evm;
                 grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean) to role dbt_cloud_fsc_evm;
-=======
-                grant usage on procedure admin.sample_rpc_node to role internal_dev;
-                grant usage on schema admin to dbt_cloud_fsc_evm;
-                grant usage on procedure admin.sample_rpc_node to role dbt_cloud_fsc_evm;
->>>>>>> 298235c494090054725fe128a334b8044a58c701
             {% endset %}
 
             {% do run_query(permissions_sql) %}
