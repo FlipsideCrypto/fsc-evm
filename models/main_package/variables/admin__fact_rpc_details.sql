@@ -24,4 +24,5 @@ from
         "rpc_node_logs"
     ) }}
 where lower(blockchain) = lower('{{ vars.GLOBAL_PROJECT_NAME }}')
-qualify row_number() over (partition by blockchain order by rpc_sampled_at desc) = 1
+and lower(network) = lower('{{ vars.GLOBAL_NETWORK }}')
+qualify row_number() over (partition by blockchain, network order by rpc_sampled_at desc) = 1
