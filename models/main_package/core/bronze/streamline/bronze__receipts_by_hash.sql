@@ -12,6 +12,6 @@
 
 {# Main query starts here #}
 {{ streamline_external_table_query(
-    source_name = 'receipts_by_hash',
+    source_name = vars.MAIN_SL_BRONZE_RECEIPTS_BY_HASH_SOURCE_NAME,
     tx_hash = vars.MAIN_SL_RECEIPTS_BY_HASH_ENABLED
 ) }}

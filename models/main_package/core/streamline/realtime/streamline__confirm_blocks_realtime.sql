@@ -11,12 +11,12 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
-            "external_table": 'confirm_blocks',
+            "external_table": vars.MAIN_SL_CONFIRM_BLOCKS_EXTERNAL_TABLE,
             "sql_limit": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_SQL_LIMIT,
             "producer_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_PRODUCER_BATCH_SIZE,
             "worker_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_CONFIRM_BLOCKS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
-            "sql_source": 'confirm_blocks_realtime'
+            "sql_source": "{{this.identifier}}"
         }
     ),
     tags = ['streamline_core_realtime_confirm_blocks']

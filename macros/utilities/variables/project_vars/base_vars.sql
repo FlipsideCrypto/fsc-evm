@@ -12,8 +12,7 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/base_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE': 900,
-        'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 450,
-        'MAIN_CORE_SCHEMA_NAME': 'testnet'
+        'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 450
     } %}
     
     {{ return(vars) }}
