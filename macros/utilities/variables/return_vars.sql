@@ -22,6 +22,8 @@
   {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
   
   {# Core Variables #}
+  {% set ns.MAIN_CORE_SCHEMA_NAME = get_var('MAIN_CORE_SCHEMA_NAME', none) %}
+  
   {% set ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
 
   {% set ns.MAIN_CORE_TRACES_ARB_MODE = ns.GLOBAL_PROJECT_NAME.upper() == 'ARBITRUM' %}

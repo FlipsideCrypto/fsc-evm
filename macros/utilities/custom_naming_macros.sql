@@ -3,8 +3,8 @@
     {% set node_name = node.name %}
     {% set split_name = node_name.split('__') %}
     
-    {% if split_name[0] == 'core' and vars.GOLD_CORE_SCHEMA_NAME is not none %}
-        {{ vars.GOLD_CORE_SCHEMA_NAME | trim }}
+    {% if split_name[0] == 'core' and vars.MAIN_CORE_SCHEMA_NAME is not none %}
+        {{ vars.MAIN_CORE_SCHEMA_NAME | trim }}
     {% else %}
         {{ split_name[0] | trim }}
     {% endif %}
