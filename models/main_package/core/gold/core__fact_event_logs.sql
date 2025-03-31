@@ -18,7 +18,7 @@ WITH base AS (
 
     SELECT
         block_number,
-        {% if uses_receipts_by_hash %}
+        {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
             tx_hash,
         {% else %}
             receipts_json :transactionHash :: STRING AS tx_hash,
