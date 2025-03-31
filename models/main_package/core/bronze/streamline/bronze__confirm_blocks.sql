@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -9,5 +12,5 @@
 
 {# Main query starts here #}
 {{ streamline_external_table_query(
-    source_name = 'confirm_blocks'
+    source_name = vars.MAIN_SL_BRONZE_CONFIRM_BLOCKS_SOURCE_NAME
 ) }}

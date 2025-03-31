@@ -12,16 +12,22 @@ sources:
     tables:
       - name: blocks
       - name: blocks_v2
+      - name: testnet_blocks
       - name: transactions
       - name: transactions_v2
+      - name: testnet_transactions
       - name: receipts_by_hash
+      - name: testnet_receipts_by_hash
       - name: receipts
       - name: receipts_v2
+      - name: testnet_receipts
       - name: traces
       - name: traces_v2
+      - name: testnet_traces
       - name: debug_traceblockbynumber
       - name: confirm_blocks
       - name: confirm_blocks_v2
+      - name: testnet_confirm_blocks
       - name: decoded_logs
       - name: decoded_logs_v2
       - name: decoded_traces

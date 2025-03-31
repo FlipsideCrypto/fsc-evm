@@ -11,12 +11,12 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params = {
-            "external_table": 'blocks_transactions',
+            "external_table": vars.MAIN_SL_BLOCKS_TRANSACTIONS_EXTERNAL_TABLE,
             "sql_limit": vars.MAIN_SL_BLOCKS_TRANSACTIONS_HISTORY_SQL_LIMIT,
             "producer_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_HISTORY_PRODUCER_BATCH_SIZE,
             "worker_batch_size": vars.MAIN_SL_BLOCKS_TRANSACTIONS_HISTORY_WORKER_BATCH_SIZE,
             "async_concurrent_requests": vars.MAIN_SL_BLOCKS_TRANSACTIONS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-            "sql_source": 'blocks_transactions_history',
+            "sql_source": "{{this.identifier}}",
             "exploded_key": tojson(['result', 'result.transactions'])
         }
     ),
