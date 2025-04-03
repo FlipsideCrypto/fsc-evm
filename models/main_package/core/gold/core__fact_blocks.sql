@@ -47,6 +47,16 @@ SELECT
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
     {% endif %}
+    {% if rpc_vars.blobGasUsed %}
+    utils.udf_hex_to_int(
+        block_json :blobGasUsed :: STRING
+    ) :: bigint AS blob_gas_used,
+    {% endif %}
+    {% if rpc_vars.excessBlobGas %}
+    utils.udf_hex_to_int(
+        block_json :excessBlobGas :: STRING
+    ) :: bigint AS excess_blob_gas,
+    {% endif %}
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
@@ -64,16 +74,6 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if rpc_vars.blobGasUsed %}
-    utils.udf_hex_to_int(
-        block_json :blobGasUsed :: STRING
-    ) :: bigint AS blob_gas_used,
-    {% endif %}
-    {% if rpc_vars.excessBlobGas %}
-    utils.udf_hex_to_int(
-        block_json :excessBlobGas :: STRING
-    ) :: bigint AS excess_blob_gas,
-    {% endif %}
     {% if rpc_vars.parentBeaconBlockRoot %}
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
     {% endif %}
