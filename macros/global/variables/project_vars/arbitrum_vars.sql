@@ -13,6 +13,6 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/arbitrum_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
     } %}
-
+    
     {{ return(vars) }}
 {% endmacro %} 
