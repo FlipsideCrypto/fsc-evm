@@ -9,4 +9,4 @@
     tags = ['gha_tasks']
 ) }}
 
-{{ generate_workflow_schedules(vars.MAIN_GHA_CHAINHEAD_SCHEDULE) }}
+{{ generate_workflow_schedules(vars.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON) }}

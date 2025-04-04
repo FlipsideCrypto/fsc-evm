@@ -1,5 +1,8 @@
 {% macro generate_workflow_schedules(chainhead_schedule) %}
 
+{# Get all variables from return_vars #}
+{% set vars = return_vars() %}
+
 {# Parse chainhead schedule #}
 {% set chainhead_components = chainhead_schedule.split(' ') %}
 {% set chainhead_minutes = chainhead_components[0] %}
@@ -45,6 +48,17 @@
 {# Generate all workflow schedules #}
 {% for workflow in workflow_definitions %}
 
+{# Extract workflow name to create variable name for override #}
+{% set workflow_name = workflow.name %}
+{% if workflow_name.startswith('dbt_run') %}
+    {% set workflow_name = workflow_name[8:] %}
+{% elif workflow_name.startswith('dbt_test') %}
+    {% set workflow_name = workflow_name[4:] %}
+{% endif %}
+
+{# Create variable name for override functionality, which matches variable names set in return_vars() #}
+{% set override_cron_var = 'MAIN_GHA_' + workflow_name.upper() + '_CRON' %}
+
 {# Helper variables for template replacement #}
 {% set template = schedule_templates[workflow.cadence] %}
 {% set minute_val = root_offset[workflow.root_offset] %}
@@ -56,8 +70,9 @@
         {% if workflow.cadence == 'root' %}
             '{{ workflow.root_schedule }}'
         {% else %}
-            
-            {% if workflow.cadence == 'hourly' or workflow.cadence == 'every_4_hours' %}
+            {% if vars[override_cron_var] is defined and vars[override_cron_var] is not none %}
+                '{{ vars[override_cron_var] }}'
+            {% elif workflow.cadence == 'hourly' or workflow.cadence == 'every_4_hours' %}
                 '{{ template.replace("{minute}", minute_val) }}'
             {% elif workflow.cadence == 'daily' or workflow.cadence == 'monthly' %}
                 '{{ template.replace("{minute}", minute_val).replace("{hour}", hour_val | string) }}'

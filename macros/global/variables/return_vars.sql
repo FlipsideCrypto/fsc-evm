@@ -22,7 +22,18 @@
   {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
 
   {# GHA Workflow Variables #}
-  {% set ns.MAIN_GHA_CHAINHEAD_SCHEDULE = get_var('MAIN_GHA_CHAINHEAD_SCHEDULE', '0,30 * * * *') %}
+  {% set ns.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON = get_var('MAIN_GHA_STREAMLINE_CHAINHEAD_CRON', '0,30 * * * *') %}
+  {% set ns.MAIN_GHA_SCHEDULED_MAIN_CRON = get_var('MAIN_GHA_SCHEDULED_MAIN_CRON', none) %}
+  {% set ns.MAIN_GHA_SCHEDULED_CURATED_CRON = get_var('MAIN_GHA_SCHEDULED_CURATED_CRON', none) %}
+  {% set ns.MAIN_GHA_SCHEDULED_ABIS_CRON = get_var('MAIN_GHA_SCHEDULED_ABIS_CRON', none) %}
+  {% set ns.MAIN_GHA_SCHEDULED_SCORES_CRON = get_var('MAIN_GHA_SCHEDULED_SCORES_CRON', none) %}
+  {% set ns.MAIN_GHA_TEST_DAILY_CRON = get_var('MAIN_GHA_TEST_DAILY_CRON', none) %}
+  {% set ns.MAIN_GHA_TEST_INTRADAY_CRON = get_var('MAIN_GHA_TEST_INTRADAY_CRON', none) %}
+  {% set ns.MAIN_GHA_TEST_MONTHLY_CRON = get_var('MAIN_GHA_TEST_MONTHLY_CRON', none) %}
+  {% set ns.MAIN_GHA_HEAL_MODELS_CRON = get_var('MAIN_GHA_HEAL_MODELS_CRON', none) %}
+  {% set ns.MAIN_GHA_FULL_OBSERVABILITY_CRON = get_var('MAIN_GHA_FULL_OBSERVABILITY_CRON', none) %}
+  {% set ns.MAIN_GHA_DEV_REFRESH_CRON = get_var('MAIN_GHA_DEV_REFRESH_CRON', none) %}
+  {% set ns.MAIN_GHA_STREAMLINE_DECODER_HISTORY_CRON = get_var('MAIN_GHA_STREAMLINE_DECODER_HISTORY_CRON', none) %}
   
   {# Core Variables #}
   {% set ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}
