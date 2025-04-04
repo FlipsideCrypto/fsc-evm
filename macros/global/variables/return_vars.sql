@@ -20,6 +20,9 @@
   {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_GOLD_FR_ENABLED = none if get_var('GLOBAL_GOLD_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
+
+  {# GHA Workflow Variables #}
+  {% set ns.MAIN_GHA_CHAINHEAD_SCHEDULE = get_var('MAIN_GHA_CHAINHEAD_SCHEDULE', '0,30 * * * *') %}
   
   {# Core Variables #}
   {% set ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED = get_var('MAIN_CORE_RECEIPTS_BY_HASH_ENABLED', false) %}

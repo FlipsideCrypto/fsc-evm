@@ -7,10 +7,10 @@ on:
         required: false
         type: string
         default: DBT_CLOUD
-      environment:
+      target:
         required: false
         type: string
-        default: workflow_prod
+        default: prod
       command_name:
         required: true
         type: string
@@ -31,7 +31,7 @@ jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ inputs.environment }}
+      name: workflow_secrets
 
     steps:
       - uses: actions/checkout@v3
@@ -54,11 +54,11 @@ jobs:
           echo "USER=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV  
           echo "PASSWORD=${{ secrets.PASSWORD }}" >> $GITHUB_ENV
           
-          if [[ "${{ inputs.environment }}" == *"prod"* ]]; then
+          if [[ "${{ inputs.target }}" == *"prod"* ]]; then
             echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
             echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
             echo "WAREHOUSE=DBT_CLOUD" >> $GITHUB_ENV
-          elif [[ "${{ inputs.environment }}" == *"test"* ]]; then
+          elif [[ "${{ inputs.target }}" == *"test"* ]]; then
             echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
             echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
             echo "WAREHOUSE=DBT_TEST" >> $GITHUB_ENV

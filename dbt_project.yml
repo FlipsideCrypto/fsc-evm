@@ -37,6 +37,8 @@ models:
     main_package: # Only enable models that are required to run in the fsc_evm environment
       variables:
         +enabled: true
+      github_actions:
+        +enabled: true
 
 vars:
   "dbt_date:time_zone": GMT

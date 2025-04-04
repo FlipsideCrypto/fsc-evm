@@ -7,7 +7,7 @@ jobs:
   run_dbt_jobs_refresh:
     runs-on: ubuntu-latest
     environment:
-      name: workflow_prod
+      name: workflow_secrets
 
     steps:
       - uses: actions/checkout@v3
