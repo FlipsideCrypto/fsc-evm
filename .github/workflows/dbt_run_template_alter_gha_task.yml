@@ -13,7 +13,6 @@ on:
         required: true
       target:
         type: string
-        description: 'Target environment to run the workflow in'
         required: false
         default: prod
 
