@@ -1,4 +1,4 @@
-name: dbt_alter_gha_tasks
+name: dbt_run_template_alter_gha_task
 
 on:
   workflow_call:
@@ -38,6 +38,7 @@ jobs:
       
       - name: Set environment variables
         run: |
+          echo "TARGET=${{ inputs.target }}" >> $GITHUB_ENV
           echo "ACCOUNT=vna27887.us-east-1" >> $GITHUB_ENV
           echo "REGION=us-east-1" >> $GITHUB_ENV
           echo "SCHEMA=ADMIN" >> $GITHUB_ENV
