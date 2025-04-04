@@ -24,6 +24,7 @@ jobs:
       
       - name: Set production environment variables
         run: |
+          echo "TARGET=prod" >> $GITHUB_ENV
           echo "ACCOUNT=vna27887.us-east-1" >> $GITHUB_ENV
           echo "REGION=us-east-1" >> $GITHUB_ENV
           echo "SCHEMA=ADMIN" >> $GITHUB_ENV
@@ -68,6 +69,7 @@ jobs:
       
       - name: Set dev environment variables
         run: |
+          echo "TARGET=dev" >> $GITHUB_ENV
           echo "ACCOUNT=vna27887.us-east-1" >> $GITHUB_ENV
           echo "REGION=us-east-1" >> $GITHUB_ENV
           echo "SCHEMA=ADMIN" >> $GITHUB_ENV
