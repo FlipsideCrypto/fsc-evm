@@ -6,4 +6,4 @@
     tags = ['gha_tasks']
 ) }}
 
-{{ fsc_utils.gha_task_performance_view() }}
+{{ gha_task_performance_view() }}
