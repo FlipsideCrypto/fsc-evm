@@ -1,32 +1,21 @@
-name: dbt_run_template
+name: dbt_alter_gha_tasks
 
 on:
   workflow_call:
     inputs:
-      warehouse:
-        required: false
+      workflow_name:
         type: string
-        default: DBT_CLOUD
+        description: 'Name of the workflow to perform the action on, no .yml extension'
+        required: true
+      task_action:
+        type: string
+        description: 'Action to perform'
+        required: true
       environment:
-        required: false
         type: string
-        default: workflow_prod
-      command_name:
+        description: 'Environment to run the workflow in'
         required: true
-        type: string
-        default: Run DBT Command
-      command:
-        required: true
-        type: string
-      command_name_2:
-        required: false
-        type: string
-        default: Run DBT Command 2 (if enabled)
-      command_2:
-        required: false
-        type: string
-        default: ""
-          
+
 jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
@@ -65,7 +54,7 @@ jobs:
           else
             echo "DATABASE=${PROFILE_NAME}_DEV" >> $GITHUB_ENV
             echo "ROLE=INTERNAL_DEV" >> $GITHUB_ENV
-            echo "WAREHOUSE=${{ inputs.warehouse }}" >> $GITHUB_ENV
+            echo "WAREHOUSE=DBT_CLOUD" >> $GITHUB_ENV
           fi
           
       - uses: actions/setup-python@v4
@@ -77,12 +66,10 @@ jobs:
         run: |
           pip install -r requirements.txt
           dbt deps
-      
-      - name: ${{inputs.command_name}}
-        run: |
-          ${{ inputs.command }}
 
-      - name: ${{inputs.command_name_2}}
-        if: "${{ inputs.command_2 != '' }}"
+      - name: Set up workflow name
+        run: echo "WORKFLOW_NAME_UPPER=$(echo '${{ inputs.workflow_name }}' | tr '[:lower:]' '[:upper:]')" >> $GITHUB_ENV
+
+      - name: Run DBT Jobs
         run: |
-          ${{ inputs.command_2 }}
+          dbt run-operation fsc_utils.alter_gha_task --args '{ "task_name": "TRIGGER_${{ env.WORKFLOW_NAME_UPPER }}", "task_action": "${{ inputs.task_action }}" }'
