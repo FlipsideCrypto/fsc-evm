@@ -9,7 +9,7 @@
     incremental_strategy = 'merge',
     unique_key = ['ticker_id','hour'],
     cluster_by = ['HOUR::DATE'],
-    tags = 'curated'
+    tags = ['silver','curated','vertex']
 ) }}
 
 

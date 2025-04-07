@@ -8,7 +8,7 @@
     materialized = 'incremental',
     unique_key = 'test_timestamp',
     full_refresh = false,
-    tags = ['observability']
+    tags = ['silver','observability']
 ) }}
 
 WITH lookback AS (

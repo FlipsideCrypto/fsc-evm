@@ -6,7 +6,7 @@
 
 {{ config(
     materialized = 'table',
-    tags = ['gha_tasks']
+    tags = ['silver','github_actions','gha_tasks']
 ) }}
 
 {{ generate_workflow_schedules(vars.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON) }}

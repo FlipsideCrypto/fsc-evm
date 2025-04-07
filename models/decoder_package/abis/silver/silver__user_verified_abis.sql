@@ -7,7 +7,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "id",
-    tags = ['silver_abis']
+    tags = ['silver','abis']
 ) }}
 
 WITH base AS (

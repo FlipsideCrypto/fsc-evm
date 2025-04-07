@@ -19,7 +19,7 @@
             "sql_source": 'confirm_blocks_history'
         }
     ),
-    tags = ['streamline_core_history_confirm_blocks']
+    tags = ['silver','streamline','core','history','confirm_blocks']
 ) }}
 
 {# Main query starts here #}

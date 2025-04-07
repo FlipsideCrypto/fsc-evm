@@ -14,7 +14,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold_core', 'testing_tag']
+    tags = ['gold','core']
 ) }}
 
 SELECT

@@ -6,7 +6,7 @@
     unique_key = 'ez_market_stats_id',
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ticker_id,product_id,symbol), SUBSTRING(ticker_id,product_id,symbol)",
-    tags = ['curated', 'gold_vertex']
+    tags = ['gold','curated','vertex']
 ) }}
 
 SELECT

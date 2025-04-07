@@ -9,7 +9,7 @@
     cluster_by = 'round(_id,-3)',
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_id)",
     full_refresh = false,
-    tags = ['utils']
+    tags = ['silver','utils']
 ) }}
 
 SELECT

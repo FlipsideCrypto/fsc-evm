@@ -35,10 +35,9 @@ models:
   fsc_evm:
     +enabled: false # Disable all models by default
     main_package: # Only enable models that are required to run in the fsc_evm environment
-      variables:
-        +enabled: true
-      github_actions:
-        +enabled: true
+      +enabled: true
+    decoder_package:
+      +enabled: true
 
 vars:
   "dbt_date:time_zone": GMT

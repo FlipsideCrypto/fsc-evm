@@ -12,7 +12,8 @@
                 'PURPOSE': 'CLOB, DEX, PRODUCTS'
             }
         }
-    }
+    },
+    tags = ['gold','curated','vertex']
 ) }}
 
 SELECT

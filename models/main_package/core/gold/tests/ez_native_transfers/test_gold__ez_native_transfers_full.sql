@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['full_test', 'ez_prices_model']
+    tags = ['gold','test_gold','core','full_test','transfers','ez']
 ) }}
 
 SELECT

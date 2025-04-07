@@ -6,7 +6,7 @@
     unique_key = 'ez_spot_trades_id',
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash,symbol,trader,digest,subaccount), SUBSTRING(symbol,trader)",
-    tags = ['curated', 'gold_vertex']
+    tags = ['gold','curated','vertex']
 ) }}
 
 SELECT
