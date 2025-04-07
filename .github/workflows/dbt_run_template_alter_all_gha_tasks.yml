@@ -7,10 +7,10 @@ on:
         type: choice
         description: 'Action to perform on all tasks'
         required: true
-        default: 'RESUME'
+        default: RESUME
         options:
-          - 'RESUME'
-          - 'SUSPEND'
+          - RESUME
+          - SUSPEND
       target:
         type: string
         required: false
