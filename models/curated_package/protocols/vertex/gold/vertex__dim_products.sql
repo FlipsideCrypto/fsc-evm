@@ -13,7 +13,7 @@
             }
         }
     },
-    tags = ['gold','curated','vertex']
+    tags = ['gold','vertex','curated']
 ) }}
 
 SELECT

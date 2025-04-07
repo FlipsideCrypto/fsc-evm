@@ -6,7 +6,7 @@
     unique_key = 'ez_liquidations_id',
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(trader, subaccount,digest), SUBSTRING(subaccount,trader)",
-    tags = ['gold','curated','vertex']
+    tags = ['gold','vertex','curated']
 ) }}
 
 SELECT

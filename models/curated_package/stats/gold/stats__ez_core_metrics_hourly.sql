@@ -9,7 +9,7 @@
     materialized = 'view',
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STATS, METRICS, CORE, HOURLY',
     } } },
-    tags = ['gold','curated','stats']
+    tags = ['gold','stats','curated']
 ) }}
 
 {# Main query starts here #}
