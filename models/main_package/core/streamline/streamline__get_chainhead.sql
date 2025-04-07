@@ -6,7 +6,7 @@
 
 {{ config (
     materialized = 'table',
-    tags = ['silver','streamline','core','chainhead']
+    tags = ['streamline','core','chainhead']
 ) }}
 
 SELECT

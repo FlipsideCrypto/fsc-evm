@@ -19,7 +19,7 @@
         } 
     ), 
     fsc_utils.if_data_call_wait()],
-    tags = ['silver','streamline','decoded_logs','realtime']
+    tags = ['streamline','decoded_logs','realtime']
 ) }}
 
 WITH target_blocks AS (

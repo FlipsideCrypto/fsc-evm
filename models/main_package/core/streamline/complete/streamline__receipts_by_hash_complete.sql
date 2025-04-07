@@ -13,7 +13,7 @@
     cluster_by = "ROUND(block_number, -3)",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['silver','streamline','core','complete','receipts_by_hash']
+    tags = ['streamline','core','complete','receipts_by_hash']
 ) }}
 
 {# Main query starts here #}

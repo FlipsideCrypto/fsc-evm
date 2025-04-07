@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['silver','test_silver','core','daily_test']
+    tags = ['test_silver','core','daily_test']
 ) }}
 
 SELECT

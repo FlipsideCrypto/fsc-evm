@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['gold','test_nft','nft','core','recent_test']
+    tags = ['test_nft','nft','recent_test']
 ) }}
 
 SELECT

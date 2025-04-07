@@ -19,7 +19,7 @@
             "sql_source": 'receipts_by_hash_history'
         }
     ),
-    tags = ['silver','streamline','core','history','receipts_by_hash']
+    tags = ['streamline','core','history','receipts_by_hash']
 ) }}
 
 
