@@ -26,12 +26,13 @@ FROM
         {% set sql %}
         EXECUTE IMMEDIATE 'CREATE OR REPLACE TASK github_actions.{{ task_name }} WAREHOUSE = DBT_CLOUD SCHEDULE = \'USING CRON {{ workflow_schedule }} UTC\' COMMENT = \'Task to trigger {{ workflow_name }}.yml workflow according to {{ workflow_schedule }}\' AS DECLARE rs resultset; output string; BEGIN rs := (SELECT github_actions.workflow_dispatches(\'FlipsideCrypto\', \'{{ prod_db }}-models\', \'{{ workflow_name }}.yml\', NULL):status_code::int AS status_code); SELECT LISTAGG($1, \';\') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1; CALL SYSTEM$SET_RETURN_VALUE(:output); END;' {% endset %}
         {% do run_query(sql) %}
-        {% if var("START_GHA_TASKS") %}
+        {% if var("START_GHA_TASKS") %} 
+            {# Tasks are suspended by default, unless target == prod and --vars:'{"START_GHA_TASKS":true}' is set #}
             {% if target.database.lower() == prod_db %}
                 {% set sql %}
                 ALTER task github_actions.{{ task_name }}
                 resume;
-{% endset %}
+            {% endset %}
                 {% do run_query(sql) %}
             {% endif %}
         {% endif %}
@@ -180,7 +181,31 @@ GROUP BY
     {% for task_name in task_list %}
         {% set task_name = task_name.strip() %}
         {% set sql %}
-        EXECUTE IMMEDIATE 'ALTER TASK IF EXISTS github_actions.{{ task_name }} {{ task_action }};' {% endset %}
+        EXECUTE IMMEDIATE 'ALTER TASK IF EXISTS github_actions.{{ task_name }} {{ task_action }};' 
+        {% endset %}
+        {% do run_query(sql) %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro alter_all_gha_tasks(task_action) %}
+    {% set query %}
+    SELECT
+        task_name
+    FROM
+        {{ ref('github_actions__tasks') }}
+    {% endset %}
+    {% set results = run_query(query) %}
+    {% if execute and results is not none %}
+        {% set results_list = results.rows %}
+    {% else %}
+        {% set results_list = [] %}
+    {% endif %}
+
+    {% for result in results_list %}
+        {% set task_name = result[0] %}
+        {% set sql %}
+        EXECUTE IMMEDIATE 'ALTER TASK IF EXISTS github_actions.{{ task_name }} {{ task_action }};' 
+        {% endset %}
         {% do run_query(sql) %}
     {% endfor %}
 {% endmacro %}
