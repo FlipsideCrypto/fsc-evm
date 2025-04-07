@@ -20,7 +20,7 @@
             "exploded_key": tojson(['result'])
         }
     ),
-    tags = ['streamline','core','realtime','receipts']
+    tags = ['streamline','core','realtime','receipts','phase_1']
 ) }}
 
 {# Main query starts here #}

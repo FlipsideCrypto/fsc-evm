@@ -3,7 +3,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['test_silver','core','confirm_blocks','recent_test']
+    tags = ['test_silver','core','confirm_blocks','recent_test','phase_2']
 ) }}
 
 {%- set default_hours = -24 * 5 -%}

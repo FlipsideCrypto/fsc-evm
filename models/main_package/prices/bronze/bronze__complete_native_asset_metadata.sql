@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze','prices','native']
+    tags = ['bronze','prices','native','phase_3']
 ) }}
 
 {# Main query starts here #}

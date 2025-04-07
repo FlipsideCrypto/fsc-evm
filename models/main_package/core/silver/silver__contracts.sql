@@ -5,7 +5,7 @@
     materialized = 'incremental',
     unique_key = 'contract_address',
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['silver','core']
+    tags = ['silver','core','phase_2']
 ) }}
 
 WITH base_metadata AS (

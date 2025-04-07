@@ -6,7 +6,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_token_asset_metadata_id',
-    tags = ['silver','prices','token']
+    tags = ['silver','prices','token','phase_3']
 ) }}
 
 {# Main query starts here #}

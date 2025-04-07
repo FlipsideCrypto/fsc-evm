@@ -4,7 +4,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
-    tags = ['silver','abis']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH contracts_with_abis AS (

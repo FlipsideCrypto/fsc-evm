@@ -17,7 +17,7 @@
             "worker_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE,
             "sql_source" : 'contract_abis_realtime'}
     ),
-    tags = ['streamline','abis','realtime']
+    tags = ['streamline','abis','realtime','phase_2']
 ) }}
 
 WITH recent_relevant_contracts AS (

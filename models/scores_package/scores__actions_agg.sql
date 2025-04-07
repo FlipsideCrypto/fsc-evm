@@ -15,7 +15,7 @@
     cluster_by = "score_date",
     version = 1,
     full_refresh = false,
-    tags = ['silver','scores']
+    tags = ['silver','scores','phase_3']
 ) }}
 
     {% set score_dates_query %}

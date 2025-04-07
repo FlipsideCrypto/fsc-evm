@@ -12,7 +12,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
-    tags = ['gold','core','transfers','ez']
+    tags = ['gold','core','transfers','ez','phase_3']
 ) }}
 
 WITH base AS (

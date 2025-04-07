@@ -19,7 +19,7 @@
             "sql_source": 'receipts_by_hash_realtime'
         }
     ),
-    tags = ['streamline','core','realtime','receipts_by_hash']
+    tags = ['streamline','core','realtime','receipts_by_hash','phase_1']
 ) }}
 
 {# Main query starts here #}

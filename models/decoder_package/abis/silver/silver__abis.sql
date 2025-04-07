@@ -9,7 +9,7 @@
     unique_key = "contract_address",
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,abi_hash,bytecode), SUBSTRING(contract_address,abi_hash,bytecode)",
-    tags = ['silver','abis']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH verified_abis AS (

@@ -6,7 +6,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['streamline','core','chainhead']
+    tags = ['streamline','core','chainhead','phase_1']
 ) }}
 
 SELECT
