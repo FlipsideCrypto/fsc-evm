@@ -173,10 +173,14 @@ GROUP BY
 {% endmacro %}
 
 {% macro alter_gha_task(
-        task_name,
+        task_names,
         task_action
     ) %}
-    {% set sql %}
-    EXECUTE IMMEDIATE 'ALTER TASK IF EXISTS github_actions.{{ task_name }} {{ task_action }};' {% endset %}
-    {% do run_query(sql) %}
+    {% set task_list = task_names.split(',') %}
+    {% for task_name in task_list %}
+        {% set task_name = task_name.strip() %}
+        {% set sql %}
+        EXECUTE IMMEDIATE 'ALTER TASK IF EXISTS github_actions.{{ task_name }} {{ task_action }};' {% endset %}
+        {% do run_query(sql) %}
+    {% endfor %}
 {% endmacro %}
