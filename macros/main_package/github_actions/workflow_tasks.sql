@@ -46,7 +46,8 @@ SELECT
         'TRIGGER',
         UPPER(workflow_name)
     ) AS task_name,
-    workflow_schedule
+    workflow_schedule,
+    cadence
 FROM
     {{ source(
         'github_actions',
