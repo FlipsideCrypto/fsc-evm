@@ -6,7 +6,7 @@
 
 {{ config(
     materialized = 'table',
-    tags = ['silver','admin','rpc_settings','phase_2']
+    tags = ['silver','admin','rpc_settings','phase_1']
 ) }}
 
 select 
