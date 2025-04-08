@@ -13,7 +13,7 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_contract_abis_id, contract_address)",
     incremental_predicates = ['dynamic_range', 'partition_key'],
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline_abis_complete']
+    tags = ['streamline','abis','complete','phase_2']
 ) }}
 
 SELECT

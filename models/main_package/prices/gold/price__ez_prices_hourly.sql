@@ -8,7 +8,7 @@
     unique_key = 'ez_prices_hourly_id',
     cluster_by = ['hour::DATE'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(token_address, symbol, name),SUBSTRING(token_address, symbol, name)",
-    tags = ['gold_prices']
+    tags = ['gold','prices','phase_3']
 ) }}
 
 {# Main query starts here #}

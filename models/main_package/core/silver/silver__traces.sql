@@ -14,7 +14,7 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver_core']
+    tags = ['silver','core','phase_2']
 ) }}
 
     WITH bronze_traces AS (

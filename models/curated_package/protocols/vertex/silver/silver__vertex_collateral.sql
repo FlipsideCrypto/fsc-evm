@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'fact_event_logs_id',
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['curated','reorg'],
+    tags = ['silver','curated','vertex'],
     enabled = false
 ) }}
 

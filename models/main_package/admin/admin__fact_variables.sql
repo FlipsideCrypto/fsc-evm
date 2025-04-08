@@ -3,7 +3,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['admin_vars']
+    tags = ['silver','admin','variables','phase_1']
 ) }}
 
 {%- set vars_data = vars_config(all_projects=true) -%}

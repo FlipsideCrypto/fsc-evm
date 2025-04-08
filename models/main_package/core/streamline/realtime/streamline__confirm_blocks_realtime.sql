@@ -19,7 +19,7 @@
             "sql_source": 'confirm_blocks_realtime'
         }
     ),
-    tags = ['streamline_core_realtime_confirm_blocks']
+    tags = ['streamline','core','realtime','confirm_blocks','phase_1']
 ) }}
 
 {# Main query starts here #}

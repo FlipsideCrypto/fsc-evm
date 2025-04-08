@@ -19,7 +19,7 @@
         } 
     ), 
     fsc_utils.if_data_call_wait()],
-    tags = ['streamline_decoded_logs_realtime']
+    tags = ['streamline','decoded_logs','realtime','phase_2']
 ) }}
 
 WITH target_blocks AS (

@@ -7,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_token_prices_id',
     cluster_by = ['hour::DATE'],
-    tags = ['silver_prices']
+    tags = ['silver','prices','token','phase_3']
 ) }}
 
 {# Main query starts here #}

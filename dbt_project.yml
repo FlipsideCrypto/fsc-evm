@@ -35,7 +35,7 @@ models:
   fsc_evm:
     +enabled: false # Disable all models by default
     main_package: # Only enable models that are required to run in the fsc_evm environment
-      variables:
+      admin:
         +enabled: true
       github_actions:
         +enabled: true

@@ -6,7 +6,7 @@
     unique_key = ["parent_contract_address","event_signature","start_block"],
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    tags = ['silver_abis']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH new_abis AS (

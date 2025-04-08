@@ -3,7 +3,7 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['gha_tasks']
+    tags = ['silver','gha_tasks']
 ) }}
 
 {{ gha_tasks_view() }}
