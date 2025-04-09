@@ -5,19 +5,30 @@
         {'gold_model': 'fact_blocks', 'field': 'totalDifficulty', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'mixHash', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'blobGasUsed', 'source': 'blocks_fields'},
+        {'gold_model': 'fact_blocks', 'field': 'excessBlobGas', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'parentBeaconBlockRoot', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'withdrawals', 'source': 'blocks_fields'},
+        {'gold_model': 'fact_blocks', 'field': 'withdrawalsRoot', 'source': 'blocks_fields'},
         {'gold_model': 'fact_transactions', 'field': 'accessList', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxFeePerGas', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxPriorityFeePerGas', 'source': 'transactions_fields'},
-        {'gold_model': 'fact_transactions', 'field': 'blobGasPrice', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'sourceHash', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'mint', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'ethValue', 'source': 'transactions_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'blobVersionedHashes', 'source': 'transactions_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'maxFeePerBlobGas', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'yParity', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1Fee', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1FeeScalar', 'source': 'receipts_fields'},
-        {'gold_model': 'fact_transactions', 'field': 'l1BlobBaseFee', 'source': 'receipts_fields'}
+        {'gold_model': 'fact_transactions', 'field': 'l1GasUsed', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'l1GasPrice', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'l1BaseFeeScalar', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'l1BlobBaseFee', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'l1BlobBaseFeeScalar', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'gasUsedForL1', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'l1BlockNumber', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'blobGasUsed', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'blobGasPrice', 'source': 'receipts_fields'}
     ] %}
     
     {# Filter fields based on the specified gold_model #}

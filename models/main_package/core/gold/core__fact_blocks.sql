@@ -47,6 +47,16 @@ SELECT
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
     {% endif %}
+    {% if rpc_vars.blobGasUsed %}
+    utils.udf_hex_to_int(
+        block_json :blobGasUsed :: STRING
+    ) :: bigint AS blob_gas_used,
+    {% endif %}
+    {% if rpc_vars.excessBlobGas %}
+    utils.udf_hex_to_int(
+        block_json :excessBlobGas :: STRING
+    ) :: bigint AS excess_blob_gas,
+    {% endif %}
     utils.udf_hex_to_int(
         block_json :difficulty :: STRING
     ) :: bigint AS difficulty,
@@ -64,19 +74,13 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if rpc_vars.blobGasUsed %}
-    utils.udf_hex_to_int(
-        block_json :blobGasUsed :: STRING
-    ) :: bigint AS blob_gas_used,
-    utils.udf_hex_to_int(
-        block_json :excessBlobGas :: STRING
-    ) :: bigint AS excess_blob_gas,
-    {% endif %}
     {% if rpc_vars.parentBeaconBlockRoot %}
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
     {% endif %}
     {% if rpc_vars.withdrawals %}
     block_json :withdrawals AS withdrawals,
+    {% endif %}
+    {% if rpc_vars.withdrawalsRoot %}
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
