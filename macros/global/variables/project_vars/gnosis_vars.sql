@@ -1,6 +1,7 @@
 {% macro gnosis_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'gnosis',
+        'GLOBAL_NODE_PROVIDER': 'quicknode',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/gnosis/quicknode/mainnet',
         'GLOBAL_NODE_URL': '{service}/{Authentication}',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0xe91d153e0b41518a2ce8dd3d7944fa863463a97d',

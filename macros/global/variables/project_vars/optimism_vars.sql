@@ -1,6 +1,7 @@
 {% macro optimism_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'optimism',
+        'GLOBAL_NODE_PROVIDER': 'quicknode',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/optimism/quicknode/mainnet',
         'GLOBAL_NODE_URL': '{service}/{Authentication}',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x4200000000000000000000000000000000000006',

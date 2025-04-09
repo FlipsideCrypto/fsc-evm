@@ -1,6 +1,7 @@
 {% macro ronin_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'ronin',
+        'GLOBAL_NODE_PROVIDER': 'tatum',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/ronin/tatum/mainnet_new',
         'GLOBAL_NODE_URL': "{api_url}",
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0xe514d9deb7966c8be0ca922de8a064264ea6bcd4',

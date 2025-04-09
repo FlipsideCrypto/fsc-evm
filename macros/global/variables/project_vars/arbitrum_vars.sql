@@ -1,6 +1,7 @@
 {% macro arbitrum_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'arbitrum',
+        'GLOBAL_NODE_PROVIDER': 'quicknode',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/arbitrum/quicknode/mainnet',
         'GLOBAL_NODE_URL': '{service}/{Authentication}',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
