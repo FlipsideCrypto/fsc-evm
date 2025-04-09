@@ -1,6 +1,6 @@
 {% macro call_sample_rpc_node(
-    blockchain,
-    node_provider,
+    blockchain=none,
+    node_provider=none,
     network=none,
     random_block_sample_size=none,
     vault_path_override=none,
@@ -8,10 +8,22 @@
     exclude_traces=none
 ) %}
 
+{% set vars = return_vars() %}
+{% set global_project_name = vars.GLOBAL_PROJECT_NAME.lower() %}
+{% set global_node_provider = vars.GLOBAL_NODE_PROVIDER.lower() %}
+
 {% set query %}
 CALL {{target.database}}.admin.sample_rpc_node(
-    BLOCKCHAIN => '{{ blockchain }}',
-    NODE_PROVIDER => '{{ node_provider }}'
+    BLOCKCHAIN => {% if blockchain is not none %}
+                   '{{ blockchain }}'
+                 {% else %}
+                   '{{ global_project_name }}'
+                 {% endif %},
+    NODE_PROVIDER => {% if node_provider is not none %}
+                      '{{ node_provider }}'
+                    {% else %}
+                      '{{ global_node_provider }}'
+                    {% endif %}
     {% if network is not none %},
     NETWORK => '{{ network }}'
     {% endif %}
