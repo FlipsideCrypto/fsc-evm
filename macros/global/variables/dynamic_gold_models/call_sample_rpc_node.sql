@@ -13,7 +13,7 @@
 {% set global_node_provider = vars.GLOBAL_NODE_PROVIDER.lower() %}
 
 {% set query %}
-CALL {{target.database}}.admin.sample_rpc_node(
+CALL fsc_evm.admin.sample_rpc_node(
     BLOCKCHAIN => {% if blockchain is not none %}
                    '{{ blockchain }}'
                  {% else %}
