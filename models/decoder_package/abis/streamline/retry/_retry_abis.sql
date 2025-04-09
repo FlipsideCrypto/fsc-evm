@@ -17,7 +17,7 @@ WITH retry AS (
         {{ ref("silver__relevant_contracts") }}
         r
         LEFT JOIN {{ source(
-            'silver',
+            'abis_silver',
             'verified_abis'
         ) }}
         v USING (contract_address)
@@ -48,7 +48,7 @@ WITH retry AS (
         p
         JOIN retry r USING (contract_address)
         LEFT JOIN {{ source(
-            'silver',
+            'abis_silver',
             'verified_abis'
         ) }}
         v

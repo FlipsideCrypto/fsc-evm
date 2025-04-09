@@ -60,7 +60,7 @@ sources:
     schema: bronze_public
     tables:
       - name: user_abis
-  - name: silver
+  - name: abis_silver
     database: "{{ target.database }}"
     schema: silver
     tables:

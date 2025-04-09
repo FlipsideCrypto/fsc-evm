@@ -30,7 +30,7 @@ WITH silver_traces AS (
             'regular' AS source
         FROM
             {{ ref(
-                'bronze__traces'
+                'silver__traces'
             ) }}
         WHERE
             1 = 1

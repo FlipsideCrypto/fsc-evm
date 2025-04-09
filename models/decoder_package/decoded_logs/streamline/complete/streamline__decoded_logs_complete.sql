@@ -23,7 +23,7 @@ SELECT
     block_number,
     file_name,
     id AS _log_id,
-    {{ dbt_utils.generate_surrogate_key(['id']) }} AS complete_{{ source_name.lower() }}_id,
+    {{ dbt_utils.generate_surrogate_key(['id']) }} AS complete_decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
