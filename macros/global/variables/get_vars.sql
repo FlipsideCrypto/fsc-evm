@@ -202,14 +202,9 @@
                         {% endif %}
                     {% endfor %}
                     {{ return(converted_array) }}
-                {% elif value.startswith('{') and value.endswith('}') %}
-                    {# For JSON, VARIANT, OBJECT #}
-                    {% try %}
-                        {{ return(fromjson(value)) }}
-                    {% except %}
-                        {# If it's not valid JSON, return it as a regular string #}
-                        {{ return(value) }}
-                    {% endtry %}
+                {% elif value.startswith('{') and value.endswith('}') and ':' in value %}
+                    {# For JSON, VARIANT, OBJECT - only if it contains a colon character #}
+                    {{ return(fromjson(value)) }}
                 {% elif value.isdigit() %}
                     {{ return(value | int) }}
                 {% elif value.replace('.','',1).isdigit() %}
