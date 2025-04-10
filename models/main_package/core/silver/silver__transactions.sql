@@ -21,7 +21,14 @@ WITH bronze_transactions AS (
     SELECT 
         block_number,
         partition_key,
-        VALUE :array_index :: INT AS tx_position,
+        COALESCE(
+            VALUE :array_index :: INT,
+            TRY_TO_NUMBER(
+                utils.udf_hex_to_int(
+                    VALUE :data :transactionIndex :: STRING
+                )
+            )
+        ) AS tx_position,
         DATA AS transaction_json,
         _inserted_timestamp
     FROM 
