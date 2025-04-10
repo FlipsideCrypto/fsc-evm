@@ -12,8 +12,10 @@
 {% set global_project_name = vars.GLOBAL_PROJECT_NAME.lower() %}
 {% set global_node_provider = vars.GLOBAL_NODE_PROVIDER.lower() %}
 
+{% set target_db = 'fsc_evm_dev' if target.name != 'prod' else 'fsc_evm' %}
+
 {% set query %}
-CALL fsc_evm.admin.sample_rpc_node(
+CALL {{ target_db }}.admin.sample_rpc_node(
     BLOCKCHAIN => {% if blockchain is not none %}
                    '{{ blockchain }}'
                  {% else %}
