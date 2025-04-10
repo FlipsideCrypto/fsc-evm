@@ -9,6 +9,7 @@
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'ethereum',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'Base',
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'basescan',
+        'DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED': true,
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.basescan.org/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/base_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,

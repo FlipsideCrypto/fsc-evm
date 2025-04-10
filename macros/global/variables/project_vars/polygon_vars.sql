@@ -8,6 +8,7 @@
         'MAIN_PRICES_NATIVE_SYMBOLS': ['MATIC','POL'],
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'Polygon',
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'polygonscan',
+        'DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED': true,
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.polygonscan.com/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/polygon_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
