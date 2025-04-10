@@ -220,10 +220,13 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    all_logs qualify ROW_NUMBER() over (
+    all_logs 
+{% if is_incremental() %}
+qualify ROW_NUMBER() over (
         PARTITION BY fact_event_logs_id
         ORDER BY
             block_number DESC,
             block_timestamp DESC nulls last,
             origin_function_signature DESC nulls last
     ) = 1
+{% endif %}
