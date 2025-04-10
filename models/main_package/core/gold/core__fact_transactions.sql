@@ -236,7 +236,7 @@ WHERE
             {% if rpc_vars.accessList %}
             txs.access_list,
             {% endif %}
-            {% if rpc_vars.l1blobBaseFee %}
+            {% if rpc_vars.l1BlobBaseFee %}
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             {% endif %}
             {% if rpc_vars.l1BlobBaseFeeScalar %}
