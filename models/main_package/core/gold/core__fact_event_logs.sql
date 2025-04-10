@@ -15,7 +15,7 @@
 ) }}
 
 --temp logic for migration
-{% if var('TEMP_FR_LOGS', false) %}
+{% if vars.GLOBAL_GOLD_FR_ENABLED %}
 
     SELECT
         l.block_number,
