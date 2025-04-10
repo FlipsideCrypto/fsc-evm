@@ -204,7 +204,12 @@
                     {{ return(converted_array) }}
                 {% elif value.startswith('{') and value.endswith('}') %}
                     {# For JSON, VARIANT, OBJECT #}
-                    {{ return(fromjson(value)) }}
+                    {% try %}
+                        {{ return(fromjson(value)) }}
+                    {% except %}
+                        {# If it's not valid JSON, return it as a regular string #}
+                        {{ return(value) }}
+                    {% endtry %}
                 {% elif value.isdigit() %}
                     {{ return(value | int) }}
                 {% elif value.replace('.','',1).isdigit() %}
