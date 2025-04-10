@@ -15,7 +15,7 @@
 ) }}
 
 --temp logic for migration
-{% if vars.GLOBAL_GOLD_FR_ENABLED %}
+{% if vars.GLOBAL_GOLD_FR_ENABLED = none %}
 
     SELECT
         l.block_number,
@@ -257,7 +257,6 @@ SELECT
     SYSDATE() AS modified_timestamp
 FROM
     all_logs 
-{% if is_incremental() %}
 qualify ROW_NUMBER() over (
         PARTITION BY fact_event_logs_id
         ORDER BY
@@ -265,6 +264,4 @@ qualify ROW_NUMBER() over (
             block_timestamp DESC nulls last,
             origin_function_signature DESC nulls last
     ) = 1
-{% endif %}
-
 {% endif %}
