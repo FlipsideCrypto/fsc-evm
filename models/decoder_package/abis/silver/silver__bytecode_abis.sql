@@ -7,7 +7,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
-    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','abis','phase_2']
 ) }}
 
