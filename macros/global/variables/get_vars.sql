@@ -202,8 +202,8 @@
                         {% endif %}
                     {% endfor %}
                     {{ return(converted_array) }}
-                {% elif value.startswith('{') and value.endswith('}') and ':' in value %}
-                    {# For JSON, VARIANT, OBJECT - only if it contains a colon character #}
+                {% elif value.startswith('{') and value.endswith('}') %}
+                    {# For JSON, VARIANT, OBJECT #}
                     {{ return(fromjson(value)) }}
                 {% elif value.isdigit() %}
                     {{ return(value | int) }}
