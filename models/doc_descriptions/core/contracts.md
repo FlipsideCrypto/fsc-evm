@@ -49,7 +49,7 @@ The symbol used to represent this contract. Please note this is not necessarily 
 
 {% docs evm_creator_address %}
 
-The address of the contract creator. 
+The address that deployed/created the contract (also known as the deployer address). 
 
 {% enddocs %}
 
@@ -68,13 +68,13 @@ Internal column.
 
 {% docs evm_token_convention %}
 
-The token standard utilized by this contract. 
+The token standard implemented by the contract (e.g. ERC20, ERC721, ERC1155).
 
 {% enddocs %}
 
 {% docs evm_decimals %}
 
-The decimals for the token contract.
+The number of decimal places used by the token contract for representing token amounts
 
 {% enddocs %}
 

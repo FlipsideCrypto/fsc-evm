@@ -26,7 +26,7 @@ This is an absolutely massive view, which is why filters must be applied if you 
 
 This table contains the block level balance changes for both tokens (including ERC721s) and the native asset on this EVM blockchain for all wallets and contracts. If a token or the native asset is moved, we will read the balance of the involved wallets at that block, and carry forward the previous balance into the current record. Symbol, name, and price are joined where possible. ERC721s are included. 
 
-Please note - the underlying data for this is large. If you want your query to run quickly, please use filters as much as possible. Using at least `block_timestamp::date` as a filter will lead to optimal query performance.
+Please note - the underlying data for this is large. If you want your query to run quickly, please use filters as much as possible. For optimal query performance, filter by `block_timestamp::date`.
 
 If you want to take this data and make it daily, you can do so with the query below. You must use a `block_timestamp::date` filter here at a minimum. Other filters will help query runtime. 
 
@@ -149,14 +149,14 @@ ORDER BY
 
 {% docs evm_has_decimal %}
 
-Whether the token has a decimal or not, either TRUE or FALSE.
+Boolean flag indicating whether token decimal information is available for this token (TRUE or FALSE).
 
 {% enddocs %}
 
 
 {% docs evm_has_price %}
 
-Whether the token has an hourly price or not, either TRUE or FALSE.
+Boolean flag indicating whether hourly price data for this token is available (TRUE or FALSE).
 
 {% enddocs %}
 
@@ -190,14 +190,14 @@ The contract address of the token (null for native asset).
 
 {% docs evm_current_balances_current_bal_unadj %}
 
-The current token or native asset balance for this address, without a decimal adjustment.
+The current raw token or native asset balance for this address, without a decimal adjustment.
 
 {% enddocs %}
 
 
 {% docs evm_current_balances_current_bal %}
 
-The decimal adjusted current token or native asset balance.
+The current decimal adjusted token or native asset balance.
 
 {% enddocs %}
 
@@ -218,35 +218,35 @@ The value of the tokens or native asset in USD, as of the most recently recorded
 
 {% docs evm_current_balances_symbol %}
 
-The symbol of the token contract, or native asset.
+The symbol of the token contract, or native asset. Please note this is not necessarily unique. 
 
 {% enddocs %}
 
 
 {% docs evm_current_balances_token_name %}
 
-The name of the token contract, or native asset.
+The name of the token contract, or native asset. Please note this is not necessarily unique. 
 
 {% enddocs %}
 
 
 {% docs evm_current_balances_decimals %}
 
-The decimals for the token contract.
+The number of decimal places specified by the token contract for representing token amounts.
 
 {% enddocs %}
 
 
 {% docs evm_current_balances_has_decimal %}
 
-Whether the token has a decimal or not, either TRUE or FALSE.
+Boolean flag indicating whether token decimal information is available for this token (TRUE or FALSE).
 
 {% enddocs %}
 
 
 {% docs evm_current_balances_has_price %}
 
-Whether the token has an hourly price or not, either TRUE or FALSE.
+Boolean flag indicating whether hourly price data for this token is available (TRUE or FALSE).
 
 {% enddocs %}
 
