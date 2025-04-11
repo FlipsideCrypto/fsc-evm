@@ -103,44 +103,6 @@ FROM
 
 {% if is_incremental() %}
 WHERE
-    c1.modified_timestamp > (
-        SELECT
-            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
-        FROM
-            {{ this }})
-        {% endif %}
-
-        -- below is current code . Above is new logic
-        {# SELECT
-        LOWER(
-            COALESCE(
-                c0.created_contract_address,
-                c1.contract_address
-            )
-        ) AS address,
-        c1.token_symbol AS symbol,
-        c1.token_name AS NAME,
-        c1.token_decimals AS decimals,
-        c0.block_number AS created_block_number,
-        c0.block_timestamp AS created_block_timestamp,
-        c0.tx_hash AS created_tx_hash,
-        c0.creator_address AS creator_address,
-        c0.created_contracts_id AS dim_contracts_id,
-        GREATEST(COALESCE(c0.inserted_timestamp, '2000-01-01'), COALESCE(c1.inserted_timestamp, '2000-01-01')) AS inserted_timestamp,
-        GREATEST(COALESCE(c0.modified_timestamp, '2000-01-01'), COALESCE(c1.modified_timestamp, '2000-01-01')) AS modified_timestamp
-        FROM
-            {{ ref('silver__created_contracts') }}
-            c0 full
-            OUTER JOIN {{ ref('silver__contracts') }}
-            c1
-            ON LOWER(
-                c0.created_contract_address
-            ) = LOWER(
-                c1.contract_address
-            )
-
-{% if is_incremental() %}
-WHERE
     c0.modified_timestamp > (
         SELECT
             COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
@@ -152,5 +114,3 @@ WHERE
                 FROM
                     {{ this }})
                 {% endif %}
-
-                #}
