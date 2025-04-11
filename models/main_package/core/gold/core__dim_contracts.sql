@@ -78,9 +78,9 @@ combined AS (
 )
 SELECT
     address,
-    c1.symbol AS symbol,
-    c1.name AS NAME,
-    c1.decimals AS decimals,
+    c1.token_symbol AS symbol,
+    c1.token_name AS NAME,
+    c1.token_decimals AS decimals,
     created_block_number,
     created_block_timestamp,
     created_tx_hash,
