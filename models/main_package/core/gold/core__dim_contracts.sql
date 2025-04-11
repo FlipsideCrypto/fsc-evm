@@ -92,8 +92,7 @@ SELECT
         ) }}
     ) AS dim_contracts_id,
     GREATEST(COALESCE(c0.inserted_timestamp, '2000-01-01'), COALESCE(c1.inserted_timestamp, '2000-01-01')) AS inserted_timestamp,
-    GREATEST(COALESCE(c0.modified_timestamp, '2000-01-01'), COALESCE(c1.modified_timestamp, '2000-01-01')) AS modified_timestamp,
-    c1.contract_metadata AS contract_metadata --deprecate
+    GREATEST(COALESCE(c0.modified_timestamp, '2000-01-01'), COALESCE(c1.modified_timestamp, '2000-01-01')) AS modified_timestamp
 FROM
     combined c0
     LEFT JOIN {{ ref('silver__contracts') }}
