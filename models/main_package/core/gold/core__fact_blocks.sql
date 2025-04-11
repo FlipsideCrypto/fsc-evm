@@ -87,7 +87,7 @@ SELECT
     {% if rpc_vars.withdrawalsRoot %}
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
-    {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
+    {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
