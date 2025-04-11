@@ -54,7 +54,6 @@
                                 WHEN :VAULT_PATH_OVERRIDE IS NOT NULL then :VAULT_PATH_OVERRIDE
                                 WHEN lower(:NODE_PROVIDER) IN ('drpc') then 'Vault/prod/evm/drpc'
                                 WHEN lower(:NODE_PROVIDER) IN ('quicknode') then 'Vault/prod/evm/quicknode/' || :BLOCKCHAIN || '/' || :NETWORK
-                                ELSE ''
                             END as vault_path,
                             CASE
                                 WHEN :NODE_URL_OVERRIDE IS NOT NULL then :NODE_URL_OVERRIDE
