@@ -24,7 +24,8 @@ FROM
         "rpc_node_logs"
     ) }}
 WHERE
-    LOWER(blockchain) = LOWER('{{ vars.GLOBAL_PROJECT_NAME }}')
+    RESULT :error :: STRING IS NULL
+    AND LOWER(blockchain) = LOWER('{{ vars.GLOBAL_PROJECT_NAME }}')
     AND LOWER(network) = LOWER('{{ vars.GLOBAL_NETWORK }}') qualify ROW_NUMBER() over (
         PARTITION BY blockchain,
         network
