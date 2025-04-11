@@ -18,15 +18,19 @@
 ) }}
 
 SELECT
-    block_number,
+    b.block_number,
     block_json :hash :: STRING AS block_hash,
     utils.udf_hex_to_int(
         block_json :timestamp :: STRING
     ) :: TIMESTAMP AS block_timestamp,
     '{{ vars.GLOBAL_NETWORK }}' AS network,
+    {% if is_incremental() %}
     ARRAY_SIZE(
         block_json :transactions
     ) AS tx_count,
+    {% else %}
+    tx.tx_count,
+    {% endif %}
     utils.udf_hex_to_int(
         block_json :size :: STRING
     ) :: bigint AS SIZE,
@@ -87,7 +91,19 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    {{ ref('silver__blocks') }}
+    {{ ref('silver__blocks') }} b
+{% if not is_incremental() %}
+    LEFT JOIN (
+        SELECT
+            block_number,
+            COUNT(*) AS tx_count
+        FROM
+            {{ ref('silver__transactions') }}
+        GROUP BY
+            1
+    ) tx
+    ON b.block_number = tx.block_number
+{% endif %}
 WHERE 1=1
 
 {% if is_incremental() %}
