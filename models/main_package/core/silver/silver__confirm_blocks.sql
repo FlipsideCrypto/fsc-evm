@@ -45,8 +45,7 @@ WITH bronze_confirm_blocks AS (
         {% endif %}
     {% else %}
         {{ ref('bronze__confirm_blocks_fr') }}
-        WHERE block_number < 1000000
-        AND DATA:result IS NOT NULL
+        WHERE DATA:result IS NOT NULL
     {% endif %}
     qualify(ROW_NUMBER() over (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
 )
