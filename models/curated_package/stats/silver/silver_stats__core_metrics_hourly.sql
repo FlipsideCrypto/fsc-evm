@@ -16,13 +16,13 @@
 {% if is_incremental() %}
 {% set query %}
 SELECT
-    MIN(DATE_TRUNC('hour', block_timestamp)) block_timestamp_hour
+    MIN(DATE_TRUNC('hour', block_timestamp)) AS block_timestamp_hour
 FROM
-    {{ ref('silver__transactions') }}
+    {{ ref('core__fact_transactions') }}
 WHERE
-    _inserted_timestamp >= (
+    modified_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp)
+            MAX(modified_timestamp)
         FROM
             {{ this }}
     ) {% endset %}
@@ -61,7 +61,7 @@ SELECT
         DISTINCT to_address
     ) AS unique_to_count,
     SUM(tx_fee_precise) AS total_fees,
-    MAX(_inserted_timestamp) AS _inserted_timestamp,
+    MAX(modified_timestamp) AS _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_timestamp_hour']
     ) }} AS core_metrics_hourly_id,
@@ -69,7 +69,7 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    {{ ref('silver__transactions') }}
+    {{ ref('core__fact_transactions') }}
 WHERE
     block_timestamp_hour < DATE_TRUNC(
         'hour',
