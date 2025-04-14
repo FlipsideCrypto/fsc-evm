@@ -40,8 +40,8 @@
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
-        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
-        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+        GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+        GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
         {% endif %}
     FROM
         {{ source(
