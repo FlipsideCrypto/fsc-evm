@@ -40,8 +40,13 @@ WITH base AS (
         {{ dbt_utils.generate_surrogate_key(
             ['tx_hash', 'trace_index']
         ) }} AS ez_native_transfers_id,
+        {% if is_incremental() %}
         SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp
+        SYSDATE() AS modified_timestamp,
+        {% else %}
+        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+        {% endif %}
     FROM
         {{ ref('core__fact_traces') }}
         tr
@@ -112,8 +117,13 @@ SELECT
     t.origin_to_address,
     t.origin_function_signature,
     t.ez_native_transfers_id,
+    {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    {% else %}
+    GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+    GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    {% endif %}
 FROM
     {{ this }}
     t

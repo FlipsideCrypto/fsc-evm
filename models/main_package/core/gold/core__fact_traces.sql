@@ -790,8 +790,13 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash', 'trace_index']
     ) }} AS fact_traces_id,
+    {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    {% else %}
+    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    {% endif %}
 FROM
     all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if vars.MAIN_CORE_TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index
 ORDER BY

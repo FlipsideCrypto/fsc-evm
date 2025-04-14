@@ -58,8 +58,13 @@ WITH base AS (
             NULL
         ) AS token_standard,
         fact_event_logs_id AS ez_token_transfers_id,
+        {% if is_incremental() %}
         SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp
+        SYSDATE() AS modified_timestamp,
+        {% else %}
+        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+        {% endif %}
     FROM
         {{ ref('core__fact_event_logs') }}
         f
@@ -161,8 +166,13 @@ SELECT
     t0.origin_from_address,
     t0.origin_to_address,
     t0.ez_token_transfers_id,
+    {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    {% else %}
+    GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+    GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    {% endif %}
 FROM
     {{ this }}
     t0

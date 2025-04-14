@@ -815,8 +815,13 @@ SELECT
     source_hash,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
+    {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    {% else %}
+    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    {% endif %}
 FROM
     all_transactions qualify ROW_NUMBER() over (
         PARTITION BY fact_transactions_id

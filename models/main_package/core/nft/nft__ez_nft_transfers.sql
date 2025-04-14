@@ -380,8 +380,13 @@ SELECT
     t.origin_from_address,
     t.origin_to_address,
     t.ez_nft_transfers_id,
+    {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    {% else %}
+    GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
+    GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    {% endif %}
 FROM
     {{ this }}
     t
