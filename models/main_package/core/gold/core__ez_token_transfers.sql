@@ -62,8 +62,10 @@ WITH base AS (
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
-        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
-        GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+            ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+            ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
         {% endif %}
     FROM
         {{ ref('core__fact_event_logs') }}
@@ -170,8 +172,10 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}
-    GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
-    GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     {% endif %}
 FROM
     {{ this }}

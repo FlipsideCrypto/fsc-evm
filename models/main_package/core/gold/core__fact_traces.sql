@@ -794,8 +794,10 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}
-    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
-    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     {% endif %}
 FROM
     all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if vars.MAIN_CORE_TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index

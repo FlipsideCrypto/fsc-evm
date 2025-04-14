@@ -40,8 +40,10 @@
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
-        GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
-        GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+            ELSE GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+            ELSE GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
         {% endif %}
     FROM
         {{ source(
