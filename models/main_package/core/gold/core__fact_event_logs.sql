@@ -38,7 +38,7 @@
         {{ dbt_utils.generate_surrogate_key(['l.tx_hash','l.event_index']) }} AS fact_event_logs_id,
         {% if is_incremental() %}
         SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp,
+        SYSDATE() AS modified_timestamp
         {% else %}
         GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
         GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp

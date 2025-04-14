@@ -382,7 +382,7 @@ SELECT
     t.ez_nft_transfers_id,
     {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS modified_timestamp
     {% else %}
     GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
     GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp

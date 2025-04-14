@@ -42,7 +42,7 @@ WITH base AS (
         ) }} AS ez_native_transfers_id,
         {% if is_incremental() %}
         SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp,
+        SYSDATE() AS modified_timestamp
         {% else %}
         GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
         GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
@@ -119,7 +119,7 @@ SELECT
     t.ez_native_transfers_id,
     {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS modified_timestamp
     {% else %}
     GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
     GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp

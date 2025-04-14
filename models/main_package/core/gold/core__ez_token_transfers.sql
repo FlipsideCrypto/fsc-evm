@@ -60,7 +60,7 @@ WITH base AS (
         fact_event_logs_id AS ez_token_transfers_id,
         {% if is_incremental() %}
         SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp,
+        SYSDATE() AS modified_timestamp
         {% else %}
         GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
         GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
@@ -168,7 +168,7 @@ SELECT
     t0.ez_token_transfers_id,
     {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS modified_timestamp
     {% else %}
     GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
     GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
