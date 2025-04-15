@@ -26,7 +26,7 @@ WITH created_contracts AS (
 WHERE
     modified_timestamp > (
         SELECT
-            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
+            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
         FROM
             {{ this }})
         {% endif %}
@@ -60,7 +60,7 @@ WHERE
 {% if is_incremental() %}
 AND max_inserted_timestamp_logs > (
     SELECT
-        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
     FROM
         {{ this }})
     {% endif %}
@@ -75,42 +75,105 @@ combined AS (
         *
     FROM
         genesis_contracts
+),
+new_contracts AS (
+    SELECT
+        address,
+        c1.token_symbol AS symbol,
+        c1.token_name AS NAME,
+        c1.token_decimals AS decimals,
+        created_block_number,
+        created_block_timestamp,
+        created_tx_hash,
+        creator_address,
+        COALESCE (
+            c0.created_contracts_id,
+            {{ dbt_utils.generate_surrogate_key(
+                ['c0.address']
+            ) }}
+        ) AS dim_contracts_id,
+        GREATEST(COALESCE(c0.inserted_timestamp, '2000-01-01'), COALESCE(c1.inserted_timestamp, '2000-01-01')) AS inserted_timestamp,
+        GREATEST(COALESCE(c0.modified_timestamp, '2000-01-01'), COALESCE(c1.modified_timestamp, '2000-01-01')) AS modified_timestamp,
+        1 AS priority
+    FROM
+        combined c0
+        LEFT JOIN {{ ref('silver__contracts') }}
+        c1
+        ON LOWER(
+            c0.address
+        ) = LOWER(
+            c1.contract_address
+        )
+)
+
+{% if is_incremental() %},
+metadata_heal AS (
+    SELECT
+        address,
+        C.token_symbol AS symbol,
+        C.token_name AS NAME,
+        C.token_decimals AS decimals,
+        created_block_number,
+        created_block_timestamp,
+        created_tx_hash,
+        creator_address,
+        dim_contracts_id,
+        GREATEST(COALESCE(t.inserted_timestamp, '2000-01-01'), COALESCE(C.inserted_timestamp, '2000-01-01')) AS inserted_timestamp,
+        GREATEST(COALESCE(t.modified_timestamp, '2000-01-01'), COALESCE(C.modified_timestamp, '2000-01-01')) AS modified_timestamp,
+        2 AS priority
+    FROM
+        {{ this }}
+        t
+        INNER JOIN {{ ref('silver__contracts') }} C
+        ON LOWER(
+            t.address
+        ) = LOWER(
+            C.contract_address
+        )
+    WHERE
+        C.inserted_timestamp > (
+            SELECT
+                MAX(inserted_timestamp)
+            FROM
+                {{ this }}
+        )
+        AND (
+            t.symbol IS NULL
+            OR t.name IS NULL
+            OR t.decimals IS NULL
+        )
+)
+{% endif %},
+FINAL AS (
+    SELECT
+        *
+    FROM
+        new_contracts
+
+{% if is_incremental() %}
+UNION ALL
+SELECT
+    *
+FROM
+    metadata_heal
+{% endif %}
 )
 SELECT
     address,
-    c1.token_symbol AS symbol,
-    c1.token_name AS NAME,
-    c1.token_decimals AS decimals,
+    symbol,
+    NAME,
+    decimals,
     created_block_number,
     created_block_timestamp,
     created_tx_hash,
     creator_address,
-    COALESCE (
-        c0.created_contracts_id,
-        {{ dbt_utils.generate_surrogate_key(
-            ['c0.address']
-        ) }}
-    ) AS dim_contracts_id,
-    GREATEST(COALESCE(c0.inserted_timestamp, '2000-01-01'), COALESCE(c1.inserted_timestamp, '2000-01-01')) AS inserted_timestamp,
-    GREATEST(COALESCE(c0.modified_timestamp, '2000-01-01'), COALESCE(c1.modified_timestamp, '2000-01-01')) AS modified_timestamp
+    dim_contracts_id,
+    inserted_timestamp,
+    modified_timestamp
 FROM
-    combined c0
-    LEFT JOIN {{ ref('silver__contracts') }}
-    c1
-    ON LOWER(
-        c0.address
-    ) = LOWER(c1.contract_address)
-
-{% if is_incremental() %}
-WHERE
-    c0.modified_timestamp > (
-        SELECT
-            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
-        FROM
-            {{ this }})
-            OR c1.modified_timestamp > (
-                SELECT
-                    COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
-                FROM
-                    {{ this }})
-                {% endif %}
+    FINAL qualify ROW_NUMBER() over (
+        PARTITION BY address
+        ORDER BY
+            priority ASC,
+            modified_timestamp DESC
+    ) = 1
