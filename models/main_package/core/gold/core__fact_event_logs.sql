@@ -36,9 +36,9 @@
         l.origin_function_signature,
         txs.tx_succeeded,
         {{ dbt_utils.generate_surrogate_key(['l.tx_hash','l.event_index']) }} AS fact_event_logs_id,
-        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
             ELSE GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
-        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
             ELSE GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     FROM
         {{ source(
@@ -259,9 +259,9 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}
-    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
         ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
-    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
         ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     {% endif %}
 FROM
