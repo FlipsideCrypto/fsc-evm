@@ -262,10 +262,12 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS fact_event_logs_id,
     {% if is_incremental() %}
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS modified_timestamp
     {% else %}
-    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS inserted_timestamp,
-    GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) AS modified_timestamp
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '2 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     {% endif %}
 FROM
     all_logs 
