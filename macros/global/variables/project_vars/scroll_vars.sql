@@ -1,4 +1,4 @@
-{% macro mantle_vars() %}
+{% macro scroll_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'scroll',
         'GLOBAL_NODE_PROVIDER': 'quicknode',
