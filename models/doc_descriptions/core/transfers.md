@@ -118,14 +118,14 @@ The sending address of this transfer.
 
 {% docs evm_transfer_has_decimal %}
 
-Whether or not our contracts model contains the necessary decimal adjustment for this token. 
+Boolean flag indicating whether decimal information is available for this token (TRUE or FALSE).
 
 {% enddocs %}
 
 
 {% docs evm_transfer_has_price %}
 
-Whether or not our prices model contains this hourly token price. 
+Boolean flag indicating whether hourly price data is available for this token (TRUE or FALSE).
 
 {% enddocs %}
 

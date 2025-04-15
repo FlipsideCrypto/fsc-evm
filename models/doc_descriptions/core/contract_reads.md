@@ -7,14 +7,14 @@ This table contains contract reads for a variety of functions and contracts on t
 
 {% docs evm_contract_reads_contract_address %}
 
-The address of the contract read.
+The address of the smart contract being read.
 
 {% enddocs %}
 
 
 {% docs evm_contract_reads_block_number %}
 
-The block number the contract address was read at.
+The block number at which the contract read operation was performed.
 
 {% enddocs %}
 
@@ -28,21 +28,21 @@ The function signature called by this read. See `dim_function_signatures` for te
 
 {% docs evm_contract_reads_function_input %}
 
-The function inputs called in this read, if applicable.
+The input parameters provided to the function call, if applicable.
 
 {% enddocs %}
 
 
 {% docs evm_read_output %}
 
-The return of the contract call.
+The raw output returned by the contract function call.
 
 {% enddocs %}
 
 
 {% docs evm_segmented_output %}
 
-The return of the contract call, segmented into 64 character strings.
+The raw output returned by the contract function call, segmented into 64 character strings.
 
 {% enddocs %}
 

@@ -20,7 +20,7 @@ The decoded event inputs for a given event.
 
 {% docs evm_event_removed %}
 
-Whether the event has been removed from the transaction.
+Boolean flag indicating whether the event has been removed from the transaction (TRUE or FALSE).
 
 {% enddocs %}
 
@@ -34,7 +34,7 @@ This is the primary key for this table. This is a concatenation of the transacti
 
 {% docs evm_logs_contract_address %}
 
-The address interacted with for a given event.
+The address of the contract that emitted this event.
 
 {% enddocs %}
 
@@ -48,7 +48,7 @@ The name of the contract or token, where possible.
 
 {% docs evm_logs_data %}
 
-The un-decoded event data.
+The raw (un-decoded) data contained in the event log.
 
 {% enddocs %}
 
@@ -62,7 +62,7 @@ Transaction hash is a unique 66-character identifier that is generated when a tr
 
 {% docs evm_topics %}
 
-The un-decoded event input topics.
+The raw (un-decoded) event topics, which are indexed parameters of the event.
 
 {% enddocs %}
 

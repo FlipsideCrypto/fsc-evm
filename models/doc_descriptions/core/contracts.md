@@ -26,13 +26,6 @@ The unique address of the deployed contract.
 {% enddocs %}
 
 
-{% docs evm_contracts_metadata %}
-
-This JSON column contains other relevant details for each contract. 
-
-{% enddocs %}
-
-
 {% docs evm_contracts_name %}
 
 The name of the deployed contract. Please note this is not necessarily unique. 

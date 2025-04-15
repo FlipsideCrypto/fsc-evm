@@ -13,7 +13,7 @@ The labels table is a store of one-to-one address identifiers, or an address nam
 
 {% docs evm_project_name %}
 
-The name of the project for this address. 
+The project or protocol name associated with this address
 
 {% enddocs %}
 
