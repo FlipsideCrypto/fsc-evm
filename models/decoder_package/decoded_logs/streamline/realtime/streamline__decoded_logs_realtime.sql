@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','decoded_logs','realtime','phase_2']
+    tags = ['streamline','decoded_logs','realtime','phase_3']
 ) }}
 
 WITH target_blocks AS (
