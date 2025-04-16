@@ -113,6 +113,6 @@ WHERE
     {{ fsc_utils.if_data_call_wait() }}
     {% endset %}
     
-    {% do run_query(wait_call_sql) %}
+    {% do run_query("call system$wait(" ~ vars.DECODER_SL_DECODED_LOGS_REALTIME_WAIT_SECONDS ~ ")") %}
     {{ log("Wait function call executed", info=true) }}
 {% endif %}
