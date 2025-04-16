@@ -108,11 +108,4 @@ WHERE
     
     {% do run_query(function_call_sql) %}
     {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
-    
-    {% set wait_call_sql %}
-    {{ fsc_utils.if_data_call_wait() }}
-    {% endset %}
-    
-    {% do run_query("call system$wait(" ~ vars.DECODER_SL_DECODED_LOGS_REALTIME_WAIT_SECONDS ~ ")") %}
-    {{ log("Wait function call executed", info=true) }}
 {% endif %}
