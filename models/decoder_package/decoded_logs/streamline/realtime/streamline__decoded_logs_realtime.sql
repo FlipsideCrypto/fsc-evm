@@ -7,18 +7,6 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = [fsc_utils.if_data_call_function_v2( 
-        func = 'streamline.udf_bulk_decode_logs_v2', 
-        target = "{{this.schema}}.{{this.identifier}}", 
-        params = {
-            "external_table": vars.DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE,
-            "sql_limit": vars.DECODER_SL_DECODED_LOGS_REALTIME_SQL_LIMIT,
-            "producer_batch_size": vars.DECODER_SL_DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE,
-            "worker_batch_size": vars.DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE,
-            "sql_source": "decoded_logs_realtime"
-        } 
-    ), 
-    fsc_utils.if_data_call_wait()],
     tags = ['streamline','decoded_logs','realtime','phase_2']
 ) }}
 
@@ -98,4 +86,33 @@ WHERE
 {% if vars.DECODER_SL_TESTING_LIMIT is not none %}
     LIMIT
         {{ vars.DECODER_SL_TESTING_LIMIT }}
+{% endif %}
+
+{# Streamline Function Call #}
+{% if execute %}
+    {% set params = {
+        "external_table": vars.DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE,
+        "sql_limit": vars.DECODER_SL_DECODED_LOGS_REALTIME_SQL_LIMIT,
+        "producer_batch_size": vars.DECODER_SL_DECODED_LOGS_REALTIME_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE,
+        "sql_source": "decoded_logs_realtime"
+    } %}
+
+    {% set function_call_sql %}
+    {{ fsc_utils.if_data_call_function_v2(
+        func = 'streamline.udf_bulk_decode_logs_v2',
+        target = this.schema ~ "." ~ this.identifier,
+        params = params
+    ) }}
+    {% endset %}
+    
+    {% do run_query(function_call_sql) %}
+    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
+    
+    {% set wait_call_sql %}
+    {{ fsc_utils.if_data_call_wait() }}
+    {% endset %}
+    
+    {% do run_query(wait_call_sql) %}
+    {{ log("Wait function call executed", info=true) }}
 {% endif %}
