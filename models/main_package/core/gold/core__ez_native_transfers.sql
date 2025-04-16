@@ -40,7 +40,7 @@ WITH base AS (
         {{ dbt_utils.generate_surrogate_key(
             ['tx_hash', 'trace_index']
         ) }} AS ez_native_transfers_id,
-        {% if is_incremental() %}
+        {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
@@ -119,7 +119,7 @@ SELECT
     t.origin_to_address,
     t.origin_function_signature,
     t.ez_native_transfers_id,
-    {% if is_incremental() %}
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}

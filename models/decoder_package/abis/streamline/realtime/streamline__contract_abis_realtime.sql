@@ -26,7 +26,9 @@ WITH recent_relevant_contracts AS (
     WHERE
         s.contract_address IS NULL
         AND total_interaction_count > {{ vars.DECODER_SL_CONTRACT_ABIS_INTERACTION_COUNT }}
+        {% if not vars.DECODER_SL_NEW_BUILD_ENABLED %}
         AND max_inserted_timestamp >= DATEADD(DAY, -3, SYSDATE())
+        {% endif %}
     ORDER BY
         total_interaction_count DESC
     LIMIT

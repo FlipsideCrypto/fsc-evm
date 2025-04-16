@@ -255,7 +255,7 @@ SELECT
     origin_function_signature,
     tx_succeeded,
     {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS fact_event_logs_id,
-    {% if is_incremental() %}
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}

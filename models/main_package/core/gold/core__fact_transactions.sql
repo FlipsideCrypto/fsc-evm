@@ -815,7 +815,7 @@ SELECT
     source_hash,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
-    {% if is_incremental() %}
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}

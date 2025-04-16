@@ -88,7 +88,7 @@ SELECT
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
-    {% if is_incremental() %}
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}

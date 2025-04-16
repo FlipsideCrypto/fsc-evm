@@ -322,7 +322,7 @@ final_transfers AS (
         {{ dbt_utils.generate_surrogate_key(
             ['tx_hash','event_index','intra_event_index']
         ) }} AS ez_nft_transfers_id,
-        {% if is_incremental() %}
+        {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
@@ -387,7 +387,7 @@ SELECT
     t.origin_from_address,
     t.origin_to_address,
     t.ez_nft_transfers_id,
-    {% if is_incremental() %}
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}

@@ -58,7 +58,7 @@ WITH base AS (
             NULL
         ) AS token_standard,
         fact_event_logs_id AS ez_token_transfers_id,
-        {% if is_incremental() %}
+        {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
@@ -168,7 +168,7 @@ SELECT
     t0.origin_from_address,
     t0.origin_to_address,
     t0.ez_token_transfers_id,
-    {% if is_incremental() %}
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}
