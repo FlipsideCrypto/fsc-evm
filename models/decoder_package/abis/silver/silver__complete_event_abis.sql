@@ -25,7 +25,7 @@ WHERE
             {{ this }}
     )
 UNION
-    -- catches any late arriving implementation contracts - when we get its ABI but no delegatecalls where made yet
+    -- catches any late arriving implementation contracts - when we get its ABI but no delegatecalls were made yet
 SELECT
     DISTINCT implementation_contract AS contract_address
 FROM
