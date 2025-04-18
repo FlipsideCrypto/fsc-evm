@@ -11,8 +11,8 @@
     unique_key = "block_date",
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
-    full_refresh = false,
-    tags = ['silver','scores','phase_3']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','scores','phase_4']
 ) }}
 
 {% if is_incremental() %}

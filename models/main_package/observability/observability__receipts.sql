@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'test_timestamp',
-    full_refresh = false,
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','observability','phase_3']
 ) }}
 

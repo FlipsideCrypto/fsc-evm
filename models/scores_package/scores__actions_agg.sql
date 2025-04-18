@@ -14,8 +14,8 @@
     incremental_strategy = "delete+insert",
     cluster_by = "score_date",
     version = 1,
-    full_refresh = false,
-    tags = ['silver','scores','phase_3']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','scores','phase_4']
 ) }}
 
     {% set score_dates_query %}
