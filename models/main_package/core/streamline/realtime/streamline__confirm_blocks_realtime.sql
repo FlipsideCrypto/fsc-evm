@@ -69,6 +69,7 @@ to_do AS (
     FROM to_do
 
     {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        ORDER BY block_number DESC
         LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
