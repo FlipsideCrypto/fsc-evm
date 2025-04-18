@@ -11,7 +11,7 @@
     unique_key = "block_date",
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
-    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    full_refresh = false,
     tags = ['silver','scores','phase_4']
 ) }}
 

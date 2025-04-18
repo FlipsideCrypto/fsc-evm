@@ -7,7 +7,6 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_timestamp_hour",
     cluster_by = ['block_timestamp_hour::DATE'],
-    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver_stats','curated','stats','daily_test','phase_4']
 ) }}
 
