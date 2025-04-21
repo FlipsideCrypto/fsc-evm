@@ -22,6 +22,6 @@ jobs:
         run: pip install requests
           
       - name: Send Slack notification
-        run: python python/slack_alert.py
+        run: python dbt_packages/fsc_evm/python/slack_alert.py
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
