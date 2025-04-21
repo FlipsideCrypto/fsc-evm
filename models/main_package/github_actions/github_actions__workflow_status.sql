@@ -32,3 +32,4 @@ FROM
 -- TODO: 
 -- Improve run_minutes calc based on cron schedule from github_actions__workflows table or use "queued" status. 
 -- Update .yml tests accordingly.
+-- Determine if this should be a view or table.
