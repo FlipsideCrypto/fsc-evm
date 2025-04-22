@@ -5,7 +5,7 @@ on:
     branches:
       - "pre-release/v4-beta"
     paths:
-      - 'macros/utilities/variables/return_vars.sql'
+      - 'macros/global/variables/return_vars.sql'
 
 env:
   ACCOUNT: "${{ vars.ACCOUNT }}"
