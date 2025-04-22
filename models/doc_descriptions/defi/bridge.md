@@ -60,7 +60,7 @@ The address associated with the token that is being bridged. It provides a uniqu
 
 {% docs evm_bridge_token_symbol %}
 
-The symbol representing the token being bridged. This provides a shorthand representation of the token.
+The symbol representing the token being bridged (e.g. WETH, USDC).
 
 {% enddocs %}
 

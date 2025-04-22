@@ -96,7 +96,7 @@ The amount of debt the user must cover, valued in USD.
 
 {% docs evm_complete_lending_depositor_address %}
 
-The depositor's address.
+The address of the user who initiated the deposit action.
 
 {% enddocs %}
 
@@ -306,7 +306,7 @@ The total USD value of debt tokens, representing a debt to the protocol with a v
 
 {% docs evm_complete_lending_utilization_rate %}
 
-The percentage of assets loaned out.
+The percentage of total assets that are currently loaned out.
 
 {% enddocs %}
 
@@ -318,7 +318,7 @@ Debt tokens are interest-accruing tokens that are minted and burned on borrow an
 
 {% docs evm_complete_lending_version %}
 
-The contract version. Example: v1, v2
+The version of the lending protocol contract (e.g. v1, v2).
 
 {% enddocs %}
 
@@ -348,7 +348,7 @@ The protocol's specific lending asset token.
 
 {% docs evm_complete_lending_borrower %}
 
-Address that initiated the borrow event.
+The address of the user who initiated the borrow action
 
 {% enddocs %}
 
@@ -378,7 +378,7 @@ The symbol of the token associated with the lending action.
 
 {% docs evm_complete_lending_depositor %}
 
-Address that initiated a deposit event.
+The address of the user who initiated the deposit action
 
 {% enddocs %}
 
@@ -414,6 +414,6 @@ The flashloaned token symbol.
 
 {% docs evm_borrower %}
 
-It's the address of the user who is borrowing or repaying the loan, depending on the action.
+The address of the user who initiated the borrow action.
 
 {% enddocs %}
