@@ -146,14 +146,36 @@ metadata_heal AS (
 {% endif %},
 FINAL AS (
     SELECT
-        *
+        address,
+        symbol,
+        NAME,
+        decimals,
+        created_block_number,
+        created_block_timestamp,
+        created_tx_hash,
+        creator_address,
+        dim_contracts_id,
+        inserted_timestamp,
+        modified_timestamp,
+        priority
     FROM
         new_contracts
 
 {% if is_incremental() %}
 UNION ALL
 SELECT
-    *
+    address,
+    symbol,
+    NAME,
+    decimals,
+    created_block_number,
+    created_block_timestamp,
+    created_tx_hash,
+    creator_address,
+    dim_contracts_id,
+    inserted_timestamp,
+    modified_timestamp,
+    priority
 FROM
     metadata_heal
 {% endif %}
