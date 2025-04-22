@@ -39,16 +39,20 @@ WITH bronze_receipts AS (
     ) AND 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
         DATA:result IS NOT NULL
+        AND LENGTH(DATA:result::STRING) <= 16777216 -- MAX LOB SIZE
     {% else %}
         DATA IS NOT NULL
+        AND LENGTH(DATA::STRING) <= 16777216 -- MAX LOB SIZE
     {% endif %}
     {% else %}
     {{ ref('bronze__' ~ vars.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME.lower() ~ '_fr') }}
     WHERE 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
         DATA:result IS NOT NULL
+        AND LENGTH(DATA:result::STRING) <= 16777216
     {% else %}
         DATA IS NOT NULL
+        AND LENGTH(DATA::STRING) <= 16777216
     {% endif %}
     {% endif %}
 )

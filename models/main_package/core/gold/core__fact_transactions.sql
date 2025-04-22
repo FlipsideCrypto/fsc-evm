@@ -236,7 +236,7 @@ WHERE
             {% if rpc_vars.accessList %}
             txs.access_list,
             {% endif %}
-            {% if rpc_vars.l1blobBaseFee %}
+            {% if rpc_vars.l1BlobBaseFee %}
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             {% endif %}
             {% if rpc_vars.l1BlobBaseFeeScalar %}
@@ -815,8 +815,15 @@ SELECT
     source_hash,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
     all_transactions qualify ROW_NUMBER() over (
         PARTITION BY fact_transactions_id

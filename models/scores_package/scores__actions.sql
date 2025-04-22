@@ -12,7 +12,7 @@
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
     full_refresh = false,
-    tags = ['silver','scores','phase_3']
+    tags = ['silver','scores','phase_4']
 ) }}
 
 {% if is_incremental() %}

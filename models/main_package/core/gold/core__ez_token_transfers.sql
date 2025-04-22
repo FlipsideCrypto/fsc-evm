@@ -58,8 +58,15 @@ WITH base AS (
             NULL
         ) AS token_standard,
         fact_event_logs_id AS ez_token_transfers_id,
+        {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
+        {% else %}
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+            ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+            ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+        {% endif %}
     FROM
         {{ ref('core__fact_event_logs') }}
         f
@@ -161,8 +168,15 @@ SELECT
     t0.origin_from_address,
     t0.origin_to_address,
     t0.ez_token_transfers_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
     {{ this }}
     t0

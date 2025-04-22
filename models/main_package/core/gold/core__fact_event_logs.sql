@@ -14,6 +14,44 @@
     tags = ['gold','core','phase_2']
 ) }}
 
+--temp logic for migration
+{% if vars.GLOBAL_GOLD_FR_ENABLED is none and var('TEMP_LOGS_FR_ENABLED', false) %}
+
+    SELECT
+        l.block_number,
+        l.block_timestamp,
+        l.tx_hash,
+        txs.tx_position,
+        l.event_index,
+        l.contract_address,
+        l.topics,
+        l.topics [0] :: STRING AS topic_0,
+        l.topics [1] :: STRING AS topic_1,
+        l.topics [2] :: STRING AS topic_2,
+        l.topics [3] :: STRING AS topic_3,
+        l.data,
+        l.event_removed,
+        l.origin_from_address,
+        l.origin_to_address,
+        l.origin_function_signature,
+        txs.tx_succeeded,
+        {{ dbt_utils.generate_surrogate_key(['l.tx_hash','l.event_index']) }} AS fact_event_logs_id,
+        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+            ELSE GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+        CASE WHEN l.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+            ELSE GREATEST(l.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    FROM
+        {{ source(
+            'logs_temp',
+            'logs'
+        ) }}
+        l
+        LEFT JOIN {{ ref('core__fact_transactions') }}
+        txs
+        ON l.tx_hash = txs.tx_hash
+        AND l.block_number = txs.block_number
+{% else %}
+
 WITH base AS (
 
     SELECT
@@ -217,13 +255,22 @@ SELECT
     origin_function_signature,
     tx_succeeded,
     {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS fact_event_logs_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
-    all_logs qualify ROW_NUMBER() over (
+    all_logs 
+qualify ROW_NUMBER() over (
         PARTITION BY fact_event_logs_id
         ORDER BY
             block_number DESC,
             block_timestamp DESC nulls last,
             origin_function_signature DESC nulls last
     ) = 1
+{% endif %}

@@ -11,7 +11,7 @@
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold','core','phase_2']
+    tags = ['gold','core','traces','phase_2']
 ) }}
 
 WITH silver_traces AS (
@@ -30,7 +30,7 @@ WITH silver_traces AS (
             'regular' AS source
         FROM
             {{ ref(
-                'bronze__traces'
+                'silver__traces'
             ) }}
         WHERE
             1 = 1
@@ -790,8 +790,15 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash', 'trace_index']
     ) }} AS fact_traces_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
     all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if vars.MAIN_CORE_TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index
 ORDER BY

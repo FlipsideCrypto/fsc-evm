@@ -71,3 +71,10 @@ jobs:
       - name: Run DBT Jobs
         run: |
           dbt run-operation alter_all_gha_tasks --args '{"task_action": "${{ inputs.task_action }}"}' 
+
+  notify-failure:
+    needs: [run_dbt_jobs]
+    if: failure()
+    uses: ./.github/workflows/slack_notify.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

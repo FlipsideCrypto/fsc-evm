@@ -7,16 +7,6 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params ={ 
-            "external_table" :"contract_abis",
-            "sql_limit" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT,
-            "producer_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE,
-            "worker_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE,
-            "sql_source" : 'contract_abis_realtime'}
-    ),
     tags = ['streamline','abis','realtime','phase_2']
 ) }}
 
@@ -36,7 +26,9 @@ WITH recent_relevant_contracts AS (
     WHERE
         s.contract_address IS NULL
         AND total_interaction_count > {{ vars.DECODER_SL_CONTRACT_ABIS_INTERACTION_COUNT }}
+        {% if not vars.DECODER_SL_NEW_BUILD_ENABLED %}
         AND max_inserted_timestamp >= DATEADD(DAY, -3, SYSDATE())
+        {% endif %}
     ORDER BY
         total_interaction_count DESC
     LIMIT
@@ -80,3 +72,24 @@ SELECT
 FROM
     all_contracts
 
+{# Streamline Function Call #}
+{% if execute %}
+    {% set params = { 
+        "external_table" :"contract_abis",
+        "sql_limit" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT,
+        "producer_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE,
+        "worker_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE,
+        "sql_source" : 'contract_abis_realtime'
+    } %}
+
+    {% set function_call_sql %}
+    {{ fsc_utils.if_data_call_function_v2(
+        func = 'streamline.udf_bulk_rest_api_v2',
+        target = this.schema ~ "." ~ this.identifier,
+        params = params
+    ) }}
+    {% endset %}
+    
+    {% do run_query(function_call_sql) %}
+    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
+{% endif %}

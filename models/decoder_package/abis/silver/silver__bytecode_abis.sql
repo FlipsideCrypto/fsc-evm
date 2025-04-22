@@ -1,9 +1,13 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','abis','phase_2']
 ) }}
 

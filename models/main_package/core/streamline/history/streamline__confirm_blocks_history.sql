@@ -7,19 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = {
-            "external_table": 'confirm_blocks',
-            "sql_limit": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_SQL_LIMIT,
-            "producer_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_PRODUCER_BATCH_SIZE,
-            "worker_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE,
-            "async_concurrent_requests": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-            "sql_source": 'confirm_blocks_history'
-        }
-    ),
-    tags = ['streamline','core','history','confirm_blocks','phase_1']
+    tags = ['streamline','core','history','confirm_blocks','phase_2']
 ) }}
 
 {# Main query starts here #}
@@ -82,6 +70,7 @@ to_do AS (
     {% endif %}
 
     {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        ORDER BY block_number DESC
         LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
@@ -111,3 +100,26 @@ FROM
 ORDER BY partition_key DESC, block_number DESC
 
 LIMIT {{ vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_SQL_LIMIT }}
+
+{# Streamline Function Call #}
+{% if execute %}
+    {% set params = {
+        "external_table": 'confirm_blocks',
+        "sql_limit": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_SQL_LIMIT,
+        "producer_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'confirm_blocks_history'
+    } %}
+
+    {% set function_call_sql %}
+    {{ fsc_utils.if_data_call_function_v2(
+        func = 'streamline.udf_bulk_rest_api_v2',
+        target = this.schema ~ "." ~ this.identifier,
+        params = params
+    ) }}
+    {% endset %}
+    
+    {% do run_query(function_call_sql) %}
+    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
+{% endif %}

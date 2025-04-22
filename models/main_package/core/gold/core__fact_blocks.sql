@@ -18,15 +18,19 @@
 ) }}
 
 SELECT
-    block_number,
+    b.block_number,
     block_json :hash :: STRING AS block_hash,
     utils.udf_hex_to_int(
         block_json :timestamp :: STRING
     ) :: TIMESTAMP AS block_timestamp,
-    '{{ vars.GLOBAL_NETWORK_NAME }}' AS network,
+    '{{ vars.GLOBAL_NETWORK }}' AS network,
+    {% if is_incremental() %}
     ARRAY_SIZE(
         block_json :transactions
     ) AS tx_count,
+    {% else %}
+    tx.tx_count,
+    {% endif %}
     utils.udf_hex_to_int(
         block_json :size :: STRING
     ) :: bigint AS SIZE,
@@ -83,11 +87,30 @@ SELECT
     {% if rpc_vars.withdrawalsRoot %}
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
-    {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
+    {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
-    {{ ref('silver__blocks') }}
+    {{ ref('silver__blocks') }} b
+{% if not is_incremental() %}
+    LEFT JOIN (
+        SELECT
+            block_number,
+            COUNT(*) AS tx_count
+        FROM
+            {{ ref('silver__transactions') }}
+        GROUP BY
+            1
+    ) tx
+    ON b.block_number = tx.block_number
+{% endif %}
 WHERE 1=1
 
 {% if is_incremental() %}

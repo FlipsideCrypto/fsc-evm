@@ -13,7 +13,7 @@
     cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','decoded_logs','phase_2']
+    tags = ['silver','decoded_logs','phase_3']
 ) }}
 
 WITH base_data AS (

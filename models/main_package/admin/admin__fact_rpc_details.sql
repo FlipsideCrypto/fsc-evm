@@ -6,10 +6,10 @@
 
 {{ config(
     materialized = 'table',
-    tags = ['silver','admin','rpc_settings','phase_2']
+    tags = ['silver','admin','rpc_settings','phase_1']
 ) }}
 
-select 
+SELECT
     blockchain,
     receipts_by_block,
     blocks_per_hour,
@@ -17,12 +17,18 @@ select
     transactions_fields,
     receipts_fields,
     traces_fields,
-    inserted_at as rpc_sampled_at
-from
+    inserted_at AS rpc_sampled_at
+FROM
     {{ source(
         "fsc_evm_admin",
         "rpc_node_logs"
     ) }}
-where lower(blockchain) = lower('{{ vars.GLOBAL_PROJECT_NAME }}')
-and lower(network) = lower('{{ vars.GLOBAL_NETWORK }}')
-qualify row_number() over (partition by blockchain, network order by rpc_sampled_at desc) = 1
+WHERE
+    RESULT :error :: STRING IS NULL
+    AND LOWER(blockchain) = LOWER('{{ vars.GLOBAL_PROJECT_NAME }}')
+    AND LOWER(network) = LOWER('{{ vars.GLOBAL_NETWORK }}') qualify ROW_NUMBER() over (
+        PARTITION BY blockchain,
+        network
+        ORDER BY
+            rpc_sampled_at DESC
+    ) = 1

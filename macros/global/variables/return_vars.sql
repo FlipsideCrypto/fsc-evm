@@ -10,17 +10,19 @@
   
   {# Global Variables #}
   {% set ns.GLOBAL_PROJECT_NAME = get_var('GLOBAL_PROJECT_NAME', '') %}
+  {% set ns.GLOBAL_NODE_PROVIDER = get_var('GLOBAL_NODE_PROVIDER', '') %}
   {% set ns.GLOBAL_NODE_URL = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
   {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
   {% set ns.GLOBAL_NODE_VAULT_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
-  {% set ns.GLOBAL_NETWORK_NAME = get_var('GLOBAL_NETWORK_NAME', 'mainnet') %}
+  {% set ns.GLOBAL_NETWORK = get_var('GLOBAL_NETWORK', 'mainnet') %}
 
   {% set ns.GLOBAL_BRONZE_FR_ENABLED = none if get_var('GLOBAL_BRONZE_FR_ENABLED', false) else false %} {# Sets to none if true, still requires --full-refresh, otherwise will use incremental #}
   {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_GOLD_FR_ENABLED = none if get_var('GLOBAL_GOLD_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
-
+  {% set ns.GLOBAL_NEW_BUILD_ENABLED = get_var('GLOBAL_NEW_BUILD_ENABLED', false) %}
+  
   {# GHA Workflow Variables #}
   {% set ns.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON = get_var('MAIN_GHA_STREAMLINE_CHAINHEAD_CRON', '0,30 * * * *') %}
   {% set ns.MAIN_GHA_SCHEDULED_MAIN_CRON = get_var('MAIN_GHA_SCHEDULED_MAIN_CRON', none) %}
@@ -79,7 +81,7 @@
       {% set ns.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY = "block_number" %}
   {% endif %}
 
-  {# Streamline Variables #}
+  {# Main Streamline Variables #}
   {% set ns.MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 1) %}
   {% set ns.MAIN_SL_TRANSACTIONS_PER_BLOCK = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 1) %}
   {% set ns.MAIN_SL_TESTING_LIMIT = get_var('MAIN_SL_TESTING_LIMIT', none) %}
@@ -146,8 +148,9 @@
   {% set ns.MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE = get_var('MAIN_SL_CONFIRM_BLOCKS_HISTORY_WORKER_BATCH_SIZE', ns.MAIN_SL_BLOCKS_PER_HOUR) %}
   {% set ns.MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS = get_var('MAIN_SL_CONFIRM_BLOCKS_HISTORY_ASYNC_CONCURRENT_REQUESTS', 10) %}
 
-  {# SL Decoder Variables #}
+  {# Decoder SL Variables #}
   {% set ns.DECODER_SL_TESTING_LIMIT = get_var('DECODER_SL_TESTING_LIMIT', none) %}
+  {% set ns.DECODER_SL_NEW_BUILD_ENABLED = get_var('DECODER_SL_NEW_BUILD_ENABLED', false) %}
 
   {# SL Decoded Logs Variables #}
   {% set ns.DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE = get_var('DECODER_SL_DECODED_LOGS_REALTIME_EXTERNAL_TABLE', 'decoded_logs') %}

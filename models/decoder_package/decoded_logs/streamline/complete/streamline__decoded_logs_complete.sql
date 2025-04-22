@@ -15,7 +15,7 @@
     merge_update_columns = ["_log_id"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(_log_id)",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline','decoded_logs','complete','phase_2']
+    tags = ['streamline','decoded_logs','complete','phase_3']
 ) }}
 
 {# Main query starts here #}
@@ -23,7 +23,7 @@ SELECT
     block_number,
     file_name,
     id AS _log_id,
-    {{ dbt_utils.generate_surrogate_key(['id']) }} AS complete_{{ source_name.lower() }}_id,
+    {{ dbt_utils.generate_surrogate_key(['id']) }} AS complete_decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,

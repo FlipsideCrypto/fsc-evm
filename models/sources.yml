@@ -60,7 +60,7 @@ sources:
     schema: bronze_public
     tables:
       - name: user_abis
-  - name: silver
+  - name: abis_silver
     database: "{{ target.database }}"
     schema: silver
     tables:
@@ -82,3 +82,8 @@ sources:
     tables:
       - name: _master_keys
       - name: rpc_node_logs
+  - name: logs_temp
+    database: "{{ target.database }}"
+    schema: silver
+    tables:
+      - name: logs
