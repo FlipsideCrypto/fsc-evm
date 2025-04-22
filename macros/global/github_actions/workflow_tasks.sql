@@ -50,9 +50,8 @@ SELECT
     workflow_schedule,
     cadence
 FROM
-    {{ source(
-        'github_actions',
-        'workflows'
+    {{ ref(
+        'github_actions__workflows'
     ) }}
 {% endmacro %}
 
