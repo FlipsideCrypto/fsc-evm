@@ -1,7 +1,7 @@
 name: dbt_run_template_alter_all_gha_tasks
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       task_action:
         type: choice
