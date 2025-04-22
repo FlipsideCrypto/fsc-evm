@@ -4,13 +4,10 @@ on:
   workflow_call:
     inputs:
       task_action:
-        type: choice
-        description: 'Action to perform on all tasks'
+        type: string
+        description: 'Action to perform on all tasks (RESUME, SUSPEND)'
         required: true
         default: RESUME
-        options:
-          - RESUME
-          - SUSPEND
       target:
         type: string
         required: false
