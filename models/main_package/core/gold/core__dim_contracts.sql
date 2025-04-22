@@ -67,12 +67,26 @@ AND max_inserted_timestamp_logs > (
 ),
 combined AS (
     SELECT
-        *
+        address,
+        created_block_number,
+        created_block_timestamp,
+        created_tx_hash,
+        creator_address,
+        created_contracts_id,
+        inserted_timestamp,
+        modified_timestamp
     FROM
         created_contracts
     UNION ALL
     SELECT
-        *
+        address,
+        created_block_number,
+        created_block_timestamp,
+        created_tx_hash,
+        creator_address,
+        created_contracts_id,
+        inserted_timestamp,
+        modified_timestamp
     FROM
         genesis_contracts
 ),
