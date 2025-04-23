@@ -75,7 +75,8 @@ AND tr.modified_timestamp > (
         {{ this }}
 )
 {% endif %}
-)
+),
+final AS (
 SELECT
     block_number,
     block_timestamp,
@@ -143,4 +144,32 @@ WHERE
     t.amount_usd IS NULL
     AND t.block_timestamp :: DATE >= '{{ vars.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE }}'
     AND b.ez_native_transfers_id IS NULL
+{% endif %}
+)
+SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    tx_position,
+    trace_index,
+    trace_address,
+    TYPE,
+    from_address,
+    to_address,
+    amount,
+    amount_precise_raw,
+    amount_precise,
+    amount_usd,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    ez_native_transfers_id,
+    inserted_timestamp,
+    modified_timestamp
+FROM
+    final
+{% if is_incremental() %}
+qualify(ROW_NUMBER() over(PARTITION BY ez_native_transfers_id
+ORDER BY
+    modified_timestamp DESC)) = 1
 {% endif %}
