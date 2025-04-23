@@ -8,7 +8,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
-    tags = ['bronze','core','reads','recent_test','phase_2']
+    tags = ['bronze','core','token_reads','phase_2']
 ) }}
 
 WITH base AS (
@@ -32,7 +32,7 @@ AND contract_address NOT IN (
 ORDER BY
     total_event_count DESC
 LIMIT
-    200
+    50
 ), function_sigs AS (
     SELECT
         '0x313ce567' AS function_sig,
@@ -77,24 +77,21 @@ ready_reads AS (
     FROM
         all_reads
 ),
-batch_reads AS (
-    SELECT
-        ARRAY_AGG(rpc_request) AS batch_rpc_request
-    FROM
-        ready_reads
-),
 node_call AS (
     SELECT
         *,
         live.udf_api(
             'POST',
             '{{ vars.GLOBAL_NODE_URL }}',
-            {},
-            batch_rpc_request,
+            OBJECT_CONSTRUCT(
+            'Content-Type', 'application/json',
+            'fsc-quantum-state', 'livequery'
+            ),
+            rpc_request,
            '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS response
     FROM
-        batch_reads
+        ready_reads
     WHERE
         EXISTS (
             SELECT
@@ -104,30 +101,13 @@ node_call AS (
             LIMIT
                 1
         )
-), flat_responses AS (
-    SELECT
-        VALUE :id :: STRING AS call_id,
-        VALUE :result :: STRING AS read_result
-    FROM
-        node_call,
-        LATERAL FLATTEN (
-            input => response :data
-        )
 )
 SELECT
-    SPLIT_PART(
-        call_id,
-        '-',
-        1
-    ) AS contract_address,
-    SPLIT_PART(
-        call_id,
-        '-',
-        3
-    ) AS block_number,
-    LEFT(SPLIT_PART(call_id, '-', 2), 10) AS function_sig,
+    contract_address,
+    latest_block AS block_number,
+    LEFT(input, 10) AS function_sig,
     NULL AS function_input,
-    read_result,
+    response:data:result::string as read_result,
     SYSDATE() :: TIMESTAMP AS _inserted_timestamp
 FROM
-    flat_responses
+    node_call
