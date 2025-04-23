@@ -32,7 +32,7 @@
 {% set workflow_definitions = [
     {'name': 'dbt_run_streamline_chainhead', 'cadence': 'root', 'root_schedule': chainhead_schedule},
     {'name': 'dbt_run_scheduled_main', 'cadence': 'hourly', 'root_offset': 15},
-    {'name': 'dbt_run_scheduled_decoder', 'cadence': 'hourly', 'root_offset': 50},
+    {'name': 'dbt_run_scheduled_decoder', 'cadence': 'hourly', 'root_offset': 40},
     {'name': 'dbt_run_scheduled_curated', 'cadence': 'every_4_hours', 'root_offset': 30},
     {'name': 'dbt_run_scheduled_abis', 'cadence': 'daily', 'root_offset': 20, 'hour': 1},
     {'name': 'dbt_run_scheduled_scores', 'cadence': 'daily', 'root_offset': 35, 'hour': 2},
