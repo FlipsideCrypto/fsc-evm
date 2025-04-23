@@ -37,7 +37,7 @@
     {'name': 'dbt_run_scheduled_abis', 'cadence': 'daily', 'root_offset': 20, 'hour': 1},
     {'name': 'dbt_run_scheduled_scores', 'cadence': 'daily', 'root_offset': 35, 'hour': 2},
     {'name': 'dbt_test_daily', 'cadence': 'daily', 'root_offset': 50, 'hour': 3},
-    {'name': 'dbt_test_intraday', 'cadence': 'hourly', 'root_offset': 50},
+    {'name': 'dbt_test_intraday', 'cadence': 'every_4_hours', 'root_offset': 50},
     {'name': 'dbt_test_monthly', 'cadence': 'monthly', 'root_offset': 20, 'hour': 1},
     {'name': 'dbt_run_heal_models', 'cadence': 'weekly', 'root_offset': 45, 'hour': 6, 'day': 0},
     {'name': 'dbt_run_full_observability', 'cadence': 'monthly', 'root_offset': 25, 'hour': 2},

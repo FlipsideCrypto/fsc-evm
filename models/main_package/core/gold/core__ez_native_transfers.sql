@@ -44,9 +44,9 @@ WITH base AS (
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
         {% else %}
-        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
             ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
-        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
             ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
         {% endif %}
     FROM
@@ -75,7 +75,8 @@ AND tr.modified_timestamp > (
         {{ this }}
 )
 {% endif %}
-)
+),
+final AS (
 SELECT
     block_number,
     block_timestamp,
@@ -123,9 +124,9 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
     {% else %}
-    CASE WHEN t.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+    CASE WHEN t.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
         ELSE GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
-    CASE WHEN t.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '4 hours' THEN SYSDATE() 
+    CASE WHEN t.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
         ELSE GREATEST(t.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     {% endif %}
 FROM
@@ -143,4 +144,32 @@ WHERE
     t.amount_usd IS NULL
     AND t.block_timestamp :: DATE >= '{{ vars.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE }}'
     AND b.ez_native_transfers_id IS NULL
+{% endif %}
+)
+SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    tx_position,
+    trace_index,
+    trace_address,
+    TYPE,
+    from_address,
+    to_address,
+    amount,
+    amount_precise_raw,
+    amount_precise,
+    amount_usd,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    ez_native_transfers_id,
+    inserted_timestamp,
+    modified_timestamp
+FROM
+    final
+{% if is_incremental() %}
+qualify(ROW_NUMBER() over(PARTITION BY ez_native_transfers_id
+ORDER BY
+    modified_timestamp DESC)) = 1
 {% endif %}
