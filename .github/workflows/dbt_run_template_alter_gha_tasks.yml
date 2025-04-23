@@ -1,4 +1,4 @@
-name: dbt_run_template_alter_gha_task
+name: dbt_run_template_alter_gha_tasks
 
 on:
   workflow_call:
@@ -73,7 +73,7 @@ jobs:
 
       - name: Run DBT Jobs
         run: |
-          dbt run-operation alter_gha_task --args '{ "task_names": "TRIGGER_${{ env.WORKFLOW_NAME_UPPER }}", "task_action": "${{ inputs.task_action }}" }'
+          dbt run-operation fsc_evm.alter_gha_tasks --args '{"task_names": "TRIGGER_${{ env.WORKFLOW_NAME_UPPER }}", "task_action": "${{ inputs.task_action }}"}'
 
   notify-failure:
     needs: [run_dbt_jobs]

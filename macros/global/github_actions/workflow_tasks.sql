@@ -172,7 +172,7 @@ GROUP BY
     workflow_name
 {% endmacro %}
 
-{% macro alter_gha_task(
+{% macro alter_gha_tasks(
         task_names,
         task_action
     ) %}
