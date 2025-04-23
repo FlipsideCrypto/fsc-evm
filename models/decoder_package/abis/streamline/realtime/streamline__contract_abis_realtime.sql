@@ -66,7 +66,7 @@ SELECT
             'Content-Type', 'application/json',
             'fsc-quantum-state', 'streamline'
         ),
-        NULL,
+        {},
         '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH }}'
     ) AS request
 FROM

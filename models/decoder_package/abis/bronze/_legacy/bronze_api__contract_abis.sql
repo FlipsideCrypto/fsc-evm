@@ -86,7 +86,7 @@ batched AS (
             'Content-Type', 'application/json',
             'fsc-quantum-state', 'livequery'
             ),
-            NULL,
+            {},
             '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH }}'
         ) AS abi_data
     FROM

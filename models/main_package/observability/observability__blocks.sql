@@ -82,7 +82,7 @@ generated_range AS (
         max_block_timestamp,
         blocks_tested
     FROM
-        {{ ref('utils__number_sequence') }}
+        {{ ref('admin__number_sequence') }}
         INNER JOIN summary_stats
     WHERE
         _id BETWEEN min_block
