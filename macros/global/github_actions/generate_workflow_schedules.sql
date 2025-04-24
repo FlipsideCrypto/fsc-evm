@@ -67,6 +67,11 @@
 
     SELECT 
         '{{ workflow.name }}' AS workflow_name,
+        concat_ws(
+            '_',
+            'TRIGGER',
+            UPPER(workflow_name)
+        ) AS task_name,
         {% if workflow.cadence == 'root' %}
             '{{ workflow.root_schedule }}'
         {% else %}
@@ -79,7 +84,7 @@
             {% elif workflow.cadence == 'weekly' %}
                 '{{ template.replace("{minute}", minute_val).replace("{hour}", hour_val | string).replace("{day}", day_val | string) }}'
             {% endif %}
-        {% endif %} AS workflow_schedule,
+        {% endif %} AS cron_schedule,
         '{{ workflow.cadence }}' AS cadence
     
     {% if not loop.last %}

@@ -9,4 +9,15 @@
     tags = ['silver','gha_tasks','phase_1']
 ) }}
 
-{{ generate_workflow_schedules(vars.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON) }}
+WITH workflows AS (
+    {{ generate_workflow_schedules(
+        vars.main_gha_streamline_chainhead_cron
+    ) }}
+)
+SELECT
+    task_name,
+    workflow_name,
+    cadence,
+    cron_schedule
+FROM
+    workflows

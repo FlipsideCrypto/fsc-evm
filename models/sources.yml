@@ -1,6 +1,11 @@
 version: 2 
 
 sources:
+  - name: snowflake_account_usage
+    database: snowflake
+    schema: account_usage
+    tables:
+      - name: complete_task_graphs
   - name: github_actions
     database: "{{ target.database }}"
     schema: github_actions

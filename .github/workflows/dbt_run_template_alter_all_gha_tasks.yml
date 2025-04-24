@@ -83,7 +83,7 @@ jobs:
       - name: Run DBT Jobs
         run: |
           if [ -n "$TASK_NAMES" ]; then
-            dbt run-operation alter_gha_tasks --args '{"task_names": "${{ env.TASK_NAMES }}", "task_action": "${{ inputs.task_action }}"}' 
+            dbt run-operation fsc_evm.alter_gha_tasks --args '{"task_names": "${{ env.TASK_NAMES }}", "task_action": "${{ inputs.task_action }}"}' 
           else
             echo "No workflow files found. No tasks to alter."
           fi
