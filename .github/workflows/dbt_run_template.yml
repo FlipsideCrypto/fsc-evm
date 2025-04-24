@@ -58,7 +58,7 @@ jobs:
           if [[ "${{ inputs.target }}" == *"prod"* ]]; then
             echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
             echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
-            echo "WAREHOUSE=DBT_CLOUD" >> $GITHUB_ENV
+            echo "WAREHOUSE=${{ inputs.warehouse }}" >> $GITHUB_ENV
           elif [[ "${{ inputs.target }}" == *"test"* ]]; then
             echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
             echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
