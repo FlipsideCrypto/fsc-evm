@@ -62,55 +62,6 @@ AND (
     AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
 {% endif %}
 
-{% if vars.MAIN_CORE_GOLD_TRACES_OVERFLOW_ENABLED %}
-UNION ALL
-SELECT
-    block_number,
-    {% if vars.MAIN_CORE_TRACES_SEI_MODE %}
-        tx_hash,
-    {% else %}
-        tx_position,
-    {% endif %}
-    trace_address,
-    parent_trace_address,
-    trace_address_array,
-    trace_json,
-    traces_id,
-    'overflow' AS source
-FROM
-    {{ ref(
-        'silver__overflowed_traces'
-    ) }}
-WHERE
-    1 = 1
-
-{% if is_incremental() and not vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
-AND modified_timestamp > (
-    SELECT
-        DATEADD('hour', -2, MAX(modified_timestamp))
-    FROM
-        {{ this }}) {% elif is_incremental() and vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
-        AND block_number BETWEEN (
-            SELECT
-                MAX(
-                    block_number
-                )
-            FROM
-                {{ this }}
-        )
-        AND (
-            SELECT
-                MAX(
-                    block_number
-                ) + {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_BLOCKS_PER_RUN }}
-            FROM
-                {{ this }}
-        )
-    {% else %}
-        AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
-    {% endif %}
-    {% endif %}
-
     {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
     UNION ALL
     SELECT
@@ -580,14 +531,6 @@ AND t.modified_timestamp >= (
 )
 
 {% if is_incremental() %},
-overflow_blocks AS (
-    SELECT
-        DISTINCT block_number
-    FROM
-        silver_traces
-    WHERE
-        source = 'overflow'
-),
 heal_missing_data AS (
     SELECT
         t.block_number,
@@ -721,40 +664,6 @@ SELECT
 {% endif %}
 FROM
     heal_missing_data
-UNION ALL
-SELECT
-    block_number,
-    tx_hash,
-    block_timestamp,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    tx_position,
-    trace_index,
-    from_address,
-    to_address,
-    value_hex,
-    value_precise_raw,
-    value_precise,
-    VALUE,
-    gas,
-    gas_used,
-    input,
-    output,
-    TYPE,
-    sub_traces,
-    error_reason,
-    revert_reason,
-    trace_succeeded,
-    trace_address,
-    tx_succeeded
-    {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
-    before_evm_transfers,
-    after_evm_transfers
-{% endif %}
-FROM
-    {{ this }}
-    JOIN overflow_blocks USING (block_number)
 {% endif %}
 )
 SELECT
