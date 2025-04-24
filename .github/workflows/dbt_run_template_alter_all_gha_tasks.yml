@@ -64,10 +64,29 @@ jobs:
         run: |
           pip install -r requirements.txt
           dbt deps
+      
+      - name: Generate task names from existing workflows
+        run: |
+          TASK_NAMES=""
+          for file in $(find .github/workflows -name "*.yml" -type f); do
+            filename=$(basename "$file" .yml)
+            task="TRIGGER_$(echo $filename | tr '[:lower:]' '[:upper:]')"
+            if [ -z "$TASK_NAMES" ]; then
+              TASK_NAMES="$task"
+            else
+              TASK_NAMES="$TASK_NAMES,$task"
+            fi
+          done
+          echo "TASK_NAMES=$TASK_NAMES" >> $GITHUB_ENV
+          echo "Found task names: $TASK_NAMES"
 
       - name: Run DBT Jobs
         run: |
-          dbt run-operation alter_all_gha_tasks --args '{"task_action": "${{ inputs.task_action }}"}' 
+          if [ -n "$TASK_NAMES" ]; then
+            dbt run-operation alter_gha_tasks --args '{"task_names": "${{ env.TASK_NAMES }}", "task_action": "${{ inputs.task_action }}"}' 
+          else
+            echo "No workflow files found. No tasks to alter."
+          fi
 
   notify-failure:
     needs: [run_dbt_jobs]
