@@ -3,11 +3,11 @@
 {# Get all variables from return_vars #}
 {% set vars = return_vars() %}
 
-{# Parse chainhead schedule #}
+{# Parse chainhead schedule with safety checks #}
 {% set chainhead_components = chainhead_schedule.split(' ') %}
-{% set chainhead_minutes = chainhead_components[0] %}
+{% set chainhead_minutes = chainhead_components[0] if chainhead_components|length > 0 else '0' %}
 {% set chainhead_minutes_list = chainhead_minutes.split(',') | map('int') | list %}
-{% set max_chainhead_minute = chainhead_minutes_list | max %}
+{% set max_chainhead_minute = chainhead_minutes_list | max if chainhead_minutes_list|length > 0 else 0 %}
 
 {# Generate a repo_id based on database name length to ensure unique schedules #}
 {% set db_name = target.database %}
