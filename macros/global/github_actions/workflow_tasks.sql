@@ -1,37 +1,27 @@
-{% macro sp_update_workflow_table() %}
-CREATE OR REPLACE PROCEDURE {{ target.database }}.github_actions.update_workflow_table(workflow_list VARCHAR)
-RETURNS VARCHAR
-LANGUAGE JAVASCRIPT
-AS
-$$
-try {
-    // Parse the comma-separated list of workflow names
-    var workflows = WORKFLOW_LIST.split(',').map(w => w.trim());
+{% macro update_workflow_table(workflow_values) %}
+    -- Create schema if it doesn't exist
+    {% set create_schema_sql %}
+    CREATE SCHEMA IF NOT EXISTS github_actions;
+    {% endset %}
+    {% do run_query(create_schema_sql) %}
     
-    // Prepare values for SQL statement
-    var values = workflows.map(w => `('${w}')`).join(',');
-    
-    // Create or replace the workflows table
-    var sql = `
-    CREATE OR REPLACE TABLE {{ target.database }}.github_actions.workflows AS
+    -- Create or replace the workflows table
+    {% set update_table_sql %}
+    CREATE OR REPLACE TABLE github_actions.workflows AS 
     WITH source_data AS (
-      SELECT column1 as workflow_name
-      FROM VALUES
-      ${values}
-    )
+        SELECT column1 as workflow_name 
+        FROM VALUES 
+        {{ workflow_values }}
+    ) 
     SELECT 
-      workflow_name,
-      current_timestamp() as inserted_at
-    FROM 
-      source_data;`;
+        workflow_name, 
+        SYSDATE() as inserted_at 
+    FROM source_data;
+    {% endset %}
+    {% do run_query(update_table_sql) %}
     
-    snowflake.execute({sqlText: sql});
-    
-    return "Successfully updated workflows table with " + workflows.length + " workflows";
-} catch (err) {
-    return "Error updating workflows table: " + err;
-}
-$$;
+    -- Return success message
+    {% do log("Table github_actions.workflows updated successfully.", info=True) %}
 {% endmacro %}
 
 {% macro create_gha_tasks() %}
