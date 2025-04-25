@@ -6,9 +6,7 @@
     tags = ['silver','gha_tasks','phase_1']
 ) }}
 
-WITH task_status AS (
 {{ get_task_status() }}
-)
 
 SELECT
     task_name,
@@ -21,6 +19,9 @@ SELECT
     created_on,
     last_committed_on,
     last_suspended_on,
-    comment
-FROM 
-    task_status
+    COMMENT
+FROM
+    {{ source(
+        'github_actions',
+        'task_status'
+    ) }}

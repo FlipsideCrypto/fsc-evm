@@ -11,6 +11,7 @@ sources:
     schema: github_actions
     tables:
       - name: workflows
+      - name: task_status
   - name: bronze_streamline
     database: "{{ target.database }}"
     schema: streamline      
