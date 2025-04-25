@@ -1,9 +1,26 @@
-{% macro update_workflow_table(workflow_values) %}
+{% macro create_workflow_table(workflow_values) %}
     -- Create schema if it doesn't exist
     {% set create_schema_sql %}
     CREATE SCHEMA IF NOT EXISTS github_actions;
     {% endset %}
     {% do run_query(create_schema_sql) %}
+    
+    -- Set up grants on the schema for future objects
+    {% set prod_db = target.database.lower().replace('_dev', '') %}
+    {% set grant_future_sql %}
+    -- Grant usage on schema
+    GRANT USAGE ON SCHEMA github_actions TO ROLE INTERNAL_DEV;
+    GRANT USAGE ON SCHEMA github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    
+    -- Grant future usage and select on tables
+    GRANT SELECT ON FUTURE TABLES IN SCHEMA github_actions TO ROLE INTERNAL_DEV;
+    GRANT SELECT ON FUTURE TABLES IN SCHEMA github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    
+    -- Grant future usage and select on views
+    GRANT SELECT ON FUTURE VIEWS IN SCHEMA github_actions TO ROLE INTERNAL_DEV;
+    GRANT SELECT ON FUTURE VIEWS IN SCHEMA github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    {% endset %}
+    {% do run_query(grant_future_sql) %}
     
     -- Create or replace the workflows table
     {% set update_table_sql %}
@@ -20,8 +37,7 @@
     {% endset %}
     {% do run_query(update_table_sql) %}
     
-    -- Return success message
-    {% do log("Table github_actions.workflows updated successfully.", info=True) %}
+    {% do log("Table github_actions.workflows updated successfully with grants applied.", info=True) %}
 {% endmacro %}
 
 {% macro create_gha_tasks() %}
