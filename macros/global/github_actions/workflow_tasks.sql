@@ -1,5 +1,5 @@
 {% macro sp_update_workflow_table() %}
-CREATE OR REPLACE PROCEDURE github_actions.update_workflow_table(workflow_list VARCHAR)
+CREATE OR REPLACE PROCEDURE {{ target.database }}.github_actions.update_workflow_table(workflow_list VARCHAR)
 RETURNS VARCHAR
 LANGUAGE JAVASCRIPT
 AS
@@ -13,7 +13,7 @@ try {
     
     // Create or replace the workflows table
     var sql = `
-    CREATE OR REPLACE TABLE github_actions.workflows AS
+    CREATE OR REPLACE TABLE {{ target.database }}.github_actions.workflows AS
     WITH source_data AS (
       SELECT column1 as workflow_name
       FROM VALUES
