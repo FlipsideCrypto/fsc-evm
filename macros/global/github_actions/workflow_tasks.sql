@@ -45,7 +45,11 @@ $$;
         {{ ref('github_actions__workflow_schedule') }}
     {% endset %}
     {% set results = run_query(query) %}
-    {% set results_list = execute and results is not none ? results.rows : [] %}
+    {% if execute and results is not none %}
+        {% set results_list = results.rows %}
+    {% else %}
+        {% set results_list = [] %}
+    {% endif %}
     
     -- Normalize database name
     {% set prod_db = target.database.lower().replace('_dev', '') %}
