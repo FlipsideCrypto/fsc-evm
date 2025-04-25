@@ -63,7 +63,6 @@ jobs:
       - name: Generate workflow names
         id: generate-workflows
         run: |
-          # Generate the list of workflow names
           WORKFLOW_VALUES=""
           for file in $(find .github/workflows -name "*.yml" -type f); do
             filename=$(basename "$file" .yml)
