@@ -9,22 +9,22 @@
     {% set prod_db = target.database.lower().replace('_dev', '') %}
     {% set grant_future_sql %}
     -- Grant usage on schema
-    GRANT USAGE ON SCHEMA github_actions TO ROLE INTERNAL_DEV;
-    GRANT USAGE ON SCHEMA github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
+    GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
     
     -- Grant future usage and select on tables
-    GRANT SELECT ON FUTURE TABLES IN SCHEMA github_actions TO ROLE INTERNAL_DEV;
-    GRANT SELECT ON FUTURE TABLES IN SCHEMA github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    GRANT SELECT ON FUTURE TABLES IN SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
+    GRANT SELECT ON FUTURE TABLES IN SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
     
     -- Grant future usage and select on views
-    GRANT SELECT ON FUTURE VIEWS IN SCHEMA github_actions TO ROLE INTERNAL_DEV;
-    GRANT SELECT ON FUTURE VIEWS IN SCHEMA github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    GRANT SELECT ON FUTURE VIEWS IN SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
+    GRANT SELECT ON FUTURE VIEWS IN SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
     {% endset %}
     {% do run_query(grant_future_sql) %}
     
     -- Create or replace the workflows table
     {% set update_table_sql %}
-    CREATE OR REPLACE TABLE github_actions.workflows AS 
+    CREATE OR REPLACE TABLE {{target.database}}.github_actions.workflows AS 
     WITH source_data AS (
         SELECT column1 as workflow_name 
         FROM VALUES 
