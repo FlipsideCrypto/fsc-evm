@@ -5,23 +5,6 @@
     {% endset %}
     {% do run_query(create_schema_sql) %}
     
-    -- Set up grants on the schema for future objects
-    {% set prod_db = target.database.lower().replace('_dev', '') %}
-    {% set grant_future_sql %}
-    -- Grant usage on schema
-    GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
-    GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
-    
-    -- Grant future usage and select on tables
-    GRANT SELECT ON FUTURE TABLES IN SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
-    GRANT SELECT ON FUTURE TABLES IN SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
-    
-    -- Grant future usage and select on views
-    GRANT SELECT ON FUTURE VIEWS IN SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
-    GRANT SELECT ON FUTURE VIEWS IN SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
-    {% endset %}
-    {% do run_query(grant_future_sql) %}
-    
     -- Create or replace the workflows table
     {% set update_table_sql %}
     CREATE OR REPLACE TABLE {{target.database}}.github_actions.workflows AS 
@@ -36,6 +19,19 @@
     FROM source_data;
     {% endset %}
     {% do run_query(update_table_sql) %}
+    
+    -- Set up specific grants for the schema and table
+    {% set prod_db = target.database.lower().replace('_dev', '') %}
+    {% set grant_sql %}
+    -- Grant usage on schema
+    GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
+    GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
+    
+    -- Grant select on the specific table
+    GRANT SELECT ON TABLE {{target.database}}.github_actions.workflows TO ROLE INTERNAL_DEV;
+    GRANT SELECT ON TABLE {{target.database}}.github_actions.workflows TO ROLE DBT_CLOUD_{{ prod_db }};
+    {% endset %}
+    {% do run_query(grant_sql) %}
     
     {% do log("Table github_actions.workflows updated successfully with grants applied.", info=True) %}
 {% endmacro %}
