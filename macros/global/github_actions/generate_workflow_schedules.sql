@@ -67,11 +67,6 @@
 
     SELECT 
         '{{ workflow.name }}' AS workflow_name,
-        concat_ws(
-            '_',
-            'TRIGGER',
-            UPPER(workflow_name)
-        ) AS task_name,
         {% if workflow.cadence == 'root' %}
             '{{ workflow.root_schedule }}'
         {% else %}

@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'table',
     tags = ['silver','gha_tasks','phase_1']
@@ -15,9 +13,21 @@ WITH workflows AS (
     ) }}
 )
 SELECT
-    task_name,
-    workflow_name,
-    cadence,
-    cron_schedule
+    concat_ws(
+        '_',
+        'TRIGGER',
+        UPPER(
+            w.workflow_name
+        )
+    ) AS task_name,
+    w.workflow_name,
+    w.cadence,
+    w.cron_schedule
 FROM
-    workflows
+    workflows w
+    INNER JOIN {{ source(
+        'github_actions',
+        'workflows'
+    ) }}
+    t
+    ON w.workflow_name = t.workflow_name

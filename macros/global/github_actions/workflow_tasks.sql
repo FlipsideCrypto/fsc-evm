@@ -4,9 +4,9 @@
     SELECT
         task_name,
         workflow_name,
-        workflow_schedule
+        cron_schedule
     FROM
-        {{ ref('github_actions__workflows') }}
+        {{ ref('github_actions__workflow_schedule') }}
     {% endset %}
     {% set results = run_query(query) %}
     {% set results_list = execute and results is not none ? results.rows : [] %}
@@ -18,14 +18,14 @@
     {% for result in results_list %}
         {% set task_name = result[0] %}
         {% set workflow_name = result[1] %}
-        {% set workflow_schedule = result[2] %}
+        {% set cron_schedule = result[2] %}
         
         -- Create the task (always in suspended state)
         {% set create_task_sql %}
         CREATE OR REPLACE TASK github_actions.{{ task_name }} 
         WAREHOUSE = DBT_CLOUD 
-        SCHEDULE = '{{ workflow_schedule }}' 
-        COMMENT = 'Task to trigger {{ workflow_name }}.yml workflow according to {{ workflow_schedule }}' 
+        SCHEDULE = '{{ cron_schedule }}' 
+        COMMENT = 'Task to trigger {{ workflow_name }}.yml workflow according to {{ cron_schedule }}' 
         AS 
         DECLARE 
             rs resultset; 
@@ -59,7 +59,7 @@
     SELECT
         task_name
     FROM
-        {{ ref('github_actions__workflows') }}
+        {{ ref('github_actions__workflow_schedule') }}
     {% endset %}
     {% set results = run_query(query) %}
     {% if execute and results is not none %}
