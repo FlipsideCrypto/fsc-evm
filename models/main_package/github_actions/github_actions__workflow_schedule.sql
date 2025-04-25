@@ -27,6 +27,6 @@ SELECT
     w.cron_schedule
 FROM
     workflows w
-    INNER JOIN {{ ref('github_actions__workflows') }}
+    INNER JOIN {{ ref('github_actions__relevant_workflows') }}
     t
     ON w.workflow_name = t.workflow_name
