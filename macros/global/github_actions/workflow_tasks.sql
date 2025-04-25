@@ -1,3 +1,39 @@
+{% macro sp_update_workflow_table() %}
+CREATE OR REPLACE PROCEDURE github_actions.update_workflow_table(workflow_list VARCHAR)
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT
+AS
+$$
+try {
+    // Parse the comma-separated list of workflow names
+    var workflows = WORKFLOW_LIST.split(',').map(w => w.trim());
+    
+    // Prepare values for SQL statement
+    var values = workflows.map(w => `('${w}')`).join(',');
+    
+    // Create or replace the workflows table
+    var sql = `
+    CREATE OR REPLACE TABLE github_actions.workflows AS
+    WITH source_data AS (
+      SELECT column1 as workflow_name
+      FROM VALUES
+      ${values}
+    )
+    SELECT 
+      workflow_name,
+      current_timestamp() as inserted_at
+    FROM 
+      source_data;`;
+    
+    snowflake.execute({sqlText: sql});
+    
+    return "Successfully updated workflows table with " + workflows.length + " workflows";
+} catch (err) {
+    return "Error updating workflows table: " + err;
+}
+$$;
+{% endmacro %}
+
 {% macro create_gha_tasks() %}
     -- Get the list of tasks to create
     {% set query %}

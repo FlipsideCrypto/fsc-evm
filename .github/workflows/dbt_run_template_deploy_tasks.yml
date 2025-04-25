@@ -60,40 +60,28 @@ jobs:
           pip install -r requirements.txt
           dbt deps
       
+      - name: Create stored procedure
+        run: |
+          dbt run-operation sp_update_workflow_table
+      
       - name: Generate workflow names
         id: generate-workflows
         run: |
-          WORKFLOW_VALUES=""
+          WORKFLOW_NAMES=""
           for file in $(find .github/workflows -name "*.yml" -type f); do
             filename=$(basename "$file" .yml)
-            if [ -z "$WORKFLOW_VALUES" ]; then
-              WORKFLOW_VALUES="('$filename')"
+            if [ -z "$WORKFLOW_NAMES" ]; then
+              WORKFLOW_NAMES="$filename"
             else
-              WORKFLOW_VALUES="$WORKFLOW_VALUES,('$filename')"
+              WORKFLOW_NAMES="$WORKFLOW_NAMES,$filename"
             fi
           done
-          echo "WORKFLOW_VALUES=$WORKFLOW_VALUES" >> $GITHUB_ENV
-          echo "Found workflows: $WORKFLOW_VALUES"
+          echo "WORKFLOW_NAMES=$WORKFLOW_NAMES" >> $GITHUB_ENV
+          echo "Found workflows: $WORKFLOW_NAMES"
       
-      - name: Create SQL statement file
+      - name: Call Snowflake stored procedure
         run: |
-          cat > update_workflows.sql << EOF
-          CREATE OR REPLACE TABLE github_actions.workflows AS
-          WITH source_data AS (
-            SELECT column1 as workflow_name
-            FROM VALUES
-            ${{ env.WORKFLOW_VALUES }}
-          )
-          SELECT 
-            workflow_name,
-            current_timestamp() as inserted_at
-          FROM 
-            source_data;
-          EOF
-      
-      - name: Execute SQL using dbt run-operation
-        run: |
-          dbt run-operation run_query --args "{\"query\": \"$(cat update_workflows.sql)\"}"
+          dbt run-operation run_query --args "{\"query\": \"CALL github_actions.update_workflow_table('${{ env.WORKFLOW_NAMES }}');\"}"
 
   notify-failure:
     needs: [run_dbt_jobs]
