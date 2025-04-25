@@ -6,6 +6,10 @@
     tags = ['silver','gha_tasks','phase_1']
 ) }}
 
+WITH task_status AS (
+{{ get_task_status() }}
+)
+
 SELECT
     task_name,
     schedule,
@@ -19,4 +23,4 @@ SELECT
     last_suspended_on,
     comment
 FROM 
-    TABLE(github_actions.get_task_status())
+    task_status

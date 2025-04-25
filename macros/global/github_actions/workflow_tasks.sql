@@ -107,41 +107,29 @@
     {% endfor %}
 {% endmacro %}
 
-{% macro sp_create_task_status() %}
-CREATE OR REPLACE PROCEDURE github_actions.get_task_status()
-RETURNS TABLE (
-    task_name STRING,
-    schedule STRING,
-    state STRING,
-    database_name STRING,
-    schema_name STRING,
-    warehouse STRING,
-    owner STRING,
-    created_on TIMESTAMP_NTZ,
-    last_committed_on TIMESTAMP_NTZ,
-    last_suspended_on TIMESTAMP_NTZ,
-    comment STRING
-)
-LANGUAGE SQL
-AS
-$$
-BEGIN
+{% macro get_task_status() %}
+
+    {% set create_view_sql %}
+    CREATE OR REPLACE VIEW github_actions.task_status AS
+    SELECT 
+        "name" AS task_name,
+        "schedule" AS schedule,
+        "state" AS state,
+        "database_name" AS database_name,
+        "schema_name" AS schema_name,
+        "warehouse" AS warehouse,
+        "owner" AS owner,
+        "created_on" AS created_on,
+        "last_committed_on" AS last_committed_on,
+        "last_suspended_on" AS last_suspended_on,
+        "comment" AS comment
+    FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+    {% endset %}
+    
+    {% set show_tasks_sql %}
     SHOW TASKS IN SCHEMA {{ target.database }}.github_actions;
-    RETURN TABLE(
-        SELECT 
-            "name" AS task_name,
-            "schedule" AS schedule,
-            "state" AS state,
-            "database_name" AS database_name,
-            "schema_name" AS schema_name,
-            "warehouse" AS warehouse,
-            "owner" AS owner,
-            "created_on" AS created_on,
-            "last_committed_on" AS last_committed_on,
-            "last_suspended_on" AS last_suspended_on,
-            "comment" AS comment
-        FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))
-    );
-END;
-$$;
+    {% endset %}
+
+    {% do run_query(show_tasks_sql) %}
+    {% do run_query(create_view_sql) %}
 {% endmacro %}
