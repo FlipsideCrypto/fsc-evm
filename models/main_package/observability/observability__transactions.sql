@@ -49,7 +49,8 @@ base AS (
     SELECT
         block_number,
         block_timestamp,
-        tx_hash
+        tx_hash,
+        modified_timestamp
     FROM
         {{ ref('core__fact_transactions') }}
     WHERE
@@ -70,9 +71,17 @@ summary_stats AS (
         MAX(block_number) AS max_block,
         MIN(block_timestamp) AS min_block_timestamp,
         MAX(block_timestamp) AS max_block_timestamp,
-        COUNT(1) AS blocks_tested
+        COUNT(DISTINCT block_number) AS blocks_tested
     FROM
         base
+),
+confirmed_blocks AS (
+    SELECT
+        block_number,
+        tx_hash
+    FROM
+        {{ ref("silver__confirm_blocks") }}
+    WHERE block_number >= (select min_block from summary_stats)
 ),
 gap_test AS (
     SELECT
@@ -82,7 +91,7 @@ gap_test AS (
             NULL
         ) AS missing_block_number
     FROM
-        {{ ref("silver__confirm_blocks") }}
+        confirmed_blocks
         b
         LEFT JOIN base t USING (
             block_number,
