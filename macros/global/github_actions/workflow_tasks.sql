@@ -40,11 +40,11 @@
     {% else %}
         {% set results_list = [] %}
     {% endif %}
-    
+
     -- Normalize database name
     {% set prod_db = target.database.lower().replace('_dev', '') %}
     
-    -- Track created tasks for potential resuming
+    -- Track created tasks
     {% set created_tasks = [] %}
     
     -- Create tasks
@@ -53,40 +53,28 @@
         {% set workflow_name = result[1] %}
         {% set cron_schedule = result[2] %}
         
-        -- Create the task (always in suspended state)
-        {% set create_task_sql %}
-        CREATE OR REPLACE TASK github_actions.{{ task_name }} 
-        WAREHOUSE = DBT_CLOUD 
-        SCHEDULE = '{{ cron_schedule }}' 
-        COMMENT = 'Task to trigger {{ workflow_name }}.yml workflow according to {{ cron_schedule }}' 
-        AS 
-        DECLARE 
-            rs resultset; 
-            output string; 
-        BEGIN 
-            rs := (SELECT github_actions.workflow_dispatches('FlipsideCrypto', '{{ prod_db }}-models', '{{ workflow_name }}.yml', NULL):status_code::int AS status_code); 
-            SELECT LISTAGG($1, ';') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1; 
-            CALL SYSTEM$SET_RETURN_VALUE(:output); 
-        END;
-        {% endset %}
-        {% do run_query(create_task_sql) %}
+        {% do log("Task: " ~ task_name ~ ", Schedule: " ~ cron_schedule, info=true) %}
         
-        {# Add task to list of created tasks #}
+        {% set sql %}
+        EXECUTE IMMEDIATE 'CREATE OR REPLACE TASK github_actions.{{ task_name }} WAREHOUSE = DBT_CLOUD SCHEDULE = ''USING CRON {{ cron_schedule }} UTC'' COMMENT = ''Task to trigger {{ workflow_name }}.yml workflow according to {{ cron_schedule }}'' AS DECLARE rs resultset; output string; BEGIN rs := (SELECT github_actions.workflow_dispatches(''FlipsideCrypto'', ''{{ prod_db }}-models'', ''{{ workflow_name }}.yml'', NULL):status_code::int AS status_code); SELECT LISTAGG($1, '';'') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1; CALL SYSTEM$SET_RETURN_VALUE(:output); END;'
+        {% endset %}
+        
+        {% do run_query(sql) %}
         {% do created_tasks.append(task_name) %}
     {% endfor %}
     
     -- Optionally resume tasks if the variable is set
     {% if var('RESUME_GHA_TASKS', false) %}
-        {% do log("Tasks created in RESUME state. Set var 'RESUME_GHA_TASKS': false and re-run to suspend them.", info=true) %}
+        {% do log("Tasks created in RESUME state. Use var RESUME_GHA_TASKS: false to automatically suspend them.", info=true) %}
         {% for task_name in created_tasks %}
             {% set resume_task_sql %}
-            ALTER TASK IF EXISTS github_actions.{{ task_name }} RESUME;
+            ALTER TASK github_actions.{{ task_name }} RESUME;
             {% endset %}
             {% do run_query(resume_task_sql) %}
             {% do log("Resumed task: " ~ task_name, info=true) %}
         {% endfor %}
     {% else %}
-        {% do log("Tasks created in SUSPENDED state. Set var 'RESUME_GHA_TASKS': true and re-run to resume them.", info=true) %}
+        {% do log("Tasks created in SUSPENDED state. Use var RESUME_GHA_TASKS: true to automatically resume them.", info=true) %}
     {% endif %}
 {% endmacro %}
 
