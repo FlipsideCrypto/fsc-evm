@@ -146,9 +146,9 @@ ON l.tx_hash = txs.tx_hash
 AND l.block_number = txs.block_number
 
 {% if is_incremental() %}
-AND txs.modified_timestamp >= (
+AND txs.block_timestamp >= (
     SELECT
-        MAX(modified_timestamp) :: DATE - 1
+        DATEADD('hour', -36, MAX(block_timestamp))
     FROM
         {{ this }}
 )
