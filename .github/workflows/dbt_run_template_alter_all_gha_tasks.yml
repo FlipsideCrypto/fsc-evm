@@ -64,10 +64,10 @@ jobs:
         run: |
           pip install -r requirements.txt
           dbt deps
-
-      - name: Run DBT Jobs
+      
+      - name: Alter all GHA tasks
         run: |
-          dbt run-operation alter_all_gha_tasks --args '{"task_action": "${{ inputs.task_action }}"}' 
+          dbt run-operation fsc_evm.alter_all_gha_tasks --args '{"task_action": "${{ inputs.task_action }}"}'
 
   notify-failure:
     needs: [run_dbt_jobs]

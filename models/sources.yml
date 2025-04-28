@@ -1,6 +1,11 @@
 version: 2 
 
 sources:
+  - name: snowflake_account_usage
+    database: snowflake
+    schema: account_usage
+    tables:
+      - name: complete_task_graphs
   - name: github_actions
     database: "{{ target.database }}"
     schema: github_actions
@@ -65,6 +70,7 @@ sources:
     schema: silver
     tables:
       - name: verified_abis
+      - name: complete_event_abis
   - name: data_science_silver
     database: datascience
     schema: silver

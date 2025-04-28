@@ -6,6 +6,18 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{% if is_incremental() %}
+{{ config (
+    materialized = "incremental",
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['modified_timestamp::DATE','partition_key'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    incremental_predicates = [fsc_evm.standard_predicate()],
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','core','confirm_blocks','phase_2']
+) }}
+{% else %}
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -16,6 +28,7 @@
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','core','confirm_blocks','phase_2']
 ) }}
+{% endif %}
 
 WITH bronze_confirm_blocks AS (
     SELECT 

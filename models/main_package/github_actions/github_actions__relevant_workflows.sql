@@ -9,4 +9,11 @@
     tags = ['silver','gha_tasks','phase_1']
 ) }}
 
-{{ generate_workflow_schedules(vars.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON) }}
+SELECT 
+    workflow_name,
+    inserted_at
+FROM
+    {{ source(
+        'github_actions',
+        'workflows'
+    ) }}
