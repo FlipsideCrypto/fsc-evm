@@ -11,7 +11,7 @@
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
     unique_key = vars.MAIN_CORE_GOLD_FACT_TRANSACTIONS_UNIQUE_KEY,
-    cluster_by = ['block_timestamp::DATE','modified_timestamp::DATE'],
+    cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold','core','phase_2']
