@@ -19,10 +19,10 @@
         {{ ref("test_silver__confirm_blocks_recent") }}
         cb
         LEFT JOIN {{ ref("test_gold__fact_transactions_recent") }}
-        txs USING (
-            block_number,
-            tx_hash
-        )
+        txs 
+        ON cb.block_number = txs.block_number
+        and cb.tx_hash = txs.tx_hash
+        and cb.partition_key = round(txs.block_number,-3)
     WHERE
         txs.tx_hash IS NULL
         AND cb.modified_timestamp > DATEADD('day', -5, SYSDATE())
