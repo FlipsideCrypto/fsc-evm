@@ -9,6 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = vars.MAIN_CORE_GOLD_FACT_EVENT_LOGS_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(block_number,tx_hash,contract_address,origin_from_address,origin_to_address,origin_function_signature,topic_0)",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold','core','phase_2']
@@ -116,7 +117,7 @@ flattened_logs AS (
 new_logs AS (
     SELECT
         l.block_number,
-        b.block_timestamp,
+        txs.block_timestamp,
         l.tx_hash,
         l.transaction_index AS tx_position,
         l.event_index,
@@ -134,43 +135,31 @@ new_logs AS (
         l.tx_succeeded
     FROM
         flattened_logs l
-        LEFT JOIN {{ ref('core__fact_blocks') }}
-        b
-        ON l.block_number = b.block_number
-
-{% if is_incremental() %}
-AND b.modified_timestamp >= (
-    SELECT
-        MAX(modified_timestamp) :: DATE - 1
-    FROM
-        {{ this }}
-)
-{% endif %}
-LEFT JOIN {{ ref('core__fact_transactions') }}
-txs
-ON l.block_number = txs.block_number
+    LEFT JOIN {{ ref('core__fact_transactions') }}
+    txs
+    ON l.block_number = txs.block_number
 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
-        AND l.tx_hash = txs.tx_hash
+    AND l.tx_hash = txs.tx_hash
     {% else %}
-        AND l.array_index = txs.tx_position
+    AND l.array_index = txs.tx_position
     {% endif %}
 
-{% if is_incremental() %}
-AND txs.block_timestamp >= (
-    SELECT
-        DATEADD('hour', -36, MAX(block_timestamp))
-    FROM
-        {{ this }}
-)
-{% endif %}
+    {% if is_incremental() %}
+    AND txs.block_timestamp >= (
+        SELECT
+            DATEADD('hour', -36, MAX(block_timestamp))
+        FROM
+            {{ this }}
+    )
+    {% endif %}
 )
 
 {% if is_incremental() %},
 missing_data AS (
     SELECT
         t.block_number,
-        b.block_timestamp AS block_timestamp_heal,
+        txs.block_timestamp AS block_timestamp_heal,
         t.tx_hash,
         t.tx_position,
         t.event_index,
@@ -193,9 +182,6 @@ missing_data AS (
         txs
         ON t.tx_hash = txs.tx_hash
         AND t.block_number = txs.block_number
-        LEFT JOIN {{ ref('core__fact_blocks') }}
-        b
-        ON t.block_number = b.block_number
     WHERE
         t.block_timestamp IS NULL
         OR t.origin_function_signature IS NULL
