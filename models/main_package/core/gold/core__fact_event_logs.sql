@@ -151,9 +151,9 @@ txs
 ON l.block_number = txs.block_number
 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
-        l.tx_hash = txs.tx_hash
+        AND l.tx_hash = txs.tx_hash
     {% else %}
-        l.array_index = txs.tx_position
+        AND l.array_index = txs.tx_position
     {% endif %}
 
 {% if is_incremental() %}
