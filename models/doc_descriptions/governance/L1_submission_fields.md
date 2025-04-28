@@ -18,7 +18,7 @@ The min block on the OP stack L2 chain this batch relates to.
 
 {% docs evm_batch_root %}
 
-Root of the batch, either for submission or state on the OP stack L2 chain.
+Merkle root hash of the batch data, used for either submission or state verification on the OP stack L2 chain.
 
 {% enddocs %}
 
@@ -30,13 +30,13 @@ The Ethereum block number that contained the batch from the OP stack L2 chain.
 
 {% docs evm_l1_block_time %}
 
-The timestamp of the Ethereum block that contained this batch from the OP stack L2 chain.
+The UTC timestamp of the Ethereum block that contained this batch from the OP stack L2 chain
 
 {% enddocs %}
 
 {% docs evm_l1_fee %}
 
-The L1 portion of fees paid.
+The portion of transaction fees paid for L1 (Ethereum mainnet) operations.
 
 {% enddocs %}
 
@@ -84,7 +84,7 @@ The L1 tx hash of when this block was submitted to L1. This column will be depre
 
 {% docs evm_prev_total_elements %}
 
-Confirmed blocks prior to this batch on the OP stack L2 chain.
+Total number of confirmed blocks on the OP stack L2 chain prior to this batch.
 
 {% enddocs %}
 

@@ -54,13 +54,6 @@ The gas used for this trace.
 {% enddocs %}
 
 
-{% docs evm_traces_identifier %}
-
-This field represents the position and type of the trace within the transaction. 
-
-{% enddocs %}
-
-
 {% docs evm_trace_index %}
 
 The index of the trace within the transaction.
@@ -111,7 +104,7 @@ The type of internal transaction. Common trace types are `CALL`, `DELEGATECALL`,
 
 {% docs evm_trace_succeeded %}
 
-The boolean value representing if the trace succeeded.
+Boolean flag indicating whether the trace succeeded (TRUE or FALSE).
 
 {% enddocs %}
 

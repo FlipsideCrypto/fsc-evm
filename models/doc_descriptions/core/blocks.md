@@ -5,20 +5,6 @@ This table contains block level data for this EVM blockchain. This table can be 
 {% enddocs %}
 
 
-{% docs evm_block_header_json %}
-
-This JSON column contains the block header details.
-
-{% enddocs %}
-
-
-{% docs evm_blockchain %}
-
-The blockchain on which transactions are being confirmed.
-
-{% enddocs %}
-
-
 {% docs evm_blocks_hash %}
 
 The hash of the block header for a given block.
@@ -35,7 +21,7 @@ Block nonce is a value used during mining to demonstrate proof of work for a giv
 
 {% docs evm_difficulty %}
 
-The effort required to mine the block.
+The computational effort required to mine the block.
 
 {% enddocs %}
 
@@ -56,7 +42,7 @@ Total gas limit provided by all transactions in the block.
 
 {% docs evm_gas_used %}
 
-Total gas used in the block.
+Total gas used by all transactions in the block.
 
 {% enddocs %}
 

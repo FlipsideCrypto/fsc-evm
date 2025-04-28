@@ -127,14 +127,14 @@ The unique identifier of the Blockchain, Network, or Platform for this asset.
 
 {% docs evm_prices_is_native %}
 
-A flag indicating assets native to this EVM blockchain.
+Boolean flag indicating whether the asset is native to this EVM blockchain (TRUE or FALSE).
 
 {% enddocs %}
 
 
 {% docs evm_prices_is_deprecated %}
 
-A flag indicating if the asset is deprecated or no longer supported by the provider.
+Boolean flag indicating whether the asset is deprecated or no longer supported by the provider (TRUE or FALSE).
 
 {% enddocs %}
 
@@ -155,7 +155,7 @@ Deprecating soon! Please use the decimals column in `ez_asset_metadata` or join 
 
 {% docs evm_prices_is_imputed %}
 
-A flag indicating if the price was imputed, or derived, from the last arriving record. This is generally used for tokens with low-liquidity or inconsistent reporting.
+Boolean flag indicating whether the price was imputed, or derived, from the last available record (TRUE or FALSE). Commonly used for low-liquidity tokens or those with inconsistent reporting.
 
 {% enddocs %}
 

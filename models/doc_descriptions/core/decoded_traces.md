@@ -14,14 +14,14 @@ The name of the function called in the trace.
 
 {% docs evm_decoded_input_data %}
 
-Decoded input data for the trace.
+The decoded input parameters provided to the function call in this trace.
 
 {% enddocs %}
 
 
 {% docs evm_decoded_output_data %}
 
-Decoded output data for the trace.
+The decoded output data from the function call in this trace.
 
 {% enddocs %}
 

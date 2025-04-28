@@ -25,7 +25,7 @@ The block number at which this liquidity pool was created on the blockchain.
 
 {% docs evm_dex_creation_time %}
 
-The timestamp of the block when this liquidity pool was created.
+The UTC timestamp of the block when this liquidity pool was created.
 
 {% enddocs %}
 
@@ -37,7 +37,7 @@ The transaction that created this liquidity pool contract.
 
 {% docs evm_dex_factory_address %}
 
-The address that deployed this liquidity pool, where available.
+The factory contract address that deployed this liquidity pool, where available.
 
 {% enddocs %}
 
@@ -103,49 +103,49 @@ The contract address for the liquidity pool.
 
 {% docs evm_dex_pool_name %}
 
-The name of the liquidity pool, where available. In some cases, the pool name is a concatenation of symbols or token addresses.
+The name of the liquidity pool, where available. In some cases, the pool name is a concatenation of symbols or token addresses and may include other information such a tick spacing or fee tier.
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_amount_in %}
 
-The amount of tokens put into the swap.
+The decimal-adjusted amount of tokens put into the swap.
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_amount_in_unadj %}
 
-The non-decimal adjusted amount of tokens put into the swap.
+The raw amount of tokens input into the swap (not decimal-adjusted).
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_amount_in_usd %}
 
-The amount of tokens put into the swap converted to USD using the price of the token.
+The USD value of tokens put into the swap, based on hourly token price.
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_amount_out %}
 
-The amount of tokens taken out of or received from the swap.
+The decimal-adjusted amount of tokens taken out of or received from the swap.
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_amount_out_unadj %}
 
-The non-decimal adjusted amount of tokens taken out of or received from the swap.
+The raw amount of tokens taken out of or received from the swap (not decimal-adjusted).
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_amount_out_usd %}
 
-The amount of tokens taken out of or received from the swap converted to USD using the price of the token.
+The USD value of tokens taken out of or received from the swap, based on hourly token price.
 
 {% enddocs %}
 
 {% docs evm_dex_swaps_sender %}
 
-The Router is the Sender in the swap function. 
+The router contract address that initiated the swap function.
 
 {% enddocs %}
 
@@ -157,7 +157,7 @@ The symbol of the token sent for swap.
 
 {% docs evm_dex_swaps_symbol_out %}
 
-The symbol of the token being swapped to.
+The symbol of the token received from swap.
 
 {% enddocs %}
 

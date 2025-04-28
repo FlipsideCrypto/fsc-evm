@@ -1,48 +1,36 @@
-{% docs evm_nft_events_table_doc %}
-
-This table contains NFT sales on this EVM blockchain. More NFT marketplaces will be added over time.
-
-{% enddocs %}
-
 {% docs evm_ez_nft_sales_table_doc %}
 
-This table contains NFT sale events from various marketplaces.
-
-{% enddocs %}
-
-{% docs evm_ez_nft_mint_table_doc %}
-
-This table contains NFT mint events, defined as NFT transfers from a burn address to an address, on this EVM blockchain.
+A convenience table that aggregates NFT sale events across multiple marketplaces, including platform fees, creator royalties, transaction currency, and USD price data where available.
 
 {% enddocs %}
 
 {% docs evm_ez_nft_transfer_table_doc %}
 
-This table contains NFT transfer events on this EVM blockchain.
+A convenience table that aggregates NFT transfer events on this EVM blockchain, including both ERC-721 and ERC-1155 token transfers.
 
 {% enddocs %}
 
 {% docs evm_lending_repayments_table_doc %}
 
-This table contains repayment events for loans backed by collateralized NFTs on this EVM blockchain. Events in this table can be a full repayment either by the borrower to get their collateral back or by a new lender to repay the borrower's previous loan. The latter is labeled as refinance where the same borrower takes on a new loan from a new lender and repays the past loan. The NFT collateral is still locked in this scenario.
+This table contains loan repayment events for loans backed by collateralized NFTs on this EVM blockchain. Events in this table can be a full repayment either by the borrower to get their collateral back or by a new lender to repay the borrower's previous loan. The latter is labeled as refinance where the same borrower takes on a new loan from a new lender and repays the past loan. The NFT collateral is still locked in this scenario.
 
 {% enddocs %}
 
 {% docs evm_nft_aggregator_name %}
 
-The name of the aggregator platform where the sale took place. If the sale did not take place via an aggregator platform, then the value will be null.
+The name of the aggregator platform used in the sale of the NFT. If the sale did not take place via an aggregator platform, then the value will be null.
 
 {% enddocs %}
 
 {% docs evm_nft_amount %}
 
-The total amount, specified by the mint token address, used as payment to mint the specified number of NFTs corresponding to this token id.
+The total amount in the specified token, used as payment to mint the specified number of NFTs corresponding to this token ID(s). This only includes tokens paid and payments in the native asset would return a null value.  
 
 {% enddocs %}
 
 {% docs evm_nft_amount_usd %}
 
-The USD value of amount.
+The USD value of the total amount of tokens paid to mint the specified number of NFTs corresponding to this token ID(s), based on hourly token prices if available.
 
 {% enddocs %}
 
@@ -54,7 +42,7 @@ The block number at which the NFT event occurred.
 
 {% docs evm_nft_blocktime %}
 
-The block timestamp at which the NFT event occurred.
+The UTC date and time at which the NFT event occurred.
 
 {% enddocs %}
 
@@ -72,43 +60,43 @@ The decimal adjusted amount of fees paid to the NFT collection as royalty paymen
 
 {% docs evm_nft_creator_fee_usd %}
 
-The amount of fees paid to the NFT collection as royalty payments for this NFT event in US dollars.
+The USD value of the tokens paid to the NFT collection as royalty payments for this NFT event.
 
 {% enddocs %}
 
 {% docs evm_nft_currency_address %}
 
-The token contract address for this NFT event. This will be the native asset for native transactions.
+The contract address of the token used in this NFT event. This will be the native asset for native transactions.
 
 {% enddocs %}
 
 {% docs evm_nft_currency_symbol %}
 
-The token symbol for this NFT event.
+The symbol of the token used in this NFT event.
 
 {% enddocs %}
 
 {% docs evm_nft_quantity %}
 
-The number of NFTs transferred in this event by token_id. All ERC-721 tokens will have a value of 1 while ERC-1155 tokens may have a value of 1 or greater.
+The number of NFTs transferred in this event, counting distinct token IDs. All ERC-721 tokens will have a value of 1 while ERC-1155 tokens may have a value of 1 or greater.
 
 {% enddocs %}
 
 {% docs evm_nft_event_index %}
 
-The event number within a transaction.
+The order index of the event within a transaction.
 
 {% enddocs %}
 
 {% docs evm_nft_event_type %}
 
-The type of NFT event in this transaction, either sale, bid_won, redeem, or mint.
+The type of NFT event in this transaction: sale, bid_won, redeem, or mint.
 
 {% enddocs %}
 
 {% docs evm_nft_from_address %}
 
-The sending address of the NFT in the transaction.
+The address sending the NFT.
 
 {% enddocs %}
 
@@ -120,49 +108,7 @@ The order of events within a single event index. This is primarily used for ERC1
 
 {% docs evm_nft_metadata %}
 
-The token metadata for this NFT. This may be blank for many NFTs. We are working to expand this field.
-
-{% enddocs %}
-
-{% docs evm_nft_mint_count %}
-
-The number of NFTs minted in this event.
-
-{% enddocs %}
-
-{% docs evm_nft_mint_price %}
-
-The price paid in the native asset to mint the NFT(s).
-
-{% enddocs %}
-
-{% docs evm_nft_mint_price_usd %}
-
-The price paid in US dollars to mint the NFT(s).
-
-{% enddocs %}
-
-{% docs evm_nft_mints_symbol %}
-
-The symbol of the token supplied to mint the NFT, if applicable. This field may not handle all edge cases.
-
-{% enddocs %}
-
-{% docs evm_nft_mints_token_address %}
-
-The contract address of the token supplied to mint the NFT, if applicable. This field may not handle all edge cases.
-
-{% enddocs %}
-
-{% docs evm_nft_mints_token_price %}
-
-The decimal adjusted amount of tokens supplied within the same transaction to mint the NFT. This field may not handle all edge cases.
-
-{% enddocs %}
-
-{% docs evm_nft_mints_token_price_usd %}
-
-The amount of tokens supplied in US dollars within the same transaction to mint the NFT. This field may not handle all edge cases.
+The token metadata for this NFT. This may include token name, token description and image url when applicable. This may be blank for many NFTs and are working to expand this field.
 
 {% enddocs %}
 
@@ -192,13 +138,13 @@ The to address of this transaction. In most cases, this is the exchange contract
 
 {% docs evm_nft_platform_address %}
 
-The address of the exchange used for the transaction.
+The contract address of the exchange platform used for the transaction.
 
 {% enddocs %}
 
 {% docs evm_nft_platform_exchange_version %}
 
-The version of the exchange contract used for the transaction.
+The version identifier of the exchange contract used for the transaction.
 
 {% enddocs %}
 
@@ -210,13 +156,13 @@ The decimal adjusted amount of fees paid to the platform for this NFT event in t
 
 {% docs evm_nft_platform_fee_usd %}
 
-The amount of fees paid to the platform for this NFT event in US dollars. There are cases where there are fees paid to multiple marketplaces. In those cases, the fee in the platform_fee column will only reflect the platform fee related to the platform exchange contract.
+The USD value of fees paid to the platform for this NFT event. There are cases where there are fees paid to multiple marketplaces. In those cases, the fee in the platform_fee column will only reflect the platform fee related to the platform exchange contract.
 
 {% enddocs %}
 
 {% docs evm_nft_platform_name %}
 
-The name of the exchange used for the trade.
+The name of the exchange platform used for the transaction.
 
 {% enddocs %}
 
@@ -228,7 +174,7 @@ The total price of the NFT, in the currency in which the transaction occurred an
 
 {% docs evm_nft_price_usd %}
 
-The total price of the NFT in US dollars. This will be 0 for tokens without a decimal adjustment or hourly price. Please note that the price of the NFT, after subtracting total fees, may not represent the net amount paid to the seller in all cases. You may refer to the platform fee description for more info.
+The USD value of total price of the NFT. This will be 0 for tokens without a decimal adjustment or hourly price. Please note that the price of the NFT, after subtracting total fees, may not represent the net amount paid to the seller in all cases. You may refer to the platform fee description for more info.
 
 {% enddocs %}
 
@@ -264,25 +210,25 @@ The token ID for this NFT contract.
 
 {% docs evm_nft_total_fees %}
 
-The total amount of fees paid relating to the NFT purchase in the transaction currency. This includes royalty payments to creators and platform fees. Please note, this does not include the gas fee.
+The total amount of fees paid relating to the NFT purchase in the transaction currency, including creator royalty payments to creators and platform fees. Please note, this does not include the gas fee.
 
 {% enddocs %}
 
 {% docs evm_nft_total_fees_usd %}
 
-The total amount of fees paid relating to the NFT purchase in US dollars. This includes royalty payments to creators and platform fees. Please note, this does not include the gas fee.
+The USD value of fees paid relating to the NFT purchase in US dollars, including creator royalty payments to creators and platform fees. Please note, this does not include the gas fee.
 
 {% enddocs %}
 
 {% docs evm_nft_tx_fee %}
 
-The gas fee for this transaction in the native asset.
+The gas fee paid for this transaction in the native asset.
 
 {% enddocs %}
 
 {% docs evm_nft_tx_fee_usd %}
 
-The gas fee for this transaction in US dollars.
+The USD value of the gas fee paid for this transaction.
 
 {% enddocs %}
 
@@ -294,7 +240,7 @@ The transaction hash for the NFT event. This is not necessarily unique in this t
 
 {% docs evm_nft_lending_liquidations_table_doc %}
 
-This table contains liquidation events for loans backed by collateralized NFTs on this EVM blockchain. This typically means the lender of the loan closes the loan and receives the NFT collateral.
+This table contains liquidation events for loans backed by collateralized NFTs on this EVM blockchain. This typically means the lender of the loan closes the loan and claims the NFT collateral due to loan default.
 
 {% enddocs %}
 
@@ -330,37 +276,37 @@ The unique ID that can be used to represent a loan within the same platform. For
 
 {% docs evm_lender_address %}
 
-The address that gives out a loan to the borrower. When a loan is issued, a promissory note (an ERC721) is issued to the lender. The lender can transfer this note to any address which makes any receiving address the new lender.
+The address that provides the loan to the borrower. When a loan is issued, a promissory note (an ERC721) is issued to the lender. The lender can transfer this note to any address which makes any receiving address the new lender.
 
 {% enddocs %}
 
 {% docs evm_borrower_address %}
 
-The address that receives the loan and has an NFT locked as collateral.
+The address of the loan recipient, whose NFT is held as collateral.
 
 {% enddocs %}
 
 {% docs evm_nft_address %}
 
-The address of the NFT used as collateral.
+The contract address of the NFT used as collateral.
 
 {% enddocs %}
 
 {% docs evm_tokenid %}
 
-The tokenId of the NFT used as collateral.
+The token ID of the NFT used as collateral.
 
 {% enddocs %}
 
 {% docs evm_loan_token_address %}
 
-The contract address of what the loan is denominated in. This could be either the native asset or other tokens.
+The contract address of the loan currency (native asset or other tokens).
 
 {% enddocs %}
 
 {% docs evm_loan_token_symbol %}
 
-The symbol of the loan token address.
+The symbol of the loan currency.
 
 {% enddocs %}
 
@@ -378,7 +324,7 @@ The principal amount of the loan taken with adjusted decimal places.
 
 {% docs evm_principal_usd %}
 
-The principal amount of the loan taken in USD terms.
+The USD value of the principal amount of the loan taken.
 
 {% enddocs %}
 
@@ -390,7 +336,7 @@ The non-annualized rate charged by the lender on the principal amount of the loa
 
 {% docs evm_apr %}
 
-The annualized interest rate denominated in percentage (%).
+The annualized interest rate of the loan denominated in percentage (%).
 
 {% enddocs %}
 
@@ -402,13 +348,13 @@ The type of loan terms, could be either a fixed loan or a perpetual loan. A fixe
 
 {% docs evm_loan_start_timestamp %}
 
-The timestamp of when the loan offer is accepted.
+The UTC timestamp of when the loan offer is accepted.
 
 {% enddocs %}
 
 {% docs evm_loan_due_timestamp %}
 
-The timestamp of when the loan is due. For perpetual term loan, the value will be null.
+The UTC timestamp of when the loan is due. For perpetual term loan, the value will be null.
 
 {% enddocs %}
 
@@ -420,7 +366,7 @@ The tenure of the loan denominated in seconds. For perpetual term loan, the valu
 
 {% docs evm_lending_loans %}
 
-This table contains NFT lending events for loans backed by collateralized NFTs on this EVM blockchain. This could be depositing an NFT and taking out a loan or using the Buy Now Pay Later (BNPL) feature to take a loan out of the newly bought NFT. This NFT will remain locked until the loan is cleared.
+This table contains NFT lending events for loans backed by collateralized NFTs on this EVM blockchain. This could be depositing an NFT and taking out a loan or using the Buy Now Pay Later (BNPL) feature to take a loan out of the newly bought NFT. The NFT collateral remains locked until the loan is repaid.
 
 {% enddocs %}
 
@@ -444,7 +390,7 @@ The total debt of the loan (principal amount plus interests) with adjusted decim
 
 {% docs evm_debt_usd %}
 
-The total debt of the loan (principal amount plus interests) in USD terms.
+The USD value of the total debt of the loan (principal amount plus interests).
 
 {% enddocs %}
 
@@ -462,13 +408,13 @@ The fee charged by the lending platform with adjusted decimal places.
 
 {% docs evm_platform_fee_usd %}
 
-The fee charged by the lending platform in USD terms.
+The USD value of the fee charged by the lending platform.
 
 {% enddocs %}
 
 {% docs evm_mev_arbitrage %}
 
-This table contains the financial metrics from NFT arbitrage transactions including cost, revenue and profits.
+This table contains financial metrics for NFT arbitrage transactions, including purchase costs, sale revenues, and net profits.
 
 {% enddocs %}
 
@@ -486,19 +432,19 @@ The contract address that the MEV searcher uses to execute mev transactions, tak
 
 {% docs evm_cost_usd %}
 
-The total cost in USD to purchase the NFT(s) in the transaction.
+The USD value of the total cost to purchase the NFT(s) in the transaction.
 
 {% enddocs %}
 
 {% docs evm_revenue_usd %}
 
-The total revenue in USD from selling the NFT(s) and other related tokens in the transaction.
+The USD value of the total revenue from selling the NFT(s) and other related tokens in the transaction.
 
 {% enddocs %}
 
 {% docs evm_miner_tip_usd %}
 
-The total amount in USD sent to the block miner/builder as a tip to include the transaction in the block.
+The USD value of the total amount sent to the block miner/builder as a tip to include the transaction in the block.
 
 {% enddocs %}
 
@@ -534,49 +480,49 @@ The side of the trade that this event represents. This can be either buy or sell
 
 {% docs evm_dim_nft_collection_metadata %}
 
-This table contains the metadata for popular NFT collections on this EVM blockchain.
+This table contains the metadata for popular NFT collections on this EVM blockchain, which may include collection names, token traits, and other descriptive information.
 
 {% enddocs %}
 
 {% docs evm_nft_blockchain %}
 
-Blockchain where the NFT metadata is retrieved from.
+The source blockchain where the NFT metadata is retrieved from.
 
 {% enddocs %}
 
 {% docs evm_collection_name %}
 
-The name for this NFT collection.
+The name of this NFT collection.
 
 {% enddocs %}
 
 {% docs evm_tokenid_name %}
 
-The name for this specific tokenId. This may be the same for all tokenIds within the same collection.
+The name for this specific token ID. This may be the same for all token IDs within the same collection.
 
 {% enddocs %}
 
 {% docs evm_traits %}
 
-The traits for this tokenId in a key-value pair format.
+The traits for this token ID in a key-value pair format.
 
 {% enddocs %}
 
 {% docs evm_tokenid_description %}
 
-The description for this specific tokenId. This may be the same for all tokenIds within the same collection.
+The description for this specific token ID. This may be the same for all token IDs within the same collection.
 
 {% enddocs %}
 
 {% docs evm_tokenid_image_url %}
 
-The url of the image for this tokenId.
+The url of the image for this token ID.
 
 {% enddocs %}
 
 {% docs evm_nft_address_tokenid %}
 
-The concatenation of NFT address and tokenId.
+The concatenation of NFT address and token ID.
 
 {% enddocs %}
 
@@ -588,6 +534,6 @@ The type of token and NFT transfer event, for example `erc721_Transfer`, `erc115
 
 {% docs evm_nft_is_mint %}
 
-Whether the event is a mint event.
+Boolean flag indicating whether the event is a NFT mint event.
 
 {% enddocs %}

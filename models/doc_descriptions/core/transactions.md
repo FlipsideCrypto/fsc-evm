@@ -110,13 +110,6 @@ The position of the transaction within the block.
 {% enddocs %}
 
 
-{% docs evm_tx_status %}
-
-Status of the transaction. 
-
-{% enddocs %}
-
-
 {% docs evm_value %}
 
 The value transacted in the native asset. 
@@ -160,15 +153,17 @@ The s value of the transaction signature.
 
 {% docs evm_v %}
 
-The v value of the transaction signature.
+The v value of the transaction signature which represents the recovery identifier.
 
 {% enddocs %}
+
 
 {% docs evm_tx_succeeded %}
 
-Whether the transaction was successful, returned as a boolean.
+Boolean flag indicating whether the transaction was successful (TRUE or FALSE).
 
 {% enddocs %}
+
 
 {% docs evm_tx_fee_precise %}
 
@@ -176,11 +171,13 @@ The precise amount of the transaction fee. This is returned as a string to avoid
 
 {% enddocs %}
 
+
 {% docs evm_tx_type %}
 
 The type of transaction. 
 
 {% enddocs %}
+
 
 {% docs evm_mint %}
 
@@ -188,11 +185,13 @@ The minting event associated with the transaction
 
 {% enddocs %}
 
+
 {% docs evm_source_hash %}
 
 The hash of the source transaction that created this transaction
 
 {% enddocs %}
+
 
 {% docs evm_eth_value %}
 
@@ -200,11 +199,6 @@ The eth value for the transaction
 
 {% enddocs %}
 
-{% docs evm_chain_id %}
-
-The unique identifier for the chain the transaction was executed on.
-
-{% enddocs %}
 
 {% docs evm_l1_fee_precise_raw %}
 
@@ -212,11 +206,13 @@ The raw l1 fee for the transaction, in Gwei.
 
 {% enddocs %}
 
+
 {% docs evm_l1_fee_precise %}
 
 The precise l1 fee for the transaction, in Gwei.
 
 {% enddocs %}
+
 
 {% docs evm_y_parity %}
 
@@ -224,11 +220,13 @@ The y parity for the transaction.
 
 {% enddocs %}
 
+
 {% docs evm_access_list %}
 
 The access list for the transaction.
 
 {% enddocs %}
+
 
 {% docs evm_l1_base_fee_scalar %}
 
@@ -236,11 +234,13 @@ The scalar l1 base fee for the transaction.
 
 {% enddocs %}
 
+
 {% docs evm_l1_blob_base_fee %}
 
 The blob base fee for the transaction.
 
 {% enddocs %}
+
 
 {% docs evm_l1_blob_base_fee_scalar %}
 
