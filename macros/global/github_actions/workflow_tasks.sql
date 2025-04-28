@@ -1,11 +1,10 @@
 {% macro create_workflow_table(workflow_values) %}
-    -- Create schema if it doesn't exist
+    {# Intended to be called via the make deploy_gha_workflows_table command in the Makefile #}
     {% set create_schema_sql %}
     CREATE SCHEMA IF NOT EXISTS github_actions;
     {% endset %}
     {% do run_query(create_schema_sql) %}
     
-    -- Create or replace the workflows table
     {% set update_table_sql %}
     CREATE OR REPLACE TABLE {{target.database}}.github_actions.workflows AS 
     WITH source_data AS (
@@ -20,14 +19,11 @@
     {% endset %}
     {% do run_query(update_table_sql) %}
     
-    -- Set up specific grants for the schema and table
     {% set prod_db = target.database.lower().replace('_dev', '') %}
     {% set grant_sql %}
-    -- Grant usage on schema
     GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE INTERNAL_DEV;
     GRANT USAGE ON SCHEMA {{target.database}}.github_actions TO ROLE DBT_CLOUD_{{ prod_db }};
     
-    -- Grant select on the specific table
     GRANT SELECT ON TABLE {{target.database}}.github_actions.workflows TO ROLE INTERNAL_DEV;
     GRANT SELECT ON TABLE {{target.database}}.github_actions.workflows TO ROLE DBT_CLOUD_{{ prod_db }};
     {% endset %}
@@ -37,7 +33,6 @@
 {% endmacro %}
 
 {% macro create_gha_tasks() %}
-    -- Get the list of tasks to create
     {% set query %}
     SELECT
         task_name,
@@ -53,13 +48,10 @@
         {% set results_list = [] %}
     {% endif %}
 
-    -- Normalize database name
     {% set prod_db = target.database.lower().replace('_dev', '') %}
     
-    -- Track created tasks
     {% set created_tasks = [] %}
     
-    -- Create tasks
     {% for result in results_list %}
         {% set task_name = result[0] %}
         {% set workflow_name = result[1] %}
@@ -75,7 +67,7 @@
         {% do created_tasks.append(task_name) %}
     {% endfor %}
     
-    -- Optionally resume tasks if the variable is set
+    {# Optionally, resume tasks if the variable is set #}
     {% if var('RESUME_GHA_TASKS', false) %}
         {% do log("Tasks created in RESUME state. Use var RESUME_GHA_TASKS: false to automatically suspend them.", info=true) %}
         {% for task_name in created_tasks %}
