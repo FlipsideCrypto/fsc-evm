@@ -1,4 +1,3 @@
-{# disabling until tf_runs is deployed to livequery_base
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -38,4 +37,4 @@ FROM
             {'per_page':'100'}
         )
     )
-     #}
+    
