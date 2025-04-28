@@ -6,6 +6,7 @@
 
 {{ config(
     materialized = 'view',
+    tags = ['silver','gha_tasks','phase_1']
 ) }}
 
 SELECT
