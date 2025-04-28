@@ -522,9 +522,9 @@ aggregated_errors AS (
                             AND f.block_number = t.block_number
 
 {% if is_incremental() and not vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_ENABLED %}
-AND t.modified_timestamp >= (
+AND t.block_timestamp >= (
     SELECT
-        DATEADD('hour', -24, MAX(modified_timestamp))
+        DATEADD('hour', -36, MAX(block_timestamp))
     FROM
         {{ this }})
     {% endif %}
