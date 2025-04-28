@@ -63,6 +63,9 @@ WITH base AS (
         {% endif %}
         receipts_json,
         receipts_json :logs AS full_logs
+        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+            ,array_index
+        {% endif %}
     FROM
         {{ ref('silver__receipts') }}
     WHERE
@@ -81,6 +84,9 @@ flattened_logs AS (
     SELECT
         block_number,
         tx_hash,
+        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+            array_index,
+        {% endif %}
         receipts_json :from :: STRING AS origin_from_address,
         receipts_json :to :: STRING AS origin_to_address,
         CASE
@@ -142,8 +148,13 @@ AND b.modified_timestamp >= (
 {% endif %}
 LEFT JOIN {{ ref('core__fact_transactions') }}
 txs
-ON l.tx_hash = txs.tx_hash
-AND l.block_number = txs.block_number
+ON l.block_number = txs.block_number
+
+    {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+        AND l.tx_hash = txs.tx_hash
+    {% else %}
+        AND l.array_index = txs.tx_position
+    {% endif %}
 
 {% if is_incremental() %}
 AND txs.block_timestamp >= (

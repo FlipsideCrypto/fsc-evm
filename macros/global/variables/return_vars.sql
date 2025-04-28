@@ -47,7 +47,7 @@
   {# Core Silver Variables #}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME = 'RECEIPTS_BY_HASH' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'RECEIPTS' %}
-  {% set ns.MAIN_CORE_SILVER_RECEIPTS_POST_HOOK = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, block_number)" if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else "" %}
+  {% set ns.MAIN_CORE_SILVER_RECEIPTS_POST_HOOK = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, block_number)" if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(array_index, block_number)" %}
 
   {% set ns.MAIN_CORE_SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED = get_var('MAIN_CORE_SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED', false) %}
 
