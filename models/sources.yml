@@ -11,7 +11,6 @@ sources:
     schema: github_actions
     tables:
       - name: workflows
-      - name: task_status
   - name: bronze_streamline
     database: "{{ target.database }}"
     schema: streamline      
@@ -71,6 +70,7 @@ sources:
     schema: silver
     tables:
       - name: verified_abis
+      - name: complete_event_abis
   - name: data_science_silver
     database: datascience
     schema: silver

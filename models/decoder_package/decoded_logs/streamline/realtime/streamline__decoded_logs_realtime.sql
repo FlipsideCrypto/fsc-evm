@@ -68,7 +68,7 @@ SELECT
     ) AS DATA
 FROM
     candidate_logs l
-    INNER JOIN {{ ref('silver__complete_event_abis') }} A
+    INNER JOIN {{ source('abis_silver', 'complete_event_abis') }} A
     ON A.parent_contract_address = l.contract_address
     AND A.event_signature = l.topics [0] :: STRING
     AND l.block_number BETWEEN A.start_block
