@@ -82,6 +82,7 @@ confirmed_blocks AS (
     FROM
         {{ ref("silver__confirm_blocks") }}
     WHERE block_number >= (select min_block from summary_stats)
+    AND partition_key >= (select round(min_block,-3) from summary_stats)
 ),
 gap_test AS (
     SELECT
