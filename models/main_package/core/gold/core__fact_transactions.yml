@@ -78,6 +78,8 @@ models:
         description: '{{ doc("evm_y_parity") }}'
       - name: ACCESS_LIST
         description: '{{ doc("evm_access_list") }}'
+      - name: TOKEN_RATIO
+        description: '{{ doc("evm_token_ratio") }}'
       - name: L1_BASE_FEE_SCALAR
         description: '{{ doc("evm_l1_base_fee_scalar") }}'
       - name: L1_BLOB_BASE_FEE
