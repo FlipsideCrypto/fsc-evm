@@ -4,7 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends_on: {{ ref('bronze__' ~ vars.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME.lower()) }}
+-- depends_on: {{ ref('bronze__receipts') }}
+-- depends_on: {{ ref('bronze__receipts_by_hash') }}
 
 {{ config (
     materialized = "incremental",
