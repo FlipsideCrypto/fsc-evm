@@ -99,7 +99,7 @@ jobs:
       - name: Run Recreate UDFs
         run: |
           dbt run-operation fsc_evm.create_evm_streamline_udfs --vars '{"UPDATE_UDFS_AND_SPS":True}' -t dev
-          dbt run -s livequery_base.deploy.core._live --vars '{"UPDATE_UDFS_AND_SPS":True}' -t dev
+          dbt run -s livequery_models.deploy.core --vars '{"UPDATE_UDFS_AND_SPS":True}' -t dev
 
   notify-failure-2:
     needs: [run_dbt_jobs_udfs]
