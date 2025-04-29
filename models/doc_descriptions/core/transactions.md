@@ -230,6 +230,12 @@ The access list for the transaction.
 
 {% enddocs %}
 
+{% docs evm_token_ratio %}
+
+Represents the price ratio of ETH and MNT, stored as a protocol-level parameter to help adjust native token fee mechanisms in the network.
+
+{% enddocs %}
+
 {% docs evm_l1_base_fee_scalar %}
 
 The scalar l1 base fee for the transaction.

@@ -237,6 +237,9 @@ WHERE
             {% if rpc_vars.accessList %}
             txs.access_list,
             {% endif %}
+            {% if rpc_vars.tokenRatio %}
+            TRY_TO_NUMBER(utils.udf_hex_to_int(r.receipts_json :tokenRatio :: STRING)) AS token_ratio,
+            {% endif %}
             {% if rpc_vars.l1BlobBaseFee %}
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
             {% endif %}
@@ -437,6 +440,9 @@ missing_data AS (
         {% if rpc_vars.accessList %}
         t.access_list,
         {% endif %}
+        {% if rpc_vars.tokenRatio %}
+        TRY_TO_NUMBER(utils.udf_hex_to_int(r.receipts_json :tokenRatio :: STRING)) AS token_ratio_heal,
+        {% endif %}
         {% if rpc_vars.l1BlobBaseFee %}
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFee :: STRING):: bigint AS l1_blob_base_fee,
         {% endif %}
@@ -595,6 +601,9 @@ all_transactions AS (
         {% if rpc_vars.accessList %}
         access_list,
         {% endif %}
+        {% if rpc_vars.tokenRatio %}
+        token_ratio,
+        {% endif %}
         {% if rpc_vars.l1BlobBaseFee %}
         l1_blob_base_fee,
         {% endif %}
@@ -690,6 +699,9 @@ SELECT
     {% endif %}
     {% if rpc_vars.accessList %}
     access_list,
+    {% endif %}
+    {% if rpc_vars.tokenRatio %}
+    token_ratio_heal AS token_ratio,
     {% endif %}
     {% if rpc_vars.l1BlobBaseFee %}
     l1_blob_base_fee,
@@ -808,6 +820,9 @@ SELECT
     {% endif %}
     {% if rpc_vars.accessList %}
     access_list,
+    {% endif %}
+    {% if rpc_vars.tokenRatio %}
+    token_ratio,
     {% endif %}
     r,
     s,
