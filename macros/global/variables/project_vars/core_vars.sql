@@ -2,7 +2,7 @@
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'core',
         'GLOBAL_NODE_PROVIDER': 'drpc',
-        'GLOBAL_NODE_URL': '{KEY}',
+        'GLOBAL_NODE_URL': 'https://lb.drpc.org/ogrpc?network=core&dkey={KEY}',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/evm/drpc',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x40375c92d9faf44d2f9db9bd9ba41a3317a2404f',
         'MAIN_SL_BLOCKS_PER_HOUR': 1200,
