@@ -16,7 +16,7 @@
 {% if is_incremental() %}
 {% set query %}
 SELECT
-    MIN(DATE_TRUNC('hour', block_timestamp)) AS block_timestamp_hour
+    COALESCE(MIN(DATE_TRUNC('hour', block_timestamp)),SYSDATE()) AS block_timestamp_hour
 FROM
     {{ ref('core__fact_transactions') }}
 WHERE
