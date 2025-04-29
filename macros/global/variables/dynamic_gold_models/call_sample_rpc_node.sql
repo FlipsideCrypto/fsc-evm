@@ -5,7 +5,7 @@
     random_block_sample_size=none,
     vault_path_override=none,
     node_url_override=none,
-    exclude_traces=none
+    exclude_traces=true
 ) %}
 
 {% set vars = return_vars() %}
@@ -38,9 +38,7 @@ CALL {{ target_db }}.admin.sample_rpc_node(
     {% if node_url_override is not none %},
     NODE_URL_OVERRIDE => '{{ node_url_override }}'
     {% endif %}
-    {% if exclude_traces is not none %},
     EXCLUDE_TRACES => {{ exclude_traces }}
-    {% endif %}
 )
 {% endset %}
 
