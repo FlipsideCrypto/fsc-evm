@@ -38,7 +38,9 @@ CALL {{ target_db }}.admin.sample_rpc_node(
     {% if node_url_override is not none %},
     NODE_URL_OVERRIDE => '{{ node_url_override }}'
     {% endif %}
-    ,EXCLUDE_TRACES => {{ exclude_traces }}
+    {% if exclude_traces is not none %},
+    EXCLUDE_TRACES => {{ exclude_traces }}
+    {% endif %}
 )
 {% endset %}
 
