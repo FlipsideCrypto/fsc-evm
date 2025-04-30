@@ -28,7 +28,7 @@ WITH base AS (
 {% if is_incremental() %}
 AND inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '4 hours'
+        COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) - INTERVAL '4 hours'
     FROM
         {{ this }}
 )
