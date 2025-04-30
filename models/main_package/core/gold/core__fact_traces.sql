@@ -60,7 +60,7 @@ AND (
         {{ this }}
 )
 {% else %}
-    AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
+    AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FR_MAX_BLOCK }}
 {% endif %}
 
     {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
@@ -106,7 +106,7 @@ AND modified_timestamp > (
                 {{ this }}
         )
     {% else %}
-        AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FULL_RELOAD_START_BLOCK }}
+        AND block_number <= {{ vars.MAIN_CORE_GOLD_TRACES_FR_MAX_BLOCK }}
     {% endif %}
     {% endif %}
 ),

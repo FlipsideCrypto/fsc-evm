@@ -5,6 +5,7 @@
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('bronze__' ~ vars.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME.lower()) }}
+-- depends_on: {{ ref('bronze__' ~ vars.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME.lower() ~ '_fr') }}
 
 {{ config (
     materialized = "incremental",

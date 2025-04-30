@@ -5,7 +5,7 @@
     random_block_sample_size=none,
     vault_path_override=none,
     node_url_override=none,
-    exclude_traces=none
+    exclude_traces=true
 ) %}
 
 {% set vars = return_vars() %}
