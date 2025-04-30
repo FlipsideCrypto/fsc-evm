@@ -83,11 +83,13 @@ WHERE
     {% endif %}
 {% else %}
     {{ ref('bronze__traces_fr') }}
-WHERE
-    {% if vars.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED %}
-        partition_key <= {{ vars.MAIN_CORE_SILVER_TRACES_FR_MAX_BLOCK }}
-    {% else %}
-        _partition_by_block_id <= {{ vars.MAIN_CORE_SILVER_TRACES_FR_MAX_BLOCK }}
+WHERE 1=1
+    {% if not vars.GLOBAL_NEW_BUILD_ENABLED %}
+        {% if vars.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED %}
+           AND partition_key <= {{ vars.MAIN_CORE_SILVER_TRACES_FR_MAX_BLOCK }}
+        {% else %}
+           AND _partition_by_block_id <= {{ vars.MAIN_CORE_SILVER_TRACES_FR_MAX_BLOCK }}
+        {% endif %}
     {% endif %}
 
     {% if vars.MAIN_CORE_TRACES_ARB_MODE %}

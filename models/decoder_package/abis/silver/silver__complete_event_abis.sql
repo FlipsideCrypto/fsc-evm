@@ -20,7 +20,7 @@ WITH new_abis AS (
 WHERE
     _inserted_timestamp :: DATE >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '18 hours'
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) - INTERVAL '18 hours'
         FROM
             {{ this }}
     )
@@ -33,7 +33,7 @@ FROM
 WHERE
     start_timestamp :: DATE >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '18 hours'
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) - INTERVAL '18 hours'
         FROM
             {{ this }}
     )
