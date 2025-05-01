@@ -2,7 +2,7 @@
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'boba',
         'GLOBAL_NODE_PROVIDER': 'drpc',
-        'GLOBAL_NODE_URL': 'https://lb.drpc.org/ogrpc?network=boba&dkey={KEY}',
+        'GLOBAL_NODE_URL': 'https://lb.drpc.org/ogrpc?network=boba-eth&dkey={KEY}',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/evm/drpc',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000',
         'MAIN_SL_BLOCKS_PER_HOUR': 1800,
