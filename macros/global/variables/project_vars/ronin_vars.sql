@@ -2,8 +2,8 @@
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'ronin',
         'GLOBAL_NODE_PROVIDER': 'tatum',
-        'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/ronin/tatum/mainnet_new',
-        'GLOBAL_NODE_URL': "{api_url}",
+        'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/evm/tatum/ronin/mainnet',
+        'GLOBAL_NODE_URL': "{URL}",
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0xe514d9deb7966c8be0ca922de8a064264ea6bcd4',
         'MAIN_SL_BLOCKS_PER_HOUR': 1200,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'RON',
