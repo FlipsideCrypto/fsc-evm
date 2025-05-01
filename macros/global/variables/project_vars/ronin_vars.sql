@@ -12,7 +12,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer-kintsugi.roninchain.com/v2/2020/contract/',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX': '/abi',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_SL_CHAINHEAD_DELAY_MINUTES': 6
+        'MAIN_SL_CHAINHEAD_DELAY_MINUTES': 6,
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '19,49 * * * *'
     } %}
     
     {{ return(vars) }}

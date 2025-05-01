@@ -11,7 +11,8 @@
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'Swell',
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'SwellExplorer',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer.swellnetwork.io/api/v2/smart-contracts/',
-        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '17,47 * * * *'
     } %}
     
     {{ return(vars) }}
