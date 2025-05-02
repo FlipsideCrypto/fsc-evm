@@ -7,39 +7,49 @@ models:
             - BLOCKCHAIN
             - CREATOR
             - ADDRESS
+          where: "not is_deleted"
     columns:
       - name: BLOCKCHAIN
         tests:
-          - not_null
+          - not_null:
+              where: "not is_deleted"
       - name: CREATOR
         tests:
-          - not_null
+          - not_null:
+              where: "not is_deleted"
       - name: ADDRESS
         tests:
-          - not_null
+          - not_null:
+              where: "not is_deleted"
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
+              where: "not is_deleted"
       - name: ADDRESS_NAME
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - STRING
                 - VARCHAR
+              where: "not is_deleted"
       - name: LABEL_TYPE
         tests:
-          - not_null
+          - not_null:
+              where: "not is_deleted"
       - name: LABEL_SUBTYPE
         tests:
-          - not_null
+          - not_null:
+              where: "not is_deleted"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - STRING
                 - VARCHAR
+              where: "not is_deleted"
       - name: PROJECT_NAME
         tests:
-          - not_null
+          - not_null:
+              where: "not is_deleted"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - STRING
                 - VARCHAR
-
+              where: "not is_deleted"

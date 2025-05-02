@@ -44,3 +44,5 @@ WHERE
             {{ this }}
     )
 {% endif %}
+
+qualify row_number() over (partition by complete_native_prices_id order by modified_timestamp desc) = 1

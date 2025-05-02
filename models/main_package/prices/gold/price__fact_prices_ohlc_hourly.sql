@@ -34,3 +34,5 @@ WHERE
             {{ this }}
     )
 {% endif %}
+
+qualify row_number() over (partition by fact_prices_ohlc_hourly_id order by modified_timestamp desc) = 1
