@@ -46,4 +46,4 @@ WHERE
     )
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY complete_provider_prices_id ORDER BY modified_timestamp DESC)) = 1
+qualify(ROW_NUMBER() over (PARTITION BY complete_provider_prices_id ORDER BY p.modified_timestamp DESC)) = 1
