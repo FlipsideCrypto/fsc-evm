@@ -45,3 +45,5 @@ WHERE
             {{ this }}
     )
 {% endif %}
+
+qualify row_number() over (partition by complete_token_asset_metadata_id order by modified_timestamp desc) = 1

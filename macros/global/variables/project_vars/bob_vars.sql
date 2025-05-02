@@ -12,7 +12,9 @@
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'GoBOB',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer-bob-mainnet-0.t.conduit.xyz/api/v2/smart-contracts/',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '21,51 * * * *'
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '21,51 * * * *',
+        'DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE': 50,
+        'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50
     } %}
     
     {{ return(vars) }}
