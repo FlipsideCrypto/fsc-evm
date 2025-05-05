@@ -265,11 +265,11 @@ WHERE
                     ) :: bigint
                 ) + FLOOR(
                     l1_gas_price * l1_gas_used * l1_fee_scalar
-                ) + IFF(
+                ) :: bigint + IFF(
                     l1_fee_scalar = 0,
                     l1_fee_precise_raw,
                     0
-                ),
+                ) :: bigint,
                 18
             ) AS tx_fee_precise,
             {% elif not rpc_vars.l1FeeScalar and rpc_vars.l1Fee %}
@@ -475,11 +475,11 @@ missing_data AS (
                 ) :: bigint
             ) + FLOOR(
                 l1_gas_price_heal * l1_gas_used_heal * l1_fee_scalar_heal
-            ) + IFF(
+            ) :: bigint + IFF(
                 l1_fee_scalar_heal = 0,
                 l1_fee_precise_raw_heal,
                 0
-            ),
+            ) :: bigint,
             18
         ) AS tx_fee_precise_heal,
         {% elif not rpc_vars.l1FeeScalar and rpc_vars.l1Fee %}
