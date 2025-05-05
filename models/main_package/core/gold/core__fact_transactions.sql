@@ -281,8 +281,6 @@ WHERE
                     txs.gas_price * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + FLOOR(
-                    l1_gas_price * l1_gas_used
                 ) + l1_fee_precise_raw,
                 18
             ) AS tx_fee_precise,
@@ -496,8 +494,6 @@ missing_data AS (
                     (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + FLOOR(
-                    l1_gas_price_heal * l1_gas_used_heal
                 ) + l1_fee_precise_raw_heal,
                 18
             ) AS tx_fee_precise_heal,
