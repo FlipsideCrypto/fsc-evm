@@ -278,7 +278,7 @@ WHERE
                     txs.gas_price * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + l1_fee_precise_raw,
+                ) + l1_fee_precise_raw :: bigint,
                 18
             ) AS tx_fee_precise,
             {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
@@ -488,7 +488,7 @@ missing_data AS (
                     (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + l1_fee_precise_raw_heal,
+                ) + l1_fee_precise_raw_heal :: bigint,
                 18
             ) AS tx_fee_precise_heal,
         {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
