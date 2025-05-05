@@ -183,10 +183,7 @@ WHERE
             {% if rpc_vars.l1Fee %}
             utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw,
             utils.udf_decimal_adjust(l1_fee_precise_raw, 18) as l1_fee_precise,
-            COALESCE(
-                l1_fee_precise :: FLOAT,
-                0
-            ) AS l1_fee,
+            l1_fee_precise :: FLOAT AS l1_fee,
             {% endif %}
             {% if rpc_vars.l1FeeScalar %}
             COALESCE(
@@ -267,12 +264,21 @@ WHERE
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
                 ) + FLOOR(
-                    l1_gas_price * l1_gas_used * l1_fee_scalar
+                    l1_gas_price :: bigint * l1_gas_used :: bigint * l1_fee_scalar :: bigint
                 ) + IFF(
                     l1_fee_scalar = 0,
-                    l1_fee,
+                    l1_fee_precise_raw  :: bigint,
                     0
                 ),
+                18
+            ) AS tx_fee_precise,
+            {% elif not rpc_vars.l1FeeScalar and rpc_vars.l1Fee %}
+            utils.udf_decimal_adjust(
+                (
+                    txs.gas_price * utils.udf_hex_to_int(
+                        r.receipts_json :gasUsed :: STRING
+                    ) :: bigint
+                ) + l1_fee_precise_raw :: bigint,
                 18
             ) AS tx_fee_precise,
             {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
@@ -385,10 +391,7 @@ missing_data AS (
         {% endif %}
         {% if rpc_vars.l1Fee %}
         utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw_heal,
-        COALESCE(
-            l1_fee_precise_raw_heal :: FLOAT,
-            0
-        ) AS l1_fee_heal,
+        l1_fee_precise_raw_heal :: FLOAT AS l1_fee_heal,
         utils.udf_decimal_adjust(l1_fee_precise_raw_heal, 18) as l1_fee_precise_heal,
         {% endif %}
         {% if rpc_vars.l1FeeScalar %}
@@ -467,21 +470,30 @@ missing_data AS (
         {% if rpc_vars.l1FeeScalar %}
         utils.udf_decimal_adjust(
             (
-                t.gas_price * utils.udf_hex_to_int(
+                (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
                 ) :: bigint
             ) + FLOOR(
-                l1_gas_price * l1_gas_used * l1_fee_scalar
+                l1_gas_price_heal :: bigint * l1_gas_used_heal :: bigint * l1_fee_scalar_heal :: bigint
             ) + IFF(
-                l1_fee_scalar = 0,
-                l1_fee,
+                l1_fee_scalar_heal = 0,
+                l1_fee_precise_raw_heal :: bigint,
                 0
             ),
             18
         ) AS tx_fee_precise_heal,
+        {% elif not rpc_vars.l1FeeScalar and rpc_vars.l1Fee %}
+            utils.udf_decimal_adjust(
+                (
+                    (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
+                        r.receipts_json :gasUsed :: STRING
+                    ) :: bigint
+                ) + l1_fee_precise_raw_heal :: bigint,
+                18
+            ) AS tx_fee_precise_heal,
         {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             utils.udf_decimal_adjust(
-                effective_gas_price_heal * utils.udf_hex_to_int(
+                (effective_gas_price_heal * pow(10, 9)) * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
                 ) :: bigint,
                 18
@@ -742,7 +754,7 @@ SELECT
     value_precise_raw,
     value_precise,
     tx_fee,
-    tx_fee_precise,
+    COALESCE(tx_fee_precise,'0') AS tx_fee_precise,
     tx_succeeded,
     tx_type,
     nonce,
