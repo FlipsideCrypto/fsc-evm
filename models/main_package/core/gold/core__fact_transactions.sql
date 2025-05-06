@@ -243,6 +243,16 @@ WHERE
             {% if rpc_vars.l1BlobBaseFeeScalar %}
             utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar,
             {% endif %}
+             {% if rpc_vars.operatorFeeScalar %}
+                utils.udf_hex_to_int(
+                    r.receipts_json :operatorFeeScalar :: STRING
+                ) :: bigint AS operator_fee_scalar,
+            {% endif %}
+            {% if rpc_vars.operatorFeeConstant %}
+                utils.udf_hex_to_int(
+                    r.receipts_json :operatorFeeConstant :: STRING
+                ) :: bigint AS operator_fee_constant,
+            {% endif %}
             txs.gas_price / pow(
                 10,
                 9
@@ -263,8 +273,17 @@ WHERE
                     txs.gas_price * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + ifnull(l1_fee_precise_raw :: bigint,0),
-                18
+                ) + ifnull(l1_fee_precise_raw :: bigint,0)
+                {% if rpc_vars.operatorFeeScalar or rpc_vars.operatorFeeConstant %}
+                 + (
+                (
+                    utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint 
+                 * COALESCE(operator_fee_scalar, 0) / pow(10, 6)
+                 ) 
+                 + COALESCE(operator_fee_constant,0)
+                    )
+                    {% endif %}
+                ,18
             ) AS tx_fee_precise,
             {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             utils.udf_decimal_adjust(
@@ -291,6 +310,9 @@ WHERE
                 ELSE NULL
             END AS tx_succeeded,
             txs.tx_type,
+            {% if rpc_vars.timeboosted %}
+                r.receipts_json: timeboosted :: BOOLEAN AS timeboosted,
+            {% endif %}
             txs.nonce,
             txs.tx_position,
             txs.input_data,
@@ -437,6 +459,16 @@ missing_data AS (
         {% if rpc_vars.l1BlobBaseFeeScalar %}
         utils.udf_hex_to_int(r.receipts_json :l1BlobBaseFeeScalar :: STRING):: bigint AS l1_blob_base_fee_scalar_heal,
         {% endif %}
+        {% if rpc_vars.operatorFeeScalar %}
+            utils.udf_hex_to_int(
+                r.receipts_json :operatorFeeScalar :: STRING
+            ) :: bigint AS operator_fee_scalar_heal,
+        {% endif %}
+        {% if rpc_vars.operatorFeeConstant %}
+            utils.udf_hex_to_int(
+                r.receipts_json :operatorFeeConstant :: STRING
+            ) :: bigint AS operator_fee_constant_heal,
+        {% endif %}
         {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
         t.gas_price_bid as gas_price, 
         {% else %}
@@ -458,8 +490,17 @@ missing_data AS (
                     (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + ifnull(l1_fee_precise_raw_heal :: bigint,0),
-                18
+                ) + ifnull(l1_fee_precise_raw_heal :: bigint,0)
+                {% if rpc_vars.operatorFeeScalar or rpc_vars.operatorFeeConstant %}
+                 + (
+                (
+                    utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint 
+                 * COALESCE(operator_fee_scalar_heal, 0) / pow(10, 6)
+                 ) 
+                 + COALESCE(operator_fee_constant_heal,0)
+                    )
+                    {% endif %}
+                ,18
             ) AS tx_fee_precise_heal,
         {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             utils.udf_decimal_adjust(
@@ -486,6 +527,9 @@ missing_data AS (
             ELSE NULL
         END AS tx_succeeded_heal,
         t.tx_type,
+        {% if rpc_vars.timeboosted %}
+            r.receipts_json: timeboosted :: BOOLEAN AS timeboosted_heal,
+        {% endif %}
         t.nonce,
         t.tx_position,
         t.input_data,
@@ -592,10 +636,19 @@ all_transactions AS (
         {% if rpc_vars.l1BlobBaseFeeScalar %}
         l1_blob_base_fee_scalar,
         {% endif %}
+        {% if rpc_vars.operatorFeeScalar %}
+        operator_fee_scalar,
+        {% endif %}
+        {% if rpc_vars.operatorFeeConstant %}
+        operator_fee_constant,
+        {% endif %}
         tx_fee,
         tx_fee_precise,
         tx_succeeded,
         tx_type,
+        {% if rpc_vars.timeboosted %}
+        timeboosted,
+        {% endif %}
         nonce,
         tx_position,
         input_data,
@@ -691,10 +744,19 @@ SELECT
     {% if rpc_vars.l1BlobBaseFeeScalar %}
     l1_blob_base_fee_scalar_heal AS l1_blob_base_fee_scalar,
     {% endif %}
+    {% if rpc_vars.operatorFeeScalar %}
+    operator_fee_scalar_heal AS operator_fee_scalar,
+    {% endif %}
+    {% if rpc_vars.operatorFeeConstant %}
+    operator_fee_constant_heal AS operator_fee_constant,
+    {% endif %}
     tx_fee_heal AS tx_fee,
     tx_fee_precise_heal AS tx_fee_precise,
     tx_succeeded_heal AS tx_succeeded,
     tx_type,
+    {% if rpc_vars.timeboosted %}
+    timeboosted_heal AS timeboosted,
+    {% endif %}
     nonce,
     tx_position,
     input_data,
@@ -727,6 +789,9 @@ SELECT
     COALESCE(tx_fee_precise,'0') AS tx_fee_precise,
     tx_succeeded,
     tx_type,
+    {% if rpc_vars.timeboosted %}
+    timeboosted,
+    {% endif %}
     nonce,
     tx_position,
     input_data,
@@ -780,6 +845,12 @@ SELECT
     {% endif %}
     {% if rpc_vars.l1BlobBaseFeeScalar %}
     l1_blob_base_fee_scalar,
+    {% endif %}
+    {% if rpc_vars.operatorFeeScalar %}
+    operator_fee_scalar,
+    {% endif %}
+    {% if rpc_vars.operatorFeeConstant %}
+    operator_fee_constant,
     {% endif %}
     {% if rpc_vars.mint %}
     mint,
