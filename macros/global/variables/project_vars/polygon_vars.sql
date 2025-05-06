@@ -13,7 +13,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.polygonscan.com/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/polygon_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_SL_CHAINHEAD_DELAY_MINUTES': 10
+        'MAIN_SL_CHAINHEAD_DELAY_MINUTES': 10,
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '25,55 * * * *'
     } %}
     
     {{ return(vars) }}
