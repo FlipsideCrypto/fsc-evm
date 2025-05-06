@@ -29,7 +29,10 @@
         {'gold_model': 'fact_transactions', 'field': 'l1BlockNumber', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'blobGasUsed', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'blobGasPrice', 'source': 'receipts_fields'},
-        {'gold_model': 'fact_transactions', 'field': 'tokenRatio', 'source': 'receipts_fields'}
+        {'gold_model': 'fact_transactions', 'field': 'tokenRatio', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'timeboosted', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'operatorFeeScalar', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'operatorFeeConstant', 'source': 'receipts_fields'}
     ] %}
     
     {# Filter fields based on the specified gold_model #}
