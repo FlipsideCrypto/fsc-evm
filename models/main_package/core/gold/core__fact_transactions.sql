@@ -274,7 +274,7 @@ WHERE
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
                 ) + ifnull(l1_fee_precise_raw :: bigint,0)
-                {% if rpc_vars.operatorFeeScalar %}
+                {% if rpc_vars.operatorFeeScalar or rpc_vars.operatorFeeConstant %}
                  + (
                 (
                     utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint 
@@ -491,7 +491,7 @@ missing_data AS (
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
                 ) + ifnull(l1_fee_precise_raw_heal :: bigint,0)
-                {% if rpc_vars.operatorFeeScalar %}
+                {% if rpc_vars.operatorFeeScalar or rpc_vars.operatorFeeConstant %}
                  + (
                 (
                     utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint 
