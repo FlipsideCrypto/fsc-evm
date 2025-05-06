@@ -325,7 +325,7 @@ WHERE
                     ),
                     18
                 ) AS tx_fee_precise,
-                {% elif vars.global_project_name == 'arbitrum' %}
+                {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
                 utils.udf_decimal_adjust(
                     effective_gas_price * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
@@ -378,7 +378,7 @@ AND b.modified_timestamp >= (
 LEFT JOIN {{ ref('silver__receipts') }}
 r
 ON txs.block_number = r.block_number
-AND txs.tx_hash = {% if vars.main_core_receipts_by_hash_enabled %}
+AND txs.tx_hash = {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
     r.tx_hash
 {% else %}
     r.receipts_json :transactionHash :: STRING
@@ -539,7 +539,7 @@ missing_data AS (
             ) :: bigint AS l1_blob_base_fee_scalar_heal,
         {% endif %}
 
-        {% if vars.global_project_name == 'arbitrum' %}
+        {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             t.gas_price_bid AS gas_price,
         {% else %}
             t.gas_price,
@@ -565,7 +565,7 @@ missing_data AS (
                 ),
                 18
             ) AS tx_fee_precise_heal,
-            {% elif vars.global_project_name == 'arbitrum' %}
+            {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
             utils.udf_decimal_adjust(
                 effective_gas_price_heal * utils.udf_hex_to_int(
                     r.receipts_json :gasUsed :: STRING
@@ -610,7 +610,7 @@ missing_data AS (
         LEFT JOIN {{ ref('silver__receipts') }}
         r
         ON t.block_number = r.block_number
-        AND t.tx_hash = {% if vars.main_core_receipts_by_hash_enabled %}
+        AND t.tx_hash = {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
             r.tx_hash
         {% else %}
             r.receipts_json :transactionHash :: STRING
@@ -892,7 +892,7 @@ SELECT
     nonce,
     tx_position,
     input_data,
-    {% if vars.global_project_name == 'arbitrum' %}
+    {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
         gas_price AS gas_price_bid,
         effective_gas_price AS gas_price_paid,
     {% else %}
@@ -998,7 +998,7 @@ SELECT
 
     {{ dbt_utils.generate_surrogate_key(['tx_hash']) }} AS fact_transactions_id,
 
-{% if is_incremental() or vars.global_new_build_enabled %}
+{% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
 SYSDATE() AS inserted_timestamp,
 SYSDATE() AS modified_timestamp
 {% else %}
