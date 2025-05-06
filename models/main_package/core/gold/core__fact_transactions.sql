@@ -197,7 +197,7 @@ WHERE
             COALESCE(
                 utils.udf_hex_to_int(
                     r.receipts_json :l1GasUsed :: STRING
-                ) :: FLOAT,
+                ) :: BIGINT,
                 0
             ) AS l1_gas_used,
             {% endif %}
@@ -205,7 +205,7 @@ WHERE
             COALESCE(
                 utils.udf_hex_to_int(
                     r.receipts_json :l1GasPrice :: STRING
-                ) :: FLOAT,
+                ) :: BIGINT,
                 0
             ) AS l1_gas_price,
             {% endif %}
@@ -257,22 +257,7 @@ WHERE
             utils.udf_hex_to_int(
                 r.receipts_json :effectiveGasPrice :: STRING
             ) :: bigint AS effective_gas_price,
-            {% if rpc_vars.l1FeeScalar %}
-            utils.udf_decimal_adjust(
-                (
-                    txs.gas_price * utils.udf_hex_to_int(
-                        r.receipts_json :gasUsed :: STRING
-                    ) :: bigint
-                ) + FLOOR(
-                    l1_gas_price :: bigint * l1_gas_used :: bigint * l1_fee_scalar :: bigint
-                ) + IFF(
-                    l1_fee_scalar = 0,
-                    l1_fee_precise_raw  :: bigint,
-                    0
-                ),
-                18
-            ) AS tx_fee_precise,
-            {% elif not rpc_vars.l1FeeScalar and rpc_vars.l1Fee %}
+            {% if rpc_vars.l1Fee %}
             utils.udf_decimal_adjust(
                 (
                     txs.gas_price * utils.udf_hex_to_int(
@@ -406,7 +391,7 @@ missing_data AS (
         COALESCE(
             utils.udf_hex_to_int(
                 r.receipts_json :l1GasUsed :: STRING
-            ) :: FLOAT,
+            ) :: BIGINT,
             0
         ) AS l1_gas_used_heal,
         {% endif %}
@@ -414,7 +399,7 @@ missing_data AS (
         COALESCE(
             utils.udf_hex_to_int(
                 r.receipts_json :l1GasPrice :: STRING
-            ) :: FLOAT,
+            ) :: BIGINT,
             0
         ) AS l1_gas_price_heal,
         {% endif %}
@@ -467,22 +452,7 @@ missing_data AS (
         utils.udf_hex_to_int(
             r.receipts_json :effectiveGasPrice :: STRING
         ) :: bigint AS effective_gas_price_heal,
-        {% if rpc_vars.l1FeeScalar %}
-        utils.udf_decimal_adjust(
-            (
-                (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
-                    r.receipts_json :gasUsed :: STRING
-                ) :: bigint
-            ) + FLOOR(
-                l1_gas_price_heal :: bigint * l1_gas_used_heal :: bigint * l1_fee_scalar_heal :: bigint
-            ) + IFF(
-                l1_fee_scalar_heal = 0,
-                l1_fee_precise_raw_heal :: bigint,
-                0
-            ),
-            18
-        ) AS tx_fee_precise_heal,
-        {% elif not rpc_vars.l1FeeScalar and rpc_vars.l1Fee %}
+        {% if rpc_vars.l1Fee %}
             utils.udf_decimal_adjust(
                 (
                     (t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(
