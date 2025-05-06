@@ -376,8 +376,8 @@ missing_data AS (
         {% endif %}
         {% if rpc_vars.l1Fee %}
         utils.udf_hex_to_int(r.receipts_json :l1Fee :: STRING) as l1_fee_precise_raw_heal,
-        l1_fee_precise_raw_heal :: FLOAT AS l1_fee_heal,
         utils.udf_decimal_adjust(l1_fee_precise_raw_heal, 18) as l1_fee_precise_heal,
+        l1_fee_precise_heal :: FLOAT AS l1_fee_heal,
         {% endif %}
         {% if rpc_vars.l1FeeScalar %}
         COALESCE(
