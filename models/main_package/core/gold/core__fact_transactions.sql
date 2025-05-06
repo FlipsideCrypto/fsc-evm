@@ -46,9 +46,9 @@ WHERE
             utils.udf_hex_to_int(
                 transaction_json :gas :: STRING
             ) :: bigint AS gas_limit,
-            utils.udf_hex_to_int(
+            TRY_TO_NUMBER(utils.udf_hex_to_int(
                 transaction_json :gasPrice :: STRING
-            ) :: bigint AS gas_price,
+            )) AS gas_price,
             transaction_json :hash :: STRING AS tx_hash,
             transaction_json :input :: STRING AS input_data,
             LEFT(
@@ -311,7 +311,7 @@ WHERE
             END AS tx_succeeded,
             txs.tx_type,
             {% if rpc_vars.timeboosted %}
-                r.receipts_json: timeboosted :: BOOLEAN AS timeboosted,
+                r.receipts_json :timeboosted :: BOOLEAN AS timeboosted,
             {% endif %}
             txs.nonce,
             txs.tx_position,
@@ -528,7 +528,7 @@ missing_data AS (
         END AS tx_succeeded_heal,
         t.tx_type,
         {% if rpc_vars.timeboosted %}
-            r.receipts_json: timeboosted :: BOOLEAN AS timeboosted_heal,
+            r.receipts_json :timeboosted :: BOOLEAN AS timeboosted_heal,
         {% endif %}
         t.nonce,
         t.tx_position,
