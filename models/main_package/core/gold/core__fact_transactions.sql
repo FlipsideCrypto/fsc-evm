@@ -263,7 +263,7 @@ WHERE
                     txs.gas_price * utils.udf_hex_to_int(
                         r.receipts_json :gasUsed :: STRING
                     ) :: bigint
-                ) + ifnull(1_fee_precise_raw :: bigint,0),
+                ) + ifnull(l1_fee_precise_raw :: bigint,0),
                 18
             ) AS tx_fee_precise,
             {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
