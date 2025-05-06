@@ -317,12 +317,7 @@ WHERE
                         txs.gas_price * utils.udf_hex_to_int(
                             r.receipts_json :gasUsed :: STRING
                         ) :: bigint
-                    ) + COALESCE(
-                        l1_fee_precise_raw,
-                        FLOOR(
-                            l1_gas_price * l1_gas_used * l1_fee_scalar
-                        )
-                    ),
+                    ) + ifnull( l1_fee_precise_raw, 0),
                     18
                 ) AS tx_fee_precise,
                 {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
@@ -557,12 +552,8 @@ missing_data AS (
         ) :: bigint AS effective_gas_price_heal,
         {% if rpc_vars.l1Fee %}
             utils.udf_decimal_adjust(
-                ((t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint) + COALESCE(
-                    l1_fee_precise_raw_heal,
-                    FLOOR(
-                        l1_gas_price_heal * l1_gas_used_heal * l1_fee_scalar_heal
-                    )
-                ),
+                ((t.gas_price * pow(10, 9)) * utils.udf_hex_to_int(r.receipts_json :gasUsed :: STRING) :: bigint) 
+                + ifnull( l1_fee_precise_raw_heal, 0),
                 18
             ) AS tx_fee_precise_heal,
             {% elif vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
