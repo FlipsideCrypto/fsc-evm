@@ -82,9 +82,6 @@ WHERE
                 transaction_json :transactionIndex :: STRING
             ) :: bigint AS transaction_index,
             utils.udf_hex_to_int(
-                transaction_json :type :: STRING
-            ) :: bigint AS tx_type,
-            utils.udf_hex_to_int(
                 transaction_json :v :: STRING
             ) :: bigint AS v,
             {% if rpc_vars.maxFeePerGas %}
@@ -309,7 +306,9 @@ WHERE
                 WHEN r.receipts_json :status :: STRING = '0x0' THEN FALSE
                 ELSE NULL
             END AS tx_succeeded,
-            txs.tx_type,
+            utils.udf_hex_to_int(
+                r.receipts_json :type :: STRING
+            ) :: bigint AS tx_type,
             {% if rpc_vars.timeboosted %}
                 r.receipts_json :timeboosted :: BOOLEAN AS timeboosted,
             {% endif %}
@@ -526,7 +525,9 @@ missing_data AS (
             WHEN r.receipts_json :status :: STRING = '0x0' THEN FALSE
             ELSE NULL
         END AS tx_succeeded_heal,
-        t.tx_type,
+        utils.udf_hex_to_int(
+                r.receipts_json :type :: STRING
+            ) :: bigint AS tx_type_heal,
         {% if rpc_vars.timeboosted %}
             r.receipts_json :timeboosted :: BOOLEAN AS timeboosted_heal,
         {% endif %}
@@ -753,7 +754,7 @@ SELECT
     tx_fee_heal AS tx_fee,
     tx_fee_precise_heal AS tx_fee_precise,
     tx_succeeded_heal AS tx_succeeded,
-    tx_type,
+    tx_type_heal AS tx_type,
     {% if rpc_vars.timeboosted %}
     timeboosted_heal AS timeboosted,
     {% endif %}
