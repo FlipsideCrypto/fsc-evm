@@ -198,9 +198,8 @@ FROM
     AND t0.contract_address = p0.token_address
     LEFT JOIN base b USING (ez_token_transfers_id)
 WHERE
-    t0.block_timestamp > dateadd('day',-31,sysdate())
-    and (t0.amount_usd is null or t0.symbol is null)
-    and b.ez_token_transfers_id IS NULL
+    t0.block_timestamp > dateadd('day',-31,SYSDATE())
+    AND b.ez_token_transfers_id IS NULL
     AND (
         t0.block_number IN (
             SELECT
@@ -209,7 +208,7 @@ WHERE
                 {{ this }}
                 t1
             WHERE
-                t1.block_timestamp > dateadd('day',-31,sysdate())
+                t1.block_timestamp > dateadd('day',-31,SYSDATE())
                 AND t1.decimals IS NULL
                 AND t1.modified_timestamp <= (
                     SELECT
@@ -235,7 +234,7 @@ WHERE
                         {{ this }}
                         t2
                     WHERE
-                        t2.block_timestamp > dateadd('day',-31,sysdate())
+                        t2.block_timestamp > dateadd('day',-31,SYSDATE())
                         AND t2.symbol IS NULL
                         AND t2.modified_timestamp <= (
                             SELECT
@@ -261,7 +260,7 @@ WHERE
                                 {{ this }}
                                 t3
                             WHERE
-                                t3.block_timestamp > dateadd('day',-31,sysdate())
+                                t3.block_timestamp > dateadd('day',-31,SYSDATE())
                                 AND t3.name IS NULL
                                 AND t3.modified_timestamp <= (
                                     SELECT
@@ -287,7 +286,7 @@ WHERE
                                         {{ this }}
                                         t4
                                     WHERE
-                                        t4.block_timestamp > dateadd('day',-31,sysdate())
+                                        t4.block_timestamp > dateadd('day',-31,SYSDATE())
                                         AND t4.amount_usd IS NULL
                                         AND t4.modified_timestamp <= (
                                             SELECT
