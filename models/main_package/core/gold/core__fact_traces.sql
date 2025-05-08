@@ -4,10 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if vars.MAIN_CORE_TRACES_ARB_MODE == True %}
--- depends_on: {{ ref('silver__arb_traces') }}
-{% endif %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
