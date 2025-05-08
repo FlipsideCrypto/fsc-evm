@@ -134,6 +134,9 @@ WHERE
             {% if rpc_vars.accessList %}
             transaction_json :accessList AS access_list,
             {% endif %}
+            {% if rpc_vars.authorizationList %}
+            transaction_json :authorizationList AS authorization_list
+            {% endif %}
         FROM
             base
     ),
@@ -230,6 +233,9 @@ WHERE
             {% endif %}
             {% if rpc_vars.accessList %}
             txs.access_list,
+            {% endif %}
+            {% if rpc_vars.authorizationList %}
+            txs.authorization_list,
             {% endif %}
             {% if rpc_vars.tokenRatio %}
             TRY_TO_NUMBER(utils.udf_hex_to_int(r.receipts_json :tokenRatio :: STRING)) AS token_ratio,
@@ -449,6 +455,9 @@ missing_data AS (
         {% if rpc_vars.accessList %}
         t.access_list,
         {% endif %}
+        {% if rpc_vars.authorizationList %}
+        t.authorization_list,
+        {% endif %}
         {% if rpc_vars.tokenRatio %}
         TRY_TO_NUMBER(utils.udf_hex_to_int(r.receipts_json :tokenRatio :: STRING)) AS token_ratio_heal,
         {% endif %}
@@ -628,6 +637,9 @@ all_transactions AS (
         {% if rpc_vars.accessList %}
         access_list,
         {% endif %}
+        {% if rpc_vars.authorizationList %}
+        authorization_list,
+        {% endif %}
         {% if rpc_vars.tokenRatio %}
         token_ratio,
         {% endif %}
@@ -735,6 +747,9 @@ SELECT
     {% endif %}
     {% if rpc_vars.accessList %}
     access_list,
+    {% endif %}
+    {% if rpc_vars.authorizationList %}
+    authorization_list,
     {% endif %}
     {% if rpc_vars.tokenRatio %}
     token_ratio_heal AS token_ratio,
@@ -874,6 +889,9 @@ SELECT
     {% endif %}
     {% if rpc_vars.accessList %}
     access_list,
+    {% endif %}
+    {% if rpc_vars.authorizationList %}
+    authorization_list,
     {% endif %}
     {% if rpc_vars.tokenRatio %}
     token_ratio,

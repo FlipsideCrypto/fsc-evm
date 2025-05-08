@@ -18,6 +18,7 @@
         {'gold_model': 'fact_transactions', 'field': 'blobVersionedHashes', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxFeePerBlobGas', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'yParity', 'source': 'transactions_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'authorizationList', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1Fee', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1FeeScalar', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1GasUsed', 'source': 'receipts_fields'},
