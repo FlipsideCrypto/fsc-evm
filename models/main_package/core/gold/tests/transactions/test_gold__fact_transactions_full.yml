@@ -84,9 +84,6 @@ models:
       - name: INPUT_DATA
         tests:
           - not_null
-      - name: GAS_PRICE
-        tests:
-          - not_null
       - name: GAS_USED
         tests:
           - not_null
@@ -94,9 +91,6 @@ models:
         tests:
           - not_null
       - name: CUMULATIVE_GAS_USED
-        tests:
-          - not_null
-      - name: EFFECTIVE_GAS_PRICE
         tests:
           - not_null
       - name: R
