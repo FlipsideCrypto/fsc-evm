@@ -121,9 +121,9 @@ gap_agg AS (
         missing_block_number IS NOT NULL {% if vars.MAIN_OBSERV_TRANSACTIONS_EXCLUSION_LIST_ENABLED %}
             AND missing_block_number NOT IN (
                 SELECT
-                    block_number
+                    block_number :: INT
                 FROM
-                    {{ ref('silver_observability__exclusion_list') }}
+                    {{ ref('observability__exclusion_list') }}
             )
         {% endif %}
 )

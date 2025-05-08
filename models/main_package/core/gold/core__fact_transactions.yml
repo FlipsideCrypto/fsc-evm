@@ -30,6 +30,8 @@ models:
         description: '{{ doc("evm_tx_succeeded") }}'
       - name: TX_TYPE
         description: '{{ doc("evm_tx_type") }}'
+      - name: TIMEBOOSTED
+        description: '{{ doc("evm_timeboosted") }}'
       - name: NONCE
         description: '{{ doc("evm_tx_nonce") }}'
       - name: TX_POSITION
@@ -78,6 +80,8 @@ models:
         description: '{{ doc("evm_y_parity") }}'
       - name: ACCESS_LIST
         description: '{{ doc("evm_access_list") }}'
+      - name: AUTHORIZATION_LIST
+        description: '{{ doc("evm_authorization_list") }}'
       - name: TOKEN_RATIO
         description: '{{ doc("evm_token_ratio") }}'
       - name: L1_BASE_FEE_SCALAR
@@ -86,6 +90,10 @@ models:
         description: '{{ doc("evm_l1_blob_base_fee") }}'
       - name: L1_BLOB_BASE_FEE_SCALAR
         description: '{{ doc("evm_l1_blob_base_fee_scalar") }}'
+      - name: OPERATOR_FEE_SCALAR
+        description: '{{ doc("evm_operator_fee_scalar") }}'
+      - name: OPERATOR_FEE_CONSTANT
+        description: '{{ doc("evm_operator_fee_constant") }}'
       - name: FACT_TRANSACTIONS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP

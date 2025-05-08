@@ -253,3 +253,27 @@ The blob base fee for the transaction.
 The scalar blob base fee for the transaction.
 
 {% enddocs %}
+
+{% docs evm_authorization_list %}
+
+Array of authorization entries (EIP-7702) containing information about contracts approved to act on behalf of the EOA.
+
+{% enddocs %}
+
+{% docs evm_operator_fee_scalar %}
+
+Multiplier used in OP Stack chains to calculate operator fees.
+
+{% enddocs %}
+
+{% docs evm_operator_fee_constant %}
+
+Fixed fee amount used in OP Stack chains to calculate operator fees.
+
+{% enddocs %}
+
+{% docs evm_timeboosted %}
+
+Whether the transaction was time boosted (Arbitrum specific).
+
+{% enddocs %}

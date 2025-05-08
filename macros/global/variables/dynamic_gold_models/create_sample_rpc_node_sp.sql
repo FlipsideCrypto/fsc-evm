@@ -208,8 +208,7 @@
                             utils.udf_hex_to_int(response:timestamp::string)::number as unix_timestamp
                         FROM sample_blocks
                         WHERE response is not null
-                        ORDER BY block_number desc
-                        limit 2
+                        qualify row_number() over (order by block_number desc) in (1,20)
                     ),
                     min_max_blocks AS (
                         SELECT 
@@ -233,8 +232,8 @@
                             max_block,
                             min_timestamp,
                             max_timestamp,
-                            (max_timestamp - min_timestamp) / (max_block - min_block) as avg_block_time_seconds,
-                            3600 / ((max_timestamp - min_timestamp) / (max_block - min_block)) as blocks_per_hour
+                            div0(max_timestamp - min_timestamp,max_block - min_block) as avg_block_time_seconds,
+                            ceil(div0(3600,div0(max_timestamp - min_timestamp, max_block - min_block))) as blocks_per_hour
                         FROM min_max_timestamps
                     ),
                     compatibility_check AS (

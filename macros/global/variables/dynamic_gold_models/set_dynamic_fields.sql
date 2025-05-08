@@ -18,6 +18,7 @@
         {'gold_model': 'fact_transactions', 'field': 'blobVersionedHashes', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxFeePerBlobGas', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'yParity', 'source': 'transactions_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'authorizationList', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1Fee', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1FeeScalar', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'l1GasUsed', 'source': 'receipts_fields'},
@@ -29,7 +30,10 @@
         {'gold_model': 'fact_transactions', 'field': 'l1BlockNumber', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'blobGasUsed', 'source': 'receipts_fields'},
         {'gold_model': 'fact_transactions', 'field': 'blobGasPrice', 'source': 'receipts_fields'},
-        {'gold_model': 'fact_transactions', 'field': 'tokenRatio', 'source': 'receipts_fields'}
+        {'gold_model': 'fact_transactions', 'field': 'tokenRatio', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'timeboosted', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'operatorFeeScalar', 'source': 'receipts_fields'},
+        {'gold_model': 'fact_transactions', 'field': 'operatorFeeConstant', 'source': 'receipts_fields'}
     ] %}
     
     {# Filter fields based on the specified gold_model #}
