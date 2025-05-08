@@ -83,7 +83,7 @@ AND (
         traces_id,
         'arb_traces' AS source
     FROM
-        {{ ref('silver__arb_traces') }}
+        silver.arb_traces
     WHERE
         1 = 1
 
