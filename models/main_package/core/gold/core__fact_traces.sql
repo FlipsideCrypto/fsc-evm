@@ -4,6 +4,10 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
+-- depends_on: {{ ref('silver__arb_traces') }}
+{% endif %}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
