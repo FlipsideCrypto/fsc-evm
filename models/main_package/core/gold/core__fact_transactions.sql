@@ -127,15 +127,15 @@ WHERE
                 value_precise_raw,
                 18
             ) AS value_precise,
-            value_precise :: FLOAT AS VALUE,
+            value_precise :: FLOAT AS VALUE
             {% if rpc_vars.yParity %}
-            utils.udf_hex_to_int(transaction_json :yParity :: STRING):: bigint AS y_parity,
+            ,utils.udf_hex_to_int(transaction_json :yParity :: STRING):: bigint AS y_parity
             {% endif %}
             {% if rpc_vars.accessList %}
-            transaction_json :accessList AS access_list,
+            ,transaction_json :accessList AS access_list
             {% endif %}
             {% if rpc_vars.authorizationList %}
-            transaction_json :authorizationList AS authorization_list
+            ,transaction_json :authorizationList AS authorization_list
             {% endif %}
         FROM
             base
