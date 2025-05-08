@@ -573,8 +573,8 @@ heal_missing_data AS (
         txs.tx_succeeded AS tx_succeeded_heal
         {% endif %}
         {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
-        t.before_evm_transfers_heal,
-        t.after_evm_transfers_heal
+        t.before_evm_transfers,
+        t.after_evm_transfers
     {% endif %}
     FROM
         {{ this }}
@@ -660,8 +660,8 @@ SELECT
     trace_address,
     tx_succeeded_heal AS tx_succeeded
 {% if vars.MAIN_CORE_TRACES_ARB_MODE %},
-    before_evm_transfers_heal AS before_evm_transfers,
-    after_evm_transfers_heal AS after_evm_transfers
+    before_evm_transfers,
+    after_evm_transfers
 {% endif %}
 FROM
     heal_missing_data
