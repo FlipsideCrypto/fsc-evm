@@ -117,7 +117,7 @@ gap_agg AS (
                 SELECT
                     block_number :: INT
                 FROM
-                    {{ ref('observability__exclusion_list') }}
+                    observability.exclusion_list
             )
         {% endif %}
 )
