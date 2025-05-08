@@ -4,10 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if vars.MAIN_CORE_TRACES_ARB_MODE == True %}
--- depends_on: {{ ref('silver__arb_traces') }}
-{% endif %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -83,7 +79,7 @@ AND (
         traces_id,
         'arb_traces' AS source
     FROM
-        {{ ref('silver__arb_traces') }}
+        silver.arb_traces -- intentionally not using ref() to avoid dependency on silver__arb_traces
     WHERE
         1 = 1
 
