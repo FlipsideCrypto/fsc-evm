@@ -13,7 +13,8 @@
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'ScrollScan',
         'DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED': true,
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.scrollscan.com/api?module=contract&action=getabi&address=',
-        'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/scroll_scan'
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/scroll_scan',
+        'MAIN_OBSERV_BLOCKS_EXCLUSION_LIST_ENABLED': true
     } %}
     
     {{ return(vars) }}
