@@ -57,6 +57,7 @@ WITH base AS (
 
     SELECT
         block_number,
+        partition_key,
         {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
             tx_hash,
         {% else %}
@@ -85,6 +86,7 @@ flattened_logs AS (
     SELECT
         block_number,
         tx_hash,
+        partition_key,
         {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
             array_index,
         {% endif %}
@@ -138,6 +140,10 @@ new_logs AS (
     LEFT JOIN {{ ref('core__fact_transactions') }}
     txs
     ON l.block_number = txs.block_number
+    
+    {% if is_incremental() %}
+    and l.partition_key = round(txs.block_number, -3)
+    {% endif %}
 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
     AND l.tx_hash = txs.tx_hash
