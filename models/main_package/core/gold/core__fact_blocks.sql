@@ -61,13 +61,13 @@ SELECT
         block_json :excessBlobGas :: STRING
     ) :: bigint AS excess_blob_gas,
     {% endif %}
-    utils.udf_hex_to_int(
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
         block_json :difficulty :: STRING
-    ) :: bigint AS difficulty,
+    )) AS difficulty,
     {% if rpc_vars.totalDifficulty %}
-    utils.udf_hex_to_int(
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
-    ) :: bigint AS total_difficulty,
+    )) AS total_difficulty,
     {% endif %}
     block_json :sha3Uncles :: STRING AS sha3_uncles,
     block_json :uncles AS uncle_blocks,
