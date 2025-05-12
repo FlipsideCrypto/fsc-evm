@@ -73,7 +73,11 @@
         {% endif %}
         WHERE
             b.partition_key = s.partition_key
+            {% if vars.GLOBAL_PROJECT_NAME == 'gnosis' %}
+            AND DATA :error :code IS NULL
+            {% else %}
             AND DATA :error IS NULL
+            {% endif %}
             AND DATA IS NOT NULL
 {% endmacro %}
 
@@ -154,6 +158,10 @@ FROM
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
+    {% if vars.GLOBAL_PROJECT_NAME == 'gnosis' %}
+    AND DATA :error :code IS NULL
+    {% else %}
     AND DATA :error IS NULL
+    {% endif %}
     AND DATA IS NOT NULL
 {% endmacro %}
