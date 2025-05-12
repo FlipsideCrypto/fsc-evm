@@ -2,7 +2,6 @@
         source_name,
         source_version='',
         partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
-        error_code=false,
         balances=false,
         block_number=true,
         tx_hash=false,
@@ -74,7 +73,7 @@
         {% endif %}
         WHERE
             b.partition_key = s.partition_key
-            {% if error_code %}
+            {% if vars.GLOBAL_PROJECT_NAME == 'gnosis' %}
             AND DATA :error :code IS NULL
             {% else %}
             AND DATA :error IS NULL
@@ -87,7 +86,6 @@
         source_version='',
         partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
         partition_join_key='partition_key',
-        error_code=false,
         balances=false,
         block_number=true,
         tx_hash=false,
@@ -160,7 +158,7 @@ FROM
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
-    {% if error_code %}
+    {% if vars.GLOBAL_PROJECT_NAME == 'gnosis' %}
     AND DATA :error :code IS NULL
     {% else %}
     AND DATA :error IS NULL
