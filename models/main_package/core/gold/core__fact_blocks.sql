@@ -95,6 +95,12 @@ SELECT
     {% if rpc_vars.sendRoot %}
     block_json :sendRoot :: STRING AS send_root,
     {% endif %}
+    {% if rpc_vars.author %}
+    block_json :author :: STRING AS author,
+    {% endif %}
+    {% if rpc_vars.requestsHash %}
+    block_json :requestsHash :: STRING AS requests_hash,
+    {% endif %}
     {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
     {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,

@@ -11,6 +11,8 @@
         {'gold_model': 'fact_blocks', 'field': 'withdrawalsRoot', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'sendCount', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'sendRoot', 'source': 'blocks_fields'},
+        {'gold_model': 'fact_blocks', 'field': 'author', 'source': 'blocks_fields'},
+        {'gold_model': 'fact_blocks', 'field': 'requestsHash', 'source': 'blocks_fields'},
         {'gold_model': 'fact_transactions', 'field': 'accessList', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxFeePerGas', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxPriorityFeePerGas', 'source': 'transactions_fields'},
