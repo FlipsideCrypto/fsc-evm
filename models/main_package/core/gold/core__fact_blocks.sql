@@ -61,13 +61,13 @@ SELECT
         block_json :excessBlobGas :: STRING
     ) :: bigint AS excess_blob_gas,
     {% endif %}
-    utils.udf_hex_to_int(
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
         block_json :difficulty :: STRING
-    ) :: bigint AS difficulty,
+    )) AS difficulty,
     {% if rpc_vars.totalDifficulty %}
-    utils.udf_hex_to_int(
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
-    ) :: bigint AS total_difficulty,
+    )) AS total_difficulty,
     {% endif %}
     block_json :sha3Uncles :: STRING AS sha3_uncles,
     block_json :uncles AS uncle_blocks,
@@ -94,6 +94,27 @@ SELECT
     {% endif %}
     {% if rpc_vars.sendRoot %}
     block_json :sendRoot :: STRING AS send_root,
+    {% endif %}
+    {% if rpc_vars.author %}
+    block_json :author :: STRING AS author,
+    {% endif %}
+    {% if rpc_vars.requestsHash %}
+    block_json :requestsHash :: STRING AS requests_hash,
+    {% endif %}
+    {% if rpc_vars.blockGasCost %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(block_json :blockGasCost :: STRING)) AS block_gas_cost,
+    {% endif %}
+    {% if rpc_vars.blockExtraData %}
+    block_json :blockExtraData :: STRING AS block_extra_data,
+    {% endif %}
+    {% if rpc_vars.extDataHash %}
+    block_json :extDataHash :: STRING AS ext_data_hash,
+    {% endif %}
+    {% if rpc_vars.extDataGasUsed %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(block_json :extDataGasUsed :: STRING)) AS ext_data_gas_used,
+    {% endif %}
+    {% if rpc_vars.milliTimestamp %}
+    TRY_TO_TIMESTAMP(utils.udf_hex_to_int(block_json :milliTimestamp :: STRING)) AS milli_timestamp,
     {% endif %}
     {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
     {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
