@@ -113,6 +113,9 @@ SELECT
     {% if rpc_vars.extDataGasUsed %}
     TRY_TO_NUMBER(utils.udf_hex_to_int(block_json :extDataGasUsed :: STRING)) AS ext_data_gas_used,
     {% endif %}
+    {% if rpc_vars.milliTimestamp %}
+    TRY_TO_TIMESTAMP(utils.udf_hex_to_int(block_json :milliTimestamp :: STRING)) AS milli_timestamp,
+    {% endif %}
     {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
     {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,

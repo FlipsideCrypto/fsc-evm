@@ -17,6 +17,7 @@
         {'gold_model': 'fact_blocks', 'field': 'extDataHash', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'extDataGasUsed', 'source': 'blocks_fields'},
         {'gold_model': 'fact_blocks', 'field': 'blockExtraData', 'source': 'blocks_fields'},
+        {'gold_model': 'fact_blocks', 'field': 'milliTimestamp', 'source': 'blocks_fields'},
         {'gold_model': 'fact_transactions', 'field': 'accessList', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxFeePerGas', 'source': 'transactions_fields'},
         {'gold_model': 'fact_transactions', 'field': 'maxPriorityFeePerGas', 'source': 'transactions_fields'},
