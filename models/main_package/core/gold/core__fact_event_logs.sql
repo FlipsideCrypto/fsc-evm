@@ -57,37 +57,10 @@ WITH base AS (
 
     SELECT
         block_number,
-        partition_key,
         {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
             tx_hash,
         {% else %}
             receipts_json :transactionHash :: STRING AS tx_hash,
-        {% endif %}
-        receipts_json,
-        receipts_json :logs AS full_logs
-        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
-            ,array_index
-        {% endif %}
-    FROM
-        {{ ref('silver__receipts') }}
-    WHERE
-        1 = 1
-        AND ARRAY_SIZE(receipts_json :logs) > 0
-
-{% if is_incremental() %}
-AND modified_timestamp > (
-    SELECT
-        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
-    FROM
-        {{ this }})
-    {% endif %}
-),
-flattened_logs AS (
-    SELECT
-        block_number,
-        tx_hash,
-        partition_key,
-        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
             array_index,
         {% endif %}
         receipts_json :from :: STRING AS origin_from_address,
@@ -97,6 +70,47 @@ flattened_logs AS (
             WHEN receipts_json :status :: STRING = '0x0' THEN FALSE
             ELSE NULL
         END AS tx_succeeded,
+        receipts_json :logs AS full_logs
+    FROM
+        {{ ref('silver__receipts') }}
+    WHERE
+        ARRAY_SIZE(receipts_json :logs) > 0
+        {% if is_incremental() %}
+        AND modified_timestamp > (
+            SELECT
+                COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
+            FROM
+                {{ this }})
+        {% endif %}
+),
+relevant_transactions AS (
+    SELECT 
+        block_number,
+        tx_hash,
+        block_timestamp,
+        tx_position,
+        origin_function_signature
+    FROM {{ ref('core__fact_transactions') }}
+    WHERE 1=1
+    {% if is_incremental() %}
+    AND block_timestamp >= (
+        SELECT
+            DATEADD('hour', -24, MAX(block_timestamp))
+        FROM
+            {{ this }}
+    )
+    {% endif %}
+),
+flattened_logs AS (
+    SELECT
+        b.block_number,
+        b.tx_hash,
+        b.origin_from_address,
+        b.origin_to_address,
+        b.tx_succeeded,
+        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+            b.array_index,
+        {% endif %}
         VALUE :address :: STRING AS contract_address,
         VALUE :blockHash :: STRING AS block_hash,
         VALUE :blockNumber :: STRING AS block_number_hex,
@@ -106,29 +120,58 @@ flattened_logs AS (
         ) :: INT AS event_index,
         VALUE :removed :: BOOLEAN AS event_removed,
         VALUE :topics AS topics,
+        topics [0] :: STRING AS topic_0,
+        topics [1] :: STRING AS topic_1,
+        topics [2] :: STRING AS topic_2,
+        topics [3] :: STRING AS topic_3,
         VALUE :transactionHash :: STRING AS transaction_hash,
         utils.udf_hex_to_int(
             VALUE :transactionIndex :: STRING
         ) :: INT AS transaction_index
     FROM
-        base,
+        base b,
         LATERAL FLATTEN (
             input => full_logs
         )
+),
+materialized_logs AS (
+    SELECT 
+        block_number,
+        tx_hash,
+        origin_from_address,
+        origin_to_address,
+        tx_succeeded,
+        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+            array_index,
+        {% endif %}
+        contract_address,
+        block_hash,
+        block_number_hex,
+        DATA,
+        event_index,
+        event_removed,
+        topics,
+        topic_0,
+        topic_1,
+        topic_2,
+        topic_3,
+        transaction_hash,
+        transaction_index
+    FROM flattened_logs
 ),
 new_logs AS (
     SELECT
         l.block_number,
         txs.block_timestamp,
         l.tx_hash,
-        l.transaction_index AS tx_position,
+        COALESCE(txs.tx_position, l.transaction_index) AS tx_position,
         l.event_index,
         l.contract_address,
         l.topics,
-        l.topics [0] :: STRING AS topic_0,
-        l.topics [1] :: STRING AS topic_1,
-        l.topics [2] :: STRING AS topic_2,
-        l.topics [3] :: STRING AS topic_3,
+        l.topic_0,
+        l.topic_1,
+        l.topic_2,
+        l.topic_3,
         l.data,
         l.event_removed,
         l.origin_from_address,
@@ -136,29 +179,14 @@ new_logs AS (
         txs.origin_function_signature,
         l.tx_succeeded
     FROM
-        flattened_logs l
-    LEFT JOIN {{ ref('core__fact_transactions') }}
-    txs
-    ON l.block_number = txs.block_number
-    
-    {% if is_incremental() %}
-    and l.partition_key = round(txs.block_number, -3)
-    {% endif %}
-
-    {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
-    AND l.tx_hash = txs.tx_hash
-    {% else %}
-    AND l.array_index = txs.tx_position
-    {% endif %}
-
-    {% if is_incremental() %}
-    AND txs.block_timestamp >= (
-        SELECT
-            DATEADD('hour', -36, MAX(block_timestamp))
-        FROM
-            {{ this }}
-    )
-    {% endif %}
+        materialized_logs l
+    LEFT JOIN relevant_transactions txs
+        ON l.block_number = txs.block_number
+        {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+        AND l.tx_hash = txs.tx_hash
+        {% else %}
+        AND l.array_index = txs.tx_position
+        {% endif %}
 )
 
 {% if is_incremental() %},
