@@ -42,7 +42,9 @@
     {'name': 'dbt_run_heal_models', 'cadence': 'weekly', 'root_offset': 45, 'hour': 6, 'day': 0},
     {'name': 'dbt_run_full_observability', 'cadence': 'monthly', 'root_offset': 25, 'hour': 2},
     {'name': 'dbt_run_dev_refresh', 'cadence': 'weekly', 'root_offset': 40, 'hour': 7, 'day': 1},
-    {'name': 'dbt_run_streamline_decoder_history', 'cadence': 'weekly', 'root_offset': 30, 'hour': 3, 'day': 6}
+    {'name': 'dbt_run_streamline_decoder_history', 'cadence': 'weekly', 'root_offset': 30, 'hour': 3, 'day': 6},
+    {'name': 'dbt_run_streamline_dexalot_chainhead', 'cadence': 'custom'},
+    {'name': 'dbt_run_scheduled_dexalot_main', 'cadence': 'custom'}
 ] %}
 
 {# Generate all workflow schedules #}
@@ -57,7 +59,11 @@
 {% endif %}
 
 {# Create variable name for override functionality, which matches variable names set in return_vars() #}
-{% set override_cron_var = 'MAIN_GHA_' + workflow_name.upper() + '_CRON' %}
+{% if workflow.cadence == 'custom' %}
+    {% set override_cron_var = 'CUSTOM_GHA_' + workflow_name.upper() + '_CRON' %}
+{% else %}
+    {% set override_cron_var = 'MAIN_GHA_' + workflow_name.upper() + '_CRON' %}
+{% endif %}
 
 {# Helper variables for template replacement #}
 {% set template = schedule_templates[workflow.cadence] %}
