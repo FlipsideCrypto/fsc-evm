@@ -148,6 +148,7 @@ missing_contract_data AS (
         AND dc.name IS NOT NULL
     WHERE
         t.contract_name IS NULL
+        and t.block_timestamp >= dateadd('day', -30, sysdate())
 )
 {% endif %},
 FINAL AS (
