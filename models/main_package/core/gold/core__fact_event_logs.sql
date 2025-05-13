@@ -106,6 +106,10 @@ flattened_logs AS (
         ) :: INT AS event_index,
         VALUE :removed :: BOOLEAN AS event_removed,
         VALUE :topics AS topics,
+        topics [0] :: STRING AS topic_0,
+        topics [1] :: STRING AS topic_1,
+        topics [2] :: STRING AS topic_2,
+        topics [3] :: STRING AS topic_3,
         VALUE :transactionHash :: STRING AS transaction_hash,
         utils.udf_hex_to_int(
             VALUE :transactionIndex :: STRING
@@ -143,10 +147,10 @@ new_logs AS (
         l.event_index,
         l.contract_address,
         l.topics,
-        l.topics [0] :: STRING AS topic_0,
-        l.topics [1] :: STRING AS topic_1,
-        l.topics [2] :: STRING AS topic_2,
-        l.topics [3] :: STRING AS topic_3,
+        l.topic_0,
+        l.topic_1,
+        l.topic_2,
+        l.topic_3,
         l.data,
         l.event_removed,
         l.origin_from_address,
@@ -167,6 +171,7 @@ new_logs AS (
     {% else %}
     AND l.array_index = txs.tx_position
     {% endif %}
+    where 1=1
 )
 
 {% if is_incremental() %},
