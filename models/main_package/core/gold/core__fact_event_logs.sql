@@ -135,7 +135,29 @@ flattened_logs AS (
         )
 ),
 materialized_logs AS (
-    SELECT * FROM flattened_logs
+    SELECT 
+        block_number,
+        tx_hash,
+        origin_from_address,
+        origin_to_address,
+        tx_succeeded,
+        {% if not vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
+            array_index,
+        {% endif %}
+        contract_address,
+        block_hash,
+        block_number_hex,
+        DATA,
+        event_index,
+        event_removed,
+        topics,
+        topic_0,
+        topic_1,
+        topic_2,
+        topic_3,
+        transaction_hash,
+        transaction_index
+    FROM flattened_logs
 ),
 new_logs AS (
     SELECT
