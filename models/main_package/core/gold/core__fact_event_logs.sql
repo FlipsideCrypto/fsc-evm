@@ -116,6 +116,25 @@ flattened_logs AS (
             input => full_logs
         )
 ),
+new_transactions as (
+    select 
+        block_number,
+        tx_hash,
+        block_timestamp,
+        tx_position,
+        origin_function_signature
+    from {{ ref('core__fact_transactions') }}
+    where 1=1
+    {% if is_incremental() %}
+    AND block_timestamp >= (
+        SELECT
+            DATEADD('hour', -24, MAX(block_timestamp))
+        FROM
+            {{ this }}
+    )
+    {% endif %}
+)
+
 new_logs AS (
     SELECT
         l.block_number,
@@ -137,8 +156,7 @@ new_logs AS (
         l.tx_succeeded
     FROM
         flattened_logs l
-    LEFT JOIN {{ ref('core__fact_transactions') }}
-    txs
+    LEFT JOIN new_transactions txs
     ON l.block_number = txs.block_number
     
     {% if is_incremental() %}
@@ -149,15 +167,6 @@ new_logs AS (
     AND l.tx_hash = txs.tx_hash
     {% else %}
     AND l.array_index = txs.tx_position
-    {% endif %}
-
-    {% if is_incremental() %}
-    AND txs.block_timestamp >= (
-        SELECT
-            DATEADD('hour', -36, MAX(block_timestamp))
-        FROM
-            {{ this }}
-    )
     {% endif %}
 )
 
