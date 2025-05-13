@@ -87,4 +87,48 @@
     {% endif %}
 {% endfor %}
 
+{# Dynamically find and add custom workflow schedules that follow the pattern *_GHA_*_CRON #}
+{% set custom_prefixes = [] %}
+{% set found_vars = [] %}
+
+{# First, collect all the variable prefixes (project names before _GHA_) #}
+{% for var_name in vars %}
+    {% if '_GHA_' in var_name and var_name.endswith('_CRON') %}
+        {% set prefix = var_name.split('_GHA_')[0] %}
+        {% if prefix != 'MAIN' and prefix not in custom_prefixes %}
+            {% do custom_prefixes.append(prefix) %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{# Then process the custom workflows for each prefix #}
+{% for prefix in custom_prefixes %}
+    {% for var_name in vars %}
+        {% if var_name.startswith(prefix + '_GHA_') and var_name.endswith('_CRON') and vars[var_name] is not none %}
+            {% set workflow_suffix = var_name.split('_GHA_')[1] | replace('_CRON', '') %}
+            {% set workflow_name = 'dbt_' + workflow_suffix.lower() %}
+            
+            SELECT 
+                '{{ workflow_name }}' AS workflow_name,
+                '{{ vars[var_name] }}' AS cron_schedule,
+                'custom' AS cadence
+            
+            {% if not loop.last or not loop.parent.last %}
+                UNION ALL
+            {% endif %}
+            
+            {% do found_vars.append(var_name) %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{# If no custom workflows were found, ensure we still have valid SQL by adding a dummy entry with a false condition #}
+{% if found_vars|length == 0 %}
+    SELECT 
+        'dummy_workflow' AS workflow_name,
+        '0 0 * * *' AS cron_schedule,
+        'custom' AS cadence
+    WHERE 1=0
+{% endif %}
+
 {% endmacro %}
