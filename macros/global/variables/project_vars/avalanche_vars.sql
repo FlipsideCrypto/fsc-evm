@@ -13,8 +13,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '10,40 * * * *',
-        'DEXALOT_GHA_STREAMLINE_CHAINHEAD_CRON': '50 * * * *',
-        'DEXALOT_GHA_SCHEDULED_MAIN_CRON': '5 * * * *'
+        'CUSTOM_GHA_STREAMLINE_DEXALOT_CHAINHEAD_CRON': '50 * * * *',
+        'CUSTOM_GHA_SCHEDULED_DEXALOT_MAIN_CRON': '5 * * * *'
     } %}
     
     {{ return(vars) }}
