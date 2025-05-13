@@ -133,8 +133,7 @@ new_transactions as (
             {{ this }}
     )
     {% endif %}
-)
-
+),
 new_logs AS (
     SELECT
         l.block_number,
