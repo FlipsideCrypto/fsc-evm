@@ -29,7 +29,10 @@ SELECT
         block_json :transactions
     ) AS tx_count,
     {% else %}
-    tx.tx_count,
+    COALESCE(
+        tx.tx_count,
+        0
+    ) AS tx_count,
     {% endif %}
     utils.udf_hex_to_int(
         block_json :size :: STRING
