@@ -1,8 +1,6 @@
 {# Get variables #}
 {% set vars = return_vars() %}
 
-{# Override project name for API endpoint #}
-
 {# Log configuration details #}
 {{ log_model_details() }}
 
