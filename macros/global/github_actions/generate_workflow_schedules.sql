@@ -75,6 +75,8 @@
         '{{ workflow.name }}' AS workflow_name,
         {% if workflow.cadence == 'root' %}
             '{{ workflow.root_schedule }}'
+        {% elif workflow.cadence == 'custom' %}
+            '{{ vars[override_cron_var] }}'
         {% else %}
             {% if vars[override_cron_var] is defined and vars[override_cron_var] is not none %}
                 '{{ vars[override_cron_var] }}'
