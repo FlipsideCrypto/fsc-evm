@@ -1,9 +1,6 @@
 {# Get variables #}
 {% set vars = return_vars() %}
 
-{# Override project name for API endpoint #}
-{% set project_name = var('CURATED_VERTEX_PROJECT_NAME', vars.GLOBAL_PROJECT_NAME) %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -27,7 +24,7 @@ WITH market_depth AS ({% for item in range(55) %}
     FROM
         (
     SELECT
-        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ project_name }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
+        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
     FROM
         (
     SELECT
@@ -52,7 +49,7 @@ WITH market_depth AS ({% for item in range(55) %}
     FROM
         (
     SELECT
-        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ project_name }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
+        PARSE_JSON(live.udf_api(CONCAT('https://gateway.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/orderbook?ticker_id=', ticker_id, '&depth=1000000'))) :data AS response, product_id
     FROM
         (
     SELECT

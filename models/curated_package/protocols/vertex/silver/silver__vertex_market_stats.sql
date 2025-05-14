@@ -1,9 +1,6 @@
 {# Get variables #}
 {% set vars = return_vars() %}
 
-{# Override project name for API endpoint #}
-{% set project_name = var('CURATED_VERTEX_PROJECT_NAME', vars.GLOBAL_PROJECT_NAME) %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -21,7 +18,7 @@ WITH api_pull AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://archive.' || '{{ project_name }}' || '-prod.vertexprotocol.com/v2/contracts'
+                'https://archive.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/contracts'
             )
         ) :data AS response
 ),
