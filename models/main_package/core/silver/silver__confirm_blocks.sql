@@ -30,7 +30,7 @@
 {% endif %}
 
 --temp logic for migration
-{% if vars.GLOBAL_SILVER_FR_ENABLED is none and var('TEMP_CONFIRM_BLOCKS_FR_ENABLED', false) %}
+{% if vars.GLOBAL_SILVER_FR_ENABLED is none and var('TEMP_LOGS_FR_ENABLED', false) %}
 
 SELECT
     block_number,
