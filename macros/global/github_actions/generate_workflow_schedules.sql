@@ -44,7 +44,13 @@
     {'name': 'dbt_run_dev_refresh', 'cadence': 'weekly', 'root_offset': 40, 'hour': 7, 'day': 1},
     {'name': 'dbt_run_streamline_decoder_history', 'cadence': 'weekly', 'root_offset': 30, 'hour': 3, 'day': 6},
     {'name': 'dbt_run_streamline_dexalot_chainhead', 'cadence': 'custom'},
-    {'name': 'dbt_run_scheduled_dexalot_main', 'cadence': 'custom'}
+    {'name': 'dbt_run_scheduled_dexalot_main', 'cadence': 'custom'},
+    {'name': 'dbt_test_beacon', 'cadence': 'custom'},
+    {'name': 'dbt_run_streamline_reads', 'cadence': 'custom'},
+    {'name': 'dbt_run_streamline_beacon', 'cadence': 'custom'},
+    {'name': 'dbt_run_scheduled_beacon', 'cadence': 'custom'},
+    {'name': 'dbt_run_nft_reads', 'cadence': 'custom'},
+    {'name': 'dbt_run_nft_list', 'cadence': 'custom'}
 ] %}
 
 {# Generate all workflow schedules #}
