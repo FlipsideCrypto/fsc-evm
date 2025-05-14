@@ -29,6 +29,28 @@
 ) }}
 {% endif %}
 
+--temp logic for migration
+{% if vars.GLOBAL_SILVER_FR_ENABLED is none and var('TEMP_CONFIRM_BLOCKS_FR_ENABLED', false) %}
+
+SELECT
+    block_number,
+    ROUND(block_number,-3) AS partition_key,
+    NULL :: VARIANT AS block_json,
+    block_hash,
+    tx_hash,
+    _inserted_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['block_number','tx_hash']) }} AS confirm_blocks_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
+FROM
+    {{ source(
+        'logs_temp',
+        'confirmed_blocks'
+    ) }}
+
+{% else %}
+
 WITH bronze_confirm_blocks AS (
     SELECT 
         block_number,
@@ -77,3 +99,4 @@ FROM bronze_confirm_blocks,
     LATERAL FLATTEN (
         input => txs
     )
+{% endif %}
