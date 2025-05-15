@@ -127,7 +127,7 @@ broken_token_transfers as (
         SYSDATE() as inserted_timestamp,
         SYSDATE() as modified_timestamp
     from {{ this }}
-    where modified_timestamp >= dateadd('day', -30, SYSDATE())
+    where block_timestamp >= dateadd('day', -31, SYSDATE())
 ),
 {% endif %}
 final AS (
