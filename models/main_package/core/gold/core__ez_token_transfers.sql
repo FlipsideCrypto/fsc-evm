@@ -102,6 +102,30 @@ AND f.modified_timestamp > (
 )
 {% endif %}
 ),
+{% if is_incremental() %}
+broken_token_transfers as (
+    select
+        block_number,
+        block_timestamp,
+        tx_hash,
+        tx_position,
+        event_index,
+        from_address,
+        to_address,
+        contract_address,
+        token_standard,
+        raw_amount_precise,
+        raw_amount,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        ez_token_transfers_id,
+        SYSDATE() as inserted_timestamp,
+        SYSDATE() as modified_timestamp
+    from {{ this }}
+    where modified_timestamp >= dateadd('day', -30, SYSDATE())
+),
+{% endif %}
 final AS (
 SELECT
     block_number,
@@ -179,7 +203,7 @@ SELECT
         ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
     {% endif %}
 FROM
-    {{ this }}
+    broken_token_transfers
     t0
     LEFT JOIN {{ ref('core__dim_contracts') }}
     c0
@@ -205,7 +229,7 @@ WHERE
             SELECT
                 DISTINCT t1.block_number
             FROM
-                {{ this }}
+                broken_token_transfers
                 t1
             WHERE
                 t1.block_timestamp > dateadd('day',-31,SYSDATE())
@@ -231,7 +255,7 @@ WHERE
                     SELECT
                         DISTINCT t2.block_number
                     FROM
-                        {{ this }}
+                        broken_token_transfers
                         t2
                     WHERE
                         t2.block_timestamp > dateadd('day',-31,SYSDATE())
@@ -257,7 +281,7 @@ WHERE
                             SELECT
                                 DISTINCT t3.block_number
                             FROM
-                                {{ this }}
+                                broken_token_transfers
                                 t3
                             WHERE
                                 t3.block_timestamp > dateadd('day',-31,SYSDATE())
@@ -283,7 +307,7 @@ WHERE
                                     SELECT
                                         DISTINCT t4.block_number
                                     FROM
-                                        {{ this }}
+                                        broken_token_transfers
                                         t4
                                     WHERE
                                         t4.block_timestamp > dateadd('day',-31,SYSDATE())
