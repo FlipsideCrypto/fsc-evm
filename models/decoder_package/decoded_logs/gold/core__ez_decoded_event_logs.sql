@@ -80,6 +80,19 @@ WHERE
 )
 
 {% if is_incremental() %},
+broken_logs AS (
+    SELECT
+        block_number,
+        tx_hash,
+        event_index,
+        contract_address,
+        event_name,
+        full_decoded_log,
+        decoded_log,
+        contract_name
+    from {{ this }}
+    where tx_succeeded is null or block_timestamp is null
+),
 missing_tx_data AS (
     SELECT
         t.block_number,
@@ -104,17 +117,39 @@ missing_tx_data AS (
         t.decoded_log,
         t.contract_name
     FROM
-        {{ this }}
+        broken_logs
         t
         INNER JOIN {{ ref('core__fact_event_logs') }}
         fel USING (
             block_number,
             event_index
         )
-    WHERE
-        t.tx_succeeded IS NULL
-        OR t.block_timestamp IS NULL
-        AND fel.block_timestamp IS NOT NULL
+    WHERE fel.block_timestamp IS NOT NULL
+),
+broken_contracts as (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        tx_position,
+        event_index,
+        contract_address,
+        topics,
+        topic_0,
+        topic_1,
+        topic_2,
+        topic_3,
+        DATA,
+        event_removed,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_succeeded,
+        event_name,
+        full_decoded_log,
+        decoded_log
+    from {{ this }}
+    where contract_name is null and modified_timestamp >= dateadd('day', -30, SYSDATE())
 ),
 missing_contract_data AS (
     SELECT
@@ -140,15 +175,12 @@ missing_contract_data AS (
         decoded_log,
         dc.name AS contract_name
     FROM
-        {{ this }}
+        broken_contracts
         t
         INNER JOIN {{ ref('core__dim_contracts') }}
         dc
         ON t.contract_address = dc.address
         AND dc.name IS NOT NULL
-    WHERE
-        t.contract_name IS NULL
-        AND t.modified_timestamp >= dateadd('day', -30, SYSDATE())
 )
 {% endif %},
 FINAL AS (
@@ -265,10 +297,13 @@ SELECT
         ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
 {% endif %}
 FROM
-    FINAL qualify ROW_NUMBER() over (
+    FINAL 
+{% if is_incremental() %}    
+qualify ROW_NUMBER() over (
         PARTITION BY ez_decoded_event_logs_id
         ORDER BY
             block_timestamp DESC nulls last,
             tx_succeeded DESC nulls last,
             contract_name DESC nulls last
     ) = 1
+{% endif %}
