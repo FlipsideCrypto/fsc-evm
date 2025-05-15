@@ -123,9 +123,7 @@ broken_token_transfers as (
         origin_function_signature,
         origin_from_address,
         origin_to_address,
-        ez_token_transfers_id,
-        SYSDATE() as inserted_timestamp,
-        SYSDATE() as modified_timestamp
+        ez_token_transfers_id
     from {{ this }}
     where block_timestamp >= dateadd('day', -31, SYSDATE())
 ),
