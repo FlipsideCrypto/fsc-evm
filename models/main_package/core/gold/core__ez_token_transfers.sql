@@ -12,7 +12,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
-    tags = ['gold','core','transfers','ez','phase_3']
+    tags = ['gold','core','transfers','ez','phase_3', 'heal']
 ) }}
 
 WITH base AS (
@@ -130,7 +130,7 @@ SELECT
 FROM
     base
 
-{% if is_incremental() %}
+{% if is_incremental() and var('HEAL_MODEL',false) %}
 UNION ALL
 SELECT
     t0.block_number,
