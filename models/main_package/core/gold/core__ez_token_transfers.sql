@@ -226,8 +226,7 @@ FROM
     AND t0.contract_address = p0.token_address
     LEFT JOIN base b USING (ez_token_transfers_id)
 WHERE
-    t0.block_timestamp > dateadd('day',-31,SYSDATE())
-    AND b.ez_token_transfers_id IS NULL
+    b.ez_token_transfers_id IS NULL
     AND (
         t0.block_number IN (
             SELECT
@@ -236,8 +235,7 @@ WHERE
                 broken_token_transfers
                 t1
             WHERE
-                t1.block_timestamp > dateadd('day',-31,SYSDATE())
-                AND t1.decimals IS NULL
+                t1.decimals IS NULL
                 AND t1.modified_timestamp <= (
                     SELECT
                         MAX(modified_timestamp)
@@ -262,8 +260,7 @@ WHERE
                         broken_token_transfers
                         t2
                     WHERE
-                        t2.block_timestamp > dateadd('day',-31,SYSDATE())
-                        AND t2.symbol IS NULL
+                        t2.symbol IS NULL
                         AND t2.modified_timestamp <= (
                             SELECT
                                 MAX(modified_timestamp)
@@ -288,8 +285,7 @@ WHERE
                                 broken_token_transfers
                                 t3
                             WHERE
-                                t3.block_timestamp > dateadd('day',-31,SYSDATE())
-                                AND t3.name IS NULL
+                                t3.name IS NULL
                                 AND t3.modified_timestamp <= (
                                     SELECT
                                         MAX(modified_timestamp)
@@ -314,8 +310,7 @@ WHERE
                                         broken_token_transfers
                                         t4
                                     WHERE
-                                        t4.block_timestamp > dateadd('day',-31,SYSDATE())
-                                        AND t4.amount_usd IS NULL
+                                        t4.amount_usd IS NULL
                                         AND t4.modified_timestamp <= (
                                             SELECT
                                                 MAX(modified_timestamp)
