@@ -150,17 +150,17 @@ heal_token_transfers as (
                 r.raw_amount_precise,
                 c.decimals
             )
-        ) AS amount_precise,
-        amount_precise :: FLOAT AS amount,
+        ) AS amount_precise_heal,
+        amount_precise_heal :: FLOAT AS amount_heal,
         IFF(
             c.decimals IS NOT NULL
             AND p.price IS NOT NULL,
             ROUND(
-                amount * p.price,
+                amount_heal * p.price,
                 2
             ),
             NULL
-        ) AS amount_usd,
+        ) AS amount_usd_heal,
         origin_function_signature,
         origin_from_address,
         origin_to_address,
@@ -245,9 +245,9 @@ SELECT
     decimals,
     raw_amount_precise,
     raw_amount,
-    amount_precise,
-    amount,
-    amount_usd,
+    amount_precise_heal,
+    amount_heal,
+    amount_usd_heal,
     origin_function_signature,
     origin_from_address,
     origin_to_address,
