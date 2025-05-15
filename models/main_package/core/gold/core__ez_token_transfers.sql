@@ -255,6 +255,7 @@ SELECT
     sysdate() as inserted_timestamp,
     sysdate() as modified_timestamp
 from heal_token_transfers
+{% endif %}
 )
 SELECT
     block_number,
