@@ -297,10 +297,13 @@ SELECT
         ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
 {% endif %}
 FROM
-    FINAL qualify ROW_NUMBER() over (
+    FINAL 
+{% if is_incremental() %}    
+qualify ROW_NUMBER() over (
         PARTITION BY ez_decoded_event_logs_id
         ORDER BY
             block_timestamp DESC nulls last,
             tx_succeeded DESC nulls last,
             contract_name DESC nulls last
     ) = 1
+{% endif %}
