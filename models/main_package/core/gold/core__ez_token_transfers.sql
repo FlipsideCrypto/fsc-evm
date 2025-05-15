@@ -119,6 +119,7 @@ broken_token_transfers as (
         decimals,
         raw_amount_precise,
         raw_amount,
+        amount_usd,
         origin_function_signature,
         origin_from_address,
         origin_to_address,
