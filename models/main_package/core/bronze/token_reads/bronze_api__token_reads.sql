@@ -31,8 +31,8 @@ AND contract_address NOT IN (
 {% endif %}
 ORDER BY
     total_event_count DESC
-LIMIT
-    50
+LIMIT {{ vars.MAIN_CORE_BRONZE_TOKEN_READS_LIMIT }}
+
 ), function_sigs AS (
     SELECT
         '0x313ce567' AS function_sig,
