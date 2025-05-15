@@ -103,7 +103,7 @@ AND f.modified_timestamp > (
 {% endif %}
 ),
 {% if is_incremental() %}
-broken_token_transfers as (
+recent_token_transfers as (
     select
         block_number,
         block_timestamp,
@@ -127,6 +127,39 @@ broken_token_transfers as (
         modified_timestamp
     from {{ this }}
     where block_timestamp >= dateadd('day', -31, SYSDATE())
+),
+impacted_blocks as (
+    select distinct block_number
+    from recent_token_transfers
+    where decimals is null
+    or symbol is null
+    or name is null
+    or amount_usd is null
+),
+broken_token_transfers as (
+    select 
+        block_number,
+        block_timestamp,
+        tx_hash,
+        tx_position,
+        event_index,
+        from_address,
+        to_address,
+        contract_address,
+        token_standard,
+        name,
+        symbol,
+        decimals,
+        raw_amount_precise,
+        raw_amount,
+        amount_usd,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        ez_token_transfers_id,
+        modified_timestamp
+    from recent_token_transfers
+    where block_number in (select block_number from impacted_blocks)
 ),
 {% endif %}
 final AS (
