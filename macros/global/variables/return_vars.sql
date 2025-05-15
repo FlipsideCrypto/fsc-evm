@@ -46,6 +46,9 @@
   {% set ns.MAIN_CORE_TRACES_SEI_MODE = ns.GLOBAL_PROJECT_NAME.upper() == 'SEI' %}
   {% set ns.MAIN_CORE_TRACES_KAIA_MODE = ns.GLOBAL_PROJECT_NAME.upper() == 'KAIA' %}
 
+  {# Core Bronze Variables #}
+  {% set ns.MAIN_CORE_BRONZE_TOKEN_READS_LIMIT = get_var('MAIN_CORE_BRONZE_TOKEN_READS_LIMIT', 50) %}
+
   {# Core Silver Variables #}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_SOURCE_NAME = 'RECEIPTS_BY_HASH' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'RECEIPTS' %}
