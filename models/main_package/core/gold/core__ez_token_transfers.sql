@@ -234,12 +234,6 @@ WHERE
                 t1
             WHERE
                 t1.decimals IS NULL
-                AND t1.modified_timestamp <= (
-                    SELECT
-                        MAX(modified_timestamp)
-                    FROM
-                        {{ this }}
-                )
                 AND EXISTS (
                     SELECT
                         1
@@ -259,12 +253,6 @@ WHERE
                         t2
                     WHERE
                         t2.symbol IS NULL
-                        AND t2.modified_timestamp <= (
-                            SELECT
-                                MAX(modified_timestamp)
-                            FROM
-                                {{ this }}
-                        )
                         AND EXISTS (
                             SELECT
                                 1
@@ -284,12 +272,6 @@ WHERE
                                 t3
                             WHERE
                                 t3.name IS NULL
-                                AND t3.modified_timestamp <= (
-                                    SELECT
-                                        MAX(modified_timestamp)
-                                    FROM
-                                        {{ this }}
-                                )
                                 AND EXISTS (
                                     SELECT
                                         1
@@ -309,12 +291,6 @@ WHERE
                                         t4
                                     WHERE
                                         t4.amount_usd IS NULL
-                                        AND t4.modified_timestamp <= (
-                                            SELECT
-                                                MAX(modified_timestamp)
-                                            FROM
-                                                {{ this }}
-                                        )
                                         AND EXISTS (
                                             SELECT
                                                 1
