@@ -120,6 +120,8 @@ recent_token_transfers as (
         raw_amount_precise,
         raw_amount,
         amount_usd,
+        amount_precise,
+        amount,
         origin_function_signature,
         origin_from_address,
         origin_to_address,
@@ -220,6 +222,8 @@ SELECT
     decimals,
     raw_amount_precise,
     raw_amount,
+    amount_precise,
+    amount,
     amount_usd,
     origin_function_signature,
     origin_from_address,
@@ -285,5 +289,5 @@ FROM
     final
 {% if is_incremental() %}
 qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id
-    ORDER BY modified_timestamp DESC, amount_usd DESC NULLS LAST)) = 1
+    ORDER BY modified_timestamp DESC, amount_usd DESC NULLS LAST, decimals DESC NULLS LAST)) = 1
 {% endif %}
