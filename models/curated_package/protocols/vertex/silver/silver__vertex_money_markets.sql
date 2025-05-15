@@ -17,7 +17,7 @@ WITH apr AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ vars.GLOBAL_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/apr'
+                'https://gateway.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/apr'
             )
         ):data AS response
 ),
