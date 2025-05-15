@@ -12,7 +12,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ez_decoded_event_logs_id, contract_name, contract_address)',
-    tags = ['gold','decoded_logs','phase_3']
+    tags = ['gold','decoded_logs','phase_3','heal']
 ) }}
 
 WITH base AS (
@@ -125,7 +125,8 @@ missing_tx_data AS (
             event_index
         )
     WHERE fel.block_timestamp IS NOT NULL
-),
+)
+{% if var('HEAL_MODEL',false) %},
 broken_contracts as (
     SELECT
         block_number,
@@ -182,6 +183,8 @@ missing_contract_data AS (
         ON t.contract_address = dc.address
         AND dc.name IS NOT NULL
 )
+{% endif %}
+
 {% endif %},
 FINAL AS (
     SELECT
@@ -235,6 +238,7 @@ SELECT
     contract_name
 FROM
     missing_tx_data
+{% if var('HEAL_MODEL',false) %}
 UNION ALL
 SELECT
     block_number,
@@ -260,6 +264,8 @@ SELECT
     contract_name
 FROM
     missing_contract_data
+{% endif %}
+
 {% endif %}
 )
 SELECT
