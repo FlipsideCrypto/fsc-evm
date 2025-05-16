@@ -54,6 +54,8 @@ base AS (
         {{ ref('core__fact_transactions') }}
     WHERE
         block_timestamp <= DATEADD('hour', -12, systimestamp())
+        AND from_address <> '0x0000000000000000000000000000000000000000'
+        AND to_address <> '0x0000000000000000000000000000000000000000'
 
 {% if is_incremental() %}
 AND block_number >= (
