@@ -16,8 +16,9 @@ FROM
         tx_position
     )
 WHERE
-    tr.tx_hash IS NULL
+    (tr.tx_hash IS NULL
     OR tr.tx_position IS NULL
-    OR tr.block_number IS NULL 
-    and (txs.from_address <> '0x0000000000000000000000000000000000000000' and txs.to_address <> '0x0000000000000000000000000000000000000000')
+    OR tr.block_number IS NULL) 
+    and txs.from_address <> '0x0000000000000000000000000000000000000000' 
+    and txs.to_address <> '0x0000000000000000000000000000000000000000'
 {% endtest %}
