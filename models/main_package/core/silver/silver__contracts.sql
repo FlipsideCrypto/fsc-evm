@@ -80,6 +80,7 @@ token_names AS (
                         function_signature = '0x313ce567'
                         AND read_output IS NOT NULL
                         AND read_output <> '0x'
+                        AND LENGTH(read_output :: STRING) <= 4300
                 ),
                 contracts AS (
                     SELECT
