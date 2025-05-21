@@ -80,7 +80,11 @@ ready_reads AS (
 node_call AS (
     SELECT
         *,
+        {% if vars.MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED %}
+        live.udf_api_batched(
+        {% else %}
         live.udf_api(
+        {% endif %}
             'POST',
             '{{ vars.GLOBAL_NODE_URL }}',
             OBJECT_CONSTRUCT(

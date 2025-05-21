@@ -56,6 +56,7 @@
 
   {# Core Bronze Variables #}
   {% set ns.MAIN_CORE_BRONZE_TOKEN_READS_LIMIT = get_var('MAIN_CORE_BRONZE_TOKEN_READS_LIMIT', 50) %}
+  {% set ns.MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED = get_var('MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED', false) %}
 
   {# Core Silver Variables #}
   {% set ns.MAIN_CORE_SILVER_RECEIPTS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
