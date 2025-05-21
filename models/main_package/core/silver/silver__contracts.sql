@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -90,7 +93,8 @@ token_names AS (
                         base_metadata
                     GROUP BY
                         1
-                )
+                ),
+                final AS (
             SELECT
                 c1.contract_address :: STRING AS contract_address,
                 token_name,
@@ -111,6 +115,37 @@ token_names AS (
                 ON c1.contract_address = token_symbols.contract_address
                 LEFT JOIN token_decimals
                 ON c1.contract_address = token_decimals.contract_address
-                AND dec_length < 3 qualify(ROW_NUMBER() over(PARTITION BY c1.contract_address
+                AND dec_length < 3 
+
+            {% if not is_incremental() and vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+            UNION
+            SELECT
+                address AS contract_address,
+                NAME AS token_name,
+                decimals AS token_decimals,
+                symbol AS token_symbol,
+                _inserted_timestamp,
+                {{ dbt_utils.generate_surrogate_key(
+                    ['address']
+                ) }} AS contracts_id,
+                SYSDATE() AS inserted_timestamp,
+                SYSDATE() AS modified_timestamp,
+                '{{ invocation_id }}' AS _invocation_id
+            FROM
+                silver.contracts_legacy -- hardcoded for ethereum, to avoid source compiling issues on other chains
+            {% endif %}
+                )
+            SELECT
+                contract_address,
+                token_name,
+                token_decimals,
+                token_symbol,
+                _inserted_timestamp,
+                contracts_id,
+                inserted_timestamp,
+                modified_timestamp,
+                _invocation_id
+            FROM
+                FINAL qualify(ROW_NUMBER() over(PARTITION BY contract_address
             ORDER BY
                 _inserted_timestamp DESC)) = 1

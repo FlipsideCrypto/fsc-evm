@@ -28,6 +28,14 @@ AND contract_address NOT IN (
     FROM
         {{ this }}
 )
+    {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+    AND contract_address NOT IN (
+        SELECT
+            address
+        FROM
+            silver.contracts_legacy -- hardcoded for ethereum, to avoid source compiling issues on other chains
+    )
+    {% endif %}
 {% endif %}
 ORDER BY
     total_event_count DESC
