@@ -43,6 +43,7 @@ sources:
       - name: beacon_validators_v2
       - name: reads
       - name: reads_v2
+      - name: state_tracer
   - name: complete_streamline
     database: "{{ target.database }}"
     schema: streamline
