@@ -5,8 +5,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - fact_event_logs_id
-      - vertex_product_level_recency:
-          filter: product_type = 'spot' AND product_id <> 0
     columns:
       - name: BLOCK_NUMBER
         tests:
