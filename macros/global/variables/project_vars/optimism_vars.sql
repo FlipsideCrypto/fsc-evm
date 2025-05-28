@@ -14,7 +14,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api-optimistic.etherscan.io/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/optimism_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '20,50 * * * *'
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '20,50 * * * *',
+        'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true
     } %}
     
     {{ return(vars) }}
