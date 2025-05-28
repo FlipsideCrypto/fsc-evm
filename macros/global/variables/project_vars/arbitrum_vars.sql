@@ -28,7 +28,8 @@
             'VRTX': '0x95146881b86b3ee99e63705ec87afe29fcc044d9',
             'TRUMPWIN': '0xe215d028551d1721c6b61675aec501b1224bd0a1',
             'HARRISWIN': '0xfbac82a384178ca5dd6df72965d0e65b1b8a028f'
-        }
+        },
+        'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true
     } %}
     
     {{ return(vars) }}

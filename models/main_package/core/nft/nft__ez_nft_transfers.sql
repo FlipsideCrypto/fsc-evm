@@ -352,7 +352,7 @@ FINAL AS (
         from_address,
         to_address,
         contract_address,
-        token_id,
+        COALESCE(token_id, '0') AS token_id,
         quantity,
         token_standard,
         NAME,

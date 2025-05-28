@@ -94,6 +94,14 @@ models:
         description: '{{ doc("evm_operator_fee_scalar") }}'
       - name: OPERATOR_FEE_CONSTANT
         description: '{{ doc("evm_operator_fee_constant") }}'
+      - name: BLOB_VERSIONED_HASHES
+        description: '{{ doc("evm_blob_versioned_hashes") }}'
+      - name: MAX_FEE_PER_BLOB_GAS
+        description: '{{ doc("evm_max_fee_per_blob_gas") }}'
+      - name: BLOB_GAS_USED
+        description: '{{ doc("evm_blob_gas_used") }}'
+      - name: BLOB_GAS_PRICE
+        description: '{{ doc("evm_blob_gas_price") }}'
       - name: FACT_TRANSACTIONS_ID
         description: '{{ doc("evm_pk") }}'
       - name: INSERTED_TIMESTAMP

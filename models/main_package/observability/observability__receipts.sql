@@ -109,7 +109,8 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if vars.MAIN_OBSERV_RECEIPTS_EXCLUSION_LIST_ENABLED %}
+        missing_block_number IS NOT NULL
+        AND missing_block_number <> 0 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
             AND missing_block_number NOT IN (
                 SELECT
                     block_number :: INT

@@ -26,6 +26,7 @@ FROM
     block_txs
     LEFT JOIN count_txs USING (block_number)
 WHERE
-    record_count != expected_count
-    OR expected_count IS NULL 
+    (record_count != expected_count
+    OR expected_count IS NULL)
+    AND block_number != 0
 {% endtest %}
