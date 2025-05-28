@@ -282,22 +282,22 @@ Whether the transaction was time boosted (Arbitrum specific).
 
 Versioned hashes that uniquely identify the blob data associated with a transaction, used to commit to the blob contents without storing the full data on-chain.
 
-{% end docs %}
+{% enddocs %}
 
 {% docs evm_max_fee_per_blob_gas %}
 
 The maximum fee per unit of blob gas that the transaction sender is willing to pay.
 
-{% end docs %}
+{% enddocs %}
 
 {% docs evm_blob_gas_used %}
 
 The amount of blob gas consumed by the transaction for storing blob data.
 
-{% end docs %}
+{% enddocs %}
 
 {% docs evm_blob_gas_price %}
 
 The actual price per unit of blob gas paid for the transaction, determined by the blob base fee mechanism that adjusts dynamically based on blob demand.
 
-{% end docs %}
+{% enddocs %}
