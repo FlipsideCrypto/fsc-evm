@@ -290,12 +290,6 @@ The maximum fee per unit of blob gas that the transaction sender is willing to p
 
 {% enddocs %}
 
-{% docs evm_blob_gas_used %}
-
-The amount of blob gas consumed by the transaction for storing blob data.
-
-{% enddocs %}
-
 {% docs evm_blob_gas_price %}
 
 The actual price per unit of blob gas paid for the transaction, determined by the blob base fee mechanism that adjusts dynamically based on blob demand.
