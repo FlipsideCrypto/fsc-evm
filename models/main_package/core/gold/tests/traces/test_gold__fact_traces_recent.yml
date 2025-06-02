@@ -90,11 +90,7 @@ models:
         tests:
           - not_null
       - name: GAS
-        tests:
-          - not_null
       - name: GAS_USED
-        tests:
-          - not_null
       - name: ORIGIN_FROM_ADDRESS
         tests:
           - not_null

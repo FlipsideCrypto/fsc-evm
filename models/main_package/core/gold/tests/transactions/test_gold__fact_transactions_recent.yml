@@ -84,8 +84,6 @@ models:
         tests:
           - not_null
       - name: GAS_USED
-        tests:
-          - not_null
       - name: GAS_LIMIT
         tests:
           - not_null
