@@ -7,7 +7,7 @@ models:
           combination_of_columns:
             - TX_HASH
             - EVENT_INDEX
-      - fsc_utils.sequence_gaps:
+      - fsc_evm.sequence_gaps:
           partition_by:
             - BLOCK_NUMBER
           column_name: EVENT_INDEX

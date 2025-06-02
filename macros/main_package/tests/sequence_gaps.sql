@@ -34,12 +34,13 @@ FROM
     source
 WHERE
     {{ column_name }} - {{ previous_column }} <> 1
-{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED and {{ column_name }} == 'block_number' %}
+{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED and column_name | lower == 'block_number' %}
     AND {{ column_name }} NOT IN (
-        SELECT
-            block_number :: INT
-        FROM
-            observability.exclusion_list
+        SELECT block_number :: INT + 1
+        FROM observability.exclusion_list
+        UNION ALL
+        SELECT block_number :: INT - 1
+        FROM observability.exclusion_list
     )
 {% endif %}
 ORDER BY
