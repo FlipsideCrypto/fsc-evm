@@ -187,7 +187,7 @@
             LANGUAGE PYTHON
             STRICT
             IMMUTABLE
-            RUNTIME_VERSION = '3.8'
+            RUNTIME_VERSION = '3.9'
             HANDLER = 'hex_to_int'
             AS '
 def hex_to_int(encoding, hex) -> str:
@@ -214,7 +214,7 @@ def hex_to_int(encoding, hex) -> str:
             LANGUAGE PYTHON
             STRICT
             IMMUTABLE
-            RUNTIME_VERSION = '3.8'
+            RUNTIME_VERSION = '3.9'
             HANDLER = 'hex_to_int'
             AS '
 def hex_to_int(hex) -> str:
