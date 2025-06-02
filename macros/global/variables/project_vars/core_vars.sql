@@ -14,7 +14,8 @@
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'CoreScan',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://openapi.coredao.org/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/core_scan',
-        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true
+        'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
+        'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true
     } %}
     
     {{ return(vars) }}
