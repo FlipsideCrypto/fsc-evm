@@ -7,7 +7,7 @@ models:
           combination_of_columns:
             - TX_HASH
             - TRACE_INDEX
-      - fsc_utils.sequence_gaps:
+      - fsc_evm.sequence_gaps:
           partition_by:
             - TX_HASH
           column_name: TRACE_INDEX
