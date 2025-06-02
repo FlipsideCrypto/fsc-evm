@@ -123,6 +123,9 @@ gap_agg AS (
                     observability.exclusion_list
             )
         {% endif %}
+        {% if vars.GLOBAL_PROJECT_NAME == 'boba' %}
+            AND missing_block_number > 1041894
+        {% endif %}
 )
 SELECT
     'traces' AS test_name,
