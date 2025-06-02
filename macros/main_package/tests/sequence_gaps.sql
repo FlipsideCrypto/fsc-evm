@@ -5,6 +5,10 @@
 ) %}
 {%- set partition_sql = partition_by | join(", ") -%}
 {%- set previous_column = "prev_" ~ column_name -%}
+
+{# Get variables #}
+{% set vars = return_vars() %}
+
 WITH source AS (
     SELECT
         {{ partition_sql + "," if partition_sql }}
@@ -30,8 +34,8 @@ FROM
     source
 WHERE
     {{ column_name }} - {{ previous_column }} <> 1
-{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED and {{column_name}} = 'block_number' %}
-    AND {{column_name}} NOT IN (
+{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED and {{ column_name }} == 'block_number' %}
+    AND {{ column_name }} NOT IN (
         SELECT
             block_number :: INT
         FROM
