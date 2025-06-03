@@ -54,12 +54,12 @@ WITH base_data AS (
 {% if is_incremental() %}
 {{ ref('bronze__decoded_logs') }}
 WHERE
-    TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
+    TO_TIMESTAMP_NTZ(_inserted_timestamp) > (
         SELECT
             COALESCE(
                 MAX(modified_timestamp), 
                 '1900-01-01'::TIMESTAMP
-            ) - INTERVAL '2 hours'
+            )
         FROM
             {{ this }}
     )

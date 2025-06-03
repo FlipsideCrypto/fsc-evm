@@ -10,49 +10,31 @@
     tags = ['streamline','decoded_logs','realtime','phase_3']
 ) }}
 
-WITH target_blocks AS (
-    SELECT
-        block_number
-    FROM
-        {{ ref('core__fact_blocks') }}
-    WHERE
-        block_number >= (
-            SELECT
-                block_number
-            FROM
-                {{ ref('_24_hour_lookback') }}
-        )
-),
-existing_logs_to_exclude AS (
+WITH existing_logs_to_exclude AS (
     SELECT
         _log_id
     FROM
         {{ ref('streamline__decoded_logs_complete') }}
-        l
-        INNER JOIN target_blocks b USING (block_number)
     WHERE
-        l.inserted_timestamp :: DATE >= DATEADD('day', -2, SYSDATE())
+        inserted_timestamp >= DATEADD('hour', -60, SYSDATE())
 ),
 candidate_logs AS (
     SELECT
-        l.block_number,
-        l.tx_hash,
-        l.event_index,
-        l.contract_address,
-        l.topics,
-        l.data,
+        block_number,
+        tx_hash,
+        event_index,
+        contract_address,
+        topics,
+        data,
         CONCAT(
-            l.tx_hash :: STRING,
+            tx_hash :: STRING,
             '-',
-            l.event_index :: STRING
+            event_index :: STRING
         ) AS _log_id
-    FROM
-        target_blocks b
-        INNER JOIN {{ ref('core__fact_event_logs') }}
-        l USING (block_number)
+    FROM {{ ref('core__fact_event_logs') }}
     WHERE
-        l.tx_succeeded
-        AND l.inserted_timestamp :: DATE >= DATEADD('day', -2, SYSDATE())
+        tx_succeeded
+        AND inserted_timestamp >= DATEADD('hour', -48, SYSDATE())
 )
 SELECT
     l.block_number,
