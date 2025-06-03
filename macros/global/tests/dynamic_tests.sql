@@ -79,6 +79,10 @@
             {% endif %}
         {% endif %}
         
+        {# Add MAIN_OBSERV_EXCLUSION_LIST_ENABLED logic #}
+        {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
+            {% set where = where + '\nAND block_number NOT IN (SELECT block_number :: INT FROM observability.exclusion_list)' %}
+        {% endif %}
         {%- set filtered -%}
             (select * from {{ relation }} where {{ where }}) dbt_subquery
         {%- endset -%}
