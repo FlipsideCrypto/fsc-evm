@@ -59,7 +59,7 @@ WHERE
             COALESCE(
                 MAX(modified_timestamp), 
                 '1900-01-01'::TIMESTAMP
-            ) - INTERVAL '2 hours'
+            )
         FROM
             {{ this }}
     )
