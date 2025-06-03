@@ -37,7 +37,7 @@
         {% if 'core' in (config.get('tags', [])) %}
             {% set where = 'block_number > (SELECT block_number FROM ' ~ ref('_block_lookback') ~ ')' %}
         {% else %}
-            {% if "__timestamp_filter__" in where and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
+            {% if "__timestamp_filter__" in where %}
                 {% set columns = adapter.get_columns_in_relation(relation) %}
                 {% set column_names = columns | map(attribute='name') | list %}
                 
@@ -72,13 +72,13 @@
                     {% endfor %}
                 {% endif %}
 
-                {% if ts_vars.timestamp_column is not none %}
+                {# Always replace __timestamp_filter__ with a valid filter or 1=1 #}
+                {% if ts_vars.timestamp_column is not none and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
                     {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
                         interval_vars.interval_type ~ ", -" ~ 
                         interval_vars.interval_value ~ ", current_timestamp())" %}
                     {% set where = where | replace("__timestamp_filter__", ts_vars.filter_condition) %}
                 {% else %}
-                    {# If no timestamp column is found, remove the timestamp filter #}
                     {% set where = where | replace("__timestamp_filter__", "1=1") %}
                 {% endif %}
             {% endif %}
