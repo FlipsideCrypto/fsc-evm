@@ -33,55 +33,60 @@
     ) -%}
 
     {% if where %}
-        {% if "__timestamp_filter__" in where and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
-            {% set columns = adapter.get_columns_in_relation(relation) %}
-            {% set column_names = columns | map(attribute='name') | list %}
-            
-            {# Define common timestamp patterns #}
-            {% set timestamp_patterns = [
-                'modified_timestamp',
-                '_inserted_timestamp',
-                'block_timestamp',
-                'created_timestamp'
-            ] %}
+        {# If the tag 'core' is present, override the where clause with the block_lookback filter #}
+        {% if 'core' in (config.get('tags', [])) %}
+            {% set where = 'block_number > (SELECT block_number FROM ' ~ ref('_block_lookback') ~ ')' %}
+        {% else %}
+            {% if "__timestamp_filter__" in where and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
+                {% set columns = adapter.get_columns_in_relation(relation) %}
+                {% set column_names = columns | map(attribute='name') | list %}
+                
+                {# Define common timestamp patterns #}
+                {% set timestamp_patterns = [
+                    'modified_timestamp',
+                    '_inserted_timestamp',
+                    'block_timestamp',
+                    'created_timestamp'
+                ] %}
 
-            {# First pass: Try to find exact matches (case-insensitive) #}
-            {% for pattern in timestamp_patterns %}
-                {% for column in columns %}
-                    {% if column.name | lower == pattern | lower %}
-                        {% set ts_vars.timestamp_column = column.name %}
+                {# First pass: Try to find exact matches (case-insensitive) #}
+                {% for pattern in timestamp_patterns %}
+                    {% for column in columns %}
+                        {% if column.name | lower == pattern | lower %}
+                            {% set ts_vars.timestamp_column = column.name %}
+                            {% break %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if ts_vars.timestamp_column is not none %}
                         {% break %}
                     {% endif %}
                 {% endfor %}
-                {% if ts_vars.timestamp_column is not none %}
-                    {% break %}
+
+                {# Second pass: Try to find any column containing '_timestamp' or 'timestamp_' (case-insensitive) #}
+                {% if ts_vars.timestamp_column is none %}
+                    {% for column in columns %}
+                        {% if '_timestamp' in column.name | lower or 'timestamp_' in column.name | lower %}
+                            {% set ts_vars.timestamp_column = column.name %}
+                            {% break %}
+                        {% endif %}
+                    {% endfor %}
                 {% endif %}
-            {% endfor %}
 
-            {# Second pass: Try to find any column containing '_timestamp' or 'timestamp_' (case-insensitive) #}
-            {% if ts_vars.timestamp_column is none %}
-                {% for column in columns %}
-                    {% if '_timestamp' in column.name | lower or 'timestamp_' in column.name | lower %}
-                        {% set ts_vars.timestamp_column = column.name %}
-                        {% break %}
-                    {% endif %}
-                {% endfor %}
+                {% if ts_vars.timestamp_column is not none %}
+                    {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
+                        interval_vars.interval_type ~ ", -" ~ 
+                        interval_vars.interval_value ~ ", current_timestamp())" %}
+                    {% set where = where | replace("__timestamp_filter__", ts_vars.filter_condition) %}
+                {% else %}
+                    {# If no timestamp column is found, remove the timestamp filter #}
+                    {% set where = where | replace("__timestamp_filter__", "1=1") %}
+                {% endif %}
             {% endif %}
-
-            {% if ts_vars.timestamp_column is not none %}
-                {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
-                    interval_vars.interval_type ~ ", -" ~ 
-                    interval_vars.interval_value ~ ", current_timestamp())" %}
-                {% set where = where | replace("__timestamp_filter__", ts_vars.filter_condition) %}
-            {% else %}
-                {# If no timestamp column is found, remove the timestamp filter #}
-                {% set where = where | replace("__timestamp_filter__", "1=1") %}
+            
+            {# Add MAIN_OBSERV_EXCLUSION_LIST_ENABLED logic #}
+            {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
+                {% set where = where + '\nAND block_number NOT IN (SELECT block_number :: INT FROM observability.exclusion_list)' %}
             {% endif %}
-        {% endif %}
-        
-        {# Add MAIN_OBSERV_EXCLUSION_LIST_ENABLED logic #}
-        {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
-            {% set where = where + '\nAND block_number NOT IN (SELECT block_number :: INT FROM observability.exclusion_list)' %}
         {% endif %}
         {%- set filtered -%}
             (select * from {{ relation }} where {{ where }}) dbt_subquery
