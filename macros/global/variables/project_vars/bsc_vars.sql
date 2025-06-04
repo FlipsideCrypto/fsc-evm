@@ -13,8 +13,7 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.bscscan.com/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/bsc_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '15,45 * * * *',
-        'DECODER_SL_DECODED_LOGS_REALTIME_WORKER_BATCH_SIZE': 50000
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '15,45 * * * *'
     } %}
     
     {{ return(vars) }}
