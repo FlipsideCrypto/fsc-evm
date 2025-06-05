@@ -36,7 +36,8 @@
                 RANDOM_BLOCK_SAMPLE_SIZE NUMBER DEFAULT 50,
                 VAULT_PATH_OVERRIDE STRING DEFAULT NULL,
                 NODE_URL_OVERRIDE STRING DEFAULT NULL,
-                EXCLUDE_TRACES BOOLEAN DEFAULT TRUE
+                EXCLUDE_TRACES BOOLEAN DEFAULT TRUE,
+                SAMPLE_BLOCKS_OVERRIDE ARRAY DEFAULT NULL
             )
             RETURNS VARIANT
             LANGUAGE SQL
@@ -98,6 +99,10 @@
                         SELECT block_num as random_num FROM recent_blocks
                         UNION ALL
                         SELECT block_num as random_num FROM random_blocks
+                        UNION ALL
+                        SELECT value::number as random_num 
+                        FROM TABLE(FLATTEN(input => :SAMPLE_BLOCKS_OVERRIDE))
+                        WHERE :SAMPLE_BLOCKS_OVERRIDE IS NOT NULL
                     ),
                     block_range as (
                         SELECT array_agg(random_num) as block_range FROM random_numbers
@@ -345,9 +350,9 @@
             {% do run_query(sp_compatibility_check_sql) %}
             {% set permissions_sql %}
                 grant usage on schema admin to internal_dev;
-                grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean) to role internal_dev;
+                grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean, array) to role internal_dev;
                 grant usage on schema admin to dbt_cloud_fsc_evm;
-                grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean) to role dbt_cloud_fsc_evm;
+                grant usage on procedure admin.sample_rpc_node(string, string, string, number, string, string, boolean, array) to role dbt_cloud_fsc_evm;
             {% endset %}
 
             {% do run_query(permissions_sql) %}
