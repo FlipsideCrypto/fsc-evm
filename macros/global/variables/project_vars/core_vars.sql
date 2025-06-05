@@ -11,6 +11,7 @@
         'MAIN_PRICES_NATIVE_SYMBOLS': 'CORE',
         'MAIN_PRICES_PROVIDER_PLATFORMS': ["Core", "core"],
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '23,53 * * * *',
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '35 5 * * *',
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'CoreScan',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://openapi.coredao.org/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/core_scan',

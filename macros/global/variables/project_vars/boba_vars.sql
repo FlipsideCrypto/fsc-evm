@@ -14,6 +14,7 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '3,33 * * * *',
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '25 5 * * *',
         'DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE': 50,
         'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true

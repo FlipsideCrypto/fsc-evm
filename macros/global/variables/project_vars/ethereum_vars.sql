@@ -14,6 +14,7 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.etherscan.io/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/ethereum/block_explorers/etherscan',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '0,30 * * * *',
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '40 5 * * *',
         'CUSTOM_GHA_TEST_BEACON_CRON': '5 9 * * *',
         'CUSTOM_GHA_STREAMLINE_READS_CRON': '40 1-23/2 * * *',
         'CUSTOM_GHA_STREAMLINE_BEACON_CRON': '55 */1 * * *',

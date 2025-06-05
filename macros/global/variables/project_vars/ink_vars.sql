@@ -12,7 +12,8 @@
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'InkOnChain',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer.inkonchain.com/api/v2/smart-contracts/',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *'
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *'
     } %}
     
     {{ return(vars) }}

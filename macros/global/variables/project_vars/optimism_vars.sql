@@ -15,6 +15,7 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/optimism_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '20,50 * * * *',
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '10 5 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true
     } %}
     
