@@ -13,7 +13,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.gnosisscan.io/api?module=contract&action=getabi&address=',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/gnosis_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
-        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '25,55 * * * *'
+        'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '25,55 * * * *',
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '45 5 * * *'
     } %}
     
     {{ return(vars) }}
