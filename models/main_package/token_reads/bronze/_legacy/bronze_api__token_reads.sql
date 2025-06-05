@@ -8,7 +8,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
-    tags = ['bronze','core','token_reads','phase_2']
+    tags = ['bronze','token_reads','phase_2']
 ) }}
 
 WITH base AS (
@@ -114,6 +114,7 @@ node_call AS (
                 1
         )
 )
+
 SELECT
     contract_address,
     latest_block AS block_number,
