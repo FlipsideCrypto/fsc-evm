@@ -35,7 +35,7 @@
     {'name': 'dbt_run_scheduled_decoder', 'cadence': 'hourly', 'root_offset': 40},
     {'name': 'dbt_run_scheduled_curated', 'cadence': 'every_4_hours', 'root_offset': 30},
     {'name': 'dbt_run_scheduled_abis', 'cadence': 'daily', 'root_offset': 20, 'hour': 1},
-    {'name': 'dbt_run_scheduled_scores', 'cadence': 'daily', 'root_offset': 35, 'hour': 2},
+    {'name': 'dbt_run_scheduled_scores', 'cadence': 'daily', 'root_offset': 35, 'hour': 1},
     {'name': 'dbt_test_daily', 'cadence': 'daily', 'root_offset': 50, 'hour': 3},
     {'name': 'dbt_test_intraday', 'cadence': 'every_4_hours', 'root_offset': 50},
     {'name': 'dbt_test_monthly', 'cadence': 'monthly', 'root_offset': 20, 'hour': 1},
