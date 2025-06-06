@@ -79,7 +79,7 @@ SELECT
             )
         ),
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
-    ) AS response
+    ) AS request
 FROM
     ready_reads
 WHERE
