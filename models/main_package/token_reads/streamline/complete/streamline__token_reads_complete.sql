@@ -42,7 +42,8 @@ WHERE
         {% endif %}
 
 {% if not is_incremental() and vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
-UNION
+UNION ALL
+SELECT
    0 AS partition_key,
    address AS contract_address,
    NULL AS file_name,
