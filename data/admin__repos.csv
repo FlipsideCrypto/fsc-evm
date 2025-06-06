@@ -1,0 +1,4 @@
+repo_key,github_repo,chain_name,is_active
+mantle_vars,mantle-models,mantle,true
+swell_vars,swell-models,swell,true
+scroll_vars,scroll-models,scroll,true

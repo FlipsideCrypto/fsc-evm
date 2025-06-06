@@ -1,0 +1,109 @@
+name: dbt_dispatch_workflow
+run-name: Dispatch ${{ inputs.workflow_name }} to ${{ inputs.input_repos }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow_name:
+        type: string
+        description: 'Workflow to dispatch'
+        required: true
+        default: 'dbt_run_adhoc'
+      input_repos:
+        type: string
+        description: 'Comma-separated list of repos (e.g. "mantle,swell") or "all"'
+        required: true
+        default: 'all'
+      dbt_command:
+        type: string
+        description: 'DBT command (required for dbt_run_adhoc)'
+        required: false
+      warehouse:
+        type: choice 
+        description: 'Snowflake warehouse'
+        required: true 
+        options:
+          - DBT
+          - DBT_CLOUD
+        default: DBT
+
+env:
+  ACCOUNT: "${{ vars.ACCOUNT }}"
+  ROLE: "${{ vars.ROLE }}"
+  USER: "${{ vars.USER }}"
+  PASSWORD: "${{ secrets.PASSWORD }}"
+  REGION: "${{ vars.REGION }}"
+  DATABASE: "${{ vars.DATABASE }}"
+  WAREHOUSE: "${{ inputs.warehouse }}"
+  SCHEMA: "${{ vars.SCHEMA }}"
+
+jobs:
+  dispatch_workflows:
+    runs-on: ubuntu-latest
+    environment:
+      name: workflow_secrets
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          dbt deps
+
+      - name: Parse input repos
+        id: parse_repos
+        run: |
+          # Convert comma-separated string to space-separated for easier handling
+          if [ "${{ inputs.input_repos }}" = "all" ]; then
+            echo "repo_list=all" >> $GITHUB_OUTPUT
+          else
+            # Replace commas with spaces and trim
+            repo_list=$(echo "${{ inputs.input_repos }}" | tr ',' ' ' | xargs)
+            echo "repo_list=$repo_list" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Execute dispatch via dbt
+        run: |
+          # Build the macro call
+          if [ "${{ inputs.input_repos }}" = "all" ]; then
+            repo_param="['all']"
+          else
+            # Convert space-separated list to dbt array format
+            repos="${{ steps.parse_repos.outputs.repo_list }}"
+            repo_array=""
+            for repo in $repos; do
+              if [ -z "$repo_array" ]; then
+                repo_array="'$repo'"
+              else
+                repo_array="$repo_array, '$repo'"
+              fi
+            done
+            repo_param="[$repo_array]"
+          fi
+          
+          # Run dbt operation
+          if [ -n "${{ inputs.dbt_command }}" ]; then
+            dbt run-operation run_fsc_evm_dispatch_workflow \
+              --args "{workflow_name: '${{ inputs.workflow_name }}', input_repos: $repo_param, command: '${{ inputs.dbt_command }}'}"
+          else
+            dbt run-operation run_fsc_evm_dispatch_workflow \
+              --args "{workflow_name: '${{ inputs.workflow_name }}', input_repos: $repo_param}"
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Workflow Dispatch Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: ${{ inputs.workflow_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repositories**: ${{ inputs.input_repos }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ inputs.dbt_command }}" ]; then
+            echo "- **DBT Command**: \`${{ inputs.dbt_command }}\`" >> $GITHUB_STEP_SUMMARY
