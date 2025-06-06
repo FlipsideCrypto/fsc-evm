@@ -25,17 +25,14 @@ on:
         options:
           - DBT
           - DBT_CLOUD
+          - DBT_TEST
+          - DBT_EMERGENCY
         default: DBT
-
-env:
-  ACCOUNT: "${{ vars.ACCOUNT }}"
-  ROLE: "${{ vars.ROLE }}"
-  USER: "${{ vars.USER }}"
-  PASSWORD: "${{ secrets.PASSWORD }}"
-  REGION: "${{ vars.REGION }}"
-  DATABASE: "${{ vars.DATABASE }}"
-  WAREHOUSE: "${{ inputs.warehouse }}"
-  SCHEMA: "${{ vars.SCHEMA }}"
+      target:
+        description: 'Target environment'
+        required: false
+        type: string
+        default: prod
 
 jobs:
   dispatch_workflows:
@@ -46,6 +43,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "TARGET=${{ inputs.target }}" >> $GITHUB_ENV
+          echo "ACCOUNT=vna27887.us-east-1" >> $GITHUB_ENV
+          echo "REGION=us-east-1" >> $GITHUB_ENV
+          echo "SCHEMA=ADMIN" >> $GITHUB_ENV
+          echo "USER=DBT_CLOUD_FSC_EVM" >> $GITHUB_ENV  
+          echo "PASSWORD=${{ secrets.PASSWORD }}" >> $GITHUB_ENV
+          
+          if [[ "${{ inputs.target }}" == *"prod"* ]]; then
+            echo "DATABASE=FSC_EVM" >> $GITHUB_ENV
+            echo "ROLE=DBT_CLOUD_FSC_EVM" >> $GITHUB_ENV
+            echo "WAREHOUSE=${{ inputs.warehouse }}" >> $GITHUB_ENV
+          elif [[ "${{ inputs.target }}" == *"test"* ]]; then
+            echo "DATABASE=FSC_EVM" >> $GITHUB_ENV
+            echo "ROLE=DBT_CLOUD_FSC_EVM" >> $GITHUB_ENV
+            echo "WAREHOUSE=DBT_TEST" >> $GITHUB_ENV
+          else
+            echo "DATABASE=FSC_EVM_DEV" >> $GITHUB_ENV
+            echo "ROLE=INTERNAL_DEV" >> $GITHUB_ENV
+            echo "WAREHOUSE=${{ inputs.warehouse }}" >> $GITHUB_ENV
+          fi
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -107,3 +127,10 @@ jobs:
           echo "- **Repositories**: ${{ inputs.input_repos }}" >> $GITHUB_STEP_SUMMARY
           if [ -n "${{ inputs.dbt_command }}" ]; then
             echo "- **DBT Command**: \`${{ inputs.dbt_command }}\`" >> $GITHUB_STEP_SUMMARY
+
+  notify-failure:
+    needs: [dispatch_workflows]
+    if: failure()
+    uses: ./.github/workflows/slack_notify.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
