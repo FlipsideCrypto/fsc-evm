@@ -6,6 +6,7 @@
 
 -- depends_on: {{ ref('bronze_api__token_reads') }}
 
+{# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
     tags = ['bronze','token_reads','phase_2']

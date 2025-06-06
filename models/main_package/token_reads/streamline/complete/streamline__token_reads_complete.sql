@@ -6,6 +6,7 @@
 
 -- depends on: {{ ref('bronze__token_reads') }}
 
+{# Set up dbt configuration #}
 {{ config (
     materialized = 'incremental',
     unique_key = 'complete_token_reads_id',
