@@ -1,4 +1,4 @@
-Log configuration details
+{# Log configuration details #}
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
