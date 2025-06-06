@@ -44,6 +44,7 @@ sources:
       - name: reads
       - name: reads_v2
       - name: state_tracer
+      - name: token_reads
   - name: complete_streamline
     database: "{{ target.database }}"
     schema: streamline
