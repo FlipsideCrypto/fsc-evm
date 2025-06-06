@@ -18,9 +18,9 @@ WITH base_metadata AS (
 
     SELECT
         contract_address,
-        VALUE :"LATEST_BLOCK" AS block_number,
-        VALUE :"FUNCTION_SIG" AS function_signature,
-        data :result AS read_output,
+        VALUE :"LATEST_BLOCK" :: STRING AS block_number,
+        VALUE :"FUNCTION_SIG" :: STRING AS function_signature,
+        data :result :: STRING AS read_output,
         _inserted_timestamp
     FROM
     {% if is_incremental() %}
