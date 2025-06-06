@@ -4,6 +4,9 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('bronze__token_reads') }}
+-- depends_on: {{ ref('bronze__token_reads_fr') }}
+
 {{ config(
     materialized = 'incremental',
     unique_key = 'contract_address',
@@ -15,15 +18,19 @@ WITH base_metadata AS (
 
     SELECT
         contract_address,
-        block_number,
-        function_sig AS function_signature,
-        read_result AS read_output,
+        VALUE :"LATEST_BLOCK" AS block_number,
+        VALUE :"FUNCTION_SIG" AS function_signature,
+        data :result AS read_output,
         _inserted_timestamp
     FROM
-        {{ ref('bronze_api__token_reads') }}
+    {% if is_incremental() %}
+        {{ ref('bronze__token_reads') }}
+    {% else %}
+        {{ ref('bronze__token_reads_fr') }}
+    {% endif %}
     WHERE
-        read_result IS NOT NULL
-        AND read_result <> '0x'
+        read_output IS NOT NULL
+        AND read_output <> '0x'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (

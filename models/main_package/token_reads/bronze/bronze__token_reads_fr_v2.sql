@@ -1,4 +1,4 @@
-{# Log configuration details
+Log configuration details
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
@@ -12,4 +12,4 @@
     source_name = 'token_reads',
     block_number = false,
     contract_address = true
-) }} #}
+) }}

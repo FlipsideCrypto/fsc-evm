@@ -8,7 +8,7 @@
     materialized = 'incremental',
     unique_key = "contract_address",
     full_refresh = vars.GLOBAL_BRONZE_FR_ENABLED,
-    tags = ['bronze','token_reads','phase_2']
+    tags = ['stale']
 ) }}
 
 WITH base AS (
