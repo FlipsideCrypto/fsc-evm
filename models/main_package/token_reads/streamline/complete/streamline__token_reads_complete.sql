@@ -4,8 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{# Set up dbt configuration #}
 -- depends on: {{ ref('bronze__token_reads') }}
+
 {{ config (
     materialized = 'incremental',
     unique_key = 'complete_token_reads_id',
