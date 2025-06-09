@@ -75,12 +75,12 @@
         {% endif %}
         WHERE
             b.partition_key = s.partition_key
-            {% if error_code %}
-            AND DATA :error :code IS NULL
-            {% else %}
-            AND DATA :error IS NULL
-            {% endif %}
             {% if data_not_null %}
+                {% if error_code %}
+                AND DATA :error :code IS NULL
+                {% else %}
+                AND DATA :error IS NULL
+                {% endif %}
             AND DATA IS NOT NULL
             {% endif %}
 {% endmacro %}
@@ -164,12 +164,12 @@ FROM
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
-    {% if error_code %}
-    AND DATA :error :code IS NULL
-    {% else %}
-    AND DATA :error IS NULL
-    {% endif %}
     {% if data_not_null %}
+        {% if error_code %}
+        AND DATA :error :code IS NULL
+        {% else %}
+        AND DATA :error IS NULL
+        {% endif %}
     AND DATA IS NOT NULL
     {% endif %}
 {% endmacro %}
