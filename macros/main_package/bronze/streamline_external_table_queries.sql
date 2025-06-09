@@ -94,7 +94,8 @@
         balances=false,
         block_number=true,
         tx_hash=false,
-        contract_address=false
+        contract_address=false,
+        data_not_null=true
     ) %}
 
     {% if source_version != '' %}
