@@ -6,7 +6,8 @@
         balances=false,
         block_number=true,
         tx_hash=false,
-        contract_address=false
+        contract_address=false,
+        data_not_null=true
     ) %}
 
     {% if source_version != '' %}
@@ -79,7 +80,9 @@
             {% else %}
             AND DATA :error IS NULL
             {% endif %}
+            {% if data_not_null %}
             AND DATA IS NOT NULL
+            {% endif %}
 {% endmacro %}
 
 {% macro streamline_external_table_query_fr(
@@ -165,5 +168,7 @@ WHERE
     {% else %}
     AND DATA :error IS NULL
     {% endif %}
+    {% if data_not_null %}
     AND DATA IS NOT NULL
+    {% endif %}
 {% endmacro %}

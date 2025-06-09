@@ -11,5 +11,6 @@
 {{ streamline_external_table_query_fr(
     source_name = 'token_reads',
     block_number = false,
-    contract_address = true
+    contract_address = true,
+    data_not_null = false
 ) }}
