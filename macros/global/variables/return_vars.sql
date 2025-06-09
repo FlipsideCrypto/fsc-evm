@@ -94,6 +94,9 @@
       {% set ns.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY = "block_number" %}
   {% endif %}
 
+  {# Test Variables #}
+  {% set ns.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD = get_var('MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD', 0) %}
+
   {# Main Streamline Variables #}
   {% set ns.MAIN_SL_BLOCKS_PER_HOUR = get_var('MAIN_SL_BLOCKS_PER_HOUR', 1) %}
   {% set ns.MAIN_SL_TRANSACTIONS_PER_BLOCK = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 1) %}

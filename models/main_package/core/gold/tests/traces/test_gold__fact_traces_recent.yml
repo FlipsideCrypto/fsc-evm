@@ -14,6 +14,7 @@ models:
           where: TX_HASH IS NOT NULL
       - txs_have_traces:
           transactions_model: ref('test_gold__fact_transactions_recent')
+          error_if: ">= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }}"
 
     columns:
       - name: BLOCK_NUMBER
