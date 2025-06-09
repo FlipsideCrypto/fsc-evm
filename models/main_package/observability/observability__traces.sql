@@ -128,9 +128,9 @@ gap_agg AS (
         {% endif %}
         AND (
             SELECT
-                COUNT(DISTINCT block_number) >= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }}
+                COUNT(DISTINCT missing_block_number) >= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }}
             FROM
-                gap_agg
+                gap_test
         )
 )
 SELECT
