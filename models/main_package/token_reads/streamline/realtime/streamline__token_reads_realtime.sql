@@ -24,7 +24,7 @@ WITH base AS (
         AND r.total_event_count >= 25
 ORDER BY
     total_event_count DESC
-LIMIT {{ vars.MAIN_SL_TOKEN_READS_REALTIME_SQL_LIMIT }}
+LIMIT {{ vars.MAIN_SL_TOKEN_READS_CONTRACT_LIMIT }}
 
 ), 
 function_sigs AS (
