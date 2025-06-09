@@ -5,7 +5,8 @@
     random_block_sample_size=none,
     vault_path_override=none,
     node_url_override=none,
-    exclude_traces=true
+    exclude_traces=true,
+    sample_blocks_override=none
 ) %}
 
 {% set vars = return_vars() %}
@@ -40,6 +41,9 @@ CALL {{ target_db }}.admin.sample_rpc_node(
     {% endif %}
     {% if exclude_traces is not none %},
     EXCLUDE_TRACES => {{ exclude_traces }}
+    {% endif %}
+    {% if sample_blocks_override is not none %},
+    SAMPLE_BLOCKS_OVERRIDE => ARRAY_CONSTRUCT({{ sample_blocks_override | join(", ") }})
     {% endif %}
 )
 {% endset %}

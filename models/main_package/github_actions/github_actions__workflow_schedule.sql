@@ -6,7 +6,7 @@
 
 {{ config(
     materialized = 'table',
-    tags = ['silver','gha_tasks','phase_1']
+    tags = ['silver','gha_tasks']
 ) }}
 
 WITH workflows AS (
