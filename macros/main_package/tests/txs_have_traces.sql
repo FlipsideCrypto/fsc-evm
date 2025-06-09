@@ -5,6 +5,8 @@
 
 {% set vars = return_vars() %}
 
+with txs_with_traces as (
+
 SELECT
     block_number,
     tx_hash,
@@ -33,4 +35,14 @@ WHERE
     {% if vars.GLOBAL_PROJECT_NAME == 'boba' %}
         AND txs.block_number > 1041894
     {% endif %}
+)
+
+select * 
+from txs_with_traces
+
+{% if vars.GLOBAL_PROJECT_NAME == 'core' %}
+    where (select count(distinct block_number) > 10 from txs_with_traces)
+{% endif %}
+
+
 {% endtest %}
