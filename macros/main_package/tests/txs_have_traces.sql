@@ -39,10 +39,6 @@ WHERE
 
 select * 
 from txs_with_traces
-
-{% if vars.GLOBAL_PROJECT_NAME == 'core' %}
-    where (select count(distinct block_number) > 10 from txs_with_traces)
-{% endif %}
-
+where (select count(distinct block_number) >= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }} from txs_with_traces)
 
 {% endtest %}
