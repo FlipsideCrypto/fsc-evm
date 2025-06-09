@@ -21,7 +21,8 @@
         'CUSTOM_GHA_SCHEDULED_BEACON_CRON': '10 */2 * * *',
         'CUSTOM_GHA_NFT_READS_CRON': '0 * * * *',
         'CUSTOM_GHA_NFT_LIST_CRON': '0 0,12 * * *',
-        'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true
+        'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
+        'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true
     } %}
     
     {{ return(vars) }}
