@@ -240,6 +240,9 @@
   {% set ns.CURATED_VERTEX_PROJECT_NAME = get_var('CURATED_VERTEX_PROJECT_NAME', ns.GLOBAL_PROJECT_NAME) %}
   {% set ns.CURATED_VERTEX_CLEARINGHOUSE_CONTRACT = get_var('CURATED_VERTEX_CLEARINGHOUSE_CONTRACT', '') %}
   {% set ns.CURATED_VERTEX_TOKEN_MAPPING = get_var('CURATED_VERTEX_TOKEN_MAPPING', {}) %}
+
+  {# Test Variables #}
+  {% set ns.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD = get_var('MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD', 0) %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}

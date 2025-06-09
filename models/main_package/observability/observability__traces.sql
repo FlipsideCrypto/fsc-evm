@@ -126,6 +126,12 @@ gap_agg AS (
         {% if vars.GLOBAL_PROJECT_NAME == 'boba' %}
             AND missing_block_number > 1041894
         {% endif %}
+        AND (
+            SELECT
+                COUNT(DISTINCT block_number) >= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }}
+            FROM
+                gap_agg
+        )
 )
 SELECT
     'traces' AS test_name,
