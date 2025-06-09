@@ -5,6 +5,8 @@
 
 {% set vars = return_vars() %}
 
+WITH txs_with_traces AS (
+
 SELECT
     block_number,
     tx_hash,
@@ -33,4 +35,18 @@ WHERE
     {% if vars.GLOBAL_PROJECT_NAME == 'boba' %}
         AND txs.block_number > 1041894
     {% endif %}
+)
+
+SELECT
+    *
+FROM
+    txs_with_traces
+WHERE
+    (
+        SELECT
+            COUNT(DISTINCT block_number) >= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }}
+        FROM
+            txs_with_traces
+    )
+
 {% endtest %}
