@@ -7,7 +7,7 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = vars.MAIN_NFT_TRANSFERS_UNIQUE_KEY,
+    unique_key = 'ez_nft_transfers_id',
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
