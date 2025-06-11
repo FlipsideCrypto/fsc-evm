@@ -32,7 +32,7 @@ WITH base AS (
         value_precise_raw AS amount_precise_raw,
         value_precise AS amount_precise,
         ROUND(
-            VALUE * price,
+            VALUE * COALESCE(p0.price, p1.price),
             2
         ) AS amount_usd,
         tx_position,
@@ -52,12 +52,18 @@ WITH base AS (
     FROM
         {{ ref('core__fact_traces') }}
         tr
-        LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p0
         ON DATE_TRUNC(
             'hour',
             block_timestamp
-        ) = HOUR
-        AND token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+        ) = p0.HOUR
+        AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+        ON DATE_TRUNC(
+            'hour',
+            block_timestamp
+        ) = p1.HOUR
+        and p1.is_native
     WHERE
         tr.value > 0
         AND tr.tx_succeeded
@@ -115,7 +121,7 @@ SELECT
     t.amount,
     t.amount_precise_raw,
     t.amount_precise,
-    t.amount * p.price AS amount_usd_heal,
+    t.amount * COALESCE(p0.price, p1.price) AS amount_usd_heal,
     t.origin_from_address,
     t.origin_to_address,
     t.origin_function_signature,
@@ -132,18 +138,24 @@ SELECT
 FROM
     {{ this }}
     t
-    INNER JOIN {{ ref('price__ez_prices_hourly') }}
-    p
+    LEFT JOIN {{ ref('price__ez_prices_hourly') }} p0
     ON DATE_TRUNC(
         'hour',
         block_timestamp
-    ) = HOUR
-    AND token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+    ) = p0.HOUR
+    AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+    LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+    ON DATE_TRUNC(
+        'hour',
+        block_timestamp
+    ) = p1.HOUR
+    and p1.is_native
     LEFT JOIN base b USING (ez_native_transfers_id)
 WHERE
     t.amount_usd IS NULL
     AND t.block_timestamp :: DATE >= '{{ vars.MAIN_CORE_GOLD_EZ_NATIVE_TRANSFERS_PRICES_START_DATE }}'
     AND b.ez_native_transfers_id IS NULL
+    and COALESCE(p0.price, p1.price) is not null
 {% endif %}
 )
 SELECT
@@ -168,8 +180,7 @@ SELECT
     modified_timestamp
 FROM
     final
-{% if is_incremental() %}
+
 qualify(ROW_NUMBER() over(PARTITION BY ez_native_transfers_id
 ORDER BY
     modified_timestamp DESC)) = 1
-{% endif %}
