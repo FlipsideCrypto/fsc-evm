@@ -233,7 +233,6 @@
   {% set ns.SCORES_LIMIT_DAYS = get_var('SCORES_LIMIT_DAYS', 30) %}
   
   {# NFT Variables #}
-  {% set ns.MAIN_NFT_TRANSFERS_UNIQUE_KEY = 'tx_hash' if ns.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED else 'block_number' %}
 
   {# Vertex Variables #}
   {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
