@@ -121,7 +121,7 @@ SELECT
     t.amount,
     t.amount_precise_raw,
     t.amount_precise,
-    t.amount * p.price AS amount_usd_heal,
+    t.amount * COALESCE(p0.price, p1.price) AS amount_usd_heal,
     t.origin_from_address,
     t.origin_to_address,
     t.origin_function_signature,
@@ -139,7 +139,6 @@ FROM
     {{ this }}
     t
     LEFT JOIN {{ ref('price__ez_prices_hourly') }} p0
-    p
     ON DATE_TRUNC(
         'hour',
         block_timestamp
