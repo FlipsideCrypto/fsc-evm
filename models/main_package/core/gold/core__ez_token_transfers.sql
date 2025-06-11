@@ -42,9 +42,9 @@ WITH base AS (
         amount_precise :: FLOAT AS amount,
         IFF(
             C.decimals IS NOT NULL
-            AND price IS NOT NULL,
+            AND IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price) IS NOT NULL,
             ROUND(
-                amount_precise * price,
+                amount_precise * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price),
                 2
             ),
             NULL
@@ -77,6 +77,12 @@ WITH base AS (
             block_timestamp
         ) = HOUR
         AND token_address = contract_address
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+        ON DATE_TRUNC(
+            'hour',
+            block_timestamp
+        ) = p1.HOUR
+        AND p1.is_native
         LEFT JOIN {{ ref('core__dim_contracts') }} C
         ON contract_address = C.address
         AND (
