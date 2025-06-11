@@ -346,7 +346,6 @@ SELECT
     modified_timestamp
 FROM
     final
-{% if is_incremental() %}
+
 qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id
     ORDER BY modified_timestamp DESC)) = 1
-{% endif %}
