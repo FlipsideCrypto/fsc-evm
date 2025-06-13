@@ -84,7 +84,7 @@ WITH base AS (
             OR (
                 topic_0 :: STRING = '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb'
             ) --erc1155s TransferBatch event
-            {% if vars.global_project_name == 'ethereum' %}
+            {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
                 OR (
                     topic_0 :: STRING IN (
                         '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
@@ -271,7 +271,7 @@ transfer_batch_final AS (
         AND t.event_index = q.event_index
         AND t.tokenid_order = q.quantity_order
 ),
-{% if vars.global_project_name == 'ethereum' %}
+{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
     punks_bought_raw AS (
         -- punks bought via sale or bids
         SELECT
@@ -449,7 +449,7 @@ all_transfers AS (
     FROM
         transfer_batch_final
 
-        {% if vars.global_project_name == 'ethereum' %}
+        {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
     UNION ALL
     SELECT
         block_number,
@@ -534,7 +534,7 @@ final_transfers AS (
         CASE
             WHEN token_transfer_type = 'erc721_Transfer' THEN 'erc721'
             WHEN token_transfer_type = 'erc1155_TransferSingle' THEN 'erc1155'
-            WHEN token_transfer_type = 'erc1155_TransferBatch' THEN 'erc1155' {% if vars.global_project_name == 'ethereum' %}
+            WHEN token_transfer_type = 'erc1155_TransferBatch' THEN 'erc1155' {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
                 WHEN token_transfer_type = 'legacy_Transfer' THEN 'legacy'
                 WHEN token_transfer_type = 'cryptopunks_PunkBought' THEN 'cryptopunks'
                 WHEN token_transfer_type = 'cryptopunks_PunkTransfer' THEN 'cryptopunks'
@@ -544,7 +544,7 @@ final_transfers AS (
             ['tx_hash','event_index','intra_event_index']
         ) }} AS ez_nft_transfers_id,
 
-{% if is_incremental() or vars.global_new_build_enabled %}
+{% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
 SYSDATE() AS inserted_timestamp,
 SYSDATE() AS modified_timestamp
 {% else %}
@@ -615,7 +615,7 @@ SELECT
     t.origin_to_address,
     t.ez_nft_transfers_id,
 
-{% if is_incremental() or vars.global_new_build_enabled %}
+{% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
 SYSDATE() AS inserted_timestamp,
 SYSDATE() AS modified_timestamp
 {% else %}
