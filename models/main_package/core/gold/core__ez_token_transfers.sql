@@ -223,7 +223,7 @@ FROM
     on t0.contract_address = c0.address
     and (c0.decimals is not null or c0.symbol is not null or c0.name is not null)
 WHERE (t0.name is null or t0.symbol is null or t0.decimals is null) and t0.modified_timestamp > dateadd('day', -31, SYSDATE())
-
+{% endif %}
 )
 SELECT
     block_number,
