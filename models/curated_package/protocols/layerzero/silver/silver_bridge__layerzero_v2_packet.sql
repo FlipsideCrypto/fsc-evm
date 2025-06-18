@@ -2,7 +2,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
-    tags = ['silver','curated','layerzero']
+    tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
 WITH raw AS (

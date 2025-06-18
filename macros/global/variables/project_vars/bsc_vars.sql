@@ -14,7 +14,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/block_explorers/bsc_scan',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '15,45 * * * *',
-        'MAIN_GHA_SCHEDULED_SCORES_CRON': '30 5 * * *'
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '30 5 * * *',
+        'CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6e3d884c96d640526f273c61dfcf08915ebd7e2b'
     } %}
     
     {{ return(vars) }}

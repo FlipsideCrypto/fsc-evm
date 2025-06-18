@@ -22,7 +22,8 @@
         'CUSTOM_GHA_NFT_READS_CRON': '0 * * * *',
         'CUSTOM_GHA_NFT_LIST_CRON': '0 0,12 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true
+        'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
+        'CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6d6620efa72948c5f68a3c8646d58c00d3f4a980'
     } %}
     
     {{ return(vars) }}
