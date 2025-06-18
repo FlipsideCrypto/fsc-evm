@@ -24,6 +24,7 @@ SELECT
     blockchain_id,
     is_imputed,
     is_deprecated,
+    is_verified,
     provider,
     source,
     _inserted_timestamp,
