@@ -1,3 +1,9 @@
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -29,14 +35,14 @@ WITH bus_driven_raw AS (
     FROM
         {{ ref('core__ez_decoded_event_logs') }}
     WHERE
-        contract_address = '0x5634c4a5fed09819e3c46d86a965dd9447d86e47'
+        contract_address = '{{ vars.CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
         AND event_name = 'BusDriven'
         AND block_timestamp :: DATE >= '2024-01-01'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp)
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
     FROM
         {{ this }}
 )
@@ -109,7 +115,7 @@ bus_driven AS (
 WHERE
     b.modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "24 hours") }}'
         FROM
             {{ this }}
     )
@@ -136,7 +142,7 @@ layerzero AS (
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp)
+            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
         FROM
             {{ this }}
     )
