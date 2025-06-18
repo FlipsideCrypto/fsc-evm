@@ -1,3 +1,9 @@
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -47,13 +53,13 @@ WITH raw AS (
     WHERE
         block_timestamp :: DATE >= '2024-01-01'
         AND event_name = 'PacketSent'
-        AND contract_address = LOWER('0x1a44076050125825900e736c501f859c50fE728c') -- layerzero endpoint v2
+        AND contract_address = LOWER('{{ vars.CURATED_LAYERZERO_ENDPOINT_V2_CONTRACT }}')
 
 {% if is_incremental() %}
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp)
+            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
         FROM
             {{ this }}
     )

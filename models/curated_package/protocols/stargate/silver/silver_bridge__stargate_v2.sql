@@ -139,7 +139,7 @@ FINAL AS (
     FROM
         combined
 
-{% if is_incremental() and 'stargate_asset' in var('HEAL_MODELS') %}
+{% if is_incremental() and 'stargate_heal' in var('HEAL_MODELS') %}
 UNION ALL
 SELECT
     block_number,
@@ -188,6 +188,7 @@ FROM
     LEFT JOIN {{ ref('silver_bridge__layerzero_bridge_seed') }}
     b
     ON t.destination_chain_id = b.eid
+    where t.token_address is null or t.destination_chain is null 
 {% endif %}
 )
 SELECT

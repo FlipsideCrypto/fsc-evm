@@ -1,3 +1,9 @@
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -29,12 +35,12 @@ WITH layerzero AS (
     FROM
         {{ ref('silver_bridge__layerzero_v2_packet') }}
     WHERE
-        sender_contract_address != LOWER('0x5634c4a5fed09819e3c46d86a965dd9447d86e47')
+        sender_contract_address != LOWER('{{ vars.CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT }}')
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp)
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
     FROM
         {{ this }}
 )
@@ -50,7 +56,7 @@ oft_raw AS (
         topic_1,
         topic_2,
         topic_3,
-        contract_address AS stargate_oft_address,
+        contract_address,
         DATA,
         regexp_substr_all(SUBSTR(DATA, 3), '.{64}') AS part,
         SUBSTR(
@@ -82,7 +88,7 @@ oft_raw AS (
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp)
+            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
         FROM
             {{ this }}
     )
@@ -97,8 +103,7 @@ SELECT
     tx_hash,
     event_index,
     'OFTSent' AS event_name,
-    stargate_oft_address,
-    stargate_oft_address AS bridge_address,
+    contract_address AS bridge_address,
     'layerzero' AS platform,
     'v2' AS version,
     guid,
@@ -108,14 +113,10 @@ SELECT
     dst_chain_id,
     dst_chain_id :: STRING AS destination_chain_id,
     dst_chain AS destination_chain,
-    A.address AS token_address,
-    A.id AS asset_id,
-    A.asset AS token_symbol,
+    contract_address AS token_address,
     amount_sent AS amount_unadj,
     src_chain_id,
     src_chain,
-    A.id AS asset_id,
-    A.asset AS asset_name,
     payload,
     TYPE,
     nonce,
@@ -135,6 +136,6 @@ FROM
         tx_hash,
         guid
     )
-    LEFT JOIN {{ ref('silver_bridge__stargate_asset_id_seed') }} A
+    LEFT JOIN {{ ref('silver_bridge__stargate_asset_seed') }} A
     ON o.stargate_oft_address = A.oftaddress
-    AND A.chain = 'Base'
+    AND A.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
