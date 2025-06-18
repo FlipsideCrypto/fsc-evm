@@ -24,7 +24,8 @@
         'CURATED_VERTEX_TOKEN_MAPPING': {
             'USDC': '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
             'WAVAX': '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
-        }
+        },
+        'CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x17e450be3ba9557f2378e20d64ad417e59ef9a34'
     } %}
     
     {{ return(vars) }}

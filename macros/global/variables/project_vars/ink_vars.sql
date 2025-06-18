@@ -13,7 +13,8 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://explorer.inkonchain.com/api/v2/smart-contracts/',
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
-        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *'
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
+        'CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x45f1a95a4d3f3836523f5c83673c797f4d4d263b'
     } %}
     
     {{ return(vars) }}
