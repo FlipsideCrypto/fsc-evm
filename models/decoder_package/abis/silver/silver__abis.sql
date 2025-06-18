@@ -3,7 +3,6 @@
 
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
@@ -13,6 +12,7 @@
 ) }}
 
 WITH verified_abis AS (
+
     SELECT
         contract_address,
         DATA,
@@ -86,15 +86,15 @@ bytecode_abis AS (
 
 {% if is_incremental() %}
 WHERE
-        _inserted_timestamp >= (
-            SELECT
-                COALESCE(
-                    MAX(
-                        _inserted_timestamp
-                    ),
-                    '1970-01-01'
-                )
-            FROM
+    _inserted_timestamp >= (
+        SELECT
+            COALESCE(
+                MAX(
+                    _inserted_timestamp
+                ),
+                '1970-01-01'
+            )
+        FROM
             {{ this }}
         WHERE
             abi_source = 'bytecode_matched'

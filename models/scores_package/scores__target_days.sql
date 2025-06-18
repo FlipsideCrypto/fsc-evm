@@ -64,7 +64,6 @@ exclude_first_90_days AS (
 
 {% if vars.SCORES_FULL_RELOAD_ENABLED %}
     WHERE chain_day >= 90
-{% endif %}
 
 ),
 eligible_dates AS (
