@@ -26,12 +26,7 @@ WITH layerzero AS (
         receiver_contract_address,
         guid,
         message_type,
-        SUBSTR(
-            payload,
-            229,
-            4
-        ) AS message_type_2,
-        '0x' || SUBSTR(SUBSTR(payload, 233, 64), 25) AS to_address
+        '0x' || SUBSTR(SUBSTR(payload, 227, 64), 25) AS to_address
     FROM
         {{ ref('silver_bridge__layerzero_v2_packet') }}
     WHERE
