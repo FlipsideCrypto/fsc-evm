@@ -23,7 +23,8 @@
             'METH': '0xcda86a272531e8640cd7f1a92c01839911b90bb0',
             'WETH': '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
         },
-        'CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x41b491285a4f888f9f636cec8a363ab9770a0aef'
+        'CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x41b491285a4f888f9f636cec8a363ab9770a0aef',
+        'CURATED_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c'
     } %}
     
     {{ return(vars) }}
