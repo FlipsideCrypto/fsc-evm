@@ -76,12 +76,61 @@ vx.y.z # where x, y, and z are the new version numbers (or q to quit)
 ```
 
 
-packages:
-  - git: "https://github.com/FlipsideCrypto/fsc-evm.git"
-    revision: "v1.1.0"
-```  
+## Version Management
 
-Regarding Semantic Versioning;
+### Available Branches & Tags
+
+- **`main`** - Active development branch (unstable, latest features)
+- **`prod/v4.x`** - Stable v4.x.x release line (recommended for most users)
+- **`prod/v5.x`** - Stable v5.x.x release line (when available)
+- **`v4.2.3`** - Specific version tags (maximum stability)
+
+### Recommended Usage
+#### For dbt packages.yml
+
+```yaml
+packages:
+  # Recommended: Get latest stable v4 features automatically
+  - git: https://github.com/FlipsideCrypto/fsc-evm.git
+    revision: prod/v4.x
+
+  # Maximum stability: Pin to specific version
+  - git: https://github.com/FlipsideCrypto/fsc-evm.git
+    revision: v4.2.3
+```
+
+### Creating New Stable Branches
+Make sure you're on main and up to date
+```
+git checkout main
+git pull origin main
+```
+
+Create the new branch from main
+```
+git checkout -b prod/v4.x
+```
+
+Push it to the remote repository
+```
+git push -u origin prod/v4.x
+```
+
+### Creating New Versions
+```
+# Development releases
+git tag v4.3.0-dev   # → merge to dev/v4.x
+# Production releases
+git tag v4.3.0        # → merge to prod/v4.x
+```
+
+### Version Strategy
+
+- **Major versions** (v4.x.x → v5.x.x): Breaking changes, new features
+- **Minor versions** (v4.1.x → v4.2.x): New features, backward compatible
+- **Patch versions** (v4.1.1 → v4.1.2): Bug fixes, backward compatible
+
+### Regarding Semantic Versioning;
 1. Semantic versioning is a versioning scheme for software that aims to convey meaning about the underlying changes with each new release.
 2. It's typically formatted as MAJOR.MINOR.PATCH (e.g. v1.2.3), where:
 - MAJOR version (first number) should increment when there are potential breaking or incompatible changes.
