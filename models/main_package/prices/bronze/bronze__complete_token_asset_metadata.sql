@@ -46,31 +46,3 @@ WHERE
             {{ vars.MAIN_PRICES_TOKEN_ADDRESSES | replace('[', '') | replace(']', '') }}
         {% endif %})
     {% endif %}
-{% if var('MAIN_PRICES_TOKEN_WETH_ENABLED', false) %}
-UNION ALL
-SELECT
-    token_address,
-    asset_id,
-    symbol,
-    NAME,
-    decimals,
-    blockchain,
-    blockchain_name,
-    blockchain_id,
-    is_deprecated,
-    provider,
-    source,
-    _inserted_timestamp,
-    inserted_timestamp,
-    modified_timestamp,
-    complete_token_asset_metadata_id,
-    _invocation_id
-FROM
-    {{ source(
-        'crosschain_silver',
-        'complete_token_asset_metadata'
-    ) }}
-WHERE
-    blockchain = 'ethereum'
-    AND token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-    {% endif %}

@@ -89,11 +89,6 @@
                     n_stake_tx,
                     n_restakes,
                     n_validators,
-                    {% if include_gaming_metrics %}
-                    n_gaming_actions,
-                    net_gaming_token_accumulate,
-                    net_gaming_nft_accumulate,
-                    {% endif %}
                     CURRENT_TIMESTAMP AS calculation_time,
                     CAST('{{ score_date }}' AS DATE) AS score_date,
                     '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
@@ -123,11 +118,6 @@
                             ARRAY_SIZE(ARRAY_COMPACT(ARRAY_DISTINCT(ARRAY_UNION_AGG(validator_addresses)))) AS n_validators,
                             ARRAY_SIZE(ARRAY_COMPACT(ARRAY_DISTINCT(ARRAY_UNION_AGG(contract_addresses)))) AS n_contracts,
                             ARRAY_SIZE(ARRAY_COMPACT(ARRAY_DISTINCT(ARRAY_UNION_AGG(nft_collection_addresses)))) AS n_nft_collections
-                            {% if include_gaming_metrics %}
-                            ,SUM(n_gaming_actions) AS n_gaming_actions,
-                            SUM(net_gaming_token_accumulate) AS net_gaming_token_accumulate,
-                            SUM(net_gaming_nft_accumulate) AS net_gaming_nft_accumulate
-                            {% endif %}
                         FROM
                             {{ ref('scores__actions_daily') }} a 
                         LEFT JOIN {{ ref('core__dim_labels') }} b
@@ -170,11 +160,6 @@
             CAST(NULL AS INTEGER) AS n_stake_tx,
             CAST(NULL AS INTEGER) AS n_restakes,
             CAST(NULL AS INTEGER) AS n_validators,
-            {% if include_gaming_metrics %}
-            CAST(NULL AS INTEGER) AS n_gaming_actions,
-            CAST(NULL AS FLOAT) AS net_gaming_token_accumulate,
-            CAST(NULL AS FLOAT) AS net_gaming_nft_accumulate,
-            {% endif %}
             CAST(NULL AS TIMESTAMP) AS calculation_time,
             CAST(NULL AS DATE) AS score_date,
             CAST(NULL AS STRING) AS blockchain,
