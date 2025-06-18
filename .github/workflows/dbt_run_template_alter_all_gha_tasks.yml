@@ -1,0 +1,77 @@
+name: dbt_run_template_alter_all_gha_tasks
+
+on:
+  workflow_call:
+    inputs:
+      task_action:
+        type: string
+        description: 'Action to perform on all tasks (RESUME, SUSPEND)'
+        required: true
+        default: RESUME
+      target:
+        type: string
+        required: false
+        default: prod
+
+jobs:
+  run_dbt_jobs:
+    runs-on: ubuntu-latest
+    environment:
+      name: workflow_secrets
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Extract project & profile names from dbt_project.yml
+        id: project-name
+        run: |
+          PROFILE_NAME=$(grep "^profile:" dbt_project.yml | sed 's/^profile:[[:space:]]*"//' | sed 's/".*$//')
+          PROJECT_NAME=$(grep "^name:" dbt_project.yml | sed 's/^name:[[:space:]]*"//' | sed 's/".*$//')
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+          echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
+          echo "PROFILE_NAME: $PROFILE_NAME"
+          echo "PROJECT_NAME: $PROJECT_NAME"
+      
+      - name: Set environment variables
+        run: |
+          echo "TARGET=${{ inputs.target }}" >> $GITHUB_ENV
+          echo "ACCOUNT=vna27887.us-east-1" >> $GITHUB_ENV
+          echo "REGION=us-east-1" >> $GITHUB_ENV
+          echo "SCHEMA=ADMIN" >> $GITHUB_ENV
+          echo "USER=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV  
+          echo "PASSWORD=${{ secrets.PASSWORD }}" >> $GITHUB_ENV
+          
+          if [[ "${{ inputs.target }}" == *"prod"* ]]; then
+            echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
+            echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
+            echo "WAREHOUSE=DBT_CLOUD" >> $GITHUB_ENV
+          elif [[ "${{ inputs.target }}" == *"test"* ]]; then
+            echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
+            echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
+            echo "WAREHOUSE=DBT_TEST" >> $GITHUB_ENV
+          else
+            echo "DATABASE=${PROFILE_NAME}_DEV" >> $GITHUB_ENV
+            echo "ROLE=INTERNAL_DEV" >> $GITHUB_ENV
+            echo "WAREHOUSE=DBT_CLOUD" >> $GITHUB_ENV
+          fi
+          
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          dbt deps
+      
+      - name: Alter all GHA tasks
+        run: |
+          dbt run-operation fsc_evm.alter_all_gha_tasks --args '{"task_action": "${{ inputs.task_action }}"}'
+
+  notify-failure:
+    needs: [run_dbt_jobs]
+    if: failure()
+    uses: ./.github/workflows/slack_notify.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

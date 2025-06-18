@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -5,7 +8,7 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set uses_lookback = var('GLOBAL_USES_LOOKBACK', True) %}
+{% set uses_lookback = vars.MAIN_SL_BLOCK_LOOKBACK_ENABLED %}
 
 {% if not uses_lookback %}
 

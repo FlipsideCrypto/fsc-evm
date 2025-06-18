@@ -1,7 +1,5 @@
-{% set observ_uses_exclusion_list_transactions = var(
-    'OBSERV_USES_EXCLUSION_LIST_TRANSACTIONS',
-    false
-) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -9,8 +7,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'test_timestamp',
-    full_refresh = false,
-    tags = ['observability']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','observability','phase_3']
 ) }}
 
 WITH lookback AS (
@@ -40,7 +38,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if var('OBSERV_FULL_TEST') %}
+{% if vars.MAIN_OBSERV_FULL_TEST_ENABLED %}
 UNION ALL
 SELECT
     0
@@ -51,7 +49,8 @@ base AS (
     SELECT
         block_number,
         block_timestamp,
-        tx_hash
+        tx_hash,
+        modified_timestamp
     FROM
         {{ ref('core__fact_transactions') }}
     WHERE
@@ -72,9 +71,18 @@ summary_stats AS (
         MAX(block_number) AS max_block,
         MIN(block_timestamp) AS min_block_timestamp,
         MAX(block_timestamp) AS max_block_timestamp,
-        COUNT(1) AS blocks_tested
+        COUNT(DISTINCT block_number) AS blocks_tested
     FROM
         base
+),
+confirmed_blocks AS (
+    SELECT
+        block_number,
+        tx_hash
+    FROM
+        {{ ref("silver__confirm_blocks") }}
+    WHERE block_number >= (select min_block from summary_stats)
+    AND partition_key >= (select round(min_block,-3) from summary_stats)
 ),
 gap_test AS (
     SELECT
@@ -84,7 +92,7 @@ gap_test AS (
             NULL
         ) AS missing_block_number
     FROM
-        {{ ref("silver__confirm_blocks") }}
+        confirmed_blocks
         b
         LEFT JOIN base t USING (
             block_number,
@@ -110,12 +118,13 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if observ_uses_exclusion_list_transactions %}
+        missing_block_number IS NOT NULL
+        AND missing_block_number <> 0 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
             AND missing_block_number NOT IN (
                 SELECT
-                    block_number
+                    block_number :: INT
                 FROM
-                    {{ ref('silver_observability__exclusion_list') }}
+                    observability.exclusion_list
             )
         {% endif %}
 )

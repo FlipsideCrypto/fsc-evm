@@ -5,8 +5,8 @@
     materialized = 'incremental',
     unique_key = 'ez_market_depth_stats_id',
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ticker_id,product_id), SUBSTRING(ticker_id,product_id)",
-    tags = ['curated', 'gold_vertex']
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(ticker_id), SUBSTRING(ticker_id)",
+    tags = ['gold','vertex','curated']
 ) }}
 
 SELECT

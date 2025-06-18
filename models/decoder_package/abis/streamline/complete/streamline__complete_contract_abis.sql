@@ -1,3 +1,10 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
+{# Set up dbt configuration #}
 -- depends on: {{ ref('bronze__contract_abis') }}
 {{ config (
     materialized = 'incremental',
@@ -5,16 +12,21 @@
     cluster_by = 'partition_key',
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(complete_contract_abis_id, contract_address)",
     incremental_predicates = ['dynamic_range', 'partition_key'],
-    tags = ['streamline_abis_complete']
+    full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
+    tags = ['streamline','abis','complete','phase_2']
 ) }}
 
 SELECT
     partition_key,
     contract_address,
+    file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address']
     ) }} AS complete_contract_abis_id,
-    _inserted_timestamp
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    _inserted_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
 
 {% if is_incremental() %}

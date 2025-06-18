@@ -1,19 +1,18 @@
-{% set decoder_abis_block_explorer_name = var(
-    'DECODER_ABIS_BLOCK_EXPLORER_NAME',
-    ''
-) %}
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,abi_hash,bytecode), SUBSTRING(contract_address,abi_hash,bytecode)",
-    tags = ['silver_abis','phase_2']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH verified_abis AS (
-
     SELECT
         contract_address,
         DATA,
@@ -25,7 +24,7 @@ WITH verified_abis AS (
     FROM
         {{ ref('silver__verified_abis') }}
     WHERE
-        abi_source = LOWER('{{ decoder_abis_block_explorer_name }}')
+        abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -39,7 +38,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        abi_source = LOWER('{{ decoder_abis_block_explorer_name }}')
+        abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 )
 {% endif %}
 ),
@@ -87,15 +86,15 @@ bytecode_abis AS (
 
 {% if is_incremental() %}
 WHERE
-    _inserted_timestamp >= (
-        SELECT
-            COALESCE(
-                MAX(
-                    _inserted_timestamp
-                ),
-                '1970-01-01'
-            )
-        FROM
+        _inserted_timestamp >= (
+            SELECT
+                COALESCE(
+                    MAX(
+                        _inserted_timestamp
+                    ),
+                    '1970-01-01'
+                )
+            FROM
             {{ this }}
         WHERE
             abi_source = 'bytecode_matched'

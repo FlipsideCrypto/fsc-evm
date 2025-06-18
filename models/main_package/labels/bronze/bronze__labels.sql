@@ -1,11 +1,12 @@
-{%- set blockchains = var('LABELS_BLOCKCHAINS', var('GLOBAL_PROD_DB_NAME').lower() ) -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {{ config(
     materialized = 'view',
-    tags = ['bronze_labels','phase_2']
+    tags = ['bronze','labels','phase_3']
 ) }}
 
 SELECT
@@ -27,9 +28,9 @@ FROM
         'labels_combined'
     ) }}
 WHERE
-    blockchain IN ({% if blockchains is string %}
-        '{{ blockchains }}'
+    blockchain IN ({% if vars.MAIN_LABELS_BLOCKCHAINS is string %}
+        '{{ vars.MAIN_LABELS_BLOCKCHAINS }}'
     {% else %}
-        {{ blockchains | replace('[', '') | replace(']', '') }}
+        {{ vars.MAIN_LABELS_BLOCKCHAINS | replace('[', '') | replace(']', '') }}
     {% endif %})
     AND address LIKE '0x%'

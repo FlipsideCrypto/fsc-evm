@@ -1,46 +1,13 @@
-{# Set variables #}
-{%- set model_name = 'RECEIPTS_BY_HASH' -%}
-{%- set model_type = 'REALTIME' -%}
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
-{%- set txs_model_built = var('GLOBAL_TXS_MODEL_BUILT', True) -%}
-
-{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
-
-{%- set multiplier = var('GLOBAL_AVG_TXS_PER_BLOCK', 1) -%}
-
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set streamline_params = set_streamline_parameters(
-    model_name=model_name,
-    model_type=model_type,
-    multiplier=multiplier
-) -%}
-
-{%- set uses_receipts_by_hash = default_vars['uses_receipts_by_hash'] -%}
-{%- set node_url = default_vars['node_url'] -%}
-{%- set node_secret_path = default_vars['node_secret_path'] -%}
-{%- set model_quantum_state = default_vars['model_quantum_state'] -%}
-{%- set sql_limit = streamline_params['sql_limit'] -%}
-{%- set testing_limit = default_vars['testing_limit'] -%}
-{%- set order_by_clause = default_vars['order_by_clause'] -%}
-{%- set new_build = default_vars['new_build'] -%}
-{%- set method_params = streamline_params['method_params'] -%}
-{%- set method = streamline_params['method'] -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
-{{ log_model_details(
-    vars = default_vars,    
-    params = streamline_params    
-) }}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
-    ),
-    tags = ['streamline_core_realtime_receipts_by_hash']
+    tags = ['streamline','core','realtime','receipts_by_hash','phase_1']
 ) }}
 
 {# Main query starts here #}
@@ -64,7 +31,7 @@ WITH numbered_blocks AS (
             ORDER BY
                 block_number DESC
             LIMIT
-                {{ var('GLOBAL_BLOCKS_PER_HOUR', sql_limit) }}
+                {{ vars.MAIN_SL_BLOCKS_PER_HOUR }}
         )
 ), batched_blocks AS (
     SELECT
@@ -99,7 +66,7 @@ rpc_requests AS (
     SELECT
         live.udf_api(
             'POST',
-            '{{ node_url }}',
+            '{{ vars.GLOBAL_NODE_URL }}',
             OBJECT_CONSTRUCT(
                 'Content-Type',
                 'application/json',
@@ -107,7 +74,7 @@ rpc_requests AS (
                 'livequery'
             ),
             batch_request,
-            '{{ node_secret_path }}'
+            '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS resp
     FROM
         batched_calls
@@ -146,11 +113,11 @@ to_do AS (
         FROM
             flat_tx_hashes
         WHERE 1=1
-        {% if min_block is not none %}
-            AND block_number >= {{ min_block }}
+        {% if vars.MAIN_SL_MIN_BLOCK is not none %}
+            AND block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
         {% endif %}
 
-        {% if txs_model_built %}
+        {% if vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_TXNS_MODEL_ENABLED %}
         UNION ALL
         SELECT
             block_number,
@@ -167,9 +134,9 @@ to_do AS (
         block_number,
         tx_hash
     FROM
-        {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
+        {{ ref('streamline__receipts_by_hash_complete') }}
     WHERE 1=1
-        {% if not new_build %}
+        {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
             AND block_number >= (SELECT block_number FROM {{ ref('_block_lookback') }})
         {% endif %}
 ),
@@ -180,7 +147,7 @@ ready_blocks AS (
     FROM
         to_do
 
-    {% if not new_build %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
 
         UNION
         SELECT
@@ -192,8 +159,9 @@ ready_blocks AS (
 
     {% endif %}
 
-    {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        ORDER BY block_number DESC
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 SELECT
@@ -205,23 +173,46 @@ SELECT
     ) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
             'Content-Type',
             'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', 'streamline'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ method }}',
-            'params', {{ method_params }}
+            'method', 'eth_getTransactionReceipt',
+            'params', ARRAY_CONSTRUCT(tx_hash)
         ),
-        '{{ node_secret_path }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks
 
-{{ order_by_clause }}
+ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ sql_limit }}
+LIMIT {{ vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT }}
+
+{# Streamline Function Call #}
+{% if execute %}
+    {% set params = {
+        "external_table": 'receipts_by_hash',
+        "sql_limit": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_SQL_LIMIT,
+        "producer_batch_size": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'receipts_by_hash_realtime'
+    } %}
+
+    {% set function_call_sql %}
+    {{ fsc_utils.if_data_call_function_v2(
+        func = 'streamline.udf_bulk_rest_api_v2',
+        target = this.schema ~ "." ~ this.identifier,
+        params = params
+    ) }}
+    {% endset %}
+    
+    {% do run_query(function_call_sql) %}
+    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
+{% endif %}

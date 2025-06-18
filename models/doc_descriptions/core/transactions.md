@@ -230,6 +230,12 @@ The access list for the transaction.
 
 {% enddocs %}
 
+{% docs evm_token_ratio %}
+
+Represents the price ratio of ETH and MNT, stored as a protocol-level parameter to help adjust native token fee mechanisms in the network.
+
+{% enddocs %}
+
 {% docs evm_l1_base_fee_scalar %}
 
 The scalar l1 base fee for the transaction.
@@ -245,5 +251,47 @@ The blob base fee for the transaction.
 {% docs evm_l1_blob_base_fee_scalar %}
 
 The scalar blob base fee for the transaction.
+
+{% enddocs %}
+
+{% docs evm_authorization_list %}
+
+Array of authorization entries (EIP-7702) containing information about contracts approved to act on behalf of the EOA.
+
+{% enddocs %}
+
+{% docs evm_operator_fee_scalar %}
+
+Multiplier used in OP Stack chains to calculate operator fees.
+
+{% enddocs %}
+
+{% docs evm_operator_fee_constant %}
+
+Fixed fee amount used in OP Stack chains to calculate operator fees.
+
+{% enddocs %}
+
+{% docs evm_timeboosted %}
+
+Whether the transaction was time boosted (Arbitrum specific).
+
+{% enddocs %}
+
+{% docs evm_blob_versioned_hashes %}
+
+Versioned hashes that uniquely identify the blob data associated with a transaction, used to commit to the blob contents without storing the full data on-chain.
+
+{% enddocs %}
+
+{% docs evm_max_fee_per_blob_gas %}
+
+The maximum fee per unit of blob gas that the transaction sender is willing to pay.
+
+{% enddocs %}
+
+{% docs evm_blob_gas_price %}
+
+The actual price per unit of blob gas paid for the transaction, determined by the blob base fee mechanism that adjusts dynamically based on blob demand.
 
 {% enddocs %}

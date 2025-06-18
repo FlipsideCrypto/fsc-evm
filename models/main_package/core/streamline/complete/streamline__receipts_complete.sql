@@ -1,38 +1,33 @@
-{# Set variables #}
-{%- set source_name = 'RECEIPTS' -%}
-{%- set model_type = 'COMPLETE' -%}
-
-{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), false) -%}
-
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)" %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
--- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
+-- depends_on: {{ ref('bronze__receipts') }}
 
 {{ config (
     materialized = "incremental",
     unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
-    post_hook = post_hook,
-    full_refresh = full_refresh_type,
-    tags = ['streamline_core_complete_receipts']
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
+    tags = ['streamline','core','complete','receipts','phase_1']
 ) }}
 
 {# Main query starts here #}
 SELECT
     block_number,
     file_name,
-    {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS complete_{{ source_name.lower() }}_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS complete_receipts_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     {% if is_incremental() %}
-        {{ ref('bronze__' ~ source_name.lower()) }}
+        {{ ref('bronze__receipts') }}
     WHERE
         _inserted_timestamp >= (
             SELECT
@@ -41,7 +36,7 @@ FROM
                 {{ this }}
         )
     {% else %}
-        {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
+        {{ ref('bronze__receipts_fr') }}
     {% endif %}
 
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1

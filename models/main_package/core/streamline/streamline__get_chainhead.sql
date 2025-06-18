@@ -1,22 +1,21 @@
-{%- set model_quantum_state = var('CHAINHEAD_QUANTUM_STATE', 'livequery') -%}
-
-{%- set node_url = var('GLOBAL_NODE_URL', '{Service}/{Authentication}') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {{ config (
     materialized = 'table',
-    tags = ['streamline_core_complete','chainhead']
+    tags = ['streamline','core','chainhead','phase_1']
 ) }}
 
 SELECT
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', 'livequery'
         ),
         OBJECT_CONSTRUCT(
             'id',
@@ -28,7 +27,7 @@ SELECT
             'params',
             []
         ),
-        '{{ var('GLOBAL_NODE_SECRET_PATH') }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS resp,
     utils.udf_hex_to_int(
         resp :data :result :: STRING

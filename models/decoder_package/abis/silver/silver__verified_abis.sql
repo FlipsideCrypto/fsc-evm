@@ -1,52 +1,34 @@
-{% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
-    -- depends on: {{ ref('bronze__contract_abis') }}
-    -- depends on: {{ ref('bronze__contract_abis_fr') }}
-{% else %}
-    -- depends on: {{ ref('bronze__streamline_contract_abis') }}
-    -- depends on: {{ ref('bronze__streamline_fr_contract_abis') }}
-{% endif %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
-{# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_etherscan = ['INK', 'SWELL', 'RONIN', 'BOB'] %}
-
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_result_output_abi = ['RONIN'] %}
-
-{# Set Variables using inclusions and exclusions #}
-{% set uses_etherscan = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_etherscan %}
-{% set uses_result_output_abi = var('GLOBAL_PROD_DB_NAME').upper() in includes_result_output_abi %}
-{# Prod DB Variables End #}
-
-{% set decoder_abis_block_explorer_name = var(
-    'DECODER_ABIS_BLOCK_EXPLORER_NAME',
-    ''
-) %}
 {# Log configuration details #}
 {{ log_model_details() }}
+
+-- depends_on: {{ ref('bronze__contract_abis') }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "contract_address",
     merge_update_columns = ["contract_address"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
-    tags = ['silver_abis','phase_2']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH base AS (
 
     SELECT
         contract_address,
-        {% if uses_etherscan %}
+        {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
             PARSE_JSON(
-                abi_data :data :result
+                VALUE :data :result
             ) AS DATA,
-            {% elif uses_result_output_abi %}
+        {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
             PARSE_JSON(
-                abi_data :data :result :output :abi
+                VALUE :data :result :output :abi
             ) AS DATA,
         {% else %}
             PARSE_JSON(
-                abi_data :data :abi
+                VALUE :data :abi
             ) AS DATA,
         {% endif %}
 
@@ -54,54 +36,52 @@ WITH base AS (
     FROM
 
 {% if is_incremental() %}
-{% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
-    -- edge case for ethereum
-    {{ ref('bronze__contract_abis') }}
-{% else %}
-    {{ ref('bronze__streamline_contract_abis') }}
-{% endif %}
-{% else %}
-    {% if var('GLOBAL_PROD_DB_NAME') != 'ethereum' %}
-        {{ ref('bronze__contract_abis_fr') }}
-    {% else %}
-        {{ ref('bronze__streamline_fr_contract_abis') }}
-    {% endif %}
-{% endif %}
+{{ ref('bronze__contract_abis') }}
 WHERE
-    {% if uses_etherscan %}
-        abi_data :data :message :: STRING = 'OK' {% elif uses_result_output_abi %}
-        abi_data :data :result IS NOT NULL
-    {% else %}
-        abi_data :data :abi IS NOT NULL
-    {% endif %}
-
-{% if is_incremental() %}
-AND _inserted_timestamp >= (
-    SELECT
-        COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP)
-    FROM
-        {{ this }})
-    {% endif %}
-),
-block_explorer_abis AS (
-    SELECT
-        contract_address,
-        DATA,
-        _inserted_timestamp,
-        LOWER('{{ decoder_abis_block_explorer_name }}') AS abi_source
-    FROM
-        base
-),
-user_abis AS (
-    SELECT
-        contract_address,
-        abi,
-        discord_username,
-        _inserted_timestamp,
-        'user' AS abi_source,
-        abi_hash
-    FROM
-        {{ ref('silver__user_verified_abis') }}
+    _inserted_timestamp >= (
+        SELECT
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01')
+        FROM
+            {{ this }}
+            )
+        AND {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
+                VALUE :data :message :: STRING = 'OK' 
+            {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
+                VALUE :data :result IS NOT NULL
+            {% else %}
+                VALUE :data :abi IS NOT NULL
+            {% endif %}
+        {% else %}
+            {{ ref('bronze__contract_abis_fr') }}
+        WHERE
+            {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
+                VALUE :data :message :: STRING = 'OK' 
+            {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
+                VALUE :data :result IS NOT NULL
+            {% else %}
+                VALUE :data :abi IS NOT NULL
+            {% endif %}
+        {% endif %}
+    ),
+    block_explorer_abis AS (
+        SELECT
+            contract_address,
+            DATA,
+            _inserted_timestamp,
+            LOWER('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}') AS abi_source
+        FROM
+            base
+    ),
+    user_abis AS (
+        SELECT
+            contract_address,
+            abi,
+            discord_username,
+            _inserted_timestamp,
+            'user' AS abi_source,
+            abi_hash
+        FROM
+            {{ ref('silver__user_verified_abis') }}
 
 {% if is_incremental() %}
 WHERE

@@ -7,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_timestamp_hour",
     cluster_by = ['block_timestamp_hour::DATE'],
-    tags = ['curated', 'silver_stats', 'daily_test']
+    tags = ['silver_stats','curated','stats','daily_test','phase_4']
 ) }}
 
 {# run incremental timestamp value first then use it as a static value #}
@@ -16,13 +16,13 @@
 {% if is_incremental() %}
 {% set query %}
 SELECT
-    MIN(DATE_TRUNC('hour', block_timestamp)) block_timestamp_hour
+    COALESCE(MIN(DATE_TRUNC('hour', block_timestamp)),SYSDATE()) AS block_timestamp_hour
 FROM
-    {{ ref('silver__transactions') }}
+    {{ ref('core__fact_transactions') }}
 WHERE
-    _inserted_timestamp >= (
+    modified_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp)
+            MAX(modified_timestamp)
         FROM
             {{ this }}
     ) {% endset %}
@@ -46,12 +46,12 @@ SELECT
     ) AS transaction_count,
     COUNT(
         DISTINCT CASE
-            WHEN tx_success THEN tx_hash
+            WHEN tx_succeeded THEN tx_hash
         END
     ) AS transaction_count_success,
     COUNT(
         DISTINCT CASE
-            WHEN NOT tx_success THEN tx_hash
+            WHEN NOT tx_succeeded THEN tx_hash
         END
     ) AS transaction_count_failed,
     COUNT(
@@ -61,7 +61,7 @@ SELECT
         DISTINCT to_address
     ) AS unique_to_count,
     SUM(tx_fee_precise) AS total_fees,
-    MAX(_inserted_timestamp) AS _inserted_timestamp,
+    MAX(modified_timestamp) AS _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_timestamp_hour']
     ) }} AS core_metrics_hourly_id,
@@ -69,7 +69,7 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    {{ ref('silver__transactions') }}
+    {{ ref('core__fact_transactions') }}
 WHERE
     block_timestamp_hour < DATE_TRUNC(
         'hour',

@@ -1,16 +1,13 @@
+{# Get variables #}
+{% set vars = return_vars() %}
 
+{# Log configuration details #}
+{{ log_model_details() }}
+
+{# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params ={ "external_table" :"contract_abis",
-        "sql_limit" :"100",
-        "producer_batch_size" :"1",
-        "worker_batch_size" :"1",
-        "sql_source" :"{{this.identifier}}" }
-    ),
-    tags = ['streamline_abis_realtime']
+    tags = ['streamline','abis','realtime','phase_2']
 ) }}
 
 WITH recent_relevant_contracts AS (
@@ -28,12 +25,14 @@ WITH recent_relevant_contracts AS (
         s USING (contract_address)
     WHERE
         s.contract_address IS NULL
-        AND total_interaction_count > {{ var('DECODER_ABIS_RELEVANT_CONTRACT_COUNT') }}
+        AND total_interaction_count > {{ vars.DECODER_SL_CONTRACT_ABIS_INTERACTION_COUNT }}
+        {% if not vars.DECODER_SL_NEW_BUILD_ENABLED %}
         AND max_inserted_timestamp >= DATEADD(DAY, -3, SYSDATE())
+        {% endif %}
     ORDER BY
         total_interaction_count DESC
     LIMIT
-        {{ var('DECODER_ABIS_RELEVANT_CONTRACT_LIMIT') }}
+        {{ vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT }}
 ), all_contracts AS (
     SELECT
         contract_address
@@ -54,22 +53,44 @@ SELECT
     live.udf_api(
         'GET',
         CONCAT(
-            '{{ var('DECODER_ABIS_BLOCK_EXPLORER_URL') }}',
+            '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL }}',
             contract_address
-            {% if var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') != '' %}
+            {% if vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH != '' %}
             ,'&apikey={key}'
             {% endif %}
-            {% if var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') | default('') != '' %}
-            ,'{{ var('DECODER_ABIS_BLOCK_EXPLORER_URL_SUFFIX') }}'
+            {% if vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX != '' %}
+            ,'{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX }}'
             {% endif %}
         ),
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', 'auto'
+            'fsc-quantum-state', 'streamline'
         ),
-        NULL,
-        '{{ var('DECODER_ABIS_BLOCK_EXPLORER_SECRET_PATH') }}'
+        {},
+        '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH }}'
     ) AS request
 FROM
     all_contracts
 
+{# Streamline Function Call #}
+{% if execute %}
+    {% set params = { 
+        "external_table" :"contract_abis",
+        "sql_limit" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_SQL_LIMIT,
+        "producer_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE,
+        "worker_batch_size" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE,
+        "async_concurrent_requests" : vars.DECODER_SL_CONTRACT_ABIS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source" : 'contract_abis_realtime'
+    } %}
+
+    {% set function_call_sql %}
+    {{ fsc_utils.if_data_call_function_v2(
+        func = 'streamline.udf_bulk_rest_api_v2',
+        target = this.schema ~ "." ~ this.identifier,
+        params = params
+    ) }}
+    {% endset %}
+    
+    {% do run_query(function_call_sql) %}
+    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
+{% endif %}

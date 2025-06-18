@@ -1,5 +1,5 @@
-{# Set variables #}
-{%- set offchain_exchange = var('OFFCHAIN_EXCHANGE_CONTRACT', '') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'fact_event_logs_id',
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['curated','reorg']
+    tags = ['silver','curated','vertex']
 ) }}
 
 
@@ -50,7 +50,7 @@ logs AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0x7c57459d6f4f0fb2fc5b1e298c8c0eb238422944964aa1e249eaa78747f0cca9'
-        AND contract_address = '{{ offchain_exchange }}'
+        AND contract_address = '{{ vars.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT }}'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

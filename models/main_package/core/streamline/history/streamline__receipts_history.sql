@@ -1,46 +1,18 @@
-{# Set variables #}
-{%- set model_name = 'RECEIPTS' -%}
-{%- set model_type = 'HISTORY' -%}
-{%- set min_block = var('GLOBAL_START_UP_BLOCK', none) -%}
-
-{%- set default_vars = set_default_variables_streamline(model_name, model_type) -%}
-
-{# Set up parameters for the streamline process. These will come from the vars set in dbt_project.yml #}
-{%- set streamline_params = set_streamline_parameters(
-    model_name=model_name,
-    model_type=model_type
-) -%}
-
-{%- set node_url = default_vars['node_url'] -%}
-{%- set node_secret_path = default_vars['node_secret_path'] -%}
-{%- set model_quantum_state = default_vars['model_quantum_state'] -%}
-{%- set sql_limit = streamline_params['sql_limit'] -%}
-{%- set testing_limit = default_vars['testing_limit'] -%}
-{%- set order_by_clause = default_vars['order_by_clause'] -%}
-{%- set new_build = default_vars['new_build'] -%}
-{%- set method_params = streamline_params['method_params'] -%}
-{%- set method = streamline_params['method'] -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
-{{ log_model_details(
-    vars = default_vars,    
-    params = streamline_params    
-) }}
+{{ log_model_details() }}
 
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    post_hook = fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = "{{this.schema}}.{{this.identifier}}",
-        params = streamline_params
-    ),
-    tags = ['streamline_core_history_receipts']
+    tags = ['streamline','core','history','receipts','phase_1']
 ) }}
 
 {# Main query starts here #}
 WITH 
-{% if not new_build %}
+{% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
     last_3_days AS (
         SELECT block_number
         FROM {{ ref("_block_lookback") }}
@@ -53,7 +25,7 @@ to_do AS (
     FROM {{ ref("streamline__blocks") }}
     WHERE 
         block_number IS NOT NULL
-    {% if not new_build %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
 
@@ -61,9 +33,9 @@ to_do AS (
 
     {# Exclude blocks that have already been processed #}
     SELECT block_number
-    FROM {{ ref('streamline__' ~ model_name.lower() ~ '_complete') }}
+    FROM {{ ref('streamline__receipts_complete') }}
     WHERE 1=1
-    {% if not new_build %}
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
 )
@@ -73,12 +45,13 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
-    {% if min_block is not none %}
-        WHERE block_number >= {{ min_block }}
+    {% if vars.MAIN_SL_MIN_BLOCK is not none %}
+        WHERE block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
     {% endif %}
 
-    {% if testing_limit is not none %}
-        LIMIT {{ testing_limit }} 
+    {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
+        ORDER BY block_number DESC
+        LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
     {% endif %}
 )
 
@@ -88,22 +61,46 @@ SELECT
     ROUND(block_number, -3) AS partition_key,
     live.udf_api(
         'POST',
-        '{{ node_url }}',
+        '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
-            'fsc-quantum-state', '{{ model_quantum_state }}'
+            'fsc-quantum-state', 'streamline'
         ),
         OBJECT_CONSTRUCT(
             'id', block_number,
             'jsonrpc', '2.0',
-            'method', '{{ method }}',
-            'params', {{ method_params }}
+            'method', 'eth_getBlockReceipts',
+            'params', ARRAY_CONSTRUCT(utils.udf_int_to_hex(block_number))
         ),
-        '{{ node_secret_path }}'
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     ready_blocks
     
-{{ order_by_clause }}
+ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ sql_limit }}
+LIMIT {{ vars.MAIN_SL_RECEIPTS_HISTORY_SQL_LIMIT }}
+
+{# Streamline Function Call #}
+{% if execute %}
+    {% set params = {
+        "external_table": 'receipts',
+        "sql_limit": vars.MAIN_SL_RECEIPTS_HISTORY_SQL_LIMIT,
+        "producer_batch_size": vars.MAIN_SL_RECEIPTS_HISTORY_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.MAIN_SL_RECEIPTS_HISTORY_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.MAIN_SL_RECEIPTS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'receipts_history',
+        "exploded_key": tojson(['result'])
+    } %}
+
+    {% set function_call_sql %}
+    {{ fsc_utils.if_data_call_function_v2(
+        func = 'streamline.udf_bulk_rest_api_v2',
+        target = this.schema ~ "." ~ this.identifier,
+        params = params
+    ) }}
+    {% endset %}
+    
+    {% do run_query(function_call_sql) %}
+    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
+{% endif %}

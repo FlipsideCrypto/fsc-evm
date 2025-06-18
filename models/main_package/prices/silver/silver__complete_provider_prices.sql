@@ -7,7 +7,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_provider_prices_id',
     cluster_by = ['recorded_hour::DATE','provider'],
-    tags = ['silver_prices','phase_2']
+    tags = ['silver','prices','provider','phase_3']
 ) }}
 
 {# Main query starts here #}
@@ -46,6 +46,4 @@ WHERE
     )
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY p.asset_id, recorded_hour, p.provider
-ORDER BY
-    p.modified_timestamp DESC)) = 1
+qualify(ROW_NUMBER() over (PARTITION BY complete_provider_prices_id ORDER BY p.modified_timestamp DESC)) = 1

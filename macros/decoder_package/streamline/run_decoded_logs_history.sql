@@ -1,6 +1,6 @@
 {% macro run_decoded_logs_history() %}
 
-{% set blockchain = var('GLOBAL_PROD_DB_NAME','').lower() %}
+{% set vars = return_vars() %}
 
 {% set check_for_new_user_abis_query %}
     select 1
@@ -19,7 +19,7 @@
             SELECT
                 github_actions.workflow_dispatches(
                     'FlipsideCrypto',
-                    '{{ blockchain }}' || '-models',
+                    '{{ vars.GLOBAL_PROJECT_NAME.lower() }}' || '-models',
                     'dbt_run_streamline_decoded_logs_history.yml',
                     NULL
                 )

@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -5,16 +8,7 @@
     materialized = 'ephemeral'
 ) }}
 
-{% set new_build = var(
-    'RECEIPTS_REALTIME_NEW_BUILD',
-    false
-) %}
-{% set new_build_by_hash = var(
-    'RECEIPTS_BY_HASH_REALTIME_NEW_BUILD',
-    false
-) %}
-
-{% if new_build or new_build_by_hash %}
+{% if vars.MAIN_SL_NEW_BUILD_ENABLED %}
 
     SELECT
         -1 AS block_number

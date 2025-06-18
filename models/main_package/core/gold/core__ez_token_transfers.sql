@@ -1,37 +1,19 @@
-{% set uses_receipts_by_hash = var('GLOBAL_USES_RECEIPTS_BY_HASH', false) %}
-{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
-{% set unique_key = "tx_hash" if uses_receipts_by_hash else "block_number" %}
-{% set post_hook = 'ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)' %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
+    unique_key = vars.MAIN_CORE_GOLD_EZ_TOKEN_TRANSFERS_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
-    post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model','phase_2']
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
+    tags = ['gold','core','transfers','ez','phase_3', 'heal']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = unique_key,
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    post_hook = post_hook,
-    tags = ['gold_core', 'ez_prices_model','phase_2']
-) }}
-
-{% endif %}
 
 WITH base AS (
 
@@ -60,9 +42,9 @@ WITH base AS (
         amount_precise :: FLOAT AS amount,
         IFF(
             C.decimals IS NOT NULL
-            AND price IS NOT NULL,
+            AND IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price) IS NOT NULL,
             ROUND(
-                amount_precise * price,
+                amount_precise * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price),
                 2
             ),
             NULL
@@ -76,8 +58,15 @@ WITH base AS (
             NULL
         ) AS token_standard,
         fact_event_logs_id AS ez_token_transfers_id,
+        {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
+        {% else %}
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
+            ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+        CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
+            ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+        {% endif %}
     FROM
         {{ ref('core__fact_event_logs') }}
         f
@@ -88,6 +77,12 @@ WITH base AS (
             block_timestamp
         ) = HOUR
         AND token_address = contract_address
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+        ON DATE_TRUNC(
+            'hour',
+            block_timestamp
+        ) = p1.HOUR
+        AND p1.is_native
         LEFT JOIN {{ ref('core__dim_contracts') }} C
         ON contract_address = C.address
         AND (
@@ -112,7 +107,8 @@ AND f.modified_timestamp > (
         {{ this }}
 )
 {% endif %}
-)
+),
+final AS (
 SELECT
     block_number,
     block_timestamp,
@@ -140,7 +136,7 @@ SELECT
 FROM
     base
 
-{% if is_incremental() %}
+{% if is_incremental() and var('HEAL_MODEL',false) %}
 UNION ALL
 SELECT
     t0.block_number,
@@ -179,8 +175,15 @@ SELECT
     t0.origin_from_address,
     t0.origin_to_address,
     t0.ez_token_transfers_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
+        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
+        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
     {{ this }}
     t0
@@ -201,7 +204,8 @@ FROM
     AND t0.contract_address = p0.token_address
     LEFT JOIN base b USING (ez_token_transfers_id)
 WHERE
-    b.ez_token_transfers_id IS NULL
+    t0.block_timestamp > dateadd('day',-31,SYSDATE())
+    AND b.ez_token_transfers_id IS NULL
     AND (
         t0.block_number IN (
             SELECT
@@ -210,7 +214,8 @@ WHERE
                 {{ this }}
                 t1
             WHERE
-                t1.decimals IS NULL
+                t1.block_timestamp > dateadd('day',-31,SYSDATE())
+                AND t1.decimals IS NULL
                 AND t1.modified_timestamp <= (
                     SELECT
                         MAX(modified_timestamp)
@@ -235,7 +240,8 @@ WHERE
                         {{ this }}
                         t2
                     WHERE
-                        t2.symbol IS NULL
+                        t2.block_timestamp > dateadd('day',-31,SYSDATE())
+                        AND t2.symbol IS NULL
                         AND t2.modified_timestamp <= (
                             SELECT
                                 MAX(modified_timestamp)
@@ -260,7 +266,8 @@ WHERE
                                 {{ this }}
                                 t3
                             WHERE
-                                t3.name IS NULL
+                                t3.block_timestamp > dateadd('day',-31,SYSDATE())
+                                AND t3.name IS NULL
                                 AND t3.modified_timestamp <= (
                                     SELECT
                                         MAX(modified_timestamp)
@@ -285,7 +292,8 @@ WHERE
                                         {{ this }}
                                         t4
                                     WHERE
-                                        t4.amount_usd IS NULL
+                                        t4.block_timestamp > dateadd('day',-31,SYSDATE())
+                                        AND t4.amount_usd IS NULL
                                         AND t4.modified_timestamp <= (
                                             SELECT
                                                 MAX(modified_timestamp)
@@ -311,3 +319,33 @@ WHERE
                                 ) -- Only heal USD if we have price and decimals
                         )
                     {% endif %}
+)
+SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    tx_position,
+    event_index,
+    from_address,
+    to_address,
+    contract_address,
+    token_standard,
+    NAME,
+    symbol,
+    decimals,
+    raw_amount_precise,
+    raw_amount,
+    amount_precise,
+    amount,
+    amount_usd,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    ez_token_transfers_id,
+    inserted_timestamp,
+    modified_timestamp
+FROM
+    final
+
+qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id
+    ORDER BY modified_timestamp DESC)) = 1

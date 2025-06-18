@@ -1,8 +1,10 @@
 -- depends_on: {{ ref('scores__target_days') }}
 
-{% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
-{% set include_gaming_metrics = var('INCLUDE_GAMING_METRICS', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ config (
     materialized = "incremental",
@@ -10,7 +12,7 @@
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
     full_refresh = false,
-    tags = ['scores']
+    tags = ['silver','scores','phase_4']
 ) }}
 
 {% if is_incremental() %}
@@ -18,14 +20,14 @@
         WITH target_days AS (
             SELECT block_date 
             FROM {{ ref('scores__target_days') }}
-            {% if not full_reload_mode %}
+            {% if not vars.SCORES_FULL_RELOAD_ENABLED %}
                 WHERE block_date > dateadd('day', -120, sysdate())
             {% endif %}
         ),
         processed_days AS (
             SELECT DISTINCT block_date
             FROM {{ this }}
-            {% if not full_reload_mode %}
+            {% if not vars.SCORES_FULL_RELOAD_ENABLED %}
                 WHERE block_date > dateadd('day', -120, sysdate())
             {% endif %}
         ),
@@ -45,12 +47,12 @@
             {% set block_dates = results.columns[0].values() %}
             {% if block_dates|length > 0 %}
                 {{ log("==========================================", info=True) }}
-                {{ log("Loading action data for blockchain: " ~ blockchain, info=True) }}
+                {{ log("Loading action data for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
                 {{ log("For block dates: " ~ block_dates|join(', '), info=True) }}
                 {{ log("==========================================", info=True) }}
             {% else %}
                 {{ log("==========================================", info=True) }}
-                {{ log("No new action data to process for blockchain: " ~ blockchain, info=True) }}
+                {{ log("No new action data to process for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
                 {{ log("==========================================", info=True) }}
             {% endif %}
         {% else %}
@@ -321,19 +323,9 @@
                 WHEN l.label_type = 'cex' THEN 'n_cex_withdrawals'
                 WHEN l.label_type = 'dex' THEN 'n_swap_tx'
                 WHEN l.label_type = 'defi' THEN 'n_other_defi'
-                {% if include_gaming_metrics %}
-                WHEN l.label_type IN ('nft', 'token', 'games') THEN 'n_gaming_actions'
-                {% endif %}
                 ELSE NULL
             END AS label_metric_name,
-            {% if include_gaming_metrics %}
-            CASE
-                WHEN l.label_type IN ('nft', 'token', 'games') THEN label_metric_name
-                ELSE COALESCE(sig_metric_name, label_metric_name, name_metric_name)
-            END AS metric_name_0,
-            {% else %}
             COALESCE(sig_metric_name, label_metric_name, name_metric_name) AS metric_name_0,
-            {% endif %}
             IFF(
                 wrapped_asset_address IS NOT NULL
                 AND e.event_sig = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c',
@@ -346,16 +338,12 @@
         LEFT JOIN {{ ref('core__dim_labels') }} l ON contract_address = l.address
         LEFT JOIN {{ ref('scores__known_event_sigs') }} s ON s.event_sig = e.event_sig
         LEFT JOIN {{ ref('scores__known_event_names') }} n ON e.event_name ILIKE '%' || n.event_name || '%'
-        LEFT JOIN {{ ref('scores__wrapped_assets') }} w ON e.contract_address = w.wrapped_asset_address AND w.blockchain = '{{ blockchain }}'
+        LEFT JOIN {{ ref('scores__wrapped_assets') }} w ON e.contract_address = w.wrapped_asset_address AND w.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         LEFT JOIN {{ ref('scores__scoring_activity_categories') }} a ON a.metric = metric_name
         WHERE
             e.event_sig NOT IN (
                 '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', -- transfers
                 '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925' -- approvals
-                {% if include_gaming_metrics %}
-                ,'0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62',
-                '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb'
-                {% endif %}
             )
     ),
     prioritized_eligible_events AS (
@@ -454,7 +442,7 @@
         action_details,
         metric_name,
         metric_rank,
-        '{{ blockchain }}' AS blockchain,
+        '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
         {{ dbt_utils.generate_surrogate_key(['tx_hash', 'index', 'action_type', "'" ~ blockchain ~ "'"]) }} AS actions_id,
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp,

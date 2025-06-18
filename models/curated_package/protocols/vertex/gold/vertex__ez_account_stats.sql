@@ -5,7 +5,7 @@
     materialized = 'view',
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'CLOB, DEX, STATS',
     } } },
-    tags = ['curated', 'gold_vertex']
+    tags = ['gold','vertex','curated']
 ) }}
 
 SELECT

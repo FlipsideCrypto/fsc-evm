@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: admin__dim_variables
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DIM_VARIABLES_ID
+    columns:
+      - name: KEY
+        tests:
+          - not_null
+      - name: DEFAULT_VALUE
+        tests:
+          - not_null
+      - name: DEFAULT_TYPE
+        tests:
+          - not_null
+      - name: DIM_VARIABLES_ID
+        tests:
+          - not_null

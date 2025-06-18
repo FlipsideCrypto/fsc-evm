@@ -6,7 +6,7 @@
     unique_key = "contract_address",
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,bytecode), SUBSTRING(contract_address,bytecode)",
-    tags = ['gold_abis','phase_3']
+    tags = ['gold','abis','phase_2']
 ) }}
 
 SELECT
@@ -15,8 +15,8 @@ SELECT
     abi_source,
     bytecode,
     abis_id AS dim_contract_abis_id,
-    inserted_timestamp,
-    modified_timestamp
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
 FROM
     {{ ref('silver__abis') }}
 
@@ -24,7 +24,7 @@ FROM
 WHERE
     modified_timestamp > (
         SELECT
-            MAX(modified_timestamp)
+            COALESCE(MAX(modified_timestamp),'1970-01-01' :: TIMESTAMP)
         FROM
             {{ this }}
     )

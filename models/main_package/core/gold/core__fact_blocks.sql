@@ -1,71 +1,44 @@
-{% set prod_network = var('GLOBAL_PROD_NETWORK', 'mainnet') %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
-{# Prod DB Variables Start #}
-{# Columns included by default, with specific exclusions #}
-{% set excludes_base_fee = ['CORE'] %}
-{% set excludes_total_difficulty = ['INK','SWELL','BOB'] %}
-
-{# Columns excluded by default, with explicit inclusion #}
-{% set includes_mix_hash = ['INK', 'MANTLE', 'SWELL', 'RONIN', 'BOB', 'BOBA'] %}
-{% set includes_blob_gas_used = ['INK', 'SWELL', 'BOB', 'BOBA', 'RONIN'] %}
-{% set includes_parent_beacon_block_root = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
-{% set includes_withdrawals = ['INK', 'SWELL', 'BOB', 'BOBA'] %}
-
-{# Set Variables using inclusions and exclusions #}
-{% set uses_base_fee = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_base_fee %}
-{% set uses_total_difficulty = var('GLOBAL_PROD_DB_NAME').upper() not in excludes_total_difficulty %}
-
-{% set uses_mix_hash = var('GLOBAL_PROD_DB_NAME').upper() in includes_mix_hash %}
-{% set uses_blob_gas_used = var('GLOBAL_PROD_DB_NAME').upper() in includes_blob_gas_used %}
-{% set uses_parent_beacon_block_root = var('GLOBAL_PROD_DB_NAME').upper() in includes_parent_beacon_block_root %}
-{% set uses_withdrawals = var('GLOBAL_PROD_DB_NAME').upper() in includes_withdrawals %}
-{# Prod DB Variables End #}
-
-{% set gold_full_refresh = var('GOLD_FULL_REFRESH', false) %}
+{# Set fact_blocks specific variables #}
+{% set rpc_vars = set_dynamic_fields('fact_blocks') %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not gold_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = gold_full_refresh,
-    tags = ['gold_core', 'phase_1']
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
+    tags = ['gold','core','phase_2']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['block_timestamp::DATE'],
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['gold_core', 'phase_1']
-) }}
-
-{% endif %}
 
 SELECT
-    block_number,
+    b.block_number,
     block_json :hash :: STRING AS block_hash,
     utils.udf_hex_to_int(
         block_json :timestamp :: STRING
     ) :: TIMESTAMP AS block_timestamp,
-    '{{ prod_network }}' AS network,
+    '{{ vars.GLOBAL_NETWORK }}' AS network,
+    {% if is_incremental() %}
     ARRAY_SIZE(
         block_json :transactions
     ) AS tx_count,
+    {% else %}
+    COALESCE(
+        tx.tx_count,
+        0
+    ) AS tx_count,
+    {% endif %}
     utils.udf_hex_to_int(
         block_json :size :: STRING
     ) :: bigint AS SIZE,
     block_json :miner :: STRING AS miner,
-    {% if uses_mix_hash %}
+    {% if rpc_vars.mixHash %}
     block_json :mixHash :: STRING AS mix_hash,
     {% endif %}
     block_json :extraData :: STRING AS extra_data,
@@ -76,18 +49,28 @@ SELECT
     utils.udf_hex_to_int(
         block_json :gasLimit :: STRING
     ) :: bigint AS gas_limit,
-    {% if uses_base_fee %}
+    {% if rpc_vars.baseFeePerGas %}
     utils.udf_hex_to_int(
         block_json :baseFeePerGas :: STRING
     ) :: bigint AS base_fee_per_gas,
     {% endif %}
+    {% if rpc_vars.blobGasUsed %}
     utils.udf_hex_to_int(
+        block_json :blobGasUsed :: STRING
+    ) :: bigint AS blob_gas_used,
+    {% endif %}
+    {% if rpc_vars.excessBlobGas %}
+    utils.udf_hex_to_int(
+        block_json :excessBlobGas :: STRING
+    ) :: bigint AS excess_blob_gas,
+    {% endif %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
         block_json :difficulty :: STRING
-    ) :: bigint AS difficulty,
-    {% if uses_total_difficulty %}
-    utils.udf_hex_to_int(
+    )) AS difficulty,
+    {% if rpc_vars.totalDifficulty %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
         block_json :totalDifficulty :: STRING
-    ) :: bigint AS total_difficulty,
+    )) AS total_difficulty,
     {% endif %}
     block_json :sha3Uncles :: STRING AS sha3_uncles,
     block_json :uncles AS uncle_blocks,
@@ -98,26 +81,68 @@ SELECT
     block_json :stateRoot :: STRING AS state_root,
     block_json :transactionsRoot :: STRING AS transactions_root,
     block_json :logsBloom :: STRING AS logs_bloom,
-    {% if uses_blob_gas_used %}
-    utils.udf_hex_to_int(
-        block_json :blobGasUsed :: STRING
-    ) :: bigint AS blob_gas_used,
-    utils.udf_hex_to_int(
-        block_json :excessBlobGas :: STRING
-    ) :: bigint AS excess_blob_gas,
-    {% endif %}
-    {% if uses_parent_beacon_block_root %}
+    {% if rpc_vars.parentBeaconBlockRoot %}
     block_json :parentBeaconBlockRoot :: STRING AS parent_beacon_block_root,
     {% endif %}
-    {% if uses_withdrawals %}
+    {% if rpc_vars.withdrawals %}
     block_json :withdrawals AS withdrawals,
+    {% endif %}
+    {% if rpc_vars.withdrawalsRoot %}
     block_json :withdrawalsRoot :: STRING AS withdrawals_root,
     {% endif %}
-    {{ dbt_utils.generate_surrogate_key(['block_number']) }} AS fact_blocks_id,
+    {% if rpc_vars.sendCount %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(
+        block_json :sendCount :: STRING
+    )) AS send_count,
+    {% endif %}
+    {% if rpc_vars.sendRoot %}
+    block_json :sendRoot :: STRING AS send_root,
+    {% endif %}
+    {% if rpc_vars.author %}
+    block_json :author :: STRING AS author,
+    {% endif %}
+    {% if rpc_vars.requestsHash %}
+    block_json :requestsHash :: STRING AS requests_hash,
+    {% endif %}
+    {% if rpc_vars.blockGasCost %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(block_json :blockGasCost :: STRING)) AS block_gas_cost,
+    {% endif %}
+    {% if rpc_vars.blockExtraData %}
+    block_json :blockExtraData :: STRING AS block_extra_data,
+    {% endif %}
+    {% if rpc_vars.extDataHash %}
+    block_json :extDataHash :: STRING AS ext_data_hash,
+    {% endif %}
+    {% if rpc_vars.extDataGasUsed %}
+    TRY_TO_NUMBER(utils.udf_hex_to_int(block_json :extDataGasUsed :: STRING)) AS ext_data_gas_used,
+    {% endif %}
+    {% if rpc_vars.milliTimestamp %}
+    TRY_TO_TIMESTAMP(utils.udf_hex_to_int(block_json :milliTimestamp :: STRING)) AS milli_timestamp,
+    {% endif %}
+    {{ dbt_utils.generate_surrogate_key(['b.block_number']) }} AS fact_blocks_id,
+    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
+    {% else %}
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
+    CASE WHEN block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
+        ELSE GREATEST(block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
+    {% endif %}
 FROM
-    {{ ref('silver__blocks') }}
+    {{ ref('silver__blocks') }} b
+{% if not is_incremental() %}
+    LEFT JOIN (
+        SELECT
+            block_number,
+            COUNT(*) AS tx_count
+        FROM
+            {{ ref('silver__transactions') }}
+        GROUP BY
+            1
+    ) tx
+    ON b.block_number = tx.block_number
+{% endif %}
 WHERE 1=1
 
 {% if is_incremental() %}

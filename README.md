@@ -6,7 +6,7 @@
 
 ## Adding the `fsc_evm` dbt package
 
-The `fsc_evm` dbt package is a centralized repository consisting of various dbt macros and snowflake functions that can be utilized across other repos.
+The `fsc_evm` dbt package is a centralized repository consisting of various dbt models, macros and snowflake functions that can be utilized across EVM repos.
 
 1. Navigate to `packages.yml` in your respective repo.
 2. Add the following (reference the latest version from [here](https://github.com/FlipsideCrypto/fsc-evm/tags)):
@@ -18,6 +18,7 @@ The `fsc_evm` dbt package is a centralized repository consisting of various dbt 
 
 **Troubleshooting:**
 If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps`. This is a known issue when installing dbt packages with the same version or revision tag.
+  * If `makefile` is present, you can utilize the `make cleanup_time` command to clean and redeploy the packages.
 
 ---
 
@@ -26,7 +27,7 @@ If `package_lock.yml` is present, you may need to remove it and re-run `dbt deps
 The recommended development flow for making changes to `fsc-evm` is as follows:
 
 1. Create a new branch in `fsc-evm` with your changes (e.g. `AN-1234/dummy-branch`). When ready to test in another project, push your branch to the repository.
-2. In your project (e.g. `swell-models`), update the version in `packages.yml` to your branch `revision: AN-1234/dummy-branch`.
+2. In your project (e.g. `swell-models`), update the version in `packages.yml` to your branch `revision: "AN-1234/dummy-branch"`.
 3. Run `make cleanup_time` to pull in the current remote version of your branch.
    - This will delete `package-lock.yml` and run `dbt clean && dbt deps`.
 4. Begin testing changes in project repository.
@@ -40,7 +41,7 @@ The recommended development flow for making changes to `fsc-evm` is as follows:
 ## Adding Release Versions
 
 1. First get PR approval/review before proceeding with version tagging.
-2. Make the necessary changes to your code in your dbt package repository (e.g., fsc-utils).
+2. Make the necessary changes to your code in your dbt package repository (e.g., `fsc-evm`).
 3. Commit your changes with `git add .` and `git commit -m "Your commit message"`.
 4. Push your commits to the remote repository with `git push ...`.
 5. Tag your commit with a version number using `git tag -a v1.1.0 -m "version 1.1.0"`.

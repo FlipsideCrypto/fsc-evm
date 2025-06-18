@@ -1,26 +1,36 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
+-- depends_on: {{ ref('bronze__token_reads') }}
+-- depends_on: {{ ref('bronze__token_reads_fr') }}
 
 {{ config(
     materialized = 'incremental',
     unique_key = 'contract_address',
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['silver_core','phase_2']
+    tags = ['silver','core','phase_2']
 ) }}
 
 WITH base_metadata AS (
 
     SELECT
         contract_address,
-        block_number,
-        function_sig AS function_signature,
-        read_result AS read_output,
+        VALUE :"LATEST_BLOCK" :: INT AS block_number,
+        VALUE :"FUNCTION_SIG" :: STRING AS function_signature,
+        data :result :: STRING AS read_output,
         _inserted_timestamp
     FROM
-        {{ ref('bronze_api__token_reads') }}
+    {% if is_incremental() %}
+        {{ ref('bronze__token_reads') }}
+    {% else %}
+        {{ ref('bronze__token_reads_fr') }}
+    {% endif %}
     WHERE
-        read_result IS NOT NULL
-        AND read_result <> '0x'
+        read_output IS NOT NULL
+        AND read_output <> '0x'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -80,6 +90,7 @@ token_names AS (
                         function_signature = '0x313ce567'
                         AND read_output IS NOT NULL
                         AND read_output <> '0x'
+                        AND LENGTH(read_output :: STRING) <= 4300
                 ),
                 contracts AS (
                     SELECT
@@ -89,7 +100,8 @@ token_names AS (
                         base_metadata
                     GROUP BY
                         1
-                )
+                ),
+                final AS (
             SELECT
                 c1.contract_address :: STRING AS contract_address,
                 token_name,
@@ -110,6 +122,37 @@ token_names AS (
                 ON c1.contract_address = token_symbols.contract_address
                 LEFT JOIN token_decimals
                 ON c1.contract_address = token_decimals.contract_address
-                AND dec_length < 3 qualify(ROW_NUMBER() over(PARTITION BY c1.contract_address
+                AND dec_length < 3 
+
+            {% if not is_incremental() and vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+            UNION
+            SELECT
+                address AS contract_address,
+                NAME AS token_name,
+                decimals AS token_decimals,
+                symbol AS token_symbol,
+                _inserted_timestamp,
+                {{ dbt_utils.generate_surrogate_key(
+                    ['address']
+                ) }} AS contracts_id,
+                SYSDATE() AS inserted_timestamp,
+                SYSDATE() AS modified_timestamp,
+                '{{ invocation_id }}' AS _invocation_id
+            FROM
+                silver.contracts_legacy -- hardcoded for ethereum, to avoid source compiling issues on other chains
+            {% endif %}
+                )
+            SELECT
+                contract_address,
+                token_name,
+                token_decimals,
+                token_symbol,
+                _inserted_timestamp,
+                contracts_id,
+                inserted_timestamp,
+                modified_timestamp,
+                _invocation_id
+            FROM
+                FINAL qualify(ROW_NUMBER() over(PARTITION BY contract_address
             ORDER BY
                 _inserted_timestamp DESC)) = 1

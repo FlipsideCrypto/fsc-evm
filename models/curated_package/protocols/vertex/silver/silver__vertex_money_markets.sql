@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -6,7 +9,7 @@
     incremental_strategy = 'merge',
     unique_key = ['ticker_id','hour'],
     cluster_by = ['HOUR::DATE'],
-    tags = 'curated'
+    tags = ['silver','curated','vertex']
 ) }}
 
 
@@ -14,7 +17,7 @@ WITH apr AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/apr'
+                'https://gateway.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/apr'
             )
         ):data AS response
 ),
@@ -23,7 +26,7 @@ SELECT
     DATE_TRUNC('hour', SYSDATE()) AS HOUR,
     CONCAT(
         f.value:symbol::string,
-        {% if var('GLOBAL_PROD_DB_NAME') == 'blast' %}
+        {% if vars.GLOBAL_PROJECT_NAME == 'blast' %}
             '_USDB'
         {% else %}
             '_USDC'

@@ -8,7 +8,7 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-    environment: workflow_prod
+    environment: workflow_secrets
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,6 +25,6 @@ jobs:
           dbt deps
           
       - name: Send Slack notification
-        run: python dbt_packages/fsc_evm/python/slack_alert.py
+        run: python dbt_packages/fsc_evm/macros/global/python/slack_alert.py
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

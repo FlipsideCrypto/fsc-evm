@@ -1,11 +1,11 @@
 -- depends_on: {{ ref('bronze__blocks') }}
-{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
+
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not silver_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -13,23 +13,9 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = silver_full_refresh,
-    tags = ['silver_core', 'phase_1']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','core','phase_2']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_core', 'phase_1']
-) }}
-
-{% endif %}
 
 WITH bronze_blocks AS (
     SELECT 

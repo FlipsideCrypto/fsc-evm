@@ -4,17 +4,10 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_decoded_logs','phase_3']
+    tags = ['bronze','decoded_logs','phase_3']
 ) }}
 
-SELECT
-    *
-FROM
-    {{ ref('bronze__decoded_logs_fr_v2') }}
-{% if var('GLOBAL_USES_STREAMLINE_V1', false) %}
-UNION ALL
-SELECT
-    *
-FROM
-    {{ ref('bronze__decoded_logs_fr_v1') }}
-{% endif %}
+{# Main query starts here #}
+{{ streamline_external_table_query_decoder_fr(
+    source_name = 'decoded_logs'
+) }}

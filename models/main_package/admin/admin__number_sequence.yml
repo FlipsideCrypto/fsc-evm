@@ -1,0 +1,14 @@
+version: 2
+models:
+  - name: admin__number_sequence
+    description: |
+      This model generates a sequence of numbers for a given range.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - _ID
+    columns:
+      - name: _ID
+        tests:
+          - not_null
+        description: Primary key for the table

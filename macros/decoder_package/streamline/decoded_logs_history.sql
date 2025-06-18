@@ -1,12 +1,14 @@
 {% macro decoded_logs_history(backfill_mode=false) %}
 
+  {% set vars = return_vars() %}
+
   {%- set params = {
-      "sql_limit": var("DECODED_LOGS_HISTORY_SQL_LIMIT", 8000000),
-      "producer_batch_size": var("DECODED_LOGS_HISTORY_PRODUCER_BATCH_SIZE", 400000),
-      "worker_batch_size": var("DECODED_LOGS_HISTORY_WORKER_BATCH_SIZE", 100000)
+      "sql_limit": vars.DECODER_SL_DECODED_LOGS_HISTORY_SQL_LIMIT,
+      "producer_batch_size": vars.DECODER_SL_DECODED_LOGS_HISTORY_PRODUCER_BATCH_SIZE,
+      "worker_batch_size": vars.DECODER_SL_DECODED_LOGS_HISTORY_WORKER_BATCH_SIZE
   } -%}
 
-  {% set wait_time = var("DECODED_LOGS_HISTORY_WAIT_TIME", 60) %}
+  {% set wait_time = vars.DECODER_SL_DECODED_LOGS_HISTORY_WAIT_SECONDS %}
 
   {% set find_months_query %}
     SELECT 

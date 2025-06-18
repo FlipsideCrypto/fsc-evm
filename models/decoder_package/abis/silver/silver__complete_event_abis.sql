@@ -6,7 +6,7 @@
     unique_key = ["parent_contract_address","event_signature","start_block"],
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    tags = ['silver_abis','phase_2']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH new_abis AS (
@@ -20,12 +20,12 @@ WITH new_abis AS (
 WHERE
     _inserted_timestamp :: DATE >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '18 hours'
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) - INTERVAL '18 hours'
         FROM
             {{ this }}
     )
 UNION
-    -- catches any late arriving implementation contracts - when we get its ABI but no delegatecalls where made yet
+    -- catches any late arriving implementation contracts - when we get its ABI but no delegatecalls were made yet
 SELECT
     DISTINCT implementation_contract AS contract_address
 FROM
@@ -33,7 +33,7 @@ FROM
 WHERE
     start_timestamp :: DATE >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '18 hours'
+            COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) - INTERVAL '18 hours'
         FROM
             {{ this }}
     )

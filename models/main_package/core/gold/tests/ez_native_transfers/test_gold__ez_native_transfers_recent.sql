@@ -1,9 +1,12 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {{ config (
     materialized = "view",
-    tags = ['recent_test', 'ez_prices_model']
+    tags = ['test_gold','core','recent_test','transfers','ez','phase_3']
 ) }}
 
 SELECT
@@ -17,3 +20,12 @@ WHERE
         FROM
             {{ ref('_block_lookback') }}
     )
+{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
+AND
+    block_number NOT IN (
+        SELECT
+            block_number :: INT
+        FROM
+            observability.exclusion_list
+    )
+{% endif %}

@@ -1,5 +1,5 @@
-{# Set variables #}
-{%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'fact_event_logs_id',
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['curated','reorg']
+    tags = ['silver','curated','vertex']
 ) }}
 
 
@@ -45,7 +45,7 @@ logs AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0x494f937f5cc892f798248aa831acfb4ad7c4bf35edd8498c5fb431ce1e38b035'
-        AND contract_address = '{{ clearinghouse }}'
+        AND contract_address = '{{ vars.CURATED_VERTEX_CLEARINGHOUSE_CONTRACT }}'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -94,7 +94,7 @@ logs_pull_v2 AS (
         logs
     WHERE
         topics [0] :: STRING = '0x494f937f5cc892f798248aa831acfb4ad7c4bf35edd8498c5fb431ce1e38b035'
-        AND contract_address = '{{ clearinghouse }}'
+        AND contract_address = '{{ vars.CURATED_VERTEX_CLEARINGHOUSE_CONTRACT }}'
 ),
 v2_vertex_decode AS (
     SELECT

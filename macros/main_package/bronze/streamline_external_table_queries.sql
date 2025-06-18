@@ -1,10 +1,13 @@
 {% macro streamline_external_table_query(
         source_name,
-        source_version,
-        partition_function,
-        balances,
-        block_number,
-        uses_receipts_by_hash
+        source_version='',
+        partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
+        error_code=false,
+        balances=false,
+        block_number=true,
+        tx_hash=false,
+        contract_address=false,
+        data_not_null=true
     ) %}
 
     {% if source_version != '' %}
@@ -28,11 +31,11 @@
             b.file_name,
             b._inserted_timestamp
 
-            {% if balances %},
+            {% if balances %}, --for balances
             r.block_timestamp :: TIMESTAMP AS block_timestamp
         {% endif %}
 
-        {% if block_number %},
+        {% if block_number %}, --for streamline 2.0+
             COALESCE(
                 s.value :"BLOCK_NUMBER" :: STRING,
                 s.metadata :request :"data" :id :: STRING,
@@ -41,7 +44,15 @@
                 ) :id :: STRING
             ) :: INT AS block_number
         {% endif %}
-        {% if uses_receipts_by_hash %},
+
+        {% if contract_address %}, --for contract_abis
+            COALESCE(
+                VALUE :"CONTRACT_ADDRESS",
+                VALUE :"contract_address"
+            ) :: STRING AS contract_address
+        {% endif %}
+
+        {% if tx_hash %}, --for receipts_by_hash
             s.value :"TX_HASH" :: STRING AS tx_hash
         {% endif %}
         FROM
@@ -64,18 +75,27 @@
         {% endif %}
         WHERE
             b.partition_key = s.partition_key
-            AND DATA :error IS NULL
+            {% if data_not_null %}
+                {% if error_code %}
+                AND DATA :error :code IS NULL
+                {% else %}
+                AND DATA :error IS NULL
+                {% endif %}
             AND DATA IS NOT NULL
+            {% endif %}
 {% endmacro %}
 
 {% macro streamline_external_table_query_fr(
         source_name,
-        source_version,
-        partition_function,
-        partition_join_key,
-        balances,
-        block_number,
-        uses_receipts_by_hash
+        source_version='',
+        partition_function="CAST(SPLIT_PART(SPLIT_PART(file_name, '/', 4), '_', 1) AS INTEGER)",
+        partition_join_key='partition_key',
+        error_code=false,
+        balances=false,
+        block_number=true,
+        tx_hash=false,
+        contract_address=false,
+        data_not_null=true
     ) %}
 
     {% if source_version != '' %}
@@ -99,11 +119,11 @@ SELECT
     b.file_name,
     b._inserted_timestamp
 
-    {% if balances %},
+    {% if balances %}, --for balances
     r.block_timestamp :: TIMESTAMP AS block_timestamp
 {% endif %}
 
-{% if block_number %},
+{% if block_number %}, --for streamline 2.0+
     COALESCE(
         s.value :"BLOCK_NUMBER" :: STRING,
         s.value :"block_number" :: STRING,
@@ -113,7 +133,15 @@ SELECT
         ) :id :: STRING
     ) :: INT AS block_number
 {% endif %}
-{% if uses_receipts_by_hash %},
+
+{% if contract_address %}, --for contract_abis
+    COALESCE(
+        VALUE :"CONTRACT_ADDRESS",
+        VALUE :"contract_address"
+    ) :: STRING AS contract_address
+{% endif %}
+
+{% if tx_hash %}, --for receipts_by_hash
     s.value :"TX_HASH" :: STRING AS tx_hash
 {% endif %}
 FROM
@@ -136,6 +164,12 @@ FROM
     {% endif %}
 WHERE
     b.partition_key = s.{{ partition_join_key }}
-    AND DATA :error IS NULL
+    {% if data_not_null %}
+        {% if error_code %}
+        AND DATA :error :code IS NULL
+        {% else %}
+        AND DATA :error IS NULL
+        {% endif %}
     AND DATA IS NOT NULL
+    {% endif %}
 {% endmacro %}

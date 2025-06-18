@@ -1,6 +1,5 @@
 {# Set variables #}
-{%- set clearinghouse = var('CLEARINGHOUSE_CONTRACT', '') -%}
-{%- set token_mapping = var('TOKEN_MAPPING',{}) -%}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -10,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'fact_event_logs_id',
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['curated','reorg'],
+    tags = ['silver','curated','vertex'],
     enabled = false
 ) }}
 
@@ -46,7 +45,7 @@ WITH logs_pull AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0xfe53084a731040f869d38b1dcd00fbbdbc14e10d7d739160559d77f5bc80cf05'
-        AND contract_address = '{{ clearinghouse }}'
+        AND contract_address = '{{ vars.CURATED_VERTEX_CLEARINGHOUSE_CONTRACT }}'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -78,7 +77,7 @@ product_id_join AS (
         l.product_id,
         p.symbol,
         CASE
-            {% for symbol, address in token_mapping.items() %}
+            {% for symbol, address in vars.CURATED_VERTEX_TOKEN_MAPPING.items() %}
                 WHEN p.symbol = '{{ symbol }}' THEN '{{ address }}'
             {% endfor %}
         END AS token_address,

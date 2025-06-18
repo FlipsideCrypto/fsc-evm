@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: admin__fact_variables
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - FACT_VARIABLES_ID
+    columns:
+      - name: PROJECT
+        tests:
+          - not_null
+      - name: KEY
+        tests:
+          - not_null
+      - name: VALUE
+        tests:
+          - not_null
+      - name: FACT_VARIABLES_ID
+        tests:
+          - not_null

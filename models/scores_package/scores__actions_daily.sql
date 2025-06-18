@@ -1,6 +1,5 @@
-{% set blockchain = var('GLOBAL_PROD_DB_NAME') %}
-{% set full_reload_mode = var('SCORES_FULL_RELOAD_MODE', false) %}
-{% set include_gaming_metrics = var('INCLUDE_GAMING_METRICS', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -11,7 +10,7 @@
     incremental_strategy = "delete+insert",
     cluster_by = "block_date",
     version = 1,
-    tags = ['scores']
+    tags = ['silver','scores','phase_4']
 ) }}
 
     {% if is_incremental() %}
@@ -41,12 +40,12 @@
             {% set new_data_count = new_data_results.columns[0].values()[0] %}
             
             {% if new_data_count > 0 %}
-                {{ log("Processing action data for blockchain: " ~ blockchain ~ " modified after: " ~ max_modified_timestamp, info=True) }}
+                {{ log("Processing action data for blockchain: " ~ vars.GLOBAL_PROJECT_NAME ~ " modified after: " ~ max_modified_timestamp, info=True) }}
             {% else %}
-                {{ log("No new action data to aggregate daily for blockchain: " ~ blockchain, info=True) }}
+                {{ log("No new action data to aggregate daily for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
             {% endif %}
         {% else %}
-            {{ log("Aggregating daily action data for blockchain: " ~ blockchain, info=True) }}
+            {{ log("Aggregating daily action data for blockchain: " ~ vars.GLOBAL_PROJECT_NAME, info=True) }}
         {% endif %}
         {{ log("==========================================", info=True) }}
     {% endif %}
@@ -73,7 +72,7 @@ WITH actions AS (
         AND modified_timestamp > '{{ max_modified_timestamp }}'
         {% endif %}
 ),
-prioritized_txs AS (
+priorititized_txs AS (
     SELECT
         block_date,
         origin_from_address,
@@ -111,11 +110,8 @@ simple_aggs AS (
         SUM(IFF(metric_name = 'n_gov_votes', 1, 0)) AS n_gov_votes,
         SUM(IFF(metric_name = 'n_stake_tx', 1, 0)) AS n_stake_tx,
         SUM(IFF(metric_name = 'n_restakes', 1, 0)) AS n_restakes
-        {% if include_gaming_metrics %}
-        ,SUM(IFF(metric_name = 'n_gaming_actions', 1, 0)) AS n_gaming_actions
-        {% endif %}
     FROM
-        prioritized_txs
+        priorititized_txs
     GROUP BY
         ALL
 ),
@@ -123,18 +119,9 @@ xfer_in AS (
     SELECT
         block_date,
         action_details :token_to_address :: STRING AS user_address,
-        {% if include_gaming_metrics %}
-        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_xfer_in,
-        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_xfer_in
-        {% else %}
         COUNT(1) AS n_xfer_in
-        {% endif %}
     FROM
-        actions a
-        {% if include_gaming_metrics %}
-        LEFT JOIN {{ ref('core__dim_labels') }} l 
-        ON a.action_details:contract_address::string = l.address
-        {% endif %}
+        actions
     WHERE
         action_type IN (
             'erc20_transfer',
@@ -147,18 +134,9 @@ xfer_out AS (
     SELECT
         block_date,
         action_details :token_from_address :: STRING AS user_address,
-        {% if include_gaming_metrics %}
-        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_xfer_out,
-        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_xfer_out
-        {% else %}
         COUNT(1) AS n_xfer_out
-        {% endif %}
     FROM
-        actions a
-        {% if include_gaming_metrics %}
-        LEFT JOIN {{ ref('core__dim_labels') }} l 
-        ON a.action_details:contract_address::string = l.address
-        {% endif %}
+        actions
     WHERE
         action_type IN (
             'erc20_transfer',
@@ -169,79 +147,18 @@ xfer_out AS (
 ),
 net_token_accumulate AS (
     SELECT
-        COALESCE(A.block_date, b.block_date) AS block_date,
-        COALESCE(A.user_address, b.user_address) AS user_address,
-        COALESCE(n_xfer_in / NULLIF(n_xfer_in + n_xfer_out, 0), 0) AS net_token_accumulate
-        {% if include_gaming_metrics %}
-        ,COALESCE(n_gaming_xfer_in / NULLIF(n_gaming_xfer_in + n_gaming_xfer_out, 0), 0) AS net_gaming_token_accumulate
-        {% endif %}
+        COALESCE(
+            A.block_date,
+            b.block_date
+        ) AS block_date,
+        COALESCE(
+            A.user_address,
+            b.user_address
+        ) AS user_address,
+        COALESCE(n_xfer_in / (ifnull(n_xfer_in,0) + ifnull(n_xfer_out,0)),0) AS net_token_accumulate
     FROM
-        xfer_in A 
-        FULL OUTER JOIN xfer_out b
-        ON A.user_address = b.user_address
-        AND A.block_date = b.block_date
-),
-nft_in AS (
-    SELECT
-        block_date,
-        action_details :token_to_address :: STRING AS user_address,
-        {% if include_gaming_metrics %}
-        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_nft_in,
-        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_nft_in
-        {% else %}
-        COUNT(1) AS n_nft_in
-        {% endif %}
-    FROM
-        actions a
-        {% if include_gaming_metrics %}
-        LEFT JOIN {{ ref('core__dim_labels') }} l 
-        ON a.action_details:contract_address::string = l.address
-        {% endif %}
-    WHERE
-        action_type IN (
-            'erc721_transfer',
-            'erc1155_transfer',
-            'erc1155_transfer_batch'
-        )
-    GROUP BY
-        ALL
-),
-nft_out AS (
-    SELECT
-        block_date,
-        action_details :token_from_address :: STRING AS user_address,
-        {% if include_gaming_metrics %}
-        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_nft_out,
-        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_nft_out
-        {% else %}
-        COUNT(1) AS n_nft_out
-        {% endif %}
-    FROM
-        actions a
-        {% if include_gaming_metrics %}
-        LEFT JOIN {{ ref('core__dim_labels') }} l 
-        ON a.action_details:contract_address::string = l.address
-        {% endif %}
-    WHERE
-        action_type IN (
-            'erc721_transfer',
-            'erc1155_transfer',
-            'erc1155_transfer_batch'
-        )
-    GROUP BY
-        ALL
-),
-net_nft_accumulate AS (
-    SELECT
-        COALESCE(A.block_date, b.block_date) AS block_date,
-        COALESCE(A.user_address, b.user_address) AS user_address,
-        COALESCE(n_nft_in / NULLIF(n_nft_in + n_nft_out, 0), 0) AS net_nft_accumulate
-        {% if include_gaming_metrics %}
-        ,COALESCE(n_gaming_nft_in / NULLIF(n_gaming_nft_in + n_gaming_nft_out, 0), 0) AS net_gaming_nft_accumulate
-        {% endif %}
-    FROM
-        nft_in A 
-        FULL OUTER JOIN nft_out b
+        xfer_in A full
+        OUTER JOIN xfer_out b
         ON A.user_address = b.user_address
         AND A.block_date = b.block_date
 ),
@@ -249,32 +166,38 @@ nft_collections AS (
     SELECT
         block_date,
         user_address,
-        {% if include_gaming_metrics %}
-        ARRAY_AGG(IFF(l.label_type != 'games' OR l.label_type IS NULL, nft_address, NULL)) AS nft_collection_addresses,
-        ARRAY_AGG(IFF(l.label_type = 'games', nft_address, NULL)) AS gaming_nft_collection_addresses
-        {% else %}
         ARRAY_AGG(nft_address) AS nft_collection_addresses
-        {% endif %}
-    FROM (
-        SELECT DISTINCT 
-            block_date,
-            action_details :token_from_address :: STRING AS user_address,
-            action_details: contract_address :: STRING AS nft_address
-        FROM actions
-        WHERE action_type IN ('erc721_transfer','erc1155_transfer','erc1155_transfer_batch')
-        UNION
-        SELECT DISTINCT 
-            block_date,
-            action_details :token_to_address :: STRING AS user_address,
-            action_details: contract_address :: STRING AS nft_address
-        FROM actions
-        WHERE action_type IN ('erc721_transfer','erc1155_transfer','erc1155_transfer_batch')
-        qualify row_number() over (partition by user_address, block_date order by block_date asc) <= 1000
-    ) nfts
-    {% if include_gaming_metrics %}
-    LEFT JOIN {{ ref('core__dim_labels') }} l ON nfts.nft_address = l.address
-    {% endif %}
-    GROUP BY ALL
+    FROM
+        (
+            SELECT
+                DISTINCT block_date,
+                action_details :token_from_address :: STRING AS user_address,
+                action_details: contract_address :: STRING AS nft_address
+            FROM
+                actions
+            WHERE
+                action_type IN (
+                    'erc721_transfer',
+                    'erc1155_transfer',
+                    'erc1155_transfer_batch'
+                )
+            UNION
+            SELECT
+                DISTINCT block_date,
+                action_details :token_to_address :: STRING AS user_address,
+                action_details: contract_address :: STRING AS nft_address
+            FROM
+                actions
+            WHERE
+                action_type IN (
+                    'erc721_transfer',
+                    'erc1155_transfer',
+                    'erc1155_transfer_batch'
+                )
+            qualify row_number() over (partition by user_address, block_date order by block_date asc) <= 1000
+        )
+    GROUP BY
+        ALL
 ),
 staking_validators AS (
     SELECT
@@ -435,19 +358,12 @@ SELECT
     IFNULL(
         n_restakes,
         0
-    ) AS n_restakes
-    {% if include_gaming_metrics %}
-    ,IFNULL(n_gaming_actions, 0) AS n_gaming_actions
-    ,IFNULL(net_gaming_token_accumulate, 0) AS net_gaming_token_accumulate
-    ,IFNULL(net_gaming_nft_accumulate, 0) AS net_gaming_nft_accumulate
-    ,IFNULL(gaming_nft_collection_addresses, ARRAY_CONSTRUCT()) AS gaming_nft_collection_addresses
-    {% endif %}
-    ,IFNULL(
+    ) AS n_restakes,
+    IFNULL(
         net_token_accumulate,
         0
-    ) AS net_token_accumulate
-    ,IFNULL(net_nft_accumulate, 0) AS net_nft_accumulate
-    ,IFNULL(nft_collection_addresses, ARRAY_CONSTRUCT()) AS nft_collection_addresses,
+    ) AS net_token_accumulate,
+    IFNULL(nft_collection_addresses, ARRAY_CONSTRUCT()) AS nft_collection_addresses,
     IFNULL(validator_addresses, ARRAY_CONSTRUCT()) AS validator_addresses,
     IFNULL(
         complex_tx,
@@ -462,7 +378,7 @@ SELECT
         n_txn,
         0
     ) AS n_txn,
-    '{{ blockchain }}' AS blockchain,
+    '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
     {{ dbt_utils.generate_surrogate_key(
         ['ad.block_date','ad.user_address', "'" ~ blockchain ~ "'"]
     ) }} AS actions_daily_id,
@@ -489,6 +405,3 @@ FROM
     LEFT JOIN contract_interactions ci
     ON ad.user_address = ci.user_address
     AND ad.block_date = ci.block_date
-    LEFT JOIN net_nft_accumulate nna
-    ON ad.user_address = nna.user_address
-    AND ad.block_date = nna.block_date

@@ -1,13 +1,12 @@
 -- depends_on: {{ ref('bronze__confirm_blocks') }}
-{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
 
-{% set build_mode = var('SILVER_CONFIRM_BLOCKS_RELOAD', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not silver_full_refresh %}
-
+{% if is_incremental() %}
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -15,22 +14,19 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = silver_full_refresh,
-    tags = ['silver_confirm_blocks']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','core','confirm_blocks','phase_2']
 ) }}
-
 {% else %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_confirm_blocks']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','core','confirm_blocks','phase_2']
 ) }}
-
 {% endif %}
 
 WITH bronze_confirm_blocks AS (
@@ -43,7 +39,7 @@ WITH bronze_confirm_blocks AS (
         _inserted_timestamp
     FROM 
     {% if is_incremental() %}
-        {% if build_mode %}
+        {% if vars.MAIN_CORE_SILVER_CONFIRM_BLOCKS_FULL_RELOAD_ENABLED %}
             {{ ref('bronze__confirm_blocks') }}
             WHERE block_number >= (
                 SELECT COALESCE(MAX(block_number), 0) FROM {{ this }}
@@ -61,8 +57,7 @@ WITH bronze_confirm_blocks AS (
         {% endif %}
     {% else %}
         {{ ref('bronze__confirm_blocks_fr') }}
-        WHERE block_number < 1000000
-        AND DATA:result IS NOT NULL
+        WHERE DATA:result IS NOT NULL
     {% endif %}
     qualify(ROW_NUMBER() over (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
 )

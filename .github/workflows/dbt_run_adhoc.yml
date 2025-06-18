@@ -4,7 +4,7 @@ run-name: ${{ inputs.dbt_command }}
 on:
   workflow_dispatch:
     branches:
-      - "main"
+      - "pre-release/v4-beta"
     inputs:
       environment:
         type: choice 

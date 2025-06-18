@@ -1,7 +1,5 @@
-{% set observ_uses_exclusion_list_traces = var(
-    'OBSERV_USES_EXCLUSION_LIST_TRACES',
-    false
-) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -9,8 +7,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'test_timestamp',
-    full_refresh = false,
-    tags = ['observability']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','observability','phase_3']
 ) }}
 
 WITH lookback AS (
@@ -40,7 +38,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if var('OBSERV_FULL_TEST') %}
+{% if vars.MAIN_OBSERV_FULL_TEST_ENABLED %}
 UNION ALL
 SELECT
     0
@@ -56,6 +54,12 @@ base AS (
         {{ ref('core__fact_transactions') }}
     WHERE
         block_timestamp <= DATEADD('hour', -12, systimestamp())
+        AND from_address <> '0x0000000000000000000000000000000000000000'
+        AND to_address <> '0x0000000000000000000000000000000000000000'
+        {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
+            AND to_address <> '0x000000000000000000000000000000000000006e'
+            AND block_number > 22207817
+        {% endif %}
 
 {% if is_incremental() %}
 AND block_number >= (
@@ -110,14 +114,24 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if observ_uses_exclusion_list_traces %}
+        missing_block_number IS NOT NULL
+        AND missing_block_number <> 0 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
             AND missing_block_number NOT IN (
                 SELECT
-                    block_number
+                    block_number :: INT
                 FROM
-                    {{ ref('silver_observability__exclusion_list') }}
+                    observability.exclusion_list
             )
         {% endif %}
+        {% if vars.GLOBAL_PROJECT_NAME == 'boba' %}
+            AND missing_block_number > 1041894
+        {% endif %}
+        AND (
+            SELECT
+                COUNT(DISTINCT missing_block_number) >= {{ vars.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD }}
+            FROM
+                gap_test
+        )
 )
 SELECT
     'traces' AS test_name,

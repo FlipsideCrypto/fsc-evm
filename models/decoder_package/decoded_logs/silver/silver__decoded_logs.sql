@@ -1,15 +1,19 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('bronze__decoded_logs') }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "decoded_logs_id",
     incremental_strategy = 'delete+insert',
     cluster_by = ['modified_timestamp::date', 'round(block_number, -3)'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = false,
-    tags = ['silver_decoded_logs','phase_3']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','decoded_logs','phase_3']
 ) }}
 
 WITH base_data AS (
@@ -27,12 +31,12 @@ WITH base_data AS (
 {% if is_incremental() %}
 {{ ref('bronze__decoded_logs') }}
 WHERE
-    TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
+    TO_TIMESTAMP_NTZ(_inserted_timestamp) > (
         SELECT
             COALESCE(
                 MAX(modified_timestamp), 
                 '1900-01-01'::TIMESTAMP
-            ) - INTERVAL '2 hours'
+            )
         FROM
             {{ this }}
     )

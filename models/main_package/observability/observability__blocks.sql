@@ -1,7 +1,5 @@
-{% set observ_uses_exclusion_list_blocks = var(
-    'OBSERV_USES_EXCLUSION_LIST_BLOCKS',
-    false
-) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -9,8 +7,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'test_timestamp',
-    full_refresh = false,
-    tags = ['observability']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','observability','phase_3']
 ) }}
 
 WITH lookback AS (
@@ -40,7 +38,7 @@ UNION ALL
     )
 {% endif %}
 
-{% if var('OBSERV_FULL_TEST') %}
+{% if vars.MAIN_OBSERV_FULL_TEST_ENABLED %}
 UNION ALL
 SELECT
     0
@@ -84,7 +82,7 @@ generated_range AS (
         max_block_timestamp,
         blocks_tested
     FROM
-        {{ ref('utils__number_sequence') }}
+        {{ ref('admin__number_sequence') }}
         INNER JOIN summary_stats
     WHERE
         _id BETWEEN min_block
@@ -111,12 +109,13 @@ gap_agg AS (
     FROM
         gap_test
     WHERE
-        missing_block_number IS NOT NULL {% if observ_uses_exclusion_list_blocks %}
+        missing_block_number IS NOT NULL
+        AND missing_block_number <> 0 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
             AND missing_block_number NOT IN (
                 SELECT
-                    block_number
+                    block_number :: INT
                 FROM
-                    {{ ref('silver_observability__exclusion_list') }}
+                    observability.exclusion_list
             )
         {% endif %}
 )

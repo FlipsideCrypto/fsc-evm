@@ -6,7 +6,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'complete_native_asset_metadata_id',
-    tags = ['silver_prices','phase_2']
+    tags = ['silver','prices','native','phase_3']
 ) }}
 
 {# Main query starts here #}
@@ -40,3 +40,5 @@ WHERE
             {{ this }}
     )
 {% endif %}
+
+qualify row_number() over (partition by complete_native_asset_metadata_id order by modified_timestamp desc) = 1

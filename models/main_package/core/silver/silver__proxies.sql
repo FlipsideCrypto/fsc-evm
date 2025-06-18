@@ -6,7 +6,7 @@
     unique_key = ["contract_address", "implementation_contract"],
     cluster_by = ["start_timestamp::date"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    tags = ['silver_core', 'phase_2']
+    tags = ['silver','core','phase_2']
 ) }}
 
 WITH base AS (
@@ -28,7 +28,7 @@ WITH base AS (
 {% if is_incremental() %}
 AND inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '4 hours'
+        COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) - INTERVAL '4 hours'
     FROM
         {{ this }}
 )

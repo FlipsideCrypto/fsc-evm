@@ -3,7 +3,16 @@
 
 {{ config(
     materialized = 'view',
-    tags = ['gha_tasks']
+    tags = ['silver','gha_tasks','phase_1']
 ) }}
 
-{{ fsc_utils.gha_task_history_view() }}
+SELECT
+    *
+FROM
+    {{ source(
+        'snowflake_account_usage',
+        'complete_task_graphs'
+    ) }}
+WHERE
+    database_name = UPPER('{{ target.database }}')
+    AND schema_name = 'GITHUB_ACTIONS'

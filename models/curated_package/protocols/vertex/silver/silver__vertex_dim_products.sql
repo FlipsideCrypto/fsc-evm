@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -6,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'product_id',
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['curated','reorg']
+    tags = ['silver','curated','vertex']
 ) }}
 
 
@@ -58,7 +61,7 @@ api_pull AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://gateway.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/api/v2/assets'
+                'https://gateway.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/api/v2/assets'
 
             )
         ) :data AS response

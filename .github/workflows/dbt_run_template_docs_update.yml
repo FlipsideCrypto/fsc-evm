@@ -1,0 +1,87 @@
+name: dbt_run_template_docs_update
+
+on:
+  workflow_call:
+          
+jobs:
+  run_dbt_jobs_refresh:
+    runs-on: ubuntu-latest
+    environment:
+      name: workflow_secrets
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Extract project & profile names from dbt_project.yml
+        id: project-name
+        run: |
+          PROFILE_NAME=$(grep "^profile:" dbt_project.yml | sed 's/^profile:[[:space:]]*"//' | sed 's/".*$//')
+          PROJECT_NAME=$(grep "^name:" dbt_project.yml | sed 's/^name:[[:space:]]*"//' | sed 's/".*$//')
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+          echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
+          echo "PROFILE_NAME: $PROFILE_NAME"
+          echo "PROJECT_NAME: $PROJECT_NAME"
+      
+      - name: Set production environment variables
+        run: |
+          echo "TARGET=prod" >> $GITHUB_ENV
+          echo "ACCOUNT=vna27887.us-east-1" >> $GITHUB_ENV
+          echo "REGION=us-east-1" >> $GITHUB_ENV
+          echo "SCHEMA=ADMIN" >> $GITHUB_ENV
+          echo "DATABASE=$PROFILE_NAME" >> $GITHUB_ENV
+          echo "ROLE=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
+          echo "USER=DBT_CLOUD_$PROFILE_NAME" >> $GITHUB_ENV
+          echo "WAREHOUSE=DBT_CLOUD" >> $GITHUB_ENV
+          echo "PASSWORD=${{ secrets.PASSWORD }}" >> $GITHUB_ENV
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          dbt deps
+      
+      - name: refresh ddl for datashare
+        run: |
+          cnt=$(dbt ls -m fsc_utils.datashare._datashare___create_gold | wc -l ); if [ $cnt -eq 1 ]; then dbt run -m fsc_utils.datashare._datashare___create_gold; fi; 
+
+      - name: checkout docs branch
+        run: |
+          git checkout -B docs origin/main
+
+      - name: generate dbt docs
+        run: dbt docs generate -t prod
+
+      - name: move files to docs directory
+        run: |
+          mkdir -p ./docs
+          cp target/{catalog.json,manifest.json,index.html} docs/
+
+      - name: clean up target directory
+        run: dbt clean
+
+      - name: check for changes
+        run: git status
+
+      - name: stage changed files
+        run: git add .
+
+      - name: commit changed files
+        run: |
+          git config user.email "abc@xyz"
+          git config user.name "github-actions"
+          git commit -am "Auto-update docs"
+
+      - name: push changes to docs
+        run: |
+          git push -f --set-upstream origin docs
+
+  notify-failure:
+    needs: [run_dbt_jobs_refresh]
+    if: failure()
+    uses: ./.github/workflows/slack_notify.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,12 +1,24 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {{ config (
     materialized = "view",
-    tags = ['full_test', 'ez_prices_model']
+    tags = ['test_gold','core','full_test','transfers','ez','phase_3']
 ) }}
 
 SELECT
     *
 FROM
     {{ ref('core__ez_native_transfers') }}
+{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
+WHERE
+    block_number NOT IN (
+        SELECT
+            block_number :: INT
+        FROM
+            observability.exclusion_list
+    )
+{% endif %}

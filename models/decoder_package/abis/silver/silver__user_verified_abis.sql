@@ -1,4 +1,5 @@
-{% set chain = var('GLOBAL_PROD_DB_NAME','') %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
@@ -6,7 +7,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "id",
-    tags = ['silver_abis','phase_2']
+    tags = ['silver','abis','phase_2']
 ) }}
 
 WITH base AS (
@@ -24,7 +25,7 @@ WITH base AS (
             "user_abis"
         ) }}
     WHERE
-        blockchain = '{{ chain }}'
+        blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         AND NOT duplicate_abi
 
 {% if is_incremental() %}

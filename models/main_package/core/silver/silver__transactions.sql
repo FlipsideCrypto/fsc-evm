@@ -1,12 +1,11 @@
 -- depends_on: {{ ref('bronze__transactions') }}
 
-{% set silver_full_refresh = var('SILVER_FULL_REFRESH', false) %}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{% if not silver_full_refresh %}
-
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -14,29 +13,22 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     incremental_predicates = [fsc_evm.standard_predicate()],
-    full_refresh = silver_full_refresh,
-    tags = ['silver_core', 'phase_1']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','core','phase_2']
 ) }}
-
-{% else %}
-
-{{ config (
-    materialized = "incremental",
-    incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
-    cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
-    incremental_predicates = [fsc_evm.standard_predicate()],
-    tags = ['silver_core', 'phase_1']
-) }}
-
-{% endif %}
 
 WITH bronze_transactions AS (
     SELECT 
         block_number,
         partition_key,
-        VALUE :array_index :: INT AS tx_position,
+        COALESCE(
+            VALUE :array_index :: INT,
+            TRY_TO_NUMBER(
+                utils.udf_hex_to_int(
+                    VALUE :data :transactionIndex :: STRING
+                )
+            )
+        ) AS tx_position,
         DATA AS transaction_json,
         _inserted_timestamp
     FROM 
@@ -64,4 +56,5 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM bronze_transactions
+WHERE tx_position IS NOT NULL
 QUALIFY ROW_NUMBER() OVER (PARTITION BY transactions_id ORDER BY _inserted_timestamp DESC) = 1

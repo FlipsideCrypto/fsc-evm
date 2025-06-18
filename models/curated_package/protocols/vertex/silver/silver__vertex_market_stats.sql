@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -6,7 +9,7 @@
     incremental_strategy = 'merge',
     unique_key = ['ticker_id','hour'],
     cluster_by = ['HOUR::DATE'],
-    tags = 'curated'
+    tags = ['silver','curated','vertex']
 ) }}
 
 
@@ -15,7 +18,7 @@ WITH api_pull AS (
     SELECT
         PARSE_JSON(
             live.udf_api(
-                'https://archive.' || '{{ var("GLOBAL_PROD_DB_NAME") }}' || '-prod.vertexprotocol.com/v2/contracts'
+                'https://archive.' || '{{ vars.CURATED_VERTEX_PROJECT_NAME }}' || '-prod.vertexprotocol.com/v2/contracts'
             )
         ) :data AS response
 ),

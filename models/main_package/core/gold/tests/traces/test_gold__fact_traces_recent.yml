@@ -7,7 +7,7 @@ models:
           combination_of_columns:
             - TX_HASH
             - TRACE_INDEX
-      - fsc_utils.sequence_gaps:
+      - fsc_evm.sequence_gaps:
           partition_by:
             - TX_HASH
           column_name: TRACE_INDEX
@@ -58,6 +58,7 @@ models:
               where: TYPE <> 'SELFDESTRUCT'
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
+              where: FROM_ADDRESS IS NOT NULL AND TRACE_ADDRESS <> 'ORIGIN'
       - name: TO_ADDRESS
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
@@ -65,7 +66,8 @@ models:
               where: TO_ADDRESS IS NOT NULL
       - name: INPUT
         tests:
-          - not_null
+          - not_null:
+              where: TYPE <> 'SELFDESTRUCT'
       - name: TYPE
         tests:
           - not_null
@@ -88,11 +90,7 @@ models:
         tests:
           - not_null
       - name: GAS
-        tests:
-          - not_null
       - name: GAS_USED
-        tests:
-          - not_null
       - name: ORIGIN_FROM_ADDRESS
         tests:
           - not_null

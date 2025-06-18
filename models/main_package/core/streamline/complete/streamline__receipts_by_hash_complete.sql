@@ -1,26 +1,19 @@
-{# Set variables #}
-{%- set source_name = 'RECEIPTS_BY_HASH' -%}
-{%- set model_type = 'COMPLETE' -%}
-
-{%- set full_refresh_type = var((source_name ~ '_complete_full_refresh').upper(), false) -%}
-
-{%- set unique_key = 'complete_' ~ source_name.lower() ~ '_id' -%}
-
-{% set post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)"%}
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
--- depends_on: {{ ref('bronze__' ~ source_name.lower()) }}
+-- depends_on: {{ ref('bronze__receipts_by_hash') }}
 
 {{ config (
     materialized = "incremental",
-    unique_key = unique_key,
+    unique_key = "complete_receipts_by_hash_id",
     cluster_by = "ROUND(block_number, -3)",
-    post_hook = post_hook,
-    full_refresh = full_refresh_type,
-    tags = ['streamline_core_complete_receipts_by_hash']
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number, tx_hash)",
+    full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
+    tags = ['streamline','core','complete','receipts_by_hash','phase_1']
 ) }}
 
 {# Main query starts here #}
@@ -28,14 +21,14 @@ SELECT
     tx_hash,
     block_number,
     file_name,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_hash']) }} AS complete_{{ source_name.lower() }}_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_hash']) }} AS complete_receipts_by_hash_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     {% if is_incremental() %}
-        {{ ref('bronze__' ~ source_name.lower()) }}
+        {{ ref('bronze__receipts_by_hash') }}
     WHERE
         _inserted_timestamp >= (
             SELECT
@@ -44,7 +37,7 @@ FROM
                 {{ this }}
         )
     {% else %}
-        {{ ref('bronze__' ~ source_name.lower() ~ '_fr') }}
+        {{ ref('bronze__receipts_by_hash_fr') }}
     {% endif %}
 
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number desc, _inserted_timestamp DESC)) = 1

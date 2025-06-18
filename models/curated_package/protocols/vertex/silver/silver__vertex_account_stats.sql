@@ -5,7 +5,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'subaccount',
-    tags = 'curated'
+    tags = ['silver','curated','vertex']
 ) }}
 
 WITH

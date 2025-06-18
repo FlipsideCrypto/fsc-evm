@@ -1,31 +1,13 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze_core']
+    tags = ['bronze','core','confirm_blocks','phase_1']
 ) }}
 
-SELECT
-    partition_key,
-    block_number,
-    VALUE,
-    DATA,
-    metadata,
-    file_name,
-    _inserted_timestamp
-FROM
-    {{ ref('bronze__confirm_blocks_fr_v2') }}
-{% if var('GLOBAL_USES_STREAMLINE_V1', false) %}
-UNION ALL
-SELECT
-    _partition_by_block_id AS partition_key,
-    block_number,
-    VALUE,
-    DATA,
-    metadata,
-    file_name,
-    _inserted_timestamp
-FROM
-   {{ ref('bronze__confirm_blocks_fr_v1') }}
-{% endif %}
+{# Main query starts here #}
+{{ streamline_external_table_query_fr(
+    source_name = 'confirm_blocks'
+) }}
