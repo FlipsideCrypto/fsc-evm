@@ -1,4 +1,9 @@
--- oft tokens
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -30,12 +35,12 @@ WITH layerzero AS (
     FROM
         {{ ref('silver_bridge__layerzero_v2_packet') }}
     WHERE
-        sender_contract_address = LOWER('0x5634c4a5fed09819e3c46d86a965dd9447d86e47') -- token messaging arbitrum
+        sender_contract_address = '{{ vars.CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp)
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
     FROM
         {{ this }}
 )
@@ -82,7 +87,7 @@ oft_raw AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) -
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
     FROM
         {{ this }}
 )
@@ -126,6 +131,6 @@ FROM
         tx_hash,
         guid
     )
-    LEFT JOIN {{ ref('silver_bridge__stargate_asset_id_seed') }} A
+    LEFT JOIN {{ ref('silver_bridge__stargate_asset_seed') }} A
     ON o.stargate_oft_address = A.oftaddress
-    AND A.chain = 'Base'
+    AND A.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
