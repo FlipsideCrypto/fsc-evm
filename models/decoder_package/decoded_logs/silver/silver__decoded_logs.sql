@@ -16,29 +16,6 @@
     tags = ['silver','decoded_logs','phase_3']
 ) }}
 
---temp logic for migration
-{% if vars.GLOBAL_SILVER_FR_ENABLED is none and var('TEMP_LOGS_FR_ENABLED', false) %}
-
-SELECT
-    tx_hash,
-    block_number,
-    event_index,
-    event_name,
-    contract_address,
-    decoded_data,
-    transformed,
-    decoded_flat,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'event_index']) }} AS decoded_logs_id,
-    SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
-    '{{ invocation_id }}' AS _invocation_id
-    FROM
-        {{ source(
-            'logs_temp',
-            'decoded_logs'
-        ) }}
-{% else %}
-
 WITH base_data AS (
 
     SELECT
@@ -128,4 +105,3 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM FINAL
-{% endif %}
