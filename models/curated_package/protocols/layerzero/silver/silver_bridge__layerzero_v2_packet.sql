@@ -53,7 +53,7 @@ WITH raw AS (
     WHERE
         block_timestamp :: DATE >= '2024-01-01'
         AND event_name = 'PacketSent'
-        AND contract_address = LOWER('{{ vars.CURATED_LAYERZERO_ENDPOINT_V2_CONTRACT }}')
+        AND contract_address = '{{ vars.CURATED_LAYERZERO_ENDPOINT_V2_CONTRACT }}'
 
 {% if is_incremental() %}
 WHERE
