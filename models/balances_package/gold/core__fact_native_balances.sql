@@ -71,13 +71,13 @@ WHERE
             f.value :balance IS NOT NULL
     )
 SELECT
-    pt.block_number,
-    pt.tx_position,
-    pt.tx_hash,
-    pt.address,
+    COALESCE(pt.block_number, p.block_number) AS block_number,
+    COALESCE(pt.tx_position, p.tx_position) AS tx_position,
+    COALESCE(pt.tx_hash, p.tx_hash) AS tx_hash,
+    COALESCE(pt.address, p.address) AS address,
     COALESCE(pt.nonce, p.nonce) AS nonce,
     COALESCE(pt.hex_balance, p.hex_balance) AS hex_balance,
-    utils.udf_hex_to_int(COALESCE(hex_balance)) :: bigint AS raw_balance,
+    utils.udf_hex_to_int(hex_balance) :: bigint AS raw_balance,
     utils.udf_decimal_adjust(
         raw_balance,
         18
