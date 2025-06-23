@@ -45,8 +45,8 @@ WHERE
             DATA IS NOT NULL
         {% endif %}
 --temp filters for testing
-AND partition_key IN (ROUND(24817293,-3),ROUND(24817294,-3))
-AND block_number IN (24817293,24817294)
+AND partition_key IN (ROUND(24817293,-3),ROUND(24817294,-3),ROUND(24877484,-3))
+AND block_number IN (24817293,24817294,24877484)
 
         qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position
         ORDER BY
