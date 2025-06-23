@@ -6,15 +6,22 @@
 
 {{ config (
     materialized = "view",
-    tags = ['test_gold','balances','full_test','phase_4']
+    tags = ['test_gold','balances','recent_test','phase_4']
 ) }}
 
 SELECT
     *
 FROM
-    {{ ref('core__fact_native_balances') }}
-{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
+    {{ ref('core__fact_balances_native') }}
 WHERE
+    block_number > (
+        SELECT
+            block_number
+        FROM
+            {{ ref('_block_lookback') }}
+    )
+{% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
+AND
     block_number NOT IN (
         SELECT
             block_number :: INT

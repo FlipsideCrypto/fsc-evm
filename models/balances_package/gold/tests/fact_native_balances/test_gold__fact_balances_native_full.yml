@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: test_gold__fact_native_balances_recent
-    description: "This is a view used to test the last three days of fact native balances data."
+  - name: test_gold__fact_balances_native_full
+    description: "This is a view used to test all of the gold fact balances native data."
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -12,6 +12,7 @@ models:
           partition_by:
             - BLOCK_NUMBER
           column_name: TX_POSITION
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
 
     columns:
       - name: BLOCK_NUMBER
@@ -48,7 +49,7 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-      - name: FACT_NATIVE_BALANCES_ID
+      - name: FACT_BALANCES_NATIVE_ID
         tests:
           - not_null
       - name: INSERTED_TIMESTAMP
