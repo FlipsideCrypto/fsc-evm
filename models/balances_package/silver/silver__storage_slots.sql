@@ -16,8 +16,8 @@ WITH erc20_transfers AS (
 
     SELECT
         block_number,
-        tx_hash,
         tx_position,
+        tx_hash,
         event_index,
         from_address,
         to_address,
@@ -47,6 +47,7 @@ WITH erc20_transfers AS (
 transfer_direction AS (
     SELECT
         block_number,
+        tx_position,
         tx_hash,
         event_index,
         to_address AS user_address,
@@ -57,6 +58,7 @@ transfer_direction AS (
     UNION ALL
     SELECT
         block_number,
+        tx_position,
         tx_hash,
         event_index,
         from_address AS user_address,
@@ -71,6 +73,7 @@ direction_agg AS (
     SELECT
         block_number,
         tx_hash,
+        tx_position,
         event_index,
         user_address,
         contract_address,
