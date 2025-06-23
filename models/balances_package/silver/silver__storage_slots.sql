@@ -183,8 +183,8 @@ WHERE
                 '0x0000000000000000000000000000000000000000000000000000000000000000'
             ) AS post_storage_hex
         FROM
-            pre_state_storage pre full full
-            OUTER JOIN post_state_storage post USING (
+            pre_state_storage pre
+            FULL OUTER JOIN post_state_storage post USING (
                 block_number,
                 tx_position,
                 address,
