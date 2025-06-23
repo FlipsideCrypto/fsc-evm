@@ -71,22 +71,30 @@ WHERE
             f.value :balance IS NOT NULL
     )
 SELECT
-    COALESCE(pt.block_number, p.block_number) AS block_number,
-    COALESCE(pt.tx_position, p.tx_position) AS tx_position,
-    COALESCE(pt.tx_hash, p.tx_hash) AS tx_hash,
-    COALESCE(pt.address, p.address) AS address,
-    COALESCE(pt.nonce, p.nonce) AS nonce,
-    COALESCE(pt.hex_balance, p.hex_balance) AS hex_balance,
-    utils.udf_hex_to_int(hex_balance) :: bigint AS raw_balance,
+    p.block_number,
+    p.tx_position,
+    p.tx_hash,
+    p.address,
+    p.nonce AS pre_nonce,
+    p.hex_balance AS pre_hex_balance,
+    utils.udf_hex_to_int(p.hex_balance) :: bigint AS pre_raw_balance,
     utils.udf_decimal_adjust(
-        raw_balance,
+        pre_raw_balance,
         18
-    ) AS adj_balance,
+    ) AS pre_state_balance,
+    -- Post balance columns with fallback to pre balance
+    COALESCE(pt.nonce, p.nonce) AS post_nonce,
+    COALESCE(pt.hex_balance, p.hex_balance) AS post_hex_balance,
+    utils.udf_hex_to_int(COALESCE(pt.hex_balance, p.hex_balance)) :: bigint AS post_raw_balance,
+    utils.udf_decimal_adjust(
+        post_raw_balance,
+        18
+    ) AS post_state_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_native_balances_id,
     _inserted_timestamp,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    post_state pt
-    LEFT JOIN pre_state p
+    pre_state p
+    LEFT JOIN post_state pt
     USING(block_number, tx_position, address)
