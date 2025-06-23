@@ -17,6 +17,7 @@ WITH erc20_transfers AS (
     SELECT
         block_number,
         tx_hash,
+        tx_position,
         event_index,
         from_address,
         to_address,
