@@ -169,8 +169,14 @@ WHERE
     state_storage AS (
         SELECT
             block_number,
-            tx_position,
-            tx_hash,
+            COALESCE(
+                pre.tx_position,
+                post.tx_position
+            ) AS tx_position,
+            COALESCE(
+                pre.tx_hash,
+                post.tx_hash
+            ) AS tx_hash,
             COALESCE(
                 pre.address,
                 post.address
@@ -203,7 +209,8 @@ WHERE
                     1 ASC
             ) - 1 AS rn
         FROM
-            TABLE(GENERATOR(rowcount => 51))
+            TABLE(GENERATOR(rowcount => 51)) 
+            {# what are the max slots for erc20? potentially reduce this? #}
     ),
     transfer_mapping AS (
         SELECT
