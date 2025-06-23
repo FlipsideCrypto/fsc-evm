@@ -24,8 +24,9 @@ WITH erc20_transfers AS (
         raw_amount
     FROM
         {{ ref('core__ez_token_transfers') }}
+        WHERE 1=1
         {% if is_incremental() %}
-        WHERE
+        AND
             contract_address NOT IN (
                 SELECT
                     contract_address
