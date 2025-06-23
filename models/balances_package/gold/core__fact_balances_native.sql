@@ -95,7 +95,8 @@ WHERE
             utils.udf_decimal_adjust(
                 post_raw_balance,
                 18
-            ) AS post_state_balance
+            ) AS post_state_balance,
+            post_raw_balance - pre_raw_balance AS net_raw_balance
         FROM
             pre_state p
             LEFT JOIN post_state pt USING(
@@ -122,7 +123,8 @@ missing_data AS (
         post_nonce,
         post_hex_balance,
         post_raw_balance,
-        post_state_balance
+        post_state_balance,
+        net_raw_balance
     FROM
         {{ this }}
         t
@@ -146,7 +148,8 @@ FINAL AS (
         post_nonce,
         post_hex_balance,
         post_raw_balance,
-        post_state_balance
+        post_state_balance,
+        net_raw_balance
     FROM
         balances
 
@@ -165,7 +168,8 @@ SELECT
     post_nonce,
     post_hex_balance,
     post_raw_balance,
-    post_state_balance
+    post_state_balance,
+    net_raw_balance
 FROM
     missing_data
 {% endif %}
@@ -184,6 +188,7 @@ SELECT
     post_hex_balance,
     post_raw_balance,
     post_state_balance,
+    net_raw_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_balances_native_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

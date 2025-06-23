@@ -223,41 +223,78 @@ WHERE
             direction_agg,
             num_generator
     ),
-    slot_finder AS (
-        SELECT
+    final AS (
+    SELECT
+        block_number,
+        {# block_timestamp, #}
+        tx_position,
+        tx_hash,
+        event_index,
+        contract_address,
+        user_address,
+        storage_key,
+        slot_number,
+        pre_storage_hex AS pre_hex_balance,
+        utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
+        {# utils.udf_decimal_adjust(
+            pre_raw_balance,
+            c.decimals
+        ) AS pre_state_balance, #}
+        post_storage_hex AS post_hex_balance,
+        utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
+        {# utils.udf_decimal_adjust(
+            post_raw_balance,
+            c.decimals
+        ) AS post_state_balance, #}
+        post_raw_balance - pre_raw_balance AS net_raw_balance,
+        transfer_amount
+    FROM
+        state_storage
+        INNER JOIN transfer_mapping USING (
             block_number,
             tx_position,
-            tx_hash,
-            event_index,
             contract_address,
-            user_address,
-            storage_key,
-            slot_number,
-            pre_storage_hex,
-            post_storage_hex,
-            utils.udf_hex_to_int(pre_storage_hex) AS pre_storage_value,
-            utils.udf_hex_to_int(post_storage_hex) AS post_storage_value,
-            post_storage_value - pre_storage_value AS net_storage_value,
-            transfer_amount
-        FROM
-            state_storage
-            INNER JOIN transfer_mapping USING (
-                block_number,
-                tx_position,
-                contract_address,
-                storage_key
-            )
-        WHERE
-            net_storage_value = transfer_amount
+            storage_key
+        )
+        {# LEFT JOIN dim_contracts c USING(contract_address) #}
+        {# LEFT JOIN {{ ref('core__fact_blocks') }} b USING(block_number) #}
+    WHERE
+        net_raw_balance = transfer_amount
     )
+    SELECT 
+        block_number,
+        {# block_timestamp, #}
+        tx_position,
+        tx_hash,
+        event_index,
+        contract_address,
+        user_address,
+        pre_hex_balance,
+        pre_raw_balance,
+        {# pre_state_balance,#}
+        post_hex_balance,
+        post_raw_balance,
+        {# post_state_balance, #}
+        net_raw_balance,
+        {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'user_address']) }} AS fact_balances_erc20_id,
+        SYSDATE() AS inserted_timestamp,
+        SYSDATE() AS modified_timestamp
+    FROM final
+    {# + add heal logic for block_timestamp and decimals #}
 
-    SELECT * FROM slot_finder
-        {# SELECT
-            contract_address,
-            ARRAY_AGG(
-                DISTINCT slot_number
-            ) AS slot_number_array
-        FROM
-            slot_finder
-        GROUP BY contract_address #}
+
+{# 
+    Add test to verify slots:
+    if > 1 slots in array or NULL, then false positive or missing slot. 
+    Flag and handle separately (e.g. rebase tokens) 
+
+    SELECT
+        contract_address,
+        ARRAY_AGG(
+            DISTINCT slot_number
+        ) AS slot_number_array
+    FROM
+        this model
+    GROUP BY contract_address 
+#}
 
