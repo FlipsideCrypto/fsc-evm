@@ -23,6 +23,7 @@ SELECT
     FALSE AS is_native,
     is_imputed,
     is_deprecated,
+    is_verified,
     {{ dbt_utils.generate_surrogate_key(['complete_token_prices_id']) }} AS ez_prices_hourly_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
@@ -49,6 +50,7 @@ SELECT
     TRUE AS is_native,
     is_imputed,
     is_deprecated,
+    TRUE as is_verified,
     {{ dbt_utils.generate_surrogate_key(['complete_native_prices_id']) }} AS ez_prices_hourly_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
