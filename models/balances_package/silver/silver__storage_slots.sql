@@ -27,19 +27,19 @@ WITH erc20_transfers AS (
         {{ ref('core__ez_token_transfers') }}
         WHERE 1=1
         {% if is_incremental() %}
-        AND
-            contract_address NOT IN (
+        AND modified_timestamp > (
+            SELECT
+                MAX(modified_timestamp)
+            FROM
+                {{ this }})
+        AND contract_address NOT IN (
                 SELECT
                     contract_address
                 FROM
                     {{ this }})
         {% endif %}
         --temp filter for testing
-        AND tx_hash IN (
-            '0x35db4db6fe1abeff07c21bb0d76eb15d5dfb348911c6d4602f8a08a288054ebc',
-            '0xdf1720de30d55609dfafd9642327bede3f1f5da8c03176e1ddfab3c5b3d973a3',
-            '0x35db4db6fe1abeff07c21bb0d76eb15d5dfb348911c6d4602f8a08a288054ebc' --simple usdc transfers
-            )
+        AND block_number IN (25804285,25804301,25804312,25804315)
         qualify(ROW_NUMBER() over(PARTITION BY contract_address
     ORDER BY
         block_number DESC)) = 1
@@ -77,7 +77,7 @@ direction_agg AS (
         event_index,
         user_address,
         contract_address,
-        SUM(raw_amount) AS net_amount
+        SUM(raw_amount) AS transfer_amount
     FROM
         transfer_direction
     GROUP BY
@@ -218,7 +218,7 @@ WHERE
                 rn
             ) AS storage_key,
             rn AS slot_number,
-            net_amount AS transfer_amount
+            transfer_amount
         FROM
             direction_agg,
             num_generator
@@ -237,7 +237,7 @@ WHERE
             post_storage_hex,
             utils.udf_hex_to_int(pre_storage_hex) AS pre_storage_value,
             utils.udf_hex_to_int(post_storage_hex) AS post_storage_value,
-            post_storage_value - pre_storage_value AS net_amount,
+            post_storage_value - pre_storage_value AS net_storage_value,
             transfer_amount
         FROM
             state_storage
@@ -248,15 +248,16 @@ WHERE
                 storage_key
             )
         WHERE
-            net_amount = transfer_amount
+            net_storage_value = transfer_amount
     )
-        SELECT
+
+    SELECT * FROM slot_finder
+        {# SELECT
             contract_address,
             ARRAY_AGG(
                 DISTINCT slot_number
             ) AS slot_number_array
         FROM
             slot_finder
-        GROUP BY
-            ALL
+        GROUP BY contract_address #}
 
