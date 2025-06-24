@@ -32,17 +32,9 @@ WITH erc20_transfers AS (
                 MAX(modified_timestamp)
             FROM
                 {{ this }})
-        AND contract_address NOT IN (
-                SELECT
-                    contract_address
-                FROM
-                    {{ this }})
         {% endif %}
         --temp filter for testing
         AND block_number IN (25804285,25804301,25804312,25804315)
-        qualify(ROW_NUMBER() over(PARTITION BY contract_address
-    ORDER BY
-        block_number DESC)) = 1
 ),
 transfer_direction AS (
     SELECT
