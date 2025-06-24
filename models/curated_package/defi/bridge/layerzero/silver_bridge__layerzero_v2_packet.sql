@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -53,7 +51,7 @@ WITH raw AS (
     WHERE
         block_timestamp :: DATE >= '2024-01-01'
         AND event_name = 'PacketSent'
-        AND contract_address = '{{ vars.CURATED_LAYERZERO_ENDPOINT_V2_CONTRACT }}'
+        AND contract_address = '{{ vars.CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT }}'
 
 {% if is_incremental() %}
 WHERE

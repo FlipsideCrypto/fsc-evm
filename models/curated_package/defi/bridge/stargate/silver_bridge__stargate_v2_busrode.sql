@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -36,7 +34,7 @@ WITH logs AS (
         block_timestamp :: DATE >= '2024-01-01'
         AND (
             (
-                contract_address = '{{ vars.CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT }}' -- stargate token messaging
+                contract_address = '{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}' -- stargate token messaging
                 AND topic_0 = '0x15955c5a4cc61b8fbb05301bce47fd31c0e6f935e1ab97fdac9b134c887bb074' --busRode
             )
             OR topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent

@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -26,16 +24,11 @@ WITH layerzero AS (
         receiver_contract_address,
         guid,
         message_type,
-        SUBSTR(
-            payload,
-            229,
-            4
-        ) AS message_type_2,
-        '0x' || SUBSTR(SUBSTR(payload, 233, 64), 25) AS to_address
+        '0x' || SUBSTR(SUBSTR(payload, 227, 64), 25) AS to_address
     FROM
         {{ ref('silver_bridge__layerzero_v2_packet') }}
     WHERE
-        sender_contract_address = '{{ vars.CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
+        sender_contract_address != LOWER('{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}')
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -56,7 +49,7 @@ oft_raw AS (
         topic_1,
         topic_2,
         topic_3,
-        contract_address AS stargate_oft_address,
+        contract_address,
         DATA,
         regexp_substr_all(SUBSTR(DATA, 3), '.{64}') AS part,
         SUBSTR(
@@ -85,44 +78,49 @@ oft_raw AS (
         AND topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
-    SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
-    FROM
-        {{ this }}
-)
+WHERE
+    modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+        FROM
+            {{ this }}
+    )
 {% endif %}
 )
 SELECT
     block_number,
     block_timestamp,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
     tx_hash,
-    guid,
     event_index,
     'OFTSent' AS event_name,
-    stargate_oft_address,
-    stargate_oft_address AS contract_address,
-    A.address AS token_address,
-    A.id AS asset_id,
-    A.asset AS asset_name,
-    from_address,
-    to_address,
+    contract_address AS bridge_address,
+    'layerzero' AS platform,
+    'v2' AS version,
+    guid,
+    from_address AS sender,
+    to_address AS receiver,
+    to_address AS destination_chain_receiver,
+    dst_chain_id,
+    dst_chain_id :: STRING AS destination_chain_id,
+    dst_chain AS destination_chain,
+    contract_address AS token_address,
+    amount_sent AS amount_unadj,
     src_chain_id,
     src_chain,
-    dst_chain_id,
-    dst_chain,
-    dst_chain_id_oft,
-    amount_sent,
     payload,
     TYPE,
     nonce,
     sender_contract_address,
     receiver_contract_address,
     message_type,
-    message_type_2,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
+    CONCAT(
+        tx_hash,
+        '-',
+        event_index
+    ) AS _log_id,
     inserted_timestamp,
     modified_timestamp
 FROM
@@ -131,6 +129,3 @@ FROM
         tx_hash,
         guid
     )
-    LEFT JOIN {{ ref('silver_bridge__stargate_asset_seed') }} A
-    ON o.stargate_oft_address = A.oftaddress
-    AND A.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'

@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -35,7 +33,7 @@ WITH bus_driven_raw AS (
     FROM
         {{ ref('core__ez_decoded_event_logs') }}
     WHERE
-        contract_address = '{{ vars.CURATED_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
+        contract_address = '{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
         AND event_name = 'BusDriven'
         AND block_timestamp :: DATE >= '2024-01-01'
 

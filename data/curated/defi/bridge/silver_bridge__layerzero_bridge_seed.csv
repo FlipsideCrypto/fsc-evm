@@ -4,9 +4,10 @@ animechain,30372
 ape,30312
 aptos,30108
 arbitrum,30110
-arbitrum nova,30175
+arbitrum_nova,30175
 astar,30210
-astar zkevm,30257
+astar_zkevm,30257
+aurora,30211
 avalanche,30106
 bob,30279
 bahamut,30363
@@ -22,24 +23,24 @@ canto,30159
 celo,30125
 codex,30323
 concrete,30366
-conflux espace,30212
+conflux_espace,30212
 coredao,30153
 corn,30331
-cronos evm,30359
-cronos zkevm,30360
+cronos,30359
+cronos_zkevm,30360
 cyber,30283
 degen,30267
 dexalot,30118
-dfk chain,30115
-dm2 verse,30315
-dos chain,30149
+dfk_chain,30115
+dm2_verse,30315
+dos_chain,30149
 ebi,30282
 edu,30328
 ethereum,30101
 etherlink,30292
 fantom,30112
 flare,30295
-flow evm,30336
+flow_evm,30336
 fraxtal,30255
 fuse,30138
 glue,30342
@@ -51,13 +52,13 @@ harmony,30116
 hedera,30316
 hemi,30329
 homeverse,30265
-horizen eon,30215
+horizen_eon,30215
 hubble,30182
 hyperevm,30367
 initia,30326
 ink,30339
 iota,30284
-japan open chain,30285
+japan_open_chain,30285
 kaia,30150
 kava,30177
 lens,30373
@@ -66,7 +67,7 @@ linea,30183
 lisk,30321
 loot,30197
 lyra,30311
-manta pacific,30217
+manta_pacific,30217
 mantle,30181
 masa,30263
 meritcircle,30198
@@ -78,17 +79,16 @@ moonbeam,30126
 moonriver,30167
 morph,30322
 movement,30325
-near aurora,30211
 nibiru,30369
 okx,30155
 optimism,30111
 orderly,30213
-otherworld space,30341
+otherworld_space,30341
 peaq,30302
 plume,30370
 polygon,30109
-polygon zkevm,30158
-rari chain,30235
+polygon_zkevm,30158
+rari_chain,30235
 reya,30313
 rootstock,30333
 sanko,30278
@@ -101,7 +101,7 @@ soneium,30340
 sonic,30332
 sophon,30334
 story,30364
-subtensor evm,30374
+subtensor_evm,30374
 superposition,30327
 swell,30335
 ton,30343
@@ -114,7 +114,7 @@ unichain,30320
 vana,30330
 viction,30196
 worldchain,30319
-x layer,30274
+x_layer,30274
 xchain,30291
 xdc,30365
 xpla,30216
@@ -125,4 +125,4 @@ inevm,30234
 opbnb,30202
 re.al,30237
 zklink,30301
-zksync era,30165
+zksync_era,30165
