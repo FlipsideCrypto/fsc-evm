@@ -41,10 +41,10 @@ WHERE
             {{ ref('bronze__state_tracer_fr') }}
         WHERE
             DATA IS NOT NULL
-            AND block_number BETWEEN (
+            AND partition_key BETWEEN (
                 SELECT
                     MAX(
-                        block_number
+                        partition_key
                     )
                 FROM
                     {{ this }}
@@ -52,7 +52,7 @@ WHERE
             AND (
                 SELECT
                     MAX(
-                        block_number
+                        partition_key
                     ) + {{ vars.BALANCES_SILVER_STATE_TRACER_FULL_RELOAD_BLOCKS_PER_RUN }}
                 FROM
                     {{ this }}
@@ -61,7 +61,7 @@ WHERE
             {{ ref('bronze__state_tracer') }}
         WHERE
             DATA IS NOT NULL
-            AND block_number <= {{ vars.BALANCES_SILVER_STATE_TRACER_FR_MAX_BLOCK }}
+            AND partition_key <= {{ vars.BALANCES_SILVER_STATE_TRACER_FR_MAX_BLOCK }}
         {% endif %}
 
         qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position
