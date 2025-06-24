@@ -82,7 +82,7 @@ WHERE
             utils.udf_decimal_adjust(
                 pre_raw_balance,
                 18
-            ) AS pre_state_balance,
+            ) AS pre_balance,
             COALESCE(
                 pt.nonce,
                 p.nonce
@@ -95,9 +95,9 @@ WHERE
             utils.udf_decimal_adjust(
                 post_raw_balance,
                 18
-            ) AS post_state_balance,
+            ) AS post_balance,
             post_raw_balance - pre_raw_balance AS net_raw_balance,
-            post_state_balance - pre_state_balance AS net_state_balance
+            post_balance - pre_balance AS net_balance
         FROM
             pre_state p
             LEFT JOIN post_state pt USING(
@@ -120,13 +120,13 @@ missing_data AS (
         pre_nonce,
         pre_hex_balance,
         pre_raw_balance,
-        pre_state_balance,
+        pre_balance,
         post_nonce,
         post_hex_balance,
         post_raw_balance,
-        post_state_balance,
+        post_balance,
         net_raw_balance,
-        net_state_balance
+        net_balance
     FROM
         {{ this }}
         t
@@ -146,13 +146,13 @@ FINAL AS (
         pre_nonce,
         pre_hex_balance,
         pre_raw_balance,
-        pre_state_balance,
+        pre_balance,
         post_nonce,
         post_hex_balance,
         post_raw_balance,
-        post_state_balance,
+        post_balance,
         net_raw_balance,
-        net_state_balance
+        net_balance
     FROM
         balances
 
@@ -167,13 +167,13 @@ SELECT
     pre_nonce,
     pre_hex_balance,
     pre_raw_balance,
-    pre_state_balance,
+    pre_balance,
     post_nonce,
     post_hex_balance,
     post_raw_balance,
-    post_state_balance,
+    post_balance,
     net_raw_balance,
-    net_state_balance
+    net_balance
 FROM
     missing_data
 {% endif %}
@@ -187,13 +187,13 @@ SELECT
     pre_nonce,
     pre_hex_balance,
     pre_raw_balance,
-    pre_state_balance,
+    pre_balance,
     post_nonce,
     post_hex_balance,
     post_raw_balance,
-    post_state_balance,
+    post_balance,
     net_raw_balance,
-    net_state_balance,
+    net_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_balances_native_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

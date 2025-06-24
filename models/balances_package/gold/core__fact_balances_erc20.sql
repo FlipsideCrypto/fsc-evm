@@ -204,7 +204,7 @@ WHERE
                 '0x0000000000000000000000000000000000000000000000000000000000000000'
             ) AS post_storage_hex
         FROM
-            pre_state_storage pre full
+            pre_state_storage pre
             OUTER JOIN post_state_storage post USING (
                 block_number,
                 tx_position,
@@ -219,7 +219,7 @@ WHERE
                     1 ASC
             ) - 1 AS rn
         FROM
-            TABLE(GENERATOR(rowcount => 51)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
+            TABLE(GENERATOR(rowcount => 26)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
     ),
     transfer_mapping AS (
         SELECT
@@ -257,15 +257,15 @@ WHERE
             utils.udf_decimal_adjust(
                 pre_raw_balance,
                 decimals
-            ) AS pre_state_balance,
+            ) AS pre_balance,
             post_storage_hex AS post_hex_balance,
             utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
             utils.udf_decimal_adjust(
                 post_raw_balance,
                 decimals
-            ) AS post_state_balance,
+            ) AS post_balance,
             post_raw_balance - pre_raw_balance AS net_raw_balance,
-            post_state_balance - pre_state_balance AS net_state_balance,
+            post_balance - pre_balance AS net_balance,
             transfer_amount,
             decimals
         FROM
@@ -285,35 +285,26 @@ missing_data AS (
     SELECT
         t.block_number,
         tr.block_timestamp AS block_timestamp_heal,
-        t.tx_position,
-        t.tx_hash,
-        t.event_index,
-        t.contract_address,
-        tr.decimals AS decimals_heal,
-        t.address,
+        tx_position,
+        tx_hash,
+        event_index,
+        contract_address,
+        decimals,
+        slot_number,
+        address,
         pre_hex_balance,
         pre_raw_balance,
-        utils.udf_decimal_adjust(
-            pre_raw_balance,
-            tr.decimals
-        ) AS pre_state_balance_heal,
+        pre_balance,
         post_hex_balance,
         post_raw_balance,
-        utils.udf_decimal_adjust(
-            post_raw_balance,
-            tr.decimals
-        ) AS post_state_balance_heal,
+        post_balance,
         net_raw_balance,
-        post_state_balance_heal - pre_state_balance_heal AS net_state_balance_heal
+        net_balance
     FROM
         {{ this }}
         t
-        LEFT JOIN {{ ref('core__ez_token_transfers') }}
-        tr USING (
-            block_number,
-            tx_position,
-            contract_address
-        )
+        LEFT JOIN {{ ref('core__fact_blocks') }}
+        b USING(block_number)
     WHERE
         t.block_timestamp IS NULL
 )
@@ -327,15 +318,16 @@ FINAL AS (
         event_index,
         contract_address,
         decimals,
+        slot_number,
         address,
         pre_hex_balance,
         pre_raw_balance,
-        pre_state_balance,
+        pre_balance,
         post_hex_balance,
         post_raw_balance,
-        post_state_balance,
+        post_balance,
         net_raw_balance,
-        net_state_balance
+        net_balance
     FROM
         balances
 
@@ -348,16 +340,17 @@ SELECT
     tx_hash,
     event_index,
     contract_address,
-    decimals_heal AS decimals,
+    decimals,
+    slot_number,
     address,
     pre_hex_balance,
     pre_raw_balance,
-    pre_state_balance_heal AS pre_state_balance,
+    pre_balance,
     post_hex_balance,
     post_raw_balance,
-    post_state_balance_heal AS post_state_balance,
+    post_balance,
     net_raw_balance,
-    net_state_balance_heal AS net_state_balance
+    net_balance
 FROM
     missing_data
 {% endif %}
@@ -370,15 +363,16 @@ SELECT
     event_index,
     contract_address,
     decimals,
+    slot_number,
     address,
     pre_hex_balance,
     pre_raw_balance,
-    pre_state_balance,
+    pre_balance,
     post_hex_balance,
     post_raw_balance,
-    post_state_balance,
+    post_balance,
     net_raw_balance,
-    net_state_balance,
+    net_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
