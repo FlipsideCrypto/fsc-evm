@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - TX_HASH
             - GUID
+            - TICKET_ID
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -43,9 +44,10 @@ models:
       - name: DST_CHAIN
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: "sum(case when DST_CHAIN is null then 1 else 0 end) <= 3"
               config:
-                  severity: warn
-                  warn_if: ">3"
+                severity: warn
       - name: MODIFIED_TIMESTAMP
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:

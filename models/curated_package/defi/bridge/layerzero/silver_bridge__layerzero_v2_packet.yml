@@ -1,7 +1,11 @@
 version: 2
 models:
   - name: silver_bridge__layerzero_v2_packet
-
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_HASH
+            - GUID
     columns:
       - name: SRC_CHAIN_ID
         tests:
@@ -11,10 +15,10 @@ models:
           - not_null
       - name: DST_CHAIN
         tests:
-          - not_null:
+          - dbt_utils.expression_is_true:
+              expression: "sum(case when DST_CHAIN is null then 1 else 0 end) <= 3"
               config:
-                  severity: warn
-                  warn_if: ">3"
+                severity: warn
       - name: TX_HASH
         tests:
           - not_null

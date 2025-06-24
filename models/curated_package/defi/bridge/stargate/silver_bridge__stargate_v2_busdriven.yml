@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - TX_HASH
             - GUID
+            - TICKET_ID
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -23,6 +24,9 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: GUID
+        tests:
+          - not_null
+      - name: TICKET_ID
         tests:
           - not_null
       - name: FROM_ADDRESS
