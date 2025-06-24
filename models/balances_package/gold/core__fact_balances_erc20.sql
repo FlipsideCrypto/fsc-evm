@@ -25,28 +25,29 @@ WITH erc20_transfers AS (
         to_address,
         contract_address,
         raw_amount,
-        decimals
+        t.decimals
     FROM
         {{ ref('core__ez_token_transfers') }}
+        t
+        INNER JOIN {{ source(
+            'crosschain_price',
+            'ez_asset_metadata'
+        ) }}
+        m --limit balances to verified assets only (temp ref to crosschain, replace before merging)
+        ON t.contract_address = m.token_address
     WHERE
-        1 = 1
+        blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+        AND is_verified
+        AND asset_id IS NOT NULL
 
 {% if is_incremental() %}
-AND modified_timestamp > (
+AND t.modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
         {{ this }}
 )
 {% endif %}
-
---temp filter for testing
-AND block_number IN (
-    25804285,
-    25804301,
-    25804312,
-    25804315
-)
 ),
 transfer_direction AS (
     SELECT
@@ -102,183 +103,197 @@ state_tracer AS (
         post_state_json
     FROM
         {{ ref('silver__state_tracer') }}
+    WHERE
+        CONCAT(
+            block_number,
+            '-',
+            tx_position
+        ) IN (
+            SELECT
+                DISTINCT CONCAT(
+                    block_number,
+                    '-',
+                    tx_position
+                )
+            FROM
+                erc20_transfers
+        )
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
-        FROM
-            {{ this }})
-        {% endif %}
-    ),
-    pre_state AS (
-        SELECT
+AND modified_timestamp > (
+    SELECT
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
+    FROM
+        {{ this }})
+    {% endif %}
+),
+pre_state AS (
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        pre_state_json,
+        f.key AS address,
+        f.value :storage AS pre_storage
+    FROM
+        state_tracer,
+        LATERAL FLATTEN(
+            input => pre_state_json
+        ) f
+    WHERE
+        f.value :storage IS NOT NULL
+),
+pre_state_storage AS (
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        pre_state_json,
+        address,
+        pre_storage,
+        f.key :: STRING AS storage_key,
+        f.value :: STRING AS pre_storage_value_hex
+    FROM
+        pre_state,
+        LATERAL FLATTEN(
+            input => pre_storage
+        ) f
+),
+post_state AS (
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        post_state_json,
+        f.key AS address,
+        f.value :storage AS post_storage
+    FROM
+        state_tracer,
+        LATERAL FLATTEN(
+            input => post_state_json
+        ) f
+    WHERE
+        f.value :storage IS NOT NULL
+),
+post_state_storage AS (
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        post_state_json,
+        address,
+        post_storage,
+        f.key :: STRING AS storage_key,
+        f.value :: STRING AS post_storage_value_hex
+    FROM
+        post_state,
+        LATERAL FLATTEN(
+            input => post_storage
+        ) f
+),
+state_storage AS (
+    SELECT
+        block_number,
+        COALESCE(
+            pre.tx_position,
+            post.tx_position
+        ) AS tx_position,
+        COALESCE(
+            pre.tx_hash,
+            post.tx_hash
+        ) AS tx_hash,
+        COALESCE(
+            pre.address,
+            post.address
+        ) AS contract_address,
+        COALESCE(
+            pre.storage_key,
+            post.storage_key
+        ) AS storage_key,
+        COALESCE(
+            pre_storage_value_hex,
+            '0x0000000000000000000000000000000000000000000000000000000000000000'
+        ) AS pre_storage_hex,
+        COALESCE(
+            post_storage_value_hex,
+            '0x0000000000000000000000000000000000000000000000000000000000000000'
+        ) AS post_storage_hex
+    FROM
+        pre_state_storage pre
+        OUTER JOIN post_state_storage post USING (
             block_number,
             tx_position,
-            tx_hash,
-            pre_state_json,
-            f.key AS address,
-            f.value :storage AS pre_storage
-        FROM
-            state_tracer,
-            LATERAL FLATTEN(
-                input => pre_state_json
-            ) f
-        WHERE
-            f.value :storage IS NOT NULL
-    ),
-    pre_state_storage AS (
-        SELECT
-            block_number,
-            tx_position,
-            tx_hash,
-            pre_state_json,
             address,
-            pre_storage,
-            f.key :: STRING AS storage_key,
-            f.value :: STRING AS pre_storage_value_hex
-        FROM
-            pre_state,
-            LATERAL FLATTEN(
-                input => pre_storage
-            ) f
-    ),
-    post_state AS (
-        SELECT
-            block_number,
-            tx_position,
-            tx_hash,
-            post_state_json,
-            f.key AS address,
-            f.value :storage AS post_storage
-        FROM
-            state_tracer,
-            LATERAL FLATTEN(
-                input => post_state_json
-            ) f
-        WHERE
-            f.value :storage IS NOT NULL
-    ),
-    post_state_storage AS (
-        SELECT
-            block_number,
-            tx_position,
-            tx_hash,
-            post_state_json,
+            storage_key
+        )
+),
+num_generator AS (
+    SELECT
+        ROW_NUMBER() over (
+            ORDER BY
+                1 ASC
+        ) - 1 AS rn
+    FROM
+        TABLE(GENERATOR(rowcount => 26)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
+),
+transfer_mapping AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_position,
+        tx_hash,
+        event_index,
+        contract_address,
+        address,
+        utils.udf_mapping_slot(
             address,
-            post_storage,
-            f.key :: STRING AS storage_key,
-            f.value :: STRING AS post_storage_value_hex
-        FROM
-            post_state,
-            LATERAL FLATTEN(
-                input => post_storage
-            ) f
-    ),
-    state_storage AS (
-        SELECT
-            block_number,
-            COALESCE(
-                pre.tx_position,
-                post.tx_position
-            ) AS tx_position,
-            COALESCE(
-                pre.tx_hash,
-                post.tx_hash
-            ) AS tx_hash,
-            COALESCE(
-                pre.address,
-                post.address
-            ) AS contract_address,
-            COALESCE(
-                pre.storage_key,
-                post.storage_key
-            ) AS storage_key,
-            COALESCE(
-                pre_storage_value_hex,
-                '0x0000000000000000000000000000000000000000000000000000000000000000'
-            ) AS pre_storage_hex,
-            COALESCE(
-                post_storage_value_hex,
-                '0x0000000000000000000000000000000000000000000000000000000000000000'
-            ) AS post_storage_hex
-        FROM
-            pre_state_storage pre
-            OUTER JOIN post_state_storage post USING (
-                block_number,
-                tx_position,
-                address,
-                storage_key
-            )
-    ),
-    num_generator AS (
-        SELECT
-            ROW_NUMBER() over (
-                ORDER BY
-                    1 ASC
-            ) - 1 AS rn
-        FROM
-            TABLE(GENERATOR(rowcount => 26)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
-    ),
-    transfer_mapping AS (
-        SELECT
-            block_number,
-            block_timestamp,
-            tx_position,
-            tx_hash,
-            event_index,
-            contract_address,
-            address,
-            utils.udf_mapping_slot(
-                address,
-                rn
-            ) AS storage_key,
-            rn AS slot_number,
-            transfer_amount,
+            rn
+        ) AS storage_key,
+        rn AS slot_number,
+        transfer_amount,
+        decimals
+    FROM
+        direction_agg,
+        num_generator
+),
+balances AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_position,
+        tx_hash,
+        event_index,
+        contract_address,
+        address,
+        storage_key,
+        slot_number,
+        pre_storage_hex AS pre_hex_balance,
+        utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
+        utils.udf_decimal_adjust(
+            pre_raw_balance,
             decimals
-        FROM
-            direction_agg,
-            num_generator
-    ),
-    balances AS (
-        SELECT
-            block_number,
-            block_timestamp,
-            tx_position,
-            tx_hash,
-            event_index,
-            contract_address,
-            address,
-            storage_key,
-            slot_number,
-            pre_storage_hex AS pre_hex_balance,
-            utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
-            utils.udf_decimal_adjust(
-                pre_raw_balance,
-                decimals
-            ) AS pre_balance,
-            post_storage_hex AS post_hex_balance,
-            utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
-            utils.udf_decimal_adjust(
-                post_raw_balance,
-                decimals
-            ) AS post_balance,
-            post_raw_balance - pre_raw_balance AS net_raw_balance,
-            post_balance - pre_balance AS net_balance,
-            transfer_amount,
+        ) AS pre_balance,
+        post_storage_hex AS post_hex_balance,
+        utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
+        utils.udf_decimal_adjust(
+            post_raw_balance,
             decimals
-        FROM
-            state_storage
-            INNER JOIN transfer_mapping USING (
-                block_number,
-                tx_position,
-                contract_address,
-                storage_key
-            )
-        WHERE
-            net_raw_balance = transfer_amount
-    )
+        ) AS post_balance,
+        post_raw_balance - pre_raw_balance AS net_raw_balance,
+        post_balance - pre_balance AS net_balance,
+        transfer_amount,
+        decimals
+    FROM
+        state_storage
+        INNER JOIN transfer_mapping USING (
+            block_number,
+            tx_position,
+            contract_address,
+            storage_key
+        )
+    WHERE
+        net_raw_balance = transfer_amount
+)
 
 {% if is_incremental() %},
 missing_data AS (
@@ -393,4 +408,3 @@ FROM
         this model
     GROUP BY contract_address 
 #}
-

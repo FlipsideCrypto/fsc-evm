@@ -50,6 +50,12 @@ sources:
     schema: streamline
     tables:
       - name: complete_contract_abis
+  - name: crosschain_price
+    database: >-
+      {{ 'CROSSCHAIN_DEV' if '_DEV' in target.database.upper() else 'CROSSCHAIN' }}
+    schema: price
+    tables:
+      - name: ez_asset_metadata
   - name: crosschain_silver
     database: >-
       {{ 'CROSSCHAIN_DEV' if '_DEV' in target.database.upper() else 'CROSSCHAIN' }}
