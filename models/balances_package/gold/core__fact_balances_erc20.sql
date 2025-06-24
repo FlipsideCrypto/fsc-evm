@@ -361,19 +361,4 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    FINAL 
-
-{# 
-    Add test to verify slots:
-    if > 1 slots in array or NULL, then false positive or missing slot. 
-    Flag and handle separately (e.g. rebase tokens) 
-
-    SELECT
-        contract_address,
-        ARRAY_AGG(
-            DISTINCT slot_number
-        ) AS slot_number_array
-    FROM
-        this model
-    GROUP BY contract_address 
-#}
+    FINAL

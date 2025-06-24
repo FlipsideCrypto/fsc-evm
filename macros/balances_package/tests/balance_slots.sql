@@ -1,5 +1,8 @@
 {% test balance_slots(model) %}
 
+{# If > 1 slots in array or NULL, then balance slot is missing. 
+Logic for these contracts must be handled separately (e.g. rebase tokens) #}
+
     SELECT
         contract_address,
         ARRAY_AGG(DISTINCT slot_number) AS slot_number_array,
