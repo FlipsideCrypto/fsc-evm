@@ -16,13 +16,15 @@ WITH erc20_transfers AS (
 
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         event_index,
         from_address,
         to_address,
         contract_address,
-        raw_amount
+        raw_amount,
+        decimals
     FROM
         {{ ref('core__ez_token_transfers') }}
         WHERE 1=1
@@ -39,17 +41,20 @@ WITH erc20_transfers AS (
 transfer_direction AS (
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         event_index,
         to_address AS user_address,
         contract_address,
-        raw_amount
+        raw_amount,
+        decimals
     FROM
         erc20_transfers
     UNION ALL
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         event_index,
@@ -57,19 +62,22 @@ transfer_direction AS (
         contract_address,
         (
             -1 * raw_amount
-        ) AS raw_amount
+        ) AS raw_amount,
+        decimals
     FROM
         erc20_transfers
 ),
 direction_agg AS (
     SELECT
         block_number,
+        block_timestamp,
         tx_hash,
         tx_position,
         event_index,
         user_address,
         contract_address,
-        SUM(raw_amount) AS transfer_amount
+        SUM(raw_amount) AS transfer_amount,
+        MAX(decimals) AS decimals
     FROM
         transfer_direction
     GROUP BY
@@ -207,6 +215,7 @@ WHERE
     transfer_mapping AS (
         SELECT
             block_number,
+            block_timestamp,
             tx_position,
             tx_hash,
             event_index,
@@ -217,7 +226,8 @@ WHERE
                 rn
             ) AS storage_key,
             rn AS slot_number,
-            transfer_amount
+            transfer_amount,
+            decimals
         FROM
             direction_agg,
             num_generator
@@ -225,7 +235,7 @@ WHERE
     final AS (
     SELECT
         block_number,
-        {# block_timestamp, #}
+        block_timestamp,
         tx_position,
         tx_hash,
         event_index,
@@ -235,16 +245,16 @@ WHERE
         slot_number,
         pre_storage_hex AS pre_hex_balance,
         utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
-        {# utils.udf_decimal_adjust(
+        utils.udf_decimal_adjust(
             pre_raw_balance,
-            c.decimals
-        ) AS pre_state_balance, #}
+            decimals
+        ) AS pre_state_balance,
         post_storage_hex AS post_hex_balance,
         utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
-        {# utils.udf_decimal_adjust(
+        utils.udf_decimal_adjust(
             post_raw_balance,
-            c.decimals
-        ) AS post_state_balance, #}
+            decimals
+        ) AS post_state_balance,
         post_raw_balance - pre_raw_balance AS net_raw_balance,
         transfer_amount
     FROM
@@ -255,14 +265,12 @@ WHERE
             contract_address,
             storage_key
         )
-        {# LEFT JOIN dim_contracts c USING(contract_address) #}
-        {# LEFT JOIN {{ ref('core__fact_blocks') }} b USING(block_number) #}
     WHERE
         net_raw_balance = transfer_amount
     )
     SELECT 
         block_number,
-        {# block_timestamp, #}
+        block_timestamp,
         tx_position,
         tx_hash,
         event_index,
@@ -270,10 +278,10 @@ WHERE
         user_address,
         pre_hex_balance,
         pre_raw_balance,
-        {# pre_state_balance,#}
+        pre_state_balance,
         post_hex_balance,
         post_raw_balance,
-        {# post_state_balance, #}
+        post_state_balance,
         net_raw_balance,
         {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'user_address']) }} AS fact_balances_erc20_id,
         SYSDATE() AS inserted_timestamp,
