@@ -5,6 +5,7 @@
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('bronze__state_tracer') }}
+-- depends_on: {{ ref('bronze__state_tracer_fr') }}
 
 {{ config (
     materialized = "incremental",
