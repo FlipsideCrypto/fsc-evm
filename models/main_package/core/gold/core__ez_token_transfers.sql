@@ -161,7 +161,7 @@ FROM
         t0.block_timestamp
     ) = HOUR
     AND t0.contract_address = p0.token_address
-WHERE t0.amount_usd IS NULL AND t0.modified_timestamp > dateadd('day', -31, SYSDATE())
+WHERE t0.amount_usd IS NULL AND t0.block_timestamp > dateadd('day', -31, SYSDATE())
 ),
 heal_metadata as (
 SELECT
@@ -195,7 +195,7 @@ FROM
     INNER JOIN {{ ref('core__dim_contracts') }}
     c0
     ON t0.contract_address = c0.address
-    WHERE t0.modified_timestamp > dateadd('day', -31, SYSDATE())
+    WHERE t0.block_timestamp > dateadd('day', -31, SYSDATE())
     and (
     (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
     OR (t0.name IS NULL AND c0.name IS NOT NULL)
