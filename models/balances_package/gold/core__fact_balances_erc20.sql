@@ -8,6 +8,7 @@
     materialized = "incremental",
     unique_key = ['block_number'],
     incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp::date', 'round(block_number, -3)'],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','balances','phase_4']
 ) }}
