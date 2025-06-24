@@ -187,3 +187,8 @@ Closing price of the recorded hour in USD.
 
 {% enddocs %}
 
+{% docs evm_prices_is_verified %}
+
+A flag indicating if the asset has been verified by the Flipside team.
+
+{% enddocs %}

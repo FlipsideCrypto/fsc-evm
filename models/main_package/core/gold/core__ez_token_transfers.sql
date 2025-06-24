@@ -7,12 +7,12 @@
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
-    unique_key = vars.MAIN_CORE_GOLD_EZ_TOKEN_TRANSFERS_UNIQUE_KEY,
+    unique_key = 'ez_token_transfers_id',
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
-    tags = ['gold','core','transfers','ez','phase_3', 'heal']
+    tags = ['gold','core','transfers','ez','phase_3']
 ) }}
 
 WITH base AS (
@@ -57,6 +57,7 @@ WITH base AS (
             'erc20',
             NULL
         ) AS token_standard,
+        p.is_verified as token_is_verified,
         fact_event_logs_id AS ez_token_transfers_id,
         {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
@@ -107,7 +108,102 @@ AND f.modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+)
+{% if is_incremental() %}
+, heal_prices as (
+SELECT
+    t0.block_number,
+    t0.block_timestamp,
+    t0.tx_hash,
+    t0.tx_position,
+    t0.event_index,
+    t0.from_address,
+    t0.to_address,
+    t0.contract_address,
+    t0.token_standard,
+    p0.is_verified as token_is_verified,
+    t0.name,
+    t0.symbol,
+    t0.decimals,
+    t0.raw_amount_precise,
+    t0.raw_amount,
+    IFF(
+        t0.decimals IS NULL,
+        NULL,
+        utils.udf_decimal_adjust(
+            t0.raw_amount_precise,
+            t0.decimals
+        )
+    ) AS amount_precise_heal,
+    amount_precise_heal :: FLOAT AS amount_heal,
+    IFF(
+        t0.decimals IS NOT NULL
+        AND p0.price IS NOT NULL,
+        ROUND(
+            amount_heal * p0.price,
+            2
+        ),
+        NULL
+    ) AS amount_usd_heal,
+    t0.origin_function_signature,
+    t0.origin_from_address,
+    t0.origin_to_address,
+    t0.ez_token_transfers_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
+FROM
+    {{ this }}
+    t0
+    INNER JOIN {{ ref('price__ez_prices_hourly') }}
+    p0
+    ON DATE_TRUNC(
+        'hour',
+        t0.block_timestamp
+    ) = HOUR
+    AND t0.contract_address = p0.token_address
+WHERE t0.amount_usd IS NULL AND t0.block_timestamp > dateadd('day', -31, SYSDATE())
 ),
+heal_metadata as (
+SELECT
+    t0.block_number,
+    t0.block_timestamp,
+    t0.tx_hash,
+    t0.tx_position,
+    t0.event_index,
+    t0.from_address,
+    t0.to_address,
+    t0.contract_address,
+    t0.token_standard,
+    t0.token_is_verified,
+    COALESCE(t0.name, c0.name) AS name_heal,
+    COALESCE(t0.symbol, c0.symbol) AS symbol_heal,
+    COALESCE(t0.decimals, c0.decimals) AS decimals_heal,
+    t0.raw_amount_precise,
+    t0.raw_amount,
+    t0.amount_precise,
+    t0.amount,
+    t0.amount_usd,
+    t0.origin_function_signature,
+    t0.origin_from_address,
+    t0.origin_to_address,
+    t0.ez_token_transfers_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
+FROM    
+    {{ this }}
+    t0
+    INNER JOIN {{ ref('core__dim_contracts') }}
+    c0
+    ON t0.contract_address = c0.address
+    WHERE t0.block_timestamp > dateadd('day', -31, SYSDATE())
+    and (
+    (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
+    OR (t0.name IS NULL AND c0.name IS NOT NULL)
+    OR (t0.decimals IS NULL AND c0.decimals IS NOT NULL)
+    ) 
+)
+{% endif %}
+,
 final AS (
 SELECT
     block_number,
@@ -119,6 +215,7 @@ SELECT
     to_address,
     contract_address,
     token_standard,
+    token_is_verified,
     NAME,
     symbol,
     decimals,
@@ -136,189 +233,18 @@ SELECT
 FROM
     base
 
-{% if is_incremental() and var('HEAL_MODEL',false) %}
+{% if is_incremental() %}
 UNION ALL
 SELECT
-    t0.block_number,
-    t0.block_timestamp,
-    t0.tx_hash,
-    t0.tx_position,
-    t0.event_index,
-    t0.from_address,
-    t0.to_address,
-    t0.contract_address,
-    t0.token_standard,
-    c0.name,
-    c0.symbol,
-    c0.decimals,
-    t0.raw_amount_precise,
-    t0.raw_amount,
-    IFF(
-        c0.decimals IS NULL,
-        NULL,
-        utils.udf_decimal_adjust(
-            t0.raw_amount_precise,
-            c0.decimals
-        )
-    ) AS amount_precise_heal,
-    amount_precise_heal :: FLOAT AS amount_heal,
-    IFF(
-        c0.decimals IS NOT NULL
-        AND p0.price IS NOT NULL,
-        ROUND(
-            amount_heal * p0.price,
-            2
-        ),
-        NULL
-    ) AS amount_usd_heal,
-    t0.origin_function_signature,
-    t0.origin_from_address,
-    t0.origin_to_address,
-    t0.ez_token_transfers_id,
-    {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
-    SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
-    {% else %}
-    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
-        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS inserted_timestamp,
-    CASE WHEN t0.block_timestamp >= date_trunc('hour',SYSDATE()) - interval '6 hours' THEN SYSDATE() 
-        ELSE GREATEST(t0.block_timestamp, dateadd('day', -10, SYSDATE())) END AS modified_timestamp
-    {% endif %}
+    *
 FROM
-    {{ this }}
-    t0
-    LEFT JOIN {{ ref('core__dim_contracts') }}
-    c0
-    ON t0.contract_address = c0.address
-    AND (
-        c0.decimals IS NOT NULL
-        OR c0.symbol IS NOT NULL
-        OR c0.name IS NOT NULL
-    )
-    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
-    p0
-    ON DATE_TRUNC(
-        'hour',
-        t0.block_timestamp
-    ) = HOUR
-    AND t0.contract_address = p0.token_address
-    LEFT JOIN base b USING (ez_token_transfers_id)
-WHERE
-    t0.block_timestamp > dateadd('day',-31,SYSDATE())
-    AND b.ez_token_transfers_id IS NULL
-    AND (
-        t0.block_number IN (
-            SELECT
-                DISTINCT t1.block_number
-            FROM
-                {{ this }}
-                t1
-            WHERE
-                t1.block_timestamp > dateadd('day',-31,SYSDATE())
-                AND t1.decimals IS NULL
-                AND t1.modified_timestamp <= (
-                    SELECT
-                        MAX(modified_timestamp)
-                    FROM
-                        {{ this }}
-                )
-                AND EXISTS (
-                    SELECT
-                        1
-                    FROM
-                        {{ ref('core__dim_contracts') }}
-                        c1
-                    WHERE
-                        c1.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
-                        AND c1.decimals IS NOT NULL
-                        AND t1.contract_address = c1.address)
-                ) -- Only heal decimals if new data exists
-                OR t0.block_number IN (
-                    SELECT
-                        DISTINCT t2.block_number
-                    FROM
-                        {{ this }}
-                        t2
-                    WHERE
-                        t2.block_timestamp > dateadd('day',-31,SYSDATE())
-                        AND t2.symbol IS NULL
-                        AND t2.modified_timestamp <= (
-                            SELECT
-                                MAX(modified_timestamp)
-                            FROM
-                                {{ this }}
-                        )
-                        AND EXISTS (
-                            SELECT
-                                1
-                            FROM
-                                {{ ref('core__dim_contracts') }}
-                                c2
-                            WHERE
-                                c2.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
-                                AND c2.symbol IS NOT NULL
-                                AND t2.contract_address = c2.address)
-                        ) -- Only heal symbol if new data exists
-                        OR t0.block_number IN (
-                            SELECT
-                                DISTINCT t3.block_number
-                            FROM
-                                {{ this }}
-                                t3
-                            WHERE
-                                t3.block_timestamp > dateadd('day',-31,SYSDATE())
-                                AND t3.name IS NULL
-                                AND t3.modified_timestamp <= (
-                                    SELECT
-                                        MAX(modified_timestamp)
-                                    FROM
-                                        {{ this }}
-                                )
-                                AND EXISTS (
-                                    SELECT
-                                        1
-                                    FROM
-                                        {{ ref('core__dim_contracts') }}
-                                        c3
-                                    WHERE
-                                        c3.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
-                                        AND c3.name IS NOT NULL
-                                        AND t3.contract_address = c3.address)
-                                ) -- Only heal name if new data exists
-                                OR t0.block_number IN (
-                                    SELECT
-                                        DISTINCT t4.block_number
-                                    FROM
-                                        {{ this }}
-                                        t4
-                                    WHERE
-                                        t4.block_timestamp > dateadd('day',-31,SYSDATE())
-                                        AND t4.amount_usd IS NULL
-                                        AND t4.modified_timestamp <= (
-                                            SELECT
-                                                MAX(modified_timestamp)
-                                            FROM
-                                                {{ this }}
-                                        )
-                                        AND EXISTS (
-                                            SELECT
-                                                1
-                                            FROM
-                                                {{ ref('price__ez_prices_hourly') }}
-                                                p1
-                                            WHERE
-                                                p1.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
-                                                AND p1.price IS NOT NULL
-                                                AND t4.decimals IS NOT NULL
-                                                AND t4.contract_address = p1.token_address
-                                                AND p1.hour = DATE_TRUNC(
-                                                    'hour',
-                                                    t4.block_timestamp
-                                                )
-                                        )
-                                ) -- Only heal USD if we have price and decimals
-                        )
-                    {% endif %}
+    heal_prices
+UNION ALL
+SELECT
+    *
+FROM
+    heal_metadata
+{% endif %}
 )
 SELECT
     block_number,
@@ -330,6 +256,7 @@ SELECT
     to_address,
     contract_address,
     token_standard,
+    token_is_verified,
     NAME,
     symbol,
     decimals,
@@ -347,5 +274,4 @@ SELECT
 FROM
     final
 
-qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id
-    ORDER BY modified_timestamp DESC)) = 1
+qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id ORDER BY modified_timestamp DESC, amount_usd DESC NULLS LAST, decimals DESC NULLS LAST, symbol DESC NULLS LAST, name DESC NULLS LAST)) = 1
