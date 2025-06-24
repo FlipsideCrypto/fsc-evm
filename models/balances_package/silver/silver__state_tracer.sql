@@ -28,7 +28,7 @@ WITH state_tracer AS (
         _inserted_timestamp
     FROM
 
-{% if is_incremental() %}
+{% if is_incremental() and not vars.BALANCES_SILVER_STATE_TRACER_FULL_RELOAD_ENABLED %}
 {{ ref('bronze__state_tracer') }}
 WHERE
     _inserted_timestamp > (
@@ -36,21 +36,35 @@ WHERE
             COALESCE(MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP) AS _inserted_timestamp
         FROM
             {{ this }})
-            AND DATA IS NOT NULL
-        {% else %}
+            AND DATA IS NOT NULL 
+        {% elif is_incremental() and vars.BALANCES_SILVER_STATE_TRACER_FULL_RELOAD_ENABLED %}
             {{ ref('bronze__state_tracer_fr') }}
         WHERE
             DATA IS NOT NULL
+            AND block_number BETWEEN (
+                SELECT
+                    MAX(
+                        block_number
+                    )
+                FROM
+                    {{ this }}
+            )
+            AND (
+                SELECT
+                    MAX(
+                        block_number
+                    ) + {{ vars.BALANCES_SILVER_STATE_TRACER_FULL_RELOAD_BLOCKS_PER_RUN }}
+                FROM
+                    {{ this }}
+            )
+        {% else %}
+            {{ ref('bronze__state_tracer') }}
+        WHERE
+            DATA IS NOT NULL
+            AND block_number <= {{ vars.BALANCES_SILVER_STATE_TRACER_FR_MAX_BLOCK }}
         {% endif %}
-       --temp filters for testing
-        AND partition_key IN (ROUND(25804285, -3), ROUND(25804301, -3), ROUND(25804312, -3), ROUND(25804315, -3))
-        AND block_number IN (
-            25804285,
-            25804301,
-            25804312,
-            25804315
-        ) 
- qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position
+
+        qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position
         ORDER BY
             _inserted_timestamp DESC)) = 1
     ),
