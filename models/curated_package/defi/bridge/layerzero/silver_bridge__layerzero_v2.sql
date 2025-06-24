@@ -78,13 +78,12 @@ oft_raw AS (
         AND topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
-        FROM
-            {{ this }}
-    )
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+    FROM
+        {{ this }}
+)
 {% endif %}
 )
 SELECT

@@ -54,13 +54,12 @@ WITH raw AS (
         AND contract_address = '{{ vars.CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT }}'
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
-        FROM
-            {{ this }}
-    )
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+    FROM
+        {{ this }}
+)
 {% endif %}
 )
 SELECT
