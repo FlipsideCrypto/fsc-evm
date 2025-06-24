@@ -276,7 +276,7 @@ balances AS (
 missing_data AS (
     SELECT
         t.block_number,
-        tr.block_timestamp AS block_timestamp_heal,
+        b.block_timestamp AS block_timestamp_heal,
         tx_position,
         tx_hash,
         event_index,
