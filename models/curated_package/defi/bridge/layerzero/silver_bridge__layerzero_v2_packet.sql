@@ -81,7 +81,9 @@ SELECT
     ) AS dst_chain,
     receiver_contract_address,
     guid,
-    message_type
+    message_type,
+    inserted_timestamp,
+    modified_timestamp
 FROM
     raw
     LEFT JOIN {{ ref('silver_bridge__layerzero_v2_bridge_seed') }}

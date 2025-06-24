@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: silver_bridge__layerzero_v2_packet
+
+    columns:
+      - name: SRC_CHAIN_ID
+        tests:
+          - not_null
+      - name: DST_CHAIN_ID
+        tests:
+          - not_null
+      - name: DST_CHAIN
+        tests:
+          - not_null:
+              config:
+                  severity: warn
+                  warn_if: ">3"
+      - name: TX_HASH
+        tests:
+          - not_null
+      - name: GUID
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
