@@ -140,7 +140,8 @@ pre_state_storage AS (
         pre.key :: STRING AS storage_key,
         pre.value :: STRING AS pre_storage_value_hex
     FROM
-        state_tracer LATERAL FLATTEN(
+        state_tracer, 
+        LATERAL FLATTEN(
             input => pre_storage
         ) pre
 ),
@@ -156,7 +157,8 @@ post_state_storage AS (
         post.key :: STRING AS storage_key,
         post.value :: STRING AS post_storage_value_hex
     FROM
-        state_tracer LATERAL FLATTEN(
+        state_tracer, 
+        LATERAL FLATTEN(
             input => post_storage
         ) post
 ),
