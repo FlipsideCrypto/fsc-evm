@@ -9,6 +9,7 @@ models:
             - TX_POSITION
             - CONTRACT_ADDRESS
             - ADDRESS
+      - balance_slots
 
     columns:
       - name: BLOCK_NUMBER
