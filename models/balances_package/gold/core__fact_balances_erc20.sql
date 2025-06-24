@@ -27,16 +27,25 @@ WITH erc20_transfers AS (
         decimals
     FROM
         {{ ref('core__ez_token_transfers') }}
-        WHERE 1=1
-        {% if is_incremental() %}
-        AND modified_timestamp > (
-            SELECT
-                MAX(modified_timestamp)
-            FROM
-                {{ this }})
-        {% endif %}
-        --temp filter for testing
-        AND block_number IN (25804285,25804301,25804312,25804315)
+    WHERE
+        1 = 1
+
+{% if is_incremental() %}
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
+
+--temp filter for testing
+AND block_number IN (
+    25804285,
+    25804301,
+    25804312,
+    25804315
+)
 ),
 transfer_direction AS (
     SELECT
@@ -194,8 +203,8 @@ WHERE
                 '0x0000000000000000000000000000000000000000000000000000000000000000'
             ) AS post_storage_hex
         FROM
-            pre_state_storage pre
-            FULL OUTER JOIN post_state_storage post USING (
+            pre_state_storage pre full
+            OUTER JOIN post_state_storage post USING (
                 block_number,
                 tx_position,
                 address,
@@ -209,8 +218,7 @@ WHERE
                     1 ASC
             ) - 1 AS rn
         FROM
-            TABLE(GENERATOR(rowcount => 51)) 
-            {# what are the max slots for erc20? potentially reduce this? #}
+            TABLE(GENERATOR(rowcount => 51)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
     ),
     transfer_mapping AS (
         SELECT
@@ -232,45 +240,88 @@ WHERE
             direction_agg,
             num_generator
     ),
-    final AS (
+    balances AS (
+        SELECT
+            block_number,
+            block_timestamp,
+            tx_position,
+            tx_hash,
+            event_index,
+            contract_address,
+            address,
+            storage_key,
+            slot_number,
+            pre_storage_hex AS pre_hex_balance,
+            utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
+            utils.udf_decimal_adjust(
+                pre_raw_balance,
+                decimals
+            ) AS pre_state_balance,
+            post_storage_hex AS post_hex_balance,
+            utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
+            utils.udf_decimal_adjust(
+                post_raw_balance,
+                decimals
+            ) AS post_state_balance,
+            post_raw_balance - pre_raw_balance AS net_raw_balance,
+            post_state_balance - pre_state_balance AS net_state_balance,
+            transfer_amount,
+            decimals
+        FROM
+            state_storage
+            INNER JOIN transfer_mapping USING (
+                block_number,
+                tx_position,
+                contract_address,
+                storage_key
+            )
+        WHERE
+            net_raw_balance = transfer_amount
+    )
+
+{% if is_incremental() %},
+missing_data AS (
     SELECT
-        block_number,
-        block_timestamp,
-        tx_position,
-        tx_hash,
-        event_index,
-        contract_address,
-        address,
+        t.block_number,
+        tr.block_timestamp AS block_timestamp_heal,
+        t.tx_position,
+        t.tx_hash,
+        t.event_index,
+        t.contract_address,
+        t.address,
         storage_key,
         slot_number,
-        pre_storage_hex AS pre_hex_balance,
-        utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
+        pre_hex_balance,
+        pre_raw_balance,
         utils.udf_decimal_adjust(
             pre_raw_balance,
-            decimals
-        ) AS pre_state_balance,
-        post_storage_hex AS post_hex_balance,
-        utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
+            tr.decimals
+        ) AS pre_state_balance_heal,
+        post_hex_balance,
+        post_raw_balance,
         utils.udf_decimal_adjust(
             post_raw_balance,
-            decimals
-        ) AS post_state_balance,
-        post_raw_balance - pre_raw_balance AS net_raw_balance,
-        post_state_balance - pre_state_balance AS net_state_balance,
+            tr.decimals
+        ) AS post_state_balance_heal,
+        net_raw_balance,
+        post_state_balance_heal - pre_state_balance_heal AS net_state_balance_heal,
         transfer_amount,
-        decimals
+        tr.decimals AS decimals_heal
     FROM
-        state_storage
-        INNER JOIN transfer_mapping USING (
+        {{ this }}
+        t
+        LEFT JOIN {{ ref('core__ez_token_transfers') }}
+        tr USING (
             block_number,
             tx_position,
-            contract_address,
-            storage_key
+            contract_address
         )
     WHERE
-        net_raw_balance = transfer_amount
-    )
-    SELECT 
+        t.block_timestamp IS NULL
+)
+{% endif %},
+FINAL AS (
+    SELECT
         block_number,
         block_timestamp,
         tx_position,
@@ -286,14 +337,56 @@ WHERE
         post_raw_balance,
         post_state_balance,
         net_raw_balance,
-        net_state_balance,
-        {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
-        SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp
-    FROM final
-    {# + add heal logic for block_timestamp and decimals #}
+        net_state_balance
+    FROM
+        balances
 
-
+{% if is_incremental() %}
+UNION ALL
+SELECT
+    block_number,
+    block_timestamp_heal AS block_timestamp,
+    tx_position,
+    tx_hash,
+    event_index,
+    contract_address,
+    decimals_heal AS decimals,
+    address,
+    pre_hex_balance,
+    pre_raw_balance,
+    pre_state_balance_heal AS pre_state_balance,
+    post_hex_balance,
+    post_raw_balance,
+    post_state_balance_heal AS post_state_balance,
+    net_raw_balance,
+    net_state_balance_heal AS net_state_balance
+FROM
+    missing_data
+{% endif %}
+)
+SELECT
+    block_number,
+    block_timestamp,
+    tx_position,
+    tx_hash,
+    event_index,
+    contract_address,
+    decimals,
+    address,
+    pre_hex_balance,
+    pre_raw_balance,
+    pre_state_balance,
+    post_hex_balance,
+    post_raw_balance,
+    post_state_balance,
+    net_raw_balance,
+    net_state_balance,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
+FROM
+    FINAL 
+    
 {# 
     Add test to verify slots:
     if > 1 slots in array or NULL, then false positive or missing slot. 
