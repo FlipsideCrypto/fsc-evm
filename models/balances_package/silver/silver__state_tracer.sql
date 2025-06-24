@@ -59,7 +59,7 @@ WHERE
                     {{ this }}
             )
         {% else %}
-            {{ ref('bronze__state_tracer') }}
+            {{ ref('bronze__state_tracer_fr') }}
         WHERE
             DATA IS NOT NULL
             AND partition_key <= {{ vars.BALANCES_SILVER_STATE_TRACER_FR_MAX_BLOCK }}
