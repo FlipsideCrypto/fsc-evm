@@ -163,7 +163,7 @@ FROM
     AND t0.contract_address = p0.token_address
 WHERE t0.amount_usd IS NULL AND t0.modified_timestamp > dateadd('day', -31, SYSDATE())
 ),
-heal_decimals as (
+heal_metadata as (
 SELECT
     t0.block_number,
     t0.block_timestamp,
@@ -175,9 +175,9 @@ SELECT
     t0.contract_address,
     t0.token_standard,
     t0.token_is_verified,
-    t0.name,
-    t0.symbol,
-    c0.decimals,
+    COALESCE(t0.name, c0.name) AS name_heal,
+    COALESCE(t0.symbol, c0.symbol) AS symbol_heal,
+    COALESCE(t0.decimals, c0.decimals) AS decimals_heal,
     t0.raw_amount_precise,
     t0.raw_amount,
     t0.amount_precise,
@@ -195,81 +195,12 @@ FROM
     INNER JOIN {{ ref('core__dim_contracts') }}
     c0
     ON t0.contract_address = c0.address
-    WHERE t0.decimals IS NULL
-    AND c0.decimals IS NOT NULL
-    AND t0.modified_timestamp > dateadd('day', -31, SYSDATE())
-),
-heal_symbol as (
-SELECT
-    t0.block_number,
-    t0.block_timestamp,
-    t0.tx_hash,
-    t0.tx_position,
-    t0.event_index,
-    t0.from_address,
-    t0.to_address,
-    t0.contract_address,
-    t0.token_standard,
-    t0.token_is_verified,
-    t0.name,
-    c0.symbol,
-    t0.decimals,
-    t0.raw_amount_precise,
-    t0.raw_amount,
-    t0.amount_precise,
-    t0.amount,
-    t0.amount_usd,
-    t0.origin_function_signature,
-    t0.origin_from_address,
-    t0.origin_to_address,
-    t0.ez_token_transfers_id,
-    SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
-FROM    
-    {{ this }}
-    t0
-    INNER JOIN {{ ref('core__dim_contracts') }}
-    c0
-    ON t0.contract_address = c0.address
-    WHERE t0.symbol IS NULL
-    AND c0.symbol IS NOT NULL
-    AND t0.modified_timestamp > dateadd('day', -31, SYSDATE())
-),
-heal_name as (
-SELECT
-    t0.block_number,
-    t0.block_timestamp,
-    t0.tx_hash,
-    t0.tx_position,
-    t0.event_index,
-    t0.from_address,
-    t0.to_address,
-    t0.contract_address,
-    t0.token_standard,
-    t0.token_is_verified,
-    c0.name,
-    t0.symbol,
-    t0.decimals,
-    t0.raw_amount_precise,
-    t0.raw_amount,
-    t0.amount_precise,
-    t0.amount,
-    t0.amount_usd,
-    t0.origin_function_signature,
-    t0.origin_from_address,
-    t0.origin_to_address,
-    t0.ez_token_transfers_id,
-    SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
-FROM    
-    {{ this }}
-    t0
-    INNER JOIN {{ ref('core__dim_contracts') }}
-    c0
-    ON t0.contract_address = c0.address
-    WHERE t0.name IS NULL
-    AND c0.name IS NOT NULL
-    AND t0.modified_timestamp > dateadd('day', -31, SYSDATE())
+    WHERE t0.modified_timestamp > dateadd('day', -31, SYSDATE())
+    and (
+    (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
+    OR (t0.name IS NULL AND c0.name IS NOT NULL)
+    OR (t0.decimals IS NULL AND c0.decimals IS NOT NULL)
+    ) 
 )
 {% endif %}
 ,
@@ -312,17 +243,7 @@ UNION ALL
 SELECT
     *
 FROM
-    heal_decimals
-UNION ALL
-SELECT
-    *
-FROM
-    heal_symbol
-UNION ALL
-SELECT
-    *
-FROM
-    heal_name
+    heal_metadata
 {% endif %}
 )
 SELECT
