@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -182,13 +180,15 @@ SELECT
 FROM
     {{ this }}
     t
-    LEFT JOIN {{ ref('silver_bridge__stargate_asset_seed') }} A
+    LEFT JOIN {{ ref('silver_bridge__stargate_v2_asset_seed') }} A
     ON t.bridge_address = A.oftaddress
     AND A.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
-    LEFT JOIN {{ ref('silver_bridge__layerzero_bridge_seed') }}
+    LEFT JOIN {{ ref('silver_bridge__layerzero_v2_bridge_seed') }}
     b
     ON t.destination_chain_id = b.eid
-    where t.token_address is null or t.destination_chain is null 
+WHERE
+    t.token_address IS NULL
+    OR t.destination_chain IS NULL
 {% endif %}
 )
 SELECT

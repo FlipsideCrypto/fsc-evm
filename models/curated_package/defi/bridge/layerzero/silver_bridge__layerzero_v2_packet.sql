@@ -84,9 +84,9 @@ SELECT
     message_type
 FROM
     raw
-    LEFT JOIN {{ ref('silver_bridge__layerzero_bridge_seed') }}
+    LEFT JOIN {{ ref('silver_bridge__layerzero_v2_bridge_seed') }}
     c1
     ON src_chain_id = c1.eid
-    LEFT JOIN {{ ref('silver_bridge__layerzero_bridge_seed') }}
+    LEFT JOIN {{ ref('silver_bridge__layerzero_v2_bridge_seed') }}
     c2
     ON dst_chain_id = c2.eid

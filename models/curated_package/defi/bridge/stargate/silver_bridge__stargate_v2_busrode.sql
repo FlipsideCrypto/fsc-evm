@@ -164,6 +164,6 @@ FROM
         o.oft_sent_index < b.next_bus_rode_index
         OR b.next_bus_rode_index IS NULL
     )
-    LEFT JOIN {{ ref('silver_bridge__stargate_asset_seed') }} A
+    LEFT JOIN {{ ref('silver_bridge__stargate_v2_asset_seed') }} A
     ON asset_id = id
     AND A.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'

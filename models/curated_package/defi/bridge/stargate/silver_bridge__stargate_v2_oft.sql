@@ -129,6 +129,6 @@ FROM
         tx_hash,
         guid
     )
-    LEFT JOIN {{ ref('silver_bridge__stargate_asset_seed') }} A
+    LEFT JOIN {{ ref('silver_bridge__stargate_v2_asset_seed') }} A
     ON o.stargate_oft_address = A.oftaddress
     AND A.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
