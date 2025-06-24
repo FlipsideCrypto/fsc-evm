@@ -288,9 +288,8 @@ missing_data AS (
         t.tx_hash,
         t.event_index,
         t.contract_address,
+        tr.decimals AS decimals_heal,
         t.address,
-        storage_key,
-        slot_number,
         pre_hex_balance,
         pre_raw_balance,
         utils.udf_decimal_adjust(
@@ -304,9 +303,7 @@ missing_data AS (
             tr.decimals
         ) AS post_state_balance_heal,
         net_raw_balance,
-        post_state_balance_heal - pre_state_balance_heal AS net_state_balance_heal,
-        transfer_amount,
-        tr.decimals AS decimals_heal
+        post_state_balance_heal - pre_state_balance_heal AS net_state_balance_heal
     FROM
         {{ this }}
         t
@@ -386,7 +383,7 @@ SELECT
     SYSDATE() AS modified_timestamp
 FROM
     FINAL 
-    
+
 {# 
     Add test to verify slots:
     if > 1 slots in array or NULL, then false positive or missing slot. 
