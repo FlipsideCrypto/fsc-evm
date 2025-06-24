@@ -75,42 +75,6 @@ Enter new tag name (e.g., v1.1.0) or 'q' to quit:
 vx.y.z # where x, y, and z are the new version numbers (or q to quit)
 ```
 
-## Version Management
-
-#### For dbt packages.yml
-
-```yaml
-packages:
-  # Maximum stability: Pin to specific version
-  - git: https://github.com/FlipsideCrypto/fsc-evm.git
-    revision: v4.2.3
-```
-
-### Creating New Stable Branches
-Make sure you're on main and up to date
-```
-git checkout main
-git pull origin main
-```
-
-Create the new branch from main
-```
-git checkout -b AN-xxxx/new-branch
-```
-
-Push it to the remote repository
-```
-git push -u origin AN-xxxx/new-branch
-```
-
-### Creating New Versions
-```
-# Development releases
-git tag vx.y.z-dev   # → merge to AN-xxxx/new-branch
-# Production releases
-git tag vx.y.z        # → merge to AN-xxxx/new-branch
-```
-
 ### Version Strategy
 
 - **Major versions** (v4.x.x → v5.x.x): Breaking changes, new features
@@ -120,7 +84,7 @@ git tag vx.y.z        # → merge to AN-xxxx/new-branch
 ### Regarding Semantic Versioning;
 1. Semantic versioning is a versioning scheme for software that aims to convey meaning about the underlying changes with each new release.
 2. It's typically formatted as MAJOR.MINOR.PATCH (e.g. v1.2.3), where:
-- MAJOR version (first number) should increment when there are potential breaking or incompatible changes that are structural to the design of the package .
+- MAJOR version (first number) should increment when there are potential breaking or incompatible changes that are structural to the design of the package.
 - MINOR version (second number) should increment when functionality or features are added in a backwards-compatible manner or minor breaking changes, including those that require changes to variable names or table refreshes.
 - PATCH version (third number) should increment when bug fixes are made without adding new features, or existing variables are updated.
 3. Semantic versioning helps package users understand the degree of changes in a new release, and decide when to adopt new versions. With dbt packages, when you tag a release with a semantic version, users can specify the exact version they want to use in their projects.
