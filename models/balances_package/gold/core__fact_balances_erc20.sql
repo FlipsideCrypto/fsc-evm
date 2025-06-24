@@ -257,7 +257,8 @@ WHERE
         ) AS post_state_balance,
         post_raw_balance - pre_raw_balance AS net_raw_balance,
         post_state_balance - pre_state_balance AS net_state_balance,
-        transfer_amount
+        transfer_amount,
+        decimals
     FROM
         state_storage
         INNER JOIN transfer_mapping USING (
@@ -276,6 +277,7 @@ WHERE
         tx_hash,
         event_index,
         contract_address,
+        decimals,
         address,
         pre_hex_balance,
         pre_raw_balance,
