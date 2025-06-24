@@ -134,6 +134,7 @@ bus_raw AS (
         topic_0 = '0x15955c5a4cc61b8fbb05301bce47fd31c0e6f935e1ab97fdac9b134c887bb074'
 )
 SELECT
+    o.block_number,
     o.block_timestamp,
     o.tx_hash,
     o.oft_sent_index,
