@@ -15,20 +15,18 @@
     tags = ['silver','balances','phase_4']
 ) }}
 
-SELECT
-    partition_key,
-    block_number,
-    array_index AS tx_position,
-    DATA :txHash :: STRING AS tx_hash,
-    DATA :result :pre :: variant AS pre_state_json,
-    DATA :result :post :: variant AS post_state_json,
-    DATA AS state_json,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position']) }} AS state_tracer_id,
-    _inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
-    SYSDATE() AS inserted_timestamp,
-    '{{ invocation_id }}' AS _invocation_id
-FROM
+WITH state_tracer AS (
+
+    SELECT
+        partition_key,
+        block_number,
+        array_index AS tx_position,
+        DATA AS state_json,
+        DATA :txHash :: STRING AS tx_hash,
+        DATA :result :pre :: variant AS pre_state_json,
+        DATA :result :post :: variant AS post_state_json,
+        _inserted_timestamp
+    FROM
 
 {% if is_incremental() %}
 {{ ref('bronze__state_tracer') }}
@@ -44,10 +42,84 @@ WHERE
         WHERE
             DATA IS NOT NULL
         {% endif %}
---temp filters for testing
-AND partition_key IN (ROUND(25804285,-3),ROUND(25804301,-3),ROUND(25804312,-3),ROUND(25804315,-3))
-AND block_number IN (25804285,25804301,25804312,25804315)
-
-        qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position
+       --temp filters for testing
+        AND partition_key IN (ROUND(25804285, -3), ROUND(25804301, -3), ROUND(25804312, -3), ROUND(25804315, -3))
+        AND block_number IN (
+            25804285,
+            25804301,
+            25804312,
+            25804315
+        ) 
+ qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position
         ORDER BY
             _inserted_timestamp DESC)) = 1
+    ),
+    pre_state AS (
+        SELECT
+            partition_key,
+            block_number,
+            tx_position,
+            state_json,
+            tx_hash,
+            pre_state_json,
+            pre.key AS address,
+            pre.value :nonce :: bigint AS pre_nonce,
+            pre.value :balance :: STRING AS pre_hex_balance,
+            pre.value :storage :: variant AS pre_storage,
+            pre.value :code :: STRING AS pre_code,
+            _inserted_timestamp
+        FROM
+            state_tracer,
+            LATERAL FLATTEN(
+                input => pre_state_json
+            ) pre
+    ),
+    post_state AS (
+        SELECT
+            partition_key,
+            block_number,
+            tx_position,
+            state_json,
+            tx_hash,
+            post_state_json,
+            post.key AS address,
+            post.value :nonce :: bigint AS post_nonce,
+            post.value :balance :: STRING AS post_hex_balance,
+            post.value :storage :: variant AS post_storage,
+            post.value :code :: STRING AS post_code,
+            _inserted_timestamp
+        FROM
+            state_tracer,
+            LATERAL FLATTEN(
+                input => post_state_json
+            ) post
+    )
+SELECT
+    pre.partition_key,
+    pre.block_number,
+    pre.tx_position,
+    pre.state_json,
+    pre.tx_hash,
+    pre.pre_state_json,
+    post.post_state_json,
+    pre.address,
+    pre_nonce,
+    pre_hex_balance,
+    pre_storage,
+    pre_code,
+    post_nonce,
+    post_hex_balance,
+    post_storage,
+    post_code,
+    {{ dbt_utils.generate_surrogate_key(['pre.block_number', 'pre.tx_position', 'pre.address']) }} AS state_tracer_id,
+    _inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS inserted_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
+FROM
+    pre_state pre
+    LEFT JOIN post_state post USING(
+        block_number,
+        tx_position,
+        address
+    )

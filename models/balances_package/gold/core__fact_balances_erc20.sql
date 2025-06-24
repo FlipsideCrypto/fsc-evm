@@ -29,15 +29,11 @@ WITH erc20_transfers AS (
     FROM
         {{ ref('core__ez_token_transfers') }}
         t
-        INNER JOIN {{ source(
-            'crosschain_price',
-            'ez_asset_metadata'
-        ) }}
-        m --limit balances to verified assets only (temp ref to crosschain, replace before merging)
+        INNER JOIN {{ ref('price__ez_asset_metadata') }}
+        m --limit balances to verified assets only
         ON t.contract_address = m.token_address
     WHERE
-        blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
-        AND is_verified
+        is_verified
         AND asset_id IS NOT NULL
 
 {% if is_incremental() %}
@@ -100,7 +96,12 @@ state_tracer AS (
         tx_position,
         tx_hash,
         pre_state_json,
-        post_state_json
+        post_state_json,
+        address,
+        pre_nonce,
+        pre_storage,
+        post_nonce,
+        post_storage
     FROM
         {{ ref('silver__state_tracer') }}
     WHERE
@@ -127,22 +128,6 @@ AND modified_timestamp > (
         {{ this }})
     {% endif %}
 ),
-pre_state AS (
-    SELECT
-        block_number,
-        tx_position,
-        tx_hash,
-        pre_state_json,
-        f.key AS address,
-        f.value :storage AS pre_storage
-    FROM
-        state_tracer,
-        LATERAL FLATTEN(
-            input => pre_state_json
-        ) f
-    WHERE
-        f.value :storage IS NOT NULL
-),
 pre_state_storage AS (
     SELECT
         block_number,
@@ -150,30 +135,14 @@ pre_state_storage AS (
         tx_hash,
         pre_state_json,
         address,
+        pre_nonce,
         pre_storage,
-        f.key :: STRING AS storage_key,
-        f.value :: STRING AS pre_storage_value_hex
+        pre.key :: STRING AS storage_key,
+        pre.value :: STRING AS pre_storage_value_hex
     FROM
-        pre_state,
-        LATERAL FLATTEN(
+        state_tracer LATERAL FLATTEN(
             input => pre_storage
-        ) f
-),
-post_state AS (
-    SELECT
-        block_number,
-        tx_position,
-        tx_hash,
-        post_state_json,
-        f.key AS address,
-        f.value :storage AS post_storage
-    FROM
-        state_tracer,
-        LATERAL FLATTEN(
-            input => post_state_json
-        ) f
-    WHERE
-        f.value :storage IS NOT NULL
+        ) pre
 ),
 post_state_storage AS (
     SELECT
@@ -182,14 +151,14 @@ post_state_storage AS (
         tx_hash,
         post_state_json,
         address,
+        post_nonce,
         post_storage,
-        f.key :: STRING AS storage_key,
-        f.value :: STRING AS post_storage_value_hex
+        post.key :: STRING AS storage_key,
+        post.value :: STRING AS post_storage_value_hex
     FROM
-        post_state,
-        LATERAL FLATTEN(
+        state_tracer LATERAL FLATTEN(
             input => post_storage
-        ) f
+        ) post
 ),
 state_storage AS (
     SELECT
@@ -217,10 +186,12 @@ state_storage AS (
         COALESCE(
             post_storage_value_hex,
             '0x0000000000000000000000000000000000000000000000000000000000000000'
-        ) AS post_storage_hex
+        ) AS post_storage_hex,
+        pre_nonce,
+        post_nonce
     FROM
         pre_state_storage pre
-        OUTER JOIN post_state_storage post USING (
+        FULL OUTER JOIN post_state_storage post USING (
             block_number,
             tx_position,
             address,
@@ -282,7 +253,9 @@ balances AS (
         post_raw_balance - pre_raw_balance AS net_raw_balance,
         post_balance - pre_balance AS net_balance,
         transfer_amount,
-        decimals
+        decimals,
+        pre_nonce,
+        post_nonce
     FROM
         state_storage
         INNER JOIN transfer_mapping USING (
@@ -307,6 +280,8 @@ missing_data AS (
         decimals,
         slot_number,
         address,
+        pre_nonce,
+        post_nonce,
         pre_hex_balance,
         pre_raw_balance,
         pre_balance,
@@ -335,6 +310,8 @@ FINAL AS (
         decimals,
         slot_number,
         address,
+        pre_nonce,
+        post_nonce,
         pre_hex_balance,
         pre_raw_balance,
         pre_balance,
@@ -358,6 +335,8 @@ SELECT
     decimals,
     slot_number,
     address,
+    pre_nonce,
+    post_nonce,
     pre_hex_balance,
     pre_raw_balance,
     pre_balance,
@@ -380,6 +359,8 @@ SELECT
     decimals,
     slot_number,
     address,
+    pre_nonce,
+    post_nonce,
     pre_hex_balance,
     pre_raw_balance,
     pre_balance,

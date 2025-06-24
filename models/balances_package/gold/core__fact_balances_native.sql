@@ -20,7 +20,12 @@ WITH state_tracer AS (
         tx_position,
         tx_hash,
         pre_state_json,
-        post_state_json
+        post_state_json,
+        address,
+        pre_nonce,
+        pre_hex_balance,
+        post_nonce,
+        post_hex_balance
     FROM
         {{ ref('silver__state_tracer') }}
 
@@ -39,16 +44,13 @@ WHERE
             tx_position,
             tx_hash,
             pre_state_json,
-            f.key AS address,
-            f.value :nonce :: bigint AS nonce,
-            f.value :balance :: STRING AS hex_balance
+            address,
+            pre_nonce AS nonce,
+            pre_hex_balance AS hex_balance
         FROM
-            state_tracer,
-            LATERAL FLATTEN(
-                input => pre_state_json
-            ) f
+            state_tracer
         WHERE
-            f.value :balance IS NOT NULL
+            pre_hex_balance IS NOT NULL
     ),
     post_state AS (
         SELECT
@@ -56,42 +58,39 @@ WHERE
             tx_position,
             tx_hash,
             post_state_json,
-            f.key AS address,
-            f.value :nonce :: bigint AS nonce,
-            f.value :balance :: STRING AS hex_balance
+            address,
+            post_nonce AS nonce,
+            post_hex_balance AS hex_balance
         FROM
-            state_tracer,
-            LATERAL FLATTEN(
-                input => post_state_json
-            ) f
+            state_tracer
         WHERE
-            f.value :balance IS NOT NULL
+            post_hex_balance IS NOT NULL
     ),
     balances AS (
         SELECT
-            p.block_number,
+            pre.block_number,
             b.block_timestamp,
-            p.tx_position,
-            p.tx_hash,
-            p.address,
-            p.nonce AS pre_nonce,
-            p.hex_balance AS pre_hex_balance,
+            pre.tx_position,
+            pre.tx_hash,
+            pre.address,
+            pre.nonce AS pre_nonce,
+            pre.hex_balance AS pre_hex_balance,
             utils.udf_hex_to_int(
-                p.hex_balance
+                pre.hex_balance
             ) :: bigint AS pre_raw_balance,
             utils.udf_decimal_adjust(
                 pre_raw_balance,
                 18
             ) AS pre_balance,
             COALESCE(
-                pt.nonce,
-                p.nonce
+                post.nonce,
+                pre.nonce
             ) AS post_nonce,
             COALESCE(
-                pt.hex_balance,
-                p.hex_balance
+                post.hex_balance,
+                pre.hex_balance
             ) AS post_hex_balance,
-            utils.udf_hex_to_int(COALESCE(pt.hex_balance, p.hex_balance)) :: bigint AS post_raw_balance,
+            utils.udf_hex_to_int(COALESCE(post.hex_balance, pre.hex_balance)) :: bigint AS post_raw_balance,
             utils.udf_decimal_adjust(
                 post_raw_balance,
                 18
@@ -99,8 +98,8 @@ WHERE
             post_raw_balance - pre_raw_balance AS net_raw_balance,
             post_balance - pre_balance AS net_balance
         FROM
-            pre_state p
-            LEFT JOIN post_state pt USING(
+            pre_state pre
+            LEFT JOIN post_state post USING(
                 block_number,
                 tx_position,
                 address
