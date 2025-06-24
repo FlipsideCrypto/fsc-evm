@@ -13,6 +13,8 @@
     tags = ['silver','balances','phase_4']
 ) }}
 
+--depends_on: {{ ref('core__fact_blocks') }}
+
 WITH erc20_transfers AS (
 
     SELECT
