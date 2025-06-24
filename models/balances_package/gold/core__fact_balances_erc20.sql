@@ -45,7 +45,7 @@ transfer_direction AS (
         tx_position,
         tx_hash,
         event_index,
-        to_address AS user_address,
+        to_address AS address,
         contract_address,
         raw_amount,
         decimals
@@ -58,7 +58,7 @@ transfer_direction AS (
         tx_position,
         tx_hash,
         event_index,
-        from_address AS user_address,
+        from_address AS address,
         contract_address,
         (
             -1 * raw_amount
@@ -74,7 +74,7 @@ direction_agg AS (
         tx_hash,
         tx_position,
         event_index,
-        user_address,
+        address,
         contract_address,
         SUM(raw_amount) AS transfer_amount,
         MAX(decimals) AS decimals
@@ -220,9 +220,9 @@ WHERE
             tx_hash,
             event_index,
             contract_address,
-            user_address,
+            address,
             utils.udf_mapping_slot(
-                user_address,
+                address,
                 rn
             ) AS storage_key,
             rn AS slot_number,
@@ -240,7 +240,7 @@ WHERE
         tx_hash,
         event_index,
         contract_address,
-        user_address,
+        address,
         storage_key,
         slot_number,
         pre_storage_hex AS pre_hex_balance,
@@ -256,6 +256,7 @@ WHERE
             decimals
         ) AS post_state_balance,
         post_raw_balance - pre_raw_balance AS net_raw_balance,
+        post_state_balance - pre_state_balance AS net_state_balance,
         transfer_amount
     FROM
         state_storage
@@ -275,7 +276,7 @@ WHERE
         tx_hash,
         event_index,
         contract_address,
-        user_address,
+        address,
         pre_hex_balance,
         pre_raw_balance,
         pre_state_balance,
@@ -283,7 +284,8 @@ WHERE
         post_raw_balance,
         post_state_balance,
         net_raw_balance,
-        {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'user_address']) }} AS fact_balances_erc20_id,
+        net_state_balance,
+        {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
     FROM final

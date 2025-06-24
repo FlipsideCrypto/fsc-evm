@@ -96,6 +96,7 @@ WHERE
                 post_raw_balance,
                 18
             ) AS post_state_balance,
+            post_raw_balance - pre_raw_balance AS net_raw_balance,
             post_state_balance - pre_state_balance AS net_state_balance
         FROM
             pre_state p
@@ -124,6 +125,7 @@ missing_data AS (
         post_hex_balance,
         post_raw_balance,
         post_state_balance,
+        net_raw_balance,
         net_state_balance
     FROM
         {{ this }}
@@ -149,6 +151,7 @@ FINAL AS (
         post_hex_balance,
         post_raw_balance,
         post_state_balance,
+        net_raw_balance,
         net_state_balance
     FROM
         balances
@@ -169,6 +172,7 @@ SELECT
     post_hex_balance,
     post_raw_balance,
     post_state_balance,
+    net_raw_balance,
     net_state_balance
 FROM
     missing_data
@@ -188,6 +192,7 @@ SELECT
     post_hex_balance,
     post_raw_balance,
     post_state_balance,
+    net_raw_balance,
     net_state_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_balances_native_id,
     SYSDATE() AS inserted_timestamp,
