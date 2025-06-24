@@ -100,9 +100,7 @@ state_tracer AS (
         pre_state_json,
         post_state_json,
         address,
-        pre_nonce,
         pre_storage,
-        post_nonce,
         post_storage
     FROM
         {{ ref('silver__state_tracer') }}
@@ -137,7 +135,6 @@ pre_state_storage AS (
         tx_hash,
         pre_state_json,
         address,
-        pre_nonce,
         pre_storage,
         pre.key :: STRING AS storage_key,
         pre.value :: STRING AS pre_storage_value_hex
@@ -154,7 +151,6 @@ post_state_storage AS (
         tx_hash,
         post_state_json,
         address,
-        post_nonce,
         post_storage,
         post.key :: STRING AS storage_key,
         post.value :: STRING AS post_storage_value_hex
@@ -190,9 +186,7 @@ state_storage AS (
         COALESCE(
             post_storage_value_hex,
             '0x0000000000000000000000000000000000000000000000000000000000000000'
-        ) AS post_storage_hex,
-        pre_nonce,
-        post_nonce
+        ) AS post_storage_hex
     FROM
         pre_state_storage pre
         FULL OUTER JOIN post_state_storage post USING (
@@ -257,9 +251,7 @@ balances AS (
         post_raw_balance - pre_raw_balance AS net_raw_balance,
         post_balance - pre_balance AS net_balance,
         transfer_amount,
-        decimals,
-        pre_nonce,
-        post_nonce
+        decimals
     FROM
         state_storage
         INNER JOIN transfer_mapping USING (
@@ -284,8 +276,6 @@ missing_data AS (
         decimals,
         slot_number,
         address,
-        pre_nonce,
-        post_nonce,
         pre_hex_balance,
         pre_raw_balance,
         pre_balance,
@@ -314,8 +304,6 @@ FINAL AS (
         decimals,
         slot_number,
         address,
-        pre_nonce,
-        post_nonce,
         pre_hex_balance,
         pre_raw_balance,
         pre_balance,
@@ -339,8 +327,6 @@ SELECT
     decimals,
     slot_number,
     address,
-    pre_nonce,
-    post_nonce,
     pre_hex_balance,
     pre_raw_balance,
     pre_balance,
@@ -363,8 +349,6 @@ SELECT
     decimals,
     slot_number,
     address,
-    pre_nonce,
-    post_nonce,
     pre_hex_balance,
     pre_raw_balance,
     pre_balance,
