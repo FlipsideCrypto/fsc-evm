@@ -1,182 +1,284 @@
 {% docs evm_blocks_table_doc %}
 
-This table contains block level data for this EVM blockchain. This table can be used to analyze trends at a block level, for example gas fees vs. total transactions over time. For more information, please see [Etherscan Resources](https://etherscan.io/directory/Learning_Resources/Ethereum) or [The Ethereum Organization](https://ethereum.org/en/developers/docs/blocks/)
+## Table: fact_blocks
+
+This table contains block-level data for EVM blockchains, providing a complete record of all blocks produced on the chain. Each row represents one block with its associated metadata, transactions, and gas metrics.
+
+### Key Use Cases:
+- Analyze gas price trends and network congestion over time
+- Track block production rates and miner/validator performance
+- Monitor network upgrades and their impact (e.g., EIP-1559, EIP-4844)
+- Calculate transaction throughput and network utilization
+- Identify uncle blocks and chain reorganizations
+
+### Important Relationships:
+- **Join with fact_transactions**: Use `block_number` to analyze all transactions within a block
+- **Join with fact_traces**: Use `block_number` to examine internal transactions
+- **Join with fact_event_logs**: Use `block_number` to find all events emitted in a block
+
+### Sample Queries:
+
+```sql
+-- Average gas price and utilization by hour
+SELECT 
+    DATE_TRUNC('hour', block_timestamp) AS hour,
+    AVG(gas_used / gas_limit) AS avg_gas_utilization,
+    AVG(base_fee_per_gas) AS avg_base_fee,
+    COUNT(*) AS blocks_count,
+    SUM(tx_count) AS total_transactions
+FROM fact_blocks
+WHERE block_timestamp >= CURRENT_DATE - 7
+GROUP BY 1
+ORDER BY 1 DESC;
+
+-- Identify high-value blocks by total gas used
+SELECT 
+    block_number,
+    block_timestamp,
+    tx_count,
+    gas_used,
+    gas_limit,
+    (gas_used::FLOAT / gas_limit) AS utilization_rate,
+    miner
+FROM fact_blocks
+WHERE block_timestamp >= CURRENT_DATE - 1
+ORDER BY gas_used DESC
+LIMIT 100;
+Critical Fields for Analysis:
+
+block_number: Sequential identifier, use for ordering and joining
+block_timestamp: UTC timestamp, essential for time-series analysis
+gas_used / gas_limit: Network utilization metric (closer to 1.0 = congested)
+base_fee_per_gas: Post-EIP-1559 chains only, indicates network demand
+tx_count: Transaction throughput indicator
 
 {% enddocs %}
-
-
 {% docs evm_block_header_json %}
+Complete block header data in JSON format. Contains all fields from the block header including:
 
-This JSON column contains the block header details.
+Consensus-related fields (difficulty, nonce, mixHash)
+State roots (stateRoot, transactionsRoot, receiptsRoot)
+Gas and fee information
+Post-merge fields (withdrawals, blobGasUsed - where applicable)
 
+Usage: Parse this JSON when you need fields not exposed as columns, or for protocol-level analysis.
 {% enddocs %}
-
-
 {% docs evm_blockchain %}
-
-The blockchain on which transactions are being confirmed.
-
+The blockchain identifier for this data (e.g., 'ethereum', 'arbitrum', 'polygon'). Always lowercase.
+Usage: Essential for multi-chain queries and filtering.
 {% enddocs %}
-
-
 {% docs evm_blocks_hash %}
+The unique 32-byte Keccak-256 hash of the block header, prefixed with '0x'.
+Usage:
 
-The hash of the block header for a given block.
+Unique identifier for blocks across all chains
+Used to verify block integrity
+Reference for parent-child relationships
 
+Example: 0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd
 {% enddocs %}
-
-
 {% docs evm_blocks_nonce %}
-
-Block nonce is a value used during mining to demonstrate proof of work for a given block.
-
+Proof-of-Work nonce value. For PoW chains, this demonstrates computational work. Post-merge Ethereum and PoS chains typically show 0x0000000000000000.
+Note: Less relevant for modern PoS chains but important for historical PoW analysis.
 {% enddocs %}
-
-
 {% docs evm_difficulty %}
+Mining difficulty at block production time.
+Important:
 
-The effort required to mine the block.
+Pre-merge: Indicates mining competition/security
+Post-merge: Usually 0 for PoS chains
+Some chains use different consensus mechanisms
 
 {% enddocs %}
-
-
 {% docs evm_extra_data %}
+Arbitrary data included by block producer (max 32 bytes). Often contains:
 
-Any data included by the miner for a given block.
+Mining pool identifiers
+Client version strings
+Validator messages
 
+Example: "Geth/v1.10.23-stable/linux-amd64/go1.18.5"
 {% enddocs %}
-
-
 {% docs evm_gas_limit %}
+Maximum gas allowed for all transactions in this block. Set by miners/validators based on network rules.
+Key Insights:
 
-Total gas limit provided by all transactions in the block.
+Network capacity indicator
+Changes indicate protocol upgrades
+Compare with gas_used for utilization rate
 
 {% enddocs %}
-
-
 {% docs evm_gas_used %}
-
-Total gas used in the block.
-
+Total gas consumed by all transactions in the block.
+Calculation: Sum of gas used by each transaction
+Usage: Network utilization = gas_used / gas_limit
 {% enddocs %}
-
 {% docs evm_network %}
-
-The network on the blockchain used by a transaction.
-
+Network identifier within the blockchain (e.g., 'mainnet', 'testnet'). Most production data is 'mainnet'.
 {% enddocs %}
-
-
 {% docs evm_parent_hash %}
+Hash of the previous block (block_number - 1).
+Usage:
 
-The hash of the block from which a given block is generated. Also known as the parent block.
+Verify chain continuity
+Detect reorganizations
+Build block ancestry trees
 
 {% enddocs %}
-
-
 {% docs evm_receipts_root %}
+Merkle root of all transaction receipts in the block. Used for:
 
-The root of the state trie.
+Light client verification
+Proof generation
+State validation
 
 {% enddocs %}
-
-
 {% docs evm_sha3_uncles %}
+Keccak-256 hash of uncle blocks list.
+Note:
 
-The mechanism which Ethereum Javascript RLP encodes an empty string.
+Only relevant for PoW chains
+Post-merge shows empty uncles hash: 0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347
 
 {% enddocs %}
-
-
 {% docs evm_size %}
+Block size in bytes. Includes:
 
-Block size, which is determined by a given block's gas limit.
+Block header
+All transactions
+Uncle headers (if any)
 
+Usage: Monitor blockchain growth rate and storage requirements
 {% enddocs %}
-
-
 {% docs evm_total_difficulty %}
+Cumulative difficulty from genesis to this block.
+Important:
 
-Total difficulty of the chain at a given block.
+PoW chains: Represents total computational work
+Used for determining canonical chain
+Post-merge: Frozen at merge block
 
 {% enddocs %}
-
-
 {% docs evm_tx_count %}
+Number of transactions included in the block.
+Insights:
 
-Total number of transactions within a block.
+0 = Empty block (still valid)
+High counts = Popular applications or high activity
+Useful for throughput analysis
 
 {% enddocs %}
-
-
 {% docs evm_uncle_blocks %}
+Array of uncle block headers (PoW only). Uncle blocks are valid blocks that lost the race to be included in the main chain.
+Key Points:
 
-Uncle blocks occur when two blocks are mined and broadcasted at the same time, with the same block number. The block validated across the most nodes will be added to the primary chain, and the other one becomes an uncle block. Miners do receive rewards for uncle blocks.
+Miners receive partial rewards for uncles
+Indicates network latency or mining competition
+Not applicable to PoS chains
 
 {% enddocs %}
-
 {% docs evm_miner %}
+Address that received block rewards.
+Context:
 
-The address of the beneficiary to whom the mining rewards were given
+PoW: Miner's address
+PoS: Validator's fee recipient address
+Often exchange or pool addresses
 
 {% enddocs %}
-
 {% docs evm_state_root %}
+Merkle root of the entire blockchain state after executing this block.
+Usage:
 
-The root of the final state trie of the block
+State verification
+Snapshot synchronization
+Archive node validation
 
 {% enddocs %}
-
 {% docs evm_transactions_root %}
+Merkle root of all transactions in the block.
+Purpose:
 
-The root of the transaction trie of the block
+Efficient transaction inclusion proofs
+Light client verification
+Block validation
 
 {% enddocs %}
-
 {% docs evm_logs_bloom %}
+2048-bit bloom filter containing all log addresses and topics from the block's transactions.
+Usage:
 
-The bloom filter for the logs of the block.
+Efficient log searching
+Quick filtering before detailed queries
+Event monitoring optimization
 
 {% enddocs %}
-
 {% docs evm_mix_hash %}
+256-bit hash used in PoW mining process. Post-merge, contains prevRandao for randomness.
+Evolution:
 
-A string of a 256-bit hash encoded as a hexadecimal
+PoW: Mining algorithm output
+PoS: RANDAO reveal for randomness
 
 {% enddocs %}
-
 {% docs evm_base_fee_per_gas %}
+Base fee per gas unit in wei (EIP-1559 chains only).
+Key Facts:
 
-A string of the base fee encoded in hexadecimal format. Please note that this response field will not be included in a block requested before the EIP-1559 upgrade
+Burned (not paid to validators)
+Adjusts each block based on utilization
+NULL for pre-EIP-1559 blocks
+Multiply by gas_used for total burned
 
+Example Query:
+sqlSELECT SUM(base_fee_per_gas * gas_used) / 1e18 AS eth_burned
+FROM fact_blocks
+WHERE block_timestamp >= CURRENT_DATE - 7
+  AND base_fee_per_gas IS NOT NULL;
 {% enddocs %}
-
 {% docs evm_blob_gas_used %}
+Gas consumed by blob transactions (EIP-4844, post-Dencun).
+Context:
 
-The amount of gas used for blob transactions in the block.
+Used for Layer 2 data availability
+Separate fee market from regular transactions
+NULL for pre-Dencun blocks
 
 {% enddocs %}
-
 {% docs evm_excess_blob_gas %}
+Excess blob gas above target, affects next block's blob base fee.
+Mechanism:
 
-The amount of excess blob gas in the block.
+Target: 3 blobs per block
+Excess increases blob base fee
+Self-regulating market
 
 {% enddocs %}
-
 {% docs evm_parent_beacon_block_root %}
+Root hash of the parent beacon chain block (post-merge Ethereum).
+Usage:
 
-The root of the parent beacon block.
+Links execution and consensus layers
+Beacon chain verification
+Only present post-merge
 
 {% enddocs %}
-
 {% docs evm_withdrawals %}
+Array of validator withdrawals from beacon chain.
+Structure: Each withdrawal contains:
 
-The withdrawals for the block.
+index: Withdrawal sequence number
+validator_index: Validator ID
+address: Recipient address
+amount: Withdrawn amount in Gwei
 
 {% enddocs %}
-
 {% docs evm_withdrawals_root %}
+Merkle root of all withdrawals in the block.
+Purpose:
 
-The root of the withdrawals for the block.
+Efficient withdrawal verification
+Consensus layer integration
+NULL for pre-merge blocks
 
 {% enddocs %}
