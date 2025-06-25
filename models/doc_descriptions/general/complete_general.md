@@ -24,7 +24,7 @@ Important: Block numbers are chain-specific. Block 15000000 on Ethereum ≠ bloc
 
 {% enddocs %}
 
-{% docs evm_tx_hash %}
+{% docs general_tx_hash %}
 
 Unique 66-character identifier for the transaction.
 Format: 0x + 64 hexadecimal characters
