@@ -74,26 +74,25 @@ ORDER BY 2 DESC
 LIMIT 20;
 ```
 
-Critical Usage Notes:
-
-Topic Padding: Address parameters in topics are left-padded with zeros to 32 bytes
-Data Encoding: Raw data is ABI-encoded and needs decoding for human reading
-Event Ordering: Use event_index for chronological order within a transaction
-Gas Efficiency: Indexed parameters cost more gas but enable efficient queries
+### Critical Usage Notes:
+- **Topic Padding**: Address parameters in topics are left-padded with zeros to 32 bytes
+- **Data Encoding**: Raw data is ABI-encoded and needs decoding for human reading
+- **Event Ordering**: Use event_index for chronological order within a transaction
+- **Gas Efficiency**: Indexed parameters cost more gas but enable efficient queries
 
 {% enddocs %}
 
 {% docs fact_event_logs_event_index %}
+
 Zero-based sequential position of the event within a transaction's execution.
-Key Facts:
 
-Starts at 0 for first event
-Increments across all contracts in transaction
-Preserves execution order
-Essential for deterministic event ordering
+**Key Facts**:
+- Starts at 0 for first event
+- Increments across all contracts in transaction
+- Preserves execution order
+- Essential for deterministic event ordering
 
-Usage Example:
-
+**Usage Example**:
 ```sql
 -- Trace event execution flow
 SELECT 
@@ -109,20 +108,19 @@ ORDER BY event_index;
 {% enddocs %}
 
 {% docs fact_event_logs_event_removed %}
+
 Boolean flag indicating if the event was removed due to chain reorganization.
-Values:
 
-FALSE: Event is confirmed (vast majority)
-TRUE: Event was in a reorganized block
+**Values**:
+- FALSE: Event is confirmed (vast majority)
+- TRUE: Event was in a reorganized block
 
-Important: Removed events may indicate:
+**Important**: Removed events may indicate:
+- Chain reorganization occurred
+- Block was uncle/orphaned
+- Transaction changed position
 
-Chain reorganization occurred
-Block was uncle/orphaned
-Transaction changed position
-
-Query Usage:
-
+**Query Usage**:
 ```sql
 -- Filter only confirmed events
 WHERE event_removed = FALSE
@@ -133,28 +131,30 @@ FROM <blockchain_name>.core.fact_event_logs
 WHERE event_removed = TRUE
 GROUP BY 1;
 ```
+
 {% enddocs %}
 
 {% docs fact_event_logs_contract_address %}
 
 Smart contract address that emitted this event.
-Key Points:
 
-Always the immediate event emitter
-May differ from transaction to_address
-Lowercase normalized format
-Never NULL for valid events
+**Key Points**:
+- Always the immediate event emitter
+- May differ from transaction to_address
+- Lowercase normalized format
+- Never NULL for valid events
 
 {% enddocs %}
 
 {% docs fact_event_logs_data %}
 
 Hex-encoded non-indexed event parameters.
-Format: 0x-prefixed hex string
-Encoding: ABI-encoded based on event signature
-Length: Variable (depends on parameters)
-Decoding Example:
 
+**Format**: 0x-prefixed hex string
+**Encoding**: ABI-encoded based on event signature
+**Length**: Variable (depends on parameters)
+
+**Decoding Example**:
 ```sql
 -- ERC-20 Transfer amount (assuming standard uint256)
 -- data = '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000'
@@ -168,24 +168,27 @@ FROM <blockchain_name>.core.fact_event_logs
 WHERE topic_0 = '0xddf252ad...' -- Transfer event
     AND LENGTH(data) = 66; -- Single uint256
 ```
+
 {% enddocs %}
 
 {% docs fact_event_logs_topics %}
 
 Array containing all indexed parameters of the event.
-Structure:
 
-topics[0]: Event signature hash (except anonymous events)
-topics[1-3]: Indexed parameters (if any)
+**Structure**:
+- topics[0]: Event signature hash (except anonymous events)
+- topics[1-3]: Indexed parameters (if any)
 
-Example:
+**Example**:
+```
 [
   "0xddf252ad...", // Transfer(address,address,uint256)
   "0x000000000000000000000000123...", // from (padded)
   "0x000000000000000000000000456..."  // to (padded)
 ]
-Array Access:
+```
 
+**Array Access**:
 ```sql
 SELECT 
     topics[0] AS event_signature,
@@ -193,15 +196,17 @@ SELECT
     ARRAY_SIZE(topics) AS topic_count
 FROM <blockchain_name>.core.fact_event_logs;
 ```
+
 {% enddocs %}
 
 {% docs fact_event_logs_topic_0 %}
 
 Event signature hash - keccak256 of the event declaration.
-Calculation: keccak256("EventName(type1,type2,...)")
-Format: 32-byte hex hash
-Common Signatures:
 
+**Calculation**: `keccak256("EventName(type1,type2,...)")`
+**Format**: 32-byte hex hash
+
+**Common Signatures**:
 ```sql
 -- ERC-20 Transfer
 '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
@@ -212,57 +217,58 @@ Common Signatures:
 -- WETH Deposit
 '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c'
 ```
-Usage: Primary filter for event type identification
+
+**Usage**: Primary filter for event type identification
 
 {% enddocs %}
 
 {% docs fact_event_logs_topic_1 %}
 
 First indexed parameter of the event (if exists).
-Common Uses:
 
-'from' address in Transfer events
-'owner' in Approval events
-Token ID in NFT events
+**Common Uses**:
+- 'from' address in Transfer events
+- 'owner' in Approval events
+- Token ID in NFT events
 
-Format: 32-byte value (left-padded for smaller types)
-Address Extraction:
+**Format**: 32-byte value (left-padded for smaller types)
 
+**Address Extraction**:
 ```sql
 -- Remove padding from address
 '0x' || SUBSTR(topic_1, 27, 40) AS from_address
 ```
+
 {% enddocs %}
 
 {% docs fact_event_logs_topic_2 %}
+
 Second indexed parameter of the event (if exists).
-Common Uses:
 
-'to' address in Transfer events
-'spender' in Approval events
-Additional filter parameters
+**Common Uses**:
+- 'to' address in Transfer events
+- 'spender' in Approval events
+- Additional filter parameters
 
-NULL: When event has fewer than 2 indexed parameters
+**NULL**: When event has fewer than 2 indexed parameters
 
 {% enddocs %}
 
 {% docs fact_event_logs_topic_3 %}
 
 Third indexed parameter of the event (if exists).
-Common Uses:
 
-Token ID in ERC-721 Transfer events
-Additional indexed values
-Custom protocol parameters
+**Common Uses**:
+- Token ID in ERC-721 Transfer events
+- Additional indexed values
+- Custom protocol parameters
 
-Limitations:
+**Limitations**:
+- Maximum 3 indexed parameters per event
+- NULL for events with fewer indexed params
+- Indexed strings/arrays store hash, not value
 
-Maximum 3 indexed parameters per event
-NULL for events with fewer indexed params
-Indexed strings/arrays store hash, not value
-
-Example - NFT Transfer:
-
+**Example - NFT Transfer**:
 ```sql
 SELECT 
     '0x' || SUBSTR(topic_1, 27, 40) AS from_address,
@@ -272,4 +278,5 @@ FROM <blockchain_name>.core.fact_event_logs
 WHERE topic_0 = '0xddf252ad...'
     AND ARRAY_SIZE(topics) = 4; -- NFT Transfer has 4 topics
 ```
+
 {% enddocs %}

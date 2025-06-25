@@ -95,26 +95,24 @@ WHERE call_count > 100
 ORDER BY call_count DESC;
 ```
 
-Critical Usage Notes:
-
-Gas Accounting: Parent trace gas includes all child trace gas
-Value Transfers: Only CALL and CREATE can transfer native tokens
-Trace Ordering: Use trace_index for execution order, trace_address for hierarchy
-Failed Traces: May still consume gas and emit events before failure
+### Critical Usage Notes:
+- **Gas Accounting**: Parent trace gas includes all child trace gas
+- **Value Transfers**: Only CALL and CREATE can transfer native tokens
+- **Trace Ordering**: Use trace_index for execution order, trace_address for hierarchy
+- **Failed Traces**: May still consume gas and emit events before failure
 
 {% enddocs %}
 
 {% docs fact_traces_from_address %}
 
 Address that initiated this specific internal call.
-Important Distinctions:
 
-NOT always the transaction sender (from_address in fact_transactions)
-For nested calls: the immediate calling contract
-For first trace: matches transaction from_address
+**Important Distinctions**:
+- NOT always the transaction sender (from_address in fact_transactions)
+- For nested calls: the immediate calling contract
+- For first trace: matches transaction from_address
 
-Tracing Call Paths:
-
+**Tracing Call Paths**:
 ```sql
 -- Trace call delegation
 SELECT 
@@ -133,15 +131,14 @@ ORDER BY trace_index;
 {% docs fact_traces_gas %}
 
 Gas allocated to this specific trace execution.
-Gas Flow:
 
-Parent allocates gas to children
-Unused gas returns to parent
-Failed calls consume all allocated gas
-Top-level trace gets transaction gas_limit
+**Gas Flow**:
+- Parent allocates gas to children
+- Unused gas returns to parent
+- Failed calls consume all allocated gas
+- Top-level trace gets transaction gas_limit
 
-Analysis Pattern:
-
+**Analysis Pattern**:
 ```sql
 -- Gas efficiency by call type
 SELECT 
@@ -153,32 +150,34 @@ WHERE gas > 0
     AND trace_succeeded
 GROUP BY 1;
 ```
+
 {% enddocs %}
 
 {% docs fact_traces_gas_used %}
+
 Actual gas consumed by this trace execution.
-Includes:
 
-Computation costs
-Storage operations
-Sub-trace gas consumption
-Base costs for call type
+**Includes**:
+- Computation costs
+- Storage operations
+- Sub-trace gas consumption
+- Base costs for call type
 
-Note: Failed traces may show partial consumption before failure point
+**Note**: Failed traces may show partial consumption before failure point
 
 {% enddocs %}
 
 {% docs fact_traces_trace_index %}
+
 Sequential index of trace within the transaction's execution.
-Properties:
 
-Starts at 0 (usually the main call)
-Increments for each trace
-Reflects execution order (depth-first)
-NOT the same as trace_address position
+**Properties**:
+- Starts at 0 (usually the main call)
+- Increments for each trace
+- Reflects execution order (depth-first)
+- NOT the same as trace_address position
 
-Ordering Example:
-
+**Ordering Example**:
 ```sql
 SELECT 
     trace_index,
@@ -194,15 +193,15 @@ ORDER BY trace_index;
 {% enddocs %}
 
 {% docs fact_traces_input %}
+
 Hex-encoded input data for this trace (function call data).
-Structure:
 
-First 10 chars: Function selector (0x + 8 hex)
-Remaining: ABI-encoded parameters
-Empty (0x): ETH transfer or fallback
+**Structure**:
+- First 10 chars: Function selector (0x + 8 hex)
+- Remaining: ABI-encoded parameters
+- Empty (0x): ETH transfer or fallback
 
-Common Patterns:
-
+**Common Patterns**:
 ```sql
 -- Identify function calls
 SELECT 
@@ -218,21 +217,20 @@ ORDER BY 2 DESC;
 {% enddocs %}
 
 {% docs fact_traces_output %}
+
 Hex-encoded output data from trace execution.
-Contents:
 
-Function return values (ABI-encoded)
-Empty (0x) for no return
-Error data for failed calls
+**Contents**:
+- Function return values (ABI-encoded)
+- Empty (0x) for no return
+- Error data for failed calls
 
-Usage:
+**Usage**:
+- Verify computation results
+- Extract return values
+- Debug failures
 
-Verify computation results
-Extract return values
-Debug failures
-
-Decoding Example:
-
+**Decoding Example**:
 ```sql
 -- Check for successful outputs
 SELECT 
@@ -246,18 +244,19 @@ SELECT
 FROM <blockchain_name>.core.fact_traces
 WHERE tx_hash = '0xabc...';
 ```
+
 {% enddocs %}
 
 {% docs fact_traces_sub_traces %}
+
 Count of immediate child traces spawned by this trace.
-Interpretation:
 
-0: Leaf trace (no further calls)
-1+: Parent trace with nested calls
-Helps understand call complexity
+**Interpretation**:
+- 0: Leaf trace (no further calls)
+- 1+: Parent trace with nested calls
+- Helps understand call complexity
 
-Tree Analysis:
-
+**Tree Analysis**:
 ```sql
 -- Find complex multi-call transactions
 SELECT 
@@ -277,15 +276,14 @@ ORDER BY 2 DESC;
 {% docs fact_traces_to_address %}
 
 Destination address for this internal call.
-Special Cases:
 
-NULL: Contract creation (CREATE/CREATE2)
-Contract address: Smart contract interaction
-EOA address: Native token transfer
-0x0: Failed contract creation
+**Special Cases**:
+- NULL: Contract creation (CREATE/CREATE2)
+- Contract address: Smart contract interaction
+- EOA address: Native token transfer
+- 0x0: Failed contract creation
 
-Pattern Detection:
-
+**Pattern Detection**:
 ```sql
 -- Identify contract deployments
 SELECT * FROM <blockchain_name>.core.fact_traces
@@ -293,22 +291,22 @@ WHERE to_address IS NULL
     AND type IN ('CREATE', 'CREATE2')
     AND trace_succeeded;
 ```
+
 {% enddocs %}
 
 {% docs fact_traces_type %}
 
 The type of EVM operation performed.
-Core Types:
 
-CALL: Standard call with context switch
-DELEGATECALL: Execute in caller's storage
-STATICCALL: Read-only call (no state changes)
-CREATE: Deploy new contract
-CREATE2: Deploy with deterministic address
-SELFDESTRUCT: Destroy contract and send funds
+**Core Types**:
+- **CALL**: Standard call with context switch
+- **DELEGATECALL**: Execute in caller's storage
+- **STATICCALL**: Read-only call (no state changes)
+- **CREATE**: Deploy new contract
+- **CREATE2**: Deploy with deterministic address
+- **SELFDESTRUCT**: Destroy contract and send funds
 
-Security Implications:
-
+**Security Implications**:
 ```sql
 -- Monitor DELEGATECALL usage (proxy patterns)
 SELECT 
@@ -325,20 +323,19 @@ ORDER BY 1 DESC;
 {% enddocs %}
 
 {% docs fact_traces_trace_succeeded %}
+
 Boolean indicating if the trace executed successfully.
-Values:
 
-TRUE: Execution completed without revert
-FALSE: Execution reverted or failed
+**Values**:
+- TRUE: Execution completed without revert
+- FALSE: Execution reverted or failed
 
-Important Notes:
+**Important Notes**:
+- Failed traces still consume gas
+- Child success doesn't guarantee parent success
+- Check error_reason for failure details
 
-Failed traces still consume gas
-Child success doesn't guarantee parent success
-Check error_reason for failure details
-
-Failure Analysis:
-
+**Failure Analysis**:
 ```sql
 -- Success rate by trace type
 SELECT 
@@ -350,20 +347,21 @@ FROM <blockchain_name>.core.fact_traces
 WHERE block_timestamp >= CURRENT_DATE - 7
 GROUP BY 1;
 ```
+
 {% enddocs %}
 
 {% docs fact_traces_error_reason %}
+
 Technical reason for trace failure.
-Common Values:
 
-'Out of gas': Insufficient gas provided
-'Revert': Explicit revert in contract
-'Invalid instruction': Bad opcode
-'Stack underflow/overflow': Stack errors
-NULL: Successful execution
+**Common Values**:
+- 'Out of gas': Insufficient gas provided
+- 'Revert': Explicit revert in contract
+- 'Invalid instruction': Bad opcode
+- 'Stack underflow/overflow': Stack errors
+- NULL: Successful execution
 
-Debugging Usage:
-
+**Debugging Usage**:
 ```sql
 -- Common failure reasons
 SELECT 
@@ -376,19 +374,21 @@ WHERE NOT trace_succeeded
 GROUP BY 1
 ORDER BY 2 DESC;
 ```
+
 {% enddocs %}
 
 {% docs fact_traces_trace_address %}
+
 Array describing the trace's position in the execution tree.
-Format: Integer array (e.g., [0,1,2])
-Interpretation:
 
-[] or [0]: Top-level trace
-[0,1]: Second child of first trace
-[0,1,2]: Third child of [0,1]
+**Format**: Integer array (e.g., [0,1,2])
 
-Tree Navigation:
+**Interpretation**:
+- [] or [0]: Top-level trace
+- [0,1]: Second child of first trace
+- [0,1,2]: Third child of [0,1]
 
+**Tree Navigation**:
 ```sql
 -- Find parent-child relationships
 WITH trace_tree AS (
@@ -417,21 +417,19 @@ WHERE child.tx_hash = '0xabc...';
 {% docs fact_traces_revert_reason %}
 
 Human-readable revert message from contract require/revert statements.
-Examples:
 
-"Insufficient balance"
-"Transfer amount exceeds allowance"
-"Ownable: caller is not the owner"
-Custom protocol-specific messages
+**Examples**:
+- "Insufficient balance"
+- "Transfer amount exceeds allowance"
+- "Ownable: caller is not the owner"
+- Custom protocol-specific messages
 
-NULL When:
+**NULL When**:
+- Execution succeeded
+- No revert message provided
+- Out of gas failures
 
-Execution succeeded
-No revert message provided
-Out of gas failures
-
-Error Analysis:
-
+**Error Analysis**:
 ```sql
 -- Common revert reasons by protocol
 SELECT 
@@ -445,4 +443,5 @@ GROUP BY 1, 2
 ORDER BY 3 DESC
 LIMIT 50;
 ```
+
 {% enddocs %}
