@@ -6,20 +6,16 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = ['block_number'],
+    unique_key = ['contract_address'],
     incremental_strategy = 'delete+insert',
-    cluster_by = ['block_timestamp::date', 'round(block_number, -3)'],
-    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold','balances','phase_4']
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    tags = ['silver','balances','phase_4']
 ) }}
-
---depends_on: {{ ref('core__fact_blocks') }}
 
 WITH erc20_transfers AS (
 
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         from_address,
@@ -44,12 +40,16 @@ AND t.modified_timestamp > (
     FROM
         {{ this }}
 )
+AND contract_address NOT IN (
+    SELECT DISTINCT contract_address
+    FROM {{ this }}
+)
 {% endif %}
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY contract_address ORDER BY block_number DESC)) = 1 --only keep the latest transfer for each contract
 ),
 transfer_direction AS (
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         to_address AS address,
@@ -61,7 +61,6 @@ transfer_direction AS (
     UNION ALL
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         from_address AS address,
@@ -76,7 +75,6 @@ transfer_direction AS (
 direction_agg AS (
     SELECT
         block_number,
-        block_timestamp,
         tx_hash,
         tx_position,
         address,
@@ -196,7 +194,6 @@ num_generator AS (
 transfer_mapping AS (
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         contract_address,
@@ -215,7 +212,6 @@ transfer_mapping AS (
 balances AS (
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         contract_address,
@@ -250,107 +246,27 @@ balances AS (
         )
     WHERE
         net_raw_balance = transfer_amount
-)
-
-{% if is_incremental() %},
-missing_data AS (
-    SELECT
-        t.block_number,
-        b.block_timestamp AS block_timestamp_heal,
-        tx_position,
-        tx_hash,
-        contract_address,
-        decimals,
-        slot_number,
-        address,
-        pre_hex_balance,
-        pre_raw_balance,
-        pre_balance_precise,
-        pre_balance,
-        post_hex_balance,
-        post_raw_balance,
-        post_balance_precise,
-        post_balance,
-        net_raw_balance,
-        net_balance
-    FROM
-        {{ this }}
-        t
-        LEFT JOIN {{ ref('core__fact_blocks') }}
-        b USING(block_number)
-    WHERE
-        t.block_timestamp IS NULL
-)
-{% endif %},
+),
 FINAL AS (
     SELECT
-        block_number,
-        block_timestamp,
-        tx_position,
-        tx_hash,
         contract_address,
-        decimals,
-        slot_number,
-        address,
-        pre_hex_balance,
-        pre_raw_balance,
-        pre_balance_precise,
-        pre_balance,
-        post_hex_balance,
-        post_raw_balance,
-        post_balance_precise,
-        post_balance,
-        net_raw_balance,
-        net_balance
+        MAX(block_number) AS max_block_number,
+        ARRAY_AGG(
+            DISTINCT slot_number
+        ) AS slot_number_array
     FROM
         balances
-
-{% if is_incremental() %}
-UNION ALL
-SELECT
-    block_number,
-    block_timestamp_heal AS block_timestamp,
-    tx_position,
-    tx_hash,
-    contract_address,
-    decimals,
-    slot_number,
-    address,
-    pre_hex_balance,
-    pre_raw_balance,
-    pre_balance_precise,
-    pre_balance,
-    post_hex_balance,
-    post_raw_balance,
-    post_balance_precise,
-    post_balance,
-    net_raw_balance,
-    net_balance
-FROM
-    missing_data
-{% endif %}
+    GROUP BY
+        contract_address
 )
 SELECT
-    block_number,
-    block_timestamp,
-    tx_position,
-    tx_hash,
     contract_address,
-    decimals,
-    slot_number,
-    address,
-    pre_hex_balance,
-    pre_raw_balance,
-    pre_balance_precise,
-    pre_balance,
-    post_hex_balance,
-    post_raw_balance,
-    post_balance_precise,
-    post_balance,
-    net_raw_balance,
-    net_balance,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
+    max_block_number,
+    slot_number_array,
+    {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS balance_slots_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    FINAL
+    {{ ref('price__ez_asset_metadata') }}
+    v
+    LEFT JOIN FINAL f USING (contract_address)
