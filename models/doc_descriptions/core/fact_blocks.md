@@ -1,4 +1,4 @@
-{% docs evm_blocks_table_doc %}
+{% docs fact_blocks_table_doc %}
 
 ## Table: fact_blocks
 
@@ -26,7 +26,7 @@ SELECT
     AVG(base_fee_per_gas) AS avg_base_fee,
     COUNT(*) AS blocks_count,
     SUM(tx_count) AS total_transactions
-FROM fact_blocks
+FROM <blockchain_name>.core.fact_blocks
 WHERE block_timestamp >= CURRENT_DATE - 7
 GROUP BY 1
 ORDER BY 1 DESC;
@@ -40,7 +40,7 @@ SELECT
     gas_limit,
     (gas_used::FLOAT / gas_limit) AS utilization_rate,
     miner
-FROM fact_blocks
+FROM <blockchain_name>.core.fact_blocks
 WHERE block_timestamp >= CURRENT_DATE - 1
 ORDER BY gas_used DESC
 LIMIT 100;
@@ -56,25 +56,7 @@ tx_count: Transaction throughput indicator
 
 {% enddocs %}
 
-{% docs evm_block_header_json %}
-Complete block header data in JSON format. Contains all fields from the block header including:
-
-Consensus-related fields (difficulty, nonce, mixHash)
-State roots (stateRoot, transactionsRoot, receiptsRoot)
-Gas and fee information
-Post-merge fields (withdrawals, blobGasUsed - where applicable)
-
-Usage: Parse this JSON when you need fields not exposed as columns, or for protocol-level analysis.
-
-{% enddocs %}
-
-{% docs evm_blockchain %}
-The blockchain identifier for this data (e.g., 'ethereum', 'arbitrum', 'polygon'). Always lowercase.
-Usage: Essential for multi-chain queries and filtering.
-
-{% enddocs %}
-
-{% docs evm_blocks_hash %}
+{% docs fact_blocks_block_hash %}
 
 The unique 32-byte Keccak-256 hash of the block header, prefixed with '0x'.
 Usage:
@@ -87,7 +69,7 @@ Example: 0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd
 
 {% enddocs %}
 
-{% docs evm_blocks_nonce %}
+{% docs fact_blocks_nonce %}
 
 Proof-of-Work nonce value. For PoW chains, this demonstrates computational work. Post-merge Ethereum and PoS chains typically show 0x0000000000000000.
 
@@ -95,7 +77,7 @@ Note: Less relevant for modern PoS chains but important for historical PoW analy
 
 {% enddocs %}
 
-{% docs evm_difficulty %}
+{% docs fact_blocks_difficulty %}
 
 Mining difficulty at block production time.
 Important:
@@ -106,7 +88,7 @@ Some chains use different consensus mechanisms
 
 {% enddocs %}
 
-{% docs evm_extra_data %}
+{% docs fact_blocks_extra_data %}
 
 Arbitrary data included by block producer (max 32 bytes). Often contains:
 
@@ -118,7 +100,7 @@ Example: "Geth/v1.10.23-stable/linux-amd64/go1.18.5"
 
 {% enddocs %}
 
-{% docs evm_gas_limit %}
+{% docs fact_blocks_gas_limit %}
 
 Maximum gas allowed for all transactions in this block. Set by miners/validators based on network rules.
 Key Insights:
@@ -129,7 +111,7 @@ Compare with gas_used for utilization rate
 
 {% enddocs %}
 
-{% docs evm_gas_used %}
+{% docs fact_blocks_gas_used %}
 
 Total gas consumed by all transactions in the block.
 Calculation: Sum of gas used by each transaction
@@ -137,13 +119,13 @@ Usage: Network utilization = gas_used / gas_limit
 
 {% enddocs %}
 
-{% docs evm_network %}
+{% docs fact_blocks_network %}
 
 Network identifier within the blockchain (e.g., 'mainnet', 'testnet'). Most production data is 'mainnet'.
 
 {% enddocs %}
 
-{% docs evm_parent_hash %}
+{% docs fact_blocks_parent_hash %}
 
 Hash of the previous block (block_number - 1).
 Usage:
@@ -154,7 +136,7 @@ Build block ancestry trees
 
 {% enddocs %}
 
-{% docs evm_receipts_root %}
+{% docs fact_blocks_receipts_root %}
 
 Merkle root of all transaction receipts in the block. Used for:
 
@@ -162,10 +144,9 @@ Light client verification
 Proof generation
 State validation
 
-
 {% enddocs %}
 
-{% docs evm_sha3_uncles %}
+{% docs fact_blocks_sha3_uncles %}
 
 Keccak-256 hash of uncle blocks list.
 Note:
@@ -176,7 +157,8 @@ Post-merge shows empty uncles hash: 0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b94
 {% enddocs %}
 
 
-{% docs evm_size %}
+{% docs fact_blocks_size %}
+
 Block size in bytes. Includes:
 
 Block header
@@ -187,7 +169,7 @@ Usage: Monitor blockchain growth rate and storage requirements
 
 {% enddocs %}
 
-{% docs evm_total_difficulty %}
+{% docs fact_blocks_total_difficulty %}
 
 Cumulative difficulty from genesis to this block.
 Important:
@@ -198,7 +180,7 @@ Post-merge: Frozen at merge block
 
 {% enddocs %}
 
-{% docs evm_tx_count %}
+{% docs fact_blocks_tx_count %}
 
 Number of transactions included in the block.
 Insights:
@@ -209,7 +191,7 @@ Useful for throughput analysis
 
 {% enddocs %}
 
-{% docs evm_uncle_blocks %}
+{% docs fact_blocks_uncle_blocks %}
 
 Array of uncle block headers (PoW only). Uncle blocks are valid blocks that lost the race to be included in the main chain.
 Key Points:
@@ -220,7 +202,7 @@ Not applicable to PoS chains
 
 {% enddocs %}
 
-{% docs evm_miner %}
+{% docs fact_blocks_miner %}
 
 Address that received block rewards.
 Context:
@@ -231,7 +213,7 @@ Often exchange or pool addresses
 
 {% enddocs %}
 
-{% docs evm_state_root %}
+{% docs fact_blocks_state_root %}
 
 Merkle root of the entire blockchain state after executing this block.
 Usage:
@@ -242,7 +224,7 @@ Archive node validation
 
 {% enddocs %}
 
-{% docs evm_transactions_root %}
+{% docs fact_blocks_transactions_root %}
 
 Merkle root of all transactions in the block.
 Purpose:
@@ -253,7 +235,7 @@ Block validation
 
 {% enddocs %}
 
-{% docs evm_logs_bloom %}
+{% docs fact_blocks_logs_bloom %}
 
 2048-bit bloom filter containing all log addresses and topics from the block's transactions.
 Usage:
@@ -264,7 +246,7 @@ Event monitoring optimization
 
 {% enddocs %}
 
-{% docs evm_mix_hash %}
+{% docs fact_blocks_mix_hash %}
 
 256-bit hash used in PoW mining process. Post-merge, contains prevRandao for randomness.
 Evolution:
@@ -274,7 +256,7 @@ PoS: RANDAO reveal for randomness
 
 {% enddocs %}
 
-{% docs evm_base_fee_per_gas %}
+{% docs fact_blocks_base_fee_per_gas %}
 
 Base fee per gas unit in wei (EIP-1559 chains only).
 Key Facts:
@@ -285,14 +267,17 @@ NULL for pre-EIP-1559 blocks
 Multiply by gas_used for total burned
 
 Example Query:
-sqlSELECT SUM(base_fee_per_gas * gas_used) / 1e18 AS eth_burned
-FROM fact_blocks
+
+```sql
+SELECT SUM(base_fee_per_gas * gas_used) / 1e18 AS eth_burned
+FROM <blockchain_name>.core.fact_blocks
 WHERE block_timestamp >= CURRENT_DATE - 7
   AND base_fee_per_gas IS NOT NULL;
+```
 
 {% enddocs %}
 
-{% docs evm_blob_gas_used %}
+{% docs fact_blocks_blob_gas_used %}
 
 Gas consumed by blob transactions (EIP-4844, post-Dencun).
 Context:
@@ -303,7 +288,7 @@ NULL for pre-Dencun blocks
 
 {% enddocs %}
 
-{% docs evm_excess_blob_gas %}
+{% docs fact_blocks_excess_blob_gas %}
 
 Excess blob gas above target, affects next block's blob base fee.
 Mechanism:
@@ -314,7 +299,7 @@ Self-regulating market
 
 {% enddocs %}
 
-{% docs evm_parent_beacon_block_root %}
+{% docs fact_blocks_parent_beacon_block_root %}
 
 Root hash of the parent beacon chain block (post-merge Ethereum).
 Usage:
@@ -325,7 +310,7 @@ Only present post-merge
 
 {% enddocs %}
 
-{% docs evm_withdrawals %}
+{% docs fact_blocks_withdrawals %}
 
 Array of validator withdrawals from beacon chain.
 Structure: Each withdrawal contains:
@@ -337,7 +322,7 @@ amount: Withdrawn amount in Gwei
 
 {% enddocs %}
 
-{% docs evm_withdrawals_root %}
+{% docs fact_blocks_withdrawals_root %}
 
 Merkle root of all withdrawals in the block.
 Purpose:
