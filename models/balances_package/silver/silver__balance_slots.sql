@@ -271,3 +271,6 @@ FROM
     v
     LEFT JOIN FINAL f
     ON v.token_address = f.contract_address
+WHERE
+    is_verified
+    AND asset_id IS NOT NULL
