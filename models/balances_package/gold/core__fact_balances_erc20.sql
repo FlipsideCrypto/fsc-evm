@@ -105,17 +105,9 @@ state_tracer AS (
     FROM
         {{ ref('silver__state_tracer') }}
     WHERE
-        CONCAT(
-            block_number,
-            '-',
-            tx_position
-        ) IN (
+        block_number IN (
             SELECT
-                DISTINCT CONCAT(
-                    block_number,
-                    '-',
-                    tx_position
-                )
+                DISTINCT block_number
             FROM
                 erc20_transfers
         )
