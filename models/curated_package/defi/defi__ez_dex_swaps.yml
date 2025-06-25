@@ -1,0 +1,8 @@
+version: 2
+models:
+  - name: defi__ez_dex_swaps
+    description: test
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: abc
