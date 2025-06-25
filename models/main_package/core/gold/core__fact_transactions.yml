@@ -83,7 +83,7 @@ models:
       - name: AUTHORIZATION_LIST
         description: '{{ doc("fact_transactions_authorization_list") }}'
       - name: TOKEN_RATIO
-        description: '{{ doc("fact_transactions_token_list") }}'
+        description: '{{ doc("fact_transactions_token_ratio") }}'
       - name: L1_BASE_FEE_SCALAR
         description: '{{ doc("fact_transactions_l1_base_fee_scalar") }}'
       - name: L1_BLOB_BASE_FEE
