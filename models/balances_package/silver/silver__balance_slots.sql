@@ -260,7 +260,7 @@ FINAL AS (
         contract_address
 )
 SELECT
-    contract_address,
+    token_address AS contract_address,
     max_block_number,
     slot_number_array,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS balance_slots_id,
@@ -269,4 +269,5 @@ SELECT
 FROM
     {{ ref('price__ez_asset_metadata') }}
     v
-    LEFT JOIN FINAL f USING (contract_address)
+    LEFT JOIN FINAL f
+    ON v.token_address = f.contract_address
