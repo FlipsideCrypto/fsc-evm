@@ -227,15 +227,17 @@ balances AS (
         utils.udf_decimal_adjust(
             pre_raw_balance,
             decimals
-        ) AS pre_balance,
+        ) AS pre_balance_precise,
+        pre_balance_precise :: FLOAT AS pre_balance,
         post_storage_hex AS post_hex_balance,
         utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
         utils.udf_decimal_adjust(
             post_raw_balance,
             decimals
-        ) AS post_balance,
+        ) AS post_balance_precise,
+        post_balance_precise :: FLOAT AS post_balance,
         TRY_TO_NUMBER(post_raw_balance) - TRY_TO_NUMBER(pre_raw_balance) AS net_raw_balance,
-        post_balance - pre_balance AS net_balance,
+        post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
         decimals
     FROM
@@ -263,9 +265,11 @@ missing_data AS (
         address,
         pre_hex_balance,
         pre_raw_balance,
+        pre_balance_precise,
         pre_balance,
         post_hex_balance,
         post_raw_balance,
+        post_balance_precise,
         post_balance,
         net_raw_balance,
         net_balance
@@ -290,9 +294,11 @@ FINAL AS (
         address,
         pre_hex_balance,
         pre_raw_balance,
+        pre_balance_precise,
         pre_balance,
         post_hex_balance,
         post_raw_balance,
+        post_balance_precise,
         post_balance,
         net_raw_balance,
         net_balance
@@ -312,9 +318,11 @@ SELECT
     address,
     pre_hex_balance,
     pre_raw_balance,
+    pre_balance_precise,
     pre_balance,
     post_hex_balance,
     post_raw_balance,
+    post_balance_precise,
     post_balance,
     net_raw_balance,
     net_balance
@@ -333,9 +341,11 @@ SELECT
     address,
     pre_hex_balance,
     pre_raw_balance,
+    pre_balance_precise,
     pre_balance,
     post_hex_balance,
     post_raw_balance,
+    post_balance_precise,
     post_balance,
     net_raw_balance,
     net_balance,
