@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','core','realtime','receipts_by_hash','phase_1']
+    tags = ['streamline','core','realtime','receipts_by_hash']
 ) }}
 
 {# Main query starts here #}
