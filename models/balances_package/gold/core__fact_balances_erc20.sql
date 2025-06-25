@@ -184,15 +184,6 @@ state_storage AS (
             storage_key
         )
 ),
-num_generator AS (
-    SELECT
-        ROW_NUMBER() over (
-            ORDER BY
-                1 ASC
-        ) - 1 AS rn
-    FROM
-        TABLE(GENERATOR(rowcount => 26)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
-),
 transfer_mapping AS (
     SELECT
         block_number,
@@ -201,16 +192,17 @@ transfer_mapping AS (
         tx_hash,
         contract_address,
         address,
+        TRY_TO_NUMBER(slot_number_array[0]::STRING) AS slot_number,
         utils.udf_mapping_slot(
             address,
-            rn
+            slot_number
         ) AS storage_key,
-        rn AS slot_number,
         transfer_amount,
         decimals
     FROM
-        direction_agg,
-        num_generator
+        direction_agg d
+    INNER JOIN {{ ref('silver__balance_slots') }} s
+    USING (contract_address)
 ),
 balances AS (
     SELECT

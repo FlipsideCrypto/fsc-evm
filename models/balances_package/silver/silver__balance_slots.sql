@@ -44,6 +44,7 @@ AND t.modified_timestamp > (
 AND contract_address NOT IN (
     SELECT DISTINCT contract_address
     FROM {{ this }}
+    WHERE slot_number_array IS NOT NULL --attempt to map again if slot is missing
 )
 {% endif %}
 QUALIFY (ROW_NUMBER() OVER (PARTITION BY contract_address ORDER BY block_number DESC)) = 1 --only keep the latest transfer for each contract
@@ -190,7 +191,7 @@ num_generator AS (
                 1 ASC
         ) - 1 AS rn
     FROM
-        TABLE(GENERATOR(rowcount => 26)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
+        TABLE(GENERATOR(rowcount => 51)) {# no theoretical limit on max slots for erc20, 2-15 is common. Can reduce if needed. #}
 ),
 transfer_mapping AS (
     SELECT
@@ -276,3 +277,8 @@ WHERE
     is_verified
     AND asset_id IS NOT NULL
     AND token_address IS NOT NULL
+
+{# This model determines the balanceOf slot for each contract based on matching an erc20 token transfer with state data. 
+NULL slot indicates that the contract does not have a balanceOf slot. 
+>1 slot indicates that the contract has multiple balanceOf slots.
+Logic for these contracts must be handled separately (e.g. rebase tokens, wrapped assets etc.) #}
