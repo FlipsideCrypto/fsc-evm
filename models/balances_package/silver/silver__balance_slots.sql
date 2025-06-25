@@ -30,7 +30,8 @@ WITH erc20_transfers AS (
         m --limit balances to verified assets only
         ON t.contract_address = m.token_address
     WHERE
-        is_verified
+        block_timestamp > dateadd('day', -31, SYSDATE())
+        AND is_verified
         AND asset_id IS NOT NULL
 
 {% if is_incremental() %}
@@ -274,3 +275,4 @@ FROM
 WHERE
     is_verified
     AND asset_id IS NOT NULL
+    AND token_address IS NOT NULL
