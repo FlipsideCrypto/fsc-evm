@@ -22,11 +22,10 @@ WITH erc20_transfers AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        event_index,
         from_address,
         to_address,
         contract_address,
-        raw_amount,
+        TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
         t.decimals
     FROM
         {{ ref('core__ez_token_transfers') }}
@@ -53,7 +52,6 @@ transfer_direction AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        event_index,
         to_address AS address,
         contract_address,
         raw_amount,
@@ -66,7 +64,6 @@ transfer_direction AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        event_index,
         from_address AS address,
         contract_address,
         (
@@ -82,7 +79,6 @@ direction_agg AS (
         block_timestamp,
         tx_hash,
         tx_position,
-        event_index,
         address,
         contract_address,
         SUM(raw_amount) AS transfer_amount,
@@ -203,7 +199,6 @@ transfer_mapping AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        event_index,
         contract_address,
         address,
         utils.udf_mapping_slot(
@@ -223,7 +218,6 @@ balances AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        event_index,
         contract_address,
         address,
         storage_key,
@@ -240,7 +234,7 @@ balances AS (
             post_raw_balance,
             decimals
         ) AS post_balance,
-        post_raw_balance - pre_raw_balance AS net_raw_balance,
+        TRY_TO_NUMBER(post_raw_balance) - TRY_TO_NUMBER(pre_raw_balance) AS net_raw_balance,
         post_balance - pre_balance AS net_balance,
         transfer_amount,
         decimals
@@ -263,7 +257,6 @@ missing_data AS (
         b.block_timestamp AS block_timestamp_heal,
         tx_position,
         tx_hash,
-        event_index,
         contract_address,
         decimals,
         slot_number,
@@ -291,7 +284,6 @@ FINAL AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        event_index,
         contract_address,
         decimals,
         slot_number,
@@ -314,7 +306,6 @@ SELECT
     block_timestamp_heal AS block_timestamp,
     tx_position,
     tx_hash,
-    event_index,
     contract_address,
     decimals,
     slot_number,
@@ -336,7 +327,6 @@ SELECT
     block_timestamp,
     tx_position,
     tx_hash,
-    event_index,
     contract_address,
     decimals,
     slot_number,
