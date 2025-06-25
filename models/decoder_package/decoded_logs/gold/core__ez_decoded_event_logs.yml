@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: core__ez_decoded_event_logs
-    description: '{{ doc("core_decoded_event_logs_table_doc") }}'
+    description: '{{ doc("ez_decoded_event_logs_table_doc") }}'
       
     columns:
       - name: BLOCK_NUMBER
@@ -15,7 +15,7 @@ models:
       - name: EVENT_INDEX
         description: '{{ doc("fact_event_logs_event_index") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_contract_address") }}'
+        description: '{{ doc("fact_event_logs_contract_address") }}'
       - name: TOPICS
         description: '{{ doc("fact_event_logs_topics") }}'
       - name: TOPIC_0
@@ -31,21 +31,21 @@ models:
       - name: EVENT_REMOVED
         description: '{{ doc("fact_event_logs_event_removed") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: TX_SUCCEEDED
         description: '{{ doc("general_tx_succeeded") }}'
       - name: EVENT_NAME
-        description: '{{ doc("evm_event_name") }}'
+        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
       - name: FULL_DECODED_LOG
-        description: '{{ doc("evm_full_decoded_log") }}'
+        description: '{{ doc("ez_decoded_event_logs_full_decoded_log") }}'
       - name: DECODED_LOG
-        description: '{{ doc("evm_decoded_log") }}'
+        description: '{{ doc("ez_decoded_event_logs_decoded_log") }}'
       - name: CONTRACT_NAME
-        description: '{{ doc("evm_contract_name") }}'
+        description: '{{ doc("ez_decoded_event_logs_contract_name") }}'
       - name: EZ_DECODED_EVENT_LOGS_ID
         description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP

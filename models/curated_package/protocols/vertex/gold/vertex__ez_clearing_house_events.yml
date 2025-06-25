@@ -13,7 +13,7 @@ models:
       - name: CONTRACT_ADDRESS
         description: '{{ doc("fact_event_logs_contract_address") }}'
       - name: EVENT_NAME
-        description: '{{ doc("evm_event_name") }}'
+        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
       - name: EVENT_INDEX
         description: '{{ doc("fact_event_logs_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE

@@ -5,21 +5,21 @@ models:
       
     columns:
       - name: ADDRESS
-        description: '{{ doc("evm_contracts_contract_address") }}'
+        description: '{{ doc("dim_contracts_address") }}'
       - name: SYMBOL
-        description: '{{ doc("evm_contracts_symbol") }}'
+        description: '{{ doc("dim_contracts_symbol") }}'
       - name: NAME
-        description: '{{ doc("evm_contracts_name") }}'
+        description: '{{ doc("dim_contracts_name") }}'
       - name: DECIMALS
-        description: '{{ doc("evm_decimals") }}'
+        description: '{{ doc("dim_contracts_decimals") }}'
       - name: CREATED_BLOCK_NUMBER
-        description: '{{ doc("evm_contracts_block_number") }}'
+        description: '{{ doc("dim_contracts_created_block_number") }}'
       - name: CREATED_BLOCK_TIMESTAMP
-        description: '{{ doc("evm_contracts_block_time") }}'
+        description: '{{ doc("dim_contracts_created_block_timestamp") }}'
       - name: CREATED_TX_HASH
-        description: '{{ doc("evm_contracts_created_tx_hash") }}'
+        description: '{{ doc("dim_contracts_created_tx_hash") }}'
       - name: CREATOR_ADDRESS
-        description: '{{ doc("evm_creator_address") }}'
+        description: '{{ doc("dim_contracts_creator_address") }}'
       - name: DIM_CONTRACTS_ID
         description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP

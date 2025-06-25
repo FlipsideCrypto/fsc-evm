@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: core__ez_native_transfers
-    description: '{{ doc("evm_ez_native_transfers_table_doc") }}'
+    description: '{{ doc("ez_native_transfers_table_doc") }}'
       
     columns:
       - name: BLOCK_NUMBER
@@ -19,21 +19,21 @@ models:
       - name: TYPE
         description: '{{ doc("fact_traces_type") }}'
       - name: FROM_ADDRESS
-        description: '{{ doc("evm_transfer_from_address") }}'
+        description: '{{ doc("ez_native_transfers_from_address") }}'
       - name: TO_ADDRESS
-        description: '{{ doc("evm_transfer_to_address") }}'
+        description: '{{ doc("ez_native_transfers_to_address") }}'
       - name: AMOUNT
-        description: '{{ doc("evm_transfer_amount") }}'
+        description: '{{ doc("ez_native_transfers_amount") }}'
       - name: AMOUNT_PRECISE_RAW
-        description: '{{ doc("evm_transfer_raw_amount_precise") }}'
+        description: '{{ doc("ez_native_transfers_amount_precise_raw") }}'
       - name: AMOUNT_PRECISE
-        description: '{{ doc("evm_transfer_amount_precise") }}'
+        description: '{{ doc("ez_native_transfers_amount_precise") }}'
       - name: AMOUNT_USD
-        description: '{{ doc("evm_amount_usd") }}'
+        description: '{{ doc("ez_native_transfers_amount_usd") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: EZ_NATIVE_TRANSFERS_ID

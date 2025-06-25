@@ -5,7 +5,7 @@ models:
        
     columns:
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_contracts_contract_address") }}'
+        description: '{{ doc("dim_contracts_address") }}'
       - name: ABI
         description: '{{ doc("abi") }}'
       - name: ABI_SOURCE
