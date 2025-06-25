@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: nft__ez_nft_transfers
-    description: '{{ doc("evm_ez_nft_transfer_table_doc") }}'
+    description: '{{ doc("ez_nft_transfers_table_doc") }}'
 
     columns:
       - name: BLOCK_NUMBER
@@ -15,31 +15,31 @@ models:
       - name: EVENT_INDEX
         description: '{{ doc("fact_event_logs_event_index") }}'
       - name: INTRA_EVENT_INDEX
-        description: '{{ doc("evm_nft_intra_event_index") }}'
+        description: '{{ doc("ez_nft_transfers_intra_event_index") }}'
       - name: TOKEN_TRANSFER_TYPE
-        description: '{{ doc("evm_nft_token_transfer_type") }}'
+        description: '{{ doc("ez_nft_transfers_transfer_type") }}'
       - name: IS_MINT
-        description: '{{ doc("evm_nft_is_mint") }}'
+        description: '{{ doc("ez_nft_transfers_is_mint") }}'
       - name: FROM_ADDRESS
-        description: '{{ doc("evm_transfer_from_address") }}'
+        description: '{{ doc("ez_nft_transfers_from_address") }}'
       - name: TO_ADDRESS
-        description: '{{ doc("evm_transfer_to_address") }}'
+        description: '{{ doc("ez_nft_transfers_to_address") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_contract_address") }}'
+        description: '{{ doc("ez_nft_transfers_contract_address") }}'
       - name: TOKEN_ID
-        description: '{{ doc("evm_nft_token_id") }}'
+        description: '{{ doc("ez_nft_transfers_token_id") }}'
       - name: QUANTITY
-        description: '{{ doc("evm_nft_quantity") }}'
+        description: '{{ doc("ez_nft_transfers_nft_quantity") }}'
       - name: TOKEN_STANDARD
-        description: '{{ doc("evm_token_standard") }}'
+        description: '{{ doc("ez_nft_transfers_token_standard") }}'
       - name: NAME
-        description: '{{ doc("evm_nft_project_name") }}'
+        description: '{{ doc("ez_nft_transfers_name") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: EZ_NFT_TRANSFERS_ID
         description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP
