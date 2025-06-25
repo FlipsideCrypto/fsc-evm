@@ -81,7 +81,8 @@ WHERE
             utils.udf_decimal_adjust(
                 pre_raw_balance,
                 18
-            ) AS pre_balance,
+            ) AS pre_balance_precise,
+            pre_balance_precise :: FLOAT AS pre_balance,
             COALESCE(
                 post.nonce,
                 pre.nonce
@@ -94,9 +95,10 @@ WHERE
             utils.udf_decimal_adjust(
                 post_raw_balance,
                 18
-            ) AS post_balance,
+            ) AS post_balance_precise,
+            post_balance_precise :: FLOAT AS post_balance,
             post_raw_balance - pre_raw_balance AS net_raw_balance,
-            post_balance - pre_balance AS net_balance
+            post_balance_precise - pre_balance_precise AS net_balance
         FROM
             pre_state pre
             LEFT JOIN post_state post USING(
@@ -119,10 +121,12 @@ missing_data AS (
         pre_nonce,
         pre_hex_balance,
         pre_raw_balance,
+        pre_balance_precise,
         pre_balance,
         post_nonce,
         post_hex_balance,
         post_raw_balance,
+        post_balance_precise,
         post_balance,
         net_raw_balance,
         net_balance
@@ -145,10 +149,12 @@ FINAL AS (
         pre_nonce,
         pre_hex_balance,
         pre_raw_balance,
+        pre_balance_precise,
         pre_balance,
         post_nonce,
         post_hex_balance,
         post_raw_balance,
+        post_balance_precise,
         post_balance,
         net_raw_balance,
         net_balance
@@ -166,10 +172,12 @@ SELECT
     pre_nonce,
     pre_hex_balance,
     pre_raw_balance,
+    pre_balance_precise,
     pre_balance,
     post_nonce,
     post_hex_balance,
     post_raw_balance,
+    post_balance_precise,
     post_balance,
     net_raw_balance,
     net_balance
@@ -186,10 +194,12 @@ SELECT
     pre_nonce,
     pre_hex_balance,
     pre_raw_balance,
+    pre_balance_precise,
     pre_balance,
     post_nonce,
     post_hex_balance,
     post_raw_balance,
+    post_balance_precise,
     post_balance,
     net_raw_balance,
     net_balance,
