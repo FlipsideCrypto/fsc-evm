@@ -1,70 +1,70 @@
 version: 2
 models:
   - name: nft__ez_nft_sales
-    description: '{{ doc("evm_ez_nft_sales_table_doc") }}'
+    description: '{{ doc("ez_nft_sales_table_doc") }}'
 
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("evm_nft_block_no") }}'
+        description: '{{ doc("general_block_number") }}'
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("evm_nft_blocktime") }}'
+        description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_nft_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("evm_nft_event_index") }}'
+        description: '{{ doc("fact_event_logs_event_index") }}'
       - name: EVENT_TYPE
-        description: '{{ doc("evm_nft_event_type") }}'
+        description: '{{ doc("ez_nft_sales_event_type") }}'
       - name: PLATFORM_ADDRESS
-        description: '{{ doc("evm_nft_platform_address") }}'
+        description: '{{ doc("ez_nft_sales_platform_address") }}'
       - name: PLATFORM_NAME
-        description: '{{ doc("evm_nft_platform_name") }}'
+        description: '{{ doc("ez_nft_sales_platform_name") }}'
       - name: PLATFORM_EXCHANGE_VERSION
-        description: '{{ doc("evm_nft_platform_exchange_version") }}'
+        description: '{{ doc("ez_nft_sales_platform_exchange_version") }}'
       - name: AGGREGATOR_NAME
-        description: '{{ doc("evm_nft_aggregator_name") }}'
+        description: '{{ doc("ez_nft_sales_aggregator_name") }}'
       - name: SELLER_ADDRESS
-        description: '{{ doc("evm_nft_seller_address") }}'
+        description: '{{ doc("ez_nft_sales_seller_address") }}'
       - name: BUYER_ADDRESS
-        description: '{{ doc("evm_nft_buyer_address") }}'
+        description: '{{ doc("ez_nft_sales_buyer_address") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_nft_address") }}'
+        description: '{{ doc("ez_nft_sales_contract_address") }}'
       - name: NAME
-        description: '{{ doc("evm_nft_project_name") }}'
+        description: '{{ doc("ez_nft_sales_project_name") }}'
       - name: TOKEN_ID
-        description: '{{ doc("evm_nft_tokenid") }}'
+        description: '{{ doc("ez_nft_sales_token_id") }}'
       - name: QUANTITY
-        description: '{{ doc("evm_nft_quantity") }}'
+        description: '{{ doc("ez_nft_sales_quantity") }}'
       - name: TOKEN_STANDARD
-        description: '{{ doc("evm_token_standard") }}'
+        description: '{{ doc("ez_nft_sales_token_standard") }}'
       - name: CURRENCY_SYMBOL
-        description: '{{ doc("evm_nft_currency_symbol") }}'
+        description: '{{ doc("ez_nft_sales_currency_symbol") }}'
       - name: CURRENCY_ADDRESS
-        description: '{{ doc("evm_nft_currency_address") }}'
+        description: '{{ doc("ez_nft_sales_currency_address") }}'
       - name: PRICE
-        description: '{{ doc("evm_nft_price") }}'
+        description: '{{ doc("ez_nft_sales_price") }}'
       - name: PRICE_USD
-        description: '{{ doc("evm_nft_price_usd") }}'
+        description: '{{ doc("ez_nft_sales_price_usd") }}'
       - name: TOTAL_FEES
-        description: '{{ doc("evm_nft_total_fees") }}'
+        description: '{{ doc("ez_nft_sales_total_fees") }}'
       - name: PLATFORM_FEE
-        description: '{{ doc("evm_nft_platform_fee") }}'
+        description: '{{ doc("ez_nft_sales_platform_fee") }}'
       - name: CREATOR_FEE
-        description: '{{ doc("evm_nft_creator_fee") }}'
+        description: '{{ doc("ez_nft_sales_creator_fee") }}'
       - name: TOTAL_FEES_USD
-        description: '{{ doc("evm_nft_total_fees_usd") }}'
+        description: '{{ doc("ez_nft_sales_total_fees_usd") }}'
       - name: PLATFORM_FEE_USD
-        description: '{{ doc("evm_nft_platform_fee_usd") }}'
+        description: '{{ doc("ez_nft_sales_platform_fee_usd") }}'
       - name: CREATOR_FEE_USD
-        description: '{{ doc("evm_nft_creator_fee_usd") }}'
+        description: '{{ doc("ez_nft_sales_creator_fee_usd") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_nft_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_nft_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("evm_nft_origin_sig") }}'
+        description: '{{ doc("general_origin_function_signature") }}'
       - name: EZ_NFT_SALES_ID
-        description: '{{ doc("evm_pk") }}'
+        description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'
+        description: '{{ doc("general_inserted_timestamp") }}'
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}'
+        description: '{{ doc("general_modified_timestamp") }}'

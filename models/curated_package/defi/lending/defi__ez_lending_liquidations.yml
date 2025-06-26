@@ -1,52 +1,52 @@
 version: 2
 models:
   - name: defi__ez_lending_liquidations
-    description: '{{ doc("evm_complete_lending_liquidations_table_doc") }}'
+    description: '{{ doc("ez_lending_liquidations_table_doc") }}'
 
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("evm_block_number") }}'
+        description: '{{ doc("general_block_number") }}'
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("evm_block_timestamp") }}'
+        description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_logs_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_logs_contract_address") }}'
+        description: '{{ doc("fact_event_logs_contract_address") }}'
       - name: EVENT_NAME
-        description: '{{ doc("evm_event_name") }}'
+        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
+        description: '{{ doc("fact_event_logs_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("evm_nft_origin_sig") }}'
+        description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: PLATFORM
-        description: '{{ doc("evm_complete_lending_platform") }}'
+        description: '{{ doc("ez_lending_platform") }}'
       - name: LIQUIDATOR
-        description: '{{ doc("evm_complete_lending_liquidator") }}'
+        description: '{{ doc("ez_lending_liquidator") }}'
       - name: BORROWER
-        description: '{{ doc("evm_complete_lending_borrower") }}'
+        description: '{{ doc("ez_lending_borrower") }}'
       - name: PROTOCOL_MARKET
-        description: '{{ doc("evm_complete_lending_protocol_token") }}'
+        description: '{{ doc("ez_lending_protocol_token") }}'
       - name: COLLATERAL_TOKEN
-        description: '{{ doc("evm_complete_lending_collateral_asset") }}'
+        description: '{{ doc("ez_lending_collateral_asset") }}'
       - name: COLLATERAL_TOKEN_SYMBOL
-        description: '{{ doc("evm_complete_lending_token_symbol") }}'
+        description: '{{ doc("ez_lending_collateral_token_symbol") }}'
       - name: AMOUNT_UNADJ
-        description: '{{ doc("evm_complete_lending_amount_unadj") }}'
+        description: '{{ doc("ez_lending_amount_unadj") }}'
       - name: AMOUNT
-        description: '{{ doc("evm_complete_lending_amount") }}'
+        description: '{{ doc("ez_lending_amount") }}'
       - name: AMOUNT_USD
-        description: '{{ doc("evm_complete_lending_amount_usd") }}'
+        description: '{{ doc("ez_lending_amount_usd") }}'
       - name: DEBT_TOKEN
-        description: '{{ doc("evm_complete_lending_debt_asset") }}'
+        description: '{{ doc("ez_lending_debt_asset") }}'
       - name: DEBT_TOKEN_SYMBOL
-        description: '{{ doc("evm_complete_lending_token_symbol") }}'
+        description: '{{ doc("ez_lending_debt_token_symbol") }}'
       - name: EZ_LENDING_LIQUDATIONS_ID
-        description: '{{ doc("evm_pk") }}'   
+        description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'   
+        description: '{{ doc("general_inserted_timestamp") }}'   
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}' 
+        description: '{{ doc("general_modified_timestamp") }}' 
