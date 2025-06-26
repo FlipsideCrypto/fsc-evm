@@ -4,19 +4,28 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+--depends_on: {{ ref('core__fact_blocks') }}
+
 {{ config (
     materialized = "incremental",
     unique_key = ['block_number'],
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp::date', 'round(block_number, -3)'],
-    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
+    full_refresh = vars.global_gold_fr_enabled,
     tags = ['gold','balances','phase_4']
 ) }}
 
---depends_on: {{ ref('core__fact_blocks') }}
+WITH verified_assets AS (
 
-WITH erc20_transfers AS (
-
+    SELECT
+        token_address
+    FROM
+        {{ ref('price__ez_asset_metadata') }}
+    WHERE
+        is_verified
+        AND asset_id IS NOT NULL
+),
+erc20_transfers AS (
     SELECT
         block_number,
         block_timestamp,
@@ -30,15 +39,57 @@ WITH erc20_transfers AS (
     FROM
         {{ ref('core__ez_token_transfers') }}
         t
-        INNER JOIN {{ ref('price__ez_asset_metadata') }}
-        m --limit balances to verified assets only
-        ON t.contract_address = m.token_address
-    WHERE
-        is_verified
-        AND asset_id IS NOT NULL
+        INNER JOIN verified_assets v --limit balances to verified assets only
+        ON t.contract_address = v.token_address
 
 {% if is_incremental() %}
-AND t.modified_timestamp > (
+WHERE
+    t.modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+wrapped_native_transfers AS (
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        IFF(
+            topic_0 = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
+            '0x' || SUBSTR(
+                topic_1 :: STRING,
+                27
+            ),
+            '0x0000000000000000000000000000000000000000'
+        ) AS from_address,
+        IFF(
+            topic_0 = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
+            '0x0000000000000000000000000000000000000000',
+            '0x' || SUBSTR(
+                topic_1 :: STRING,
+                27
+            )
+        ) AS to_address,
+        contract_address,
+        TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
+        18 AS decimals
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN verified_assets v
+        ON l.contract_address = v.token_address
+    WHERE
+        topic_0 IN (
+            '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
+            -- withdraw
+            '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' --deposit
+        )
+
+{% if is_incremental() %}
+AND l.modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
@@ -49,7 +100,6 @@ AND t.modified_timestamp > (
 transfer_direction AS (
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         to_address AS address,
@@ -61,7 +111,6 @@ transfer_direction AS (
     UNION ALL
     SELECT
         block_number,
-        block_timestamp,
         tx_position,
         tx_hash,
         from_address AS address,
@@ -72,6 +121,30 @@ transfer_direction AS (
         decimals
     FROM
         erc20_transfers
+    UNION ALL
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        to_address AS address,
+        contract_address,
+        raw_amount,
+        decimals
+    FROM
+        wrapped_native_transfers
+    UNION ALL
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        from_address AS address,
+        contract_address,
+        (
+            -1 * raw_amount
+        ) AS raw_amount,
+        decimals
+    FROM
+        wrapped_native_transfers
 ),
 direction_agg AS (
     SELECT
@@ -106,7 +179,12 @@ state_tracer AS (
                 DISTINCT block_number
             FROM
                 erc20_transfers
-        )
+            UNION ALL
+            SELECT
+                DISTINCT block_number
+            FROM
+                wrapped_native_transfers
+        ) --only include blocks with relevant transfers
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -127,7 +205,7 @@ pre_state_storage AS (
         pre.key :: STRING AS storage_key,
         pre.value :: STRING AS pre_storage_value_hex
     FROM
-        state_tracer, 
+        state_tracer,
         LATERAL FLATTEN(
             input => pre_storage
         ) pre
@@ -143,7 +221,7 @@ post_state_storage AS (
         post.key :: STRING AS storage_key,
         post.value :: STRING AS post_storage_value_hex
     FROM
-        state_tracer, 
+        state_tracer,
         LATERAL FLATTEN(
             input => post_storage
         ) post
@@ -176,8 +254,8 @@ state_storage AS (
             '0x0000000000000000000000000000000000000000000000000000000000000000'
         ) AS post_storage_hex
     FROM
-        pre_state_storage pre
-        FULL OUTER JOIN post_state_storage post USING (
+        pre_state_storage pre full
+        OUTER JOIN post_state_storage post USING (
             block_number,
             tx_position,
             address,
@@ -192,7 +270,9 @@ transfer_mapping AS (
         tx_hash,
         contract_address,
         address,
-        TRY_TO_NUMBER(slot_number_array[0]::STRING) AS slot_number,
+        TRY_TO_NUMBER(
+            slot_number_array [0] :: STRING
+        ) AS slot_number,
         utils.udf_mapping_slot(
             address,
             slot_number
@@ -201,8 +281,8 @@ transfer_mapping AS (
         decimals
     FROM
         direction_agg d
-    INNER JOIN {{ ref('silver__balance_slots') }} s
-    USING (contract_address)
+        INNER JOIN {{ ref('silver__balance_slots') }}
+        s USING (contract_address)
 ),
 balances AS (
     SELECT

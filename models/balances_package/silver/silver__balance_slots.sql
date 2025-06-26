@@ -12,8 +12,17 @@
     tags = ['silver','balances','phase_4']
 ) }}
 
-WITH erc20_transfers AS (
+WITH verified_assets AS (
 
+    SELECT
+        token_address
+    FROM
+        {{ ref('price__ez_asset_metadata') }}
+    WHERE
+        is_verified
+        AND asset_id IS NOT NULL
+),
+erc20_transfers AS (
     SELECT
         block_number,
         tx_position,
@@ -26,13 +35,10 @@ WITH erc20_transfers AS (
     FROM
         {{ ref('core__ez_token_transfers') }}
         t
-        INNER JOIN {{ ref('price__ez_asset_metadata') }}
-        m --limit balances to verified assets only
-        ON t.contract_address = m.token_address
+        INNER JOIN verified_assets v --limit balances to verified assets only
+        ON t.contract_address = v.token_address
     WHERE
-        block_timestamp > dateadd('day', -31, SYSDATE())
-        AND is_verified
-        AND asset_id IS NOT NULL
+        block_timestamp > DATEADD('day', -31, SYSDATE())
 
 {% if is_incremental() %}
 AND t.modified_timestamp > (
@@ -42,12 +48,76 @@ AND t.modified_timestamp > (
         {{ this }}
 )
 AND contract_address NOT IN (
-    SELECT DISTINCT contract_address
-    FROM {{ this }}
-    WHERE slot_number_array IS NOT NULL --attempt to map again if slot is missing
+    SELECT
+        DISTINCT contract_address
+    FROM
+        {{ this }}
+    WHERE
+        slot_number_array IS NOT NULL --only attempt to map again if slot is missing
 )
 {% endif %}
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY contract_address ORDER BY block_number DESC)) = 1 --only keep the latest transfer for each contract
+
+qualify (ROW_NUMBER() over (PARTITION BY contract_address
+ORDER BY
+    block_number DESC)) = 1 --only keep the latest transfer for each contract
+),
+wrapped_native_transfers AS (
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        IFF(
+            topic_0 = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
+            '0x' || SUBSTR(
+                topic_1 :: STRING,
+                27
+            ),
+            '0x0000000000000000000000000000000000000000'
+        ) AS from_address,
+        IFF(
+            topic_0 = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
+            '0x0000000000000000000000000000000000000000',
+            '0x' || SUBSTR(
+                topic_1 :: STRING,
+                27
+            )
+        ) AS to_address,
+        contract_address,
+        TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
+        18 AS decimals
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN verified_assets v
+        ON l.contract_address = v.token_address
+    WHERE
+        block_timestamp > DATEADD('day', -31, SYSDATE())
+        AND topic_0 IN (
+            '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
+            -- withdraw
+            '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' --deposit
+        )
+
+{% if is_incremental() %}
+AND l.modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+AND contract_address NOT IN (
+    SELECT
+        DISTINCT contract_address
+    FROM
+        {{ this }}
+    WHERE
+        slot_number_array IS NOT NULL
+)
+{% endif %}
+
+qualify (ROW_NUMBER() over (PARTITION BY topic_0
+ORDER BY
+    block_number DESC)) = 1 --keep the latest event for each topic
 ),
 transfer_direction AS (
     SELECT
@@ -73,6 +143,30 @@ transfer_direction AS (
         decimals
     FROM
         erc20_transfers
+    UNION ALL
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        to_address AS address,
+        contract_address,
+        raw_amount,
+        decimals
+    FROM
+        wrapped_native_transfers
+    UNION ALL
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        from_address AS address,
+        contract_address,
+        (
+            -1 * raw_amount
+        ) AS raw_amount,
+        decimals
+    FROM
+        wrapped_native_transfers
 ),
 direction_agg AS (
     SELECT
@@ -106,7 +200,12 @@ state_tracer AS (
                 DISTINCT block_number
             FROM
                 erc20_transfers
-        )
+            UNION ALL
+            SELECT
+                DISTINCT block_number
+            FROM
+                wrapped_native_transfers
+        ) --only include blocks with relevant transfers
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -127,7 +226,7 @@ pre_state_storage AS (
         pre.key :: STRING AS storage_key,
         pre.value :: STRING AS pre_storage_value_hex
     FROM
-        state_tracer, 
+        state_tracer,
         LATERAL FLATTEN(
             input => pre_storage
         ) pre
@@ -143,7 +242,7 @@ post_state_storage AS (
         post.key :: STRING AS storage_key,
         post.value :: STRING AS post_storage_value_hex
     FROM
-        state_tracer, 
+        state_tracer,
         LATERAL FLATTEN(
             input => post_storage
         ) post
@@ -176,8 +275,8 @@ state_storage AS (
             '0x0000000000000000000000000000000000000000000000000000000000000000'
         ) AS post_storage_hex
     FROM
-        pre_state_storage pre
-        FULL OUTER JOIN post_state_storage post USING (
+        pre_state_storage pre full
+        OUTER JOIN post_state_storage post USING (
             block_number,
             tx_position,
             address,
@@ -276,9 +375,7 @@ FROM
 WHERE
     is_verified
     AND asset_id IS NOT NULL
-    AND token_address IS NOT NULL
-
-{# This model determines the balanceOf slot for each contract based on matching an erc20 token transfer with state data. 
-NULL slot indicates that the contract does not have a balanceOf slot. 
->1 slot indicates that the contract has multiple balanceOf slots.
-Logic for these contracts must be handled separately (e.g. rebase tokens, wrapped assets etc.) #}
+    AND token_address IS NOT NULL -- This model determines the balanceOf slot for each contract based on matching an erc20 token transfer with state data.
+    -- NULL slot indicates that the contract does not have a balanceOf slot.
+    -- >1 slot indicates that the contract has multiple balanceOf slots.
+    -- Logic for these contracts must be handled separately (e.g. rebase tokens, wrapped assets etc.)
