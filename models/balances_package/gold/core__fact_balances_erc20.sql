@@ -11,7 +11,7 @@
     unique_key = ['block_number'],
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp::date', 'round(block_number, -3)'],
-    full_refresh = vars.global_gold_fr_enabled,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold','balances','phase_4']
 ) }}
 
