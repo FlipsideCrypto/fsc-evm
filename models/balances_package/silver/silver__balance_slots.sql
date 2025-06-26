@@ -364,6 +364,7 @@ SELECT
     token_address AS contract_address,
     max_block_number,
     slot_number_array,
+    ARRAY_SIZE(slot_number_array) AS num_slots,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS balance_slots_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
