@@ -15,8 +15,10 @@ arbitrum,arbitrum
 arbitrum nova,arbitrum_nova
 arbitrum one,arbitrum
 archway,archway
+areon,areon
 astar,astar
 astar zkevm,astar_zkevm
+astar-zkevm,astar_zkevm
 astar-polkadot,astar_polkadot
 aurora,aurora
 aurora mainnet,aurora
@@ -35,7 +37,9 @@ bevm,bevm
 bevm2,bevm2
 binance smart chain,bsc
 bitcoin,bitcoin
+bitcichain,bitcichain
 bitlayer,bitlayer
+bittorrent,bittorrent
 blast,blast
 bnb,bsc
 bnb chain,bsc
@@ -45,6 +49,7 @@ bob,bob
 boba,boba
 boba bnb mainnet,boba_bnb
 boba network,boba
+botanix,botanix
 bouncebit,bouncebit
 bsc,bsc
 bsquared,bsquared
@@ -55,14 +60,16 @@ casper,casper
 celestia,celestia
 celo,celo
 celo mainnet,celo
+centrifuge,centrifuge
 cheesechain,cheesechain
 chihuahua,chihuahua
 ckb,ckb
 coinweb,coinweb
+coinex_smart_chain,coinex
 comdex,comdex
 concrete,concrete
 conflux,conflux
-conflux espace,conflux
+conflux espace,conflux_espace
 conflux_espace,conflux_espace
 core,core
 coredao,core
@@ -74,9 +81,11 @@ crescent,crescent
 cronos,cronos
 cronos mainnet,cronos
 cronos_zkevm,cronos_zkevm
+cronos-zkevm,cronos_zkevm
 crypto,crypto
 crypto chain,crypto
 cyber,cyber
+darwinia,darwinia
 defiverse mainnet,defiverse
 degen,degen
 degen chain,degen
@@ -125,6 +134,7 @@ gunz,gunz
 harmony,harmony
 harmony mainnet shard 0,harmony
 hash,hash
+hashkey,hashkey
 hedera,hedera
 hemi,hemi
 homeverse,homeverse
@@ -136,6 +146,7 @@ huobi eco chain mainnet,huobi_eco
 hyperevm,hyperevm
 immutable,immutable
 immutable x,immutable
+immutable-zkevm,immutable_zkevm
 inevm,inevm
 initia,initia
 injective,injective
@@ -154,6 +165,7 @@ klaytn mainnet cypress,klaytn
 koii,koii
 kroma,kroma
 kujira,kujira
+l3x,l3x
 lava,lava
 lens,lens
 lightlink,lightlink
@@ -171,7 +183,7 @@ merlin mainnet,merlin
 metachain one mainnet,metachain_one
 meter,meter
 metis,metis
-metis andromeda mainnet,metis
+metis andromeda mainnet,metis_andromeda
 milkomeda,milkomeda
 milkomeda c1 (cardano),milkomeda
 mind,mind
@@ -183,6 +195,7 @@ morph,morph
 movement,movement
 nautilus,nautilus
 near,near
+neonlink,neonlink
 neox,neox
 neutron,neutron
 nibiru,nibiru
@@ -214,8 +227,9 @@ polygon,polygon
 polygon mainnet,polygon
 polygon pos,polygon
 polygon zkevm,polygon_zkevm
+private-testnet-mica,private_testnet_mica
 proof of play apex,proof_of_play_apex
-publicmint mainnet,ronin
+publicmint mainnet,publicmint
 rari_chain,rari
 rari,rari
 re.al,re.al
@@ -280,10 +294,12 @@ tiltyard,tiltyard
 tomochain,tomochain
 ton,ton
 tron,tron
+treasure,treasure
 umee,umee
 unichain,unichain
 unit zero mainnet,unit_zero
 vana,vana
+velas,velas
 viction,viction
 waves,waves
 wemix,wemix
@@ -308,6 +324,7 @@ zircuit,zircuit
 zkfair,zkfair
 zklink,zklink
 zklink nova,zklink_nova
+zklink_nova,zklink_nova
 zksync,zksync_era
 zksync era,zksync_era
 zksync era mainnet,zksync_era
