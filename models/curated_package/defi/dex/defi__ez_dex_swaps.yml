@@ -1,0 +1,65 @@
+version: 2
+models:
+  - name: defi__ez_dex_swaps
+    description: '{{ doc("ez_dex_swaps_table_doc") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("general_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("general_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("ez_dex_swaps_contract_address") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
+      - name: AMOUNT_IN
+        description: '{{ doc("ez_dex_swaps_amount_in") }}'
+      - name: AMOUNT_OUT
+        description: '{{ doc("ez_dex_swaps_amount_out") }}'
+      - name: AMOUNT_IN_USD
+        description: '{{ doc("ez_dex_swaps_amount_in_usd") }}'
+      - name: AMOUNT_OUT_USD
+        description: '{{ doc("ez_dex_swaps_amount_out_usd") }}'
+      - name: TOKEN_IN
+        description: '{{ doc("ez_dex_swaps_token_in") }}'
+      - name: TOKEN_IN_IS_VERIFIED
+        description: '{{ doc("ez_dex_swaps_token_in_is_verified") }}'
+      - name: TOKEN_OUT
+        description: '{{ doc("ez_dex_swaps_token_out") }}'
+      - name: TOKEN_OUT_IS_VERIFIED
+        description: '{{ doc("ez_dex_swaps_token_out_is_verified") }}'
+      - name: SYMBOL_IN
+        description: '{{ doc("ez_dex_swaps_symbol_in") }}'
+      - name: SYMBOL_OUT
+        description: '{{ doc("ez_dex_swaps_symbol_out") }}'
+      - name: SENDER
+        description: '{{ doc("ez_dex_swaps_sender") }}'
+      - name: TX_TO
+        description: '{{ doc("ez_dex_swaps_to") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_dex_swaps_platform") }}'
+      - name: PROTOCOL
+        description: '{{ doc("ez_dex_swaps_protocol") }}'
+      - name: PROTOCOL_VERSION
+        description: '{{ doc("ez_dex_swaps_protocol_version") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("fact_event_logs_event_index") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("general_origin_function_signature") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("general_from_address") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("general_to_address") }}'
+      - name: AMOUNT_IN_UNADJ
+        description: '{{ doc("ez_dex_swaps_amount_in_unadj") }}'
+      - name: AMOUNT_OUT_UNADJ
+        description: '{{ doc("ez_dex_swaps_amount_out_unadj") }}'
+      - name: EZ_DEX_SWAPS_ID
+        description: '{{ doc("general_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}' 
+

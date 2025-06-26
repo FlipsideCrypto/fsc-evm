@@ -5,17 +5,17 @@ models:
 
     columns:
       - name: HOUR
-        description: '{{ doc("evm_prices_hour")}}'
+        description: '{{ doc("ez_prices_hour")}}'
       - name: ASSET_ID
-        description: '{{ doc("evm_prices_asset_id") }}'
+        description: '{{ doc("ez_prices_asset_id") }}'
       - name: OPEN
-        description: '{{ doc("evm_prices_open") }}'
+        description: '{{ doc("ez_prices_open") }}'
       - name: HIGH
-        description: '{{ doc("evm_prices_high") }}'
+        description: '{{ doc("ez_prices_high") }}'
       - name: LOW
-        description: '{{ doc("evm_prices_low") }}'
+        description: '{{ doc("ez_prices_low") }}'
       - name: CLOSE
-        description: '{{ doc("evm_prices_close") }}'
+        description: '{{ doc("ez_prices_close") }}'
       - name: FACT_PRICES_OHLC_HOURLY_ID
         description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP

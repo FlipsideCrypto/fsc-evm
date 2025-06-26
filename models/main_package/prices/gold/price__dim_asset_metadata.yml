@@ -5,17 +5,17 @@ models:
 
     columns:
       - name: PROVIDER
-        description: '{{ doc("evm_prices_provider")}}'
+        description: '{{ doc("ez_prices_provider")}}'
       - name: ASSET_ID
-        description: '{{ doc("evm_prices_asset_id") }}'
+        description: '{{ doc("ez_prices_asset_id") }}'
       - name: NAME
-        description: '{{ doc("evm_prices_name") }}'
+        description: '{{ doc("ez_prices_name") }}'
       - name: SYMBOL
-        description: '{{ doc("evm_prices_symbol") }}'
+        description: '{{ doc("ez_prices_symbol") }}'
       - name: TOKEN_ADDRESS
-        description: '{{ doc("evm_prices_token_address") }}'
+        description: '{{ doc("ez_prices_address") }}'
       - name: BLOCKCHAIN
-        description: '{{ doc("evm_prices_blockchain") }}'
+        description: '{{ doc("ez_prices_blockchain") }}'
       - name: BLOCKCHAIN_ID
         description: '{{ doc("evm_prices_blockchain_id") }}'
       - name: DIM_ASSET_METADATA_ID

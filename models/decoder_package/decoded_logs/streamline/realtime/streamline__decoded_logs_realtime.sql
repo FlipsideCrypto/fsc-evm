@@ -34,6 +34,7 @@ candidate_logs AS (
     FROM {{ ref('core__fact_event_logs') }}
     WHERE
         inserted_timestamp >= DATEADD('hour', -48, SYSDATE())
+        AND tx_succeeded
 )
 SELECT
     l.block_number,

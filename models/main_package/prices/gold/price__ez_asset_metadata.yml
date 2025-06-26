@@ -1,27 +1,27 @@
 version: 2
 models:
   - name: price__ez_asset_metadata
-    description: '{{ doc("evm_prices_ez_asset_metadata_table_doc") }}'
+    description: '{{ doc("ez_asset_metadata_table_doc") }}'
 
     columns:
       - name: ASSET_ID
-        description: '{{ doc("evm_prices_asset_id") }}'
+        description: '{{ doc("ez_prices_asset_id") }}'
       - name: NAME
-        description: '{{ doc("evm_prices_name") }}'
+        description: '{{ doc("ez_prices_name") }}'
       - name: SYMBOL
-        description: '{{ doc("evm_prices_symbol") }}'
+        description: '{{ doc("ez_prices_symbol") }}'
       - name: TOKEN_ADDRESS
-        description: '{{ doc("evm_prices_token_address") }}'
+        description: '{{ doc("ez_prices_address") }}'
       - name: BLOCKCHAIN
-        description: '{{ doc("evm_prices_blockchain") }}'
+        description: '{{ doc("ez_prices_blockchain") }}'
       - name: DECIMALS
-        description: '{{ doc("evm_prices_decimals") }}'
+        description: '{{ doc("ez_prices_decimals") }}'
       - name: IS_NATIVE
-        description: '{{ doc("evm_prices_is_native") }}'
+        description: '{{ doc("ez_prices_is_native") }}'
       - name: IS_DEPRECATED
-        description: '{{ doc("evm_prices_is_deprecated") }}'
+        description: '{{ doc("ez_prices_is_deprecated") }}'
       - name: IS_VERIFIED
-        description: '{{ doc("evm_prices_is_verified") }}'
+        description: '{{ doc("ez_prices_is_verified") }}'
       - name: EZ_ASSET_METADATA_ID
         description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP
