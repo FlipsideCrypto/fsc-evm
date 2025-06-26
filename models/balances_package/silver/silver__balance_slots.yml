@@ -13,8 +13,11 @@ models:
       - name: SLOT_NUMBER_ARRAY
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ARRAY_SIZE(SLOT_NUMBER_ARRAY) = 1"
+      - name: NUM_SLOTS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_equal:
+              value: 1
       - name: INSERTED_TIMESTAMP
         tests:
           - not_null
