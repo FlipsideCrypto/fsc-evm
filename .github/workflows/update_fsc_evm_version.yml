@@ -1,7 +1,4 @@
-name: Update fsc-evm Version Across Repos
-# Note: This workflow requires either:
-# 1. GITHUB_TOKEN with contents:write and pull-requests:write permissions (for same-org repos)
-# 2. A Personal Access Token stored as FSC_UPDATE_TOKEN secret (for cross-org or enhanced permissions)
+name: Update FSC EVM Version
 
 on:
   workflow_dispatch:
@@ -21,315 +18,38 @@ on:
         type: boolean
         default: true
 
-permissions:
-  contents: write
-  pull-requests: write
-
-env:
-  ORG: FlipsideCrypto
-
 jobs:
-  update-packages:
+  trigger-fsc-evm-update:
     runs-on: ubuntu-latest
-    name: Update fsc-evm to ${{ inputs.version }}
     steps:
-      - name: Checkout fsc-evm repository
-        uses: actions/checkout@v4
-        
-      - name: Process repositories
-        env:
-          GITHUB_TOKEN: ${{ secrets.FSC_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.FSC_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Trigger FSC EVM Update Workflow
         run: |
-          # Don't exit on error immediately
-          set -uo pipefail
+          echo "Triggering FSC EVM update workflow..."
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "Projects: ${{ github.event.inputs.projects }}"
+          echo "Dry Run: ${{ github.event.inputs.dry_run }}"
           
-          VERSION="${{ inputs.version }}"
-          PROJECTS="${{ inputs.projects }}"
-          DRY_RUN="${{ inputs.dry_run }}"
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.BUILD_ACTIONS_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/FlipsideCrypto/evm-build-actions/actions/workflows/update_fsc_evm_version.yml/dispatches \
+            -d '{
+              "ref": "main",
+              "inputs": {
+                "version": "${{ github.event.inputs.version }}",
+                "projects": "${{ github.event.inputs.projects }}",
+                "dry_run": "${{ github.event.inputs.dry_run }}"
+              }
+            }')
           
-          echo "🚀 Starting fsc-evm version update to ${VERSION}"
-          echo "================================================"
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
           
-          # Parse CSV to get active repos
-          if [ ! -f "data/admin__repos.csv" ]; then
-            echo "❌ Error: data/admin__repos.csv not found"
-            exit 1
-          fi
-          
-          # Build repo list based on input
-          if [ "$PROJECTS" = "all" ]; then
-            # Get all active repos (skip header, filter is_active=true, get github_repo column)
-            mapfile -t REPOS < <(awk -F',' 'NR>1 && $4=="true" {print $2}' data/admin__repos.csv)
-            echo "📋 Found ${#REPOS[@]} active repositories"
+          if [ "$http_code" -eq 204 ]; then
+            echo "✅ Workflow dispatched successfully!"
           else
-            # Parse comma-separated list
-            IFS=',' read -ra REQUESTED <<< "$PROJECTS"
-            REPOS=()
-            for req in "${REQUESTED[@]}"; do
-              req=$(echo "$req" | xargs)  # trim
-              # Add -models suffix if not present
-              if [[ ! "$req" =~ -models$ ]]; then
-                req="${req}-models"
-              fi
-              if grep -q ",${req}," data/admin__repos.csv; then
-                REPOS+=("$req")
-              else
-                echo "⚠️  Warning: ${req} not found in data/admin__repos.csv"
-              fi
-            done
-            echo "📋 Processing ${#REPOS[@]} requested repositories"
-          fi
-          
-          if [ ${#REPOS[@]} -eq 0 ]; then
-            echo "❌ No repositories to process"
+            echo "❌ Failed to dispatch workflow"
+            echo "HTTP Status Code: $http_code"
+            echo "Response Body: $body"
             exit 1
-          fi
-          
-          # Initialize counters
-          SUCCESS_COUNT=0
-          SKIP_COUNT=0
-          FAIL_COUNT=0
-          CLONE_FAIL_COUNT=0  # Track clone failures separately
-          
-          # Create results file
-          RESULTS_FILE=$(mktemp)
-          
-          # Process each repository
-          for repo in "${REPOS[@]}"; do
-            FULL_REPO="${ORG}/${repo}"
-            echo ""
-            echo "📦 Processing ${repo}..."
-            
-            # Create temp directory
-            TEMP_DIR=$(mktemp -d)
-            
-            # Clone repository
-            if ! git clone -q "https://github.com/${FULL_REPO}.git" "${TEMP_DIR}/${repo}" 2>/dev/null; then
-              echo "  ⚠️  Warning: Could not clone repository (may be private or not exist)"
-              echo "${repo}|CLONE_FAILED: Could not clone repository" >> "$RESULTS_FILE"
-              CLONE_FAIL_COUNT=$((CLONE_FAIL_COUNT + 1))
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            # Save current directory
-            ORIG_DIR=$(pwd)
-            cd "${TEMP_DIR}/${repo}"
-            
-            # Check for packages.yml
-            if [ ! -f "packages.yml" ]; then
-              echo "  ❌ packages.yml not found"
-              echo "${repo}|FAILED: packages.yml not found" >> "$RESULTS_FILE"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
-              cd "$ORIG_DIR"
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            # Get current version (with trimming)
-            CURRENT_VERSION=$(grep -E "revision:\s*" packages.yml | sed 's/.*revision:\s*//' | xargs)
-            echo "  📌 Current version: ${CURRENT_VERSION}"
-            
-            # Check if already at target version
-            if [ "${CURRENT_VERSION}" = "${VERSION}" ]; then
-              echo "  ⏭️  Already at version ${VERSION}, skipping"
-              echo "${repo}|SKIPPED: Already at ${VERSION}" >> "$RESULTS_FILE"
-              SKIP_COUNT=$((SKIP_COUNT + 1))
-              cd "$ORIG_DIR"
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            if [ "$DRY_RUN" = "true" ]; then
-              echo "  🔍 [DRY RUN] Would update from ${CURRENT_VERSION} to ${VERSION}"
-              echo "${repo}|DRY RUN: Would update ${CURRENT_VERSION} → ${VERSION}" >> "$RESULTS_FILE"
-              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-              cd "$ORIG_DIR"
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            # Create branch and update
-            BRANCH="update-fsc-evm-${VERSION//\./-}"
-            
-            # Check if branch already exists remotely
-            if git ls-remote --heads origin "${BRANCH}" | grep -q "${BRANCH}"; then
-              echo "  ⚠️  Branch ${BRANCH} already exists remotely, using unique branch name"
-              BRANCH="${BRANCH}-$(date +%s)"
-            fi
-            
-            # Create and checkout branch
-            if ! git checkout -b "${BRANCH}" 2>/dev/null; then
-              echo "  ❌ Failed to create branch ${BRANCH}"
-              echo "${repo}|FAILED: Could not create branch" >> "$RESULTS_FILE"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
-              cd "$ORIG_DIR"
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            # Update packages.yml
-            sed -i "s/revision:.*/revision: ${VERSION}/" packages.yml
-            
-            # Configure git
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            
-            # Commit
-            git add packages.yml
-            if ! git commit -m "chore: update fsc-evm to ${VERSION}" 2>/dev/null; then
-              echo "  ❌ Failed to commit changes"
-              echo "${repo}|FAILED: Could not commit changes" >> "$RESULTS_FILE"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
-              cd "$ORIG_DIR"
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            # Set upstream and push with more verbose error handling
-            echo "  🔄 Pushing branch ${BRANCH}..."
-            
-            # First set the remote URL with token
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${FULL_REPO}.git"
-            
-            # Now push - capture both stdout and stderr
-            if ! git push -u origin "${BRANCH}" 2>&1; then
-              echo "  ❌ Failed to push branch"
-              
-              # Try to get more info
-              echo "  📍 Current branch: $(git branch --show-current)"
-              echo "  📍 Remote URL: $(git remote get-url origin | sed 's/x-access-token:[^@]*@/x-access-token:***@/')"
-              echo "  📍 Git status:"
-              git status --short
-              
-              # Try a verbose push to see what's happening
-              echo "  📍 Attempting verbose push for diagnostics:"
-              git push -v origin "${BRANCH}" 2>&1 || true
-              
-              echo "${repo}|FAILED: Push failed" >> "$RESULTS_FILE"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
-              cd "$ORIG_DIR"
-              rm -rf "$TEMP_DIR"
-              continue
-            fi
-            
-            echo "  ✅ Branch pushed successfully"
-            
-            # Create PR body
-            PR_BODY=$'## 🔄 Automated fsc-evm Update\n\nThis PR updates the fsc-evm package version from `'"${CURRENT_VERSION}"'` to `'"${VERSION}"'`.\n\n### Changes\n```diff\npackages:\n  - git: https://github.com/FlipsideCrypto/fsc-evm.git\n-    revision: '"${CURRENT_VERSION}"'\n+    revision: '"${VERSION}"'\n```\n\n---\n*This PR was auto-generated by the fsc-evm version update workflow.*'
-            
-            # Create PR and capture output
-            PR_OUTPUT=$(gh pr create \
-              --repo "${FULL_REPO}" \
-              --title "chore: update fsc-evm to ${VERSION}" \
-              --body "$PR_BODY" \
-              --base main \
-              --head "${BRANCH}" 2>&1) || true
-            
-            if echo "$PR_OUTPUT" | grep -q "github.com"; then
-              PR_URL=$(echo "$PR_OUTPUT" | grep -o 'https://github.com/[^ ]*' | head -1)
-              echo "  ✅ PR created: ${PR_URL}"
-              echo "${repo}|SUCCESS: ${PR_URL}" >> "$RESULTS_FILE"
-              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-            elif echo "$PR_OUTPUT" | grep -q "already exists"; then
-              # Get existing PR
-              EXISTING_PR=$(gh pr list --repo "${FULL_REPO}" --head "${BRANCH}" --json url -q '.[0].url')
-              echo "  ⚠️  PR already exists: ${EXISTING_PR}"
-              echo "${repo}|EXISTS: ${EXISTING_PR}" >> "$RESULTS_FILE"
-              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-            else
-              echo "  ❌ Failed to create PR"
-              echo "${repo}|FAILED: Could not create PR" >> "$RESULTS_FILE"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
-            fi
-            
-            cd "$ORIG_DIR"
-            rm -rf "$TEMP_DIR"
-          done
-          
-          # Final summary
-          echo ""
-          echo "================================================"
-          echo "📊 SUMMARY"
-          echo "================================================"
-          echo "Total repositories: ${#REPOS[@]}"
-          echo "✅ Successful: ${SUCCESS_COUNT}"
-          echo "⏭️  Skipped: ${SKIP_COUNT}"
-          echo "⚠️  Could not access: ${CLONE_FAIL_COUNT}"
-          echo "❌ Failed: ${FAIL_COUNT}"
-          
-          # Detailed results
-          echo ""
-          echo "📝 Detailed Results:"
-          echo "-------------------"
-          while IFS='|' read -r repo status; do
-            if [[ $status == SUCCESS* ]]; then
-              echo "✅ ${repo}: ${status}"
-            elif [[ $status == SKIPPED* ]] || [[ $status == EXISTS* ]]; then
-              echo "⏭️  ${repo}: ${status}"
-            elif [[ $status == "DRY RUN"* ]]; then
-              echo "🔍 ${repo}: ${status}"
-            elif [[ $status == CLONE_FAILED* ]]; then
-              echo "⚠️  ${repo}: ${status}"
-            else
-              echo "❌ ${repo}: ${status}"
-            fi
-          done < "$RESULTS_FILE" | sort
-          
-          # Set job summary
-          {
-            echo "# fsc-evm Version Update Summary"
-            echo ""
-            echo "**Version:** ${VERSION}"
-            echo "**Total Repositories:** ${#REPOS[@]}"
-            echo ""
-            echo "| Status | Count |"
-            echo "|--------|-------|"
-            echo "| ✅ Successful | ${SUCCESS_COUNT} |"
-            echo "| ⏭️  Skipped | ${SKIP_COUNT} |"
-            echo "| ⚠️  Could not access | ${CLONE_FAIL_COUNT} |"
-            echo "| ❌ Failed | ${FAIL_COUNT} |"
-            echo ""
-            if [ $SUCCESS_COUNT -gt 0 ]; then
-              echo "## Pull Requests Created"
-              echo ""
-              while IFS='|' read -r repo status; do
-                if [[ $status == SUCCESS* ]]; then
-                  url="${status#SUCCESS: }"
-                  echo "- [${repo}](${url})"
-                fi
-              done < "$RESULTS_FILE" | sort
-            fi
-            
-            if [ $CLONE_FAIL_COUNT -gt 0 ]; then
-              echo ""
-              echo "## Repositories Not Accessible"
-              echo ""
-              echo "The following repositories could not be cloned (may be private or not exist):"
-              echo ""
-              while IFS='|' read -r repo status; do
-                if [[ $status == CLONE_FAILED* ]]; then
-                  echo "- ${repo}"
-                fi
-              done < "$RESULTS_FILE" | sort
-            fi
-          } >> $GITHUB_STEP_SUMMARY
-          
-          # Clean up
-          rm -f "$RESULTS_FILE"
-          
-          # Exit with error only if there were actual failures (not clone failures)
-          if [ $FAIL_COUNT -gt 0 ]; then
-            echo ""
-            echo "❌ Some repositories failed to update"
-            exit 1
-          else
-            echo ""
-            if [ $CLONE_FAIL_COUNT -gt 0 ]; then
-              echo "✨ Successfully processed all accessible repositories!"
-              echo "⚠️  Note: ${CLONE_FAIL_COUNT} repositories could not be accessed"
-            else
-              echo "✨ All repositories processed successfully!"
-            fi
           fi
