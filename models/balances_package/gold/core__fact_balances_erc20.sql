@@ -24,7 +24,7 @@ WITH verified_assets AS (
         {{ ref('price__ez_asset_metadata') }}
         v
         INNER JOIN {{ ref('silver__balance_slots') }}
-        s USING (contract_address)
+        s ON v.token_address = s.contract_address
     WHERE
         is_verified
         AND asset_id IS NOT NULL
@@ -62,6 +62,7 @@ WHERE
 wrapped_native_transfers AS (
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         IFF(
@@ -107,6 +108,7 @@ AND l.modified_timestamp > (
 transfer_direction AS (
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         to_address AS address,
@@ -119,6 +121,7 @@ transfer_direction AS (
     UNION ALL
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         from_address AS address,
@@ -133,6 +136,7 @@ transfer_direction AS (
     UNION ALL
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         to_address AS address,
@@ -145,6 +149,7 @@ transfer_direction AS (
     UNION ALL
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
         from_address AS address,
