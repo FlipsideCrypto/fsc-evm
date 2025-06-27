@@ -88,6 +88,7 @@ jobs:
             
             # Create temp directory without trap
             TEMP_DIR=$(mktemp -d)
+            CURRENT_DIR=$(pwd)
             
             # Clone repository
             if ! git clone -q "https://github.com/${FULL_REPO}.git" "${TEMP_DIR}/${repo}" 2>/dev/null; then
@@ -105,13 +106,13 @@ jobs:
               echo "  ❌ packages.yml not found"
               RESULTS["${repo}"]="FAILED: packages.yml not found"
               ((FAIL_COUNT++))
-              cd - > /dev/null
+              cd "$CURRENT_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
             
-            # Get current version
-            CURRENT_VERSION=$(grep -E "revision:\s*" packages.yml | sed 's/.*revision:\s*//')
+            # Get current version (with trimming)
+            CURRENT_VERSION=$(grep -E "revision:\s*" packages.yml | sed 's/.*revision:\s*//' | xargs)
             echo "  📌 Current version: ${CURRENT_VERSION}"
             
             # Check if already at target version
@@ -119,7 +120,7 @@ jobs:
               echo "  ⏭️  Already at version ${VERSION}, skipping"
               RESULTS["${repo}"]="SKIPPED: Already at ${VERSION}"
               ((SKIP_COUNT++))
-              cd - > /dev/null
+              cd "$CURRENT_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -128,7 +129,7 @@ jobs:
               echo "  🔍 [DRY RUN] Would update from ${CURRENT_VERSION} to ${VERSION}"
               RESULTS["${repo}"]="DRY RUN: Would update ${CURRENT_VERSION} → ${VERSION}"
               ((SUCCESS_COUNT++))
-              cd - > /dev/null
+              cd "$CURRENT_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -153,7 +154,7 @@ jobs:
               echo "  ❌ Failed to push branch"
               RESULTS["${repo}"]="FAILED: Could not push branch"
               ((FAIL_COUNT++))
-              cd - > /dev/null
+              cd "$CURRENT_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -186,7 +187,7 @@ jobs:
               ((FAIL_COUNT++))
             fi
             
-            cd - > /dev/null
+            cd "$CURRENT_DIR"
             rm -rf "$TEMP_DIR"
           done
           
