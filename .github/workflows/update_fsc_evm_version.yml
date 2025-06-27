@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       projects:
-        description: 'Comma-separated github_repo names or "all" (default: all). Examples: "ethereum-models" or "ethereum-models,base-models"'
+        description: 'Comma-separated repo names or "all" (default: all). The "-models" suffix is automatically added. Examples: "ethereum" or "ethereum,base"'
         required: false
         type: string
         default: 'all'
@@ -61,6 +61,10 @@ jobs:
             REPOS=()
             for req in "${REQUESTED[@]}"; do
               req=$(echo "$req" | xargs)  # trim
+              # Add -models suffix if not present
+              if [[ ! "$req" =~ -models$ ]]; then
+                req="${req}-models"
+              fi
               if grep -q ",${req}," data/admin__repos.csv; then
                 REPOS+=("$req")
               else
@@ -141,6 +145,13 @@ jobs:
             
             # Create branch and update
             BRANCH="update-fsc-evm-${VERSION//\./-}"
+            
+            # Check if branch already exists remotely
+            if git ls-remote --heads origin "${BRANCH}" | grep -q "${BRANCH}"; then
+              echo "  ⚠️  Branch ${BRANCH} already exists remotely, using unique branch name"
+              BRANCH="${BRANCH}-$(date +%s)"
+            fi
+            
             git checkout -q -b "${BRANCH}"
             
             # Update packages.yml
@@ -154,10 +165,22 @@ jobs:
             git add packages.yml
             git commit -q -m "chore: update fsc-evm to ${VERSION}"
             
-            # Push
-            if ! git push -q origin "${BRANCH}" 2>/dev/null; then
+            # Push with more verbose error handling
+            PUSH_OUTPUT=$(git push origin "${BRANCH}" 2>&1)
+            PUSH_EXIT_CODE=$?
+            
+            if [ $PUSH_EXIT_CODE -ne 0 ]; then
               echo "  ❌ Failed to push branch"
-              echo "${repo}|FAILED: Could not push branch" >> "$RESULTS_FILE"
+              echo "  Error details: ${PUSH_OUTPUT}"
+              
+              # Check for common issues
+              if echo "$PUSH_OUTPUT" | grep -q "already exists"; then
+                echo "  💡 Hint: Branch already exists on remote"
+              elif echo "$PUSH_OUTPUT" | grep -q "permission"; then
+                echo "  💡 Hint: Check GITHUB_TOKEN permissions"
+              fi
+              
+              echo "${repo}|FAILED: Could not push branch - ${PUSH_OUTPUT}" >> "$RESULTS_FILE"
               FAIL_COUNT=$((FAIL_COUNT + 1))
               cd "$ORIG_DIR"
               rm -rf "$TEMP_DIR"
