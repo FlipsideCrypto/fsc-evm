@@ -370,7 +370,8 @@ SELECT
     ARRAY_SIZE(slot_number_array) AS num_slots,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS balance_slots_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     verified_assets v
     LEFT JOIN FINAL f USING (contract_address)
