@@ -373,8 +373,7 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    verified_assets v
-    LEFT JOIN FINAL f USING (contract_address)
+    FINAL
 -- This model determines the balanceOf slot for each contract based on matching an erc20 token transfer with state data.
 -- NULL slot indicates that the contract does not have a balanceOf slot.
 -- >1 slot indicates that the contract has multiple balanceOf slots.
