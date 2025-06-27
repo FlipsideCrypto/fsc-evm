@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       projects:
-        description: 'Comma-separated github_repo names or "all" (default: all)'
+        description: 'Comma-separated github_repo names or "all" (default: all). Examples: "ethereum-models" or "ethereum-models,base-models"'
         required: false
         type: string
         default: 'all'
@@ -79,6 +79,7 @@ jobs:
           SUCCESS_COUNT=0
           SKIP_COUNT=0
           FAIL_COUNT=0
+          CLONE_FAIL_COUNT=0  # Track clone failures separately
           
           # Create results file
           RESULTS_FILE=$(mktemp)
@@ -94,9 +95,9 @@ jobs:
             
             # Clone repository
             if ! git clone -q "https://github.com/${FULL_REPO}.git" "${TEMP_DIR}/${repo}" 2>/dev/null; then
-              echo "  ❌ Failed to clone repository"
-              echo "${repo}|FAILED: Could not clone repository" >> "$RESULTS_FILE"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
+              echo "  ⚠️  Warning: Could not clone repository (may be private or not exist)"
+              echo "${repo}|CLONE_FAILED: Could not clone repository" >> "$RESULTS_FILE"
+              CLONE_FAIL_COUNT=$((CLONE_FAIL_COUNT + 1))
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -203,6 +204,7 @@ jobs:
           echo "Total repositories: ${#REPOS[@]}"
           echo "✅ Successful: ${SUCCESS_COUNT}"
           echo "⏭️  Skipped: ${SKIP_COUNT}"
+          echo "⚠️  Could not access: ${CLONE_FAIL_COUNT}"
           echo "❌ Failed: ${FAIL_COUNT}"
           
           # Detailed results
@@ -216,6 +218,8 @@ jobs:
               echo "⏭️  ${repo}: ${status}"
             elif [[ $status == "DRY RUN"* ]]; then
               echo "🔍 ${repo}: ${status}"
+            elif [[ $status == CLONE_FAILED* ]]; then
+              echo "⚠️  ${repo}: ${status}"
             else
               echo "❌ ${repo}: ${status}"
             fi
@@ -232,27 +236,48 @@ jobs:
             echo "|--------|-------|"
             echo "| ✅ Successful | ${SUCCESS_COUNT} |"
             echo "| ⏭️  Skipped | ${SKIP_COUNT} |"
+            echo "| ⚠️  Could not access | ${CLONE_FAIL_COUNT} |"
             echo "| ❌ Failed | ${FAIL_COUNT} |"
             echo ""
-            echo "## Pull Requests Created"
-            echo ""
-            while IFS='|' read -r repo status; do
-              if [[ $status == SUCCESS* ]]; then
-                url="${status#SUCCESS: }"
-                echo "- [${repo}](${url})"
-              fi
-            done < "$RESULTS_FILE" | sort
+            if [ $SUCCESS_COUNT -gt 0 ]; then
+              echo "## Pull Requests Created"
+              echo ""
+              while IFS='|' read -r repo status; do
+                if [[ $status == SUCCESS* ]]; then
+                  url="${status#SUCCESS: }"
+                  echo "- [${repo}](${url})"
+                fi
+              done < "$RESULTS_FILE" | sort
+            fi
+            
+            if [ $CLONE_FAIL_COUNT -gt 0 ]; then
+              echo ""
+              echo "## Repositories Not Accessible"
+              echo ""
+              echo "The following repositories could not be cloned (may be private or not exist):"
+              echo ""
+              while IFS='|' read -r repo status; do
+                if [[ $status == CLONE_FAILED* ]]; then
+                  echo "- ${repo}"
+                fi
+              done < "$RESULTS_FILE" | sort
+            fi
           } >> $GITHUB_STEP_SUMMARY
           
           # Clean up
           rm -f "$RESULTS_FILE"
           
-          # Exit with error if any failed
+          # Exit with error only if there were actual failures (not clone failures)
           if [ $FAIL_COUNT -gt 0 ]; then
             echo ""
             echo "❌ Some repositories failed to update"
             exit 1
           else
             echo ""
-            echo "✨ All repositories processed successfully!"
+            if [ $CLONE_FAIL_COUNT -gt 0 ]; then
+              echo "✨ Successfully processed all accessible repositories!"
+              echo "⚠️  Note: ${CLONE_FAIL_COUNT} repositories could not be accessed"
+            else
+              echo "✨ All repositories processed successfully!"
+            fi
           fi
