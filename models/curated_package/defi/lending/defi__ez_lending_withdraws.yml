@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: vertex__ez_clearing_house_events
-    description: '{{ doc("vertex_clearing_house_events") }}'
+  - name: defi__ez_lending_withdraws
+    description: '{{ doc("ez_lending_withdraws_table_doc") }}'
 
     columns:
       - name: BLOCK_NUMBER
@@ -9,7 +9,7 @@ models:
       - name: BLOCK_TIMESTAMP
         description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_logs_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: CONTRACT_ADDRESS
         description: '{{ doc("fact_event_logs_contract_address") }}'
       - name: EVENT_NAME
@@ -19,26 +19,26 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
-      - name: SYMBOL
-        description: '{{ doc("vertex_symbol") }}'
-      - name: DIGEST
-        description: '{{ doc("vertex_digest") }}'
-      - name: TRADER
-        description: '{{ doc("vertex_trader") }}'
-      - name: SUBACCOUNT
-        description: '{{ doc("vertex_subaccount") }}'
+        description: '{{ doc("general_to_address") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_lending_platform") }}'
+      - name: DEPOSITOR
+        description: '{{ doc("ez_lending_depositor") }}'
+      - name: PROTOCOL_MARKET
+        description: '{{ doc("ez_lending_protocol_token") }}'
       - name: TOKEN_ADDRESS
-        description: '{{ doc("vertex_token_address") }}'
+        description: '{{ doc("ez_lending_token_address") }}'
+      - name: TOKEN_SYMBOL
+        description: '{{ doc("ez_lending_token_symbol") }}'
       - name: AMOUNT_UNADJ
-        description: '{{ doc("vertex_amount_unadj") }}'
+        description: '{{ doc("ez_lending_amount_unadj") }}'  
       - name: AMOUNT
-        description: '{{ doc("vertex_amount") }}'
+        description: '{{ doc("ez_lending_amount") }}'  
       - name: AMOUNT_USD
-        description: '{{ doc("vertex_amount_usd_ch") }}'
-      - name: EZ_CLEARING_HOUSE_EVENTS_ID
+        description: '{{ doc("ez_lending_amount_usd") }}'
+      - name: EZ_LENDING_WITHDRAWS_ID
         description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP
         description: '{{ doc("general_inserted_timestamp") }}'   
