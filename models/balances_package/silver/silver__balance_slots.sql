@@ -15,7 +15,7 @@
 WITH verified_assets AS (
 
     SELECT
-        token_address
+        token_address AS contract_address
     FROM
         {{ ref('price__ez_asset_metadata') }}
     WHERE
@@ -36,7 +36,7 @@ erc20_transfers AS (
         {{ ref('core__ez_token_transfers') }}
         t
         INNER JOIN verified_assets v --limit balances to verified assets only
-        ON t.contract_address = v.token_address
+        USING (contract_address)
     WHERE
         block_timestamp > DATEADD('day', -31, SYSDATE())
 
@@ -88,8 +88,7 @@ wrapped_native_transfers AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN verified_assets v
-        ON l.contract_address = v.token_address
+        INNER JOIN verified_assets v USING (contract_address)
     WHERE
         block_timestamp > DATEADD('day', -31, SYSDATE())
         AND topic_0 IN (
@@ -361,18 +360,19 @@ FINAL AS (
         contract_address
 )
 SELECT
-    token_address AS contract_address,
+    contract_address,
     max_block_number,
     slot_number_array,
+    TRY_TO_NUMBER(
+        slot_number_array [0] :: STRING
+    ) AS slot_number,
     ARRAY_SIZE(slot_number_array) AS num_slots,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS balance_slots_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    {{ ref('price__ez_asset_metadata') }}
-    v
-    LEFT JOIN FINAL f
-    ON v.token_address = f.contract_address
+    verified_assets v
+    LEFT JOIN FINAL f USING (contract_address)
 WHERE
     is_verified
     AND asset_id IS NOT NULL

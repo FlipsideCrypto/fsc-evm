@@ -18,12 +18,18 @@
 WITH verified_assets AS (
 
     SELECT
-        token_address
+        token_address AS contract_address,
+        slot_number
     FROM
         {{ ref('price__ez_asset_metadata') }}
+        v
+        INNER JOIN {{ ref('silver__balance_slots') }}
+        s USING (contract_address)
     WHERE
         is_verified
         AND asset_id IS NOT NULL
+        AND slot_number IS NOT NULL
+        AND num_slots = 1 --only include contracts with a single balanceOf slot
 ),
 erc20_transfers AS (
     SELECT
@@ -35,12 +41,13 @@ erc20_transfers AS (
         to_address,
         contract_address,
         TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
-        t.decimals
+        t.decimals,
+        slot_number
     FROM
         {{ ref('core__ez_token_transfers') }}
         t
         INNER JOIN verified_assets v --limit balances to verified assets only
-        ON t.contract_address = v.token_address
+        USING (contract_address)
 
 {% if is_incremental() %}
 WHERE
@@ -75,12 +82,12 @@ wrapped_native_transfers AS (
         ) AS to_address,
         contract_address,
         TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
-        18 AS decimals
+        18 AS decimals,
+        slot_number
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN verified_assets v
-        ON l.contract_address = v.token_address
+        INNER JOIN verified_assets v USING (contract_address)
     WHERE
         topic_0 IN (
             '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
@@ -105,7 +112,8 @@ transfer_direction AS (
         to_address AS address,
         contract_address,
         raw_amount,
-        decimals
+        decimals,
+        slot_number
     FROM
         erc20_transfers
     UNION ALL
@@ -118,7 +126,8 @@ transfer_direction AS (
         (
             -1 * raw_amount
         ) AS raw_amount,
-        decimals
+        decimals,
+        slot_number
     FROM
         erc20_transfers
     UNION ALL
@@ -129,7 +138,8 @@ transfer_direction AS (
         to_address AS address,
         contract_address,
         raw_amount,
-        decimals
+        decimals,
+        slot_number
     FROM
         wrapped_native_transfers
     UNION ALL
@@ -142,7 +152,8 @@ transfer_direction AS (
         (
             -1 * raw_amount
         ) AS raw_amount,
-        decimals
+        decimals,
+        slot_number
     FROM
         wrapped_native_transfers
 ),
@@ -155,7 +166,8 @@ direction_agg AS (
         address,
         contract_address,
         SUM(raw_amount) AS transfer_amount,
-        MAX(decimals) AS decimals
+        MAX(decimals) AS decimals,
+        MAX(slot_number) AS slot_number
     FROM
         transfer_direction
     GROUP BY
@@ -270,9 +282,7 @@ transfer_mapping AS (
         tx_hash,
         contract_address,
         address,
-        TRY_TO_NUMBER(
-            slot_number_array [0] :: STRING
-        ) AS slot_number,
+        slot_number,
         utils.udf_mapping_slot(
             address,
             slot_number
@@ -280,9 +290,7 @@ transfer_mapping AS (
         transfer_amount,
         decimals
     FROM
-        direction_agg d
-        INNER JOIN {{ ref('silver__balance_slots') }}
-        s USING (contract_address)
+        direction_agg
 ),
 balances AS (
     SELECT
