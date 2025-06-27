@@ -21,6 +21,7 @@ WITH verified_assets AS (
     WHERE
         is_verified
         AND asset_id IS NOT NULL
+        AND token_address IS NOT NULL
 ),
 erc20_transfers AS (
     SELECT
@@ -373,10 +374,7 @@ SELECT
 FROM
     verified_assets v
     LEFT JOIN FINAL f USING (contract_address)
-WHERE
-    is_verified
-    AND asset_id IS NOT NULL
-    AND token_address IS NOT NULL -- This model determines the balanceOf slot for each contract based on matching an erc20 token transfer with state data.
-    -- NULL slot indicates that the contract does not have a balanceOf slot.
-    -- >1 slot indicates that the contract has multiple balanceOf slots.
-    -- Logic for these contracts must be handled separately (e.g. rebase tokens, wrapped assets etc.)
+-- This model determines the balanceOf slot for each contract based on matching an erc20 token transfer with state data.
+-- NULL slot indicates that the contract does not have a balanceOf slot.
+-- >1 slot indicates that the contract has multiple balanceOf slots.
+-- Logic for these contracts must be handled separately (e.g. rebase tokens, wrapped assets etc.)
