@@ -6,7 +6,7 @@ models:
           combination_of_columns:
             - CONTRACT_ADDRESS
       - fsc_evm.missing_balance_slots
-      
+
     columns:
       - name: CONTRACT_ADDRESS
         tests:
@@ -17,8 +17,8 @@ models:
       - name: NUM_SLOTS
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_equal:
-              value: 1
+          - accepted_values:
+              values: [1]
       - name: INSERTED_TIMESTAMP
         tests:
           - not_null
