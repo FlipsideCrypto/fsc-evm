@@ -118,20 +118,52 @@ jobs:
               const summarizeJob = jobsResponse.data.jobs.find(job => job.name === 'summarize');
               const updateJobs = jobsResponse.data.jobs.filter(job => job.name.startsWith('update-repos'));
               
-              // Count job results
+              // Count job results and collect per-repo status
               let successful = 0;
               let failed = 0;
               let skipped = 0;
+              const repoStatuses = [];
               
               for (const job of updateJobs) {
+                // Extract repo name from matrix job name (e.g., "update-repos (ethereum-models)" -> "ethereum-models")
+                const repoName = job.name.match(/update-repos \((.+)\)/)?.[1] || job.name;
+                
+                let status, emoji;
                 if (job.conclusion === 'success') {
                   successful++;
+                  status = 'Success';
+                  emoji = '✅';
                 } else if (job.conclusion === 'failure') {
                   failed++;
+                  status = 'Failed';
+                  emoji = '❌';
                 } else if (job.conclusion === 'skipped') {
                   skipped++;
+                  status = 'Skipped';
+                  emoji = '⏭️';
+                } else {
+                  status = 'Unknown';
+                  emoji = '❓';
                 }
+                
+                repoStatuses.push({
+                  repo: repoName,
+                  status: status,
+                  emoji: emoji,
+                  conclusion: job.conclusion
+                });
               }
+              
+              // Sort by status (failed first, then success, then skipped)
+              repoStatuses.sort((a, b) => {
+                const statusOrder = { 'Failed': 0, 'Success': 1, 'Skipped': 2, 'Unknown': 3 };
+                return statusOrder[a.status] - statusOrder[b.status];
+              });
+              
+              // Create detailed status table
+              const statusTable = repoStatuses.map(repo => 
+                `| ${repo.emoji} ${repo.repo} | ${repo.status} |`
+              ).join('\n');
               
               // Get workflow run details
               const runResponse = await github.rest.actions.getWorkflowRun({
@@ -142,7 +174,7 @@ jobs:
               
               const workflowRun = runResponse.data;
               
-              // Create comprehensive summary
+              // Create comprehensive summary with per-repo breakdown
               const summary = `# FSC EVM Update Workflow Summary
 
               **Workflow Run:** [View in evm-build-actions](https://github.com/FlipsideCrypto/evm-build-actions/actions/runs/${workflowRunId})
@@ -150,14 +182,18 @@ jobs:
               **Started:** ${new Date(workflowRun.created_at).toLocaleString()}
               **Completed:** ${workflowRun.updated_at ? new Date(workflowRun.updated_at).toLocaleString() : 'Still running'}
               
-              ## Job Results
-              | Job Type | Status | Count |
-              |----------|--------|-------|
-              | ✅ Successful Updates | ${successful} |
-              | ❌ Failed Updates | ${failed} |
-              | ⏭️ Skipped Updates | ${skipped} |
-              | 📊 Summary Job | ${summarizeJob ? summarizeJob.conclusion : 'Not found'} |
-              
+              ## Summary
+              | Status | Count |
+              |--------|-------|
+              | ✅ Successful | ${successful} |
+              | ❌ Failed | ${failed} |
+              | ⏭️ Skipped | ${skipped} |
+
+              ## Repository Details
+              | Repository | Status |
+              |------------|--------|
+              ${statusTable}
+
               ## Workflow Details
               - **Total Jobs:** ${jobsResponse.data.jobs.length}
               - **Update Jobs:** ${updateJobs.length}
@@ -167,10 +203,11 @@ jobs:
               `;
               
               await core.summary.addRaw(summary).write();
-              console.log('✅ Enhanced summary created in this workflow');
+              console.log('✅ Enhanced summary with per-repo breakdown created');
               
               // Also log some key metrics
               console.log(`📊 Job Summary: ${successful} successful, ${failed} failed, ${skipped} skipped`);
+              console.log(`📋 Repository breakdown: ${repoStatuses.length} repos processed`);
               
             } catch (error) {
               console.error('Error fetching enhanced summary:', error);
