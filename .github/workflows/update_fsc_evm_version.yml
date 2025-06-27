@@ -1,4 +1,7 @@
 name: Update fsc-evm Version Across Repos
+# Note: This workflow requires either:
+# 1. GITHUB_TOKEN with contents:write and pull-requests:write permissions (for same-org repos)
+# 2. A Personal Access Token stored as FSC_UPDATE_TOKEN secret (for cross-org or enhanced permissions)
 
 on:
   workflow_dispatch:
@@ -35,8 +38,8 @@ jobs:
         
       - name: Process repositories
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.FSC_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.FSC_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           # Don't exit on error immediately
           set -uo pipefail
@@ -190,25 +193,21 @@ jobs:
             # First set the remote URL with token
             git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${FULL_REPO}.git"
             
-            # Now push
-            PUSH_OUTPUT=$(git push -u origin "${BRANCH}" 2>&1)
-            PUSH_EXIT_CODE=$?
-            
-            if [ $PUSH_EXIT_CODE -ne 0 ]; then
-              echo "  ❌ Failed to push branch (exit code: ${PUSH_EXIT_CODE})"
-              echo "  Error details: ${PUSH_OUTPUT}"
+            # Now push - capture both stdout and stderr
+            if ! git push -u origin "${BRANCH}" 2>&1; then
+              echo "  ❌ Failed to push branch"
               
-              # Check for common issues
-              if echo "$PUSH_OUTPUT" | grep -q "403"; then
-                echo "  💡 Hint: Permission denied - check GITHUB_TOKEN permissions"
-                echo "  💡 Required permissions: contents:write, pull-requests:write"
-              elif echo "$PUSH_OUTPUT" | grep -q "already exists"; then
-                echo "  💡 Hint: Branch already exists on remote"
-              elif echo "$PUSH_OUTPUT" | grep -q "authentication"; then
-                echo "  💡 Hint: Authentication issue with GITHUB_TOKEN"
-              fi
+              # Try to get more info
+              echo "  📍 Current branch: $(git branch --show-current)"
+              echo "  📍 Remote URL: $(git remote get-url origin | sed 's/x-access-token:[^@]*@/x-access-token:***@/')"
+              echo "  📍 Git status:"
+              git status --short
               
-              echo "${repo}|FAILED: Push failed - Exit code ${PUSH_EXIT_CODE}" >> "$RESULTS_FILE"
+              # Try a verbose push to see what's happening
+              echo "  📍 Attempting verbose push for diagnostics:"
+              git push -v origin "${BRANCH}" 2>&1 || true
+              
+              echo "${repo}|FAILED: Push failed" >> "$RESULTS_FILE"
               FAIL_COUNT=$((FAIL_COUNT + 1))
               cd "$ORIG_DIR"
               rm -rf "$TEMP_DIR"
