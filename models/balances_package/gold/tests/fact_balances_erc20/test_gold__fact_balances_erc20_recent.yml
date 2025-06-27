@@ -9,6 +9,7 @@ models:
             - TX_POSITION
             - CONTRACT_ADDRESS
             - ADDRESS
+      - fsc_evm.balances_diffs_erc20
 
     columns:
       - name: BLOCK_NUMBER

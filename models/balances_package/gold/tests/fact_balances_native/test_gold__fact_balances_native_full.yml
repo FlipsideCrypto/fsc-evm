@@ -13,6 +13,8 @@ models:
             - BLOCK_NUMBER
           column_name: TX_POSITION
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+      - fsc_evm.balances_diffs_native:
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
 
     columns:
       - name: BLOCK_NUMBER

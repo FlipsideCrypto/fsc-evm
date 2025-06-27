@@ -8,6 +8,8 @@ models:
             - BLOCK_NUMBER
             - TX_POSITION
             - ADDRESS
+      - fsc_evm.sequence_gaps:
+          column_name: BLOCK_NUMBER
       - fsc_evm.balances_sequence_gaps:
           partition_by:
             - BLOCK_NUMBER

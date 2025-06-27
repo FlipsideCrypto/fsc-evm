@@ -9,6 +9,8 @@ models:
             - TX_POSITION
             - CONTRACT_ADDRESS
             - ADDRESS
+      - fsc_evm.balances_diffs_erc20:
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
 
     columns:
       - name: BLOCK_NUMBER

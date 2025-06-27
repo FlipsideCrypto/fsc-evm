@@ -12,6 +12,7 @@ models:
           partition_by:
             - BLOCK_NUMBER
           column_name: TX_POSITION
+      - fsc_evm.balances_diffs_native
 
     columns:
       - name: BLOCK_NUMBER
