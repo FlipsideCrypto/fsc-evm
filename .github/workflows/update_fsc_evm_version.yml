@@ -34,7 +34,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
+          # Don't exit on error immediately
+          set -uo pipefail
           
           VERSION="${{ inputs.version }}"
           PROJECTS="${{ inputs.projects }}"
@@ -78,7 +79,9 @@ jobs:
           SUCCESS_COUNT=0
           SKIP_COUNT=0
           FAIL_COUNT=0
-          declare -A RESULTS
+          
+          # Create results file
+          RESULTS_FILE=$(mktemp)
           
           # Process each repository
           for repo in "${REPOS[@]}"; do
@@ -86,27 +89,28 @@ jobs:
             echo ""
             echo "📦 Processing ${repo}..."
             
-            # Create temp directory without trap
+            # Create temp directory
             TEMP_DIR=$(mktemp -d)
-            CURRENT_DIR=$(pwd)
             
             # Clone repository
             if ! git clone -q "https://github.com/${FULL_REPO}.git" "${TEMP_DIR}/${repo}" 2>/dev/null; then
               echo "  ❌ Failed to clone repository"
-              RESULTS["${repo}"]="FAILED: Could not clone repository"
-              ((FAIL_COUNT++))
+              echo "${repo}|FAILED: Could not clone repository" >> "$RESULTS_FILE"
+              FAIL_COUNT=$((FAIL_COUNT + 1))
               rm -rf "$TEMP_DIR"
               continue
             fi
             
+            # Save current directory
+            ORIG_DIR=$(pwd)
             cd "${TEMP_DIR}/${repo}"
             
             # Check for packages.yml
             if [ ! -f "packages.yml" ]; then
               echo "  ❌ packages.yml not found"
-              RESULTS["${repo}"]="FAILED: packages.yml not found"
-              ((FAIL_COUNT++))
-              cd "$CURRENT_DIR"
+              echo "${repo}|FAILED: packages.yml not found" >> "$RESULTS_FILE"
+              FAIL_COUNT=$((FAIL_COUNT + 1))
+              cd "$ORIG_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -118,18 +122,18 @@ jobs:
             # Check if already at target version
             if [ "${CURRENT_VERSION}" = "${VERSION}" ]; then
               echo "  ⏭️  Already at version ${VERSION}, skipping"
-              RESULTS["${repo}"]="SKIPPED: Already at ${VERSION}"
-              ((SKIP_COUNT++))
-              cd "$CURRENT_DIR"
+              echo "${repo}|SKIPPED: Already at ${VERSION}" >> "$RESULTS_FILE"
+              SKIP_COUNT=$((SKIP_COUNT + 1))
+              cd "$ORIG_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
             
             if [ "$DRY_RUN" = "true" ]; then
               echo "  🔍 [DRY RUN] Would update from ${CURRENT_VERSION} to ${VERSION}"
-              RESULTS["${repo}"]="DRY RUN: Would update ${CURRENT_VERSION} → ${VERSION}"
-              ((SUCCESS_COUNT++))
-              cd "$CURRENT_DIR"
+              echo "${repo}|DRY RUN: Would update ${CURRENT_VERSION} → ${VERSION}" >> "$RESULTS_FILE"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+              cd "$ORIG_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -152,9 +156,9 @@ jobs:
             # Push
             if ! git push -q origin "${BRANCH}" 2>/dev/null; then
               echo "  ❌ Failed to push branch"
-              RESULTS["${repo}"]="FAILED: Could not push branch"
-              ((FAIL_COUNT++))
-              cd "$CURRENT_DIR"
+              echo "${repo}|FAILED: Could not push branch" >> "$RESULTS_FILE"
+              FAIL_COUNT=$((FAIL_COUNT + 1))
+              cd "$ORIG_DIR"
               rm -rf "$TEMP_DIR"
               continue
             fi
@@ -173,21 +177,21 @@ jobs:
             if echo "$PR_OUTPUT" | grep -q "github.com"; then
               PR_URL=$(echo "$PR_OUTPUT" | grep -o 'https://github.com/[^ ]*' | head -1)
               echo "  ✅ PR created: ${PR_URL}"
-              RESULTS["${repo}"]="SUCCESS: ${PR_URL}"
-              ((SUCCESS_COUNT++))
+              echo "${repo}|SUCCESS: ${PR_URL}" >> "$RESULTS_FILE"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
             elif echo "$PR_OUTPUT" | grep -q "already exists"; then
               # Get existing PR
               EXISTING_PR=$(gh pr list --repo "${FULL_REPO}" --head "${BRANCH}" --json url -q '.[0].url')
               echo "  ⚠️  PR already exists: ${EXISTING_PR}"
-              RESULTS["${repo}"]="EXISTS: ${EXISTING_PR}"
-              ((SUCCESS_COUNT++))
+              echo "${repo}|EXISTS: ${EXISTING_PR}" >> "$RESULTS_FILE"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
             else
               echo "  ❌ Failed to create PR"
-              RESULTS["${repo}"]="FAILED: Could not create PR"
-              ((FAIL_COUNT++))
+              echo "${repo}|FAILED: Could not create PR" >> "$RESULTS_FILE"
+              FAIL_COUNT=$((FAIL_COUNT + 1))
             fi
             
-            cd "$CURRENT_DIR"
+            cd "$ORIG_DIR"
             rm -rf "$TEMP_DIR"
           done
           
@@ -205,8 +209,7 @@ jobs:
           echo ""
           echo "📝 Detailed Results:"
           echo "-------------------"
-          for repo in "${!RESULTS[@]}"; do
-            status="${RESULTS[$repo]}"
+          while IFS='|' read -r repo status; do
             if [[ $status == SUCCESS* ]]; then
               echo "✅ ${repo}: ${status}"
             elif [[ $status == SKIPPED* ]] || [[ $status == EXISTS* ]]; then
@@ -216,7 +219,7 @@ jobs:
             else
               echo "❌ ${repo}: ${status}"
             fi
-          done | sort
+          done < "$RESULTS_FILE" | sort
           
           # Set job summary
           {
@@ -233,14 +236,16 @@ jobs:
             echo ""
             echo "## Pull Requests Created"
             echo ""
-            for repo in "${!RESULTS[@]}"; do
-              status="${RESULTS[$repo]}"
+            while IFS='|' read -r repo status; do
               if [[ $status == SUCCESS* ]]; then
                 url="${status#SUCCESS: }"
                 echo "- [${repo}](${url})"
               fi
-            done | sort
+            done < "$RESULTS_FILE" | sort
           } >> $GITHUB_STEP_SUMMARY
+          
+          # Clean up
+          rm -f "$RESULTS_FILE"
           
           # Exit with error if any failed
           if [ $FAIL_COUNT -gt 0 ]; then
