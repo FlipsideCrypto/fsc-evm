@@ -51,6 +51,7 @@ erc20_transfers AS (
         AND topic_2 IS NOT NULL
         AND DATA IS NOT NULL
         AND raw_amount IS NOT NULL
+        AND l.block_timestamp > DATEADD('day', -31, SYSDATE())
 
 {% if is_incremental() %}
 AND l.modified_timestamp > (
