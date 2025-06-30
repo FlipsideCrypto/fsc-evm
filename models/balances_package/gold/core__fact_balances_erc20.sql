@@ -325,21 +325,21 @@ balances AS (
         address,
         storage_key,
         slot_number,
-        pre_storage_hex AS pre_hex_balance,
-        utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
+        pre_storage_hex AS pre_balance_hex,
+        utils.udf_hex_to_int(pre_storage_hex) AS pre_balance_raw,
         utils.udf_decimal_adjust(
-            pre_raw_balance,
+            pre_balance_raw,
             decimals
         ) AS pre_balance_precise,
         pre_balance_precise :: FLOAT AS pre_balance,
-        post_storage_hex AS post_hex_balance,
-        utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
+        post_storage_hex AS post_balance_hex,
+        utils.udf_hex_to_int(post_storage_hex) AS post_balance_raw,
         utils.udf_decimal_adjust(
-            post_raw_balance,
+            post_balance_raw,
             decimals
         ) AS post_balance_precise,
         post_balance_precise :: FLOAT AS post_balance,
-        TRY_TO_NUMBER(post_raw_balance) - TRY_TO_NUMBER(pre_raw_balance) AS net_raw_balance,
+        TRY_TO_NUMBER(post_balance_raw) - TRY_TO_NUMBER(pre_balance_raw) AS net_balance_raw,
         post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
         decimals,
@@ -353,7 +353,7 @@ balances AS (
             storage_key
         )
     WHERE
-        net_raw_balance = transfer_amount
+        net_balance_raw = transfer_amount
 )
 
 {% if is_incremental() %},
@@ -368,15 +368,15 @@ missing_data AS (
         decimals,
         slot_number,
         address,
-        pre_hex_balance,
-        pre_raw_balance,
+        pre_balance_hex,
+        pre_balance_raw,
         pre_balance_precise,
         pre_balance,
-        post_hex_balance,
-        post_raw_balance,
+        post_balance_hex,
+        post_balance_raw,
         post_balance_precise,
         post_balance,
-        net_raw_balance,
+        net_balance_raw,
         net_balance
     FROM
         {{ this }}
@@ -398,15 +398,15 @@ FINAL AS (
         decimals,
         slot_number,
         address,
-        pre_hex_balance,
-        pre_raw_balance,
+        pre_balance_hex,
+        pre_balance_raw,
         pre_balance_precise,
         pre_balance,
-        post_hex_balance,
-        post_raw_balance,
+        post_balance_hex,
+        post_balance_raw,
         post_balance_precise,
         post_balance,
-        net_raw_balance,
+        net_balance_raw,
         net_balance
     FROM
         balances
@@ -423,15 +423,15 @@ SELECT
     decimals,
     slot_number,
     address,
-    pre_hex_balance,
-    pre_raw_balance,
+    pre_balance_hex,
+    pre_balance_raw,
     pre_balance_precise,
     pre_balance,
-    post_hex_balance,
-    post_raw_balance,
+    post_balance_hex,
+    post_balance_raw,
     post_balance_precise,
     post_balance,
-    net_raw_balance,
+    net_balance_raw,
     net_balance
 FROM
     missing_data
@@ -447,15 +447,15 @@ SELECT
     decimals,
     slot_number,
     address,
-    pre_hex_balance,
-    pre_raw_balance,
+    pre_balance_hex,
+    pre_balance_raw,
     pre_balance_precise,
     pre_balance,
-    post_hex_balance,
-    post_raw_balance,
+    post_balance_hex,
+    post_balance_raw,
     post_balance_precise,
     post_balance,
-    net_raw_balance,
+    net_balance_raw,
     net_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
     SYSDATE() AS inserted_timestamp,

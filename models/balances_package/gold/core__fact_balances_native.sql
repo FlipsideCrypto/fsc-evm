@@ -74,12 +74,12 @@ WHERE
             pre.tx_hash,
             pre.address,
             pre.nonce AS pre_nonce,
-            pre.hex_balance AS pre_hex_balance,
+            pre.hex_balance AS pre_balance_hex,
             utils.udf_hex_to_int(
                 pre.hex_balance
-            ) :: bigint AS pre_raw_balance,
+            ) :: bigint AS pre_balance_raw,
             utils.udf_decimal_adjust(
-                pre_raw_balance,
+                pre_balance_raw,
                 18
             ) AS pre_balance_precise,
             pre_balance_precise :: FLOAT AS pre_balance,
@@ -90,14 +90,14 @@ WHERE
             COALESCE(
                 post.hex_balance,
                 pre.hex_balance
-            ) AS post_hex_balance,
-            utils.udf_hex_to_int(COALESCE(post.hex_balance, pre.hex_balance)) :: bigint AS post_raw_balance,
+            ) AS post_balance_hex,
+            utils.udf_hex_to_int(COALESCE(post.hex_balance, pre.hex_balance)) :: bigint AS post_balance_raw,
             utils.udf_decimal_adjust(
-                post_raw_balance,
+                post_balance_raw,
                 18
             ) AS post_balance_precise,
             post_balance_precise :: FLOAT AS post_balance,
-            post_raw_balance - pre_raw_balance AS net_raw_balance,
+            post_balance_raw - pre_balance_raw AS net_balance_raw,
             post_balance_precise - pre_balance_precise AS net_balance
         FROM
             pre_state pre
@@ -119,16 +119,16 @@ missing_data AS (
         tx_hash,
         address,
         pre_nonce,
-        pre_hex_balance,
-        pre_raw_balance,
+        pre_balance_hex,
+        pre_balance_raw,
         pre_balance_precise,
         pre_balance,
         post_nonce,
-        post_hex_balance,
-        post_raw_balance,
+        post_balance_hex,
+        post_balance_raw,
         post_balance_precise,
         post_balance,
-        net_raw_balance,
+        net_balance_raw,
         net_balance
     FROM
         {{ this }}
@@ -147,16 +147,16 @@ FINAL AS (
         tx_hash,
         address,
         pre_nonce,
-        pre_hex_balance,
-        pre_raw_balance,
+        pre_balance_hex,
+        pre_balance_raw,
         pre_balance_precise,
         pre_balance,
         post_nonce,
-        post_hex_balance,
-        post_raw_balance,
+        post_balance_hex,
+        post_balance_raw,
         post_balance_precise,
         post_balance,
-        net_raw_balance,
+        net_balance_raw,
         net_balance
     FROM
         balances
@@ -170,16 +170,16 @@ SELECT
     tx_hash,
     address,
     pre_nonce,
-    pre_hex_balance,
-    pre_raw_balance,
+    pre_balance_hex,
+    pre_balance_raw,
     pre_balance_precise,
     pre_balance,
     post_nonce,
-    post_hex_balance,
-    post_raw_balance,
+    post_balance_hex,
+    post_balance_raw,
     post_balance_precise,
     post_balance,
-    net_raw_balance,
+    net_balance_raw,
     net_balance
 FROM
     missing_data
@@ -192,16 +192,16 @@ SELECT
     tx_hash,
     address,
     pre_nonce,
-    pre_hex_balance,
-    pre_raw_balance,
+    pre_balance_hex,
+    pre_balance_raw,
     pre_balance_precise,
     pre_balance,
     post_nonce,
-    post_hex_balance,
-    post_raw_balance,
+    post_balance_hex,
+    post_balance_raw,
     post_balance_precise,
     post_balance,
-    net_raw_balance,
+    net_balance_raw,
     net_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_balances_native_id,
     SYSDATE() AS inserted_timestamp,
