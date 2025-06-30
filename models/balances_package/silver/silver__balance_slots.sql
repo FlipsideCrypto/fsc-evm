@@ -26,29 +26,40 @@ WITH verified_assets AS (
 erc20_transfers AS (
     SELECT
         block_number,
+        block_timestamp,
         tx_position,
         tx_hash,
-        from_address,
-        to_address,
+        event_index,
         contract_address,
+        CONCAT('0x', SUBSTR(topic_1, 27, 40)) :: STRING AS from_address,
+        CONCAT('0x', SUBSTR(topic_2, 27, 40)) :: STRING AS to_address,
+        utils.udf_hex_to_int(SUBSTR(DATA, 3, 64)) AS raw_amount_precise,
         TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
-        t.decimals
+        C.decimals,
+        tx_succeeded
     FROM
-        {{ ref('core__ez_token_transfers') }}
-        t
+        {{ ref('core__fact_event_logs') }}
+        l
         INNER JOIN verified_assets v --limit balances to verified assets only
         USING (contract_address)
+        LEFT JOIN {{ ref('core__dim_contracts') }} C
+        ON l.contract_address = C.address
+        AND C.decimals IS NOT NULL
     WHERE
-        block_timestamp > DATEADD('day', -31, SYSDATE())
+        topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+        AND topic_1 IS NOT NULL
+        AND topic_2 IS NOT NULL
+        AND DATA IS NOT NULL
+        AND raw_amount IS NOT NULL
 
 {% if is_incremental() %}
-AND t.modified_timestamp > (
+AND l.modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
         {{ this }}
 )
-AND contract_address NOT IN (
+AND l.contract_address NOT IN (
     SELECT
         DISTINCT contract_address
     FROM
@@ -58,7 +69,7 @@ AND contract_address NOT IN (
 )
 {% endif %}
 
-qualify (ROW_NUMBER() over (PARTITION BY contract_address
+qualify (ROW_NUMBER() over (PARTITION BY l.contract_address
 ORDER BY
     block_number DESC)) = 1 --only keep the latest transfer for each contract
 ),
@@ -319,21 +330,21 @@ balances AS (
         address,
         storage_key,
         slot_number,
-        pre_storage_hex AS pre_hex_balance,
-        utils.udf_hex_to_int(pre_storage_hex) AS pre_raw_balance,
+        pre_storage_hex AS pre_balance_hex,
+        utils.udf_hex_to_int(pre_storage_hex) AS pre_balance_raw,
         utils.udf_decimal_adjust(
-            pre_raw_balance,
+            pre_balance_raw,
             decimals
         ) AS pre_balance_precise,
         pre_balance_precise :: FLOAT AS pre_balance,
-        post_storage_hex AS post_hex_balance,
-        utils.udf_hex_to_int(post_storage_hex) AS post_raw_balance,
+        post_storage_hex AS post_balance_hex,
+        utils.udf_hex_to_int(post_storage_hex) AS post_balance_raw,
         utils.udf_decimal_adjust(
-            post_raw_balance,
+            post_balance_raw,
             decimals
         ) AS post_balance_precise,
         post_balance_precise :: FLOAT AS post_balance,
-        TRY_TO_NUMBER(post_raw_balance) - TRY_TO_NUMBER(pre_raw_balance) AS net_raw_balance,
+        TRY_TO_NUMBER(post_balance_raw) - TRY_TO_NUMBER(pre_balance_raw) AS net_balance_raw,
         post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
         decimals
