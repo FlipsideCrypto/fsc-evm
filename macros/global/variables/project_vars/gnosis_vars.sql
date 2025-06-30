@@ -20,4 +20,4 @@
     } %}
     
     {{ return(vars) }}
-{% endmacro %} 
+{% endmacro %}
