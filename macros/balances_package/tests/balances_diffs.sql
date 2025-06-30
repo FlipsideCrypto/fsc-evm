@@ -1,6 +1,10 @@
 {% test balances_diffs_native(
     model
 ) %}
+
+{# Get variables #}
+{% set vars = return_vars() %}
+
 WITH source AS (
     SELECT
         block_number,
@@ -31,11 +35,20 @@ FROM
 WHERE
     diff <> 0
     AND diff IS NOT NULL 
-{% endtest %}
+    {% if vars.BALANCES_EXCLUSION_LIST_ENABLED %}
+        AND address NOT IN (
+            SELECT
+                DISTINCT address
+            FROM
+                silver.validator_addresses
+        )
+    {% endif %}
 
-{% test balances_diffs_erc20(
-    model
-) %}
+    {% endtest %}
+
+    {% test balances_diffs_erc20(
+        model
+    ) %}
     WITH source AS (
         SELECT
             block_number,
@@ -69,4 +82,4 @@ FROM
 WHERE
     diff <> 0
     AND diff IS NOT NULL 
-{% endtest %}
+    {% endtest %}
