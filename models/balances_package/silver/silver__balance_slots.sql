@@ -357,7 +357,7 @@ balances AS (
             storage_key
         )
     WHERE
-        net_raw_balance = transfer_amount
+        net_balance_raw = transfer_amount
 ),
 FINAL AS (
     SELECT
