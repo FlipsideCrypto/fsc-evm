@@ -116,7 +116,7 @@ AND f.modified_timestamp > (
     FROM
         {{ this }}
     WHERE
-        block_timestamp > dateadd('day', -31, SYSDATE())
+        block_timestamp::DATE > dateadd('day', -3, SYSDATE())
         AND (
             amount_usd IS NULL
             OR decimals IS NULL
