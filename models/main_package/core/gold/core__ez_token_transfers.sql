@@ -110,7 +110,21 @@ AND f.modified_timestamp > (
 {% endif %}
 )
 {% if is_incremental() %}
-, heal_prices as (
+, broken_records as (
+    SELECT
+        *
+    FROM
+        {{ this }}
+    WHERE
+        block_timestamp > dateadd('day', -31, SYSDATE())
+        AND (
+            amount_usd IS NULL
+            OR decimals IS NULL
+            OR symbol IS NULL
+            OR name IS NULL
+        )
+),
+heal_prices as (
 SELECT
     t0.block_number,
     t0.block_timestamp,
@@ -152,7 +166,7 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    {{ this }}
+    broken_records
     t0
     INNER JOIN {{ ref('price__ez_prices_hourly') }}
     p0
@@ -161,7 +175,7 @@ FROM
         t0.block_timestamp
     ) = HOUR
     AND t0.contract_address = p0.token_address
-WHERE t0.amount_usd IS NULL AND t0.block_timestamp > dateadd('day', -31, SYSDATE())
+    WHERE t0.amount_usd IS NULL
 ),
 heal_metadata as (
 SELECT
@@ -190,16 +204,15 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM    
-    {{ this }}
+    broken_records
     t0
     INNER JOIN {{ ref('core__dim_contracts') }}
     c0
     ON t0.contract_address = c0.address
-    WHERE t0.block_timestamp > dateadd('day', -31, SYSDATE())
-    and (
-    (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
-    OR (t0.name IS NULL AND c0.name IS NOT NULL)
-    OR (t0.decimals IS NULL AND c0.decimals IS NOT NULL)
+    WHERE (
+        (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
+        OR (t0.name IS NULL AND c0.name IS NOT NULL)
+        OR (t0.decimals IS NULL AND c0.decimals IS NOT NULL)
     ) 
 )
 {% endif %}
