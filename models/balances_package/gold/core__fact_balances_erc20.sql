@@ -37,26 +37,37 @@ erc20_transfers AS (
         block_timestamp,
         tx_position,
         tx_hash,
-        from_address,
-        to_address,
+        event_index,
         contract_address,
+        CONCAT('0x', SUBSTR(topic_1, 27, 40)) :: STRING AS from_address,
+        CONCAT('0x', SUBSTR(topic_2, 27, 40)) :: STRING AS to_address,
+        utils.udf_hex_to_int(SUBSTR(DATA, 3, 64)) AS raw_amount_precise,
         TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
-        t.decimals,
-        slot_number
+        C.decimals,
+        slot_number,
+        tx_succeeded
     FROM
-        {{ ref('core__ez_token_transfers') }}
-        t
+        {{ ref('core__fact_event_logs') }}
+        l
         INNER JOIN verified_assets v --limit balances to verified assets only
         USING (contract_address)
+        LEFT JOIN {{ ref('core__dim_contracts') }} C
+        ON l.contract_address = C.address
+        AND C.decimals IS NOT NULL
+    WHERE
+        topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+        AND topic_1 IS NOT NULL
+        AND topic_2 IS NOT NULL
+        AND DATA IS NOT NULL
+        AND raw_amount IS NOT NULL
 
 {% if is_incremental() %}
-WHERE
-    t.modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
+AND l.modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
 {% endif %}
 ),
 wrapped_native_transfers AS (
@@ -84,7 +95,8 @@ wrapped_native_transfers AS (
         contract_address,
         TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
         18 AS decimals,
-        slot_number
+        slot_number,
+        tx_succeeded
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -115,7 +127,8 @@ transfer_direction AS (
         contract_address,
         raw_amount,
         decimals,
-        slot_number
+        slot_number,
+        tx_succeeded
     FROM
         erc20_transfers
     UNION ALL
@@ -130,7 +143,8 @@ transfer_direction AS (
             -1 * raw_amount
         ) AS raw_amount,
         decimals,
-        slot_number
+        slot_number,
+        tx_succeeded
     FROM
         erc20_transfers
     UNION ALL
@@ -143,7 +157,8 @@ transfer_direction AS (
         contract_address,
         raw_amount,
         decimals,
-        slot_number
+        slot_number,
+        tx_succeeded
     FROM
         wrapped_native_transfers
     UNION ALL
@@ -158,7 +173,8 @@ transfer_direction AS (
             -1 * raw_amount
         ) AS raw_amount,
         decimals,
-        slot_number
+        slot_number,
+        tx_succeeded
     FROM
         wrapped_native_transfers
 ),
@@ -170,6 +186,7 @@ direction_agg AS (
         tx_position,
         address,
         contract_address,
+        tx_succeeded,
         SUM(raw_amount) AS transfer_amount,
         MAX(decimals) AS decimals,
         MAX(slot_number) AS slot_number
@@ -293,7 +310,8 @@ transfer_mapping AS (
             slot_number
         ) AS storage_key,
         transfer_amount,
-        decimals
+        decimals,
+        tx_succeeded
     FROM
         direction_agg
 ),
@@ -324,7 +342,8 @@ balances AS (
         TRY_TO_NUMBER(post_raw_balance) - TRY_TO_NUMBER(pre_raw_balance) AS net_raw_balance,
         post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
-        decimals
+        decimals,
+        tx_succeeded
     FROM
         state_storage
         INNER JOIN transfer_mapping USING (
@@ -344,6 +363,7 @@ missing_data AS (
         b.block_timestamp AS block_timestamp_heal,
         tx_position,
         tx_hash,
+        tx_succeeded,
         contract_address,
         decimals,
         slot_number,
@@ -373,6 +393,7 @@ FINAL AS (
         block_timestamp,
         tx_position,
         tx_hash,
+        tx_succeeded,
         contract_address,
         decimals,
         slot_number,
@@ -397,6 +418,7 @@ SELECT
     block_timestamp_heal AS block_timestamp,
     tx_position,
     tx_hash,
+    tx_succeeded,
     contract_address,
     decimals,
     slot_number,
@@ -420,6 +442,7 @@ SELECT
     block_timestamp,
     tx_position,
     tx_hash,
+    tx_succeeded,
     contract_address,
     decimals,
     slot_number,
