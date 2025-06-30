@@ -46,4 +46,4 @@ models:
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: "{{ 30 if target.name == 'core_models' else 30 if target.name == 'gnosis_models' else 2 }}"
+              interval: "{% if target.name == 'core_models' %}30{% elif target.name == 'gnosis_models' %}30{% else %}2{% endif %}"
