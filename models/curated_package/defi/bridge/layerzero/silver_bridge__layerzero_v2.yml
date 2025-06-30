@@ -1,6 +1,3 @@
-{# Set variables #}
-{% set vars = return_vars() %}
-
 version: 2
 models:
   - name: silver_bridge__layerzero_v2
