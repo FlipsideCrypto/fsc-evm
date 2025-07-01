@@ -70,6 +70,7 @@ SELECT
         ),
         OBJECT_CONSTRUCT(
             'method', 'eth_call',
+            'jsonrpc', '2.0',
             'params', [{'to': contract_address, 'from': null, 'data': input}, utils.udf_int_to_hex(latest_block)],
             'id', concat_ws(
                 '-',
