@@ -86,7 +86,7 @@ wrapped_native_transfers AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN verified_assets v USING (contract_address)
+        INNER JOIN {{ ref('silver__balance_slots') }} v USING (contract_address)
     WHERE
         topic_0 IN (
             '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
