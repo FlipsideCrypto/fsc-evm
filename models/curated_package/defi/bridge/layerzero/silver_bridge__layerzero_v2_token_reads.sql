@@ -49,6 +49,7 @@ ready_reads AS (
             'eth_call',
             [{'to': contract_address, 'from': null, 'data': input}]
         ) AS rpc_request
+        FROM new_tokens
 ),
 node_call AS (
     SELECT
