@@ -48,7 +48,7 @@ ready_reads AS (
         ) AS input,
         utils.udf_json_rpc_call(
             'eth_call',
-            [{'to': contract_address, 'from': null, 'data': input}]
+            [{'to': contract_address, 'from': null, 'data': input}, 'latest']
         ) AS rpc_request
         FROM new_tokens
 ),
