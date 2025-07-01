@@ -12,7 +12,10 @@
 ) }}
 
 SELECT
-    DISTINCT origin_from_address AS address
+    DISTINCT origin_from_address AS address,
+    {{ dbt_utils.generate_surrogate_key(['address']) }} AS validator_addresses_id,
+    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS inserted_timestamp
 FROM
     {{ ref('core__fact_traces') }}
 WHERE
