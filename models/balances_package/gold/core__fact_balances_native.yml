@@ -1,0 +1,25 @@
+version: 2
+models:
+  - name: core__fact_balances_native
+      
+    columns:
+      - name: BLOCK_NUMBER
+      - name: BLOCK_TIMESTAMP
+      - name: TX_POSITION
+      - name: TX_HASH
+      - name: ADDRESS
+      - name: PRE_NONCE
+      - name: PRE_BALANCE_HEX
+      - name: PRE_BALANCE_RAW
+      - name: PRE_BALANCE_PRECISE
+      - name: PRE_BALANCE
+      - name: POST_NONCE
+      - name: POST_BALANCE_HEX
+      - name: POST_BALANCE_RAW
+      - name: POST_BALANCE_PRECISE
+      - name: POST_BALANCE
+      - name: NET_BALANCE_RAW
+      - name: NET_BALANCE
+      - name: FACT_BALANCES_NATIVE_ID
+      - name: INSERTED_TIMESTAMP
+      - name: MODIFIED_TIMESTAMP

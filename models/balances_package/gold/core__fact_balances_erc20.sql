@@ -28,6 +28,7 @@ WITH erc20_transfers AS (
         utils.udf_hex_to_int(SUBSTR(DATA, 3, 64)) AS raw_amount_precise,
         TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
         C.decimals,
+        C.symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -80,13 +81,18 @@ wrapped_native_transfers AS (
         ) AS to_address,
         contract_address,
         TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
-        18 AS decimals,
+        C.decimals,
+        C.symbol,
         slot_number,
         tx_succeeded
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN {{ ref('silver__balance_slots') }} v USING (contract_address)
+        INNER JOIN {{ ref('silver__balance_slots') }} v 
+        USING (contract_address)
+        LEFT JOIN {{ ref('core__dim_contracts') }} C
+        ON l.contract_address = C.address
+        AND C.decimals IS NOT NULL
     WHERE
         topic_0 IN (
             '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
@@ -113,6 +119,7 @@ transfer_direction AS (
         contract_address,
         raw_amount,
         decimals,
+        symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -129,6 +136,7 @@ transfer_direction AS (
             -1 * raw_amount
         ) AS raw_amount,
         decimals,
+        symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -159,6 +167,7 @@ transfer_direction AS (
             -1 * raw_amount
         ) AS raw_amount,
         decimals,
+        symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -172,6 +181,7 @@ direction_agg AS (
         tx_position,
         address,
         contract_address,
+        symbol,
         tx_succeeded,
         SUM(raw_amount) AS transfer_amount,
         MAX(decimals) AS decimals,
@@ -297,6 +307,7 @@ transfer_mapping AS (
         ) AS storage_key,
         transfer_amount,
         decimals,
+        symbol,
         tx_succeeded
     FROM
         direction_agg
@@ -329,6 +340,7 @@ balances AS (
         post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
         decimals,
+        symbol,
         tx_succeeded
     FROM
         state_storage
@@ -352,6 +364,7 @@ missing_data AS (
         tx_succeeded,
         contract_address,
         decimals,
+        symbol,
         slot_number,
         address,
         pre_balance_hex,
@@ -382,6 +395,7 @@ FINAL AS (
         tx_succeeded,
         contract_address,
         decimals,
+        symbol,
         slot_number,
         address,
         pre_balance_hex,
@@ -407,6 +421,7 @@ SELECT
     tx_succeeded,
     contract_address,
     decimals,
+    symbol,
     slot_number,
     address,
     pre_balance_hex,
@@ -431,6 +446,7 @@ SELECT
     tx_succeeded,
     contract_address,
     decimals,
+    symbol,
     slot_number,
     address,
     pre_balance_hex,
