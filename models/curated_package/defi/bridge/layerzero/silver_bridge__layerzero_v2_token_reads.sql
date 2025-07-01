@@ -28,6 +28,8 @@ AND modified_timestamp >= (
     FROM
         {{ this }}
 )
+AND modified_timestamp >= CURRENT_DATE() - INTERVAL '7 day'
+
 AND contract_address NOT IN (
     SELECT
         contract_address
