@@ -73,7 +73,7 @@ node_call AS (
 )
 SELECT
     response,
-    IF(
+    IFF(
         contract_address = '0x0000000000000000000000000000000000000000',
         '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
         contract_address
