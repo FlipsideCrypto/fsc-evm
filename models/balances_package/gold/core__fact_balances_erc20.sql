@@ -15,23 +15,7 @@
     tags = ['gold','balances','phase_4']
 ) }}
 
-WITH verified_assets AS (
-
-    SELECT
-        token_address AS contract_address,
-        slot_number
-    FROM
-        {{ ref('price__ez_asset_metadata') }}
-        v
-        INNER JOIN {{ ref('silver__balance_slots') }}
-        s ON v.token_address = s.contract_address
-    WHERE
-        is_verified
-        AND asset_id IS NOT NULL
-        AND slot_number IS NOT NULL
-        AND num_slots = 1 --only include contracts with a single balanceOf slot
-),
-erc20_transfers AS (
+WITH erc20_transfers AS (
     SELECT
         block_number,
         block_timestamp,
@@ -49,7 +33,7 @@ erc20_transfers AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN verified_assets v --limit balances to verified assets only
+        INNER JOIN {{ ref('silver__balance_slots') }} v --limits balances to verified assets only
         USING (contract_address)
         LEFT JOIN {{ ref('core__dim_contracts') }} C
         ON l.contract_address = C.address
@@ -60,6 +44,8 @@ erc20_transfers AS (
         AND topic_2 IS NOT NULL
         AND DATA IS NOT NULL
         AND raw_amount IS NOT NULL
+        AND slot_number IS NOT NULL
+        AND num_slots = 1 --only include contracts with a single balanceOf slot
 
 {% if is_incremental() %}
 AND l.modified_timestamp > (
