@@ -107,7 +107,7 @@ SELECT
     dst_chain_id,
     dst_chain_id :: STRING AS destination_chain_id,
     dst_chain AS destination_chain,
-    token_address,
+    coalesce(token_address, contract_address) AS token_address,
     amount_sent AS amount_unadj,
     src_chain_id,
     src_chain,

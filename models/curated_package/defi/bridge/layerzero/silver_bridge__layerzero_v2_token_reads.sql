@@ -8,6 +8,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "contract_address",
+    full_refresh = false,
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
@@ -71,8 +72,12 @@ node_call AS (
         ready_reads
 )
 SELECT
-    response, 
-    contract_address,
+    response,
+    IF(
+        contract_address = '0x0000000000000000000000000000000000000000',
+        '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
+        contract_address
+    ) AS contract_address,
     token_address,
     SYSDATE() AS modified_timestamp,
     SYSDATE() AS inserted_timestamp
