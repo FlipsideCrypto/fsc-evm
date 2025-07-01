@@ -107,7 +107,7 @@ SELECT
     dst_chain_id,
     dst_chain_id :: STRING AS destination_chain_id,
     dst_chain AS destination_chain,
-    contract_address AS token_address,
+    token_address,
     amount_sent AS amount_unadj,
     src_chain_id,
     src_chain,
@@ -122,11 +122,14 @@ SELECT
         '-',
         event_index
     ) AS _log_id,
-    inserted_timestamp,
-    modified_timestamp
+    o.inserted_timestamp,
+    o.modified_timestamp
 FROM
     oft_raw o
     INNER JOIN layerzero l USING (
         tx_hash,
         guid
+    )
+    INNER JOIN {{ ref('silver_bridge__layerzero_v2_token_reads') }} USING (
+        contract_address
     )
