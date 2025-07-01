@@ -2,7 +2,7 @@
     model
 ) %}
 SELECT
-    contract_address,
+    token_address,
     slot_number,
     num_slots
 FROM
