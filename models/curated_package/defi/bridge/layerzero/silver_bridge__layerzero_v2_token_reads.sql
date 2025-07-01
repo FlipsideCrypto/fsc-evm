@@ -58,7 +58,7 @@ node_call AS (
         contract_address,
         live.udf_api(
             'POST',
-            '{URL}',
+            '{{ vars.GLOBAL_NODE_URL }}',
             OBJECT_CONSTRUCT(
                 'Content-Type',
                 'application/json',
