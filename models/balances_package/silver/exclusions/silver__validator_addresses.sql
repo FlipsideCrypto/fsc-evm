@@ -17,7 +17,7 @@ FROM
     {{ ref('core__fact_traces') }}
 WHERE
     origin_function_signature = '0xf340fa01'
-    AND origin_to_address = '{{ vars.VALIDATOR_CONTRACT_ADDRESS }}'
+    AND origin_to_address = '{{ vars.BALANCES_VALIDATOR_CONTRACT_ADDRESS }}'
 
 {% if is_incremental() %}
 AND modified_timestamp > (
