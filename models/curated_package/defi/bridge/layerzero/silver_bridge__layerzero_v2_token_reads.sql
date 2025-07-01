@@ -72,12 +72,12 @@ node_call AS (
 )
 SELECT
     response,
+    contract_address,
     IFF(
-        contract_address = '0x0000000000000000000000000000000000000000',
+        token_address = '0x0000000000000000000000000000000000000000',
         '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
-        contract_address
-    ) AS contract_address,
-    token_address,
+        token_address
+    ) AS token_address,
     SYSDATE() AS modified_timestamp,
     SYSDATE() AS inserted_timestamp
 FROM
