@@ -57,7 +57,7 @@ WITH base AS (
             'erc20',
             NULL
         ) AS token_standard,
-        p.is_verified as token_is_verified,
+        coalesce(p.is_verified, p1.is_verified, false) as token_is_verified,
         fact_event_logs_id AS ez_token_transfers_id,
         {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
@@ -142,7 +142,7 @@ SELECT
     t0.to_address,
     t0.contract_address,
     t0.token_standard,
-    p0.is_verified as token_is_verified,
+    coalesce(p0.is_verified, false) as token_is_verified,
     t0.name,
     t0.symbol,
     t0.decimals,
