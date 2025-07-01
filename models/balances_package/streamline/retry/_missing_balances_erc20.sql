@@ -1,4 +1,4 @@
-{# Get variables #}
+{# Get variables
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
@@ -44,4 +44,4 @@ FROM
 WHERE
     diff <> 0
     AND diff IS NOT NULL 
-{% endif %}
+{% endif %} #}

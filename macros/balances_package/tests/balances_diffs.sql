@@ -8,8 +8,15 @@
 WITH source AS (
     SELECT
         block_number,
+        LAG(block_number, 1) over (
+            PARTITION BY address
+            ORDER BY
+                block_number,
+                tx_position ASC
+        ) AS prev_block_number,
         tx_position,
         address,
+        pre_balance_raw,
         pre_balance_precise,
         LAG(
             post_balance_precise,
@@ -25,8 +32,10 @@ WITH source AS (
 )
 SELECT
     block_number,
+    prev_block_number,
     tx_position,
     address,
+    pre_balance_raw,
     pre_balance_precise,
     prev_post_balance_precise,
     pre_balance_precise - prev_post_balance_precise AS diff
@@ -52,9 +61,17 @@ WHERE
     WITH source AS (
         SELECT
             block_number,
+            LAG(block_number, 1) over (
+                PARTITION BY address,
+                contract_address
+                ORDER BY
+                    block_number,
+                    tx_position ASC
+            ) AS prev_block_number,
             tx_position,
             address,
             contract_address,
+            pre_balance_raw,
             pre_balance_precise,
             LAG(
                 post_balance_precise,
@@ -71,9 +88,11 @@ WHERE
     )
 SELECT
     block_number,
+    prev_block_number,
     tx_position,
     address,
     contract_address,
+    pre_balance_raw,
     pre_balance_precise,
     prev_post_balance_precise,
     pre_balance_precise - prev_post_balance_precise AS diff
