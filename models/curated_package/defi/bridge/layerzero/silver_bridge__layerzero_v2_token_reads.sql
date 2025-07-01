@@ -8,7 +8,6 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "contract_address",
-    --full_refresh = false,
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
