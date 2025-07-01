@@ -106,7 +106,4 @@ SELECT
     DISTINCT block_number
 FROM
     missing_native_transfers
-WHERE
-    diff <> 0
-    AND diff IS NOT NULL
 {% endif %}
