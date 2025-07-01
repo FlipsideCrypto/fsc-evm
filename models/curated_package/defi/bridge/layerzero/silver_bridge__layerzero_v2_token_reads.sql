@@ -66,11 +66,12 @@ node_call AS (
             rpc_request,
             '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS response,
-        '0x' || LOWER(SUBSTR(response :data :result :: STRING, 25, 40)) AS token_address
+        '0x' || LOWER(SUBSTR(response :data :result :: STRING, 27, 40)) AS token_address
     FROM
         ready_reads
 )
 SELECT
+    response, 
     contract_address,
     token_address,
     SYSDATE() AS modified_timestamp,
