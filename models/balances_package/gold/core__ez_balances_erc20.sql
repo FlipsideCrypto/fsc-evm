@@ -298,29 +298,29 @@ balances AS (
         tx_position,
         tx_hash,
         contract_address,
-        IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals,
+        IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_adj,
         p.symbol,
         address,
         storage_key,
         slot_number,
         pre_storage_hex AS pre_balance_hex,
         utils.udf_hex_to_int(pre_storage_hex) AS pre_balance_raw,
-        IFF(decimals IS NULL, NULL,utils.udf_decimal_adjust(
+        IFF(decimals_adj IS NULL, NULL,utils.udf_decimal_adjust(
             pre_balance_raw,
-            decimals
+            decimals_adj
         )) AS pre_balance_precise,
         pre_balance_precise :: FLOAT AS pre_balance,
-        IFF(decimals IS NULL, NULL, ROUND(
+        IFF(decimals_adj IS NULL, NULL, ROUND(
             pre_balance * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price)
         , 2)) AS pre_balance_usd,
         post_storage_hex AS post_balance_hex,
         utils.udf_hex_to_int(post_storage_hex) AS post_balance_raw,
-        IFF(decimals IS NULL, NULL,utils.udf_decimal_adjust(
+        IFF(decimals_adj IS NULL, NULL,utils.udf_decimal_adjust(
             post_balance_raw,
-            decimals
+            decimals_adj
         )) AS post_balance_precise,
         post_balance_precise :: FLOAT AS post_balance,
-        IFF(decimals IS NULL, NULL, ROUND(
+        IFF(decimals_adj IS NULL, NULL, ROUND(
             post_balance * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price)
         , 2)) AS post_balance_usd,
         TRY_TO_NUMBER(post_balance_raw) - TRY_TO_NUMBER(pre_balance_raw) AS net_balance_raw,
@@ -426,7 +426,7 @@ FINAL AS (
         tx_hash,
         tx_succeeded,
         contract_address,
-        decimals,
+        decimals_adj AS decimals,
         symbol,
         slot_number,
         address,
