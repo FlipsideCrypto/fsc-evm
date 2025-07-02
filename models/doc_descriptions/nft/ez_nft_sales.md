@@ -12,7 +12,7 @@ This table provides a comprehensive view of NFT (Non-Fungible Token) sales acros
 
 ### Important Relationships
 - Links to `core.fact_event_logs` via `tx_hash` and `event_index`
-- Joins with `core.dim_contracts` for collection metadata
+- Joins with `core.dim_contracts` for collection name
 - References `price.ez_prices_hourly` for currency conversions
 - Connects to token transfer tables for ownership tracking
 
@@ -23,7 +23,8 @@ This table provides a comprehensive view of NFT (Non-Fungible Token) sales acros
 SELECT 
     DATE_TRUNC('day', block_timestamp) AS date,
     platform_name,
-    COUNT(DISTINCT tx_hash) AS sales_count,
+    COUNT(*) as sales_count,
+    COUNT(DISTINCT tx_hash) AS unique_sales_transaction_count,
     COUNT(DISTINCT buyer_address) AS unique_buyers,
     COUNT(DISTINCT contract_address) AS collections_traded,
     SUM(price_usd) AS total_volume_usd,
@@ -32,7 +33,7 @@ FROM <blockchain_name>.nft.ez_nft_sales
 WHERE block_timestamp >= CURRENT_DATE - 30
     AND price_usd IS NOT NULL
 GROUP BY 1, 2
-ORDER BY 1 DESC, 6 DESC;
+ORDER BY 1 DESC, 7 DESC;
 
 -- Top selling NFT collections
 SELECT 
@@ -47,7 +48,6 @@ SELECT
 FROM <blockchain_name>.nft.ez_nft_sales
 WHERE block_timestamp >= CURRENT_DATE - 7
     AND price_usd IS NOT NULL
-    AND name IS NOT NULL
 GROUP BY 1, 2
 ORDER BY 6 DESC
 LIMIT 50;
@@ -132,7 +132,7 @@ LIMIT 100;
 - **Aggregator routing**: Sales through aggregators show the aggregator in `aggregator_name`
 - **Fee handling**: Not all sales include creator fees (depends on marketplace enforcement)
 - **Price accuracy**: `price_usd` may be NULL for tokens without USD conversion rates
-- **Event types**: Filter by `event_type` for specific sale types (sale, offer_accepted, etc.)
+- **Event types**: Filter by `event_type` for specific sale types (sale, bid_won, etc.) Regardless of event types, all transactions should be considered as sales. 
 - **Performance tip**: Always filter by `block_timestamp` for large queries
 
 ### Data Quality Considerations
@@ -150,8 +150,8 @@ The specific type of NFT transaction that occurred.
 
 ### Details
 - **Type**: `VARCHAR`
-- **Common values**: `'sale'`, `'offer_accepted'`, `'auction_settled'`, `'private_sale'`
-- **Purpose**: Distinguishes between different sale mechanisms
+- **Common values**: `'sale'`, `'bid_won'`, `'redeem'`, `'mint'`.  `Sale` represents a direct purchase from a listing. `Bid_won` represents the NFT seller accepted a bid on their listed NFT. `Redeem` and `Mint` represent NFT sales from minting or redeeming from ERC-20 pools that represent pools of NFTs. These mechanics are not common and are done via a handful of platforms such as NFTx. 
+- **Purpose**: Distinguishes between different sale mechanisms. For regular analysis, it is not necessary to filter by event_type 
 
 ### Usage Examples
 ```sql
@@ -182,8 +182,8 @@ ORDER BY 1, 4 DESC;
 ```
 
 ### Notes
-- 'sale' represents direct listings
-- 'offer_accepted' indicates buyer-initiated transactions
+- 'sale' represents sales from direct listings
+- 'bid_won' indicates seller accepting an offer on their listing 
 - Some platforms support unique event types
 
 {% enddocs %}
@@ -227,9 +227,9 @@ ORDER BY contract_versions DESC;
 ```
 
 ### Notes
-- Platforms may have multiple contracts for different versions
-- Aggregators interact with multiple platform addresses
-- Contract upgrades result in new addresses
+- Platforms may have multiple contracts for different versions. Platforms that facilitate buying from NFT Pools such as Sudoswap and NFTx, create a new contract address for each pool. 
+- Aggregators interact with multiple platform addresses. It is possible for 1 transaction to have a sale across multiple platforms.
+- Contract upgrades result in new addresses in most cases 
 
 {% enddocs %}
 
@@ -240,7 +240,7 @@ The marketplace or platform where the NFT sale occurred.
 
 ### Details
 - **Type**: `VARCHAR`
-- **Common values**: `'opensea'`, `'blur'`, `'looksrare'`, `'x2y2'`, `'rarible'`, `'foundation'`
+- **Common values**: `'opensea'`, `'blur'`, `'looksrare'`, `'x2y2'`, `'rarible'`
 - **Standardization**: Lowercase, no spaces
 
 ### Usage Examples
@@ -301,7 +301,7 @@ The version identifier of the marketplace contract.
 
 ### Details
 - **Type**: `VARCHAR`
-- **Examples**: `'seaport_1.5'`, `'blur_v2'`, `'looksrare_v1'`
+- **Examples**: `'seaport_1_5'`, `'blur_v2'`, `'looksrare_v1'`
 - **Purpose**: Tracks protocol versions and upgrades
 
 ### Usage Examples
@@ -374,7 +374,7 @@ ORDER BY 1, 4 DESC;
 
 ### Notes
 - NULL indicates direct platform interaction
-- Aggregators may add additional fees
+- Aggregators may add additional fees 
 - Some aggregators specialize in bulk purchases
 
 {% enddocs %}
@@ -411,7 +411,6 @@ WITH seller_metrics AS (
     SELECT 
         seller_address,
         COUNT(*) AS total_sales,
-        AVG(EXTRACT(EPOCH FROM (LEAD(block_timestamp) OVER (PARTITION BY seller_address ORDER BY block_timestamp) - block_timestamp)) / 3600) AS avg_hours_between_sales,
         COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS active_days,
         COUNT(DISTINCT platform_name) AS platforms_used
     FROM <blockchain_name>.nft.ez_nft_sales
@@ -556,17 +555,17 @@ SELECT
     contract_address,
     COUNT(DISTINCT holder) AS total_holders,
     SUM(tokens_held) AS total_tokens,
-    MAX(tokens_held) AS largest_holder_tokens,
-    SUM(CASE WHEN tokens_held > total_tokens * 0.01 THEN tokens_held ELSE 0 END) * 100.0 / SUM(tokens_held) AS whale_concentration_pct
+    MAX(tokens_held) AS largest_holder_tokens
 FROM current_holders
 GROUP BY contract_address
 HAVING COUNT(DISTINCT holder) > 100
-ORDER BY whale_concentration_pct DESC;
+ORDER BY largest_holder_tokens DESC;
 ```
+- Note that NFTs can still be transferrred to another wallet without requiring an NFT sale 
 
 {% enddocs %}
 
-{% docs ez_nft_sales_project_name %}
+{% docs ez_nft_sales_name %}
 
 ## Name
 The name of the NFT collection or project.
@@ -688,7 +687,7 @@ SELECT
     contract_address,
     token_id,
     COUNT(*) AS flip_count,
-    AVG(EXTRACT(EPOCH FROM (block_timestamp - prev_sale_time)) / 3600) AS avg_hold_time_hours,
+    AVG(TIMESTAMPDIFF('HOUR', prev_sale_time, block_timestamp )) AS avg_hold_time_hours,
     SUM(CASE WHEN price_usd > prev_price THEN 1 ELSE 0 END) AS profitable_flips,
     SUM(price_usd - prev_price) AS total_pnl_usd
 FROM token_flips
@@ -707,9 +706,8 @@ ORDER BY flip_count DESC;
 The number of tokens sold in the transaction (for ERC-1155).
 
 ### Details
-- **Type**: `INTEGER`
-- **Default**: `1` for ERC-721 tokens
-- **Usage**: `> 1` for ERC-1155 batch sales
+- **Type**: `VARCHAR`
+- **Usage**: Do not use `> 1` to identify ERC-1155 sales. Instead, use `token_standard` and filter it to "erc1155"
 
 ### Usage Examples
 ```sql
@@ -723,7 +721,7 @@ SELECT
     AVG(quantity) AS avg_batch_size,
     MAX(quantity) AS largest_batch
 FROM <blockchain_name>.nft.ez_nft_sales
-WHERE quantity > 1
+WHERE token_standard = 'erc1155'
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY 1, 2, 3
 ORDER BY total_tokens_sold DESC;
@@ -738,7 +736,7 @@ SELECT
     price / quantity AS price_per_unit,
     price_usd / quantity AS price_per_unit_usd
 FROM <blockchain_name>.nft.ez_nft_sales
-WHERE quantity > 1
+WHERE token_standard = 'erc1155'
     AND price > 0
     AND block_timestamp >= CURRENT_DATE - 7
 ORDER BY price_usd DESC
@@ -754,8 +752,9 @@ The technical standard implemented by the NFT contract.
 
 ### Details
 - **Type**: `VARCHAR`
-- **Common values**: `'ERC-721'`, `'ERC-1155'`, `'CRYPTOPUNKS'`
-- **Purpose**: Identifies NFT contract type
+- **Common values**: `'erc721'`, `'erc1155'`, `'cryptopunks'`, `'legacy'`
+- **Purpose**: Identifies NFT contract type.
+- **Usage** 'Cryptopunks' and 'legacy' represent old NFT token standards
 
 ### Usage Examples
 ```sql
@@ -845,8 +844,9 @@ The contract address of the payment token.
 
 ### Details
 - **Type**: `VARCHAR(42)`
-- **Format**: `0x` prefixed address, NULL for native ETH
-- **Purpose**: Identifies exact payment token
+- **Format**: `0x` prefixed address, 'ETH' for native ETH
+- **Purpose**: Identifies exact payment token. 
+- **Usage**: Use `currency_address` over `currency_symbol` when filtering for a particular payment token contract.
 
 ### Usage Examples
 ```sql
@@ -867,7 +867,7 @@ ORDER BY total_volume_usd DESC;
 -- Native ETH vs ERC-20 payments
 SELECT 
     CASE 
-        WHEN currency_address IS NULL THEN 'Native ETH'
+        WHEN currency_address = 'ETH' THEN 'Native ETH'
         ELSE 'ERC-20 Token'
     END AS payment_type,
     COUNT(*) AS sales_count,
@@ -884,12 +884,13 @@ GROUP BY payment_type;
 {% docs ez_nft_sales_price %}
 
 ## Price
-The sale price in the payment currency.
+The sale price in the payment currency which includes the platform and creator fees if any.
 
 ### Details
 - **Type**: `NUMERIC`
 - **Precision**: Decimal adjusted for token decimals
 - **Usage**: Raw price before USD conversion
+
 
 ### Usage Examples
 ```sql
@@ -931,7 +932,7 @@ LIMIT 50;
 {% docs ez_nft_sales_price_usd %}
 
 ## Price USD
-The sale price converted to USD at transaction time.
+The sale price converted to USD at transaction time which includes the platform and creator fees if any.
 
 ### Details
 - **Type**: `NUMERIC`
@@ -1230,6 +1231,33 @@ WHERE price_usd > 0
     AND block_timestamp >= CURRENT_DATE - 180
 GROUP BY week
 ORDER BY week DESC;
+```
+
+{% enddocs %}
+
+{% docs ez_nft_sales_tx_fee_usd %}
+
+## Transaction Fee USD
+The transaction fee denominated in USD 
+
+### Details
+- **Type**: `NUMERIC`
+- **Purpose**: Transaction fee in dollar terms
+- **Usage**: If there are multiple sales in one transaction, use only one instance per transaction to avoid overcounting 
+
+### Usage Examples
+```sql
+-- Highest transaction fees paid 
+SELECT 
+    contract_address,
+    name,
+    tx_fee_usd,
+    price_usd 
+FROM ethereum.nft.ez_nft_sales
+WHERE block_timestamp >= CURRENT_DATE - 90
+QUALIFY ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY event_index DESC) = 1 
+ORDER BY 3 DESC 
+LIMIT 50
 ```
 
 {% enddocs %}

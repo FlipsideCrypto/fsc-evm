@@ -29,7 +29,7 @@ models:
       - name: CONTRACT_ADDRESS
         description: '{{ doc("ez_nft_sales_contract_address") }}'
       - name: NAME
-        description: '{{ doc("ez_nft_sales_project_name") }}'
+        description: '{{ doc("ez_nft_sales_name") }}'
       - name: TOKEN_ID
         description: '{{ doc("ez_nft_sales_token_id") }}'
       - name: QUANTITY
@@ -54,6 +54,10 @@ models:
         description: '{{ doc("ez_nft_sales_total_fees_usd") }}'
       - name: PLATFORM_FEE_USD
         description: '{{ doc("ez_nft_sales_platform_fee_usd") }}'
+      - name: TX_FEE
+        description: '{{ doc("fact_transactions_tx_fee") }}'
+      - name: TX_FEE_USD
+        description: '{{ doc("ez_nft_sales_tx_fee_usd") }}'
       - name: CREATOR_FEE_USD
         description: '{{ doc("ez_nft_sales_creator_fee_usd") }}'
       - name: ORIGIN_FROM_ADDRESS

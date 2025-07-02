@@ -19,7 +19,7 @@ This table contains all NFT transfer events for ERC-721 and ERC-1155 tokens on E
 
 ### Important Relationships:
 - **Join with ez_nft_sales**: Use `tx_hash` to match with sales but note that a single transaction can contain multiple sales. Do not use `event_index` to match as the `event_index` in ez_nft_transfers represent the `event_index` of the transfer and not the sale. 
-- **Join with dim_nft_collection_metadata**: Use `contract_address` and `token_id` for metadata like traits, token id name and token id description
+- **Join with dim_nft_collection_metadata**: This is only for the Ethereum blockchain. Use `contract_address` and `token_id` for metadata like traits, token id name and token id description
 - **Join with fact_transactions**: Use `tx_hash` for transaction context
 
 ### Sample Queries:
@@ -124,6 +124,17 @@ WHERE block_timestamp >= CURRENT_DATE - 7
         )
 GROUP BY 1, 2, 3
 ORDER BY 4 DESC;
+```
+
+**Latest holders for a given ERC-721 collection**
+```sql
+SELECT 
+    to_address,
+    contract_address,
+    token_id 
+FROM <blockchain_name>.nft.ez_nft_transfers
+WHERE contract_address = '0xbd3531da5cf5857e7cfaa92426877b022e612cf8'
+QUALIFY ROW_NUMBER() OVER (PARTITION BY contract_address, token_id ORDER BY block_number DESC, event_index DESC) =1 
 ```
 
 
@@ -323,7 +334,7 @@ ORDER BY 2 DESC;
 The name of the NFT collection.
 
 **Usage**:
-- Join with dim_nft_metadata to get collection details
+- For Ethereum only, join with nft.dim_nft_collection_metadata to get collection metadata details on a token_id level 
 - Identify NFT collections by name
 
 {% enddocs %}
@@ -336,7 +347,9 @@ The standard of the NFT.
 - Identify NFT collections by standard
 
 **Values**:
-- ERC-721
-- ERC-1155
+- `erc721` - ERC-721 tokens 
+- `erc1155` - ERC-1155 tokens 
+- `crytopunks` - Cryptopunks
+- `legacy` - Legacy NFTs 
 
 {% enddocs %}
