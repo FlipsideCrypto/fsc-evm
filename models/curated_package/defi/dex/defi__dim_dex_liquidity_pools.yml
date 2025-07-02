@@ -1,0 +1,32 @@
+version: 2
+models:
+  - name: defi__dim_dex_liquidity_pools
+    description: '{{ doc("dim_dex_lp_table_doc") }}'
+
+    columns:
+      - name: CREATION_BLOCK
+        description: '{{ doc("ez_dex_swaps_creation_block") }}'
+      - name: CREATION_TIME
+        description: '{{ doc("ez_dex_swaps_creation_time") }}'
+      - name: CREATION_TX
+        description: '{{ doc("ez_dex_swaps_creation_tx") }}'
+      - name: FACTORY_ADDRESS
+        description: '{{ doc("ez_dex_swaps_factory_address") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_dex_swaps_platform") }}'
+      - name: POOL_ADDRESS
+        description: '{{ doc("ez_dex_swaps_pool_address") }}'
+      - name: POOL_NAME
+        description: '{{ doc("ez_dex_swaps_pool_name") }}'
+      - name: TOKENS
+        description: '{{ doc("ez_dex_swaps_tokens") }}'
+      - name: SYMBOLS
+        description: '{{ doc("ez_dex_swaps_symbols") }}'
+      - name: DECIMALS
+        description: '{{ doc("ez_dex_swaps_decimals") }}'
+      - name: DIM_DEX_LIQUIDITY_POOLS_ID
+        description: '{{ doc("general_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}' 
