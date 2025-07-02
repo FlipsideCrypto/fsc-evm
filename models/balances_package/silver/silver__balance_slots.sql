@@ -70,9 +70,12 @@ AND l.contract_address NOT IN (
 )
 {% endif %}
 
-qualify (ROW_NUMBER() over (PARTITION BY l.contract_address
-ORDER BY
-    block_number DESC)) = 1 --only keep the latest transfer for each contract
+qualify RANK() over (
+    PARTITION BY l.contract_address
+    ORDER BY
+        block_number DESC,
+        tx_position DESC
+) = 1 --latest transfers for each contract
 ),
 wrapped_native_transfers AS (
     SELECT
@@ -127,9 +130,13 @@ AND contract_address NOT IN (
 )
 {% endif %}
 
-qualify (ROW_NUMBER() over (PARTITION BY topic_0
-ORDER BY
-    block_number DESC)) = 1 --keep the latest event for each topic
+qualify RANK() over (
+    PARTITION BY topic_0,
+    contract_address
+    ORDER BY
+        block_number DESC,
+        tx_position DESC
+) = 1 --latest events for each topic and contract address
 ),
 transfer_direction AS (
     SELECT
