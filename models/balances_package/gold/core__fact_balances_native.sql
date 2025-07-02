@@ -101,7 +101,7 @@ WHERE
             ROUND(post_balance * COALESCE(p0.price, p1.price), 2) AS post_balance_usd,
             post_balance_raw - pre_balance_raw AS net_balance_raw,
             post_balance_precise - pre_balance_precise AS net_balance,
-            COALESCE(p0.decimals, p1.decimals) AS decimals
+            18 AS decimals
         FROM
             pre_state pre
             LEFT JOIN post_state post USING(
@@ -118,7 +118,6 @@ WHERE
                 b.block_timestamp
             ) = p0.hour
             AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
-            AND p0.decimals IS NOT NULL
             LEFT JOIN {{ ref('price__ez_prices_hourly') }}
             p1
             ON DATE_TRUNC(
@@ -126,7 +125,6 @@ WHERE
                 b.block_timestamp
             ) = p1.hour
             AND p1.is_native
-            AND p1.decimals IS NOT NULL
     )
 
 {% if is_incremental() %},
@@ -151,7 +149,7 @@ missing_data AS (
         ROUND(post_balance * COALESCE(p0.price, p1.price), 2) AS post_balance_usd_heal,
         net_balance_raw,
         net_balance,
-        COALESCE(p0.decimals, p1.decimals) AS decimals_heal
+        18 AS decimals_heal
     FROM
         {{ this }}
         t
@@ -163,14 +161,12 @@ missing_data AS (
             b.block_timestamp
         ) = p0.hour
         AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
-        AND p0.decimals IS NOT NULL
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
         ON DATE_TRUNC(
             'hour',
             b.block_timestamp
         ) = p1.hour
         AND p1.is_native
-        AND p1.decimals IS NOT NULL
     WHERE
         (t.block_timestamp IS NULL
         OR t.pre_balance_usd IS NULL
