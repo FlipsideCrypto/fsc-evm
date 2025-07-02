@@ -411,6 +411,11 @@ missing_data AS (
         (t.block_timestamp IS NULL
         OR t.pre_balance_usd IS NULL
         OR t.post_balance_usd IS NULL)
+        AND (
+            p.price IS NOT NULL 
+            OR (contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}' AND p1.price IS NOT NULL)
+        )
+        
 )
 {% endif %},
 FINAL AS (
