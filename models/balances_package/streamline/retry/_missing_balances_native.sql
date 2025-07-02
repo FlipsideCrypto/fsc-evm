@@ -40,7 +40,7 @@
                     tx_position ASC
             ) AS prev_post_balance_precise
         FROM
-            {{ ref("test_gold__fact_balances_native_recent") }}
+            {{ ref("test_gold__ez_balances_native_recent") }}
         WHERE
             block_timestamp > DATEADD('day', -5, SYSDATE()) 
             {% if vars.BALANCES_EXCLUSION_LIST_ENABLED %}

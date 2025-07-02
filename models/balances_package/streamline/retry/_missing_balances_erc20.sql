@@ -43,7 +43,7 @@ WITH source AS (
                 tx_position ASC
         ) AS prev_post_balance_precise
     FROM
-        {{ ref("test_gold__fact_balances_erc20_recent") }}
+        {{ ref("test_gold__ez_balances_erc20_recent") }}
     WHERE
         block_timestamp > DATEADD('day', -5, SYSDATE())),
         diffs AS (

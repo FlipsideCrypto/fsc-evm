@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_gold__fact_balances_erc20_recent
+  - name: test_gold__ez_balances_erc20_recent
     description: "This is a view used to test the last three days of fact balances erc20 data."
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -46,7 +46,7 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-      - name: FACT_BALANCES_ERC20_ID
+      - name: EZ_BALANCES_ERC20_ID
         tests:
           - not_null
       - name: INSERTED_TIMESTAMP

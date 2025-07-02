@@ -12,7 +12,7 @@
 SELECT
     *
 FROM
-    {{ ref('core__fact_balances_native') }}
+    {{ ref('core__ez_balances_native') }}
 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
 WHERE
     block_number NOT IN (

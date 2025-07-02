@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: test_gold__fact_balances_native_full
+  - name: test_gold__ez_balances_native_full
     description: "This is a view used to test all of the gold fact balances native data."
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -51,7 +51,7 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT
-      - name: FACT_BALANCES_NATIVE_ID
+      - name: EZ_BALANCES_NATIVE_ID
         tests:
           - not_null
       - name: INSERTED_TIMESTAMP

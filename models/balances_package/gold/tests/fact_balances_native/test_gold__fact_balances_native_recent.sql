@@ -12,7 +12,7 @@
 SELECT
     *
 FROM
-    {{ ref('core__fact_balances_native') }}
+    {{ ref('core__ez_balances_native') }}
 WHERE
     block_number > (
         SELECT

@@ -247,7 +247,7 @@ SELECT
     post_balance_usd,
     net_balance_raw,
     net_balance,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_balances_native_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS ez_balances_native_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM

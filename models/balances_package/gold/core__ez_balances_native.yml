@@ -1,23 +1,20 @@
 version: 2
 models:
-  - name: core__fact_balances_erc20
+  - name: core__ez_balances_native
       
     columns:
       - name: BLOCK_NUMBER
       - name: BLOCK_TIMESTAMP
       - name: TX_POSITION
       - name: TX_HASH
-      - name: TX_SUCCEEDED
-      - name: CONTRACT_ADDRESS
-      - name: DECIMALS
-      - name: SYMBOL
-      - name: SLOT_NUMBER
       - name: ADDRESS
+      - name: PRE_NONCE
       - name: PRE_BALANCE_HEX
       - name: PRE_BALANCE_RAW
       - name: PRE_BALANCE_PRECISE
       - name: PRE_BALANCE
       - name: PRE_BALANCE_USD
+      - name: POST_NONCE
       - name: POST_BALANCE_HEX
       - name: POST_BALANCE_RAW
       - name: POST_BALANCE_PRECISE
@@ -25,6 +22,7 @@ models:
       - name: POST_BALANCE_USD
       - name: NET_BALANCE_RAW
       - name: NET_BALANCE
-      - name: FACT_BALANCES_ERC20_ID
+      - name: DECIMALS
+      - name: EZ_BALANCES_NATIVE_ID
       - name: INSERTED_TIMESTAMP
       - name: MODIFIED_TIMESTAMP

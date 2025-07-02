@@ -298,30 +298,34 @@ balances AS (
         tx_position,
         tx_hash,
         contract_address,
+        IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals,
+        p.symbol,
         address,
         storage_key,
         slot_number,
         pre_storage_hex AS pre_balance_hex,
         utils.udf_hex_to_int(pre_storage_hex) AS pre_balance_raw,
-        utils.udf_decimal_adjust(
+        IFF(decimals IS NULL, NULL,utils.udf_decimal_adjust(
             pre_balance_raw,
-            p.decimals
-        ) AS pre_balance_precise,
+            decimals
+        )) AS pre_balance_precise,
         pre_balance_precise :: FLOAT AS pre_balance,
-        ROUND(pre_balance * p.price, 2) AS pre_balance_usd,
+        IFF(decimals IS NULL, NULL, ROUND(
+            pre_balance * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price)
+        , 2)) AS pre_balance_usd,
         post_storage_hex AS post_balance_hex,
         utils.udf_hex_to_int(post_storage_hex) AS post_balance_raw,
-        utils.udf_decimal_adjust(
+        IFF(decimals IS NULL, NULL,utils.udf_decimal_adjust(
             post_balance_raw,
-            p.decimals
-        ) AS post_balance_precise,
+            decimals
+        )) AS post_balance_precise,
         post_balance_precise :: FLOAT AS post_balance,
-        ROUND(post_balance * p.price, 2) AS post_balance_usd,
+        IFF(decimals IS NULL, NULL, ROUND(
+            post_balance * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price)
+        , 2)) AS post_balance_usd,
         TRY_TO_NUMBER(post_balance_raw) - TRY_TO_NUMBER(pre_balance_raw) AS net_balance_raw,
         post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
-        p.decimals,
-        p.symbol,
         tx_succeeded
     FROM
         state_storage s
@@ -339,6 +343,12 @@ balances AS (
             block_timestamp
         ) = p.hour
         AND p.decimals IS NOT NULL
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+        ON DATE_TRUNC(
+            'hour',
+            block_timestamp
+        ) = p1.HOUR
+        AND p1.is_native
     WHERE
         net_balance_raw = transfer_amount
 )
@@ -352,20 +362,30 @@ missing_data AS (
         tx_hash,
         tx_succeeded,
         contract_address,
-        p.decimals AS decimals_heal,
+        IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_heal,
         p.symbol AS symbol_heal,
         slot_number,
         address,
         pre_balance_hex,
         pre_balance_raw,
-        pre_balance_precise,
-        pre_balance,
-        ROUND(pre_balance * p.price, 2) AS pre_balance_usd_heal,
+        IFF(decimals_heal IS NULL, NULL,utils.udf_decimal_adjust(
+            pre_balance_raw,
+            decimals_heal
+        )) AS pre_balance_precise_heal,
+        pre_balance_precise_heal :: FLOAT AS pre_balance_heal,
+        IFF(decimals_heal IS NULL, NULL, ROUND(
+            pre_balance_heal * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price)
+        , 2)) AS pre_balance_usd_heal,
         post_balance_hex,
         post_balance_raw,
-        post_balance_precise,
-        post_balance,
-        ROUND(post_balance * p.price, 2) AS post_balance_usd_heal,
+        IFF(decimals_heal IS NULL, NULL,utils.udf_decimal_adjust(
+            post_balance_raw,
+            decimals_heal
+        )) AS post_balance_precise_heal,
+        post_balance_precise_heal :: FLOAT AS post_balance_heal,
+        IFF(decimals_heal IS NULL, NULL, ROUND(
+            post_balance_heal * IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', COALESCE(p.price, p1.price), p.price)
+        , 2)) AS post_balance_usd_heal,
         net_balance_raw,
         net_balance
     FROM
@@ -381,11 +401,16 @@ missing_data AS (
             b.block_timestamp
         ) = p.hour
         AND p.decimals IS NOT NULL
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+        ON DATE_TRUNC(
+            'hour',
+            b.block_timestamp
+        ) = p1.HOUR
+        AND p1.is_native
     WHERE
         (t.block_timestamp IS NULL
         OR t.pre_balance_usd IS NULL
         OR t.post_balance_usd IS NULL)
-        AND p.price IS NOT NULL
 )
 {% endif %},
 FINAL AS (
@@ -430,13 +455,13 @@ SELECT
     address,
     pre_balance_hex,
     pre_balance_raw,
-    pre_balance_precise,
-    pre_balance,
+    pre_balance_precise_heal AS pre_balance_precise,
+    pre_balance_heal AS pre_balance,
     pre_balance_usd_heal AS pre_balance_usd,
     post_balance_hex,
     post_balance_raw,
-    post_balance_precise,
-    post_balance,
+    post_balance_precise_heal AS post_balance_precise,
+    post_balance_heal AS post_balance,
     post_balance_usd_heal AS post_balance_usd,
     net_balance_raw,
     net_balance
@@ -467,7 +492,7 @@ SELECT
     post_balance_usd,
     net_balance_raw,
     net_balance,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS ez_balances_erc20_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
