@@ -13,13 +13,16 @@ models:
       - name: PRE_BALANCE_RAW
       - name: PRE_BALANCE_PRECISE
       - name: PRE_BALANCE
+      - name: PRE_BALANCE_USD
       - name: POST_NONCE
       - name: POST_BALANCE_HEX
       - name: POST_BALANCE_RAW
       - name: POST_BALANCE_PRECISE
       - name: POST_BALANCE
+      - name: POST_BALANCE_USD
       - name: NET_BALANCE_RAW
       - name: NET_BALANCE
+      - name: DECIMALS
       - name: FACT_BALANCES_NATIVE_ID
       - name: INSERTED_TIMESTAMP
       - name: MODIFIED_TIMESTAMP

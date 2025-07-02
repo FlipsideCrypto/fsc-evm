@@ -27,8 +27,6 @@ WITH erc20_transfers AS (
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) :: STRING AS to_address,
         utils.udf_hex_to_int(SUBSTR(DATA, 3, 64)) AS raw_amount_precise,
         TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
-        C.decimals,
-        C.symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -36,9 +34,6 @@ WITH erc20_transfers AS (
         l
         INNER JOIN {{ ref('silver__balance_slots') }} v --limits balances to verified assets only
         USING (contract_address)
-        LEFT JOIN {{ ref('core__dim_contracts') }} C
-        ON l.contract_address = C.address
-        AND C.decimals IS NOT NULL
     WHERE
         topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         AND topic_1 IS NOT NULL
@@ -81,8 +76,6 @@ wrapped_native_transfers AS (
         ) AS to_address,
         contract_address,
         TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
-        C.decimals,
-        C.symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -90,9 +83,6 @@ wrapped_native_transfers AS (
         l
         INNER JOIN {{ ref('silver__balance_slots') }} v 
         USING (contract_address)
-        LEFT JOIN {{ ref('core__dim_contracts') }} C
-        ON l.contract_address = C.address
-        AND C.decimals IS NOT NULL
     WHERE
         topic_0 IN (
             '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
@@ -118,8 +108,6 @@ transfer_direction AS (
         to_address AS address,
         contract_address,
         raw_amount,
-        decimals,
-        symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -135,8 +123,6 @@ transfer_direction AS (
         (
             -1 * raw_amount
         ) AS raw_amount,
-        decimals,
-        symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -150,7 +136,6 @@ transfer_direction AS (
         to_address AS address,
         contract_address,
         raw_amount,
-        decimals,
         slot_number,
         tx_succeeded
     FROM
@@ -166,8 +151,6 @@ transfer_direction AS (
         (
             -1 * raw_amount
         ) AS raw_amount,
-        decimals,
-        symbol,
         slot_number,
         tx_succeeded
     FROM
@@ -181,10 +164,8 @@ direction_agg AS (
         tx_position,
         address,
         contract_address,
-        symbol,
         tx_succeeded,
         SUM(raw_amount) AS transfer_amount,
-        MAX(decimals) AS decimals,
         MAX(slot_number) AS slot_number
     FROM
         transfer_direction
@@ -306,8 +287,6 @@ transfer_mapping AS (
             slot_number
         ) AS storage_key,
         transfer_amount,
-        decimals,
-        symbol,
         tx_succeeded
     FROM
         direction_agg
@@ -326,30 +305,40 @@ balances AS (
         utils.udf_hex_to_int(pre_storage_hex) AS pre_balance_raw,
         utils.udf_decimal_adjust(
             pre_balance_raw,
-            decimals
+            p.decimals
         ) AS pre_balance_precise,
         pre_balance_precise :: FLOAT AS pre_balance,
+        ROUND(pre_balance * p.price, 2) AS pre_balance_usd,
         post_storage_hex AS post_balance_hex,
         utils.udf_hex_to_int(post_storage_hex) AS post_balance_raw,
         utils.udf_decimal_adjust(
             post_balance_raw,
-            decimals
+            p.decimals
         ) AS post_balance_precise,
         post_balance_precise :: FLOAT AS post_balance,
+        ROUND(post_balance * p.price, 2) AS post_balance_usd,
         TRY_TO_NUMBER(post_balance_raw) - TRY_TO_NUMBER(pre_balance_raw) AS net_balance_raw,
         post_balance_precise - pre_balance_precise AS net_balance,
         transfer_amount,
-        decimals,
-        symbol,
+        p.decimals,
+        p.symbol,
         tx_succeeded
     FROM
-        state_storage
-        INNER JOIN transfer_mapping USING (
+        state_storage s
+        INNER JOIN transfer_mapping t USING (
             block_number,
             tx_position,
             contract_address,
             storage_key
         )
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
+        p
+        ON s.contract_address = p.token_address
+        AND DATE_TRUNC(
+            'hour',
+            block_timestamp
+        ) = p.hour
+        AND p.decimals IS NOT NULL
     WHERE
         net_balance_raw = transfer_amount
 )
@@ -363,18 +352,20 @@ missing_data AS (
         tx_hash,
         tx_succeeded,
         contract_address,
-        decimals,
-        symbol,
+        p.decimals AS decimals_heal,
+        p.symbol AS symbol_heal,
         slot_number,
         address,
         pre_balance_hex,
         pre_balance_raw,
         pre_balance_precise,
         pre_balance,
+        ROUND(pre_balance * p.price, 2) AS pre_balance_usd_heal,
         post_balance_hex,
         post_balance_raw,
         post_balance_precise,
         post_balance,
+        ROUND(post_balance * p.price, 2) AS post_balance_usd_heal,
         net_balance_raw,
         net_balance
     FROM
@@ -382,8 +373,19 @@ missing_data AS (
         t
         LEFT JOIN {{ ref('core__fact_blocks') }}
         b USING(block_number)
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
+        p
+        ON t.contract_address = p.token_address
+        AND DATE_TRUNC(
+            'hour',
+            b.block_timestamp
+        ) = p.hour
+        AND p.decimals IS NOT NULL
     WHERE
-        t.block_timestamp IS NULL
+        (t.block_timestamp IS NULL
+        OR t.pre_balance_usd IS NULL
+        OR t.post_balance_usd IS NULL)
+        AND p.price IS NOT NULL
 )
 {% endif %},
 FINAL AS (
@@ -402,10 +404,12 @@ FINAL AS (
         pre_balance_raw,
         pre_balance_precise,
         pre_balance,
+        pre_balance_usd,
         post_balance_hex,
         post_balance_raw,
         post_balance_precise,
         post_balance,
+        post_balance_usd,
         net_balance_raw,
         net_balance
     FROM
@@ -420,18 +424,20 @@ SELECT
     tx_hash,
     tx_succeeded,
     contract_address,
-    decimals,
-    symbol,
+    decimals_heal AS decimals,
+    symbol_heal AS symbol,
     slot_number,
     address,
     pre_balance_hex,
     pre_balance_raw,
     pre_balance_precise,
     pre_balance,
+    pre_balance_usd_heal AS pre_balance_usd,
     post_balance_hex,
     post_balance_raw,
     post_balance_precise,
     post_balance,
+    post_balance_usd_heal AS post_balance_usd,
     net_balance_raw,
     net_balance
 FROM
@@ -453,10 +459,12 @@ SELECT
     pre_balance_raw,
     pre_balance_precise,
     pre_balance,
+    pre_balance_usd,
     post_balance_hex,
     post_balance_raw,
     post_balance_precise,
     post_balance,
+    post_balance_usd,
     net_balance_raw,
     net_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'contract_address', 'address']) }} AS fact_balances_erc20_id,

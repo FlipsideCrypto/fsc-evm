@@ -83,6 +83,7 @@ WHERE
                 18
             ) AS pre_balance_precise,
             pre_balance_precise :: FLOAT AS pre_balance,
+            ROUND(pre_balance * COALESCE(p0.price, p1.price), 2) AS pre_balance_usd,
             COALESCE(
                 post.nonce,
                 pre.nonce
@@ -97,8 +98,10 @@ WHERE
                 18
             ) AS post_balance_precise,
             post_balance_precise :: FLOAT AS post_balance,
+            ROUND(post_balance * COALESCE(p0.price, p1.price), 2) AS post_balance_usd,
             post_balance_raw - pre_balance_raw AS net_balance_raw,
-            post_balance_precise - pre_balance_precise AS net_balance
+            post_balance_precise - pre_balance_precise AS net_balance,
+            COALESCE(p0.decimals, p1.decimals) AS decimals
         FROM
             pre_state pre
             LEFT JOIN post_state post USING(
@@ -108,6 +111,22 @@ WHERE
             )
             LEFT JOIN {{ ref('core__fact_blocks') }}
             b USING(block_number)
+            LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+            p0
+            ON DATE_TRUNC(
+                'hour',
+                b.block_timestamp
+            ) = p0.hour
+            AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+            AND p0.decimals IS NOT NULL
+            LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+            p1
+            ON DATE_TRUNC(
+                'hour',
+                b.block_timestamp
+            ) = p1.hour
+            AND p1.is_native
+            AND p1.decimals IS NOT NULL
     )
 
 {% if is_incremental() %},
@@ -123,20 +142,40 @@ missing_data AS (
         pre_balance_raw,
         pre_balance_precise,
         pre_balance,
+        ROUND(pre_balance * COALESCE(p0.price, p1.price), 2) AS pre_balance_usd_heal,
         post_nonce,
         post_balance_hex,
         post_balance_raw,
         post_balance_precise,
         post_balance,
+        ROUND(post_balance * COALESCE(p0.price, p1.price), 2) AS post_balance_usd_heal,
         net_balance_raw,
-        net_balance
+        net_balance,
+        COALESCE(p0.decimals, p1.decimals) AS decimals_heal
     FROM
         {{ this }}
         t
         LEFT JOIN {{ ref('core__fact_blocks') }}
         b USING(block_number)
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p0
+        ON DATE_TRUNC(
+            'hour',
+            b.block_timestamp
+        ) = p0.hour
+        AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+        AND p0.decimals IS NOT NULL
+        LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
+        ON DATE_TRUNC(
+            'hour',
+            b.block_timestamp
+        ) = p1.hour
+        AND p1.is_native
+        AND p1.decimals IS NOT NULL
     WHERE
-        t.block_timestamp IS NULL
+        (t.block_timestamp IS NULL
+        OR t.pre_balance_usd IS NULL
+        OR t.post_balance_usd IS NULL)
+        AND COALESCE(p0.price, p1.price) IS NOT NULL
 )
 {% endif %},
 FINAL AS (
@@ -151,13 +190,16 @@ FINAL AS (
         pre_balance_raw,
         pre_balance_precise,
         pre_balance,
+        pre_balance_usd,
         post_nonce,
         post_balance_hex,
         post_balance_raw,
         post_balance_precise,
         post_balance,
+        post_balance_usd,
         net_balance_raw,
-        net_balance
+        net_balance,
+        decimals
     FROM
         balances
 
@@ -174,13 +216,16 @@ SELECT
     pre_balance_raw,
     pre_balance_precise,
     pre_balance,
+    pre_balance_usd_heal AS pre_balance_usd,
     post_nonce,
     post_balance_hex,
     post_balance_raw,
     post_balance_precise,
     post_balance,
+    post_balance_usd_heal AS post_balance_usd,
     net_balance_raw,
-    net_balance
+    net_balance,
+    decimals_heal AS decimals
 FROM
     missing_data
 {% endif %}
@@ -191,16 +236,19 @@ SELECT
     tx_position,
     tx_hash,
     address,
+    decimals,
     pre_nonce,
     pre_balance_hex,
     pre_balance_raw,
     pre_balance_precise,
     pre_balance,
+    pre_balance_usd,
     post_nonce,
     post_balance_hex,
     post_balance_raw,
     post_balance_precise,
     post_balance,
+    post_balance_usd,
     net_balance_raw,
     net_balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS fact_balances_native_id,
