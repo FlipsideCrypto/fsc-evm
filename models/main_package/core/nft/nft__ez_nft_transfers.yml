@@ -17,7 +17,7 @@ models:
       - name: INTRA_EVENT_INDEX
         description: '{{ doc("ez_nft_transfers_intra_event_index") }}'
       - name: TOKEN_TRANSFER_TYPE
-        description: '{{ doc("ez_nft_transfers_transfer_type") }}'
+        description: '{{ doc("ez_nft_transfers_token_transfer_type") }}'
       - name: IS_MINT
         description: '{{ doc("ez_nft_transfers_is_mint") }}'
       - name: FROM_ADDRESS
