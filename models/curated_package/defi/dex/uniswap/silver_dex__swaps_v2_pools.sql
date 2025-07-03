@@ -11,14 +11,20 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH pool_creation AS (
+WITH 
+contract_mapping AS (
+    {{ curated_contract_mapping({
+        'CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS': vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS
+    }) }}
+),
+pool_creation AS (
 
     SELECT
         block_number,
         block_timestamp,
         tx_hash,
         event_index,
-        contract_address,
+        l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token0,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS token1,
@@ -26,6 +32,9 @@ WITH pool_creation AS (
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INT AS pool_id,
+        m.platform,
+        m.protocol,
+        m.version,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -33,12 +42,11 @@ WITH pool_creation AS (
         ) AS _log_id,
         modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }}
+        {{ ref('core__fact_event_logs') }} l
+    INNER JOIN contract_mapping m
+    ON l.contract_address = m.contract_address
     WHERE
-        contract_address IN (
-        '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}'
-                )
-        AND topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --PairCreated
+        topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --PairCreated
         AND tx_succeeded
 
 {% if is_incremental() %}
@@ -61,15 +69,9 @@ SELECT
     token1,
     pool_address,
     pool_id,
-    CASE 
-        WHEN contract_address = '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}' THEN '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[1] }}'
-    END AS platform,
-    CASE 
-        WHEN contract_address = '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}' THEN '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[2] }}'
-    END AS protocol,
-    CASE 
-        WHEN contract_address = '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}' THEN '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[3] }}'
-    END AS version,
+    platform,
+    protocol,
+    version,
     _log_id,
     _inserted_timestamp
 FROM
