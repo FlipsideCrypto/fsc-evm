@@ -56,7 +56,7 @@ AND (
             DISTINCT contract_address
         FROM
             {{ this }}
-    )
+    ) --include historical data for newly verified contracts
 )
 {% endif %}
 ),
