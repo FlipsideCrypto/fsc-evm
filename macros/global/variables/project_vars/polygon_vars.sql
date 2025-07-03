@@ -26,13 +26,11 @@
         'CURATED_DEX_SWAPS_V2_CONTRACT_MAPPING': {
             'uniswap-v2': {
                 'contract_address': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c',
-                'platform': 'uniswap-v2',
                 'protocol': 'uniswap',
                 'version': 'v2'
             },
             'sushiswap-v2': {
                 'contract_address': '0xc35dadb65012ec5796536bd9864ed8773abc74c4',
-                'platform': 'sushiswap-v2',
                 'protocol': 'sushiswap',
                 'version': 'v2'
             }
