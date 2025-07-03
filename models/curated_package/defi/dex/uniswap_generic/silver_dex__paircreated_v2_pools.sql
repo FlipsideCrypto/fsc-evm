@@ -15,7 +15,7 @@ WITH contract_mapping AS (
     {{ curated_contract_mapping(
         vars.CURATED_DEX_SWAPS_CONTRACT_MAPPING
     ) }}
-    WHERE version = 'v2'
+    WHERE version ILIKE 'v2%'
 ),
 pool_creation AS (
 

@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver_dex__sushi_pools
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - POOL_ADDRESS
+    columns:
+      - name: BLOCK_NUMBER
+        tests:
+          - not_null
+      - name: POOL_ADDRESS
+        tests:
+          - not_null
+      - name: TOKEN0
+        tests:
+          - not_null
+      - name: TOKEN1
+        tests:
+          - not_null
