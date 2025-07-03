@@ -1,10 +1,8 @@
-{% macro curated_contract_mapping(vars, variable_values) %}
+{% macro curated_contract_mapping(contract_mapping_dict) %}
     SELECT * FROM VALUES
-    {% for var_value in variable_values %}
-        {% if var_value %}
-            ('{{ var_value[0] }}', '{{ var_value[1] }}', '{{ var_value[2] }}', '{{ var_value[3] }}')
-            {%- if not loop.last -%},{%- endif %}
-        {% endif %}
+    {% for key, contract_info in contract_mapping_dict.items() %}
+        ('{{ contract_info.contract_address }}', '{{ contract_info.platform }}', '{{ contract_info.protocol }}', '{{ contract_info.version }}')
+        {%- if not loop.last -%},{%- endif %}
     {% endfor %}
     AS t(contract_address, platform, protocol, version)
 {% endmacro %}

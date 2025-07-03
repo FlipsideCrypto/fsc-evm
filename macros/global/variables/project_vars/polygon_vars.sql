@@ -22,7 +22,21 @@
         'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6ce9bf8cdab780416ad1fd87b318a077d2f50eac',
         'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
         'CURATED_DEX_UNISWAP_V2_DETAILS': ['0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c','uniswap-v2','uniswap','v2'],
-        'CURATED_DEX_SUSHISWAP_V2_DETAILS': ['0xc35dadb65012ec5796536bd9864ed8773abc74c4','sushiswap-v2','sushiswap','v2']
+        'CURATED_DEX_SUSHISWAP_V2_DETAILS': ['0xc35dadb65012ec5796536bd9864ed8773abc74c4','sushiswap-v2','sushiswap','v2'],
+        'CURATED_DEX_SWAPS_V2_CONTRACT_MAPPING': {
+            'uniswap-v2': {
+                'contract_address': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c',
+                'platform': 'uniswap-v2',
+                'protocol': 'uniswap',
+                'version': 'v2'
+            },
+            'sushiswap-v2': {
+                'contract_address': '0xc35dadb65012ec5796536bd9864ed8773abc74c4',
+                'platform': 'sushiswap-v2',
+                'protocol': 'sushiswap',
+                'version': 'v2'
+            }
+        },
     } %}
     
     {{ return(vars) }}
