@@ -44,11 +44,19 @@ WITH erc20_transfers AS (
         AND num_slots = 1 --only include contracts with a single balanceOf slot
 
 {% if is_incremental() %}
-AND l.modified_timestamp > (
+AND (
+    l.modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
         {{ this }}
+    )
+    OR l.contract_address NOT IN (
+        SELECT
+            DISTINCT contract_address
+        FROM
+            {{ this }}
+    )
 )
 {% endif %}
 ),
@@ -91,11 +99,19 @@ wrapped_native_transfers AS (
         )
 
 {% if is_incremental() %}
-AND l.modified_timestamp > (
+AND (
+    l.modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
         {{ this }}
+    )
+    OR l.contract_address NOT IN (
+        SELECT
+            DISTINCT contract_address
+        FROM
+            {{ this }}
+    )
 )
 {% endif %}
 ),
@@ -198,12 +214,21 @@ state_tracer AS (
         ) --only include blocks with relevant transfers
 
 {% if is_incremental() %}
-AND modified_timestamp > (
+AND (
+    modified_timestamp > (
     SELECT
         COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
     FROM
-        {{ this }})
-    {% endif %}
+        {{ this }}
+    )
+    OR address NOT IN (
+        SELECT
+            DISTINCT contract_address
+        FROM
+            {{ this }}
+    )
+)
+{% endif %}
 ),
 pre_state_storage AS (
     SELECT
