@@ -31,9 +31,9 @@ pool_creation AS (
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INT AS pool_id,
-        m.platform,
         m.protocol,
         m.version,
+        CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash :: STRING,
             '-',
