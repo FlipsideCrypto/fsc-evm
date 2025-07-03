@@ -21,25 +21,20 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6ce9bf8cdab780416ad1fd87b318a077d2f50eac',
         'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_DEX_SWAPS_CONTRACT_MAPPING': {
+        'CURATED_DEX_POOLS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
-                    'contract_address': ['0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c','0x1234567890123456789012345678901234567890']
+                    'contract_address': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c'
                 },
                 'v3': {
-                    'contract_address': ['0xdkjfskjsdf21231341341414121423123123123123']
+                    'contract_address': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
                 }
             },
             'sushiswap': {
                 'v2': {
-                    'contract_address': ['0xc35dadb65012ec5796536bd9864ed8773abc74c4']
+                    'contract_address': '0xc35dadb65012ec5796536bd9864ed8773abc74c4'
                 }
             },
-            'pancakeswap': {
-                'v2': {
-                    'contract_address': '0x1592583295823333333333333333333333333333'
-                }
-            }
         },
     } %}
     

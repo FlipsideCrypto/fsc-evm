@@ -13,12 +13,12 @@
 
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
-        vars.CURATED_DEX_SWAPS_CONTRACT_MAPPING
+        vars.CURATED_DEX_POOLS_CONTRACT_MAPPING
     ) }}
-    WHERE version ILIKE 'v2%'
+    WHERE
+        version ILIKE 'v2%'
 ),
-pool_creation AS (
-
+created_pools AS (
     SELECT
         block_number,
         block_timestamp,
@@ -34,29 +34,35 @@ pool_creation AS (
         ) :: INT AS pool_id,
         m.protocol,
         m.version,
-        CONCAT(m.protocol, '-', m.version) AS platform,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
+        'PairCreated' AS event_name,
         CONCAT(
             tx_hash :: STRING,
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }} l
-    INNER JOIN contract_mapping m
-    ON l.contract_address = m.contract_address
+        {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
         topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --PairCreated
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT
@@ -65,6 +71,7 @@ SELECT
     tx_hash,
     contract_address,
     event_index,
+    event_name,
     token0,
     token1,
     pool_address,
@@ -73,8 +80,8 @@ SELECT
     protocol,
     version,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
-    pool_creation qualify(ROW_NUMBER() over (PARTITION BY pool_address
+    created_pools qualify(ROW_NUMBER() over (PARTITION BY pool_address
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1

@@ -12,7 +12,8 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH swaps_base AS (
+WITH swaps AS (
+
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -56,24 +57,25 @@ WITH swaps_base AS (
             '-',
             l.event_index :: STRING
         ) AS _log_id,
-        SYSDATE() AS _inserted_timestamp,
-        SYSDATE() AS modified_timestamp
+        l.modified_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }} l
-        INNER JOIN {{ ref('silver_dex__paircreated_v2_pools') }} p
+        {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN {{ ref('silver_dex__paircreated_evt_v2_pools') }}
+        p
         ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822' --Swap
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND l.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT
@@ -84,6 +86,7 @@ SELECT
     origin_to_address,
     tx_hash,
     event_index,
+    event_name,
     contract_address,
     sender,
     tx_to,
@@ -115,14 +118,12 @@ SELECT
         WHEN amount0Out <> 0 THEN token0
         WHEN amount1Out <> 0 THEN token1
     END AS token_out,
-    event_name,
     platform,
     protocol,
     version,
     _log_id,
-    inserted_timestamp,
     modified_timestamp
 FROM
-    swaps_base
+    swaps
 WHERE
     token_in <> token_out
