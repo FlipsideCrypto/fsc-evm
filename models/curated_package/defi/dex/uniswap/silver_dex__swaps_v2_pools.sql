@@ -11,11 +11,11 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH 
-contract_mapping AS (
-    {{ curated_contract_mapping({
-        'CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS': vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS
-    }) }}
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars,
+        [ vars.CURATED_DEX_UNISWAP_V2_DETAILS ]
+    ) }}
 ),
 pool_creation AS (
 
