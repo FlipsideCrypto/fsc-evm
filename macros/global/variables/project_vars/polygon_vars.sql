@@ -23,16 +23,22 @@
         'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
         'CURATED_DEX_SWAPS_V2_CONTRACT_MAPPING': {
             'uniswap': {
-                'version': 'v2',
-                'contract_address': ['0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c','0x1234567890123456789012345678901234567890']
+                'v2': {
+                    'contract_address': ['0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c','0x1234567890123456789012345678901234567890']
+                },
+                'v3': {
+                    'contract_address': ['0xdkjfskjsdf21231341341414121423123123123123']
+                }
             },
             'sushiswap': {
-                'version': 'v2',
-                'contract_address': ['0xc35dadb65012ec5796536bd9864ed8773abc74c4']
+                'v2': {
+                    'contract_address': ['0xc35dadb65012ec5796536bd9864ed8773abc74c4']
+                }
             },
             'pancakeswap': {
-                'version': 'v2',
-                'contract_address': '0x1592583295823333333333333333333333333333'
+                'v2': {
+                    'contract_address': '0x1592583295823333333333333333333333333333'
+                }
             }
         },
     } %}
