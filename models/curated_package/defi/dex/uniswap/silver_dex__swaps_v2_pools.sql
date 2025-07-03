@@ -64,6 +64,12 @@ SELECT
     CASE 
         WHEN contract_address = '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}' THEN '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[1] }}'
     END AS platform,
+    CASE 
+        WHEN contract_address = '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}' THEN '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[2] }}'
+    END AS protocol,
+    CASE 
+        WHEN contract_address = '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[0] }}' THEN '{{ vars.CURATED_DEX_UNISWAP_V2_FACTORY_ADDRESS[3] }}'
+    END AS version,
     _log_id,
     _inserted_timestamp
 FROM
