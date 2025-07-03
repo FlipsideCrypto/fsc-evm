@@ -14,7 +14,8 @@
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
         vars,
-        [ vars.CURATED_DEX_UNISWAP_V2_DETAILS ]
+        [ vars.CURATED_DEX_UNISWAP_V2_DETAILS,
+          vars.CURATED_DEX_SUSHISWAP_V2_DETAILS ]
     ) }}
 ),
 pool_creation AS (
