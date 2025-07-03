@@ -35,6 +35,24 @@
                     'contract_address': '0xc35dadb65012ec5796536bd9864ed8773abc74c4'
                 }
             },
+            'quickswap': {
+                'v2': {
+                    'contract_address': '0x5757371414417b8c6caad45baef941abc7d3ab32'
+                },
+                'v3': {
+                    'contract_address': '0x411b0facc3489691f28ad58c47006af5e3ab3a28'
+                }
+            },
+            'fraxswap': {
+                'v2': {
+                    'contract_address': ['0xc2544a32872a91f4a553b404c6950e89de901fdb','0x54f454d747e037da288db568d4121117eab34e79']
+                }
+            },
+            'kyberswap': {
+                'v2_elastic': {
+                    'contract_address': '0x5f1dddbf348ac2fbe22a163e30f99f9ece3dd50a'
+                }
+            }
         },
     } %}
     

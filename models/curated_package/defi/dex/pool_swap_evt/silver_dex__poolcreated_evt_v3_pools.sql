@@ -17,7 +17,7 @@ WITH contract_mapping AS (
         vars.CURATED_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
-        version ILIKE 'v3%'
+        version IN ('v3','v2_elastic')
 ),
 created_pools AS (
     SELECT
