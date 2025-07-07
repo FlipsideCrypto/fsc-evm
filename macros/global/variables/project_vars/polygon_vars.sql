@@ -94,6 +94,14 @@
                     '0x7400b665c8f4f3a951a99f1ee9872efb8778723d',
                     '0xed9e3f98bbed560e66b89aac922e29d4596a9642']
                 }
+            },
+            'curve': {
+                'v1': {
+                    'contract_address': ['0x7eeac6cddbd1d0b8af061742d41877d7f707289a',
+                    '0xbabe61887f1de2713c6f97e567623453d3c79f67',
+                    '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
+                    '0xe5de15a9c9bbedb4f5ec13b131e61245f2983a69']
+                }
             }
         },
         'CURATED_DEX_DODO_PROXY_ADDRESSES': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
