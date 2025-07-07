@@ -70,6 +70,16 @@
                     '0x43c49f8dd240e1545f147211ec9f917376ac1e87',
                     '0x79887f65f83bdf15bcc8736b5e5bcdb48fb8fe13']
                 }
+            },
+            'hashflow': {
+                'v1': {
+                    'contract_address': ['0x63ae536fec0b57bdeb1fd6a893191b4239f61bff',
+                    '0x336bfba2c4d7bda5e1f83069d0a95509ecd5d2b5',
+                    '0x9817a71ca8e309d654ee7e1999577bce6e6fd9ac']
+                },
+                'v3': {
+                    'contract_address': '0xde828fdc3f497f16416d1bb645261c7c6a62dab5'
+                }
             }
         },
         'CURATED_DEX_DODO_PROXY_ADDRESSES': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
