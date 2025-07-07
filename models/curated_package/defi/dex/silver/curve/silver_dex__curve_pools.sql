@@ -235,7 +235,6 @@ build_rpc_requests AS (
         CEIL(
             row_num / 50
         ) AS batch_no
-        c.version
     FROM
         all_inputs
         LEFT JOIN contract_deployments USING(contract_address)

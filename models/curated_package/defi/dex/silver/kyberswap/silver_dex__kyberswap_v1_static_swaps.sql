@@ -62,7 +62,7 @@ WITH swaps AS (
             '-',
             l.event_index :: STRING
         ) AS _log_id,
-        modified_timestamp
+        l.modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
