@@ -1,4 +1,4 @@
-{# Set variables #}
+{# Get variables #}
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
