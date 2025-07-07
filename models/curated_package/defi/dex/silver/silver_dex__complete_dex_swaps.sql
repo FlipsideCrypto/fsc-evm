@@ -40,7 +40,7 @@ WITH swap_evt_v3 AS (
   FROM
     {{ ref('silver_dex__swap_evt_v3_swaps') }}
 
-{% if is_incremental() and 'swap_evt_v3' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'swap_evt_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -75,7 +75,7 @@ swap_evt_v2 AS (
   FROM
     {{ ref('silver_dex__swap_evt_v2_swaps') }}
 
-{% if is_incremental() and 'swap_evt_v2' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'swap_evt_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -110,7 +110,7 @@ woofi AS (
   FROM
     {{ ref('silver_dex__woofi_swaps') }}
 
-{% if is_incremental() and 'woofi' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'woofi' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT

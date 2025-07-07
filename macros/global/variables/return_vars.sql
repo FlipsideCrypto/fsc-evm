@@ -245,6 +245,7 @@
   {% set ns.CURATED_COMPLETE_LOOKBACK_HOURS = get_var('CURATED_COMPLETE_LOOKBACK_HOURS', '4 hours') %}
   {% set ns.CURATED_LOOKBACK_HOURS = get_var('CURATED_LOOKBACK_HOURS', '12 hours') %}
   {% set ns.CURATED_LOOKBACK_DAYS = get_var('CURATED_LOOKBACK_DAYS', '7 days') %}
+  {% set ns.CURATED_FR_MODELS = get_var('CURATED_FR_MODELS', []) %}
 
   {# Curated Vertex Variables #}
   {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
