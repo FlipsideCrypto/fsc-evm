@@ -83,7 +83,7 @@ WITH swaps AS (
         l.contract_address = p.pool_address
     WHERE
         l.topics [0] :: STRING = '0xc2c0245e056d5fb095f04cd6373bc770802ebd1e6c918eb78fdef843cdb37b0f' --dodoswap
-        AND trader_address NOT IN ( {{ vars.CURATED_DEX_DODO_PROXY_ADDRESSES }} )
+        AND trader_address NOT IN ('{{ vars.CURATED_DEX_DODO_PROXY_ADDRESSES | join("', '") }}')
         AND tx_succeeded
 
 {% if is_incremental() %}

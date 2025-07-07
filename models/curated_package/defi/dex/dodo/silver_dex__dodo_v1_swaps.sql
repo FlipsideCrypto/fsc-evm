@@ -57,7 +57,7 @@ WITH sell_base_token AS (
         ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xd8648b6ac54162763c86fd54bf2005af8ecd2f9cb273a5775921fd7f91e17b2d' --sellBaseToken
-        AND seller_address NOT IN ( {{ vars.CURATED_DEX_DODO_PROXY_ADDRESSES }} )
+        AND seller_address NOT IN ('{{ vars.CURATED_DEX_DODO_PROXY_ADDRESSES | join("', '") }}')
         AND tx_succeeded
 
 {% if is_incremental() %}
@@ -115,7 +115,7 @@ buy_base_token AS (
         ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xe93ad76094f247c0dafc1c61adc2187de1ac2738f7a3b49cb20b2263420251a3' --buyBaseToken
-        AND buyer_address NOT IN ( {{ vars.CURATED_DEX_DODO_PROXY_ADDRESSES }} )
+        AND buyer_address NOT IN ('{{ vars.CURATED_DEX_DODO_PROXY_ADDRESSES | join("', '") }}')
         AND tx_succeeded
 
 {% if is_incremental() %}
