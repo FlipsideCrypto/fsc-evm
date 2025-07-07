@@ -109,10 +109,7 @@ inputs_coins AS (
         function_sig,
         (ROW_NUMBER() over (PARTITION BY contract_address
     ORDER BY
-        block_number)) - 1 AS function_input,
-        platform,
-        protocol,
-        version
+        block_number)) - 1 AS function_input
     FROM
         contract_deployments
         JOIN function_sigs
@@ -130,10 +127,7 @@ inputs_base_coins AS (
         function_sig,
         (ROW_NUMBER() over (PARTITION BY contract_address
     ORDER BY
-        block_number)) - 1 AS function_input,
-        platform,
-        protocol,
-        version
+        block_number)) - 1 AS function_input
     FROM
         contract_deployments
         JOIN function_sigs
@@ -151,9 +145,7 @@ inputs_underlying_coins AS (
         function_sig,
         (ROW_NUMBER() over (PARTITION BY contract_address
     ORDER BY
-        block_number)) - 1 AS function_input,
-        platform,
-        protocol,
+        block_number)) - 1 AS function_input
         version
     FROM
         contract_deployments
@@ -170,10 +162,7 @@ inputs_pool_details AS (
         contract_address,
         block_number,
         function_sig,
-        NULL AS function_input,
-        platform,
-        protocol,
-        version
+        NULL AS function_input
     FROM
         contract_deployments
         JOIN function_sigs
@@ -191,10 +180,7 @@ all_inputs AS (
         contract_address,
         block_number,
         function_sig,
-        function_input,
-        platform,
-        protocol,
-        version
+        function_input
     FROM
         inputs_coins
     UNION ALL
@@ -203,10 +189,7 @@ all_inputs AS (
         contract_address,
         block_number,
         function_sig,
-        function_input,
-        platform,
-        protocol,
-        version
+        function_input
     FROM
         inputs_base_coins
     UNION ALL
@@ -215,10 +198,7 @@ all_inputs AS (
         contract_address,
         block_number,
         function_sig,
-        function_input,
-        platform,
-        protocol,
-        version
+        function_input
     FROM
         inputs_underlying_coins
     UNION ALL
@@ -227,10 +207,7 @@ all_inputs AS (
         contract_address,
         block_number,
         function_sig,
-        function_input,
-        platform,
-        protocol,
-        version
+        function_input
     FROM
         inputs_pool_details
 ),
@@ -259,12 +236,12 @@ build_rpc_requests AS (
         CEIL(
             row_num / 50
         ) AS batch_no,
-        platform,
-        protocol,
-        version
+        c.platform,
+        c.protocol,
+        c.version
     FROM
-        all_inputs
-        LEFT JOIN contract_deployments USING(contract_address)
+        all_inputs i
+        LEFT JOIN contract_deployments c USING(contract_address)
 ),
 pool_token_reads AS (
 

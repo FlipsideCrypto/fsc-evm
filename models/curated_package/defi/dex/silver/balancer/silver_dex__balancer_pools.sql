@@ -72,7 +72,7 @@ tokens_registered AS (
         block_timestamp,
         event_index,
         tx_hash,
-        contract_address,
+        l.contract_address,
         decoded_log :poolId :: STRING AS pool_id,
         decoded_log :tokens AS tokens,
         tokens [0] :: STRING AS token0,
