@@ -26,7 +26,7 @@ pools_registered AS (
         block_timestamp,
         event_index,
         tx_hash,
-        contract_address,
+        l.contract_address,
         topics [1] :: STRING AS pool_id,
         SUBSTR(
             topics [1] :: STRING,
