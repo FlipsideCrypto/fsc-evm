@@ -173,7 +173,7 @@ build_rpc_requests AS (
 pool_token_reads AS ({% for item in range(10) %}
     (
 SELECT
-    live.udf_api('POST', CONCAT('{Service}', '/', '{Authentication}'),{}, batch_rpc_request, 'Vault/prod/polygon/quicknode/mainnet') AS read_output, SYSDATE() AS _inserted_timestamp
+    live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp
 FROM
     (
 SELECT
