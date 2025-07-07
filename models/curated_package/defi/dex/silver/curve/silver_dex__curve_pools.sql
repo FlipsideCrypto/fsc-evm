@@ -433,7 +433,7 @@ FINAL AS (
         d.protocol,
         d.version,
         _call_id,
-        _inserted_timestamp
+        A._inserted_timestamp
     FROM
         all_pools A
         LEFT JOIN {{ ref('silver__contracts') }} C
