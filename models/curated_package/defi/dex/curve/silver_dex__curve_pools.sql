@@ -23,7 +23,7 @@ contract_deployments AS (
         to_address AS contract_address,
         m.protocol,
         m.version,
-        m.protocol AS platform,
+        CONCAT(m.protocol, '-', m.version) AS platform,
         concat_ws(
             '-',
             block_number,
