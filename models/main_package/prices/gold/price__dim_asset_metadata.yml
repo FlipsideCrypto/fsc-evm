@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: price__dim_asset_metadata
-    description: '{{ doc("price_dim_asset_metadata_table_doc") }}'
+    description: '{{ doc("dim_asset_metadata_table_doc") }}'
 
     columns:
       - name: PROVIDER
@@ -17,7 +17,7 @@ models:
       - name: BLOCKCHAIN
         description: '{{ doc("ez_prices_blockchain") }}'
       - name: BLOCKCHAIN_ID
-        description: '{{ doc("price_blockchain_id") }}'
+        description: '{{ doc("ez_prices_blockchain_id") }}'
       - name: DIM_ASSET_METADATA_ID
         description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP

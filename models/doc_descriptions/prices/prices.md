@@ -140,6 +140,60 @@ ORDER BY imputation_rate DESC;
 
 {% enddocs %}
 
+
+{% docs dim_asset_metadata_table_doc %}
+
+## Table: price__dim_asset_metadata
+
+This table provides comprehensive metadata for all assets (tokens and native assets) tracked in the price schema across EVM blockchains. It includes provider, asset identifiers, names, symbols, contract addresses, blockchain, and verification status. This table is essential for joining price data to asset metadata and for cross-chain asset analysis.
+
+### Key Features:
+- **Provider and Asset ID**: Source and unique identifier for each asset
+- **Comprehensive Metadata**: Name, symbol, contract address, blockchain, and blockchain ID
+- **Cross-Chain Support**: Assets mapped across multiple blockchains
+- **Verification**: Includes Flipside verification status
+
+### Important Relationships:
+- **Join with ez_prices_hourly**: For price time series
+- **Join with core.dim_contracts**: For contract metadata
+
+### Sample Query:
+```sql
+SELECT *
+FROM <blockchain_name>.price.dim_asset_metadata
+WHERE blockchain = 'ethereum'
+ORDER BY symbol;
+```
+
+{% enddocs %}
+
+{% docs fact_prices_ohlc_hourly_table_doc %}
+
+## Table: price__fact_prices_ohlc_hourly
+
+This table provides hourly OHLC (Open, High, Low, Close) price data for all assets tracked in the price schema. It is designed for time series analysis, volatility studies, and historical price lookups. Each row represents one asset's price for a given hour.
+
+### Key Features:
+- **OHLC Data**: Open, high, low, close prices for each hour
+- **Asset ID**: Unique identifier for the asset
+- **Hourly Granularity**: UTC hour timestamps
+- **Cross-Chain Support**: Assets from multiple blockchains
+
+### Important Relationships:
+- **Join with dim_asset_metadata**: For asset metadata
+- **Join with ez_token_transfers**: For USD value calculations
+
+### Sample Query:
+```sql
+SELECT hour, asset_id, open, high, low, close
+FROM <blockchain_name>.price.fact_prices_ohlc_hourly
+WHERE asset_id = '<asset_id>'
+  AND hour >= CURRENT_DATE - 30
+ORDER BY hour DESC;
+```
+
+{% enddocs %}
+
 {% docs ez_asset_metadata_table_doc %}
 
 ## Table: ez_asset_metadata
@@ -432,5 +486,13 @@ Full name of the asset or token.
 - "Wrapped Bitcoin"
 
 **Note**: More descriptive than symbol
+
+{% enddocs %}
+
+{% docs ez_prices_blockchain_id %}
+
+The numeric or string identifier for the blockchain on which the asset exists. Used for cross-chain mapping and analytics.
+
+**Examples**: 1 (Ethereum), 137 (Polygon), 'avalanche', etc.
 
 {% enddocs %}
