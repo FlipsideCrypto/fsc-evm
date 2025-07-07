@@ -85,6 +85,41 @@ WHERE
   )
 {% endif %}
 ),
+quickswap_v3 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    pool_address AS contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    recipient AS tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__quickswap_v3_swaps') }}
+
+{% if is_incremental() and 'quickswap_v3' not in var('HEAL_MODELS') %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 woofi AS (
   SELECT
     block_number,
@@ -420,6 +455,11 @@ all_dex AS (
     *
   FROM
     hashflow_v3
+  UNION ALL
+  SELECT
+    *
+  FROM
+    quickswap_v3
   UNION ALL
   SELECT
     *
