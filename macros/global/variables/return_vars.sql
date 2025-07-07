@@ -13,6 +13,7 @@
   {% set ns.GLOBAL_NODE_PROVIDER = get_var('GLOBAL_NODE_PROVIDER', '') %}
   {% set ns.GLOBAL_NODE_URL = get_var('GLOBAL_NODE_URL', '{Service}/{Authentication}') %}
   {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS', '') %}
+  {% set ns.GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL = get_var('GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL', '') %}
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
   {% set ns.GLOBAL_NODE_VAULT_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
   {% set ns.GLOBAL_NETWORK = get_var('GLOBAL_NETWORK', 'mainnet') %}

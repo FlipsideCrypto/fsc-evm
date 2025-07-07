@@ -266,7 +266,7 @@ pool_token_reads AS (
 {% for item in range(6) %}
     (
     SELECT
-        live.udf_api('POST', CONCAT('{Service}', '/', '{Authentication}'),{}, batch_rpc_request, 'Vault/prod/polygon/quicknode/mainnet') AS read_output, SYSDATE() AS _inserted_timestamp, platform, protocol, version
+        live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp, platform, protocol, version
     FROM
         (
     SELECT
@@ -287,7 +287,7 @@ pool_token_reads AS (
     {% for item in range(60) %}
         (
     SELECT
-        live.udf_api('POST', CONCAT('{Service}', '/', '{Authentication}'),{}, batch_rpc_request, 'Vault/prod/polygon/quicknode/mainnet') AS read_output, SYSDATE() AS _inserted_timestamp, platform, protocol, version
+        live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp, platform, protocol, version
     FROM
         (
     SELECT
@@ -445,13 +445,13 @@ FINAL AS (
         deployer_address,
         pool_address,
         CASE
-            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             ELSE token_address
         END AS token_address,
         token_id,
         token_type,
         CASE
-            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'WMATIC'
+            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL }}'
             WHEN pool_symbol IS NULL THEN C.token_symbol
             ELSE pool_symbol
         END AS pool_symbol,
