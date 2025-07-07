@@ -65,7 +65,7 @@ WHERE
     SELECT
         MAX(
             modified_timestamp
-        ) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )

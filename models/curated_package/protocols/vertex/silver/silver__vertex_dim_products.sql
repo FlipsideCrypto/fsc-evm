@@ -33,11 +33,11 @@ AND modified_timestamp >= (
     SELECT
         MAX(
             modified_timestamp
-        ) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= CURRENT_DATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+AND modified_timestamp >= CURRENT_DATE() - INTERVAL '7 days'
 {% endif %}
 ),
 new_prod AS (
