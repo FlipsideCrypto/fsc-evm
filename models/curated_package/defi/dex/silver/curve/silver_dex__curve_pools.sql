@@ -146,7 +146,6 @@ inputs_underlying_coins AS (
         (ROW_NUMBER() over (PARTITION BY contract_address
     ORDER BY
         block_number)) - 1 AS function_input
-        version
     FROM
         contract_deployments
         JOIN function_sigs
