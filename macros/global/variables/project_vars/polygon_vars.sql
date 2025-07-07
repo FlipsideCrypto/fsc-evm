@@ -82,14 +82,14 @@
                 }
             },
             'woofi': {
-                'v1_woo_router_swap': {
+                'v1_router': {
                     'contract_address': ['0x9d1a92e601db0901e69bd810029f2c14bcca3128',
                     '0x817eb46d60762442da3d931ff51a30334ca39b74']
                 },
-                'v2_woo_router_swap': {
+                'v2_router': {
                     'contract_address': '0x4c4af8dbc524681930a27b2f1af5bcc8062e6fb7'
                 },
-                'v1_woo_swap': {
+                'v1': {
                     'contract_address': ['0x7081a38158bd050ae4a86e38e0225bc281887d7e',
                     '0x7400b665c8f4f3a951a99f1ee9872efb8778723d',
                     '0xed9e3f98bbed560e66b89aac922e29d4596a9642']

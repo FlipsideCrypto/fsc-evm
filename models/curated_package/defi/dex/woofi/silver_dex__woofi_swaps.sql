@@ -83,7 +83,7 @@ router_swaps_base AS (
         l
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
-        AND m.version LIKE '%woo_router_swap'
+        AND m.version LIKE '%router'
     WHERE
         topics [0] :: STRING = '0x27c98e911efdd224f4002f6cd831c3ad0d2759ee176f9ee8466d95826af22a1c' --WooRouterSwap
         AND tx_succeeded
@@ -157,7 +157,7 @@ swaps_base AS (
         l
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
-        AND m.version LIKE '%woo_swap'
+        AND m.version NOT LIKE '%router'
     WHERE
         topics [0] :: STRING IN (
             '0x74ef34e2ea7c5d9f7b7ed44e97ad44b4303416c3a660c3fb5b3bdb95a1d6abd3',
