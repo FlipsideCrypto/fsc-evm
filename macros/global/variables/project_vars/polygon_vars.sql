@@ -103,6 +103,11 @@
                     '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
                     '0xe5de15a9c9bbedb4f5ec13b131e61245f2983a69']
                 }
+            },
+            'balancer': {
+                'v1': {
+                    'contract_address': '0xba12222222228d8ba445958a75a0704d566bf2c8'
+                }
             }
         },
         'CURATED_DEX_DODO_PROXY_ADDRESSES': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
