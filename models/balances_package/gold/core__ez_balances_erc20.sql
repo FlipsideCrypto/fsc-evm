@@ -90,6 +90,8 @@ wrapped_native_transfers AS (
             -- withdraw
             '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' --deposit
         )
+        AND slot_number IS NOT NULL
+        AND num_slots = 1 --only include contracts with a single balanceOf slot
 
 {% if is_incremental() %}
 AND
