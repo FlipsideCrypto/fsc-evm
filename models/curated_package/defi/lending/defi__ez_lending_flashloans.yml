@@ -25,9 +25,9 @@ models:
       - name: PLATFORM
         description: '{{ doc("ez_lending_platform") }}'
       - name: INITIATOR
-        description: '{{ doc("ez_lending_initiator_address") }}'
+        description: '{{ doc("ez_lending_initiator") }}'
       - name: TARGET
-        description: '{{ doc("ez_lending_target_address") }}'
+        description: '{{ doc("ez_lending_target") }}'
       - name: PROTOCOL_MARKET
         description: '{{ doc("ez_lending_protocol_token") }}'
       - name: FLASHLOAN_TOKEN

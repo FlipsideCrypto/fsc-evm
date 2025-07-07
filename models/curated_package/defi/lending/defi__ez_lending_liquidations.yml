@@ -31,7 +31,7 @@ models:
       - name: PROTOCOL_MARKET
         description: '{{ doc("ez_lending_protocol_token") }}'
       - name: COLLATERAL_TOKEN
-        description: '{{ doc("ez_lending_collateral_asset") }}'
+        description: '{{ doc("ez_lending_collateral_token") }}'
       - name: COLLATERAL_TOKEN_SYMBOL
         description: '{{ doc("ez_lending_collateral_token_symbol") }}'
       - name: AMOUNT_UNADJ
@@ -41,7 +41,7 @@ models:
       - name: AMOUNT_USD
         description: '{{ doc("ez_lending_amount_usd") }}'
       - name: DEBT_TOKEN
-        description: '{{ doc("ez_lending_debt_asset") }}'
+        description: '{{ doc("ez_lending_debt_token") }}'
       - name: DEBT_TOKEN_SYMBOL
         description: '{{ doc("ez_lending_debt_token_symbol") }}'
       - name: EZ_LENDING_LIQUDATIONS_ID

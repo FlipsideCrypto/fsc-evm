@@ -1,3 +1,127 @@
+{% docs ez_lending_mcp_context %}
+
+# Lending Tables MCP Context
+
+## Table Overview
+- **EZ_LENDING_BORROWS**: User borrowing transactions across lending protocols
+- **EZ_LENDING_DEPOSITS**: User deposit transactions (collateral provision)
+- **EZ_LENDING_WITHDRAWS**: User withdrawal transactions (collateral removal)
+- **EZ_LENDING_REPAYMENTS**: User repayment transactions (debt settlement)
+- **EZ_LENDING_LIQUIDATIONS**: Liquidation events (collateral seizure for debt)
+- **EZ_LENDING_FLASHLOANS**: Flash loan transactions (borrow-repay in single tx)
+
+## Critical Join Relationships
+
+### Valid Token-Based Joins
+- `deposits.token_address` ↔ `withdraws.token_address` (same collateral asset)
+- `borrows.token_address` ↔ `repayments.token_address` (same borrowed asset)
+
+### Invalid Token-Based Joins
+- `borrows.token_address` ↔ `deposits.token_address` (borrowed ≠ collateral)
+- `borrows.token_address` ↔ `withdraws.token_address` (borrowed ≠ collateral)
+
+### User-Based Joins
+- `deposits.depositor` ↔ `withdraws.depositor` (same user)
+- `borrows.borrower` ↔ `repayments.borrower` (same user)
+- `liquidations.borrower` ↔ `borrows.borrower` (liquidated user)
+- `liquidations.liquidator` ↔ `flashloans.initiator` (liquidator activity)
+
+## Column Mappings
+
+### User Identifiers
+| Table | User Column | Description |
+|-------|-------------|-------------|
+| EZ_LENDING_BORROWS | `borrower` | Address that borrowed assets |
+| EZ_LENDING_DEPOSITS | `depositor` | Address that provided collateral |
+| EZ_LENDING_WITHDRAWS | `depositor` | Address that withdrew collateral |
+| EZ_LENDING_REPAYMENTS | `borrower` | Address that repaid debt |
+| EZ_LENDING_LIQUIDATIONS | `borrower` | Address that was liquidated |
+| EZ_LENDING_LIQUIDATIONS | `liquidator` | Address that performed liquidation |
+| EZ_LENDING_FLASHLOANS | `initiator` | Address that initiated flash loan |
+
+### Asset Identifiers
+| Table | Token Columns | Description |
+|-------|--------------|-------------|
+| EZ_LENDING_BORROWS | `token_address`, `token_symbol` | Borrowed asset |
+| EZ_LENDING_DEPOSITS | `token_address`, `token_symbol` | Collateral asset |
+| EZ_LENDING_WITHDRAWS | `token_address`, `token_symbol` | Collateral asset |
+| EZ_LENDING_REPAYMENTS | `token_address`, `token_symbol` | Repaid asset |
+| EZ_LENDING_LIQUIDATIONS | `collateral_token`, `collateral_token_symbol` | Seized collateral |
+| EZ_LENDING_LIQUIDATIONS | `debt_token`, `debt_token_symbol` | Covered debt |
+| EZ_LENDING_FLASHLOANS | `flashloan_token_address`, `flashloan_token_symbol` | Flash borrowed asset |
+
+### Amount Columns
+| Table | Amount Columns | Description |
+|-------|---------------|-------------|
+| EZ_LENDING_BORROWS | `amount`, `amount_usd` | Borrowed quantity and USD value |
+| EZ_LENDING_DEPOSITS | `amount`, `amount_usd` | Deposited quantity and USD value |
+| EZ_LENDING_WITHDRAWS | `amount`, `amount_usd` | Withdrawn quantity and USD value |
+| EZ_LENDING_REPAYMENTS | `amount`, `amount_usd` | Repaid quantity and USD value |
+| EZ_LENDING_LIQUIDATIONS | `amount`, `amount_usd` | Liquidated collateral quantity and USD value |
+| EZ_LENDING_FLASHLOANS | `flashloan_amount`, `flashloan_amount_usd` | Flash borrowed quantity and USD value |
+
+### Protocol & Transaction Data
+| Column | Tables | Description |
+|--------|--------|-------------|
+| `platform` | All tables | Lending protocol (aave, compound, etc.) |
+| `block_timestamp` | All tables | Transaction timestamp |
+| `block_number` | All tables | Block number |
+| `tx_hash` | All tables | Transaction hash |
+| `event_index` | All tables | Event index within transaction |
+
+## Business Logic Rules
+
+### Lending Flow
+1. **Deposit**: User provides collateral (`deposits` table)
+2. **Borrow**: User borrows against collateral (`borrows` table)
+3. **Repay**: User repays borrowed amount (`repayments` table)
+4. **Withdraw**: User withdraws collateral (`withdraws` table)
+
+### Liquidation Triggers
+- Occurs when collateral value falls below required threshold
+- `liquidations` table captures collateral seizure events
+- Liquidator receives collateral at discount
+
+### Flash Loans
+- Borrow and repay in single transaction
+- Requires fee payment (`premium_amount`, `premium_amount_usd`)
+- Used for arbitrage, debt refinancing, or liquidation
+
+## Data Quality Notes
+
+### Null Handling
+- `amount_usd` may be NULL for tokens without price data
+- `event_index` may be NULL for trace-based transactions
+- Always use `COALESCE(amount_usd, 0)` in aggregations
+
+### Performance Considerations
+- Always filter by `block_timestamp` for large queries
+- Index on user columns (`borrower`, `depositor`) for user analysis
+- Use `token_address` for asset-specific queries
+
+### Common Platforms
+- aave, compound, maker, venus, benqi, moonwell
+- Platform names are lowercase and standardized
+
+## Analysis Patterns
+
+### User Position Analysis
+- Join deposits ↔ withdrawals on `depositor` + `token_address`
+- Use `amount` (not `amount_usd`) for yield calculations
+- Track net position: deposits - withdrawals
+
+### Protocol Health Analysis
+- Monitor deposit/withdrawal ratios
+- Track liquidation frequency and size
+- Analyze flash loan usage patterns
+
+### Risk Analysis
+- Large withdrawals may indicate protocol stress
+- High liquidation rates suggest market volatility
+- Flash loan spikes may indicate arbitrage opportunities
+
+{% enddocs %}
+
 {% docs ez_lending_borrows_table_doc %}
 
 ## Overview
@@ -14,27 +138,6 @@ This table provides a comprehensive view of borrowing transactions across all ma
 - Joins with `ez_lending_repayments` to track loan lifecycle
 - References `ez_lending_liquidations` for risk analysis
 - Connects to `price.ez_prices_hourly` for USD valuations
-
-### User Field Mapping
-| Table | User Field |
-|-------|------------|
-| **EZ_LENDING_DEPOSITS** | `depositor` |
-| **EZ_LENDING_WITHDRAWS** | `depositor` |
-| **EZ_LENDING_BORROWS** | `borrower` |
-| **EZ_LENDING_REPAYMENTS** | `borrower` |
-| **EZ_LENDING_FLASHLOANS** | `initiator` |
-| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
-
-### Join Conditions
-**Valid token_address joins:**
-- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
-- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
-
-**Invalid token_address joins:**
-- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
-- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
-
-**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
 
 ### Sample Queries
 
@@ -170,27 +273,6 @@ This table tracks all deposit transactions across lending protocols on EVM block
 - Joins with `ez_lending_withdraws` to track position lifecycle
 - References protocol-specific token contracts (aTokens, cTokens, etc.)
 - Connects to `price.ez_prices_hourly` for USD valuations
-
-### User Field Mapping
-| Table | User Field |
-|-------|------------|
-| **EZ_LENDING_DEPOSITS** | `depositor` |
-| **EZ_LENDING_WITHDRAWS** | `depositor` |
-| **EZ_LENDING_BORROWS** | `borrower` |
-| **EZ_LENDING_REPAYMENTS** | `borrower` |
-| **EZ_LENDING_FLASHLOANS** | `initiator` |
-| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
-
-### Join Conditions
-**Valid token_address joins:**
-- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
-- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
-
-**Invalid token_address joins:**
-- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
-- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
-
-**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
 
 ### Sample Queries
 
@@ -339,27 +421,6 @@ This table captures flash loan transactions across lending protocols. Flash loan
 - May connect to multiple protocols within single transaction
 - References `price.ez_prices_hourly` for USD valuations
 
-### User Field Mapping
-| Table | User Field |
-|-------|------------|
-| **EZ_LENDING_DEPOSITS** | `depositor` |
-| **EZ_LENDING_WITHDRAWS** | `depositor` |
-| **EZ_LENDING_BORROWS** | `borrower` |
-| **EZ_LENDING_REPAYMENTS** | `borrower` |
-| **EZ_LENDING_FLASHLOANS** | `initiator` |
-| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
-
-### Join Conditions
-**Valid token_address joins:**
-- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
-- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
-
-**Invalid token_address joins:**
-- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
-- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
-
-**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
-
 ### Sample Queries
 
 ```sql
@@ -488,27 +549,6 @@ This table tracks liquidation events across lending protocols, where under-colla
 - Connects to `ez_lending_deposits` for collateral information
 - Often preceded by entries in `ez_lending_flashloans`
 - References `price.ez_prices_hourly` for USD valuations
-
-### User Field Mapping
-| Table | User Field |
-|-------|------------|
-| **EZ_LENDING_DEPOSITS** | `depositor` |
-| **EZ_LENDING_WITHDRAWS** | `depositor` |
-| **EZ_LENDING_BORROWS** | `borrower` |
-| **EZ_LENDING_REPAYMENTS** | `borrower` |
-| **EZ_LENDING_FLASHLOANS** | `initiator` |
-| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
-
-### Join Conditions
-**Valid token_address joins:**
-- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
-- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
-
-**Invalid token_address joins:**
-- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
-- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
-
-**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
 
 ### Sample Queries
 
@@ -1175,19 +1215,6 @@ The address that performed the liquidation.
 
 ### Usage Examples
 ```sql
--- Top liquidators by profit
-SELECT 
-    liquidator,
-    COUNT(*) AS liquidations_performed,
-    SUM(amount_usd - amount_usd) AS total_profit_usd,
-    AVG(amount_usd - amount_usd) AS avg_profit_per_liquidation,
-    COUNT(DISTINCT platform) AS platforms_used
-FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY liquidator
-ORDER BY total_profit_usd DESC
-LIMIT 50;
 
 -- Liquidator competition analysis
 WITH liquidation_timing AS (
@@ -1200,7 +1227,7 @@ WITH liquidation_timing AS (
 SELECT 
     liquidator,
     COUNT(*) AS first_liquidations,
-    AVG(EXTRACT(EPOCH FROM (next_liquidation_time - block_timestamp))) AS avg_seconds_before_next
+    AVG(DATEDIFF('second', block_timestamp, next_liquidation_time)) AS avg_seconds_before_next
 FROM liquidation_timing
 WHERE next_liquidation_time IS NOT NULL
     AND next_liquidation_time - block_timestamp < INTERVAL '1 minute'
@@ -1331,34 +1358,6 @@ The lending protocol's receipt token issued to depositors.
 - **Examples**: aTokens (Aave), cTokens (Compound), vTokens (Venus)
 - **Mechanism**: Minted on deposit, burned on withdrawal
 
-### Usage Examples
-```sql
--- Protocol token analysis
-SELECT 
-    platform,
-    token_symbol AS underlying_asset,
-    protocol_token,
-    COUNT(*) AS deposit_count,
-    SUM(issued_tokens) AS total_tokens_issued
-FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE protocol_token IS NOT NULL
-GROUP BY 1, 2, 3
-ORDER BY 5 DESC;
-
--- Track protocol token transfers (position transfers)
-SELECT 
-    d.platform,
-    d.protocol_token,
-    d.token_symbol AS underlying,
-    COUNT(DISTINCT d.depositor) AS unique_depositors,
-    SUM(d.issued_tokens) AS total_issued
-FROM <blockchain_name>.defi.ez_lending_deposits d
-WHERE d.protocol_token IS NOT NULL
-    AND d.block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2, 3
-ORDER BY 5 DESC;
-```
-
 ### Notes
 - Protocol tokens automatically accrue interest
 - Can be transferred between addresses
@@ -1394,29 +1393,35 @@ GROUP BY 1, 2
 ORDER BY 5 DESC
 LIMIT 50;
 
--- Cross-platform token analysis
+-- Cross-platform token analysis based on amount_usd
 WITH token_platforms AS (
     SELECT 
         token_address,
+        token_symbol,
         platform,
-        AVG(borrow_rate_variable) AS avg_borrow_rate,
+        AVG(amount_usd) AS avg_amount_usd,
+        SUM(amount_usd) AS total_amount_usd,
         COUNT(*) AS transaction_count
     FROM <blockchain_name>.defi.ez_lending_borrows
     WHERE token_address IS NOT NULL
-        AND borrow_rate_variable IS NOT NULL
+        AND amount_usd IS NOT NULL
         AND block_timestamp >= CURRENT_DATE - 7
-    GROUP BY 1, 2
+    GROUP BY 1, 2, 3
 )
 SELECT 
     token_address,
+    token_symbol,
     COUNT(DISTINCT platform) AS platform_count,
-    MIN(avg_borrow_rate) AS min_rate,
-    MAX(avg_borrow_rate) AS max_rate,
-    MAX(avg_borrow_rate) - MIN(avg_borrow_rate) AS rate_spread
+    SUM(total_amount_usd) AS total_volume_amount_usd,
+    AVG(avg_amount_usd) AS avg_transaction_size_amount_usd,
+    MIN(avg_amount_usd) AS min_avg_amount_usd,
+    MAX(avg_amount_usd) AS max_avg_amount_usd,
+    MAX(avg_amount_usd) - MIN(avg_amount_usd) AS amount_usd_variance,
+    ROUND((MAX(avg_amount_usd) - MIN(avg_amount_usd)) / NULLIF(AVG(avg_amount_usd), 0) * 100, 2) AS amount_usd_variance_percentage
 FROM token_platforms
-GROUP BY 1
+GROUP BY 1, 2
 HAVING COUNT(DISTINCT platform) > 1
-ORDER BY rate_spread DESC;
+ORDER BY total_volume_amount_usd DESC;
 ```
 
 ### Performance Notes
@@ -1444,7 +1449,7 @@ SELECT
     token_symbol,
     COUNT(DISTINCT borrower) AS unique_borrowers,
     SUM(amount_usd) AS total_borrowed_usd,
-    AVG(borrow_rate_variable) AS avg_variable_rate,
+    AVG(amount_usd) AS avg_amount_usd,
     CASE 
         WHEN token_symbol IN ('USDC', 'USDT', 'DAI', 'BUSD', 'FRAX') THEN 'Stablecoin'
         WHEN token_symbol IN ('WETH', 'WBTC') THEN 'Major Crypto'
@@ -1456,23 +1461,28 @@ WHERE token_symbol IS NOT NULL
 GROUP BY token_symbol
 ORDER BY total_borrowed_usd DESC;
 
--- Symbol consistency check across platforms
+-- Token symbol distribution analysis by platform
 SELECT 
-    token_address,
-    COUNT(DISTINCT token_symbol) AS symbol_variations,
-    ARRAY_AGG(DISTINCT token_symbol) AS symbols_used,
-    COUNT(DISTINCT platform) AS platforms
+    token_symbol,
+    COUNT(DISTINCT platform) AS platforms_supporting,
+    COUNT(DISTINCT token_address) AS unique_tokens,
+    SUM(amount_usd) AS total_volume_usd,
+    AVG(amount_usd) AS avg_transaction_size_usd,
+    COUNT(*) AS total_transactions
 FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE token_address IS NOT NULL
-GROUP BY token_address
-HAVING COUNT(DISTINCT token_symbol) > 1;
+WHERE token_symbol IS NOT NULL
+    AND amount_usd IS NOT NULL
+    AND block_timestamp >= CURRENT_DATE - 30
+GROUP BY token_symbol
+HAVING COUNT(DISTINCT platform) > 1
+ORDER BY total_volume_usd DESC;
 ```
 
 {% enddocs %}
 
-{% docs ez_lending_initiator_address %}
+{% docs ez_lending_initiator %}
 
-## Initiator Address
+## Initiator
 The address that triggered the flash loan execution.
 
 ### Details
@@ -1519,11 +1529,11 @@ initiator_totals AS (
 SELECT 
     it.initiator,
     it.flashloan_token_symbol,
-    it.token_volume / t.total_volume * 100 AS token_concentration_pct,
+    it.token_volume / NULLIF(t.total_volume, 0) * 100 AS token_concentration_pct,
     it.token_flashloans
 FROM initiator_tokens it
 JOIN initiator_totals t ON it.initiator = t.initiator
-WHERE it.token_volume / t.total_volume > 0.5
+WHERE it.token_volume / NULLIF(t.total_volume, 0) > 0.5
 ORDER BY token_concentration_pct DESC;
 ```
 
@@ -1534,9 +1544,9 @@ ORDER BY token_concentration_pct DESC;
 
 {% enddocs %}
 
-{% docs ez_lending_target_address %}
+{% docs ez_lending_target %}
 
-## Target Address
+## Target
 The contract address that receives and executes the flash loan logic.
 
 ### Details
@@ -1549,7 +1559,7 @@ The contract address that receives and executes the flash loan logic.
 ```sql
 -- Target address activity analysis
 SELECT 
-    target_address,
+    target,
     initiator,
     COUNT(*) AS flashloan_count,
     COUNT(DISTINCT platform) AS platforms_used,
@@ -1564,14 +1574,14 @@ LIMIT 50;
 
 -- Target contract reuse patterns
 SELECT 
-    target_address,
+    target,
     COUNT(DISTINCT initiator) AS unique_initiators,
     COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS active_days,
     SUM(flashloan_amount_usd) AS total_volume,
     ARRAY_AGG(DISTINCT platform) AS platforms_used
 FROM <blockchain_name>.defi.ez_lending_flashloans
 WHERE block_timestamp >= CURRENT_DATE - 90
-GROUP BY target_address
+GROUP BY target
 HAVING COUNT(DISTINCT initiator) > 1
 ORDER BY unique_initiators DESC;
 ```
@@ -1615,15 +1625,30 @@ WITH tx_flashloans AS (
     FROM <blockchain_name>.defi.ez_lending_flashloans
     WHERE flashloan_amount_usd IS NOT NULL
     GROUP BY tx_hash
+),
+token_combo_counts AS (
+    SELECT
+        token_count,
+        tokens_borrowed,
+        COUNT(*) AS combo_count,
+        AVG(total_tx_usd) AS avg_total_borrowed_usd
+    FROM tx_flashloans
+    WHERE token_count > 1
+    GROUP BY token_count, tokens_borrowed
+),
+ranked_combos AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (PARTITION BY token_count ORDER BY combo_count DESC) AS rn
+    FROM token_combo_counts
 )
-SELECT 
+SELECT
     token_count,
-    COUNT(*) AS transaction_count,
-    AVG(total_tx_usd) AS avg_total_borrowed_usd,
-    MODE() WITHIN GROUP (ORDER BY tokens_borrowed) AS common_token_combo
-FROM tx_flashloans
-WHERE token_count > 1
-GROUP BY token_count
+    tokens_borrowed AS common_token_combo,
+    combo_count AS transaction_count,
+    avg_total_borrowed_usd
+FROM ranked_combos
+WHERE rn = 1
 ORDER BY token_count;
 ```
 
@@ -1832,9 +1857,9 @@ ORDER BY total_fees_usd DESC;
 
 {% enddocs %}
 
-{% docs ez_lending_collateral_asset %}
+{% docs ez_lending_collateral_token %}
 
-## Collateral Asset
+## Collateral Token
 The token contract address used as collateral in a liquidation.
 
 ### Details
@@ -1846,14 +1871,14 @@ The token contract address used as collateral in a liquidation.
 ```sql
 -- Most liquidated collateral assets
 SELECT 
-    collateral_asset,
+    collateral_token,
     collateral_token_symbol,
     COUNT(*) AS liquidation_count,
     SUM(amount_usd) AS total_liquidated_usd,
     AVG(amount_usd) AS avg_liquidation_size_usd,
     COUNT(DISTINCT borrower) AS unique_borrowers_liquidated
 FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE collateral_asset IS NOT NULL
+WHERE collateral_token IS NOT NULL
     AND amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY 1, 2
@@ -1862,18 +1887,18 @@ ORDER BY total_liquidated_usd DESC;
 -- Collateral risk analysis
 WITH liquidation_rates AS (
     SELECT 
-        collateral_asset,
+        collateral_token,
         collateral_token_symbol,
         COUNT(DISTINCT borrower) AS liquidated_borrowers,
         SUM(amount_usd) AS total_liquidated_usd
     FROM <blockchain_name>.defi.ez_lending_liquidations
     WHERE block_timestamp >= CURRENT_DATE - 90
-        AND collateral_asset IS NOT NULL
+        AND collateral_token IS NOT NULL
     GROUP BY 1, 2
 ),
 total_deposits AS (
     SELECT 
-        token_address AS collateral_asset,
+        token_address AS collateral_token,
         token_symbol AS collateral_token_symbol,
         COUNT(DISTINCT depositor) AS total_depositors,
         SUM(amount_usd) AS total_deposited_usd
@@ -1891,7 +1916,7 @@ SELECT
     COALESCE(l.total_liquidated_usd, 0) AS total_liquidated_usd
 FROM total_deposits d
 LEFT JOIN liquidation_rates l 
-    ON d.collateral_asset = l.collateral_asset
+    ON d.collateral_token = l.collateral_token
 WHERE d.total_depositors > 100
 ORDER BY liquidation_rate_pct DESC;
 ```
@@ -1931,9 +1956,9 @@ LIMIT 50;
 
 {% enddocs %}
 
-{% docs ez_lending_debt_asset %}
+{% docs ez_lending_debt_token %}
 
-## Debt Asset
+## Debt Token
 The token contract address that was borrowed and is being repaid in liquidation.
 
 ### Details
@@ -1945,14 +1970,14 @@ The token contract address that was borrowed and is being repaid in liquidation.
 ```sql
 -- Most common debt assets in liquidations
 SELECT 
-    debt_asset,
+    debt_token,
     debt_token_symbol,
     COUNT(*) AS liquidation_count,
     SUM(amount_usd) AS total_debt_liquidated_usd,
     COUNT(DISTINCT borrower) AS unique_borrowers,
     AVG(amount_usd) AS avg_debt_size_usd
 FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE debt_asset IS NOT NULL
+WHERE debt_token IS NOT NULL
     AND amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY 1, 2
