@@ -101,6 +101,9 @@
   {% set ns.MAIN_SL_MIN_BLOCK = get_var('MAIN_SL_MIN_BLOCK', none) %}
   {% set ns.MAIN_SL_CHAINHEAD_DELAY_MINUTES = get_var('MAIN_SL_CHAINHEAD_DELAY_MINUTES', 3) %}
   {% set ns.MAIN_SL_BLOCK_LOOKBACK_ENABLED = get_var('MAIN_SL_BLOCK_LOOKBACK_ENABLED', true) %}
+
+  {# Main Test Variables #}
+  {% set ns.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD = get_var('MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD', 0) %}
   
   {# SL Blocks Transactions Variables #}
   {% set ns.MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT = get_var('MAIN_SL_BLOCKS_TRANSACTIONS_REALTIME_SQL_LIMIT', 2 * ns.MAIN_SL_BLOCKS_PER_HOUR) %}
@@ -256,9 +259,6 @@
   {# Curated DEX Variables #}
   {% set ns.CURATED_DEX_POOLS_CONTRACT_MAPPING = get_var('CURATED_DEX_POOLS_CONTRACT_MAPPING', {}) %}
   {% set ns.CURATED_DEX_DODO_PROXY_ADDRESSES = get_var('CURATED_DEX_DODO_PROXY_ADDRESSES', []) %}
-
-  {# Test Variables #}
-  {% set ns.MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD = get_var('MAIN_CORE_GOLD_TRACES_TEST_ERROR_THRESHOLD', 0) %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}
