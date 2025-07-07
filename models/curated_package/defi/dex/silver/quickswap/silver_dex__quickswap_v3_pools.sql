@@ -8,7 +8,6 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'pool_address',
-    cluster_by = ['_inserted_timestamp::DATE'],
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
