@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,7 +12,8 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH swaps_base AS (
+WITH swaps AS (
+
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -59,7 +66,8 @@ WITH swaps_base AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN {{ ref('silver_dex__kyberswap_v1_static_pools') }} p
+        INNER JOIN {{ ref('silver_dex__kyberswap_v1_static_pools') }}
+        p
         ON p.pool_address = l.contract_address
     WHERE
         l.topics [0] :: STRING = '0x606ecd02b3e3b4778f8e97b2e03351de14224efaa5fa64e62200afc9395c2499' --StaticSwap
@@ -122,6 +130,6 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    swaps_base
+    swaps
 WHERE
     token_in <> token_out

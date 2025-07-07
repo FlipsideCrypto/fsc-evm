@@ -16,8 +16,8 @@ WITH contract_mapping AS (
         vars.CURATED_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
-        protocol = 'kyberswap'
-        AND version IN ('v1_dynamic')
+        protocol = 'dodo'
+        AND version IN ('v1')
 ),
 pools AS (
     SELECT
@@ -27,19 +27,9 @@ pools AS (
         event_index,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token0,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS token1,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS ampBps,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [2] :: STRING
-            )
-        ) AS totalPool,
+        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS newBorn,
+        CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS baseToken,
+        CONCAT('0x', SUBSTR(segmented_data [2] :: STRING, 25, 40)) AS quoteToken,
         m.protocol,
         m.version,
         CONCAT(
@@ -47,7 +37,7 @@ pools AS (
             '-',
             m.version
         ) AS platform,
-        'CreatedPool' AS event_name,
+        'DODOBirth' AS event_name,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -60,7 +50,7 @@ pools AS (
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
     WHERE
-        topics [0] :: STRING = '0xfc574402c445e75f2b79b67884ff9c662244dce454c5ae68935fcd0bebb7c8ff' --CreatedPool
+        topics [0] :: STRING = '0x5c428a2e12ecaa744a080b25b4cda8b86359c82d726575d7d747e07708071f93' --DODOBirth
         AND tx_succeeded
 
 {% if is_incremental() %}
@@ -77,14 +67,12 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    contract_address,
     event_index,
     event_name,
-    token0,
-    token1,
-    pool_address,
-    ampBps AS amp_bps,
-    totalPool AS total_pool,
+    contract_address,
+    newBorn AS pool_address,
+    baseToken AS base_token,
+    quoteToken AS quote_token,
     platform,
     protocol,
     version,

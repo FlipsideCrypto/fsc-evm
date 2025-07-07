@@ -45,7 +45,8 @@
             },
             'fraxswap': {
                 'v2': {
-                    'contract_address': ['0xc2544a32872a91f4a553b404c6950e89de901fdb','0x54f454d747e037da288db568d4121117eab34e79']
+                    'contract_address': ['0xc2544a32872a91f4a553b404c6950e89de901fdb',
+                    '0x54f454d747e037da288db568d4121117eab34e79']
                 }
             },
             'kyberswap': {
@@ -58,8 +59,21 @@
                 'v2_elastic': {
                     'contract_address': '0x5f1dddbf348ac2fbe22a163e30f99f9ece3dd50a'
                 }
+            },
+            'dodo': {
+                'v1': {
+                    'contract_address': '0x357c5e9cfa8b834edcef7c7aabd8f9db09119d11'
+                },
+                'v2': {
+                    'contract_address': ['0x95e887adf9eaa22cc1c6e3cb7f07adc95b4b25a8',
+                    '0xd24153244066f0afa9415563bfc7ba248bfb7a51',
+                    '0x43c49f8dd240e1545f147211ec9f917376ac1e87',
+                    '0x79887f65f83bdf15bcc8736b5e5bcdb48fb8fe13']
+                }
             }
         },
+        'CURATED_DEX_DODO_PROXY_ADDRESSES': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
+        '0x6c30be15d88462b788dea7c6a860a2ccaf7b2670']
     } %}
     
     {{ return(vars) }}

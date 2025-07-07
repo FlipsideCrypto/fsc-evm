@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -14,7 +20,6 @@ WITH contract_mapping AS (
         AND version IN ('v1_static')
 ),
 pools AS (
-
     SELECT
         block_number,
         block_timestamp,
@@ -55,7 +60,7 @@ pools AS (
         ) AS _log_id,
         modified_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }} 
+        {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
@@ -92,7 +97,6 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    pools
-qualify(ROW_NUMBER() over (PARTITION BY pool_address
+    pools qualify(ROW_NUMBER() over (PARTITION BY pool_address
 ORDER BY
     modified_timestamp DESC)) = 1
