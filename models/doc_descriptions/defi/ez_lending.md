@@ -4,16 +4,37 @@
 This table provides a comprehensive view of borrowing transactions across all major lending protocols on EVM blockchains. It captures when users borrow assets against their deposited collateral, enabling analysis of lending market dynamics, user behavior, and protocol performance.
 
 ### Key Features
-- **Multi-protocol coverage**: Includes Aave, Compound, MakerDAO, and other major lending protocols
+- **Multi-protocol coverage**: Includes Aave, Compound, Morpho, and other major lending protocols
 - **Collateralization tracking**: Links borrowing events to underlying collateral positions
 - **Rate mode support**: Tracks both stable and variable rate borrowing options
 - **USD valuations**: Includes borrowed amounts converted to USD where pricing data is available
 
 ### Important Relationships
-- Links to `ez_lending_deposits` via `borrower` and `block_timestamp` for collateral analysis
+- Links to `ez_lending_deposits` for collateral analysis
 - Joins with `ez_lending_repayments` to track loan lifecycle
 - References `ez_lending_liquidations` for risk analysis
 - Connects to `price.ez_prices_hourly` for USD valuations
+
+### User Field Mapping
+| Table | User Field |
+|-------|------------|
+| **EZ_LENDING_DEPOSITS** | `depositor` |
+| **EZ_LENDING_WITHDRAWS** | `depositor` |
+| **EZ_LENDING_BORROWS** | `borrower` |
+| **EZ_LENDING_REPAYMENTS** | `borrower` |
+| **EZ_LENDING_FLASHLOANS** | `initiator` |
+| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
+
+### Join Conditions
+**Valid token_address joins:**
+- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
+- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
+
+**Invalid token_address joins:**
+- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
+- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
+
+**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
 
 ### Sample Queries
 
@@ -46,19 +67,26 @@ GROUP BY 1, 2
 ORDER BY 5 DESC
 LIMIT 20;
 
--- Borrowing rate analysis
+-- Wallet Specific Borrow Analysis
 SELECT 
-    platform,
-    token_symbol,
-    AVG(CASE WHEN borrow_rate_mode = 1 THEN borrow_rate_stable END) AS avg_stable_rate,
-    AVG(CASE WHEN borrow_rate_mode = 2 THEN borrow_rate_variable END) AS avg_variable_rate,
-    COUNT(CASE WHEN borrow_rate_mode = 1 THEN 1 END) AS stable_borrows,
-    COUNT(CASE WHEN borrow_rate_mode = 2 THEN 1 END) AS variable_borrows
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE block_timestamp >= CURRENT_DATE - 7
-    AND (borrow_rate_stable IS NOT NULL OR borrow_rate_variable IS NOT NULL)
-GROUP BY 1, 2
-ORDER BY 1, 2;
+    b.borrower,
+    b.token_address AS borrowed_token_address,
+    b.token_symbol AS borrowed_token_symbol,
+    DATE_TRUNC('week', b.block_timestamp) AS weekly_block_timestamp,
+    SUM(b.amount) AS total_borrow_amount,
+    SUM(b.amount_usd) AS total_borrow_usd,
+    SUM(r.amount) AS total_repayment_amount,
+    SUM(r.amount_usd) AS total_repayment_usd,
+    SUM(b.amount) - SUM(r.amount) AS net_borrowed_amount,
+    SUM(b.amount_usd) - SUM(r.amount_usd) AS net_borrowed_usd
+FROM 
+    <blockchain_name>.defi.ez_lending_borrows b
+LEFT JOIN <blockchain_name>.defi.ez_lending_repayments r
+    ON b.borrower = r.borrower
+    AND b.token_address = r.token_address
+WHERE 
+    b.borrower = LOWER('<user_address>')
+GROUP BY 1, 2, 3, 4
 
 -- User borrowing patterns
 WITH user_stats AS (
@@ -114,7 +142,6 @@ ORDER BY total_volume DESC;
 
 ### Critical Usage Notes
 - **Collateral requirement**: Users must have deposited collateral before borrowing
-- **Rate modes**: `borrow_rate_mode` indicates stable (1) or variable (2) rate selection
 - **Trace data**: Some protocols use traces instead of events, causing NULL `event_index` values
 - **USD values**: May be NULL for tokens without price data
 - **Performance tip**: Always filter by `block_timestamp` and consider indexing on `borrower` for user analysis
@@ -144,6 +171,27 @@ This table tracks all deposit transactions across lending protocols on EVM block
 - References protocol-specific token contracts (aTokens, cTokens, etc.)
 - Connects to `price.ez_prices_hourly` for USD valuations
 
+### User Field Mapping
+| Table | User Field |
+|-------|------------|
+| **EZ_LENDING_DEPOSITS** | `depositor` |
+| **EZ_LENDING_WITHDRAWS** | `depositor` |
+| **EZ_LENDING_BORROWS** | `borrower` |
+| **EZ_LENDING_REPAYMENTS** | `borrower` |
+| **EZ_LENDING_FLASHLOANS** | `initiator` |
+| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
+
+### Join Conditions
+**Valid token_address joins:**
+- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
+- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
+
+**Invalid token_address joins:**
+- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
+- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
+
+**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
+
 ### Sample Queries
 
 ```sql
@@ -163,10 +211,10 @@ daily_withdrawals AS (
     SELECT 
         DATE_TRUNC('day', block_timestamp) AS date,
         platform,
-        SUM(withdrawn_usd) AS daily_withdrawals_usd
+        SUM(amount_usd) AS daily_withdrawals_usd
     FROM <blockchain_name>.defi.ez_lending_withdraws
     WHERE block_timestamp >= CURRENT_DATE - 30
-        AND withdrawn_usd IS NOT NULL
+        AND amount_usd IS NOT NULL
     GROUP BY 1, 2
 )
 SELECT 
@@ -181,21 +229,26 @@ FROM daily_metrics m
 LEFT JOIN daily_withdrawals w ON m.date = w.date AND m.platform = w.platform
 ORDER BY m.date DESC, m.platform;
 
--- Yield optimization analysis
+-- Wallet level deposit and withdraw analysis
 SELECT 
-    token_symbol,
-    platform,
-    AVG(supply_rate) AS avg_supply_rate,
-    MIN(supply_rate) AS min_supply_rate,
-    MAX(supply_rate) AS max_supply_rate,
-    COUNT(*) AS deposit_count,
-    SUM(amount_usd) AS total_deposited_usd
-FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE block_timestamp >= CURRENT_DATE - 7
-    AND supply_rate IS NOT NULL
-    AND token_symbol IN ('USDC', 'USDT', 'DAI')
-GROUP BY 1, 2
-ORDER BY 3 DESC;
+    d.depositor,
+    d.token_address AS collateral_token_address,
+    d.token_symbol AS collateral_token_symbol,
+    DATE_TRUNC('week', d.block_timestamp) AS weekly_block_timestamp,
+    SUM(d.amount) AS total_deposit_amount,
+    SUM(d.amount_usd) AS total_deposit_usd,
+    SUM(w.amount) AS total_withdraw_amount,
+    SUM(w.amount_usd) AS total_withdraw_usd,
+    SUM(d.amount) - SUM(w.amount) AS net_collateral_amount,
+    SUM(d.amount_usd) - SUM(w.amount_usd) AS net_collateral_usd
+FROM 
+    <blockchain_name>.defi.ez_lending_deposits d
+LEFT JOIN <blockchain_name>.defi.ez_lending_withdraws w
+    ON d.depositor = w.depositor
+    AND d.token_address = w.token_address
+WHERE 
+    d.depositor = LOWER('<user_address>')
+GROUP BY 1, 2, 3, 4;
 
 -- Depositor behavior analysis
 WITH depositor_activity AS (
@@ -247,8 +300,7 @@ SELECT
     depositor,
     token_symbol,
     amount,
-    amount_usd,
-    supply_rate
+    amount_usd
 FROM <blockchain_name>.defi.ez_lending_deposits
 WHERE amount_usd > 1000000
     AND block_timestamp >= CURRENT_DATE - 7
@@ -287,6 +339,27 @@ This table captures flash loan transactions across lending protocols. Flash loan
 - May connect to multiple protocols within single transaction
 - References `price.ez_prices_hourly` for USD valuations
 
+### User Field Mapping
+| Table | User Field |
+|-------|------------|
+| **EZ_LENDING_DEPOSITS** | `depositor` |
+| **EZ_LENDING_WITHDRAWS** | `depositor` |
+| **EZ_LENDING_BORROWS** | `borrower` |
+| **EZ_LENDING_REPAYMENTS** | `borrower` |
+| **EZ_LENDING_FLASHLOANS** | `initiator` |
+| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
+
+### Join Conditions
+**Valid token_address joins:**
+- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
+- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
+
+**Invalid token_address joins:**
+- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
+- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
+
+**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
+
 ### Sample Queries
 
 ```sql
@@ -323,7 +396,7 @@ LIMIT 20;
 -- Flash loan user analysis
 WITH flashloan_users AS (
     SELECT 
-        initiator_address,
+        initiator,
         COUNT(*) AS flashloan_count,
         COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS active_days,
         COUNT(DISTINCT platform) AS protocols_used,
@@ -353,8 +426,8 @@ SELECT
     block_timestamp,
     tx_hash,
     platform,
-    initiator_address,
-    target_address,
+    initiator,
+    target,
     flashloan_token_symbol,
     flashloan_amount_usd,
     premium_amount_usd,
@@ -364,29 +437,24 @@ WHERE flashloan_amount_usd > 1000000
     AND block_timestamp >= CURRENT_DATE - 1
 ORDER BY flashloan_amount_usd DESC;
 
--- Cross-protocol flash loan patterns
-WITH tx_flashloans AS (
-    SELECT 
-        tx_hash,
-        COUNT(DISTINCT platform) AS protocols_count,
-        ARRAY_AGG(DISTINCT platform) AS protocols_used,
-        SUM(flashloan_amount_usd) AS total_tx_volume_usd,
-        SUM(premium_amount_usd) AS total_tx_fees_usd
-    FROM <blockchain_name>.defi.ez_lending_flashloans
-    WHERE block_timestamp >= CURRENT_DATE - 7
-        AND flashloan_amount_usd IS NOT NULL
-    GROUP BY 1
-    HAVING COUNT(DISTINCT platform) > 1
-)
+-- Wallet-specific flash loan analysis
 SELECT 
-    protocols_count,
-    COUNT(*) AS transaction_count,
-    AVG(total_tx_volume_usd) AS avg_volume_per_tx,
-    SUM(total_tx_volume_usd) AS total_volume,
-    ARRAY_AGG(DISTINCT protocols_used) AS protocol_combinations
-FROM tx_flashloans
-GROUP BY 1
-ORDER BY 1;
+    initiator,
+    platform,
+    flashloan_token_symbol,
+    COUNT(*) AS flashloan_count,
+    SUM(flashloan_amount_usd) AS total_borrowed_usd,
+    SUM(premium_amount_usd) AS total_fees_paid_usd,
+    AVG(premium_amount_usd / NULLIF(flashloan_amount_usd, 0) * 100) AS avg_fee_rate_pct,
+    MIN(block_timestamp) AS first_flashloan,
+    MAX(block_timestamp) AS last_flashloan,
+    COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS active_days
+FROM <blockchain_name>.defi.ez_lending_flashloans
+WHERE initiator = LOWER('<wallet_address>')
+    AND block_timestamp >= CURRENT_DATE - 30
+    AND flashloan_amount_usd IS NOT NULL
+GROUP BY 1, 2, 3
+ORDER BY total_borrowed_usd DESC;
 ```
 
 ### Critical Usage Notes
@@ -421,6 +489,27 @@ This table tracks liquidation events across lending protocols, where under-colla
 - Often preceded by entries in `ez_lending_flashloans`
 - References `price.ez_prices_hourly` for USD valuations
 
+### User Field Mapping
+| Table | User Field |
+|-------|------------|
+| **EZ_LENDING_DEPOSITS** | `depositor` |
+| **EZ_LENDING_WITHDRAWS** | `depositor` |
+| **EZ_LENDING_BORROWS** | `borrower` |
+| **EZ_LENDING_REPAYMENTS** | `borrower` |
+| **EZ_LENDING_FLASHLOANS** | `initiator` |
+| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
+
+### Join Conditions
+**Valid token_address joins:**
+- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
+- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
+
+**Invalid token_address joins:**
+- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
+- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
+
+**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
+
 ### Sample Queries
 
 ```sql
@@ -430,26 +519,24 @@ SELECT
     platform,
     COUNT(*) AS liquidation_count,
     COUNT(DISTINCT borrower) AS unique_borrowers_liquidated,
-    SUM(debt_to_cover_amount_usd) AS total_debt_covered_usd,
-    SUM(liquidated_amount_usd) AS total_collateral_liquidated_usd,
-    AVG(liquidated_amount_usd / NULLIF(debt_to_cover_amount_usd, 0) - 1) * 100 AS avg_liquidation_bonus_pct
+    SUM(amount_usd) AS total_debt_covered_usd,
+    SUM(amount_usd) AS total_collateral_liquidated_usd,
+    AVG(amount_usd / NULLIF(amount_usd, 0) - 1) * 100 AS avg_liquidation_bonus_pct
 FROM <blockchain_name>.defi.ez_lending_liquidations
 WHERE block_timestamp >= CURRENT_DATE - 30
-    AND debt_to_cover_amount_usd IS NOT NULL
-    AND liquidated_amount_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
 GROUP BY 1, 2
 ORDER BY 1 DESC, 5 DESC;
 
 -- Most liquidated asset pairs
 SELECT 
-    collateral_asset,
+    collateral_token,
     collateral_token_symbol,
-    debt_asset,
+    debt_token,
     debt_token_symbol,
     COUNT(*) AS liquidation_count,
-    SUM(liquidated_amount_usd) AS total_collateral_liquidated_usd,
-    SUM(debt_to_cover_amount_usd) AS total_debt_covered_usd,
-    AVG(liquidated_amount_usd) AS avg_liquidation_size_usd
+    SUM(amount_usd) AS total_collateral_liquidated_usd,
+    AVG(amount_usd) AS avg_liquidation_size_usd
 FROM <blockchain_name>.defi.ez_lending_liquidations
 WHERE block_timestamp >= CURRENT_DATE - 7
     AND collateral_token_symbol IS NOT NULL
@@ -458,18 +545,15 @@ GROUP BY 1, 2, 3, 4
 ORDER BY 6 DESC
 LIMIT 20;
 
--- Liquidator profitability analysis
+-- Liquidator analysis
 WITH liquidator_stats AS (
     SELECT 
         liquidator,
         COUNT(*) AS liquidations_performed,
-        SUM(liquidated_amount_usd - debt_to_cover_amount_usd) AS total_profit_usd,
-        SUM(liquidated_amount_usd) AS total_collateral_received_usd,
-        AVG(liquidated_amount_usd - debt_to_cover_amount_usd) AS avg_profit_per_liquidation
+        SUM(amount_usd) AS total_collateral_received_usd,
     FROM <blockchain_name>.defi.ez_lending_liquidations
     WHERE block_timestamp >= CURRENT_DATE - 30
-        AND liquidated_amount_usd IS NOT NULL
-        AND debt_to_cover_amount_usd IS NOT NULL
+        AND amount_usd IS NOT NULL
     GROUP BY 1
 )
 SELECT 
@@ -480,8 +564,7 @@ SELECT
         ELSE 'Bot/High Frequency'
     END AS liquidator_type,
     COUNT(*) AS liquidator_count,
-    SUM(total_profit_usd) AS total_profits,
-    AVG(avg_profit_per_liquidation) AS avg_profit_per_liquidation,
+    SUM(total_collateral_received_usd) as total_collateral_received_usd
     SUM(liquidations_performed) AS total_liquidations
 FROM liquidator_stats
 GROUP BY 1
@@ -496,13 +579,11 @@ SELECT
     liquidator,
     collateral_token_symbol,
     debt_token_symbol,
-    liquidated_amount_usd,
-    debt_to_cover_amount_usd,
-    (liquidated_amount_usd - debt_to_cover_amount_usd) AS liquidator_profit_usd
+    amount_usd,
 FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE liquidated_amount_usd > 100000
-    AND block_timestamp >= CURRENT_DATE - 3
-ORDER BY liquidated_amount_usd DESC;
+WHERE amount_usd > 10000
+    AND block_timestamp >= CURRENT_DATE - 14
+ORDER BY amount_usd DESC;
 
 -- Borrower liquidation history
 WITH borrower_liquidations AS (
@@ -510,22 +591,21 @@ WITH borrower_liquidations AS (
         borrower,
         COUNT(*) AS times_liquidated,
         COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS liquidation_days,
-        SUM(debt_to_cover_amount_usd) AS total_debt_liquidated_usd,
-        SUM(liquidated_amount_usd) AS total_collateral_lost_usd,
+        SUM(amount_usd) AS total_collateral_lost_usd,
         ARRAY_AGG(DISTINCT platform) AS platforms_liquidated_on
     FROM <blockchain_name>.defi.ez_lending_liquidations
     WHERE block_timestamp >= CURRENT_DATE - 90
-        AND debt_to_cover_amount_usd IS NOT NULL
+        AND amount_usd IS NOT NULL
     GROUP BY 1
 )
 SELECT 
     times_liquidated,
+    platforms_liquidated_on,
     COUNT(*) AS borrower_count,
-    AVG(total_debt_liquidated_usd) AS avg_debt_liquidated,
-    AVG(total_collateral_lost_usd - total_debt_liquidated_usd) AS avg_loss_from_liquidation
+    AVG(total_collateral_lost_usd) AS avg_loss_from_liquidation
 FROM borrower_liquidations
-GROUP BY 1
-ORDER BY 1;
+GROUP BY 1, 2
+ORDER BY 1, 2;
 ```
 
 ### Critical Usage Notes
@@ -560,6 +640,27 @@ This table contains loan repayment transactions across lending protocols. Repaym
 - May reference `ez_lending_deposits` for collateral release
 - Uses `price.ez_prices_hourly` for USD valuations
 
+### User Field Mapping
+| Table | User Field |
+|-------|------------|
+| **EZ_LENDING_DEPOSITS** | `depositor` |
+| **EZ_LENDING_WITHDRAWS** | `depositor` |
+| **EZ_LENDING_BORROWS** | `borrower` |
+| **EZ_LENDING_REPAYMENTS** | `borrower` |
+| **EZ_LENDING_FLASHLOANS** | `initiator` |
+| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
+
+### Join Conditions
+**Valid token_address joins:**
+- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
+- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
+
+**Invalid token_address joins:**
+- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
+- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
+
+**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
+
 ### Sample Queries
 
 ```sql
@@ -569,11 +670,11 @@ SELECT
     platform,
     COUNT(*) AS repayment_count,
     COUNT(DISTINCT borrower) AS unique_borrowers,
-    SUM(repayed_usd) AS total_repaid_usd,
-    AVG(repayed_usd) AS avg_repayment_size_usd
+    SUM(amount_usd) AS total_repaid_usd,
+    AVG(amount_usd) AS avg_repayment_size_usd
 FROM <blockchain_name>.defi.ez_lending_repayments
 WHERE block_timestamp >= CURRENT_DATE - 30
-    AND repayed_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
 GROUP BY 1, 2
 ORDER BY 1 DESC, 5 DESC;
 
@@ -586,7 +687,7 @@ WITH loan_lifecycles AS (
         b.block_timestamp AS borrow_time,
         MIN(r.block_timestamp) AS first_repayment_time,
         SUM(b.amount_usd) AS borrowed_usd,
-        SUM(r.repayed_usd) AS total_repaid_usd
+        SUM(r.amount_usd) AS total_repaid_usd
     FROM <blockchain_name>.defi.ez_lending_borrows b
     INNER JOIN <blockchain_name>.defi.ez_lending_repayments r
         ON b.borrower = r.borrower
@@ -595,7 +696,7 @@ WITH loan_lifecycles AS (
         AND r.block_timestamp > b.block_timestamp
     WHERE b.block_timestamp >= CURRENT_DATE - 90
         AND b.amount_usd IS NOT NULL
-        AND r.repayed_usd IS NOT NULL
+        AND r.amount_usd IS NOT NULL
     GROUP BY 1, 2, 3, 4
 )
 SELECT 
@@ -615,13 +716,13 @@ WITH user_repayment_stats AS (
     SELECT 
         borrower,
         COUNT(*) AS repayment_count,
-        SUM(repayed_usd) AS total_repaid_usd,
-        AVG(repayed_usd) AS avg_repayment_size,
+        SUM(amount_usd) AS total_repaid_usd,
+        AVG(amount_usd) AS avg_repayment_size,
         COUNT(DISTINCT DATE_TRUNC('month', block_timestamp)) AS active_months,
         COUNT(DISTINCT token_address) AS unique_assets_repaid
     FROM <blockchain_name>.defi.ez_lending_repayments
     WHERE block_timestamp >= CURRENT_DATE - 180
-        AND repayed_usd IS NOT NULL
+        AND amount_usd IS NOT NULL
     GROUP BY 1
 )
 SELECT 
@@ -646,14 +747,13 @@ SELECT
     platform,
     COUNT(*) AS repayment_transactions,
     COUNT(DISTINCT borrower) AS unique_repayers,
-    SUM(repayed_tokens) AS total_tokens_repaid,
-    SUM(repayed_usd) AS total_usd_repaid,
-    AVG(repayed_usd) AS avg_repayment_usd,
-    SUM(repayed_usd) / COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS daily_velocity_usd
+    SUM(amount_usd) AS total_usd_repaid,
+    AVG(amount_usd) AS avg_repayment_usd,
+    SUM(amount_usd) / COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS daily_velocity_usd
 FROM <blockchain_name>.defi.ez_lending_repayments
 WHERE block_timestamp >= CURRENT_DATE - 30
     AND token_symbol IS NOT NULL
-    AND repayed_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
 GROUP BY 1, 2
 HAVING COUNT(*) > 50
 ORDER BY 8 DESC;
@@ -666,13 +766,12 @@ SELECT
     borrower,
     payer,
     token_symbol,
-    repayed_tokens,
-    repayed_usd,
+    amount_usd,
     CASE WHEN borrower = payer THEN 'Self' ELSE 'Third-party' END AS repayment_type
 FROM <blockchain_name>.defi.ez_lending_repayments
-WHERE repayed_usd > 500000
+WHERE amount_usd > 500000
     AND block_timestamp >= CURRENT_DATE - 7
-ORDER BY repayed_usd DESC;
+ORDER BY amount_usd DESC;
 ```
 
 ### Critical Usage Notes
@@ -707,6 +806,27 @@ This table tracks withdrawal transactions where users remove their supplied liqu
 - Increased by `ez_lending_repayments` (adds liquidity)
 - References `price.ez_prices_hourly` for USD valuations
 
+### User Field Mapping
+| Table | User Field |
+|-------|------------|
+| **EZ_LENDING_DEPOSITS** | `depositor` |
+| **EZ_LENDING_WITHDRAWS** | `depositor` |
+| **EZ_LENDING_BORROWS** | `borrower` |
+| **EZ_LENDING_REPAYMENTS** | `borrower` |
+| **EZ_LENDING_FLASHLOANS** | `initiator` |
+| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
+
+### Join Conditions
+**Valid token_address joins:**
+- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
+- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
+
+**Invalid token_address joins:**
+- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
+- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
+
+**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
+
 ### Sample Queries
 
 ```sql
@@ -716,58 +836,65 @@ SELECT
     platform,
     COUNT(*) AS withdrawal_count,
     COUNT(DISTINCT depositor) AS unique_withdrawers,
-    SUM(withdrawn_usd) AS total_withdrawn_usd,
-    AVG(withdrawn_usd) AS avg_withdrawal_size_usd
+    SUM(amount_usd) AS total_withdrawn_usd,
+    AVG(amount_usd) AS avg_withdrawal_size_usd
 FROM <blockchain_name>.defi.ez_lending_withdraws
 WHERE block_timestamp >= CURRENT_DATE - 30
-    AND withdrawn_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
 GROUP BY 1, 2
 ORDER BY 1 DESC, 5 DESC;
 
--- User position analysis (deposits vs withdrawals)
-WITH user_deposits AS (
+-- Platform liquidity analysis (deposits vs withdrawals)
+WITH platform_deposits AS (
     SELECT 
-        depositor,
         platform,
         token_address,
+        token_symbol,
+        COUNT(DISTINCT depositor) AS unique_depositors,
+        SUM(amount) AS total_deposited_tokens,
         SUM(amount_usd) AS total_deposited_usd,
-        MIN(block_timestamp) AS first_deposit,
-        MAX(block_timestamp) AS last_deposit
+        COUNT(*) AS deposit_transactions,
+        AVG(amount_usd) AS avg_deposit_size_usd
     FROM <blockchain_name>.defi.ez_lending_deposits
-    WHERE amount_usd IS NOT NULL
+    WHERE block_timestamp >= CURRENT_DATE - 90
+        AND amount IS NOT NULL
     GROUP BY 1, 2, 3
 ),
-user_withdrawals AS (
+platform_withdrawals AS (
     SELECT 
-        depositor,
         platform,
         token_address,
-        SUM(withdrawn_usd) AS total_withdrawn_usd,
-        MAX(block_timestamp) AS last_withdrawal
+        token_symbol,
+        COUNT(DISTINCT depositor) AS unique_withdrawers,
+        SUM(amount) AS total_withdrawn_tokens,
+        SUM(amount_usd) AS total_withdrawn_usd,
+        COUNT(*) AS withdrawal_transactions,
+        AVG(amount_usd) AS avg_withdrawal_size_usd
     FROM <blockchain_name>.defi.ez_lending_withdraws
-    WHERE withdrawn_usd IS NOT NULL
+    WHERE block_timestamp >= CURRENT_DATE - 90
+        AND amount IS NOT NULL
     GROUP BY 1, 2, 3
 )
 SELECT 
-    d.platform,
-    d.token_address,
-    COUNT(DISTINCT d.depositor) AS total_depositors,
-    SUM(d.total_deposited_usd) AS total_deposited,
-    SUM(w.total_withdrawn_usd) AS total_withdrawn,
-    SUM(d.total_deposited_usd - COALESCE(w.total_withdrawn_usd, 0)) AS net_deposits,
-    AVG(CASE 
-        WHEN w.total_withdrawn_usd > d.total_deposited_usd 
-        THEN (w.total_withdrawn_usd / d.total_deposited_usd - 1) * 100 
-    END) AS avg_profit_pct
-FROM user_deposits d
-LEFT JOIN user_withdrawals w
-    ON d.depositor = w.depositor
-    AND d.platform = w.platform
+    COALESCE(d.platform, w.platform) AS platform,
+    COALESCE(d.token_address, w.token_address) AS token_address,
+    COALESCE(d.token_symbol, w.token_symbol) AS token_symbol,
+    d.unique_depositors,
+    w.unique_withdrawers,
+    d.total_deposited_usd,
+    w.total_withdrawn_usd,
+    (d.total_deposited_usd - COALESCE(w.total_withdrawn_usd, 0)) AS net_deposits_usd,
+    d.deposit_transactions,
+    w.withdrawal_transactions,
+    d.avg_deposit_size_usd,
+    w.avg_withdrawal_size_usd
+FROM platform_deposits d
+FULL OUTER JOIN platform_withdrawals w
+    ON d.platform = w.platform
     AND d.token_address = w.token_address
-WHERE d.first_deposit >= CURRENT_DATE - 90
-GROUP BY 1, 2
-HAVING SUM(d.total_deposited_usd) > 100000
-ORDER BY 6 DESC;
+WHERE COALESCE(d.total_deposited_usd, 0) > 100000
+    OR COALESCE(w.total_withdrawn_usd, 0) > 100000
+ORDER BY net_deposits_usd DESC;
 
 -- Liquidity stress analysis
 WITH hourly_flows AS (
@@ -776,10 +903,10 @@ WITH hourly_flows AS (
         platform,
         token_symbol,
         0 AS deposits_usd,
-        SUM(withdrawn_usd) AS withdrawals_usd
+        SUM(amount_usd) AS withdrawals_usd
     FROM <blockchain_name>.defi.ez_lending_withdraws
     WHERE block_timestamp >= CURRENT_DATE - 7
-        AND withdrawn_usd IS NOT NULL
+        AND amount_usd IS NOT NULL
     GROUP BY 1, 2, 3
     
     UNION ALL
@@ -818,12 +945,12 @@ SELECT
     platform,
     depositor,
     token_symbol,
-    withdrawn_tokens,
-    withdrawn_usd,
-    LAG(withdrawn_usd) OVER (PARTITION BY platform, token_symbol ORDER BY block_timestamp) AS prev_withdrawal_usd,
-    withdrawn_usd / NULLIF(LAG(withdrawn_usd) OVER (PARTITION BY platform, token_symbol ORDER BY block_timestamp), 0) AS size_multiplier
+    amount AS withdrawn_tokens,
+    amount_usd AS withdrawn_usd,
+    LAG(amount_usd) OVER (PARTITION BY platform, token_symbol ORDER BY block_timestamp) AS prev_withdrawal_usd,
+    amount_usd / NULLIF(LAG(amount_usd) OVER (PARTITION BY platform, token_symbol ORDER BY block_timestamp), 0) AS size_multiplier
 FROM <blockchain_name>.defi.ez_lending_withdraws
-WHERE withdrawn_usd > 1000000
+WHERE amount_usd > 1000000
     AND block_timestamp >= CURRENT_DATE - 3
 ORDER BY withdrawn_usd DESC;
 
@@ -831,11 +958,11 @@ ORDER BY withdrawn_usd DESC;
 SELECT 
     EXTRACT(HOUR FROM block_timestamp) AS hour_of_day,
     COUNT(*) AS withdrawal_count,
-    SUM(withdrawn_usd) AS total_withdrawn_usd,
-    AVG(withdrawn_usd) AS avg_withdrawal_size
+    SUM(amount_usd) AS total_withdrawn_usd,
+    AVG(amount_usd) AS avg_withdrawal_size
 FROM <blockchain_name>.defi.ez_lending_withdraws
 WHERE block_timestamp >= CURRENT_DATE - 30
-    AND withdrawn_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
 GROUP BY 1
 ORDER BY 1;
 ```
@@ -911,7 +1038,7 @@ WITH borrower_stats AS (
     SELECT 
         b.borrower,
         SUM(b.amount_usd) AS total_borrowed,
-        SUM(r.repayed_usd) AS total_repaid,
+        SUM(r.amount_usd) AS total_repaid,
         COUNT(DISTINCT b.platform) AS platforms_used
     FROM <blockchain_name>.defi.ez_lending_borrows b
     LEFT JOIN <blockchain_name>.defi.ez_lending_repayments r
@@ -934,7 +1061,7 @@ SELECT
     b.borrower,
     COUNT(DISTINCT l.tx_hash) AS times_liquidated,
     SUM(b.amount_usd) AS total_borrowed,
-    SUM(l.debt_to_cover_amount_usd) AS total_liquidated
+    SUM(l.amount_usd) AS total_liquidated
 FROM <blockchain_name>.defi.ez_lending_borrows b
 LEFT JOIN <blockchain_name>.defi.ez_lending_liquidations l
     ON b.borrower = l.borrower
@@ -1052,12 +1179,11 @@ The address that performed the liquidation.
 SELECT 
     liquidator,
     COUNT(*) AS liquidations_performed,
-    SUM(liquidated_amount_usd - debt_to_cover_amount_usd) AS total_profit_usd,
-    AVG(liquidated_amount_usd - debt_to_cover_amount_usd) AS avg_profit_per_liquidation,
+    SUM(amount_usd - amount_usd) AS total_profit_usd,
+    AVG(amount_usd - amount_usd) AS avg_profit_per_liquidation,
     COUNT(DISTINCT platform) AS platforms_used
 FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE liquidated_amount_usd IS NOT NULL
-    AND debt_to_cover_amount_usd IS NOT NULL
+WHERE amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY liquidator
 ORDER BY total_profit_usd DESC
@@ -1179,7 +1305,7 @@ ORDER BY MIN(flashloan_amount_usd);
 
 -- Flash loan profitability estimation
 SELECT 
-    initiator_address,
+    initiator,
     COUNT(*) AS flashloan_count,
     SUM(flashloan_amount_usd) AS total_borrowed_usd,
     SUM(premium_amount_usd) AS total_fees_paid,
@@ -1187,7 +1313,7 @@ SELECT
 FROM <blockchain_name>.defi.ez_lending_flashloans
 WHERE flashloan_amount_usd > 100000
     AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY initiator_address
+GROUP BY initiator
 HAVING COUNT(*) > 5
 ORDER BY total_borrowed_usd DESC;
 ```
@@ -1359,7 +1485,7 @@ The address that triggered the flash loan execution.
 ```sql
 -- Flash loan initiator patterns
 SELECT 
-    initiator_address,
+    initiator,
     COUNT(*) AS flashloans_initiated,
     COUNT(DISTINCT platform) AS platforms_used,
     COUNT(DISTINCT flashloan_token) AS unique_tokens_borrowed,
@@ -1368,14 +1494,14 @@ SELECT
 FROM <blockchain_name>.defi.ez_lending_flashloans
 WHERE flashloan_amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY initiator_address
+GROUP BY initiator
 ORDER BY total_volume_usd DESC
 LIMIT 100;
 
 -- Initiator specialization analysis
 WITH initiator_tokens AS (
     SELECT 
-        initiator_address,
+        initiator,
         flashloan_token_symbol,
         COUNT(*) AS token_flashloans,
         SUM(flashloan_amount_usd) AS token_volume
@@ -1385,18 +1511,18 @@ WITH initiator_tokens AS (
 ),
 initiator_totals AS (
     SELECT 
-        initiator_address,
+        initiator,
         SUM(token_volume) AS total_volume
     FROM initiator_tokens
     GROUP BY 1
 )
 SELECT 
-    it.initiator_address,
+    it.initiator,
     it.flashloan_token_symbol,
     it.token_volume / t.total_volume * 100 AS token_concentration_pct,
     it.token_flashloans
 FROM initiator_tokens it
-JOIN initiator_totals t ON it.initiator_address = t.initiator_address
+JOIN initiator_totals t ON it.initiator = t.initiator
 WHERE it.token_volume / t.total_volume > 0.5
 ORDER BY token_concentration_pct DESC;
 ```
@@ -1424,7 +1550,7 @@ The contract address that receives and executes the flash loan logic.
 -- Target address activity analysis
 SELECT 
     target_address,
-    initiator_address,
+    initiator,
     COUNT(*) AS flashloan_count,
     COUNT(DISTINCT platform) AS platforms_used,
     SUM(flashloan_amount_usd) AS total_executed_usd,
@@ -1439,14 +1565,14 @@ LIMIT 50;
 -- Target contract reuse patterns
 SELECT 
     target_address,
-    COUNT(DISTINCT initiator_address) AS unique_initiators,
+    COUNT(DISTINCT initiator) AS unique_initiators,
     COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS active_days,
     SUM(flashloan_amount_usd) AS total_volume,
     ARRAY_AGG(DISTINCT platform) AS platforms_used
 FROM <blockchain_name>.defi.ez_lending_flashloans
 WHERE block_timestamp >= CURRENT_DATE - 90
 GROUP BY target_address
-HAVING COUNT(DISTINCT initiator_address) > 1
+HAVING COUNT(DISTINCT initiator) > 1
 ORDER BY unique_initiators DESC;
 ```
 
@@ -1723,12 +1849,12 @@ SELECT
     collateral_asset,
     collateral_token_symbol,
     COUNT(*) AS liquidation_count,
-    SUM(liquidated_amount_usd) AS total_liquidated_usd,
-    AVG(liquidated_amount_usd) AS avg_liquidation_size_usd,
+    SUM(amount_usd) AS total_liquidated_usd,
+    AVG(amount_usd) AS avg_liquidation_size_usd,
     COUNT(DISTINCT borrower) AS unique_borrowers_liquidated
 FROM <blockchain_name>.defi.ez_lending_liquidations
 WHERE collateral_asset IS NOT NULL
-    AND liquidated_amount_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY 1, 2
 ORDER BY total_liquidated_usd DESC;
@@ -1739,7 +1865,7 @@ WITH liquidation_rates AS (
         collateral_asset,
         collateral_token_symbol,
         COUNT(DISTINCT borrower) AS liquidated_borrowers,
-        SUM(liquidated_amount_usd) AS total_liquidated_usd
+        SUM(amount_usd) AS total_liquidated_usd
     FROM <blockchain_name>.defi.ez_lending_liquidations
     WHERE block_timestamp >= CURRENT_DATE - 90
         AND collateral_asset IS NOT NULL
@@ -1789,13 +1915,13 @@ SELECT
     collateral_token_symbol,
     debt_token_symbol,
     COUNT(*) AS liquidation_pairs,
-    SUM(liquidated_amount_usd) AS total_collateral_seized_usd,
+    SUM(amount_usd) AS total_collateral_seized_usd,
     SUM(debt_to_cover_amount_usd) AS total_debt_covered_usd,
-    AVG((liquidated_amount_usd - debt_to_cover_amount_usd) / NULLIF(debt_to_cover_amount_usd, 0) * 100) AS avg_liquidation_bonus_pct
+    AVG((amount_usd - debt_to_cover_amount_usd) / NULLIF(debt_to_cover_amount_usd, 0) * 100) AS avg_liquidation_bonus_pct
 FROM <blockchain_name>.defi.ez_lending_liquidations
 WHERE collateral_token_symbol IS NOT NULL
     AND debt_token_symbol IS NOT NULL
-    AND liquidated_amount_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
     AND debt_to_cover_amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY 1, 2
@@ -1822,12 +1948,12 @@ SELECT
     debt_asset,
     debt_token_symbol,
     COUNT(*) AS liquidation_count,
-    SUM(debt_to_cover_amount_usd) AS total_debt_liquidated_usd,
+    SUM(amount_usd) AS total_debt_liquidated_usd,
     COUNT(DISTINCT borrower) AS unique_borrowers,
-    AVG(debt_to_cover_amount_usd) AS avg_debt_size_usd
+    AVG(amount_usd) AS avg_debt_size_usd
 FROM <blockchain_name>.defi.ez_lending_liquidations
 WHERE debt_asset IS NOT NULL
-    AND debt_to_cover_amount_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 30
 GROUP BY 1, 2
 ORDER BY total_debt_liquidated_usd DESC;
@@ -1851,13 +1977,13 @@ The symbol of the borrowed asset being repaid in liquidation.
 SELECT 
     debt_token_symbol,
     COUNT(*) AS liquidation_count,
-    SUM(debt_to_cover_amount_usd) AS total_debt_usd,
-    AVG(debt_to_cover_amount_usd) AS avg_debt_size,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY debt_to_cover_amount_usd) AS median_debt_size,
+    SUM(amount_usd) AS total_debt_usd,
+    AVG(amount_usd) AS avg_debt_size,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount_usd) AS median_debt_size,
     COUNT(DISTINCT platform) AS platforms_affected
 FROM <blockchain_name>.defi.ez_lending_liquidations
 WHERE debt_token_symbol IS NOT NULL
-    AND debt_to_cover_amount_usd IS NOT NULL
+    AND amount_usd IS NOT NULL
     AND block_timestamp >= CURRENT_DATE - 90
 GROUP BY debt_token_symbol
 ORDER BY total_debt_usd DESC;
@@ -1868,10 +1994,10 @@ WITH hourly_liquidations AS (
         DATE_TRUNC('hour', block_timestamp) AS hour,
         debt_token_symbol,
         COUNT(*) AS liquidation_count,
-        SUM(debt_to_cover_amount_usd) AS hourly_liquidation_volume
+        SUM(amount_usd) AS hourly_liquidation_volume
     FROM <blockchain_name>.defi.ez_lending_liquidations
     WHERE debt_token_symbol IS NOT NULL
-        AND debt_to_cover_amount_usd IS NOT NULL
+        AND amount_usd IS NOT NULL
         AND block_timestamp >= CURRENT_DATE - 30
     GROUP BY 1, 2
 )
