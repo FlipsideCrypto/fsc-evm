@@ -14,6 +14,7 @@
 ) }}
 
 WITH contracts AS (
+
   SELECT
     contract_address,
     token_symbol,

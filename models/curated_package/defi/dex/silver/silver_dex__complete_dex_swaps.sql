@@ -5,7 +5,6 @@
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('silver__complete_token_prices') }}
-
 {{ config(
   materialized = 'incremental',
   incremental_strategy = 'delete+insert',
@@ -453,7 +452,7 @@ all_dex AS (
     swap_evt_v3
   UNION ALL
   SELECT
-    * 
+    *
   FROM
     swap_evt_v2
 ),
