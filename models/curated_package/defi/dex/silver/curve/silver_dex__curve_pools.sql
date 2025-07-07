@@ -370,6 +370,9 @@ all_pools AS (
         CONCAT('0x', SUBSTRING(t.segmented_token_address, 25, 40)) AS token_address,
         function_input AS token_id,
         function_name AS token_type,
+        platform,
+        protocol,
+        version,
         MIN(
             CASE
                 WHEN p.function_name = 'symbol' THEN utils.udf_hex_to_string(RTRIM(p.segmented_output [2] :: STRING, 0))
@@ -404,10 +407,7 @@ all_pools AS (
         ) AS pool_id,
         MAX(
             t._inserted_timestamp
-        ) AS _inserted_timestamp,
-        platform,
-        protocol,
-        version
+        ) AS _inserted_timestamp
     FROM
         tokens t
         LEFT JOIN pool_details p USING(contract_address)
@@ -418,7 +418,10 @@ all_pools AS (
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7
 ),
 FINAL AS (
     SELECT
