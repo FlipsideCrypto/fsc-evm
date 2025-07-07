@@ -9,7 +9,7 @@ models:
       - name: BLOCK_TIMESTAMP
         description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_logs_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: CONTRACT_ADDRESS
         description: '{{ doc("fact_event_logs_contract_address") }}'
       - name: EVENT_NAME
@@ -19,9 +19,9 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: DIGEST
         description: '{{ doc("vertex_digest") }}'
       - name: TRADER

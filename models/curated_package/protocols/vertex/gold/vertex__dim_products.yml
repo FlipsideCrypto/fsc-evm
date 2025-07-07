@@ -9,7 +9,7 @@ models:
       - name: BLOCK_TIMESTAMP
         description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_logs_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: PRODUCT_ID
         description: '{{ doc("vertex_product_id") }}'
       - name: PRODUCT_TYPE
