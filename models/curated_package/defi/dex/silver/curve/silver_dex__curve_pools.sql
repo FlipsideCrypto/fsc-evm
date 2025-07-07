@@ -234,13 +234,11 @@ build_rpc_requests AS (
         row_num,
         CEIL(
             row_num / 50
-        ) AS batch_no,
-        c.platform,
-        c.protocol,
+        ) AS batch_no
         c.version
     FROM
-        all_inputs i
-        LEFT JOIN contract_deployments c USING(contract_address)
+        all_inputs
+        LEFT JOIN contract_deployments USING(contract_address)
 ),
 pool_token_reads AS (
 
@@ -248,11 +246,11 @@ pool_token_reads AS (
 {% for item in range(6) %}
     (
     SELECT
-        live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp, platform, protocol, version
+        live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp
     FROM
         (
     SELECT
-        ARRAY_AGG(rpc_request) batch_rpc_request, platform, protocol, version
+        ARRAY_AGG(rpc_request) batch_rpc_request
     FROM
         build_rpc_requests
     WHERE
@@ -269,11 +267,11 @@ pool_token_reads AS (
     {% for item in range(60) %}
         (
     SELECT
-        live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp, platform, protocol, version
+        live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp
     FROM
         (
     SELECT
-        ARRAY_AGG(rpc_request) batch_rpc_request, platform, protocol, version
+        ARRAY_AGG(rpc_request) batch_rpc_request
     FROM
         build_rpc_requests
     WHERE
@@ -307,10 +305,7 @@ reads_adjusted AS (
                 read_id_object [1] - 10
             )
         ) :: INT AS function_input,
-        _inserted_timestamp,
-        platform,
-        protocol,
-        version
+        _inserted_timestamp
     FROM
         pool_token_reads,
         LATERAL FLATTEN(
@@ -325,10 +320,7 @@ tokens AS (
         function_input,
         read_result,
         regexp_substr_all(SUBSTR(read_result, 3, len(read_result)), '.{64}') [0] AS segmented_token_address,
-        _inserted_timestamp,
-        platform,
-        protocol,
-        version
+        _inserted_timestamp
     FROM
         reads_adjusted
         LEFT JOIN function_sigs USING(function_sig)
@@ -348,10 +340,7 @@ pool_details AS (
         function_input,
         read_result,
         regexp_substr_all(SUBSTR(read_result, 3, len(read_result)), '.{64}') AS segmented_output,
-        _inserted_timestamp,
-        platform,
-        protocol,
-        version
+        _inserted_timestamp
     FROM
         reads_adjusted
         LEFT JOIN function_sigs USING(function_sig)
@@ -369,9 +358,6 @@ all_pools AS (
         CONCAT('0x', SUBSTRING(t.segmented_token_address, 25, 40)) AS token_address,
         function_input AS token_id,
         function_name AS token_type,
-        platform,
-        protocol,
-        version,
         MIN(
             CASE
                 WHEN p.function_name = 'symbol' THEN utils.udf_hex_to_string(RTRIM(p.segmented_output [2] :: STRING, 0))
@@ -417,10 +403,7 @@ all_pools AS (
         1,
         2,
         3,
-        4,
-        5,
-        6,
-        7
+        4
 ),
 FINAL AS (
     SELECT
@@ -447,9 +430,9 @@ FINAL AS (
             ELSE pool_decimals
         END AS pool_decimals,
         pool_id,
-        platform,
-        protocol,
-        version,
+        d.platform,
+        d.protocol,
+        d.version,
         _call_id,
         _inserted_timestamp
     FROM
