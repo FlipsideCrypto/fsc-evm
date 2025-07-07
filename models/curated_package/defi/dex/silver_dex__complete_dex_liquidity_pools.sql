@@ -111,7 +111,7 @@ curve AS (
     platform,
     protocol,
     version,
-    _call_id,
+    _call_id AS _id,
     _inserted_timestamp
   FROM
     {{ ref('silver_dex__curve_pools') }}
@@ -150,7 +150,7 @@ dodo_v1 AS (
     protocol,
     version,
     _log_id AS _id,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__dodo_v1_pools') }}
 
@@ -186,7 +186,7 @@ dodo_v2 AS (
     protocol,
     version,
     _log_id AS _id,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__dodo_v2_pools') }}
   WHERE
@@ -223,7 +223,7 @@ kyberswap_v1_dynamic AS (
     protocol,
     version,
     _log_id AS _id,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__kyberswap_v1_dynamic_pools') }}
 
@@ -259,7 +259,7 @@ kyberswap_v1_static AS (
     protocol,
     version,
     _log_id AS _id,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__kyberswap_v1_static_pools') }}
 
@@ -295,7 +295,7 @@ poolcreated_evt_v3 AS (
     protocol,
     version,
     _log_id AS _id,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__poolcreated_evt_v3_pools') }}
 
@@ -331,7 +331,7 @@ paircreated_evt_v2 AS (
     protocol,
     version,
     _log_id AS _id,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__paircreated_evt_v2_pools') }}
 
