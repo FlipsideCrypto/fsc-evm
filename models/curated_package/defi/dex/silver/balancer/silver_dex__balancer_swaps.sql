@@ -16,13 +16,13 @@ WITH pool_name AS (
 
     SELECT
         CASE
-            WHEN pool_name IS NULL THEN pool_symbol
-            ELSE pool_name
+            WHEN p.pool_name IS NULL THEN p.pool_symbol
+            ELSE p.pool_name
         END AS pool_name,
         pool_address,
         contract_address
     FROM
-        {{ ref('silver_dex__balancer_pools') }}
+        {{ ref('silver_dex__balancer_pools') }} p
 ),
 swaps_base AS (
     SELECT
@@ -56,9 +56,6 @@ swaps_base AS (
         ) AS pool_address,
         origin_from_address AS sender,
         origin_from_address AS tx_to,
-        platform,
-        protocol,
-        version,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -68,7 +65,7 @@ swaps_base AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        contract_address IN (SELECT contract_address FROM pool_name)
+        contract_address IN (SELECT DISTINCT contract_address FROM pool_name)
         AND topics [0] :: STRING = '0x2170c741c41531aec20e7c107c24eecfdd15e69c9bb0a8dd37b1840b9e0b207b'
         AND tx_succeeded
 
