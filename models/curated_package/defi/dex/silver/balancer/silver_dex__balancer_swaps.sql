@@ -20,7 +20,10 @@ WITH pool_name AS (
             ELSE p.pool_name
         END AS pool_name,
         pool_address,
-        contract_address
+        contract_address,
+        platform,
+        protocol,
+        version
     FROM
         {{ ref('silver_dex__balancer_pools') }} p
 ),
