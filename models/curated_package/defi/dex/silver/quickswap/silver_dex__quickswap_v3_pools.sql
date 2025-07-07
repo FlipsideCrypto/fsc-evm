@@ -21,13 +21,12 @@ WITH contract_mapping AS (
         AND version = 'v3'
 ),
 pools AS (
-
     SELECT
         block_number,
         block_timestamp,
         tx_hash,
         event_index,
-        contract_address,
+        l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         LOWER(CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))) AS token0_address,
         LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) AS token1_address,
@@ -65,7 +64,6 @@ AND modified_timestamp >= (
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
-
 SELECT
     block_number,
     block_timestamp,
@@ -82,7 +80,6 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    pools
-qualify(ROW_NUMBER() over (PARTITION BY pool_address
+    pools qualify(ROW_NUMBER() over (PARTITION BY pool_address
 ORDER BY
     modified_timestamp DESC)) = 1
