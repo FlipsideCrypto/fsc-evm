@@ -62,7 +62,7 @@ WITH bus_driven AS (
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+            MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
@@ -116,7 +116,7 @@ oft_sent AS (
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+            MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )

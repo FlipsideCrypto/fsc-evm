@@ -8,7 +8,7 @@ with recent_records as (
     from 
         {{ model }}
     where 
-        modified_timestamp >= SYSDATE() - INTERVAL '7 days'
+        modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
         {% if model.name == 'vertex_market_stats' %}
             AND product_type = 'perp' AND product_id <> 0 AND BASE_VOLUME_24H > 0
         {% endif %}
@@ -46,7 +46,7 @@ from invalid_product_ids
 
 with recent_records as (
     select distinct(product_id) from  {{model}}
-    where block_timestamp >= SYSDATE() - INTERVAL '7 days'
+    where block_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 ),
 
 invalid_product_ids as (

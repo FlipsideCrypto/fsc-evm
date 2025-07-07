@@ -24,11 +24,11 @@ WITH new_tokens AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= CURRENT_DATE() - INTERVAL '7 day'
+AND modified_timestamp >= CURRENT_DATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 
 AND contract_address NOT IN (
     SELECT

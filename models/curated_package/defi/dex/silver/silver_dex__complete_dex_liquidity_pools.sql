@@ -53,7 +53,7 @@ balancer AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -121,7 +121,7 @@ curve AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -159,7 +159,7 @@ dodo_v1 AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -196,7 +196,7 @@ dodo_v2 AS (
 {% if is_incremental() and 'dodo_v2' not in var('HEAL_MODELS') %}
 AND _inserted_timestamp >= (
   SELECT
-    MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+    MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
   FROM
     {{ this }}
 )
@@ -232,7 +232,7 @@ kyberswap_v1_dynamic AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -268,7 +268,7 @@ kyberswap_v1_static AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -304,7 +304,7 @@ poolcreated_evt_v3 AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -340,7 +340,7 @@ paircreated_evt_v2 AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -743,7 +743,7 @@ heal_model AS (
           SELECT
             MAX(
               _inserted_timestamp
-            ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+            ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
           FROM
             {{ this }}
         )
@@ -783,7 +783,7 @@ heal_model AS (
               SELECT
                 MAX(
                   _inserted_timestamp
-                ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
               FROM
                 {{ this }}
             )
@@ -823,7 +823,7 @@ heal_model AS (
                   SELECT
                     MAX(
                       _inserted_timestamp
-                    ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                   FROM
                     {{ this }}
                 )
@@ -863,7 +863,7 @@ heal_model AS (
                       SELECT
                         MAX(
                           _inserted_timestamp
-                        ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                        ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                       FROM
                         {{ this }}
                     )
@@ -903,7 +903,7 @@ heal_model AS (
                           SELECT
                             MAX(
                               _inserted_timestamp
-                            ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                            ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                           FROM
                             {{ this }}
                         )
@@ -943,7 +943,7 @@ heal_model AS (
                               SELECT
                                 MAX(
                                   _inserted_timestamp
-                                ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                                ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                               FROM
                                 {{ this }}
                             )
@@ -983,7 +983,7 @@ heal_model AS (
                                   SELECT
                                     MAX(
                                       _inserted_timestamp
-                                    ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                                   FROM
                                     {{ this }}
                                 )
@@ -1023,7 +1023,7 @@ heal_model AS (
                                       SELECT
                                         MAX(
                                           _inserted_timestamp
-                                        ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                                        ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                                       FROM
                                         {{ this }}
                                     )
