@@ -238,6 +238,9 @@
   
   {# NFT Variables #}
 
+  {# Curated Variables #}
+  {% set ns.CURATED_LOOKBACK_HOURS = get_var('CURATED_LOOKBACK_HOURS', '4 hours') %}
+
   {# Curated Vertex Variables #}
   {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
   {% set ns.CURATED_VERTEX_PROJECT_NAME = get_var('CURATED_VERTEX_PROJECT_NAME', ns.GLOBAL_PROJECT_NAME) %}
