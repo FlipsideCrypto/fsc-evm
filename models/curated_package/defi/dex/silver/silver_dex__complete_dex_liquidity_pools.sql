@@ -49,7 +49,7 @@ balancer AS (
   FROM
     {{ ref('silver_dex__balancer_pools') }}
 
-{% if is_incremental() and 'balancer' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'balancer' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -117,7 +117,7 @@ curve AS (
   FROM
     {{ ref('silver_dex__curve_pools') }}
 
-{% if is_incremental() and 'curve' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'curve' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -155,7 +155,7 @@ dodo_v1 AS (
   FROM
     {{ ref('silver_dex__dodo_v1_pools') }}
 
-{% if is_incremental() and 'dodo_v1' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'dodo_v1' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -193,7 +193,7 @@ dodo_v2 AS (
   WHERE
     token0 IS NOT NULL
 
-{% if is_incremental() and 'dodo_v2' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'dodo_v2' not in vars.CURATED_FR_MODELS %}
 AND _inserted_timestamp >= (
   SELECT
     MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -228,7 +228,7 @@ kyberswap_v1_dynamic AS (
   FROM
     {{ ref('silver_dex__kyberswap_v1_dynamic_pools') }}
 
-{% if is_incremental() and 'kyberswap_v1_dynamic' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'kyberswap_v1_dynamic' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -264,7 +264,7 @@ kyberswap_v1_static AS (
   FROM
     {{ ref('silver_dex__kyberswap_v1_static_pools') }}
 
-{% if is_incremental() and 'kyberswap_v1_static' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'kyberswap_v1_static' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -300,7 +300,7 @@ poolcreated_evt_v3 AS (
   FROM
     {{ ref('silver_dex__poolcreated_evt_v3_pools') }}
 
-{% if is_incremental() and 'poolcreated_evt_v3' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'poolcreated_evt_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -336,7 +336,7 @@ paircreated_evt_v2 AS (
   FROM
     {{ ref('silver_dex__paircreated_evt_v2_pools') }}
 
-{% if is_incremental() and 'paircreated_evt_v2' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'paircreated_evt_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT

@@ -145,7 +145,7 @@ kyberswap_v1_dynamic AS (
   FROM
     {{ ref('silver_dex__kyberswap_v1_dynamic_swaps') }}
 
-{% if is_incremental() and 'kyberswap_v1_dynamic' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'kyberswap_v1_dynamic' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -180,7 +180,7 @@ kyberswap_v1_static AS (
   FROM
     {{ ref('silver_dex__kyberswap_v1_static_swaps') }}
 
-{% if is_incremental() and 'kyberswap_v1_static' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'kyberswap_v1_static' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -215,7 +215,7 @@ hashflow AS (
   FROM
     {{ ref('silver_dex__hashflow_swaps') }}
 
-{% if is_incremental() and 'hashflow' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'hashflow' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -250,7 +250,7 @@ hashflow_v3 AS (
   FROM
     {{ ref('silver_dex__hashflow_v3_swaps') }}
 
-{% if is_incremental() and 'hashflow_v3' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'hashflow_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -285,7 +285,7 @@ curve AS (
   FROM
     {{ ref('silver_dex__curve_swaps') }}
 
-{% if is_incremental() and 'curve' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'curve' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -320,7 +320,7 @@ balancer AS (
   FROM
     {{ ref('silver_dex__balancer_swaps') }}
 
-{% if is_incremental() and 'balancer' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'balancer' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -355,7 +355,7 @@ dodo_v1 AS (
   FROM
     {{ ref('silver_dex__dodo_v1_swaps') }}
 
-{% if is_incremental() and 'dodo_v1' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'dodo_v1' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -390,7 +390,7 @@ dodo_v2 AS (
   FROM
     {{ ref('silver_dex__dodo_v2_swaps') }}
 
-{% if is_incremental() and 'dodo_v2' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'dodo_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT

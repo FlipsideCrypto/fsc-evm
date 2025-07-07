@@ -139,7 +139,7 @@ FINAL AS (
     FROM
         combined
 
-{% if is_incremental() and 'stargate_heal' in var('HEAL_MODELS') %}
+{% if is_incremental() and 'stargate_heal' in vars.CURATED_FR_MODELS %}
 UNION ALL
 SELECT
     block_number,
