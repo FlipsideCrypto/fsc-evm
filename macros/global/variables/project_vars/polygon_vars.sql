@@ -49,6 +49,12 @@
                 }
             },
             'kyberswap': {
+                'v1_dynamic': {
+                    'contract_address': '0x5f1fe642060b5b9658c15721ea22e982643c095c'
+                },
+                'v1_static': {
+                    'contract_address': '0x1c758af0688502e49140230f6b0ebd376d429be5'
+                },
                 'v2_elastic': {
                     'contract_address': '0x5f1dddbf348ac2fbe22a163e30f99f9ece3dd50a'
                 }

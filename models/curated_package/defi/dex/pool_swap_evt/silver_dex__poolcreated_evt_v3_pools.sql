@@ -19,7 +19,7 @@ WITH contract_mapping AS (
     WHERE
         version IN ('v3','v2_elastic')
 ),
-created_pools AS (
+pools AS (
     SELECT
         block_number,
         block_timestamp,
@@ -132,7 +132,7 @@ SELECT
     p._log_id,
     p.modified_timestamp
 FROM
-    created_pools p
+    pools p
     LEFT JOIN initial_info i
     ON p.pool_address = i.contract_address qualify(ROW_NUMBER() over(PARTITION BY pool_address
 ORDER BY

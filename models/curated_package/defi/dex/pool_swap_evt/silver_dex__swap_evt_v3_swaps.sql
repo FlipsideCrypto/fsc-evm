@@ -12,7 +12,7 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH swaps_base AS (
+WITH swaps AS (
 
     SELECT
         l.block_number,
@@ -124,6 +124,6 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    swaps_base qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    swaps qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
     modified_timestamp DESC)) = 1
