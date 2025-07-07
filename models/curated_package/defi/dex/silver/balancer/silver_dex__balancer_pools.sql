@@ -8,7 +8,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'pool_address',
-    full_refresh = false,
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
