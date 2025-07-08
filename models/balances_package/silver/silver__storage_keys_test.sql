@@ -32,8 +32,7 @@ WITH erc20_transfers AS (
         AND topic_2 IS NOT NULL
 
 {% if is_incremental() %}
-AND
-    modified_timestamp > (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
@@ -76,8 +75,7 @@ wrapped_native_transfers AS (
         )
 
 {% if is_incremental() %}
-AND
-    modified_timestamp > (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
@@ -85,29 +83,44 @@ AND
 )
 {% endif %}
 ),
-
 all_addresses AS (
-    SELECT DISTINCT from_address AS address FROM erc20_transfers
+    SELECT
+        DISTINCT from_address AS address
+    FROM
+        erc20_transfers
     UNION
-    SELECT DISTINCT to_address AS address FROM erc20_transfers
+    SELECT
+        DISTINCT to_address AS address
+    FROM
+        erc20_transfers
     UNION
-    SELECT DISTINCT from_address AS address FROM wrapped_native_transfers
+    SELECT
+        DISTINCT from_address AS address
+    FROM
+        wrapped_native_transfers
     UNION
-    SELECT DISTINCT to_address AS address FROM wrapped_native_transfers
+    SELECT
+        DISTINCT to_address AS address
+    FROM
+        wrapped_native_transfers
 ),
-
 final_storage_keys AS (
-    SELECT 
-        a.address,
+    SELECT
+        A.address,
         v.slot_number,
-        utils.udf_mapping_slot(a.address, v.slot_number) AS storage_key
-    FROM all_addresses a
-    CROSS JOIN {{ ref('silver__balance_slots') }} v
-    WHERE a.address IS NOT NULL 
-    AND v.num_slots = 1
-    AND v.slot_number IS NOT NULL
+        utils.udf_mapping_slot(
+            A.address,
+            v.slot_number
+        ) AS storage_key
+    FROM
+        all_addresses A
+        CROSS JOIN {{ ref('silver__balance_slots') }}
+        v
+    WHERE
+        A.address IS NOT NULL
+        AND v.num_slots = 1
+        AND v.slot_number IS NOT NULL
 )
-
 SELECT
     address,
     slot_number,
@@ -116,9 +129,7 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
-FROM final_storage_keys qualify (ROW_NUMBER() over (
-        PARTITION BY address,
-        slot_number
-        ORDER BY
-            address
-    )) = 1
+FROM
+    final_storage_keys qualify (ROW_NUMBER() over (PARTITION BY address, slot_number
+ORDER BY
+    address)) = 1
