@@ -181,7 +181,6 @@ missing_data AS (
         b.block_timestamp AS block_timestamp_heal,
         tx_position,
         tx_hash,
-        tx_succeeded,
         contract_address,
         IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_heal,
         p.symbol AS symbol_heal,
