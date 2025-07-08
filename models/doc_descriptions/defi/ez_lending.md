@@ -680,27 +680,6 @@ This table contains loan repayment transactions across lending protocols. Repaym
 - May reference `ez_lending_deposits` for collateral release
 - Uses `price.ez_prices_hourly` for USD valuations
 
-### User Field Mapping
-| Table | User Field |
-|-------|------------|
-| **EZ_LENDING_DEPOSITS** | `depositor` |
-| **EZ_LENDING_WITHDRAWS** | `depositor` |
-| **EZ_LENDING_BORROWS** | `borrower` |
-| **EZ_LENDING_REPAYMENTS** | `borrower` |
-| **EZ_LENDING_FLASHLOANS** | `initiator` |
-| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
-
-### Join Conditions
-**Valid token_address joins:**
-- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
-- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
-
-**Invalid token_address joins:**
-- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
-- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
-
-**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
-
 ### Sample Queries
 
 ```sql
@@ -845,27 +824,6 @@ This table tracks withdrawal transactions where users remove their supplied liqu
 - Affected by `ez_lending_borrows` (reduces available liquidity)
 - Increased by `ez_lending_repayments` (adds liquidity)
 - References `price.ez_prices_hourly` for USD valuations
-
-### User Field Mapping
-| Table | User Field |
-|-------|------------|
-| **EZ_LENDING_DEPOSITS** | `depositor` |
-| **EZ_LENDING_WITHDRAWS** | `depositor` |
-| **EZ_LENDING_BORROWS** | `borrower` |
-| **EZ_LENDING_REPAYMENTS** | `borrower` |
-| **EZ_LENDING_FLASHLOANS** | `initiator` |
-| **EZ_LENDING_LIQUIDATIONS** | `borrower` |
-
-### Join Conditions
-**Valid token_address joins:**
-- `ez_lending_deposits` ↔ `ez_lending_withdraws` (same asset)
-- `ez_lending_borrows` ↔ `ez_lending_repayments` (same borrowed asset)
-
-**Invalid token_address joins:**
-- `ez_lending_borrows` ↔ `ez_lending_deposits` (borrowed asset ≠ collateral asset)
-- `ez_lending_borrows` ↔ `ez_lending_withdraws` (borrowed asset ≠ collateral asset)
-
-**Note:** When joining borrows to deposits/withdraws, the `token_address` in borrows represents the borrowed asset, while in deposits/withdraws it represents the collateral asset. These are typically different tokens.
 
 ### Sample Queries
 
