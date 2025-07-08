@@ -45,7 +45,7 @@ AND
             {{ this }})
     {% endif %}
 ),
-{% if is_incremental() and vars.BALANCES_GOLD_ERC20_NEW_CONTRACTS_ENABLED %}
+{% if is_incremental() %}
 new_contracts AS (
     SELECT DISTINCT contract_address
     FROM {{ ref('silver__balance_slots') }}
@@ -78,7 +78,7 @@ state_tracer_history AS (
 state_tracer AS (
     SELECT *
     FROM state_tracer_realtime
-{% if is_incremental() and vars.BALANCES_GOLD_ERC20_NEW_CONTRACTS_ENABLED %}
+{% if is_incremental() %}
     UNION
     SELECT *
     FROM state_tracer_history
@@ -155,10 +155,10 @@ state_storage AS (
 balances AS (
     SELECT
         s.block_number,
-        t.block_timestamp,
+        tx.block_timestamp,
         s.tx_position,
         s.tx_hash,
-        t.tx_succeeded,
+        tx.tx_succeeded,
         s.contract_address,
         IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_adj,
         p.symbol,
@@ -190,19 +190,19 @@ balances AS (
     FROM
         state_storage s
         INNER JOIN {{ ref('silver__storage_keys') }} k USING (storage_key) -- get address that the balance applies to
-        LEFT JOIN {{ ref('core__fact_transactions')}} t USING (block_number, tx_position)
+        LEFT JOIN {{ ref('core__fact_transactions')}} tx USING (block_number, tx_position)
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
         p
         ON s.contract_address = p.token_address
         AND DATE_TRUNC(
             'hour',
-            t.block_timestamp
+            tx.block_timestamp
         ) = p.hour
         AND p.decimals IS NOT NULL
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
         ON DATE_TRUNC(
             'hour',
-            t.block_timestamp
+            tx.block_timestamp
         ) = p1.HOUR
         AND p1.is_native
 )
@@ -214,7 +214,7 @@ missing_data AS (
         tx.block_timestamp AS block_timestamp_heal,
         t.tx_position,
         t.tx_hash,
-        tx.tx_succeeded AS tx_succeeded_heal
+        tx.tx_succeeded AS tx_succeeded_heal,
         t.contract_address,
         IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_heal,
         p.symbol AS symbol_heal,
@@ -252,13 +252,13 @@ missing_data AS (
         ON t.contract_address = p.token_address
         AND DATE_TRUNC(
             'hour',
-            b.block_timestamp
+            tx.block_timestamp
         ) = p.hour
         AND p.decimals IS NOT NULL
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
         ON DATE_TRUNC(
             'hour',
-            b.block_timestamp
+            tx.block_timestamp
         ) = p1.HOUR
         AND p1.is_native
     WHERE
