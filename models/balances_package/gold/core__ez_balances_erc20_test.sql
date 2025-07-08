@@ -142,7 +142,7 @@ balances AS (
         post_balance_precise - pre_balance_precise AS net_balance
     FROM
         state_storage s
-        INNER JOIN {{ ref('silver__storage_keys') }} k USING (storage_key) -- join to get address
+        INNER JOIN {{ ref('silver__storage_keys') }} k USING (storage_key) -- get address that the balance applies to
         LEFT JOIN {{ ref('core__fact_blocks')}} b USING (block_number) --potentially join fact_transactions instead to get tx_succeeded
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
         p
@@ -158,15 +158,6 @@ balances AS (
             b.block_timestamp
         ) = p1.HOUR
         AND p1.is_native
---if necessary for performance
-{# {% if is_incremental() %}
-WHERE k.modified_timestamp > (
-    SELECT
-        MAX(modified_timestamp)
-    FROM
-        {{ this }}
-)
-{% endif %} #}
 )
 
 {% if is_incremental() %},
