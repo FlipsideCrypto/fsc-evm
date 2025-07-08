@@ -16,6 +16,7 @@
 ) }}
 
 WITH state_tracer AS (
+
     SELECT
         block_number,
         tx_position,
@@ -26,19 +27,30 @@ WITH state_tracer AS (
         pre_storage,
         post_storage
     FROM
-        {{ ref('silver__state_tracer') }} t
-        INNER JOIN {{ ref('silver__balance_slots') }} v --limits balances to verified assets only
+        {{ ref('silver__state_tracer') }}
+        t
+        INNER JOIN {{ ref('silver__balance_slots') }}
+        v --limits balances to verified assets only
         ON t.address = v.contract_address
+    WHERE
+        slot_number IS NOT NULL
+        AND num_slots = 1 --only include contracts with a single balanceOf slot
 
 {% if is_incremental() %}
-WHERE
+AND (
     modified_timestamp > (
-    SELECT
-        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
-    FROM
-        {{ this }}
+        SELECT
+            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
+        FROM
+            {{ this }})
+            OR address NOT IN (
+                SELECT
+                    contract_address
+                FROM
+                    {{ this }}
+            )
     )
-{% endif %}
+    {% endif %}
 ),
 pre_state_storage AS (
     SELECT
