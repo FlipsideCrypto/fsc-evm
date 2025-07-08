@@ -30,7 +30,6 @@ WITH erc20_transfers AS (
         topic_0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         AND topic_1 IS NOT NULL
         AND topic_2 IS NOT NULL
-        AND block_timestamp >= '2025-07-07 09:30:00.000' :: TIMESTAMP 
 
 {% if is_incremental() %}
 AND
@@ -75,7 +74,6 @@ wrapped_native_transfers AS (
             -- withdraw
             '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' --deposit
         )
-        AND block_timestamp >= '2025-07-07 09:30:00.000' :: TIMESTAMP 
 
 {% if is_incremental() %}
 AND
