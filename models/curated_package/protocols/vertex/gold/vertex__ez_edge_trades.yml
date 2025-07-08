@@ -11,9 +11,9 @@ models:
       - name: TX_HASH
         description: '{{ doc("general_tx_hash") }}'
       - name: EDGE_EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: USER_EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: EDGE_DIGEST
         description: '{{ doc("vertex_digest") }}'
       - name: USER_DIGEST

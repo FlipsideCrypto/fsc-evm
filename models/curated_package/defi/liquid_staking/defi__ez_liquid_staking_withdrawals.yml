@@ -17,11 +17,11 @@ models:
       - name: TX_HASH
         description: '{{ doc("general_tx_hash") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: EVENT_NAME
-        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
+        description: '{{ doc("general_event_name") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("fact_event_logs_contract_address") }}'
+        description: '{{ doc("general_contract_address") }}'
       - name: STAKER
         description: '{{ doc("ez_liquid_staking_staker") }}'
       - name: PLATFORM

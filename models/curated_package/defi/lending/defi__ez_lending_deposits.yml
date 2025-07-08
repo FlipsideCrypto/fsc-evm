@@ -11,11 +11,11 @@ models:
       - name: TX_HASH
         description: '{{ doc("general_tx_hash") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("fact_event_logs_contract_address") }}'
+        description: '{{ doc("general_contract_address") }}'
       - name: EVENT_NAME
-        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
+        description: '{{ doc("general_event_name") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS

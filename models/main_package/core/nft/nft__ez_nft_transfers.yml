@@ -13,7 +13,7 @@ models:
       - name: TX_POSITION
         description: '{{ doc("general_tx_position") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: INTRA_EVENT_INDEX
         description: '{{ doc("ez_nft_transfers_intra_event_index") }}'
       - name: TOKEN_TRANSFER_TYPE

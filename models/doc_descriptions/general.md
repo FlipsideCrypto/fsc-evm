@@ -336,3 +336,64 @@ Boolean indicator of transaction success.
 - FALSE: Transaction failed/reverted
 
 {% enddocs %}
+
+{% docs general_event_index %}
+
+Zero-based sequential position of the event within a transaction's execution.
+
+**Key Facts**:
+- Starts at 0 for first event
+- Increments across all contracts in transaction
+- Preserves execution order
+- Essential for deterministic event ordering
+
+**Usage Example**:
+```sql
+-- Trace event execution flow
+SELECT 
+    event_index,
+    contract_address,
+    topic_0,
+    SUBSTRING(data, 1, 10) AS data_preview
+FROM <blockchain_name>.core.fact_event_logs
+WHERE tx_hash = '0xabc...'
+ORDER BY event_index;
+```
+
+{% enddocs %}
+
+{% docs general_contract_address %}
+
+Smart contract address that emitted this event or received the transaction.
+
+**Key Points**:
+- Always the immediate event emitter for logs
+- May differ from transaction to_address
+- Lowercase normalized format
+- Never NULL for valid events
+
+{% enddocs %}
+
+{% docs general_event_name %}
+
+The event name as defined in the contract's ABI.
+
+**Format**: PascalCase event identifier
+**Examples**:
+- `Transfer` - Token transfers
+- `Swap` - DEX trades  
+- `OwnershipTransferred` - Admin changes
+- `Approval` - Token approvals
+
+**Usage Pattern**:
+
+```sql
+-- Find all event types for a contract
+SELECT DISTINCT event_name, COUNT(*) as occurrences
+FROM ez_decoded_event_logs
+WHERE contract_address = LOWER('0x...')
+GROUP BY 1
+ORDER BY 2 DESC;
+```
+
+{% enddocs %}

@@ -11,7 +11,7 @@ models:
       - name: TX_HASH
         description: '{{ doc("general_tx_hash") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: EVENT_TYPE
         description: '{{ doc("ez_nft_sales_event_type") }}'
       - name: PLATFORM_ADDRESS

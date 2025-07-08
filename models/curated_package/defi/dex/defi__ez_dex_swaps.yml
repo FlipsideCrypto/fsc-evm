@@ -13,7 +13,7 @@ models:
       - name: CONTRACT_ADDRESS
         description: '{{ doc("ez_dex_swaps_contract_address") }}'
       - name: EVENT_NAME
-        description: '{{ doc("ez_decoded_event_logs_event_name") }}'
+        description: '{{ doc("general_event_name") }}'
       - name: AMOUNT_IN
         description: '{{ doc("ez_dex_swaps_amount_in") }}'
       - name: AMOUNT_OUT
@@ -45,7 +45,7 @@ models:
       - name: PROTOCOL_VERSION
         description: '{{ doc("ez_dex_swaps_protocol_version") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("fact_event_logs_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
