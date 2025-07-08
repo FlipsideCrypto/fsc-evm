@@ -6,14 +6,14 @@ This table provides a comprehensive view of cross-chain bridge activity across E
 ### Key Features
 - **Multi-source aggregation**: Combines data from event_logs, traces, and transfers
 - **USD valuations**: Includes token amounts converted to USD where pricing data is available
-- **Cross-chain tracking**: Captures both source and destination chain information
-- **Protocol coverage**: Includes major bridge protocols with live onchain activity
+- **Cross-chain tracking**: Captures both source and destination chain information by tracking outgoing bridge activity
+- **Protocol coverage**: Includes major bridge protocols with historical and current onchain activity
 
-### Important Relationships
-- Links to `core.fact_event_logs` via `tx_hash` and `event_index`
-- Joins with `core.fact_traces` for transaction execution details
-- References `core.dim_contracts` for bridge contract metadata
-- Connects to `price.ez_prices_hourly` for USD valuations
+### Key Sources
+- `core.fact_event_logs`, `core.ez_decoded_event_logs` or `core.ez_token_transfers` for event-based activity
+- `core.fact_traces` or `core.ez_native_transfers` for traces-based activity
+- `core.dim_contracts` or the `eth_call` RPC node method for bridge contract metadata, where available
+- `price.ez_prices_hourly` for USD valuations, where available
 
 ### Sample Queries
 
@@ -97,21 +97,22 @@ ORDER BY total_volume DESC;
 ### Critical Usage Notes
 - **Coverage limitations**: This table only includes protocols with decoded bridge events. Some bridges may not be covered
 - **USD values**: `amount_usd` may be NULL for tokens without price data or during high volatility periods
-- **Destination data**: Non-EVM destination chains may have encoded/transformed receiver addresses
-- **Latency**: Bridge completions on destination chains are not tracked in this table
+- **Destination data**: Non-EVM destination chains may not have decoded receiver addresses. Addresses may exist in their raw, non-transformed format
+- **Latency**: Bridge completions on destination chains are not tracked in this table. This table tracks outgoing activity only
 - **Performance tip**: Always filter by `block_timestamp` for large queries
 
 ### Data Quality Considerations
-- Bridge events are identified through pattern matching and may have false positives
+- In some cases, Bridge events may be identified through pattern matching and may have false positives
 - Some protocols may have partial coverage during initial integration periods
 - Cross-chain message passing (non-token transfers) is not included
 - Wrapped token representations may vary between source and destination chains
+- Destination chain names are generally standardized for consistency purposes and ease of use, via a manual process, in lowercase and snake_case. Chain names with slight discrepencies may exist, and Flipside will standardize accordingly (e.g. mantle vs mantle network)
 
 {% enddocs %}
 
 {% docs ez_bridge_activity_platform %}
 
-## Platform
+## platform
 The protocol or application facilitating the cross-chain bridge transfer.
 
 ### Details
@@ -122,9 +123,11 @@ The protocol or application facilitating the cross-chain bridge transfer.
 ### Usage Examples
 ```sql
 -- Filter for specific bridge protocol
-SELECT * FROM <blockchain_name>.defi.ez_bridge_activity 
+SELECT * 
+FROM <blockchain_name>.defi.ez_bridge_activity 
 WHERE platform = 'stargate' 
-  AND block_timestamp >= CURRENT_DATE - 1;
+  AND block_timestamp >= CURRENT_DATE - 1
+LIMIT 100;
 
 -- Compare protocol market share
 SELECT platform, 
@@ -141,9 +144,9 @@ GROUP BY platform;
 
 {% enddocs %}
 
-{% docs ez_bridge_activity_origin_from %}
+{% docs ez_bridge_activity_origin_from_address %}
 
-## Origin From Address
+## origin_from_address
 The address that initiated the bridge transaction, typically representing the end user.
 
 ### Details
@@ -154,37 +157,37 @@ The address that initiated the bridge transaction, typically representing the en
 ### Usage Examples
 ```sql
 -- Find multi-chain users
-SELECT origin_from, 
+SELECT origin_from_address, 
        COUNT(DISTINCT blockchain) AS source_chains_used,
        COUNT(DISTINCT destination_chain) AS dest_chains_used
 FROM <blockchain_name>.defi.ez_bridge_activity
-GROUP BY origin_from
-HAVING COUNT(DISTINCT blockchain) > 3;
+GROUP BY origin_from_address
+HAVING COUNT(DISTINCT blockchain) >= 2;
 
 -- Analyze user behavior patterns
-SELECT origin_from,
+SELECT origin_from_address,
        AVG(HOURS_BETWEEN(block_timestamp, LAG(block_timestamp) 
-           OVER (PARTITION BY origin_from ORDER BY block_timestamp))) AS avg_hours_between_bridges
+           OVER (PARTITION BY origin_from_address ORDER BY block_timestamp))) AS avg_hours_between_bridges
 FROM <blockchain_name>.defi.ez_bridge_activity
-WHERE origin_from IN (SELECT origin_from FROM <blockchain_name>.defi.ez_bridge_activity 
+WHERE origin_from_address IN (SELECT origin_from_address FROM <blockchain_name>.defi.ez_bridge_activity 
                       GROUP BY 1 HAVING COUNT(*) > 10);
 ```
 
 ### Relationship Notes
 - May differ from `sender` when using contract wallets or aggregators
-- Links to `core.dim_labels` for address identification
+- May link to `core.dim_labels` for address identification
 - Can be used to track user journey across chains
 
 {% enddocs %}
 
 {% docs ez_bridge_activity_sender %}
 
-## Sender
+## sender
 The address that directly sent tokens to the bridge contract.
 
 ### Details
 - **Type**: `VARCHAR(42)`
-- **Relationship**: May equal `origin_from` for direct interactions
+- **Relationship**: May equal `origin_from_address` for direct interactions
 - **Common differences**: Differs when using routers, aggregators, or smart wallets
 
 ### Usage Examples
@@ -192,13 +195,13 @@ The address that directly sent tokens to the bridge contract.
 -- Identify aggregator usage
 SELECT COUNT(*) AS aggregator_txns
 FROM <blockchain_name>.defi.ez_bridge_activity
-WHERE sender != origin_from
+WHERE sender != origin_from_address
   AND sender IN (SELECT address FROM core.dim_contracts 
                  WHERE contract_name LIKE '%aggregator%');
 
 -- Direct vs indirect bridge usage
 SELECT 
-    CASE WHEN sender = origin_from THEN 'Direct' ELSE 'Indirect' END AS interaction_type,
+    CASE WHEN sender = origin_from_address THEN 'Direct' ELSE 'Indirect' END AS interaction_type,
     COUNT(*) AS transfer_count,
     AVG(amount_usd) AS avg_transfer_size
 FROM <blockchain_name>.defi.ez_bridge_activity
@@ -210,12 +213,12 @@ GROUP BY 1;
 
 {% docs ez_bridge_activity_receiver %}
 
-## Receiver
-The address designated to receive tokens on the current/source chain (for intermediate steps).
+## receiver
+The address designated to receive tokens on the destination chain (or on the source chain, for intermediate steps).
 
 ### Details
 - **Type**: `VARCHAR(42)`
-- **Usage**: Often represents intermediate custody or escrow addresses
+- **Usage**: May represents the true receiver of the tokens or intermediate custody or escrow addresses
 - **NULL handling**: May be NULL for direct burn-and-mint bridges
 
 ### Usage Examples
@@ -234,7 +237,7 @@ GROUP BY 1;
 
 {% docs ez_bridge_activity_destination_chain_receiver %}
 
-## Destination Chain Receiver
+## destination_chain_receiver
 The final recipient address on the destination blockchain.
 
 ### Details
@@ -243,20 +246,10 @@ The final recipient address on the destination blockchain.
   - EVM chains: Standard `0x` addresses
   - Non-EVM chains: Encoded/decoded based on destination chain format
   - Examples: Base58 for Solana, Bech32 for Cosmos chains
+  - Proper decoding/encoding not guaranteed. Addresses may exist in their raw, non-transformed format
 
 ### Usage Examples
 ```sql
--- Cross-chain address mapping
-SELECT 
-    sender AS source_address,
-    destination_chain_receiver AS dest_address,
-    destination_chain,
-    COUNT(*) AS bridge_count
-FROM <blockchain_name>.defi.ez_bridge_activity
-WHERE sender != destination_chain_receiver
-  AND destination_chain_receiver IS NOT NULL
-GROUP BY 1, 2, 3;
-
 -- Identify address format by destination
 SELECT 
     destination_chain,
@@ -278,7 +271,7 @@ ORDER BY 1, 4 DESC;
 
 {% docs ez_bridge_activity_destination_chain %}
 
-## Destination Chain
+## destination_chain
 The target blockchain network for the bridged assets.
 
 ### Details
@@ -316,7 +309,7 @@ ORDER BY 4 DESC;
 
 {% docs ez_bridge_activity_destination_chain_id %}
 
-## Destination Chain ID
+## destination_chain_id
 The numeric identifier for the destination blockchain.
 
 ### Details
@@ -340,14 +333,15 @@ ORDER BY destination_chain_id;
 SELECT * 
 FROM <blockchain_name>.defi.ez_bridge_activity
 WHERE destination_chain_id IN (42161, 10, 8453) -- Arbitrum, Optimism, Base
-  AND block_timestamp >= CURRENT_DATE - 1;
+  AND block_timestamp >= CURRENT_DATE - 1
+LIMIT 100;
 ```
 
 {% enddocs %}
 
 {% docs ez_bridge_activity_bridge_address %}
 
-## Bridge Address
+## bridge_address
 The smart contract address handling the bridge operation.
 
 ### Details
@@ -375,25 +369,23 @@ SELECT
     COUNT(DISTINCT token_address) AS supported_tokens,
     ARRAY_AGG(DISTINCT token_symbol) AS token_list
 FROM <blockchain_name>.defi.ez_bridge_activity
-WHERE token_symbol IS NOT NULL
-GROUP BY 1
-HAVING COUNT(DISTINCT token_address) > 5;
+GROUP BY 1;
 ```
 
 ### Performance Notes
 - Index on `bridge_address` for efficient filtering
-- Join with `core.dim_contracts` for additional metadata
+- Join with `core.dim_contracts` for additional contract metadata
 
 {% enddocs %}
 
 {% docs ez_bridge_activity_token_address %}
 
-## Token Address
+## token_address
 The contract address of the token being bridged.
 
 ### Details
 - **Type**: `VARCHAR(42)`
-- **NULL cases**: NULL for native token transfers (ETH, MATIC, etc.)
+- **NULL cases**: While native token transfers do not have an associated token address, this value may be represented by the Wrapped Native version of the asset, for ease of use and for prices (ETH vs WETH, MATIC vs WMATIC etc.)
 - **Standards**: ERC-20 tokens on source chain
 
 ### Usage Examples
@@ -406,26 +398,17 @@ SELECT
     SUM(amount_usd) AS total_volume_usd,
     COUNT(DISTINCT destination_chain) AS destination_count
 FROM <blockchain_name>.defi.ez_bridge_activity
-WHERE token_address IS NOT NULL
-  AND amount_usd IS NOT NULL
+WHERE amount_usd IS NOT NULL
 GROUP BY 1, 2
 ORDER BY 4 DESC
 LIMIT 50;
-
--- Native vs token bridges
-SELECT 
-    CASE WHEN token_address IS NULL THEN 'Native' ELSE 'Token' END AS asset_type,
-    COUNT(*) AS transfers,
-    AVG(amount_usd) AS avg_size_usd
-FROM <blockchain_name>.defi.ez_bridge_activity
-GROUP BY 1;
 ```
 
 {% enddocs %}
 
 {% docs ez_bridge_activity_token_symbol %}
 
-## Token Symbol
+## token_symbol
 The symbol identifier for the bridged token.
 
 ### Details
@@ -464,13 +447,13 @@ ORDER BY 2 DESC;
 
 {% docs ez_bridge_activity_amount_unadj %}
 
-## Amount Unadjusted
+## amount_unadj
 The raw token amount without decimal adjustment.
 
 ### Details
 - **Type**: `NUMERIC`
 - **Usage**: Raw amount as emitted in events/traces
-- **Precision**: Full precision maintained from source
+- **Precision**: Full precision not guaranteed
 
 ### Usage Examples
 ```sql
@@ -491,7 +474,7 @@ HAVING COUNT(*) > 100;
 
 {% docs ez_bridge_activity_amount %}
 
-## Amount
+## amount
 The decimal-adjusted amount of tokens bridged.
 
 ### Details
@@ -532,8 +515,8 @@ ORDER BY 2 DESC;
 
 {% docs ez_bridge_activity_amount_usd %}
 
-## Amount USD
-The USD value of bridged tokens at transaction time.
+## amount_usd
+The hourly close USD value of bridged tokens at the time of the transaction.
 
 ### Details
 - **Type**: `NUMERIC`
@@ -586,7 +569,7 @@ ORDER BY amount_usd DESC;
 ```
 
 ### Performance Tips
-- Filter by `amount_usd IS NOT NULL` to exclude unpriced transfers
+- Filter by `amount_usd IS NOT NULL` to exclude unpriced transfers, however be aware, this may result in understated volumes.
 - Use `block_timestamp` filters before aggregating large USD volumes
 - Consider using materialized views for frequently queried USD aggregations
 
@@ -594,7 +577,7 @@ ORDER BY amount_usd DESC;
 
 {% docs ez_bridge_activity_token_is_verified %}
 
-## Token Is Verified
+## token_is_verified
 Whether the token is verified by the Flipside team.
 
 ### Details
