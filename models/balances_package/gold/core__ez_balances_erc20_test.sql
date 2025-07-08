@@ -4,7 +4,7 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
---depends_on: {{ ref('core__fact_blocks') }}
+--depends_on: {{ ref('core__fact_transactions') }}
 
 {{ config (
     materialized = "incremental",
@@ -15,7 +15,7 @@
     tags = ['gold','balances','phase_4']
 ) }}
 
-WITH state_tracer AS (
+WITH state_tracer_realtime AS (
 
     SELECT
         block_number,
@@ -37,20 +37,52 @@ WITH state_tracer AS (
         AND num_slots = 1 --only include contracts with a single balanceOf slot
 
 {% if is_incremental() %}
-AND (
+AND 
     t.modified_timestamp > (
         SELECT
             COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
         FROM
             {{ this }})
-            OR address NOT IN (
-                SELECT
-                    contract_address
-                FROM
-                    {{ this }}
-            )
-    )
     {% endif %}
+),
+{% if is_incremental() and vars.BALANCES_GOLD_ERC20_NEW_CONTRACTS_ENABLED %}
+new_contracts AS (
+    SELECT DISTINCT contract_address
+    FROM {{ ref('silver__balance_slots') }}
+    WHERE contract_address NOT IN (
+        SELECT DISTINCT contract_address 
+        FROM {{ this }}
+    )
+    AND slot_number IS NOT NULL
+    AND num_slots = 1
+),
+state_tracer_history AS (
+
+    SELECT
+        block_number,
+        tx_position,
+        tx_hash,
+        pre_state_json,
+        post_state_json,
+        address,
+        pre_storage,
+        post_storage
+    FROM
+        {{ ref('silver__state_tracer') }}
+        t
+        INNER JOIN new_contracts
+        v --limits balances to verified assets only
+        ON t.address = v.contract_address
+),
+{% endif %}
+state_tracer AS (
+    SELECT *
+    FROM state_tracer_realtime
+{% if is_incremental() and vars.BALANCES_GOLD_ERC20_NEW_CONTRACTS_ENABLED %}
+    UNION
+    SELECT *
+    FROM state_tracer_history
+{% endif %}
 ),
 pre_state_storage AS (
     SELECT
@@ -123,10 +155,11 @@ state_storage AS (
 balances AS (
     SELECT
         s.block_number,
-        b.block_timestamp,
-        tx_position,
-        tx_hash,
-        contract_address,
+        t.block_timestamp,
+        s.tx_position,
+        s.tx_hash,
+        t.tx_succeeded,
+        s.contract_address,
         IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_adj,
         p.symbol,
         k.address,
@@ -157,19 +190,19 @@ balances AS (
     FROM
         state_storage s
         INNER JOIN {{ ref('silver__storage_keys') }} k USING (storage_key) -- get address that the balance applies to
-        LEFT JOIN {{ ref('core__fact_blocks')}} b USING (block_number) --potentially join fact_transactions instead to get tx_succeeded
+        LEFT JOIN {{ ref('core__fact_transactions')}} t USING (block_number, tx_position)
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
         p
         ON s.contract_address = p.token_address
         AND DATE_TRUNC(
             'hour',
-            b.block_timestamp
+            t.block_timestamp
         ) = p.hour
         AND p.decimals IS NOT NULL
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} p1
         ON DATE_TRUNC(
             'hour',
-            b.block_timestamp
+            t.block_timestamp
         ) = p1.HOUR
         AND p1.is_native
 )
@@ -178,10 +211,11 @@ balances AS (
 missing_data AS (
     SELECT
         t.block_number,
-        b.block_timestamp AS block_timestamp_heal,
-        tx_position,
-        tx_hash,
-        contract_address,
+        tx.block_timestamp AS block_timestamp_heal,
+        t.tx_position,
+        t.tx_hash,
+        tx.tx_succeeded AS tx_succeeded_heal
+        t.contract_address,
         IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_heal,
         p.symbol AS symbol_heal,
         slot_number,
@@ -211,8 +245,8 @@ missing_data AS (
     FROM
         {{ this }}
         t
-        LEFT JOIN {{ ref('core__fact_blocks') }}
-        b USING(block_number)
+        LEFT JOIN {{ ref('core__fact_transactions') }}
+        tx USING(block_number, tx_position)
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
         p
         ON t.contract_address = p.token_address
@@ -244,6 +278,7 @@ FINAL AS (
         block_timestamp,
         tx_position,
         tx_hash,
+        tx_succeeded,
         contract_address,
         decimals_adj AS decimals,
         symbol,
@@ -271,6 +306,7 @@ SELECT
     block_timestamp_heal AS block_timestamp,
     tx_position,
     tx_hash,
+    tx_succeeded_heal AS tx_succeeded,
     contract_address,
     decimals_heal AS decimals,
     symbol_heal AS symbol,
@@ -297,6 +333,7 @@ SELECT
     block_timestamp,
     tx_position,
     tx_hash,
+    tx_succeeded,
     contract_address,
     decimals,
     symbol,
