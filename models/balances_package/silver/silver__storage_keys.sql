@@ -105,68 +105,53 @@ AND l.modified_timestamp > (
 ),
 all_addresses AS (
     SELECT
-        block_number,
-        from_address AS address,
-        contract_address,
+        DISTINCT from_address AS address,
         slot_number,
-        utils.udf_mapping_slot(
-            address,
-            slot_number
-        ) AS storage_key,
+        block_number,
         modified_timestamp
     FROM
         erc20_transfers
-    UNION ALL
+    UNION
     SELECT
-        block_number,
-        to_address AS address,
-        contract_address,
+        DISTINCT to_address AS address,
         slot_number,
-        utils.udf_mapping_slot(
-            address,
-            slot_number
-        ) AS storage_key,
+        block_number,
         modified_timestamp
     FROM
         erc20_transfers
-    UNION ALL
+    UNION
     SELECT
-        block_number,
-        from_address AS address,
-        contract_address,
+        DISTINCT from_address AS address,
         slot_number,
-        utils.udf_mapping_slot(
-            address,
-            slot_number
-        ) AS storage_key,
+        block_number,
         modified_timestamp
     FROM
         wrapped_native_transfers
-    UNION ALL
+    UNION
     SELECT
-        block_number,
-        to_address AS address,
-        contract_address,
+        DISTINCT to_address AS address,
         slot_number,
-        utils.udf_mapping_slot(
-            address,
-            slot_number
-        ) AS storage_key,
+        block_number,
         modified_timestamp
     FROM
         wrapped_native_transfers
 )
 SELECT
-    block_number AS latest_block_number,
     address,
-    contract_address,
     slot_number,
-    storage_key,
-    {{ dbt_utils.generate_surrogate_key(['address', 'contract_address', 'slot_number']) }} AS storage_keys_id,
+    utils.udf_mapping_slot(
+        address,
+        slot_number
+    ) AS storage_key,
+    {{ dbt_utils.generate_surrogate_key(['address', 'slot_number']) }} AS storage_keys_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    all_addresses A qualify(ROW_NUMBER() over (PARTITION BY address, contract_address, slot_number
-ORDER BY
-    block_number DESC, A.modified_timestamp DESC)) = 1
+    all_addresses qualify ROW_NUMBER() over (
+        PARTITION BY address,
+        slot_number
+        ORDER BY
+            block_number DESC,
+            modified_timestamp DESC
+    ) = 1
