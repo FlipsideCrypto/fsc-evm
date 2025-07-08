@@ -59,6 +59,8 @@ wrapped_native_transfers AS (
         block_timestamp,
         tx_position,
         tx_hash,
+        event_index,
+        contract_address,
         IFF(
             topic_0 = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
             '0x' || SUBSTR(
@@ -75,7 +77,6 @@ wrapped_native_transfers AS (
                 27
             )
         ) AS to_address,
-        contract_address,
         TRY_TO_NUMBER(utils.udf_hex_to_int(DATA)) AS raw_amount,
         slot_number,
         tx_succeeded
