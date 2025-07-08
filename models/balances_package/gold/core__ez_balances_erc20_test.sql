@@ -38,7 +38,7 @@ WITH state_tracer AS (
 
 {% if is_incremental() %}
 AND (
-    modified_timestamp > (
+    t.modified_timestamp > (
         SELECT
             COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
         FROM
