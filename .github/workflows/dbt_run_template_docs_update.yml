@@ -53,7 +53,7 @@ jobs:
           git checkout -B docs origin/main
 
       - name: generate dbt docs
-        run: dbt docs generate -t prod
+        run: dbt docs generate -t prod --exclude tag:streamline tag:scores
 
       - name: move files to docs directory
         run: |
