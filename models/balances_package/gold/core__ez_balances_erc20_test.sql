@@ -26,7 +26,9 @@ WITH state_tracer AS (
         pre_storage,
         post_storage
     FROM
-        {{ ref('silver__state_tracer') }}
+        {{ ref('silver__state_tracer') }} t
+        INNER JOIN {{ ref('silver__balance_slots') }} v --limits balances to verified assets only
+        ON t.address = v.contract_address
 
 {% if is_incremental() %}
 WHERE
