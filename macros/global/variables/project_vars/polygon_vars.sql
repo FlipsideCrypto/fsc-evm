@@ -94,7 +94,7 @@
             },
             'curve': {
                 'v1': {
-                    'create': ['0x7eeac6cddbd1d0b8af061742d41877d7f707289a',
+                    'deployer': ['0x7eeac6cddbd1d0b8af061742d41877d7f707289a',
                     '0xbabe61887f1de2713c6f97e567623453d3c79f67',
                     '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
                     '0xe5de15a9c9bbedb4f5ec13b131e61245f2983a69']
@@ -102,7 +102,7 @@
             },
             'balancer': {
                 'v1': {
-                    'register': '0xba12222222228d8ba445958a75a0704d566bf2c8'
+                    'vault': '0xba12222222228d8ba445958a75a0704d566bf2c8'
                 }
             }
         },
@@ -132,9 +132,76 @@
                     'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712',
                     'burn': '0x0000000000000000000000000000000000000000'
                 }
+            },
+            'chainlink_ccip': {
+                'v1': {
+                    'router': '0x849c5ed5a80f5b408dd4969b78c2c8fdf0565bfe'
+                }
+            },
+            'celer_cbridge': {
+                'v1': {
+                    'bridge': ['0x88dcdc47d2f83a99cf0000fdf667a468bb958a78',
+                    '0xa251c4691c1ffd7d9b128874c023427513d8ac5c',
+                    '0xb5df797468e6e8f2cb293cd6e32939366e0f8733',
+                    '0x02745032d2aeccdc90310d6cca32cb82c7e149dd',
+                    '0xf5c6825015280cdfd0b56903f9f8b5a2233476f5']
+                }
+            },
+            'dln_debridge': {
+                'v1': {
+                    'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
+                }
+            },
+            'eywa': {
+                'v1': {
+                    'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
+                        '0xac8f44ceca92b2a4b30360e5bd3043850a0ffcbe',
+                        '0xbf0b5d561b986809924f88099c4ff0e6bcce60c9'
+                    ]
+                }
+            },
+            'meson': {
+                'v1': {
+                    'bridge': '0x25ab3efd52e6470681ce037cd546dc60726948d3'
+                }
+            },
+            'multichain': {
+                'v1': {
+                    'router': '0x1633d66ca91ce4d81f63ea047b7b19beb92df7f3'
+                }
+            },
+            'stargate': {
+                'v1': {
+                    'factory': '0x808d7c71ad2ba3fa531b068a2417c63106bc0949',
+                    'bridge': '0x9d1b1669c73b033dfe47ae5a0164ab96df25b944'
+                }
+            },
+            'symbiosis': {
+                'v1': {
+                    'bridge': ['0xb8f275fbf7a959f4bce59999a2ef122a099e81a8',
+                    '0x3338be49a5f60e2593337919f9ad7098e9a7dd7e']
+                }
+            },
+            'synapse': {
+                'v1': {
+                    'token_bridge': ['0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280',
+                    '0x2119a5c9279a13ec0de5e30d572b316f1cfca567',
+                    '0x0efc29e196da2e81afe96edd041bedcdf9e74893',
+                    '0x5f06745ee8a2001198a379bafbd0361475f3cfc3',
+                    '0x7103a324f423b8a4d4cc1c4f2d5b374af4f0bab5'],
+                    'token_bridge_swap': ['0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280',
+                    '0x0efc29e196da2e81afe96edd041bedcdf9e74893']
+                }
+            },
+            'wormhole': {
+                'v1': {
+                    'token_bridge': '0x5a58505a96d1dbf8df91cb21b54419fc36e93fde'
+                }
             }
         },
-        'CURATED_DEFI_BRIDGE_SOURCE_CHAIN': 'polygon mainnet'
+        'CURATED_DEFI_BRIDGE_SOURCE_CHAIN': 'polygon mainnet',
+        'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x58c61aee5ed3d748a1467085ed2650b697a66234',
+        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
     } %}
     
     {{ return(vars) }}
