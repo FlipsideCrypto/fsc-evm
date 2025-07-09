@@ -19,7 +19,6 @@ WITH contract_mapping AS (
     WHERE
         protocol = 'allbridge'
         AND version = 'v1'
-        AND type = 'sent'
 ),
 base_evt AS (
 

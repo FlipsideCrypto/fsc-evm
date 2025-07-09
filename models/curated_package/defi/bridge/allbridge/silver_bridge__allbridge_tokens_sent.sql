@@ -18,8 +18,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'allbridge'
-        AND version = 'v1'
-        AND type IN ('tokens_sent','lp')
+        AND version = 'v2'
 ),
 base_evt AS (
 
