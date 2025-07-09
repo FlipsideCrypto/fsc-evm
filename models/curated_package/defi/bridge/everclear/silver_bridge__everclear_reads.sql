@@ -69,6 +69,8 @@ SELECT
         response :data :intent :output_asset :: STRING
     ) AS output_asset,
     response :data :intent :status :: STRING AS status,
-    response :data :intent :hub_settlement_domain :: STRING AS destination_chain_id
+    response :data :intent :hub_settlement_domain :: STRING AS destination_chain_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
 FROM
     all_requests
