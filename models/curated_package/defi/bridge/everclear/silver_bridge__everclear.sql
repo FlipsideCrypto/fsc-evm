@@ -17,7 +17,6 @@ WITH regular AS (
         tx_hash,
         event_index,
         contract_address,
-        part,
         intent_id,
         initiator,
         -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
@@ -58,7 +57,6 @@ edge AS (
         tx_hash,
         event_index,
         contract_address,
-        part,
         intent_id,
         initiator,
         -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
@@ -118,7 +116,6 @@ complete_edge AS (
         tx_hash,
         event_index,
         contract_address,
-        part,
         intent_id,
         initiator,
         -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
@@ -148,7 +145,6 @@ combined AS (
         tx_hash,
         event_index,
         contract_address,
-        part,
         intent_id,
         initiator,
         -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
@@ -174,7 +170,6 @@ combined AS (
         tx_hash,
         event_index,
         contract_address,
-        part,
         intent_id,
         initiator,
         -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
@@ -229,8 +224,8 @@ FROM
     s
     ON C.destination_chain_id = s.chainid
     /* 
-                                pull new intent added, make a call, join on the call results 
-                                pull new intent, make a call but still in progress. dont want to pull the results 
-                                next run, make a call, get results, want to pull in this results 
-                                
-                                */
+                                    pull new intent added, make a call, join on the call results 
+                                    pull new intent, make a call but still in progress. dont want to pull the results 
+                                    next run, make a call, get results, want to pull in this results 
+                                    
+                                    */
