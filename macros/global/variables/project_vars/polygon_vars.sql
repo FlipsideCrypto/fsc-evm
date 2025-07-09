@@ -166,7 +166,7 @@
                 }
             },
             'multichain': {
-                'v1': {
+                'v7': {
                     'router': '0x1633d66ca91ce4d81f63ea047b7b19beb92df7f3'
                 }
             },
