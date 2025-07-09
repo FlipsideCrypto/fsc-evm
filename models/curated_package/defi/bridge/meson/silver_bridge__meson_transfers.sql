@@ -113,6 +113,9 @@ all_transfers AS (
         to_address AS receiver,
         raw_amount AS amount_unadj,
         contract_address AS token_address,
+        protocol,
+        version,
+        platform,
         {{ dbt_utils.generate_surrogate_key(
             ['_log_id']
         ) }} AS _id,
@@ -134,6 +137,9 @@ all_transfers AS (
         to_address AS receiver,
         amount_precise_raw AS amount_unadj,
         '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' AS token_address,
+        protocol,
+        version,
+        platform,
         {{ dbt_utils.generate_surrogate_key(
             ['_call_id']
         ) }} AS _id,
