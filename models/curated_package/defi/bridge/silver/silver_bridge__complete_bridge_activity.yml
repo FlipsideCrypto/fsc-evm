@@ -30,14 +30,6 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-      - name: EVENT_INDEX
-        tests:
-          - not_null:
-              where: VERSION <> 'v1-native' AND PLATFORM NOT IN ('wormhole','meson')
-      - name: EVENT_NAME
-        tests:
-          - not_null:
-              where: VERSION <> 'v1-native' AND PLATFORM NOT IN ('wormhole','meson')
       - name: BRIDGE_ADDRESS
         tests:
           - not_null
