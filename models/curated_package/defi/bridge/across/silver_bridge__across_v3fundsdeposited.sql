@@ -29,7 +29,7 @@ base_evt AS (
         origin_function_signature,
         origin_from_address,
         origin_to_address,
-        contract_address,
+        l.contract_address,
         event_index,
         topic_0,
         CASE
