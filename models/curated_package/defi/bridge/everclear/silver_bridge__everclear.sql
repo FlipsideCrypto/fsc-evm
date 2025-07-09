@@ -19,11 +19,9 @@ WITH regular AS (
         contract_address,
         intent_id,
         initiator,
-        -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
         receiver,
         input_asset,
         output_asset_raw,
-        -- will be address 0 if dst > 1
         source_chain_id,
         amount_raw,
         destination_count,
@@ -59,11 +57,9 @@ edge AS (
         contract_address,
         intent_id,
         initiator,
-        -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
         receiver,
         input_asset,
         output_asset_raw,
-        -- will be address 0 if dst > 1
         source_chain_id,
         amount_raw,
         destination_count,
@@ -118,7 +114,6 @@ complete_edge AS (
         contract_address,
         intent_id,
         initiator,
-        -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
         receiver,
         input_asset,
         output_asset_raw,
@@ -147,7 +142,6 @@ combined AS (
         contract_address,
         intent_id,
         initiator,
-        -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
         receiver,
         input_asset,
         output_asset_raw AS output_asset,
@@ -172,7 +166,6 @@ combined AS (
         contract_address,
         intent_id,
         initiator,
-        -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
         receiver,
         input_asset,
         output_asset,
@@ -223,9 +216,3 @@ FROM
     LEFT JOIN {{ ref('silver_bridge__everclear_chain_seed') }}
     s
     ON C.destination_chain_id = s.chainid
-    /* 
-                                    pull new intent added, make a call, join on the call results 
-                                    pull new intent, make a call but still in progress. dont want to pull the results 
-                                    next run, make a call, get results, want to pull in this results 
-                                    
-                                    */
