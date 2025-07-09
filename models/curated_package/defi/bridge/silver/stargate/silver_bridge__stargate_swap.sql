@@ -109,7 +109,7 @@ SELECT
     topic_0,
     event_name,
     event_removed,
-    tx_status,
+    tx_succeeded,
     bridge_address,
     from_address AS sender,
     from_address AS receiver,
