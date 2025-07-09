@@ -123,8 +123,8 @@
             },
             'allbridge': {
                 'v1': {
-                    'sent': '0xbbbd1bbb4f9b936c3604906d7592a644071de884'
-                    'tokens_sent': '0x7775d63836987f444e2f14aa0fa2602204d7d3e0'
+                    'sent': '0xbbbd1bbb4f9b936c3604906d7592a644071de884',
+                    'tokens_sent': '0x7775d63836987f444e2f14aa0fa2602204d7d3e0',
                     'lp': ['0x0394c4f17738a10096510832beab89a9dd090791',
                     '0x4c42dfdbb8ad654b42f66e0bd4dbdc71b52eb0a6',
                     '0x58cc621c62b0aa9babfae5651202a932279437da']
