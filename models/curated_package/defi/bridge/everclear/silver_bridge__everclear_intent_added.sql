@@ -48,7 +48,7 @@ WITH raw AS (
         ) :: INT AS destination_count,
         utils.udf_hex_to_int(
             part [15] :: STRING
-        ) AS destination_0,
+        ) :: STRING AS destination_0,
         CONCAT(
             tx_hash,
             '-',
