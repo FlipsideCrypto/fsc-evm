@@ -151,7 +151,7 @@ native_transfers AS (
         INNER JOIN contract_mapping m
         ON et.to_address = m.contract_address
     WHERE
-        AND tx.origin_function_signature = '0x9981509f' -- wrapAndTransfer
+        tx.origin_function_signature = '0x9981509f' -- wrapAndTransfer
         AND destination_chain_id <> 0
 
 {% if is_incremental() %}

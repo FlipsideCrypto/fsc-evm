@@ -19,7 +19,7 @@ WITH contract_mapping AS (
     WHERE
         protocol = 'dln_debridge'
 ),
-WITH base_evt AS (
+base_evt AS (
 
     SELECT
         block_number,

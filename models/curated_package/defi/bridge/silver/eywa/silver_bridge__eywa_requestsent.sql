@@ -12,7 +12,14 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH base_evt AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'eywa'
+),
+base_evt AS (
 
     SELECT
         block_number,

@@ -24,7 +24,7 @@ layerzero AS (
     SELECT
         tx_hash,
         payload,
-        TYPE,
+        l.TYPE,
         nonce,
         src_chain_id,
         src_chain,

@@ -102,7 +102,7 @@ oft_raw AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        opic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
+        topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

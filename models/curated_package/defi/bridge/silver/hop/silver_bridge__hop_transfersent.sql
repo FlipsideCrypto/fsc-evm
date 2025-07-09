@@ -80,16 +80,6 @@ AND modified_timestamp >= (
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 
 {% endif %}
-),
-hop_tokens AS (
-    SELECT
-        block_number,
-        contract_address,
-        amm_wrapper_address,
-        token_address,
-        _inserted_timestamp
-    FROM
-        {{ ref('silver_bridge__hop_l2canonicaltoken') }}
 )
 SELECT
     block_number,
@@ -102,7 +92,7 @@ SELECT
     topic_0,
     event_name,
     event_removed,
-    tx_status,
+    tx_succeeded,
     contract_address AS bridge_address,
     amm_wrapper_address,
     NAME AS platform,
@@ -125,6 +115,7 @@ SELECT
     modified_timestamp
 FROM
     base_evt b
-    LEFT JOIN hop_tokens h USING(contract_address)
+    LEFT JOIN {{ ref('silver_bridge__hop_l2canonicaltoken') }} 
+    h USING(contract_address)
 WHERE
     token_address IS NOT NULL

@@ -215,4 +215,4 @@ FROM
 WHERE
     origin_to_address IS NOT NULL qualify (ROW_NUMBER() over (PARTITION BY _id
 ORDER BY
-    t._inserted_timestamp DESC)) = 1
+    t.modified_timestamp DESC)) = 1
