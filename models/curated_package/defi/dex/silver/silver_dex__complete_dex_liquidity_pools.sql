@@ -274,6 +274,42 @@ WHERE
   )
 {% endif %}
 ),
+kyberswap_v2_elastic AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    swap_fee_units AS fee,
+    tick_distance AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__kyberswap_v2_elastic_pools') }}
+
+{% if is_incremental() and 'kyberswap_v2_elastic' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 quickswap_v3 AS (
   SELECT
     block_number,
@@ -416,6 +452,11 @@ all_pools AS (
   SELECT
     *
   FROM
+    kyberswap_v2_elastic
+  UNION ALL
+  SELECT
+    *
+  FROM
     quickswap_v3
   UNION ALL
   SELECT
@@ -440,7 +481,7 @@ complete_lps AS (
       WHEN pool_name IS NULL
       AND platform IN (
         'uniswap-v3',
-        'kyberswap-v2_elastic'
+        'kyberswap-v2'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -463,7 +504,7 @@ complete_lps AS (
         ),
         CASE
           WHEN platform = 'uniswap-v3' THEN ' UNI-V3 LP'
-          WHEN platform = 'kyberswap-v2_elastic' THEN ''
+          WHEN platform = 'kyberswap-v2' THEN ''
         END
       )
       WHEN pool_name IS NULL
@@ -616,7 +657,7 @@ heal_model AS (
       WHEN pool_name IS NULL
       AND platform IN (
         'uniswap-v3',
-        'kyberswap-v2_elastic'
+        'kyberswap-v2'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -639,7 +680,7 @@ heal_model AS (
         ),
         CASE
           WHEN platform = 'uniswap-v3' THEN ' UNI-V3 LP'
-          WHEN platform = 'kyberswap-v2_elastic' THEN ''
+          WHEN platform = 'kyberswap-v2' THEN ''
         END
       )
       WHEN pool_name IS NULL
