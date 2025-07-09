@@ -11,7 +11,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH logs AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'stargate'
+        AND version = 'v2'
+),
+logs AS (
 
     SELECT
         block_number,
@@ -28,19 +36,25 @@ WITH logs AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        inserted_timestamp,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
         modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        block_timestamp :: DATE >= '2024-01-01'
-        AND (
             (
-                contract_address = '{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}' -- stargate token messaging
+                contract_address IN (
+                    SELECT
+                        contract_address
+                    FROM
+                        contract_mapping
+                )
                 AND topic_0 = '0x15955c5a4cc61b8fbb05301bce47fd31c0e6f935e1ab97fdac9b134c887bb074' --busRode
             )
             OR topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
-        )
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -80,7 +94,7 @@ oft_sent AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        inserted_timestamp,
+        _log_id,
         modified_timestamp
     FROM
         logs
@@ -156,7 +170,7 @@ SELECT
     origin_from_address,
     origin_to_address,
     origin_function_signature,
-    inserted_timestamp,
+    _log_id,
     modified_timestamp
 FROM
     oft_sent o

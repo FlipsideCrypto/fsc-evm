@@ -23,8 +23,6 @@ WITH bus_driven AS (
         event_index,
         event_name,
         stargate_adapter_address AS bridge_address,
-        'stargate' AS platform,
-        'v2' AS version,
         guid,
         ticket_id,
         from_address AS sender,
@@ -46,6 +44,9 @@ WITH bus_driven AS (
         sender_contract_address,
         receiver_contract_address,
         message_type,
+        protocol,
+        version,
+        platform,
         CONCAT(
             tx_hash,
             '-',
@@ -53,7 +54,6 @@ WITH bus_driven AS (
             '-',
             ticket_id
         ) AS _log_id,
-        inserted_timestamp,
         modified_timestamp
     FROM
         {{ ref('silver_bridge__stargate_v2_busdriven') }}
@@ -79,8 +79,6 @@ oft_sent AS (
         event_index,
         'OFTSent' AS event_name,
         contract_address AS bridge_address,
-        'stargate' AS platform,
-        'v2' AS version,
         guid,
         NULL AS ticket_id,
         from_address AS sender,
@@ -102,12 +100,14 @@ oft_sent AS (
         sender_contract_address,
         receiver_contract_address,
         message_type,
+        protocol,
+        version,
+        platform,
         CONCAT(
             tx_hash,
             '-',
             event_index
         ) AS _log_id,
-        inserted_timestamp,
         modified_timestamp
     FROM
         {{ ref('silver_bridge__stargate_v2_oft') }}
@@ -151,8 +151,6 @@ SELECT
     event_index,
     event_name,
     bridge_address,
-    platform,
-    version,
     guid,
     ticket_id,
     sender,
@@ -176,8 +174,10 @@ SELECT
     sender_contract_address,
     receiver_contract_address,
     message_type,
+    protocol,
+    version,
+    platform,
     _log_id,
-    inserted_timestamp,
     modified_timestamp
 FROM
     {{ this }}
@@ -203,8 +203,6 @@ SELECT
     event_index,
     event_name,
     bridge_address,
-    platform,
-    version,
     guid,
     ticket_id,
     sender,
@@ -226,8 +224,10 @@ SELECT
     sender_contract_address,
     receiver_contract_address,
     message_type,
+    protocol,
+    version,
+    platform,
     _log_id,
-    inserted_timestamp,
     modified_timestamp
 FROM
     FINAL qualify ROW_NUMBER() over (

@@ -20,8 +20,6 @@
         'MAIN_CORE_BRONZE_TOKEN_READS_LIMIT': 30,
         'MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6ce9bf8cdab780416ad1fd87b318a077d2f50eac',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
         'CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -160,6 +158,11 @@
                     ]
                 }
             },
+            'layerzero': {
+                'v2': {
+                    'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
             'meson': {
                 'v1': {
                     'bridge': '0x25ab3efd52e6470681ce037cd546dc60726948d3'
@@ -174,6 +177,9 @@
                 'v1': {
                     'factory': '0x808d7c71ad2ba3fa531b068a2417c63106bc0949',
                     'bridge': '0x9d1b1669c73b033dfe47ae5a0164ab96df25b944'
+                },
+                'v2': {
+                    'bridge': '0x6ce9bf8cdab780416ad1fd87b318a077d2f50eac'
                 }
             },
             'symbiosis': {

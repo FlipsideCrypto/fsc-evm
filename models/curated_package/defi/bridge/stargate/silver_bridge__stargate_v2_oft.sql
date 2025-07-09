@@ -11,7 +11,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH layerzero AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'stargate'
+        AND version = 'v2'
+),
+layerzero AS (
 
     SELECT
         tx_hash,
@@ -31,14 +39,22 @@ WITH layerzero AS (
             229,
             4
         ) AS message_type_2,
-        '0x' || SUBSTR(SUBSTR(payload, 233, 64), 25) AS to_address
+        '0x' || SUBSTR(SUBSTR(payload, 233, 64), 25) AS to_address,
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
+        modified_timestamp
     FROM
-        {{ ref('silver_bridge__layerzero_v2_packet') }}
-    WHERE
-        sender_contract_address = '{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
+        {{ ref('silver_bridge__layerzero_v2_packet') }} l
+        INNER JOIN contract_mapping m
+        ON l.sender_contract_address = m.contract_address
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+WHERE modified_timestamp >= (
     SELECT
         MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
@@ -76,13 +92,16 @@ oft_raw AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        inserted_timestamp,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
         modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        block_timestamp :: DATE >= '2024-01-01'
-        AND topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
+        topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -123,7 +142,10 @@ SELECT
     origin_from_address,
     origin_to_address,
     origin_function_signature,
-    inserted_timestamp,
+    protocol,
+    version,
+    platform,
+    _log_id,
     modified_timestamp
 FROM
     oft_raw o

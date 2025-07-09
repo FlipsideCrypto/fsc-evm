@@ -11,7 +11,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH raw AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'layerzero'
+        AND version = 'v2'
+),
+raw AS (
 
     SELECT
         block_number,
@@ -46,14 +54,26 @@ WITH raw AS (
             227,
             2
         ) AS message_type,
-        inserted_timestamp,
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
         modified_timestamp
     FROM
         {{ ref('core__ez_decoded_event_logs') }}
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        block_timestamp :: DATE >= '2024-01-01'
-        AND event_name = 'PacketSent'
-        AND contract_address = '{{ vars.CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT }}'
+        event_name = 'PacketSent'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -84,7 +104,10 @@ SELECT
     receiver_contract_address,
     guid,
     message_type,
-    inserted_timestamp,
+    protocol,
+    version,
+    platform,
+    _log_id,
     modified_timestamp
 FROM
     raw

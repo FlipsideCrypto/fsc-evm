@@ -11,8 +11,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH layerzero AS (
-
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'stargate' --pulls in stargate rather than layerzero to exclude contract_address
+        AND version = 'v2'
+),
+layerzero AS (
     SELECT
         tx_hash,
         payload,
@@ -26,11 +33,25 @@ WITH layerzero AS (
         receiver_contract_address,
         guid,
         message_type,
-        '0x' || SUBSTR(SUBSTR(payload, 227, 64), 25) AS to_address
+        '0x' || SUBSTR(SUBSTR(payload, 227, 64), 25) AS to_address,
+        protocol,
+        version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
+        _log_id,
+        modified_timestamp
     FROM
         {{ ref('silver_bridge__layerzero_v2_packet') }}
     WHERE
-        sender_contract_address != LOWER('{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}')
+        sender_contract_address NOT IN (
+            SELECT
+                contract_address
+            FROM
+                contract_mapping
+        )
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -71,13 +92,17 @@ oft_raw AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        inserted_timestamp,
+        'OFTSent' AS event_name,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
         modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        block_timestamp :: DATE >= '2024-01-01'
-        AND topic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
+        opic_0 = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' --OFTSent
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -96,10 +121,8 @@ SELECT
     origin_function_signature,
     tx_hash,
     event_index,
-    'OFTSent' AS event_name,
+    event_name,
     contract_address AS bridge_address,
-    'layerzero' AS platform,
-    'v2' AS version,
     guid,
     from_address AS sender,
     to_address AS receiver,
@@ -117,12 +140,10 @@ SELECT
     sender_contract_address,
     receiver_contract_address,
     message_type,
-    CONCAT(
-        tx_hash,
-        '-',
-        event_index
-    ) AS _log_id,
-    o.inserted_timestamp,
+    l.protocol,
+    l.version,
+    l.platform,
+    o._log_id,
     o.modified_timestamp
 FROM
     oft_raw o

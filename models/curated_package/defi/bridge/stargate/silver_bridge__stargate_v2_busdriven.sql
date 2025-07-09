@@ -11,7 +11,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH bus_driven_raw AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'stargate'
+        AND version = 'v2'
+),
+bus_driven_raw AS (
 
     SELECT
         block_number,
@@ -19,7 +27,7 @@ WITH bus_driven_raw AS (
         tx_hash,
         event_index,
         event_name,
-        contract_address,
+        l.contract_address,
         decoded_log :dstEid :: INT AS dst_id,
         SUBSTR(
             decoded_log :guid :: STRING,
@@ -30,14 +38,25 @@ WITH bus_driven_raw AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        inserted_timestamp,
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
         modified_timestamp
     FROM
-        {{ ref('core__ez_decoded_event_logs') }}
+        {{ ref('core__ez_decoded_event_logs') }} l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = '{{ vars.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT }}'
-        AND event_name = 'BusDriven'
-        AND block_timestamp :: DATE >= '2024-01-01'
+        event_name = 'BusDriven'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -64,7 +83,10 @@ bus_driven_array AS (
         origin_from_address,
         origin_to_address,
         origin_function_signature,
-        inserted_timestamp,
+        protocol,
+        version,
+        platform,
+        _log_id,
         modified_timestamp
     FROM
         bus_driven_raw,
@@ -101,7 +123,10 @@ bus_driven AS (
         r.origin_from_address,
         r.origin_to_address,
         r.origin_function_signature,
-        r.inserted_timestamp,
+        r.protocol,
+        r.version,
+        r.platform,
+        r._log_id,
         r.modified_timestamp
     FROM
         bus_driven_array r
@@ -115,7 +140,7 @@ bus_driven AS (
 WHERE
     b.modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "24 hours") }}'
+            MAX(modified_timestamp) - INTERVAL '24 hours'
         FROM
             {{ this }}
     )
@@ -180,7 +205,10 @@ SELECT
     origin_from_address,
     origin_to_address,
     origin_function_signature,
-    inserted_timestamp,
+    protocol,
+    version,
+    platform,
+    _log_id,
     modified_timestamp
 FROM
     bus_driven b
