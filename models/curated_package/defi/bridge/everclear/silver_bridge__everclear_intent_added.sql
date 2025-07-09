@@ -80,7 +80,6 @@ SELECT
     tx_hash,
     event_index,
     contract_address,
-    part,
     intent_id,
     initiator,
     receiver,
