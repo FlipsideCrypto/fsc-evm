@@ -13,7 +13,7 @@
 
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
-        vars.CURATED_DEX_POOLS_CONTRACT_MAPPING
+        vars.CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
         protocol = 'hashflow'

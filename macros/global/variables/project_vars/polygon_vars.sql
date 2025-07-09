@@ -22,7 +22,7 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6ce9bf8cdab780416ad1fd87b318a077d2f50eac',
         'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_DEX_POOLS_CONTRACT_MAPPING': {
+        'CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
                     'contract_address': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c'
@@ -111,7 +111,17 @@
             }
         },
         'CURATED_DEX_DODO_PROXY_ADDRESSES': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
-        '0x6c30be15d88462b788dea7c6a860a2ccaf7b2670']
+        '0x6c30be15d88462b788dea7c6a860a2ccaf7b2670'],
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'across': {
+                'v1': {
+                    'contract_address': '0x9295ee1d8c5b022be115a2ad3c30c72e34e7f096'
+                },
+                'v3': {
+                    'contract_address': '0x9295ee1d8c5b022be115a2ad3c30c72e34e7f096'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}
