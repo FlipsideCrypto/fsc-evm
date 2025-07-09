@@ -23,7 +23,7 @@ WITH contract_mapping AS (
 ),
 base_evt AS (
     SELECT
-        block_number,
+        d.block_number,
         block_timestamp,
         tx_hash,
         origin_function_signature,
