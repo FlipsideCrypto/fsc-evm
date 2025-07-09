@@ -125,6 +125,13 @@
                     '0x4c42dfdbb8ad654b42f66e0bd4dbdc71b52eb0a6',
                     '0x58cc621c62b0aa9babfae5651202a932279437da']
                 }
+            },
+            'axelar': {
+                'v1': {
+                    'gateway': '0x6f015f16de9fc8791b234ef68d486d2bf203fba8',
+                    'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712',
+                    'burn': '0x0000000000000000000000000000000000000000'
+                }
             }
         },
         'CURATED_DEFI_BRIDGE_SOURCE_CHAIN': 'polygon mainnet'
