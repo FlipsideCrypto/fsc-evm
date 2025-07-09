@@ -90,7 +90,7 @@ native_transfers AS (
         ON et.to_address = m.contract_address
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND et.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
