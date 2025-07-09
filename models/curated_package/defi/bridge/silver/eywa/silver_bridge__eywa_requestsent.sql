@@ -143,7 +143,7 @@ SELECT
     r.topic_0,
     r.event_name,
     r.event_removed,
-    r.tx_status,
+    r.tx_succeeded,
     r.contract_address AS bridge_address,
     l.from_address AS sender,
     sender AS receiver,
