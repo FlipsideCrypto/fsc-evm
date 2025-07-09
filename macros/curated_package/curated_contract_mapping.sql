@@ -3,18 +3,20 @@
     {% set all_contracts = [] %}
     {% for protocol, versions in contract_mapping_dict.items() %}
         {% for version, version_info in versions.items() %}
-            {% if version_info.contract_address is string %}
-                {% set _ = all_contracts.append((version_info.contract_address, protocol, version)) %}
-            {% else %}
-                {% for contract_address in version_info.contract_address %}
-                    {% set _ = all_contracts.append((contract_address, protocol, version)) %}
-                {% endfor %}
-            {% endif %}
+            {% for type, type_info in version_info.items() %}
+                {% if type_info is string %}
+                    {% set _ = all_contracts.append((type_info, protocol, version, type)) %}
+                {% else %}
+                    {% for contract_address in type_info %}
+                        {% set _ = all_contracts.append((contract_address, protocol, version, type)) %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
         {% endfor %}
     {% endfor %}
     {% for contract_tuple in all_contracts %}
-        ('{{ contract_tuple[0] }}', '{{ contract_tuple[1] }}', '{{ contract_tuple[2] }}')
+        ('{{ contract_tuple[0] }}', '{{ contract_tuple[1] }}', '{{ contract_tuple[2] }}', '{{ contract_tuple[3] }}')
         {%- if not loop.last -%},{%- endif %}
     {% endfor %}
-    AS t(contract_address, protocol, version)
+    AS t(contract_address, protocol, version, type)
 {% endmacro %}
