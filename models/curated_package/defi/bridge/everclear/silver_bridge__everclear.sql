@@ -207,59 +207,30 @@ SELECT
     origin_from_address AS sender,
     initiator,
     receiver,
-    receiver AS destination_chain_receiver,
+    IFF(
+        destination_chain_id = '1399811149',
+        utils.udf_hex_to_base58(receiver),
+        receiver
+    ) AS destination_chain_receiver,
     input_asset,
     output_asset,
-    source_chain_id,
+    input_asset AS token_address,
     amount_raw,
     destination_count,
+    source_chain_id,
     destination_chain_id,
+    chain AS destination_chain,
     _log_id,
     inserted_timestamp,
     modified_timestamp
 FROM
-    combined
+    combined C
+    LEFT JOIN {{ ref('silver_bridge__everclear_chain_seed') }}
+    s
+    ON C.destination_chain_id = s.chainid
     /* 
-                    pull new intent added, make a call, join on the call results 
-                    pull new intent, make a call but still in progress. dont want to pull the results 
-                    next run, make a call, get results, want to pull in this results 
-                    
-                    */
-    block_number,
-    block_timestamp,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    tx_hash,
-    event_index,
-    'OFTSent' AS event_name,
-    contract_address AS bridge_address,
-    'layerzero' AS platform,
-    'v2' AS version,
-    guid,
-    from_address AS sender,
-    to_address AS receiver,
-    to_address AS destination_chain_receiver,
-    dst_chain_id,
-    dst_chain_id :: STRING AS destination_chain_id,
-    dst_chain AS destination_chain,
-    COALESCE(
-        token_address,
-        contract_address
-    ) AS token_address,
-    amount_sent AS amount_unadj,
-    src_chain_id,
-    src_chain,
-    payload,
-    TYPE,
-    nonce,
-    sender_contract_address,
-    receiver_contract_address,
-    message_type,
-    CONCAT(
-        tx_hash,
-        '-',
-        event_index
-    ) AS _log_id,
-    o.inserted_timestamp,
-    o.modified_timestamp
+                            pull new intent added, make a call, join on the call results 
+                            pull new intent, make a call but still in progress. dont want to pull the results 
+                            next run, make a call, get results, want to pull in this results 
+                            
+                            */
