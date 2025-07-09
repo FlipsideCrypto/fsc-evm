@@ -17,7 +17,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'dodo'
-        AND version IN ('v1')
+        AND version = 'v1'
 ),
 pools AS (
     SELECT

@@ -17,7 +17,8 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'kyberswap'
-        AND version IN ('v1_dynamic')
+        AND version = 'v1'
+        AND type = 'dynamic'
 ),
 pools AS (
     SELECT

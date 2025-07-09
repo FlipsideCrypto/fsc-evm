@@ -17,7 +17,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'hashflow'
-        AND version IN ('v3')
+        AND version = 'v3'
 ),
 pools AS (
     SELECT

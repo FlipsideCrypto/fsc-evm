@@ -58,7 +58,7 @@ base_evt AS (
     WHERE
         topics [0] = '0x9cd6008e8d4ebd34fd9d022278fec7f95d133780ecc1a0dea459fae3e9675390' --TokensSent
         AND tx_succeeded
-        AND m.version = 'v1_tokens_sent'
+        AND m.type = 'tokens_sent'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -100,7 +100,7 @@ lp_evt AS (
         ON l.contract_address = m.contract_address
     WHERE
         topics [0] = '0xa930da1d3f27a25892307dd59cec52dd9b881661a0f20364757f83a0da2f6873' --SwappedToVUsd
-        AND m.version = 'v1_lp'
+        AND m.type = 'lp'
         AND tx_hash IN (
             SELECT
                 tx_hash
