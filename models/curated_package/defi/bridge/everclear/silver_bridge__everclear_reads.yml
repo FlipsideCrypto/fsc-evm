@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver_bridge__everclear_intent_reads
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - INTENT_ID
+    columns:
+      - name: INTENT_ID
+        tests:
+          - not_null
+      - name: STATUS
+        tests:
+          - not_null
+      - name: OUTPUT_ASSET
+        tests:
+          - not_null
+      - name: DESTINATION_CHAIN_ID
+        tests:
+          - not_null

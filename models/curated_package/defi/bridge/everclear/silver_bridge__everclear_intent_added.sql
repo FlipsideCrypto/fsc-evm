@@ -23,7 +23,6 @@ WITH raw AS (
             part [2] :: STRING,
             25
         ) AS initiator,
-        -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
         '0x' || SUBSTR(
             part [3] :: STRING,
             25
@@ -36,7 +35,6 @@ WITH raw AS (
             part [5] :: STRING,
             25
         ) AS output_asset_raw,
-        -- will be address 0 if dst > 1
         utils.udf_hex_to_int(
             part [7] :: STRING
         ) AS source_chain_id,
@@ -85,11 +83,9 @@ SELECT
     part,
     intent_id,
     initiator,
-    -- might use origin from address instead , if it's 0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75
     receiver,
     input_asset,
     output_asset_raw,
-    -- will be address 0 if dst > 1
     source_chain_id,
     amount_raw,
     destination_count,
