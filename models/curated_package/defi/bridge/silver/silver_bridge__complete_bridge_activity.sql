@@ -984,7 +984,7 @@ heal_model AS (
                     SELECT
                         MAX(
                             _inserted_timestamp
-                        ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                        ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                     FROM
                         {{ this }}
                 )
@@ -1024,7 +1024,7 @@ heal_model AS (
                             SELECT
                                 MAX(
                                     _inserted_timestamp
-                                ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+                                ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                             FROM
                                 {{ this }}
                         )
