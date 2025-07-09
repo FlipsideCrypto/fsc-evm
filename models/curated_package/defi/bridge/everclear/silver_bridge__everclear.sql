@@ -215,7 +215,7 @@ SELECT
     input_asset,
     output_asset,
     input_asset AS token_address,
-    amount_raw,
+    amount_raw AS amount_unadj,
     destination_count,
     source_chain_id,
     destination_chain_id,
@@ -229,8 +229,8 @@ FROM
     s
     ON C.destination_chain_id = s.chainid
     /* 
-                            pull new intent added, make a call, join on the call results 
-                            pull new intent, make a call but still in progress. dont want to pull the results 
-                            next run, make a call, get results, want to pull in this results 
-                            
-                            */
+                                pull new intent added, make a call, join on the call results 
+                                pull new intent, make a call but still in progress. dont want to pull the results 
+                                next run, make a call, get results, want to pull in this results 
+                                
+                                */
