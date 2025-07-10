@@ -310,7 +310,7 @@ WHERE
   )
 {% endif %}
 ),
-quickswap_v3 AS (
+quickswap_v2 AS (
   SELECT
     block_number,
     block_timestamp,
@@ -334,9 +334,9 @@ quickswap_v3 AS (
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
-    {{ ref('silver_dex__quickswap_v3_pools') }}
+    {{ ref('silver_dex__quickswap_v2_pools') }}
 
-{% if is_incremental() and 'quickswap_v3' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'quickswap_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -418,6 +418,78 @@ WHERE
   )
 {% endif %}
 ),
+pharaoh_v1 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__pharaoh_v1_pools') }}
+
+{% if is_incremental() and 'pharaoh_v1' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+platypus AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__platypus_pools') }}
+
+{% if is_incremental() and 'platypus' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_pools AS (
   SELECT
     *
@@ -457,7 +529,7 @@ all_pools AS (
   SELECT
     *
   FROM
-    quickswap_v3
+    quickswap_v2
   UNION ALL
   SELECT
     *
@@ -468,6 +540,16 @@ all_pools AS (
     *
   FROM
     curve
+  UNION ALL
+  SELECT
+    *
+  FROM
+    pharaoh_v1
+  UNION ALL
+  SELECT
+    *
+  FROM
+    platypus
 ),
 complete_lps AS (
   SELECT
@@ -481,6 +563,7 @@ complete_lps AS (
       WHEN pool_name IS NULL
       AND platform IN (
         'uniswap-v3',
+        'pharaoh-v2',
         'kyberswap-v2'
       ) THEN CONCAT(
         COALESCE(
@@ -504,13 +587,14 @@ complete_lps AS (
         ),
         CASE
           WHEN platform = 'uniswap-v3' THEN ' UNI-V3 LP'
+          WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
         END
       )
       WHEN pool_name IS NULL
       AND platform IN (
-        'balancer-v1',
-        'curve-v1'
+        'balancer',
+        'curve'
       ) THEN CONCAT(
         COALESCE(c0.token_symbol, SUBSTRING(token0, 1, 5) || '...' || SUBSTRING(token0, 39, 42)),
         CASE
@@ -657,6 +741,7 @@ heal_model AS (
       WHEN pool_name IS NULL
       AND platform IN (
         'uniswap-v3',
+        'pharaoh-v2',
         'kyberswap-v2'
       ) THEN CONCAT(
         COALESCE(
@@ -680,13 +765,14 @@ heal_model AS (
         ),
         CASE
           WHEN platform = 'uniswap-v3' THEN ' UNI-V3 LP'
+          WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
         END
       )
       WHEN pool_name IS NULL
       AND platform IN (
-        'balancer-v1',
-        'curve-v1'
+        'balancer',
+        'curve'
       ) THEN CONCAT(
         COALESCE(c0.token_symbol, SUBSTRING(token0, 1, 5) || '...' || SUBSTRING(token0, 39, 42)),
         CASE

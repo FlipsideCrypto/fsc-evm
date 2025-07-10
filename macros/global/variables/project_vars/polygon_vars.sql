@@ -23,28 +23,28 @@
         'CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
-                    'pair_created': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c'
+                    'uni_v2_pair_created': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c'
                 },
                 'v3': {
-                    'pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+                    'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
                 }
             },
             'sushiswap': {
-                'v2': {
-                    'pair_created': '0xc35dadb65012ec5796536bd9864ed8773abc74c4'
+                'v1': {
+                    'uni_v2_pair_created': '0xc35dadb65012ec5796536bd9864ed8773abc74c4'
                 }
             },
             'quickswap': {
-                'v2': {
-                    'pair_created': '0x5757371414417b8c6caad45baef941abc7d3ab32'
+                'v1': {
+                    'uni_v2_pair_created': '0x5757371414417b8c6caad45baef941abc7d3ab32'
                 },
-                'v3': {
+                'v2': {
                     'pool': '0x411b0facc3489691f28ad58c47006af5e3ab3a28'
                 }
             },
             'fraxswap': {
-                'v2': {
-                    'pair_created': ['0xc2544a32872a91f4a553b404c6950e89de901fdb',
+                'v1': {
+                    'uni_v2_pair_created': ['0xc2544a32872a91f4a553b404c6950e89de901fdb',
                     '0x54f454d747e037da288db568d4121117eab34e79']
                 }
             },

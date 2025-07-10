@@ -17,8 +17,7 @@ WITH contract_mapping AS (
         vars.CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
-        version = 'v3'
-        AND type = 'pool_created'
+        type = 'uni_v3_pool_created'
 ),
 pools AS (
     SELECT

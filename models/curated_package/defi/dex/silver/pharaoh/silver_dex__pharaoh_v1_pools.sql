@@ -16,29 +16,27 @@ WITH contract_mapping AS (
         vars.CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
-        type = 'uni_v2_pair_created'
+        protocol = 'pharaoh'
+        AND version = 'v1'
 ),
 pools AS (
+
     SELECT
+        tx_hash,
         block_number,
         block_timestamp,
-        tx_hash,
         event_index,
         l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token0,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS token1,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
+        CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS pool_address,
         utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
+            segmented_data [2] :: STRING
         ) :: INT AS pool_id,
         m.protocol,
         m.version,
-        CONCAT(
-            m.protocol,
-            '-',
-            m.version
-        ) AS platform,
+        CONCAT(m.protocol, '-', m.version) AS platform,
         'PairCreated' AS event_name,
         CONCAT(
             tx_hash :: STRING,
@@ -52,7 +50,7 @@ pools AS (
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
     WHERE
-        topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --PairCreated
+        topics [0] :: STRING = '0xc4805696c66d7cf352fc1d6bb633ad5ee82f6cb577c453024b6e0eb8306c6fc9' --PairCreated
         AND tx_succeeded
 
 {% if is_incremental() %}
@@ -63,6 +61,7 @@ AND modified_timestamp >= (
         {{ this }}
 )
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+
 {% endif %}
 )
 SELECT

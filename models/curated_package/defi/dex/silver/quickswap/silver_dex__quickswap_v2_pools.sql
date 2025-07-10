@@ -17,7 +17,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'quickswap'
-        AND version = 'v3'
+        AND version = 'v2'
 ),
 pools AS (
     SELECT

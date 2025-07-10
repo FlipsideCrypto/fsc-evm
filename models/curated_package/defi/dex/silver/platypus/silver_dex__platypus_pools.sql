@@ -16,22 +16,16 @@ WITH contract_mapping AS (
         vars.CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
-        type = 'uni_v2_pair_created'
+        protocol = 'platypus'
 ),
-pools AS (
+contract_deployments AS (
+
     SELECT
         block_number,
         block_timestamp,
         tx_hash,
-        event_index,
-        l.contract_address,
-        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token0,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS token1,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INT AS pool_id,
+        from_address AS deployer_address,
+        to_address AS contract_address,
         m.protocol,
         m.version,
         CONCAT(
@@ -39,21 +33,25 @@ pools AS (
             '-',
             m.version
         ) AS platform,
-        'PairCreated' AS event_name,
-        CONCAT(
-            tx_hash :: STRING,
+        concat_ws(
             '-',
-            event_index :: STRING
-        ) AS _log_id,
+            block_number,
+            tx_position,
+            CONCAT(
+                TYPE,
+                '_',
+                trace_address
+            )
+        ) AS _call_id,
         modified_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }}
-        l
+        {{ ref('core__fact_traces') }} t 
         INNER JOIN contract_mapping m
-        ON l.contract_address = m.contract_address
+        ON t.from_address = m.contract_address
     WHERE
-        topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --PairCreated
+        TYPE ILIKE 'create%'
         AND tx_succeeded
+        AND trace_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -63,25 +61,23 @@ AND modified_timestamp >= (
         {{ this }}
 )
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+
 {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY to_address
+ORDER BY
+    block_timestamp ASC)) = 1
 )
 SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    contract_address,
-    event_index,
-    event_name,
-    token0,
-    token1,
-    pool_address,
-    pool_id,
+    deployer_address,
+    contract_address AS pool_address,
     platform,
     protocol,
     version,
-    _log_id,
+    _call_id,
     modified_timestamp
 FROM
-    pools qualify(ROW_NUMBER() over (PARTITION BY pool_address
-ORDER BY
-    modified_timestamp DESC)) = 1
+    contract_deployments
