@@ -5,72 +5,106 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH new_intents AS (
+WITH start_epoch AS (
 
     SELECT
-        DISTINCT intent_id
+        DATE_PART(epoch_second, MIN(block_timestamp :: DATE)) AS min_epoch
     FROM
         {{ ref('silver_bridge__everclear_intent_added') }}
     WHERE
         destination_count > 1
+),
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+in_progress_epoch AS (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+        DATE_PART(
+            epoch_second,
+            MIN(
+                intent_created_timestamp :: DATE
+            )
+        ) AS min_progress_epoch,
+        DATE_PART(
+            epoch_second,
+            MAX(
+                intent_created_timestamp :: DATE
+            )
+        ) AS max_progress_epoch
     FROM
         {{ this }}
-)
-AND intent_id NOT IN (
-    SELECT
-        intent_id
-    FROM
-        {{ this }}
-    WHERE
-        status = 'SETTLED_AND_COMPLETED'
-)
+),
 {% endif %}
-)
 
-{% if is_incremental() %},
-incomplete_txs AS (
+requests AS (
     SELECT
-        intent_id
-    FROM
-        {{ this }}
-    WHERE
-        status != 'SETTLED_AND_COMPLETED'
-        AND modified_timestamp >= CURRENT_DATE() - INTERVAL '10 days'
-)
-{% endif %},
-all_requests AS (
-    SELECT
-        intent_id
-    FROM
-        new_intents
+        1 AS chainid,
+        min_epoch,
 
 {% if is_incremental() %}
-UNION
-SELECT
-    intent_id
-FROM
-    incomplete_txs
-{% endif %}
-)
-SELECT
-    intent_id,
+{% if var(
+        'backfill',
+        false
+    ) %}
     live.udf_api(
         CONCAT(
-            'https://api.everclear.org/intents/',
-            intent_id
+            'https://api.everclear.org/intents?limit=2500&origins=',
+            chainid,
+            '&endDate=',
+            min_progress_epoch
         )
     ) AS response,
-    LOWER(
-        response :data :intent :output_asset :: STRING
-    ) AS output_asset,
-    response :data :intent :status :: STRING AS status,
-    response :data :intent :hub_settlement_domain :: STRING AS destination_chain_id,
-    SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+{% else %}
+    live.udf_api(
+        CONCAT(
+            'https://api.everclear.org/intents?limit=2500&origins=',
+            chainid,
+            '&startDate=',
+            max_progress_epoch
+        )
+    ) AS response,
+{% endif %}
+{% else %}
+    live.udf_api(
+        CONCAT(
+            'https://api.everclear.org/intents?limit=2500&origins=',
+            chainid,
+            '&startDate=',
+            min_epoch
+        )
+    ) AS response,
+{% endif %}
+
+VALUE,
+LOWER(
+    VALUE :output_asset :: STRING
+) AS output_asset,
+VALUE :status :: STRING AS status,
+VALUE :hub_settlement_domain :: STRING AS destination_chain_id,
+TO_TIMESTAMP(
+    VALUE :intent_created_timestamp :: INT
+) AS intent_created_timestamp,
+VALUE :auto_id :: INT AS cursor_id,
+VALUE :intent_id :: STRING AS intent_id,
+SYSDATE() AS inserted_timestamp,
+SYSDATE() AS modified_timestamp
 FROM
-    all_requests
+    start_epoch,
+
+{% if is_incremental() %}
+in_progress_epoch,
+{% endif %}
+
+LATERAL FLATTEN (
+    input => response :data :intents
+)
+)
+SELECT
+    min_epoch,
+    output_asset,
+    status,
+    destination_chain_id,
+    intent_created_timestamp,
+    cursor_id,
+    intent_id
+FROM
+    requests
