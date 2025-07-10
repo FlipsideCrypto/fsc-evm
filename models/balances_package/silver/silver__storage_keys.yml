@@ -1,25 +1,23 @@
 version: 2
 models:
-  - name: silver__balance_slots
+  - name: silver__storage_keys
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - CONTRACT_ADDRESS
-      - fsc_evm.missing_balance_slots
+            - ADDRESS
+            - SLOT_NUMBER
 
     columns:
-      - name: CONTRACT_ADDRESS
+      - name: ADDRESS
         tests:
           - not_null
-      - name: SLOT_NUMBER_ARRAY
+      - name: SLOT_NUMBER
         tests:
           - not_null
-      - name: NUM_SLOTS
+      - name: STORAGE_KEY
         tests:
           - not_null
-          - accepted_values:
-              values: [1]
-      - name: BALANCE_SLOTS_ID
+      - name: STORAGE_KEYS_ID
         tests:
           - not_null
       - name: INSERTED_TIMESTAMP

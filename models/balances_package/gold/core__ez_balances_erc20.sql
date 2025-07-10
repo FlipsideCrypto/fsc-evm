@@ -218,8 +218,8 @@ missing_data AS (
         t.contract_address,
         IFF(p.decimals IS NULL AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', 18, p.decimals) AS decimals_heal,
         p.symbol AS symbol_heal,
-        slot_number,
-        address,
+        k.slot_number AS slot_number_heal,
+        k.address AS address_heal,
         pre_balance_hex,
         pre_balance_raw,
         IFF(decimals_heal IS NULL, NULL,utils.udf_decimal_adjust(
@@ -245,6 +245,7 @@ missing_data AS (
     FROM
         {{ this }}
         t
+        INNER JOIN {{ ref('silver__storage_keys') }} k USING (storage_key) -- get address that the balance applies to
         LEFT JOIN {{ ref('core__fact_transactions') }}
         tx USING(block_number, tx_position)
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
@@ -310,8 +311,8 @@ SELECT
     contract_address,
     decimals_heal AS decimals,
     symbol_heal AS symbol,
-    slot_number,
-    address,
+    slot_number_heal AS slot_number,
+    address_heal AS address,
     pre_balance_hex,
     pre_balance_raw,
     pre_balance_precise_heal AS pre_balance_precise,
