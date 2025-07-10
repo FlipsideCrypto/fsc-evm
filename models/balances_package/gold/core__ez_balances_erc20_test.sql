@@ -12,7 +12,7 @@
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp::date', 'round(block_number, -3)'],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold','balances','phase_4']
+    tags = ['gold','balances','phase_4','heal']
 ) }}
 
 WITH state_tracer_realtime AS (
@@ -45,7 +45,7 @@ AND
             {{ this }})
     {% endif %}
 ),
-{% if is_incremental() %}
+{% if is_incremental() and var('HEAL_MODEL',false) %}
 new_contracts AS (
     SELECT DISTINCT contract_address
     FROM {{ ref('silver__balance_slots') }}
@@ -78,7 +78,7 @@ state_tracer_history AS (
 state_tracer AS (
     SELECT *
     FROM state_tracer_realtime
-{% if is_incremental() %}
+{% if is_incremental() and var('HEAL_MODEL',false) %}
     UNION
     SELECT *
     FROM state_tracer_history
