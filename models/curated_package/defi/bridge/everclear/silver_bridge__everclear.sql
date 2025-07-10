@@ -124,8 +124,8 @@ complete_edge AS (
         destination_0,
         destination_chain_id_reads AS destination_chain_id,
         _log_id,
-        inserted_timestamp,
-        modified_timestamp
+        SYSDATE() AS inserted_timestamp,
+        SYSDATE() AS modified_timestamp
     FROM
         edge
         INNER JOIN intent_reads USING (intent_id)
