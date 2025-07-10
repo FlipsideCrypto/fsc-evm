@@ -115,7 +115,9 @@ final_storage_keys AS (
     FROM
         all_addresses A
         CROSS JOIN {{ ref('silver__balance_slots') }}
-        v
+        v 
+        -- limits balances to verified assets only
+        -- produces 1 row per address per slot, slot_number may be the same for multiple contracts
     WHERE
         A.address IS NOT NULL
         AND v.num_slots = 1
