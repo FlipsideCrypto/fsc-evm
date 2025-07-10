@@ -122,6 +122,20 @@
                 'v1': {
                     'deployer': '0x416a7989a964c9ed60257b064efc3a30fe6bf2ee'
                 }
+            },
+            'trader_joe': {
+                'v1': {
+                    'uni_v2_pair_created': '0x9ad6c38be94206ca50bb0d90783181662f0cfa10'
+                },
+                'v2': {
+                    'lb_pair_created': '0x6e77932a92582f504ff6c4bdbcef7da6c198aeef'
+                },
+                'v2.1': {
+                    'lb_pair_created': '0x8e42f2f4101563bf679975178e880fd87d3efd4e'
+                },
+                'v2.2': {
+                    'lb_pair_created': '0xb43120c4745967fa9b93e79c149e66b0f2d6fe0c'
+                }
             }
         },
         'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x17e450be3ba9557f2378e20d64ad417e59ef9a34',

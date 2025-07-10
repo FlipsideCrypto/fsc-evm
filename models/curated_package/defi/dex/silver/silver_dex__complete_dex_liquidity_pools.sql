@@ -490,6 +490,42 @@ WHERE
   )
 {% endif %}
 ),
+trader_joe_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    lb_pair AS pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    tokenX AS token0,
+    tokenY AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__trader_joe_v2_pools') }}
+
+{% if is_incremental() and 'trader_joe_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_pools AS (
   SELECT
     *
@@ -550,6 +586,11 @@ all_pools AS (
     *
   FROM
     platypus
+  UNION ALL
+  SELECT
+    *
+  FROM
+    trader_joe_v2
 ),
 complete_lps AS (
   SELECT

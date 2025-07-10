@@ -1,0 +1,125 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver_dex','defi','dex','curated']
+) }}
+
+WITH swaps AS (
+    SELECT
+        l.block_number,
+        l.block_timestamp,
+        l.tx_hash,
+        l.origin_function_signature,
+        l.origin_from_address,
+        l.origin_to_address,
+        l.event_index,
+        l.contract_address,
+        l.topics,
+        l.data,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS l_segmented_data,
+        CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 40)) AS sender_address,
+        CONCAT('0x', SUBSTR(l.topics [2] :: STRING, 27, 40)) AS recipient_address,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                l.topics [3] :: STRING
+            )
+        ) AS id,
+        CASE
+            WHEN utils.udf_hex_to_int(
+                l_segmented_data [0] :: STRING
+            ) = 0 THEN FALSE
+            ELSE TRUE
+        END AS swapForY,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                l_segmented_data [1] :: STRING
+            )
+        ) AS amountIn,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                l_segmented_data [2] :: STRING
+            )
+        ) AS amountOut,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                l_segmented_data [3] :: STRING
+            )
+        ) AS volatilityAccumulated,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                l_segmented_data [4] :: STRING
+            )
+        ) AS fees,
+        CASE
+            WHEN swapForY THEN tokenY
+            ELSE tokenX
+        END AS token_out_address,
+        CASE
+            WHEN swapForY THEN tokenX
+            ELSE tokenY
+        END AS token_in_address,
+        p.protocol,
+        p.platform,
+        p.version,
+        'Swap' AS event_name,
+        CONCAT(
+            l.tx_hash :: STRING,
+            '-',
+            l.event_index :: STRING
+        ) AS _log_id,
+        l.modified_timestamp
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN {{ ref('silver_dex__trader_joe_v2_pools') }} p
+        ON p.lb_pair = l.contract_address
+    WHERE
+        topics [0] :: STRING = '0xc528cda9e500228b16ce84fadae290d9a49aecb17483110004c5af0a07f6fd73' --Swap
+        AND tx_succeeded
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+
+{% endif %}
+)
+SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    event_index,
+    event_name,
+    contract_address,
+    sender_address AS sender,
+    recipient_address AS tx_to,
+    id,
+    swapForY AS swap_for_y,
+    amountIn AS amount_in_unadj,
+    amountOut AS amount_out_unadj,
+    volatilityAccumulated AS volatility_accumulated,
+    fees,
+    token_in_address AS token_in,
+    token_out_address AS token_out,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp
+FROM
+    swaps_base
