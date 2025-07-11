@@ -8,8 +8,9 @@
     materialized = 'view',
     persist_docs ={ "relation": true,
     "columns": true },
-    meta ={ 'database_tags':{ 'table':{ 'PROTOCOL': 'BALANCER, CURVE, DODO, FRAXSWAP, KYBERSWAP, QUICKSWAP, SUSHISWAP, UNISWAP',
-    'PURPOSE': 'DEX, LIQUIDITY, POOLS, LP, SWAPS',} } },
+    meta ={ 'database_tags':{ 'table':{ 'PROTOCOL': 'ARENA, BALANCER, CURVE, DEXALOT, DODO, FRAXSWAP, HASHFLOW, KYBERSWAP, PANGOLIN, PHARAOH, PLATYPUS, QUICKSWAP, SUSHISWAP, TRADER JOE, UNISWAP, WOOFI',
+    'PURPOSE': 'DEX, LIQUIDITY, POOLS, LP, SWAPS',
+    } } },
     tags = ['gold','defi','dex','curated']
 ) }}
 
