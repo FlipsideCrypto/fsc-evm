@@ -85,7 +85,7 @@ WHERE
   )
 {% endif %}
 ),
-quickswap_v3 AS (
+quickswap_v2 AS (
   SELECT
     block_number,
     block_timestamp,
@@ -108,13 +108,13 @@ quickswap_v3 AS (
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
-    {{ ref('silver_dex__quickswap_v3_swaps') }}
+    {{ ref('silver_dex__quickswap_v2_swaps') }}
 
-{% if is_incremental() and 'quickswap_v3' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'quickswap_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
