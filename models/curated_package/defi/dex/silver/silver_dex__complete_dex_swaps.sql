@@ -704,7 +704,7 @@ all_dex AS (
   SELECT
     *
   FROM
-    quickswap_v3
+    quickswap_v2
   UNION ALL
   SELECT
     *
