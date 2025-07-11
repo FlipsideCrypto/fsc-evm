@@ -149,5 +149,5 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    swaps_base
+    swaps
 WHERE token_in <> token_out

@@ -35,7 +35,7 @@ contract_deployments AS (
             block_number,
             tx_position,
             CONCAT(
-                TYPE,
+                t.TYPE,
                 '_',
                 trace_address
             )
@@ -52,7 +52,7 @@ contract_deployments AS (
         INNER JOIN contract_mapping m
         ON t.from_address = m.contract_address
     WHERE
-        TYPE ILIKE 'create%'
+        t.TYPE ILIKE 'create%'
         AND trace_succeeded
         AND tx_succeeded
 
