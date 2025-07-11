@@ -46,4 +46,4 @@ models:
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: '{{ 30 if project_name in ["core_models", "gnosis_models", "polygon_models"] else 2 }}'
+              interval: '{{ 30 if project_name in ["core_models", "gnosis_models", "polygon_models", "avalanche_models"] else 2 }}'
