@@ -86,13 +86,13 @@ WITH swaps AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND l.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 
 {% endif %}
 )

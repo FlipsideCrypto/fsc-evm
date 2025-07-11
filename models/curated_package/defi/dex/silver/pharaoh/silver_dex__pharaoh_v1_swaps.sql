@@ -12,7 +12,7 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH swaps_base AS (
+WITH swaps AS (
     SELECT
         l.block_number,
         origin_function_signature,
@@ -67,13 +67,13 @@ WITH swaps_base AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND l.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 
 {% endif %}
 )
@@ -123,6 +123,6 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    swaps_base
+    swaps
 WHERE
     token_in <> token_out
