@@ -1124,6 +1124,6 @@ SELECT
 FROM
     FINAL
 WHERE
-    destination_chain <> 'polygon' qualify (ROW_NUMBER() over (PARTITION BY _id
+    destination_chain <> '{{ vars.GLOBAL_PROJECT_NAME }}' qualify (ROW_NUMBER() over (PARTITION BY _id
 ORDER BY
     _inserted_timestamp DESC)) = 1
