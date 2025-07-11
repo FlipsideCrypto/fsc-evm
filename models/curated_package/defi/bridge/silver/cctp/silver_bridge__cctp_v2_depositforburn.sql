@@ -96,6 +96,13 @@ base_evt AS (
             ) -- evm
             ELSE decoded_log :destinationCaller :: STRING -- other non-evm chains
         END AS destination_caller,
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
         modified_timestamp,
         CONCAT(
             tx_hash,
