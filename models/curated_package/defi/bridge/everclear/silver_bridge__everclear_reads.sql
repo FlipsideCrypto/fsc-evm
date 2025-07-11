@@ -91,7 +91,12 @@ requests AS (
 {% else %}
     live.udf_api(
         CONCAT(
-            'https://api.everclear.org/intents?limit=2500&origins=',
+            'https://api.everclear.org/intents?limit=',
+            {{ var(
+                'backfill_limit',
+                2500
+            ) }},
+            '&origins=',
             chainid,
             '&startDate=',
             min_epoch
