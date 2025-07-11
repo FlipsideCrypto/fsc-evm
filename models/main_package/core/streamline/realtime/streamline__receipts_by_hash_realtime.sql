@@ -113,9 +113,6 @@ to_do AS (
         FROM
             flat_tx_hashes
         WHERE 1=1
-        {% if vars.MAIN_SL_MIN_BLOCK is not none %}
-            AND block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
-        {% endif %}
 
         {% if vars.MAIN_SL_RECEIPTS_BY_HASH_REALTIME_TXNS_MODEL_ENABLED %}
         UNION ALL
