@@ -21,7 +21,8 @@ WITH base AS (
         USING (contract_address)
     WHERE
         c.contract_address IS NULL
-        AND r.total_event_count >= 25
+        AND r.total_event_count >= 250
+        AND latest_event_block > (select max(block_number) from {{ ref('core__fact_blocks') }} where block_timestamp::date = dateadd('day',-60,sysdate())::Date)
 ORDER BY
     total_event_count DESC
 LIMIT {{ vars.MAIN_SL_TOKEN_READS_CONTRACT_LIMIT }}
