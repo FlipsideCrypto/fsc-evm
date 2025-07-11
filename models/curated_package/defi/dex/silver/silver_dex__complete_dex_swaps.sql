@@ -769,11 +769,6 @@ all_dex AS (
   SELECT
     *
   FROM
-    trader_joe_v1
-  UNION ALL
-  SELECT
-    *
-  FROM
     trader_joe_v2
   UNION ALL
   SELECT
