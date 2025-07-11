@@ -12,7 +12,7 @@
 SELECT
     *
 FROM
-    {{ ref('core__ez_balances_erc20') }}
+    {{ ref('balances__ez_balances_erc20') }}
 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
 WHERE
     block_number NOT IN (
