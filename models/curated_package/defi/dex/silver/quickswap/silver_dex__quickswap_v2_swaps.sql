@@ -62,7 +62,7 @@ WITH swaps AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN {{ ref('silver_dex__quickswap_v3_pools') }}
+        INNER JOIN {{ ref('silver_dex__quickswap_v2_pools') }}
         p
         ON p.pool_address = l.contract_address
     WHERE
