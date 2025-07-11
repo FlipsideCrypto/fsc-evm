@@ -21,6 +21,14 @@ WITH start_epoch AS (
         destination_count > 1
 ),
 
+start_epoch_chain as (
+    select 
+    min_epoch,
+    chainid 
+    from start_epoch, {{ ref('silver_bridge__everclear_chain_seed') }}
+    where vars.GLOBAL_PROJECT_NAME = chain
+),
+
 {% if is_incremental() %}
 in_progress_epoch AS (
     SELECT
@@ -49,7 +57,6 @@ in_progress_epoch AS (
 
 requests AS (
     SELECT
-        vars.GLOBAL_PROJECT_NAME as chain,
         chainid,
         min_epoch,
 
@@ -106,7 +113,7 @@ VALUE :intent_id :: STRING AS intent_id,
 SYSDATE() AS inserted_timestamp,
 SYSDATE() AS modified_timestamp
 FROM
-    start_epoch,
+    start_epoch_chain,
 
 {% if is_incremental() %}
 in_progress_epoch,
@@ -115,8 +122,6 @@ in_progress_epoch,
 LATERAL FLATTEN (
     input => response :data :intents
 )
-left join {{ ref('silver_bridge__everclear_chain_seed') }}
-on vars.GLOBAL_PROJECT_NAME = chain
 )
 SELECT
     min_epoch,
