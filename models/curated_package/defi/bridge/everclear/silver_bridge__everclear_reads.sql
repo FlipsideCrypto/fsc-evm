@@ -60,7 +60,7 @@ requests AS (
         chainid,
         min_epoch,
 
-{% if is_incremental() %}
+{% if is_incremental() %} -- backfill run 
 {% if var(
         'backfill',
         false
@@ -78,7 +78,7 @@ requests AS (
             min_progress_epoch_plus_1_day
         )
     ) AS response,
-{% else %}
+{% else %} -- regular incremental run
     live.udf_api(
         CONCAT(
             'https://api.everclear.org/intents?limit=500&origins=',
@@ -88,7 +88,7 @@ requests AS (
         )
     ) AS response,
 {% endif %}
-{% else %}
+{% else %} -- full refresh run 
     live.udf_api(
         CONCAT(
             'https://api.everclear.org/intents?limit=',
