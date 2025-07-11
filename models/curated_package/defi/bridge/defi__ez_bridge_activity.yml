@@ -19,7 +19,7 @@ models:
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("ez_bridge_activity_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
         description: '{{ doc("general_to_address") }}'
       - name: PLATFORM
