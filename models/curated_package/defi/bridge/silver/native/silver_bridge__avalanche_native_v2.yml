@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_bridge__native_v2
+  - name: silver_bridge__avalanche_native_v2
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
