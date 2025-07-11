@@ -26,10 +26,10 @@ start_epoch_chain as (
     min_epoch,
     chainid 
     from start_epoch, {{ ref('silver_bridge__everclear_chain_seed') }}
-    where vars.GLOBAL_PROJECT_NAME = chain
+    where {{ vars.GLOBAL_PROJECT_NAME }} = chain
 ),
 
-{% if is_incremental() %}
+{% if is_incremental() %}   
 in_progress_epoch AS (
     SELECT
         DATE_PART(
