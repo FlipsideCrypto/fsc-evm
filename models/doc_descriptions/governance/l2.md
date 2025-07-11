@@ -1,88 +1,88 @@
-{% docs evm_l2_ez_data_availability_table %}
+{% docs ez_data_availability_table_doc %}
 
 This table contains the data availability submissions for various L2 chains, including Optimistic Rollups (OP Stack and Arbitrum) and ZK Rollups (Scroll).
 
 {% enddocs %}
 
-{% docs evm_l2_chain %}
+{% docs l2_chain %}
 
 The name of the L2 chain.
 
 {% enddocs %}
 
-{% docs evm_l2_chain_category %}
+{% docs l2_chain_category %}
 
 The category of the L2 chain.
 
 {% enddocs %}
 
-{% docs evm_l2_data_availability_address %}
+{% docs l2_data_availability_address %}
 
 The address where the data availability submission was made to.
 
 {% enddocs %}
 
-{% docs evm_l2_submission_type %}
+{% docs l2_submission_type %}
 
 The type of the data availability submission.
 
 {% enddocs %}
 
-{% docs evm_l2_blob_count %}
+{% docs l2_blob_count %}
 
 The number of blobs submitted in this transaction.
 
 {% enddocs %}
 
-{% docs evm_l2_blob_gas_used %}
+{% docs l2_blob_gas_used %}
 
 The total amount of blob gas used in this transaction.
 
 {% enddocs %}
 
-{% docs evm_l2_blob_gas_price %}
+{% docs l2_blob_gas_price %}
 
 The price paid per unit of blob gas, denominated in wei.
 
 {% enddocs %}
 
-{% docs evm_l2_blob_fee %}
+{% docs l2_blob_fee %}
 
 The total blob fee paid for this transaction, denominated in ETH.
 
 {% enddocs %}
 
-{% docs evm_l2_ez_state_validation_table %}
+{% docs ez_state_validation_table_doc %}
 
 This table contains the state validation for various L2 chains, including Optimistic Rollups (OP Stack) and Optimium (Mantle).
 
 {% enddocs %}
 
-{% docs evm_l2_state_validation_address %}
+{% docs l2_state_validation_address %}
 
 The address where the state validation was made to.
 
 {% enddocs %}
 
-{% docs evm_l2_state_validation_type %}
+{% docs l2_state_validation_type %}
 
 The type of the state validation.
 
 {% enddocs %}
 
-{% docs evm_l2_state_validation_data %}
+{% docs l2_state_validation_data %}
 
 The data of the state validation.
 
 {% enddocs  %}
 
-{% docs evm_l2_state_validation_data_type %}
+{% docs l2_state_validation_data_type %}
 
 The data type of the state validation.
 
 {% enddocs %}
 
-{% docs evm_l2_state_validation_data_json %}
+{% docs l2_state_validation_data_json %}
 
 The JSON data of the state validation based on the validation type.
 

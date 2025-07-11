@@ -1,0 +1,56 @@
+version: 2
+models:
+  - name: defi__ez_bridge_activity
+    description: '{{ doc("ez_bridge_activity_table_doc") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("general_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("general_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("general_contract_address") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("general_event_name") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("general_event_index") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("general_origin_function_signature") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("general_from_address") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("general_to_address") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_bridge_activity_platform") }}'
+      - name: SENDER
+        description: '{{ doc("ez_bridge_activity_sender") }}'
+      - name: RECEIVER
+        description: '{{ doc("ez_bridge_activity_receiver") }}'
+      - name: DESTINATION_CHAIN_RECEIVER
+        description: '{{ doc("ez_bridge_activity_destination_chain_receiver") }}'
+      - name: DESTINATION_CHAIN
+        description: '{{ doc("ez_bridge_activity_destination_chain") }}'
+      - name: DESTINATION_CHAIN_ID
+        description: '{{ doc("ez_bridge_activity_destination_chain_id") }}'
+      - name: BRIDGE_ADDRESS
+        description: '{{ doc("ez_bridge_activity_bridge_address") }}'
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("ez_bridge_activity_token_address") }}'
+      - name: TOKEN_SYMBOL
+        description: '{{ doc("ez_bridge_activity_token_symbol") }}'
+      - name: TOKEN_IS_VERIFIED
+        description: '{{ doc("ez_bridge_activity_token_is_verified") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("ez_bridge_activity_amount_unadj") }}'
+      - name: AMOUNT
+        description: '{{ doc("ez_bridge_activity_amount") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("ez_bridge_activity_amount_usd") }}'
+      - name: EZ_BRIDGE_ACTIVITY_ID
+        description: '{{ doc("general_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}' 

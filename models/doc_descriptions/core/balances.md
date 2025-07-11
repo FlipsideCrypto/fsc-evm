@@ -1,4 +1,4 @@
-{% docs evm_current_bal_table_doc %}
+{% docs ez_current_balances_table_doc %}
 
 This table contains the current, non-zero balances for wallets on this EVM blockchain. Symbol, name, and price are joined where possible. Prices are calculated as of the last activity date and as of the most recently recorded hourly price. ERC721s are included.
 
@@ -22,7 +22,7 @@ This is an absolutely massive view, which is why filters must be applied if you 
 {% enddocs %}
 
 
-{% docs evm_diffs_table_doc %}
+{% docs ez_balance_diffs_table_doc %}
 
 This table contains the block level balance changes for both tokens (including ERC721s) and the native asset on this EVM blockchain for all wallets and contracts. If a token or the native asset is moved, we will read the balance of the involved wallets at that block, and carry forward the previous balance into the current record. Symbol, name, and price are joined where possible. ERC721s are included. 
 
