@@ -76,7 +76,11 @@ base_evt AS (
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
     WHERE
-        topics [0] :: STRING = '0x91f25e9be0134ec851830e0e76dc71e06f9dade75a9b84e9524071dbbc319425'
+        topics [0] :: STRING IN (
+            '0x91f25e9be0134ec851830e0e76dc71e06f9dade75a9b84e9524071dbbc319425',
+            --redeemandswap
+            '0x79c15604b92ef54d3f61f0c40caab8857927ca3d5092367163b4562c1699eb5f' --depositandswap
+        )
         AND tx_succeeded
 
 {% if is_incremental() %}

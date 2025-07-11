@@ -170,4 +170,4 @@ SELECT
 FROM
     base_evt
 WHERE
-    source_chain = '{{ vars.CURATED_DEFI_BRIDGE_SOURCE_CHAIN }}'
+    source_chain = '{{ vars.CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN }}'

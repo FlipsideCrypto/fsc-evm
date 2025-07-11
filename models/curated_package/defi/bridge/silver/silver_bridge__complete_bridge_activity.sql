@@ -14,7 +14,9 @@
     tags = ['silver_bridge','defi','bridge','curated','heal']
 ) }}
 
-WITH across AS (
+-- WITH add cctp, avalanche_native
+
+across AS (
 
     SELECT
         block_number,
@@ -266,6 +268,81 @@ ccip AS (
          {{ ref('silver_bridge__ccip_send_requested') }}
 
  {% if is_incremental() and 'ccip' not in vars.CURATED_FR_MODELS %}
+ WHERE
+     _inserted_timestamp >= (
+         SELECT
+             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+         FROM
+             {{ this }}
+     )
+ {% endif %}
+ ),
+ 
+ cctp AS (
+     SELECT
+         block_number,
+         block_timestamp,
+         origin_from_address,
+         origin_to_address,
+         origin_function_signature,
+         tx_hash,
+         event_index,
+         bridge_address,
+         event_name,
+         sender,
+         receiver,
+         destination_chain_receiver,
+         destination_chain_id :: STRING AS destination_chain_id,
+         destination_chain,
+         token_address,
+         NULL AS token_symbol,
+         amount_unadj,
+         platform,
+         protocol,
+         version,
+         _log_id AS _id,
+         modified_timestamp AS _inserted_timestamp
+     FROM
+         {{ ref('silver_bridge__cctp_depositforburn') }}
+
+ {% if is_incremental() and 'cctp' not in vars.CURATED_FR_MODELS %}
+ WHERE
+     _inserted_timestamp >= (
+         SELECT
+             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+         FROM
+             {{ this }}
+     )
+ {% endif %}
+ ),
+  cctp_v2 AS (
+     SELECT
+         block_number,
+         block_timestamp,
+         origin_from_address,
+         origin_to_address,
+         origin_function_signature,
+         tx_hash,
+         event_index,
+         bridge_address,
+         event_name,
+         sender,
+         receiver,
+         destination_chain_receiver,
+         destination_chain_id :: STRING AS destination_chain_id,
+         destination_chain,
+         token_address,
+         NULL AS token_symbol,
+         amount_unadj,
+         platform,
+         protocol,
+         version,
+         _log_id AS _id,
+         modified_timestamp AS _inserted_timestamp
+     FROM
+         {{ ref('silver_bridge__cctp_v2_depositforburn') }}
+
+ {% if is_incremental() and 'cctp_v2' not in vars.CURATED_FR_MODELS %}
  WHERE
      _inserted_timestamp >= (
          SELECT
@@ -723,6 +800,43 @@ WHERE
     )
 {% endif %}
 ),
+avalanche_native_v2 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__avalanche_native_v2') }}
+
+{% if is_incremental() and 'avalanche_native_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT 
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 all_protocols AS (
     SELECT
         *
@@ -758,6 +872,16 @@ all_protocols AS (
         *
     FROM 
         ccip
+    UNION ALL
+    SELECT
+        *
+    FROM
+        cctp
+    UNION ALL
+    SELECT
+        *
+    FROM
+        cctp_v2
     UNION ALL
     SELECT
         *
@@ -818,6 +942,11 @@ all_protocols AS (
         *
     FROM
         wormhole
+    UNION ALL
+    SELECT
+        *
+    FROM
+        avalanche_native_v2
 ),
 complete_bridge_activity AS (
     SELECT

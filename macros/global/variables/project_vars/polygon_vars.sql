@@ -130,6 +130,7 @@
                 'v1': {
                     'gateway': '0x6f015f16de9fc8791b234ef68d486d2bf203fba8',
                     'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712',
+                    'squid_router': '0xce16f69375520ab01377ce7b88f5ba8c48f8d666',
                     'burn': '0x0000000000000000000000000000000000000000'
                 }
             },
@@ -207,7 +208,7 @@
                 }
             }
         },
-        'CURATED_DEFI_BRIDGE_SOURCE_CHAIN': 'polygon mainnet',
+        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'polygon mainnet',
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x58c61aee5ed3d748a1467085ed2650b697a66234',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
     } %}

@@ -138,8 +138,99 @@
                 }
             }
         },
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x17e450be3ba9557f2378e20d64ad417e59ef9a34',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c'
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'allbridge': {
+                'v1': {
+                    'sent': '0xbbbd1bbb4f9b936c3604906d7592a644071de884'
+                },
+                'v2': {
+                    'tokens_sent': '0x9068e1c28941d0a680197cc03be8afe27ccaeea9',
+                    'lp': ['0x2d2f460d7a1e7a4fcc4ddab599451480728b5784','0xe827352a0552ffc835c181ab5bf1d7794038ec9f']
+                }
+            },
+            'axelar': {
+                'v1': {
+                    'gateway': '0x5029c0eff6c34351a0cec334542cdb22c7928f78',
+                    'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712',
+                    'squid_router': '0xce16f69375520ab01377ce7b88f5ba8c48f8d666',
+                    'burn': '0x0000000000000000000000000000000000000000'
+                }
+            },
+            'chainlink_ccip': {
+                'v1': {
+                    'router': '0xf4c7e640eda248ef95972845a62bdc74237805db'
+                }
+            },
+            'celer_cbridge': {
+                'v1': {
+                    'bridge': ['0xbb7684cc5408f4dd0921e5c2cadd547b8f1ad573',
+                    '0x9b36f165bab9ebe611d491180418d8de4b8f3a1f',
+                    '0xef3c714c9425a8f3697a9c969dc1af30ba82e5d4']
+                }
+            },
+            'circle-cctp': {
+                'v1': {
+                    'deposit': '0x6b25532e1060ce10cc3b0a99e5683b91bfde6982'
+                },
+                'v2': {
+                    'deposit': '0x28b5a0e9c621a5badaa536219b3a228c8168cf5d'
+                }
+            },
+            'dln_debridge': {
+                'v1': {
+                    'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
+                }
+            },
+            'eywa': {
+                'v1': {
+                    'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
+                    '0xac8f44ceca92b2a4b30360e5bd3043850a0ffcbe',
+                    '0xbf0b5d561b986809924f88099c4ff0e6bcce60c9']
+                }
+            },
+            'layerzero': {
+                'v2': {
+                    'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
+            'meson': {
+                'v1': {
+                    'bridge': '0x25ab3efd52e6470681ce037cd546dc60726948d3'
+                }
+            },
+            'multichain': {
+                'v7': {
+                    'router': '0x1633d66ca91ce4d81f63ea047b7b19beb92df7f3'
+                }
+            },
+            'stargate': {
+                'v1': {
+                    'factory': '0x808d7c71ad2ba3fa531b068a2417c63106bc0949',
+                    'bridge': '0x9d1b1669c73b033dfe47ae5a0164ab96df25b944'
+                },
+                'v2': {
+                    'bridge': '0x17e450be3ba9557f2378e20d64ad417e59ef9a34'
+                }
+            },
+            'symbiosis': {
+                'v1': {
+                    'bridge': '0xe75c7e85fe6add07077467064ad15847e6ba9877'
+                }
+            },
+            'synapse': {
+                'v1': {
+                    'token_bridge': ['0xc4133e23c783af2c732c06677b98b905b5c65c46',
+                    '0xc05e61d0e7a63d27546389b7ad62fdff5a91aace'],
+                    'token_bridge_swap': '0xc05e61d0e7a63d27546389b7ad62fdff5a91aace'
+                }
+            },
+            'wormhole': {
+                'v1': {
+                    'token_bridge': '0x0e082f06ff657d94310cb8ce8b0d9a04541d8052'
+                }
+            }
+        },
+        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'avalanche c-chain'
     } %}
     
     {{ return(vars) }}

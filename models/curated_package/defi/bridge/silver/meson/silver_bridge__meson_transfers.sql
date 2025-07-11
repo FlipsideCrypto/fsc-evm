@@ -136,7 +136,7 @@ all_transfers AS (
         from_address AS sender,
         to_address AS receiver,
         amount_precise_raw AS amount_unadj,
-        '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' AS token_address,
+        '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}' AS token_address,
         protocol,
         version,
         platform,
