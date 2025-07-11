@@ -14,7 +14,7 @@
 
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
-        vars.curated_defi_dex_pools_contract_mapping
+        vars.CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING
     ) }}
     WHERE
         protocol = 'kyberswap'
