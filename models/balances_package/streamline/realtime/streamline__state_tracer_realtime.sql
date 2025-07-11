@@ -38,6 +38,14 @@ to_do AS (
 ,ready_blocks AS (
     SELECT block_number
     FROM to_do
+    {% if not vars.BALANCES_SL_NEW_BUILD_ENABLED %}
+        UNION
+        SELECT block_number
+        FROM {{ ref("_missing_balances_native") }}
+        UNION
+        SELECT block_number
+        FROM {{ ref("_missing_balances_erc20") }}
+    {% endif %}
 
     {% if vars.BALANCES_SL_TESTING_LIMIT is not none %}
         ORDER BY block_number DESC

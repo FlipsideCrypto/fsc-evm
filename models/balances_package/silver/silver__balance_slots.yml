@@ -1,0 +1,38 @@
+version: 2
+models:
+  - name: silver__balance_slots
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTRACT_ADDRESS
+      - fsc_evm.missing_balance_slots
+
+    columns:
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: SLOT_NUMBER_ARRAY
+        tests:
+          - not_null
+      - name: NUM_SLOTS
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1]
+      - name: BALANCE_SLOTS_ID
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
