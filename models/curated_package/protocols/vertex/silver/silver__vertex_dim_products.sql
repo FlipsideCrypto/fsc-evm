@@ -37,7 +37,7 @@ AND modified_timestamp >= (
     FROM
         {{ this }}
 )
-AND modified_timestamp >= CURRENT_DATE() - INTERVAL '7 day'
+AND modified_timestamp >= CURRENT_DATE() - INTERVAL '7 days'
 {% endif %}
 ),
 new_prod AS (
