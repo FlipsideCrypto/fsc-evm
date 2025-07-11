@@ -1,3 +1,9 @@
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -26,6 +32,12 @@ in_progress_epoch AS (
         ) AS min_progress_epoch,
         DATE_PART(
             epoch_second,
+            MIN(
+                intent_created_timestamp :: DATE
+            ) + INTERVAL '1 day'
+        ) AS min_progress_epoch_plus_1_day,
+        DATE_PART(
+            epoch_second,
             MAX(
                 intent_created_timestamp :: DATE
             )
@@ -37,7 +49,8 @@ in_progress_epoch AS (
 
 requests AS (
     SELECT
-        1 AS chainid,
+        vars.GLOBAL_PROJECT_NAME as chain,
+        chainid,
         min_epoch,
 
 {% if is_incremental() %}
@@ -47,16 +60,21 @@ requests AS (
     ) %}
     live.udf_api(
         CONCAT(
-            'https://api.everclear.org/intents?limit=2500&origins=',
+            'https://api.everclear.org/intents?limit=',
+            {{ var(
+                'backfill_limit',
+                2500
+            ) }},
+            '&origins=',
             chainid,
             '&endDate=',
-            min_progress_epoch
+            min_progress_epoch_plus_1_day
         )
     ) AS response,
 {% else %}
     live.udf_api(
         CONCAT(
-            'https://api.everclear.org/intents?limit=2500&origins=',
+            'https://api.everclear.org/intents?limit=500&origins=',
             chainid,
             '&startDate=',
             max_progress_epoch
@@ -97,6 +115,8 @@ in_progress_epoch,
 LATERAL FLATTEN (
     input => response :data :intents
 )
+left join {{ ref('silver_bridge__everclear_chain_seed') }}
+on vars.GLOBAL_PROJECT_NAME = chain
 )
 SELECT
     min_epoch,
