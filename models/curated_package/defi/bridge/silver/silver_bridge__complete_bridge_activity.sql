@@ -820,7 +820,7 @@ avalanche_native_v2 AS (
         platform,
         protocol,
         version,
-        _id,
+        _log_id AS_id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__avalanche_native_v2') }}
