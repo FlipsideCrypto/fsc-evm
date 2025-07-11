@@ -14,9 +14,7 @@
     tags = ['silver_bridge','defi','bridge','curated','heal']
 ) }}
 
--- WITH add cctp, avalanche_native
-
-across AS (
+WITH across AS (
 
     SELECT
         block_number,
