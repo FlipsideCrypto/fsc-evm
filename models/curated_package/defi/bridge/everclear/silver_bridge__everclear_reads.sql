@@ -125,6 +125,8 @@ SELECT
     destination_chain_id,
     intent_created_timestamp,
     cursor_id,
-    intent_id
+    intent_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp
 FROM
     requests
