@@ -1,46 +1,34 @@
 {% docs dim_labels_table_doc %}
 
-## Table: dim_labels (Extended)
+## What
 
 The labels table is a critical dimension for blockchain analysis, providing one-to-one address identifiers that transform opaque addresses into recognizable entities. Labels are categorized into types (cex, dex, defi, etc.) and subtypes (hot_wallet, treasury, etc.) to enable sophisticated filtering and analysis.
 
-### Label Sources:
-1. **Automatic Labeling**:
-   - Contract deployment tracking
-   - Behavioral pattern recognition
-   - Protocol API integrations
-   - Exchange deposit address detection
+## Key Use Cases
 
-2. **Manual Curation**:
-   - Protocol team submissions
-   - Community contributions
-   - Trending address identification
-   - Exchange wallet verification
+- Track centralized exchange flows (deposits, withdrawals, hot/cold wallet movements)
+- Analyze DeFi protocol usage and cross-protocol interactions
+- Monitor whale and institutional wallet activities
+- Identify token contracts and their movements
+- Assess labeling coverage for active addresses
+- Create entity-based transaction flow analysis
 
-3. **Community Contributions**:
-   - [Web Label Submission Tool](https://science.flipsidecrypto.xyz/add-a-label/)
-   - [NEAR On-Chain Submission](https://near.social/lord1.near/widget/Form)
-   - Reviews by Flipside labels team
+## Important Relationships
 
-### Label Categories:
-
-| Type | Description | Common Subtypes |
-|------|-------------|-----------------|
-| cex | Centralized Exchanges | hot_wallet, cold_wallet, deposit |
-| dex | Decentralized Exchanges | pool, router, factory |
-| defi | DeFi Protocols | lending_pool, vault, staking |
-| bridge | Cross-chain Bridges | escrow, relayer |
-| nft | NFT Platforms | marketplace, collection |
-| token | Token Contracts | token_contract, lptoken |
-| games | Gaming/GameFi | treasury, rewards_pool |
-| l2 | Layer 2 Solutions | sequencer, bridge |
-
-### Important Relationships:
 - **Join with fact_transactions**: Identify exchange flows, protocol usage
 - **Join with ez_token_transfers**: Track token movements by entity type
 - **Join with dim_contracts**: Combine with contract metadata
 
-### Sample Queries:
+## Commonly-used Fields
+
+- `address`: Primary key for joining with transaction tables
+- `label_type`: High-level category (cex, dex, defi, token, etc.)
+- `label_subtype`: Specific categorization within type (hot_wallet, pool, etc.)
+- `project_name`: Protocol or entity name
+- `address_name`: Most specific, granular label
+- `blockchain`: Network identifier for multi-chain queries
+
+## Sample Queries
 
 **Exchange Flow Analysis**
 ```sql
@@ -142,7 +130,7 @@ HAVING COUNT(DISTINCT project_name) >= 5
 ORDER BY 2 DESC
 LIMIT 100;
 ```
-
+        
 **Label Coverage Analysis**
 ```sql
 -- Assess labeling coverage for active addresses
@@ -165,148 +153,60 @@ LEFT JOIN <blockchain_name>.core.dim_labels l ON a.address = l.address
 GROUP BY 1;
 ```
 
-### Best Practices:
-- **Use Latest Labels**: Labels are continuously updated
-- **Verify Label Types**: Confirm label_type matches your analysis needs
-- **Handle Multiple Labels**: Some addresses may have evolved purposes
-- **Cross-Reference**: Validate critical labels with on-chain behavior
-
 {% enddocs %}
 
 {% docs dim_labels_label %}
 
-High-level label identifying the general entity or wallet type.
+High-level label identifying the general entity or wallet type. Often combines project_name with label_subtype.
 
-**Common Values**:
-- "Binance Hot Wallet"
-- "Uniswap V3 Router"
-- "USDC Token Contract"
-- "Vitalik Buterin"
-
-**Relationship**: Often combines project_name with label_subtype
+Example: 'Binance Hot Wallet'
 
 {% enddocs %}
 
 {% docs dim_labels_label_address %}
 
-The blockchain address (0x format) that this label describes.
+The blockchain address (0x format) that this label describes. Lowercase hex string used as primary key for joining.
 
-**Format**: Lowercase hex string (0x + 40 characters)
-**Primary Key**: Unique identifier for joining
-
-**Join Pattern**:
-```sql
--- Standard label join
-LEFT JOIN <blockchain_name>.core.dim_labels l 
-ON t.to_address = l.address
-```
+Example: '0x1234567890123456789012345678901234567890'
 
 {% enddocs %}
 
 {% docs dim_labels_address_name %}
 
-The most specific, granular label for this address.
+The most specific, granular label for this address. Provides maximum detail for precise identification.
 
-**Examples**:
-- "Binance 14"
-- "Uniswap V3: USDC-ETH 0.05%"
-- "Circle: USDC Treasury"
-
-**Usage**: Provides maximum detail for precise identification
-
-**Display Pattern**:
-```sql
--- Show most specific label with fallbacks
-COALESCE(
-    l.address_name,
-    l.label,
-    l.project_name || ': ' || l.label_subtype
-) AS display_name
-```
+Example: 'Binance 14'
 
 {% enddocs %}
 
 {% docs dim_labels_blockchain %}
 
-The blockchain network for this label.
+The blockchain network for this label. Required for multi-chain label queries.
 
-**Values**: ethereum, polygon, avalanche, etc.
-**Usage**: Required for multi-chain label queries
-
-**Multi-Chain Query**:
-```sql
--- Same entity across chains
-SELECT 
-    blockchain,
-    address,
-    address_name
-FROM <blockchain_name>.core.dim_labels
-WHERE project_name = 'Circle'
-ORDER BY blockchain;
-```
+Example: 'ethereum'
 
 {% enddocs %}
 
 {% docs dim_labels_creator %}
 
-The source or creator of this label entry.
+The source or creator of this label entry. Labels from verified sources may be more reliable.
 
-**Common Values**:
-- "flipside"
-- "community"
-- "protocol_team"
-- Specific usernames for community submissions
-
-**Quality Indicator**: Labels from verified sources may be more reliable
+Example: 'flipside'
 
 {% enddocs %}
 
 {% docs dim_labels_subtype %}
 
-Specific categorization within the label type.
+Specific categorization within the label type. Used for detailed filtering within broader categories.
 
-**Examples by Type**:
-- **cex**: hot_wallet, cold_wallet, deposit
-- **dex**: pool, router, factory, lptoken
-- **defi**: lending_pool, vault, staking, treasury
-- **token**: token_contract, lptoken
-- **bridge**: escrow, relayer
-
-**Filtering Pattern**:
-```sql
--- Find all DEX liquidity pools
-WHERE label_type = 'dex' 
-  AND label_subtype = 'pool'
-```
+Example: 'hot_wallet'
 
 {% enddocs %}
 
 {% docs dim_labels_label_type %}
 
-High-level category describing the address's primary function.
+High-level category describing the address's primary function. Core types include cex, dex, defi, token, nft, bridge, games, whale, institution, and l2.
 
-**Core Types**:
-- `cex`: Centralized exchanges
-- `dex`: Decentralized exchanges  
-- `defi`: DeFi protocols
-- `token`: Token contracts
-- `nft`: NFT platforms and collections
-- `bridge`: Cross-chain bridges
-- `games`: Gaming and GameFi
-- `whale`: Large holders
-- `institution`: Institutional wallets
-- `l2`: Layer 2 infrastructure
-
-**Analysis Usage**:
-```sql
--- Ecosystem breakdown
-SELECT 
-    label_type,
-    COUNT(DISTINCT address) AS address_count,
-    COUNT(DISTINCT project_name) AS project_count
-FROM <blockchain_name>.core.dim_labels
-GROUP BY 1
-ORDER BY 2 DESC;
-```
+Example: 'cex'
 
 {% enddocs %}

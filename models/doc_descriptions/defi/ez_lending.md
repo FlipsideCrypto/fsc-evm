@@ -124,22 +124,34 @@
 
 {% docs ez_lending_borrows_table_doc %}
 
-## Overview
+## What
+
 This table provides a comprehensive view of borrowing transactions across all major lending protocols on EVM blockchains. It captures when users borrow assets against their deposited collateral, enabling analysis of lending market dynamics, user behavior, and protocol performance.
 
-### Key Features
-- **Multi-protocol coverage**: Includes Aave, Compound, Morpho, and other major lending protocols
-- **Collateralization tracking**: Links borrowing events to underlying collateral positions
-- **Rate mode support**: Tracks both stable and variable rate borrowing options
-- **USD valuations**: Includes borrowed amounts converted to USD where pricing data is available
+## Key Use Cases
 
-### Important Relationships
+- Tracking borrowing volumes and user activity across protocols
+- Analyzing most borrowed assets and their trends
+- Understanding user borrowing patterns and behavior
+- Monitoring protocol market share and growth
+- Calculating outstanding loan positions
+
+## Important Relationships
+
 - Links to `ez_lending_deposits` for collateral analysis
 - Joins with `ez_lending_repayments` to track loan lifecycle
 - References `ez_lending_liquidations` for risk analysis
 - Connects to `price.ez_prices_hourly` for USD valuations
 
-### Sample Queries
+## Commonly-used Fields
+
+- `borrower`: Address that borrowed assets
+- `platform`: Lending protocol name
+- `token_address`/`token_symbol`: Borrowed asset details
+- `amount`/`amount_usd`: Borrowed quantity and USD value
+- `block_timestamp`: When borrow occurred
+
+## Sample queries
 
 ```sql
 -- Daily borrowing volume by protocol
@@ -243,38 +255,38 @@ FROM protocol_volume
 ORDER BY total_volume DESC;
 ```
 
-### Critical Usage Notes
-- **Collateral requirement**: Users must have deposited collateral before borrowing
-- **Trace data**: Some protocols use traces instead of events, causing NULL `event_index` values
-- **USD values**: May be NULL for tokens without price data
-- **Performance tip**: Always filter by `block_timestamp` and consider indexing on `borrower` for user analysis
-
-### Data Quality Considerations
-- Interest rates are stored as raw values and may need scaling (typically by 1e27)
-- Some protocols may have incomplete historical data during integration periods
-- Cross-protocol comparisons should account for different fee structures
-- Flash loan transactions are tracked separately in `defi.ez_lending_flashloans`
-
 {% enddocs %}
 
 {% docs ez_lending_deposits_table_doc %}
 
-## Overview
+## What
+
 This table tracks all deposit transactions across lending protocols on EVM blockchains. Deposits represent users supplying liquidity to lending pools, earning yield while enabling their assets to serve as collateral for borrowing.
 
-### Key Features
-- **Yield tracking**: Captures supply rates and interest-bearing token issuance
-- **Multi-protocol support**: Comprehensive coverage of major lending protocols
-- **Collateral enablement**: Deposits can be used as collateral for borrowing
-- **Token mapping**: Links underlying assets to protocol-specific receipt tokens
+## Key Use Cases
 
-### Important Relationships
+- Calculating total value locked (TVL) by protocol
+- Analyzing deposit and withdrawal patterns
+- Tracking user liquidity provision behavior
+- Monitoring asset distribution across protocols
+- Identifying whale depositor activity
+
+## Important Relationships
+
 - Links to `ez_lending_borrows` for collateralization analysis
 - Joins with `ez_lending_withdraws` to track position lifecycle
 - References protocol-specific token contracts (aTokens, cTokens, etc.)
 - Connects to `price.ez_prices_hourly` for USD valuations
 
-### Sample Queries
+## Commonly-used Fields
+
+- `depositor`: Address supplying liquidity
+- `platform`: Lending protocol name
+- `token_address`/`token_symbol`: Deposited asset details
+- `amount`/`amount_usd`: Deposit quantity and USD value
+- `block_timestamp`: When deposit occurred
+
+## Sample queries
 
 ```sql
 -- Daily deposit volume and TVL calculation
@@ -389,39 +401,38 @@ WHERE amount_usd > 1000000
 ORDER BY amount_usd DESC;
 ```
 
-### Critical Usage Notes
-- **Receipt tokens**: Protocols issue interest-bearing tokens (aTokens, cTokens) representing deposits
-- **Supply rates**: Rates are dynamic and update with market conditions
-- **Collateral status**: Not all deposits are automatically enabled as collateral
-- **Trace data**: Some protocols use traces, resulting in NULL `event_index` values
-- **Performance tip**: Index on `depositor` and `block_timestamp` for efficient queries
-
-### Data Quality Considerations
-- Supply rates may need scaling depending on protocol (check documentation)
-- USD values depend on price feed availability
-- Some protocols have migration events that may show as large deposits/withdrawals
-- Interest accrual happens continuously but is realized on withdrawal
-
 {% enddocs %}
 
 {% docs ez_lending_flashloans_table_doc %}
 
-## Overview
+## What
+
 This table captures flash loan transactions across lending protocols. Flash loans enable borrowing without collateral within a single transaction, provided the loan plus fees are repaid before transaction completion. This advanced DeFi primitive is primarily used for arbitrage, collateral swapping, and liquidations.
 
-### Key Features
-- **Zero-collateral loans**: Borrow any available liquidity without collateral
-- **Atomic transactions**: Loan must be repaid within the same transaction
-- **Fee tracking**: Captures premium amounts charged by protocols
-- **Use case insights**: Enables analysis of DeFi composability and efficiency
+## Key Use Cases
 
-### Important Relationships
+- Analyzing arbitrage and MEV activity patterns
+- Tracking flash loan volume and fee revenue
+- Identifying power users and bot activity
+- Monitoring large-scale DeFi operations
+- Understanding cross-protocol composability
+
+## Important Relationships
+
 - Often precedes transactions in DEX tables for arbitrage analysis
 - Links to `ez_lending_liquidations` for liquidation strategies
 - May connect to multiple protocols within single transaction
 - References `price.ez_prices_hourly` for USD valuations
 
-### Sample Queries
+## Commonly-used Fields
+
+- `initiator`: Address that triggered the flash loan
+- `platform`: Lending protocol providing the loan
+- `flashloan_token`/`flashloan_token_symbol`: Borrowed asset
+- `flashloan_amount`/`flashloan_amount_usd`: Loan size
+- `premium_amount`/`premium_amount_usd`: Fee paid
+
+## Sample queries
 
 ```sql
 -- Daily flash loan volume and fees
@@ -518,39 +529,38 @@ GROUP BY 1, 2, 3
 ORDER BY total_borrowed_usd DESC;
 ```
 
-### Critical Usage Notes
-- **Developer feature**: Requires smart contract interaction, not available via UI
-- **Atomic requirement**: Transaction reverts if loan not repaid
-- **Gas intensive**: Flash loans typically have high gas costs
-- **Premium amounts**: Fees vary by protocol (typically 0.05% - 0.09%)
-- **Performance tip**: Flash loans often appear in complex transactions with multiple events
-
-### Data Quality Considerations
-- Target address may be intermediary contract, not final beneficiary
-- Some protocols emit multiple events for single flash loan
-- Large flash loans often indicate arbitrage or liquidation activity
-- Premium calculations should account for token decimals
-
 {% enddocs %}
 
 {% docs ez_lending_liquidations_table_doc %}
 
-## Overview
+## What
+
 This table tracks liquidation events across lending protocols, where under-collateralized positions are forcibly closed to protect protocol solvency. Liquidations occur when a borrower's health factor drops below 1, typically due to collateral value decline or debt value increase.
 
-### Key Features
-- **Risk management**: Critical for understanding protocol and user risk
-- **Liquidator rewards**: Tracks liquidation incentives (typically 5-10% bonus)
-- **Health factor tracking**: Monitors collateralization ratios
-- **Multi-asset support**: Handles liquidations across different collateral/debt pairs
+## Key Use Cases
 
-### Important Relationships
+- Monitoring protocol health and risk levels
+- Analyzing liquidation patterns during market volatility
+- Tracking liquidator profitability and competition
+- Understanding collateral risk profiles
+- Identifying frequently liquidated borrowers
+
+## Important Relationships
+
 - Links to `ez_lending_borrows` for original loan details
 - Connects to `ez_lending_deposits` for collateral information
 - Often preceded by entries in `ez_lending_flashloans`
 - References `price.ez_prices_hourly` for USD valuations
 
-### Sample Queries
+## Commonly-used Fields
+
+- `borrower`: Address that was liquidated
+- `liquidator`: Address performing the liquidation
+- `platform`: Lending protocol
+- `collateral_token`/`debt_token`: Asset pair involved
+- `amount`/`amount_usd`: Collateral seized
+
+## Sample queries
 
 ```sql
 -- Daily liquidation volume and metrics
@@ -648,39 +658,38 @@ GROUP BY 1, 2
 ORDER BY 1, 2;
 ```
 
-### Critical Usage Notes
-- **Partial liquidations**: Up to 50% of debt can be liquidated per transaction
-- **Liquidation bonus**: Liquidators receive collateral worth more than debt repaid
-- **MEV activity**: Many liquidations are performed by MEV bots
-- **Health factor**: < 1 triggers liquidation eligibility
-- **Performance tip**: Large liquidations often correlate with market volatility
-
-### Data Quality Considerations
-- Some protocols use different liquidation mechanisms (auctions vs fixed discount)
-- Liquidation bonuses vary by protocol and asset risk parameters
-- Flash loans are commonly used to perform liquidations without capital
-- High-frequency liquidators may use multiple addresses
-
 {% enddocs %}
 
 {% docs ez_lending_repayments_table_doc %}
 
-## Overview
+## What
+
 This table contains loan repayment transactions across lending protocols. Repayments reduce or eliminate outstanding debt positions, with amounts including both principal and accrued interest. Understanding repayment patterns helps analyze user behavior and protocol health.
 
-### Key Features
-- **Interest tracking**: Repayments include accrued interest since borrowing
-- **Partial/full support**: Tracks both partial and complete loan repayments
-- **Multi-asset coverage**: Handles repayments in various borrowed assets
-- **Rate mode aware**: Distinguishes between stable and variable rate repayments
+## Key Use Cases
 
-### Important Relationships
+- Tracking loan lifecycle and duration analysis
+- Calculating interest paid on borrowed positions
+- Understanding repayment patterns by user segment
+- Monitoring protocol revenue from interest
+- Analyzing third-party repayment activity
+
+## Important Relationships
+
 - Links to `ez_lending_borrows` for original loan details
 - Connects to `ez_lending_liquidations` (forced repayments)
 - May reference `ez_lending_deposits` for collateral release
 - Uses `price.ez_prices_hourly` for USD valuations
 
-### Sample Queries
+## Commonly-used Fields
+
+- `borrower`: Address with the loan
+- `payer`: Address making the payment (may differ)
+- `platform`: Lending protocol
+- `token_address`/`token_symbol`: Repaid asset
+- `amount`/`amount_usd`: Repayment quantity
+
+## Sample queries
 
 ```sql
 -- Daily repayment volume and metrics
@@ -793,39 +802,38 @@ WHERE amount_usd > 500000
 ORDER BY amount_usd DESC;
 ```
 
-### Critical Usage Notes
-- **Interest inclusion**: Repaid amounts include both principal and accrued interest
-- **Payer vs borrower**: `payer` may differ from `borrower` for third-party repayments
-- **Over-repayment**: Some users repay more than owed, creating a deposit
-- **Trace data**: Some protocols use traces, resulting in NULL `event_index`
-- **Performance tip**: Join with borrows carefully due to multiple repayments per loan
-
-### Data Quality Considerations
-- Interest calculations depend on time elapsed and rate changes
-- Some protocols allow repayment in different assets (converted at repayment)
-- Partial repayments are common for large loans
-- Liquidations may appear as forced repayments in some protocols
-
 {% enddocs %}
 
 {% docs ez_lending_withdraws_table_doc %}
 
-## Overview
+## What
+
 This table tracks withdrawal transactions where users remove their supplied liquidity from lending protocols. Withdrawals include the original deposit plus earned interest, subject to available liquidity in the protocol.
 
-### Key Features
-- **Interest inclusion**: Withdrawn amounts include earned yield
-- **Liquidity dependent**: Withdrawals require sufficient unborrowed liquidity
-- **Receipt token burning**: Protocol tokens (aTokens, cTokens) are burned
-- **Position tracking**: Enables calculation of user positions over time
+## Key Use Cases
 
-### Important Relationships
+- Monitoring liquidity flows and protocol health
+- Detecting potential bank run scenarios
+- Calculating realized yields for depositors
+- Analyzing withdrawal patterns and timing
+- Tracking large withdrawals that may impact rates
+
+## Important Relationships
+
 - Links to `ez_lending_deposits` for position lifecycle
 - Affected by `ez_lending_borrows` (reduces available liquidity)
 - Increased by `ez_lending_repayments` (adds liquidity)
 - References `price.ez_prices_hourly` for USD valuations
 
-### Sample Queries
+## Commonly-used Fields
+
+- `depositor`: Address withdrawing funds
+- `platform`: Lending protocol
+- `token_address`/`token_symbol`: Withdrawn asset
+- `amount`/`amount_usd`: Withdrawal quantity including interest
+- `block_timestamp`: When withdrawal occurred
+
+## Sample queries
 
 ```sql
 -- Daily withdrawal patterns
@@ -965,1068 +973,204 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-### Critical Usage Notes
-- **Liquidity requirement**: Withdrawals fail if insufficient unborrowed liquidity
-- **Interest earned**: Withdrawal amounts exceed deposits due to earned interest
-- **Protocol tokens**: Interest-bearing tokens are burned on withdrawal
-- **Trace data**: Some protocols use traces, causing NULL `event_index`
-- **Performance tip**: Large withdrawals may indicate protocol stress
-
-### Data Quality Considerations
-- Withdrawn amounts include accumulated interest since deposit
-- Some protocols have withdrawal limits or timelock mechanisms
-- Emergency withdrawals may bypass normal processes
-- Protocol migrations may show as large withdrawal events
-
 {% enddocs %}
 
 {% docs ez_lending_platform %}
 
-## Platform
 The lending protocol where the transaction occurred.
 
-### Details
-- **Type**: `VARCHAR`
-- **Common values**: `'aave'`, `'compound'`, `'maker'`, `'venus'`, `'benqi'`, `'moonwell'`
-- **Case**: Lowercase standardized protocol names
-
-### Usage Examples
-```sql
--- Protocol comparison
-SELECT 
-    platform,
-    COUNT(DISTINCT borrower) AS unique_users,
-    SUM(amount_usd) AS total_volume_usd
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE block_timestamp >= CURRENT_DATE - 30
-GROUP BY platform
-ORDER BY total_volume_usd DESC;
-
--- Cross-protocol user analysis
-SELECT 
-    borrower,
-    ARRAY_AGG(DISTINCT platform) AS protocols_used,
-    COUNT(DISTINCT platform) AS protocol_count
-FROM <blockchain_name>.defi.ez_lending_borrows
-GROUP BY borrower
-HAVING COUNT(DISTINCT platform) > 1;
-```
-
-### Notes
-- Platform names are standardized across all lending tables
-- New protocols added as they gain traction
-- Some platforms have multiple versions (e.g., 'aave_v2', 'aave_v3')
+Example: 'aave'
 
 {% enddocs %}
 
 {% docs ez_lending_borrower %}
 
-## Borrower
 The address that initiated a borrow or repayment transaction.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Format**: `0x` prefixed Ethereum address
-- **Usage**: Links borrowing activity across tables
-
-### Usage Examples
-```sql
--- Borrower health analysis
-WITH borrower_stats AS (
-    SELECT 
-        b.borrower,
-        SUM(b.amount_usd) AS total_borrowed,
-        SUM(r.amount_usd) AS total_repaid,
-        COUNT(DISTINCT b.platform) AS platforms_used
-    FROM <blockchain_name>.defi.ez_lending_borrows b
-    LEFT JOIN <blockchain_name>.defi.ez_lending_repayments r
-        ON b.borrower = r.borrower
-    WHERE b.block_timestamp >= CURRENT_DATE - 90
-    GROUP BY b.borrower
-)
-SELECT 
-    borrower,
-    total_borrowed,
-    total_repaid,
-    total_borrowed - COALESCE(total_repaid, 0) AS outstanding_estimate,
-    platforms_used
-FROM borrower_stats
-WHERE total_borrowed > 10000
-ORDER BY outstanding_estimate DESC;
-
--- Borrower liquidation risk
-SELECT 
-    b.borrower,
-    COUNT(DISTINCT l.tx_hash) AS times_liquidated,
-    SUM(b.amount_usd) AS total_borrowed,
-    SUM(l.amount_usd) AS total_liquidated
-FROM <blockchain_name>.defi.ez_lending_borrows b
-LEFT JOIN <blockchain_name>.defi.ez_lending_liquidations l
-    ON b.borrower = l.borrower
-GROUP BY b.borrower
-HAVING COUNT(DISTINCT l.tx_hash) > 0;
-```
+Example: '0x1234567890123456789012345678901234567890'
 
 {% enddocs %}
 
 {% docs ez_lending_amount %}
 
-## Amount
 The decimal-adjusted quantity of tokens in the transaction.
 
-### Details
-- **Type**: `NUMERIC`
-- **Calculation**: `amount_unadj / 10^decimals`
-- **NULL cases**: When token decimal information unavailable
-
-### Usage Examples
-```sql
--- Large transactions by amount
-SELECT 
-    platform,
-    token_symbol,
-    amount,
-    amount_usd,
-    tx_hash
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE amount IS NOT NULL
-    AND token_symbol = 'WETH'
-ORDER BY amount DESC
-LIMIT 100;
-
--- Average transaction sizes
-SELECT 
-    token_symbol,
-    AVG(amount) AS avg_amount,
-    STDDEV(amount) AS stddev_amount,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount) AS median_amount
-FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE amount IS NOT NULL
-GROUP BY token_symbol
-HAVING COUNT(*) > 1000;
-```
+Example: 1000.5
 
 {% enddocs %}
 
 {% docs ez_lending_amount_usd %}
 
-## Amount USD
 The USD value of tokens at transaction time.
 
-### Details
-- **Type**: `NUMERIC`
-- **Source**: Calculated using price feeds at block timestamp
-- **NULL cases**: No price data available for token
-
-### Usage Examples
-```sql
--- Daily USD volume across all actions
-SELECT 
-    DATE_TRUNC('day', block_timestamp) AS date,
-    'deposits' AS action,
-    SUM(amount_usd) AS volume_usd
-FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE block_timestamp >= CURRENT_DATE - 30
-    AND amount_usd IS NOT NULL
-GROUP BY date
-
-UNION ALL
-
-SELECT 
-    DATE_TRUNC('day', block_timestamp) AS date,
-    'borrows' AS action,
-    SUM(amount_usd) AS volume_usd
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE block_timestamp >= CURRENT_DATE - 30
-    AND amount_usd IS NOT NULL
-GROUP BY date
-
-ORDER BY date DESC, action;
-
--- Price coverage analysis
-SELECT 
-    platform,
-    COUNT(*) AS total_transactions,
-    COUNT(amount_usd) AS priced_transactions,
-    COUNT(amount_usd) * 100.0 / COUNT(*) AS coverage_pct
-FROM <blockchain_name>.defi.ez_lending_deposits
-GROUP BY platform
-ORDER BY coverage_pct DESC;
-```
-
-### Performance Notes
-- Always filter `amount_usd IS NOT NULL` for financial calculations
-- USD values enable cross-asset comparisons
-- Price data may have slight delays during high volatility
+Example: 1500.75
 
 {% enddocs %}
 
 {% docs ez_lending_liquidator %}
 
-## Liquidator
 The address that performed the liquidation.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Pattern**: Often automated bots or MEV searchers
-- **Incentive**: Receives liquidation bonus (typically 5-10%)
-
-### Usage Examples
-```sql
-
--- Liquidator competition analysis
-WITH liquidation_timing AS (
-    SELECT 
-        liquidator,
-        block_timestamp,
-        LEAD(block_timestamp) OVER (PARTITION BY borrower ORDER BY block_timestamp) AS next_liquidation_time
-    FROM <blockchain_name>.defi.ez_lending_liquidations
-)
-SELECT 
-    liquidator,
-    COUNT(*) AS first_liquidations,
-    AVG(DATEDIFF('second', block_timestamp, next_liquidation_time)) AS avg_seconds_before_next
-FROM liquidation_timing
-WHERE next_liquidation_time IS NOT NULL
-    AND next_liquidation_time - block_timestamp < INTERVAL '1 minute'
-GROUP BY liquidator
-HAVING COUNT(*) > 10
-ORDER BY avg_seconds_before_next;
-```
-
-### Notes
-- Professional liquidators often use flash loans
-- MEV bots dominate liquidation activity
-- Some liquidators specialize in specific protocols or assets
+Example: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'
 
 {% enddocs %}
 
 {% docs ez_lending_depositor %}
 
-## Depositor
 The address that supplied liquidity to the lending protocol.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Tracks liquidity providers
-- **Relationship**: May also appear as borrower using deposits as collateral
-
-### Usage Examples
-```sql
--- Depositor loyalty analysis
-SELECT 
-    depositor,
-    MIN(block_timestamp) AS first_deposit,
-    MAX(block_timestamp) AS last_deposit,
-    COUNT(DISTINCT DATE_TRUNC('month', block_timestamp)) AS active_months,
-    COUNT(DISTINCT platform) AS platforms_used,
-    SUM(amount_usd) AS total_deposited_usd
-FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE amount_usd IS NOT NULL
-GROUP BY depositor
-HAVING COUNT(*) > 10
-ORDER BY total_deposited_usd DESC;
-
--- Depositor concentration
-WITH platform_deposits AS (
-    SELECT 
-        platform,
-        depositor,
-        SUM(amount_usd) AS depositor_total_usd
-    FROM <blockchain_name>.defi.ez_lending_deposits
-    WHERE block_timestamp >= CURRENT_DATE - 30
-        AND amount_usd IS NOT NULL
-    GROUP BY platform, depositor
-),
-platform_totals AS (
-    SELECT 
-        platform,
-        SUM(depositor_total_usd) AS platform_total_usd
-    FROM platform_deposits
-    GROUP BY platform
-)
-SELECT 
-    pd.platform,
-    COUNT(DISTINCT pd.depositor) AS total_depositors,
-    SUM(CASE WHEN pd.depositor_total_usd > pt.platform_total_usd * 0.01 THEN 1 ELSE 0 END) AS whale_depositors,
-    SUM(CASE WHEN pd.depositor_total_usd > pt.platform_total_usd * 0.01 THEN pd.depositor_total_usd ELSE 0 END) / pt.platform_total_usd * 100 AS whale_concentration_pct
-FROM platform_deposits pd
-JOIN platform_totals pt ON pd.platform = pt.platform
-GROUP BY pd.platform, pt.platform_total_usd
-ORDER BY whale_concentration_pct DESC;
-```
+Example: '0x9876543210987654321098765432109876543210'
 
 {% enddocs %}
 
 {% docs ez_lending_flashloan_amount_usd %}
 
-## Flash Loan Amount USD
 The USD value of assets borrowed in a flash loan.
 
-### Details
-- **Type**: `NUMERIC`
-- **Characteristics**: Often very large amounts (millions)
-- **Use cases**: Arbitrage, liquidations, collateral swapping
-
-### Usage Examples
-```sql
--- Flash loan size distribution
-SELECT 
-    CASE 
-        WHEN flashloan_amount_usd < 10000 THEN '< $10K'
-        WHEN flashloan_amount_usd < 100000 THEN '$10K - $100K'
-        WHEN flashloan_amount_usd < 1000000 THEN '$100K - $1M'
-        WHEN flashloan_amount_usd < 10000000 THEN '$1M - $10M'
-        ELSE '> $10M'
-    END AS size_bucket,
-    COUNT(*) AS loan_count,
-    SUM(flashloan_amount_usd) AS total_volume,
-    SUM(premium_amount_usd) AS total_fees
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY size_bucket
-ORDER BY MIN(flashloan_amount_usd);
-
--- Flash loan profitability estimation
-SELECT 
-    initiator,
-    COUNT(*) AS flashloan_count,
-    SUM(flashloan_amount_usd) AS total_borrowed_usd,
-    SUM(premium_amount_usd) AS total_fees_paid,
-    AVG(premium_amount_usd / NULLIF(flashloan_amount_usd, 0) * 100) AS avg_fee_rate_pct
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_amount_usd > 100000
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY initiator
-HAVING COUNT(*) > 5
-ORDER BY total_borrowed_usd DESC;
-```
+Example: 1000000.50
 
 {% enddocs %}
 
 {% docs ez_lending_protocol_token %}
 
-## Protocol Token
 The lending protocol's receipt token issued to depositors.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Interest-bearing token representing deposited position
-- **Examples**: aTokens (Aave), cTokens (Compound), vTokens (Venus)
-- **Mechanism**: Minted on deposit, burned on withdrawal
-
-### Notes
-- Protocol tokens automatically accrue interest
-- Can be transferred between addresses
-- Exchange rate to underlying increases over time
-- Some protocols use rebasing tokens instead
+Example: '0xfedcbafedcbafedcbafedcbafedcbafedcbafed'
 
 {% enddocs %}
 
 {% docs ez_lending_token_address %}
 
-## Token Address
 The contract address of the underlying asset being lent or borrowed.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Format**: `0x` prefixed Ethereum address
-- **NULL cases**: NULL for native assets (ETH)
-- **Standards**: Typically ERC-20 tokens
-
-### Usage Examples
-```sql
--- Most active token addresses
-SELECT 
-    token_address,
-    token_symbol,
-    COUNT(DISTINCT platform) AS platforms_supporting,
-    COUNT(*) AS total_transactions,
-    SUM(amount_usd) AS total_volume_usd
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE token_address IS NOT NULL
-    AND amount_usd IS NOT NULL
-GROUP BY 1, 2
-ORDER BY 5 DESC
-LIMIT 50;
-
--- Cross-platform token analysis based on amount_usd
-WITH token_platforms AS (
-    SELECT 
-        token_address,
-        token_symbol,
-        platform,
-        AVG(amount_usd) AS avg_amount_usd,
-        SUM(amount_usd) AS total_amount_usd,
-        COUNT(*) AS transaction_count
-    FROM <blockchain_name>.defi.ez_lending_borrows
-    WHERE token_address IS NOT NULL
-        AND amount_usd IS NOT NULL
-        AND block_timestamp >= CURRENT_DATE - 7
-    GROUP BY 1, 2, 3
-)
-SELECT 
-    token_address,
-    token_symbol,
-    COUNT(DISTINCT platform) AS platform_count,
-    SUM(total_amount_usd) AS total_volume_amount_usd,
-    AVG(avg_amount_usd) AS avg_transaction_size_amount_usd,
-    MIN(avg_amount_usd) AS min_avg_amount_usd,
-    MAX(avg_amount_usd) AS max_avg_amount_usd,
-    MAX(avg_amount_usd) - MIN(avg_amount_usd) AS amount_usd_variance,
-    ROUND((MAX(avg_amount_usd) - MIN(avg_amount_usd)) / NULLIF(AVG(avg_amount_usd), 0) * 100, 2) AS amount_usd_variance_percentage
-FROM token_platforms
-GROUP BY 1, 2
-HAVING COUNT(DISTINCT platform) > 1
-ORDER BY total_volume_amount_usd DESC;
-```
-
-### Performance Notes
-- Index on token_address for efficient filtering
-- Join with token metadata tables for additional info
-- Consider lowercase normalization for consistency
+Example: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
 {% enddocs %}
 
 {% docs ez_lending_token_symbol %}
 
-## Token Symbol
 The ticker symbol of the asset involved in the lending transaction.
 
-### Details
-- **Type**: `VARCHAR`
-- **Common values**: `'USDC'`, `'USDT'`, `'WETH'`, `'DAI'`, `'WBTC'`
-- **Standards**: Uppercase convention
-- **NULL handling**: May be NULL for unverified tokens
-
-### Usage Examples
-```sql
--- Stablecoin lending dominance
-SELECT 
-    token_symbol,
-    COUNT(DISTINCT borrower) AS unique_borrowers,
-    SUM(amount_usd) AS total_borrowed_usd,
-    AVG(amount_usd) AS avg_amount_usd,
-    CASE 
-        WHEN token_symbol IN ('USDC', 'USDT', 'DAI', 'BUSD', 'FRAX') THEN 'Stablecoin'
-        WHEN token_symbol IN ('WETH', 'WBTC') THEN 'Major Crypto'
-        ELSE 'Other'
-    END AS asset_category
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE token_symbol IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY token_symbol
-ORDER BY total_borrowed_usd DESC;
-
--- Token symbol distribution analysis by platform
-SELECT 
-    token_symbol,
-    COUNT(DISTINCT platform) AS platforms_supporting,
-    COUNT(DISTINCT token_address) AS unique_tokens,
-    SUM(amount_usd) AS total_volume_usd,
-    AVG(amount_usd) AS avg_transaction_size_usd,
-    COUNT(*) AS total_transactions
-FROM <blockchain_name>.defi.ez_lending_deposits
-WHERE token_symbol IS NOT NULL
-    AND amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY token_symbol
-HAVING COUNT(DISTINCT platform) > 1
-ORDER BY total_volume_usd DESC;
-```
+Example: 'USDC'
 
 {% enddocs %}
 
 {% docs ez_lending_initiator %}
 
-## Initiator
 The address that triggered the flash loan execution.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Pattern**: Usually a smart contract, rarely an EOA
-- **Purpose**: Identifies the flash loan originator
-- **Relationship**: May differ from `target_address` in complex transactions
-
-### Usage Examples
-```sql
--- Flash loan initiator patterns
-SELECT 
-    initiator,
-    COUNT(*) AS flashloans_initiated,
-    COUNT(DISTINCT platform) AS platforms_used,
-    COUNT(DISTINCT flashloan_token) AS unique_tokens_borrowed,
-    SUM(flashloan_amount_usd) AS total_volume_usd,
-    AVG(premium_amount_usd / NULLIF(flashloan_amount_usd, 0) * 100) AS avg_fee_rate_pct
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY initiator
-ORDER BY total_volume_usd DESC
-LIMIT 100;
-
--- Initiator specialization analysis
-WITH initiator_tokens AS (
-    SELECT 
-        initiator,
-        flashloan_token_symbol,
-        COUNT(*) AS token_flashloans,
-        SUM(flashloan_amount_usd) AS token_volume
-    FROM <blockchain_name>.defi.ez_lending_flashloans
-    WHERE flashloan_token_symbol IS NOT NULL
-    GROUP BY 1, 2
-),
-initiator_totals AS (
-    SELECT 
-        initiator,
-        SUM(token_volume) AS total_volume
-    FROM initiator_tokens
-    GROUP BY 1
-)
-SELECT 
-    it.initiator,
-    it.flashloan_token_symbol,
-    it.token_volume / NULLIF(t.total_volume, 0) * 100 AS token_concentration_pct,
-    it.token_flashloans
-FROM initiator_tokens it
-JOIN initiator_totals t ON it.initiator = t.initiator
-WHERE it.token_volume / NULLIF(t.total_volume, 0) > 0.5
-ORDER BY token_concentration_pct DESC;
-```
-
-### Notes
-- Professional arbitrageurs often use dedicated contracts
-- Same initiator may use multiple target addresses
-- High-frequency initiators likely automated bots
+Example: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
 
 {% enddocs %}
 
 {% docs ez_lending_target %}
 
-## Target
 The contract address that receives and executes the flash loan logic.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Executes arbitrage, liquidation, or other DeFi operations
-- **Pattern**: Smart contract implementing flash loan callback interface
-- **Security**: Must repay loan + fee or transaction reverts
-
-### Usage Examples
-```sql
--- Target address activity analysis
-SELECT 
-    target,
-    initiator,
-    COUNT(*) AS flashloan_count,
-    COUNT(DISTINCT platform) AS platforms_used,
-    SUM(flashloan_amount_usd) AS total_executed_usd,
-    MAX(flashloan_amount_usd) AS largest_loan_usd
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE block_timestamp >= CURRENT_DATE - 30
-    AND flashloan_amount_usd IS NOT NULL
-GROUP BY 1, 2
-ORDER BY total_executed_usd DESC
-LIMIT 50;
-
--- Target contract reuse patterns
-SELECT 
-    target,
-    COUNT(DISTINCT initiator) AS unique_initiators,
-    COUNT(DISTINCT DATE_TRUNC('day', block_timestamp)) AS active_days,
-    SUM(flashloan_amount_usd) AS total_volume,
-    ARRAY_AGG(DISTINCT platform) AS platforms_used
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE block_timestamp >= CURRENT_DATE - 90
-GROUP BY target
-HAVING COUNT(DISTINCT initiator) > 1
-ORDER BY unique_initiators DESC;
-```
+Example: '0x1111111254fb6c44bac0bed2854e76f90643097d'
 
 {% enddocs %}
 
 {% docs ez_lending_flashloan_token %}
 
-## Flash Loan Token
 The contract address of the token borrowed in the flash loan.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Identifies specific asset borrowed
-- **Common patterns**: Stablecoins for arbitrage, WETH for liquidations
-- **Liquidity**: Limited by available protocol reserves
-
-### Usage Examples
-```sql
--- Flash loan token preferences
-SELECT 
-    flashloan_token,
-    flashloan_token_symbol,
-    COUNT(*) AS loan_count,
-    SUM(flashloan_amount) AS total_borrowed,
-    AVG(flashloan_amount_usd) AS avg_loan_size_usd,
-    MAX(flashloan_amount_usd) AS max_loan_usd
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_token IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY loan_count DESC;
-
--- Multi-token flash loans (same transaction)
-WITH tx_flashloans AS (
-    SELECT 
-        tx_hash,
-        COUNT(DISTINCT flashloan_token) AS token_count,
-        ARRAY_AGG(DISTINCT flashloan_token_symbol) AS tokens_borrowed,
-        SUM(flashloan_amount_usd) AS total_tx_usd
-    FROM <blockchain_name>.defi.ez_lending_flashloans
-    WHERE flashloan_amount_usd IS NOT NULL
-    GROUP BY tx_hash
-),
-token_combo_counts AS (
-    SELECT
-        token_count,
-        tokens_borrowed,
-        COUNT(*) AS combo_count,
-        AVG(total_tx_usd) AS avg_total_borrowed_usd
-    FROM tx_flashloans
-    WHERE token_count > 1
-    GROUP BY token_count, tokens_borrowed
-),
-ranked_combos AS (
-    SELECT
-        *,
-        ROW_NUMBER() OVER (PARTITION BY token_count ORDER BY combo_count DESC) AS rn
-    FROM token_combo_counts
-)
-SELECT
-    token_count,
-    tokens_borrowed AS common_token_combo,
-    combo_count AS transaction_count,
-    avg_total_borrowed_usd
-FROM ranked_combos
-WHERE rn = 1
-ORDER BY token_count;
-```
+Example: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
 {% enddocs %}
 
 {% docs ez_lending_flashloan_token_symbol %}
 
-## Flash Loan Token Symbol
 The symbol of the token borrowed in the flash loan.
 
-### Details
-- **Type**: `VARCHAR`
-- **Common values**: `'USDC'`, `'DAI'`, `'WETH'`, `'USDT'`, `'WBTC'`
-- **Purpose**: Human-readable token identifier
-- **Case**: Standardized to uppercase
-
-### Usage Examples
-```sql
--- Flash loan token popularity by use case
-WITH flashloan_patterns AS (
-    SELECT 
-        flashloan_token_symbol,
-        CASE 
-            WHEN flashloan_amount_usd < 100000 THEN 'Small (<$100K)'
-            WHEN flashloan_amount_usd < 1000000 THEN 'Medium ($100K-$1M)'
-            WHEN flashloan_amount_usd < 10000000 THEN 'Large ($1M-$10M)'
-            ELSE 'Whale (>$10M)'
-        END AS size_category,
-        COUNT(*) AS loan_count,
-        SUM(premium_amount_usd) AS total_fees_usd
-    FROM <blockchain_name>.defi.ez_lending_flashloans
-    WHERE flashloan_token_symbol IS NOT NULL
-        AND flashloan_amount_usd IS NOT NULL
-        AND block_timestamp >= CURRENT_DATE - 30
-    GROUP BY 1, 2
-)
-SELECT 
-    flashloan_token_symbol,
-    size_category,
-    loan_count,
-    total_fees_usd,
-    loan_count * 100.0 / SUM(loan_count) OVER (PARTITION BY flashloan_token_symbol) AS pct_of_token_loans
-FROM flashloan_patterns
-ORDER BY flashloan_token_symbol, loan_count DESC;
-```
+Example: 'WETH'
 
 {% enddocs %}
 
 {% docs ez_lending_flashloan_amount_unadj %}
 
-## Flash Loan Amount Unadjusted
 The raw amount of tokens borrowed without decimal adjustment.
 
-### Details
-- **Type**: `NUMERIC`
-- **Usage**: Raw blockchain value
-- **Relationship**: `flashloan_amount = flashloan_amount_unadj / 10^decimals`
-
-### Usage Examples
-```sql
--- Decimal verification for flash loan tokens
-SELECT 
-    flashloan_token_symbol,
-    flashloan_token,
-    AVG(LOG(10, flashloan_amount_unadj::FLOAT / NULLIF(flashloan_amount::FLOAT, 0))) AS implied_decimals,
-    COUNT(*) AS sample_size
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_amount > 0
-    AND flashloan_amount_unadj > 0
-    AND flashloan_token_symbol IS NOT NULL
-GROUP BY 1, 2
-HAVING COUNT(*) > 10
-ORDER BY flashloan_token_symbol;
-```
+Example: 1000000000000000000
 
 {% enddocs %}
 
 {% docs ez_lending_flashloan_amount %}
 
-## Flash Loan Amount
 The decimal-adjusted amount of tokens borrowed in the flash loan.
 
-### Details
-- **Type**: `NUMERIC`
-- **Calculation**: Adjusted for token decimals
-- **Scale**: Can be very large (millions of tokens)
-
-### Usage Examples
-```sql
--- Flash loan size distribution by token
-SELECT 
-    flashloan_token_symbol,
-    MIN(flashloan_amount) AS min_amount,
-    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY flashloan_amount) AS p25,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY flashloan_amount) AS median,
-    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY flashloan_amount) AS p75,
-    MAX(flashloan_amount) AS max_amount,
-    AVG(flashloan_amount) AS avg_amount
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_amount IS NOT NULL
-    AND flashloan_token_symbol IN ('USDC', 'DAI', 'WETH', 'USDT')
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY flashloan_token_symbol
-ORDER BY median DESC;
-```
+Example: 1.0
 
 {% enddocs %}
 
 {% docs ez_lending_premium_amount_unadj %}
 
-## Premium Amount Unadjusted
 The raw fee amount charged for the flash loan.
 
-### Details
-- **Type**: `NUMERIC`
-- **Purpose**: Flash loan fee before decimal adjustment
-- **Calculation**: Typically 0.05-0.09% of borrowed amount
-
-### Usage Examples
-```sql
--- Raw premium analysis
-SELECT 
-    platform,
-    flashloan_token_symbol,
-    AVG(premium_amount_unadj::FLOAT / NULLIF(flashloan_amount_unadj::FLOAT, 0) * 100) AS avg_fee_rate_pct,
-    COUNT(*) AS sample_count
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE premium_amount_unadj > 0
-    AND flashloan_amount_unadj > 0
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY 1, 3 DESC;
-```
+Example: 900000000000000
 
 {% enddocs %}
 
 {% docs ez_lending_premium_amount %}
 
-## Premium Amount
 The decimal-adjusted fee paid for the flash loan.
 
-### Details
-- **Type**: `NUMERIC`
-- **Purpose**: Cost of borrowing via flash loan
-- **Standards**: Usually fixed percentage per protocol
-
-### Usage Examples
-```sql
--- Flash loan fee comparison across platforms
-SELECT 
-    platform,
-    AVG(premium_amount / NULLIF(flashloan_amount, 0) * 100) AS avg_fee_rate_pct,
-    MIN(premium_amount / NULLIF(flashloan_amount, 0) * 100) AS min_fee_rate_pct,
-    MAX(premium_amount / NULLIF(flashloan_amount, 0) * 100) AS max_fee_rate_pct,
-    SUM(premium_amount) AS total_fees_collected,
-    COUNT(*) AS flashloan_count
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE flashloan_amount > 0
-    AND premium_amount > 0
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY platform
-ORDER BY avg_fee_rate_pct;
-```
+Example: 0.0009
 
 {% enddocs %}
 
 {% docs ez_lending_premium_amount_usd %}
 
-## Premium Amount USD
 The USD value of the flash loan fee.
 
-### Details
-- **Type**: `NUMERIC`
-- **Purpose**: Fee revenue in dollar terms
-- **Impact**: Direct protocol revenue
-
-### Usage Examples
-```sql
--- Daily flash loan fee revenue
-SELECT 
-    DATE_TRUNC('day', block_timestamp) AS date,
-    platform,
-    SUM(premium_amount_usd) AS daily_fee_revenue_usd,
-    COUNT(*) AS flashloan_count,
-    AVG(premium_amount_usd) AS avg_fee_per_loan_usd
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE premium_amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY 1 DESC, 3 DESC;
-
--- Fee revenue by token
-SELECT 
-    flashloan_token_symbol,
-    SUM(premium_amount_usd) AS total_fees_usd,
-    SUM(flashloan_amount_usd) AS total_volume_usd,
-    SUM(premium_amount_usd) / NULLIF(SUM(flashloan_amount_usd), 0) * 100 AS effective_fee_rate_pct,
-    COUNT(*) AS loan_count
-FROM <blockchain_name>.defi.ez_lending_flashloans
-WHERE block_timestamp >= CURRENT_DATE - 90
-    AND premium_amount_usd IS NOT NULL
-    AND flashloan_token_symbol IS NOT NULL
-GROUP BY flashloan_token_symbol
-ORDER BY total_fees_usd DESC;
-```
+Example: 0.90
 
 {% enddocs %}
 
 {% docs ez_lending_collateral_token %}
 
-## Collateral Token
 The token contract address used as collateral in a liquidation.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Identifies the asset seized in liquidation
-- **Risk**: Higher volatility assets have lower collateral factors
-
-### Usage Examples
-```sql
--- Most liquidated collateral assets
-SELECT 
-    collateral_token,
-    collateral_token_symbol,
-    COUNT(*) AS liquidation_count,
-    SUM(amount_usd) AS total_liquidated_usd,
-    AVG(amount_usd) AS avg_liquidation_size_usd,
-    COUNT(DISTINCT borrower) AS unique_borrowers_liquidated
-FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE collateral_token IS NOT NULL
-    AND amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY total_liquidated_usd DESC;
-
--- Collateral risk analysis
-WITH liquidation_rates AS (
-    SELECT 
-        collateral_token,
-        collateral_token_symbol,
-        COUNT(DISTINCT borrower) AS liquidated_borrowers,
-        SUM(amount_usd) AS total_liquidated_usd
-    FROM <blockchain_name>.defi.ez_lending_liquidations
-    WHERE block_timestamp >= CURRENT_DATE - 90
-        AND collateral_token IS NOT NULL
-    GROUP BY 1, 2
-),
-total_deposits AS (
-    SELECT 
-        token_address AS collateral_token,
-        token_symbol AS collateral_token_symbol,
-        COUNT(DISTINCT depositor) AS total_depositors,
-        SUM(amount_usd) AS total_deposited_usd
-    FROM <blockchain_name>.defi.ez_lending_deposits
-    WHERE block_timestamp >= CURRENT_DATE - 90
-        AND token_address IS NOT NULL
-    GROUP BY 1, 2
-)
-SELECT 
-    d.collateral_token_symbol,
-    d.total_depositors,
-    COALESCE(l.liquidated_borrowers, 0) AS liquidated_borrowers,
-    COALESCE(l.liquidated_borrowers, 0) * 100.0 / d.total_depositors AS liquidation_rate_pct,
-    d.total_deposited_usd,
-    COALESCE(l.total_liquidated_usd, 0) AS total_liquidated_usd
-FROM total_deposits d
-LEFT JOIN liquidation_rates l 
-    ON d.collateral_token = l.collateral_token
-WHERE d.total_depositors > 100
-ORDER BY liquidation_rate_pct DESC;
-```
+Example: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
 {% enddocs %}
 
 {% docs ez_lending_collateral_token_symbol %}
 
-## Collateral Token Symbol
 The symbol of the asset used as collateral in liquidations.
 
-### Details
-- **Type**: `VARCHAR`
-- **Purpose**: Human-readable collateral identifier
-- **Common values**: `'WETH'`, `'WBTC'`, `'LINK'`, `'UNI'`, `'AAVE'`
-
-### Usage Examples
-```sql
--- Collateral preference in liquidations
-SELECT 
-    collateral_token_symbol,
-    debt_token_symbol,
-    COUNT(*) AS liquidation_pairs,
-    SUM(amount_usd) AS total_collateral_seized_usd,
-    SUM(debt_to_cover_amount_usd) AS total_debt_covered_usd,
-    AVG((amount_usd - debt_to_cover_amount_usd) / NULLIF(debt_to_cover_amount_usd, 0) * 100) AS avg_liquidation_bonus_pct
-FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE collateral_token_symbol IS NOT NULL
-    AND debt_token_symbol IS NOT NULL
-    AND amount_usd IS NOT NULL
-    AND debt_to_cover_amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY liquidation_pairs DESC
-LIMIT 50;
-```
+Example: 'WETH'
 
 {% enddocs %}
 
 {% docs ez_lending_debt_token %}
 
-## Debt Token
 The token contract address that was borrowed and is being repaid in liquidation.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Identifies the liability being covered
-- **Pattern**: Often stablecoins due to borrowing preferences
-
-### Usage Examples
-```sql
--- Most common debt assets in liquidations
-SELECT 
-    debt_token,
-    debt_token_symbol,
-    COUNT(*) AS liquidation_count,
-    SUM(amount_usd) AS total_debt_liquidated_usd,
-    COUNT(DISTINCT borrower) AS unique_borrowers,
-    AVG(amount_usd) AS avg_debt_size_usd
-FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE debt_token IS NOT NULL
-    AND amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY total_debt_liquidated_usd DESC;
-```
+Example: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
 {% enddocs %}
 
 {% docs ez_lending_debt_token_symbol %}
 
-## Debt Token Symbol
 The symbol of the borrowed asset being repaid in liquidation.
 
-### Details
-- **Type**: `VARCHAR`
-- **Common values**: `'USDC'`, `'USDT'`, `'DAI'`, `'WETH'`
-- **Purpose**: Identifies borrowed asset type
-
-### Usage Examples
-```sql
--- Debt composition in liquidations
-SELECT 
-    debt_token_symbol,
-    COUNT(*) AS liquidation_count,
-    SUM(amount_usd) AS total_debt_usd,
-    AVG(amount_usd) AS avg_debt_size,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount_usd) AS median_debt_size,
-    COUNT(DISTINCT platform) AS platforms_affected
-FROM <blockchain_name>.defi.ez_lending_liquidations
-WHERE debt_token_symbol IS NOT NULL
-    AND amount_usd IS NOT NULL
-    AND block_timestamp >= CURRENT_DATE - 90
-GROUP BY debt_token_symbol
-ORDER BY total_debt_usd DESC;
-
--- Liquidation cascade risk (same debt asset)
-WITH hourly_liquidations AS (
-    SELECT 
-        DATE_TRUNC('hour', block_timestamp) AS hour,
-        debt_token_symbol,
-        COUNT(*) AS liquidation_count,
-        SUM(amount_usd) AS hourly_liquidation_volume
-    FROM <blockchain_name>.defi.ez_lending_liquidations
-    WHERE debt_token_symbol IS NOT NULL
-        AND amount_usd IS NOT NULL
-        AND block_timestamp >= CURRENT_DATE - 30
-    GROUP BY 1, 2
-)
-SELECT 
-    debt_token_symbol,
-    MAX(liquidation_count) AS max_hourly_liquidations,
-    MAX(hourly_liquidation_volume) AS max_hourly_volume_usd,
-    AVG(liquidation_count) AS avg_hourly_liquidations,
-    STDDEV(liquidation_count) AS liquidation_volatility
-FROM hourly_liquidations
-GROUP BY debt_token_symbol
-HAVING MAX(liquidation_count) > 10
-ORDER BY max_hourly_volume_usd DESC;
-```
+Example: 'USDC'
 
 {% enddocs %}
 
 {% docs ez_lending_amount_unadj %}
 
-## Amount Unadjusted
 The raw amount of tokens borrowed or repaid without decimal adjustment.
 
-### Details
-- **Type**: `NUMERIC`
-- **Usage**: Raw blockchain value
-- **Relationship**: `amount = amount_unadj / 10^decimals`
-
-### Usage Examples 
-```sql
-SELECT 
-    amount_unadj,
-    amount,
-    decimals
-FROM <blockchain_name>.defi.ez_lending_borrows
-WHERE amount_unadj IS NOT NULL;
-```
+Example: 1000000000
 
 {% enddocs %}
 
 {% docs ez_lending_payer %}
 
-## Payer
 The address that paid the loan or deposit.
 
-### Details
-- **Type**: `VARCHAR(42)`
-- **Purpose**: Identifies the payer address
+Example: '0x5555555555555555555555555555555555555555'
 
 {% enddocs %}

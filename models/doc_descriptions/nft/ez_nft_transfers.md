@@ -1,28 +1,36 @@
 {% docs ez_nft_transfers_table_doc %}
 
-## Table: ez_nft_transfers
+## What
 
 This table contains all NFT transfer events for ERC-721 and ERC-1155 tokens on EVM blockchains. It provides a comprehensive view of NFT movements including transfers, mints, and burns, with enriched metadata for easier analysis.
 
-### Key Features:
-- **Complete NFT Movement**: All ERC-721 and ERC-1155 transfers in one table
-- **Mint Detection**: Identifies minting events (from 0x0 address)
-- **Burn Detection**: Identifies burning events (to 0x0 address)
-- **Batch Support**: Handles ERC-1155 batch transfers
-- **Metadata Enrichment**: Includes collection names and project details where available
+## Key Use Cases
 
-### Token Standards Covered:
-| Standard | Description | Quantity Support |
-|----------|-------------|------------------|
-| ERC-721 | Non-fungible tokens | Always 1 |
-| ERC-1155 | Multi-token standard | 1 or more |
+- Track daily NFT activity and transfer volume across collections
+- Analyze NFT minting patterns and mint timing
+- Identify popular collections by transfer activity
+- Monitor wallet NFT accumulation and trading behavior
+- Analyze ERC-1155 batch transfer patterns
+- Track current NFT holders and ownership changes
+- Detect burns and unusual transfer patterns
 
-### Important Relationships:
-- **Join with ez_nft_sales**: Use `tx_hash` to match with sales but note that a single transaction can contain multiple sales. Do not use `event_index` to match as the `event_index` in ez_nft_transfers represent the `event_index` of the transfer and not the sale. 
+## Important Relationships
+
+- **Join with ez_nft_sales**: Use `tx_hash` to match with sales but note that a single transaction can contain multiple sales. Do not use `event_index` to match as the `event_index` in ez_nft_transfers represent the `event_index` of the transfer and not the sale
 - **Join with dim_nft_collection_metadata**: This is only for the Ethereum blockchain. Use `contract_address` and `token_id` for metadata like traits, token id name and token id description
 - **Join with fact_transactions**: Use `tx_hash` for transaction context
 
-### Sample Queries:
+## Commonly-used Fields
+
+- `contract_address`: NFT collection contract address
+- `token_id`: Unique identifier of the specific NFT
+- `from_address` / `to_address`: Transfer participants (0x0 for mint/burn)
+- `is_mint`: Boolean flag for minting events
+- `token_standard`: NFT standard (erc721, erc1155, cryptopunks, legacy)
+- `nft_quantity`: Number of tokens transferred (always 1 for ERC-721)
+- `token_transfer_type`: Specific event type emitted
+
+## Sample Queries
 
 **Daily NFT Activity Overview**
 ```sql
@@ -59,7 +67,6 @@ GROUP BY 1, 2
 ORDER BY 3 DESC
 LIMIT 50;
 ```
-- Only use this filter `AND name IS NOT NULL` when you want collections with known names but note that most collections do not have a name. It is best to exclude this filter. 
 
 **NFT Minting Analysis**
 ```sql
@@ -134,176 +141,64 @@ SELECT
     token_id 
 FROM <blockchain_name>.nft.ez_nft_transfers
 WHERE contract_address = '0xbd3531da5cf5857e7cfaa92426877b022e612cf8'
-QUALIFY ROW_NUMBER() OVER (PARTITION BY contract_address, token_id ORDER BY block_number DESC, event_index DESC) =1 
+QUALIFY ROW_NUMBER() OVER (PARTITION BY contract_address, token_id ORDER BY block_number DESC, event_index DESC) =1;
 ```
-
-
-### Critical Usage Notes:
-- **Token Standards**: Check `token_standard` to distinguish between ERC-721, ERC-1155, legacy and cryptopunks. Legacy tokens and cryptopunks are old nfts that do not adhere to ERC-721 or ERC-1155.
-- **Contract Address** Use `contract_address` instead of `nft_address` 
-- **Quantity**: ERC-721 always has quantity 1, ERC-1155 uses `quantity`
-- **Mint/Burn Detection**: Use `is_mint` flag or check from/to addresses
-- **Batch Transfers**: Multiple ERC-1155 token_ids can be transferred in a single `event_index` but is ordered using `intra_event_index`
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_from_address %}
 
-The address sending/transferring the NFT.
+The address sending/transferring the NFT. Special value of '0x0000000000000000000000000000000000000000' indicates minting event.
 
-**Special Values**:
-- `0x0000...0000`: Minting event (NFT creation)
-- Contract addresses: Often marketplace or game contracts
-- EOA addresses: Individual users
-
-**Query Pattern**:
-```sql
--- Find NFT minters
-SELECT 
-    contract_address,
-    to_address AS minters,
-    COUNT(*) AS mints
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE is_mint
-AND block_timestamp >= CURRENT_DATE - 7
-GROUP BY 1, 2
-ORDER BY 3 DESC;
-```
+Example: '0x1234567890123456789012345678901234567890'
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_to_address %}
 
-The address receiving the NFT.
+The address receiving the NFT. Special value of '0x0000000000000000000000000000000000000000' indicates burning event.
 
-**Special Values**:
-- `0x0000...0000`: Burning event (NFT destruction)
-- Contract addresses: Staking, escrow, or marketplace contracts
-- EOA addresses: End users
+Example: '0x1234567890123456789012345678901234567890'
 
-**Analysis Example**:
-```sql
--- Identify NFT burns by collection
-SELECT 
-    contract_address,
-    name,
-    COUNT(*) AS burns,
-    COUNT(DISTINCT token_id) AS unique_tokens_burned
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE to_address = '0x0000000000000000000000000000000000000000'
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY 3 DESC;
-```
 {% enddocs %}
 
 {% docs ez_nft_transfers_token_id %}
 
-The unique identifier for a specific NFT within a collection.
+The unique identifier for a specific NFT within a collection. String format to handle various token_id formats.
 
-**Format**: String to handle various token_id formats
-**Standards**:
-- ERC-721: Each token_id represents one unique NFT
-- ERC-1155: Multiple copies can exist for same token_id
-
-**Common Patterns**:
-```sql
--- Count distinct token_id for a collection
-SELECT 
-    contract_address,
-    COUNT(DISTINCT token_id) as unique_token_id 
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE is_mint = TRUE
-GROUP BY 1;
-```
+Example: '1234'
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_intra_event_index %}
 
-Position within a batch transfer event, primarily for ERC-1155.
+Position within a batch transfer event, primarily for ERC-1155. Always starts with 1 for single transfers.
 
-**Usage**:
-- 1 for single transfers (ERC-721)
-- 1,2,3.. for batch transfers (ERC-1155)
-- Maintains order within batch operations
-- Always start with 1
-
-**Batch Analysis**:
-```sql
--- Analyze batch transfer sizes for ERC-1155
-SELECT 
-    contract_address, 
-    token_transfer_type,
-    MAX(intra_event_index) AS batch_size,
-    COUNT(*) AS occurrence_count
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE block_timestamp >= CURRENT_DATE - 7
-AND token_standard = 'erc1155'
-GROUP BY 1, 2
-ORDER BY 3 DESC;
-```
+Example: 1
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_nft_quantity %}
 
-The number of NFTs transferred for this specific token_id.
+The number of NFTs transferred for this specific token_id. Always 1 for ERC-721, can be more for ERC-1155.
 
-**Standards**:
-- ERC-721: Always 1 (non-fungible)
-- ERC-1155: Can be 1 or more (semi-fungible)
+Example: 1
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_token_transfer_type %}
 
-The specific event type emitted by the contract.
+The specific event type emitted by the contract. Values include 'erc721_Transfer', 'erc1155_TransferSingle', 'erc1155_TransferBatch', etc.
 
-**Values**:
-- `erc721_Transfer`: Standard ERC-721 transfer
-- `erc1155_TransferSingle`: Single ERC-1155 transfer
-- `erc1155_TransferBatch`: Batch ERC-1155 transfer
-- `cryptopunks_PunkBought`: Cryptopunks transfer
-- `cryptopunks_PunkTransfer`: Cryptopunks transfer
-- `legacy_Transfer`: Legacy NFT transfer
-
-**Usage Pattern**:
-```sql
--- Distribution of transfer types
-SELECT 
-    token_transfer_type,
-    COUNT(*) AS transfer_count,
-    COUNT(DISTINCT contract_address) AS unique_collections
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE block_timestamp >= CURRENT_DATE - 1
-GROUP BY 1;
-```
+Example: 'erc721_Transfer'
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_is_mint %}
 
-Boolean flag indicating if this transfer is a minting event.
+Boolean flag indicating if this transfer is a minting event (from address is 0x0).
 
-**Logic**: `from_address = '0x0000000000000000000000000000000000000000'`
-**TRUE**: New NFT created
-**FALSE**: Existing NFT transferred
-
-**Minting Patterns**:
-```sql
--- Daily minting trends
-SELECT 
-    DATE(block_timestamp) AS mint_date,
-    COUNT(DISTINCT contract_address) AS collections_minting,
-    COUNT(*) AS total_mints,
-    COUNT(DISTINCT to_address) AS unique_minters
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE is_mint = TRUE
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1
-ORDER BY 1 DESC;
-```
+Example: true
 
 {% enddocs %}
 
@@ -311,45 +206,22 @@ ORDER BY 1 DESC;
 
 The address of the contract that emitted the NFT transfer event.
 
-**Usage**:
-- Join with dim_contracts to get contract details
-- Identify NFT collections by contract address
-
-**Query Example**:
-```sql
--- Find NFT collections by contract address
-SELECT 
-    contract_address,
-    COUNT(*) AS total_transfers
-FROM <blockchain_name>.nft.ez_nft_transfers
-WHERE block_timestamp >= CURRENT_DATE - 7
-GROUP BY 1
-ORDER BY 2 DESC;
-```
+Example: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d'
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_name %}
 
-The name of the NFT collection.
+The name of the NFT collection. For Ethereum only, join with nft.dim_nft_collection_metadata for token-level details.
 
-**Usage**:
-- For Ethereum only, join with nft.dim_nft_collection_metadata to get collection metadata details on a token_id level 
-- Identify NFT collections by name
+Example: 'Bored Ape Yacht Club'
 
 {% enddocs %}
 
 {% docs ez_nft_transfers_token_standard %}
 
-The standard of the NFT. 
+The standard of the NFT. Values include 'erc721', 'erc1155', 'cryptopunks', and 'legacy'.
 
-**Usage**:
-- Identify NFT collections by standard
-
-**Values**:
-- `erc721` - ERC-721 tokens 
-- `erc1155` - ERC-1155 tokens 
-- `crytopunks` - Cryptopunks
-- `legacy` - Legacy NFTs 
+Example: 'erc721'
 
 {% enddocs %}

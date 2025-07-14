@@ -1,37 +1,34 @@
 {% docs ez_dex_swaps_table_doc %}
 
-## Table: ez_dex_swaps
+## What
 
 This table provides a comprehensive view of token swap events across major decentralized exchanges (DEXs) on EVM blockchains. It standardizes swap data from different DEX protocols into a unified format, enabling cross-DEX analysis and DeFi trading insights.
 
-### Key Features:
-- **Multi-DEX Coverage**: Uniswap V2/V3, SushiSwap, Curve, Balancer, and more
-- **USD Valuations**: Automatic price conversions for both sides of swaps
-- **Data Quality Checks**: Filters out anomalous prices and wash trades
-- **Standardized Format**: Consistent schema across different DEX implementations
+## Key Use Cases
 
-### DEX Protocol Coverage:
-| Platform | AMM Type | Key Features |
-|----------|----------|--------------|
-| Uniswap V2 | Constant Product | x*y=k, 0.3% fee |
-| Uniswap V3 | Concentrated Liquidity | Custom fee tiers, price ranges |
-| Curve | StableSwap | Optimized for stablecoins |
-| Balancer | Weighted Pools | Multi-asset, custom weights |
-| SushiSwap | Constant Product | Fork of Uniswap V2 |
+- Analyzing DEX trading volumes and market share
+- Tracking token pair liquidity and trading activity
+- Detecting arbitrage opportunities across protocols
+- Monitoring whale trades and unusual swap patterns
+- Calculating slippage and price impact of trades
 
-### Data Quality Rules:
-- **Price Divergence Check**: `amount_in_usd` and `amount_out_usd` must be within reasonable bounds
-- **Nullification Logic**: USD amounts set to NULL when price slippage exceeds thresholds
-- **Outlier Detection**: Removes likely wash trades and price manipulation
+## Important Relationships
 
-### Important Relationships:
 - **Join with dim_dex_liquidity_pools**: Get pool metadata and token details
 - **Join with fact_event_logs**: Access raw swap events
 - **Join with ez_prices_hourly**: Verify token prices
 
-### Sample Queries:
+## Commonly-used Fields
 
-**Daily DEX Volume Analysis**
+- `platform`: DEX protocol (uniswap_v2, curve, etc.)
+- `sender`: Address initiating the swap
+- `token_in`/`token_out`: Token addresses being swapped
+- `amount_in`/`amount_out`: Decimal-adjusted swap amounts
+- `amount_in_usd`/`amount_out_usd`: USD values at swap time
+- `pool_address`: Liquidity pool where swap occurred
+
+## Sample queries
+
 ```sql
 -- Daily swap volume by DEX platform
 SELECT 
@@ -49,10 +46,7 @@ WHERE block_timestamp >= CURRENT_DATE - 30
     AND amount_in_usd > 0
 GROUP BY 1, 2
 ORDER BY 1 DESC, 6 DESC;
-```
 
-**Token Pair Trading Activity**
-```sql
 -- Most active trading pairs
 WITH pair_volume AS (
     SELECT 
@@ -80,10 +74,7 @@ FROM pair_volume
 WHERE volume_usd > 100000
 ORDER BY volume_usd DESC
 LIMIT 50;
-```
 
-**Arbitrage Opportunity Detection**
-```sql
 -- Price discrepancies across DEXs for same token pairs
 WITH recent_swaps AS (
     SELECT 
@@ -133,10 +124,7 @@ JOIN price_comparison p2
     AND p1.platform < p2.platform
 WHERE price_diff_pct > 1  -- More than 1% difference
 ORDER BY p1.minute DESC, price_diff_pct DESC;
-```
 
-**Whale Swap Detection**
-```sql
 -- Large swaps by size and impact
 SELECT 
     block_timestamp,
@@ -154,10 +142,7 @@ WHERE block_timestamp >= CURRENT_DATE - 1
     AND amount_in_usd > 100000  -- Swaps over $100k
 ORDER BY amount_in_usd DESC
 LIMIT 100;
-```
 
-**DEX Market Share Analysis**
-```sql
 -- Platform market share by volume
 WITH platform_stats AS (
     SELECT 
@@ -183,29 +168,39 @@ FROM platform_stats
 ORDER BY total_volume DESC;
 ```
 
-### Critical Usage Notes:
-- **USD Nullification**: Check for NULL USD values which indicate price anomalies
-- **Platform Differences**: Each DEX may have unique fee structures and mechanics
-- **Slippage Calculation**: Compare amount_in_usd vs amount_out_usd for trade efficiency
-- **MEV Activity**: Large discrepancies might indicate sandwich attacks
-
 {% enddocs %}
 
 {% docs dim_dex_lp_table_doc %}
 
-## Table: dim_dex_liquidity_pools
+## What
 
 This dimensional table contains comprehensive metadata for all DEX liquidity pools across supported protocols. It provides essential information about pool composition, token pairs, and configuration needed for analyzing liquidity provision and pool performance.
 
-### Key Features:
-- **Multi-Protocol Support**: Covers all major AMM protocols
-- **Token Metadata**: Symbols, decimals, and addresses for each pool token
-- **Pool Configuration**: Fee tiers, pool types, and protocol-specific settings
-- **Creation Tracking**: Block and timestamp of pool deployment
+## Key Use Cases
 
-### Sample Queries:
+- Finding all pools containing specific tokens
+- Tracking new pool deployments
+- Analyzing pool configurations and fee structures
+- Identifying trading pairs across different protocols
+- Monitoring factory contract deployments
 
-**Pool Discovery by Token**
+## Important Relationships
+
+- **Join with ez_dex_swaps**: Use `pool_address` to get swap activity
+- **Join with dim_contracts**: Use token addresses for additional metadata
+- **Self-join**: Find all pools with common tokens
+
+## Commonly-used Fields
+
+- `pool_address`: Unique identifier for the liquidity pool
+- `platform`: DEX protocol (uniswap_v3, curve, etc.)
+- `pool_name`: Human-readable pool identifier
+- `tokens`: JSON with token0 and token1 addresses
+- `symbols`: JSON with token0 and token1 symbols
+- `creation_time`: When pool was deployed
+
+## Sample queries
+
 ```sql
 -- Find all pools containing USDC
 SELECT 
@@ -225,10 +220,7 @@ WHERE LOWER('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48') IN (
     tokens:token1::string
 )
 ORDER BY creation_time DESC;
-```
 
-**New Pool Deployments**
-```sql
 -- Recently created liquidity pools
 SELECT 
     platform,
@@ -242,10 +234,7 @@ FROM <blockchain_name>.defi.dim_dex_liquidity_pools
 WHERE creation_time >= CURRENT_DATE - 7
 ORDER BY creation_time DESC
 LIMIT 100;
-```
 
-### JSON Field Access:
-```sql
 -- Extract token information from JSON fields
 SELECT 
     pool_address,
@@ -265,12 +254,7 @@ WHERE platform = 'uniswap_v3';
 
 The decimal-adjusted quantity of tokens provided by the trader in the swap.
 
-**Calculation**: `amount_in_unadj / 10^token_decimals`
-**Usage**: Human-readable token amounts for analysis
-
-**Example**:
-- Raw: 1000000 (6 decimals) = 1.0 USDC
-- Raw: 1000000000000000000 (18 decimals) = 1.0 WETH
+Example: 1000.5
 
 {% enddocs %}
 
@@ -278,13 +262,7 @@ The decimal-adjusted quantity of tokens provided by the trader in the swap.
 
 USD value of tokens provided in the swap at time of transaction.
 
-**Calculation**: `amount_in * token_price_usd`
-**Quality Checks**: Set to NULL when:
-- Price data unavailable
-- Significant divergence from amount_out_usd (likely bad price)
-- Suspected wash trade or manipulation
-
-**Usage Note**: Always check for NULL before calculations
+Example: 1500.75
 
 {% enddocs %}
 
@@ -292,8 +270,7 @@ USD value of tokens provided in the swap at time of transaction.
 
 The decimal-adjusted quantity of tokens received by the trader from the swap.
 
-**Note**: After DEX fees and slippage
-**Slippage Calculation**: Compare with expected output based on pool reserves
+Example: 0.65
 
 {% enddocs %}
 
@@ -301,12 +278,7 @@ The decimal-adjusted quantity of tokens received by the trader from the swap.
 
 The address that initiated the swap transaction.
 
-**Common Patterns**:
-- DEX Router contracts (aggregated swaps)
-- EOA addresses (direct interaction)
-- Smart contracts (automated strategies)
-
-**Not Always End User**: May be intermediary contract
+Example: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
 
 {% enddocs %}
 
@@ -314,12 +286,7 @@ The address that initiated the swap transaction.
 
 The recipient address of the swapped tokens.
 
-**Patterns**:
-- Same as sender: User swapping for themselves
-- Different address: Swapping on behalf of another
-- Contract address: Part of larger transaction flow
-
-**MEV Detection**: Check if different from sender for potential sandwich attacks
+Example: '0x1234567890123456789012345678901234567890'
 
 {% enddocs %}
 
@@ -327,15 +294,7 @@ The recipient address of the swapped tokens.
 
 The DEX protocol where the swap occurred.
 
-**Common Values**:
-- uniswap_v2
-- uniswap_v3
-- sushiswap
-- curve
-- balancer_v2
-- pancakeswap
-
-**Usage**: Filter by platform for protocol-specific analysis
+Example: 'uniswap_v3'
 
 {% enddocs %}
 
@@ -343,10 +302,7 @@ The DEX protocol where the swap occurred.
 
 The liquidity pool contract address where the swap executed.
 
-**Usage**:
-- Join with dim_dex_liquidity_pools for pool metadata
-- Track pool-specific volume and activity
-- Analyze liquidity depth and utilization
+Example: '0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8'
 
 {% enddocs %}
 
@@ -354,9 +310,7 @@ The liquidity pool contract address where the swap executed.
 
 The raw, non-decimal adjusted amount of tokens provided in the swap.
 
-**Format**: Original blockchain value without decimal conversion
-**Usage**: For precise calculations or verification against raw logs
-**Relationship**: `amount_in = amount_in_unadj / 10^decimals`
+Example: 1000500000
 
 {% enddocs %}
 
@@ -364,9 +318,7 @@ The raw, non-decimal adjusted amount of tokens provided in the swap.
 
 The raw, non-decimal adjusted amount of tokens received from the swap.
 
-**Format**: Original blockchain value without decimal conversion
-**Usage**: For exact value matching with event logs
-**Relationship**: `amount_out = amount_out_unadj / 10^decimals`
+Example: 650000000000000000
 
 {% enddocs %}
 
@@ -374,9 +326,7 @@ The raw, non-decimal adjusted amount of tokens received from the swap.
 
 USD value of tokens received from the swap at time of transaction.
 
-**Calculation**: `amount_out * token_price_usd`
-**Quality Check**: Compared with amount_in_usd for anomaly detection
-**NULL When**: Price unavailable or significant divergence detected
+Example: 1498.25
 
 {% enddocs %}
 
@@ -384,9 +334,7 @@ USD value of tokens received from the swap at time of transaction.
 
 The ticker symbol of the token being sold/swapped from.
 
-**Examples**: WETH, USDC, DAI, WBTC
-**Source**: From token metadata or dim_contracts
-**NULL**: For unverified or new tokens
+Example: 'USDC'
 
 {% enddocs %}
 
@@ -394,9 +342,7 @@ The ticker symbol of the token being sold/swapped from.
 
 The ticker symbol of the token being bought/received.
 
-**Examples**: USDC, WETH, UNI, AAVE
-**Usage**: Human-readable pair identification
-**Format**: Standard token symbols
+Example: 'WETH'
 
 {% enddocs %}
 
@@ -404,11 +350,7 @@ The ticker symbol of the token being bought/received.
 
 The contract address of the token being sold in the swap.
 
-**Format**: Lowercase hex address (0x + 40 chars)
-**Usage**: 
-- Join with token metadata tables
-- Precise token identification
-- Track specific token flows
+Example: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
 {% enddocs %}
 
@@ -416,9 +358,7 @@ The contract address of the token being sold in the swap.
 
 The contract address of the token being received from the swap.
 
-**Format**: Lowercase hex address (0x + 40 chars)
-**Relationship**: Forms trading pair with token_in
-**Usage**: Calculate price ratios and exchange rates
+Example: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
 {% enddocs %}
 
@@ -426,10 +366,7 @@ The contract address of the token being received from the swap.
 
 The block number when the liquidity pool was first created.
 
-**Usage**:
-- Calculate pool age
-- Historical analysis starting point
-- Join with fact_blocks for context
+Example: 12369739
 
 {% enddocs %}
 
@@ -437,11 +374,7 @@ The block number when the liquidity pool was first created.
 
 The timestamp when the liquidity pool was deployed.
 
-**Format**: TIMESTAMP_NTZ
-**Usage**:
-- Pool age analysis
-- Correlate with market events
-- Filter new vs established pools
+Example: '2021-05-05 12:34:56.000'
 
 {% enddocs %}
 
@@ -449,11 +382,7 @@ The timestamp when the liquidity pool was deployed.
 
 The transaction hash that deployed this liquidity pool.
 
-**Format**: 66-character hex string
-**Usage**:
-- Trace pool creation details
-- Identify deployer and initial parameters
-- Audit pool legitimacy
+Example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
 
 {% enddocs %}
 
@@ -461,11 +390,7 @@ The transaction hash that deployed this liquidity pool.
 
 The factory contract that deployed this liquidity pool.
 
-**Examples**:
-- Uniswap V2 Factory: 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f
-- Uniswap V3 Factory: 0x1F98431c8aD98523631AE4a59f267346ea31F984
-
-**Usage**: Identify pool protocol version and legitimacy
+Example: '0x1f98431c8ad98523631ae4a59f267346ea31f984'
 
 {% enddocs %}
 
@@ -473,12 +398,7 @@ The factory contract that deployed this liquidity pool.
 
 Human-readable name for the liquidity pool.
 
-**Format Examples**:
-- "WETH/USDC 0.05%" (Uniswap V3)
-- "WETH-USDC" (Uniswap V2)
-- Token addresses if symbols unavailable
-
-**NULL**: For pools without readable token symbols
+Example: 'WETH/USDC 0.05%'
 
 {% enddocs %}
 
@@ -486,21 +406,7 @@ Human-readable name for the liquidity pool.
 
 JSON object containing decimal places for each token in the pool.
 
-**Structure**:
-```json
-{
-  "token0": 18,
-  "token1": 6
-}
-```
-
-**Access Pattern**:
-```sql
-SELECT 
-    decimals:token0::integer AS token0_decimals,
-    decimals:token1::integer AS token1_decimals
-FROM <blockchain_name>.defi.dim_dex_liquidity_pools;
-```
+Example: {"token0": 18, "token1": 6}
 
 {% enddocs %}
 
@@ -508,22 +414,7 @@ FROM <blockchain_name>.defi.dim_dex_liquidity_pools;
 
 JSON object containing token symbols for the pool pair.
 
-**Structure**:
-```json
-{
-  "token0": "WETH",
-  "token1": "USDC"
-}
-```
-
-**Query Example**:
-```sql
-SELECT 
-    pool_address,
-    symbols:token0::string || '/' || symbols:token1::string AS pair_name
-FROM <blockchain_name>.defi.dim_dex_liquidity_pools
-WHERE symbols:token0::string = 'WETH';
-```
+Example: {"token0": "WETH", "token1": "USDC"}
 
 {% enddocs %}
 
@@ -531,22 +422,7 @@ WHERE symbols:token0::string = 'WETH';
 
 JSON object containing token contract addresses in the pool.
 
-**Structure**:
-```json
-{
-  "token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-  "token1": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-}
-```
-
-**Usage**:
-```sql
--- Find all pools with specific token
-SELECT *
-FROM <blockchain_name>.defi.dim_dex_liquidity_pools
-WHERE tokens:token0::string = LOWER('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48')
-   OR tokens:token1::string = LOWER('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48');
-```
+Example: {"token0": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "token1": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 
 {% enddocs %}
 
@@ -554,9 +430,7 @@ WHERE tokens:token0::string = LOWER('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 
 Whether the token in the swap is verified.
 
-**Usage**:
-- Filter for verified tokens
-- Identify token quality and trustworthiness
+Example: true
 
 {% enddocs %}
 
@@ -564,9 +438,7 @@ Whether the token in the swap is verified.
 
 Whether the token out of the swap is verified.
 
-**Usage**:
-- Filter for verified tokens
-- Identify token quality and trustworthiness
+Example: true
 
 {% enddocs %}
 
@@ -574,9 +446,7 @@ Whether the token out of the swap is verified.
 
 The version of the protocol used for the swap.
 
-**Usage**:
-- Identify protocol version
-- Filter for specific protocol versions
+Example: 'v3'
 
 {% enddocs %}
 
@@ -584,9 +454,7 @@ The version of the protocol used for the swap.
 
 The protocol used for the swap. This is the clean name of the protocol, not the platform, without the version.
 
-**Usage**:
-- Identify protocol used
-- Filter for specific protocols
+Example: 'uniswap'
 
 {% enddocs %}
 
@@ -594,8 +462,6 @@ The protocol used for the swap. This is the clean name of the protocol, not the 
 
 The contract address of the swap. This is the address of the contract that executed the swap, often a pool contract.
 
-**Usage**:
-- Identify the contract address of the swap
-- Filter for specific contracts
+Example: '0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8'
 
 {% enddocs %}

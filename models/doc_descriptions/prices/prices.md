@@ -1,28 +1,36 @@
 {% docs ez_prices_hourly_table_doc %}
 
-## Table: ez_prices_hourly
+## What
 
 This curated table provides reliable hourly price data for tokens and native assets across EVM blockchains. It combines multiple data sources with quality checks to ensure accurate, consistent pricing for DeFi analytics, portfolio valuations, and historical analysis.
 
-### Key Features:
-- **Multi-Source Aggregation**: Prices from CoinGecko, CoinMarketCap, and DEX data
-- **Quality Assured**: Outlier detection and validation rules applied
-- **Complete Coverage**: Native assets and tokens in one table
-- **Imputation Handling**: Forward-filled prices for low-liquidity assets
-- **UTC Hourly Granularity**: Consistent hourly snapshots
+## Key Use Cases
 
-### Data Sources Priority:
-1. **DEX Prices**: High-volume on-chain trades (most accurate)
-2. **CoinGecko**: Comprehensive coverage and reliability
-3. **CoinMarketCap**: Additional coverage and validation
-4. **Imputed Values**: Last known price for gaps
+- Calculate USD values for token transfers and transaction amounts
+- Track price volatility and market movements over time
+- Monitor stablecoin depegging events and price stability
+- Analyze native asset price trends across different blockchains
+- Perform portfolio valuations and historical price lookups
+- Create price charts and technical analysis dashboards
+- Assess price data quality and imputation rates
 
-### Important Relationships:
-- **Join with ez_token_transfers**: Calculate transfer USD values
+## Important Relationships
+
+- **Join with ez_token_transfers**: Calculate transfer USD values using hourly price snapshots
 - **Join with ez_asset_metadata**: Get token details and verification status
 - **Join with dim_contracts**: Match addresses with contract metadata
 
-### Sample Queries:
+## Commonly-used Fields
+
+- `hour`: UTC timestamp truncated to hour for price recording
+- `token_address`: Contract address of the token (NULL for native assets)
+- `symbol`: Token ticker symbol (ETH, USDC, etc.)
+- `price`: USD price of one whole token unit
+- `is_imputed`: Flag indicating forward-filled prices due to missing data
+- `is_native`: Boolean for blockchain native currencies
+- `blockchain`: Network where the asset exists
+
+## Sample Queries
 
 **Token Price Lookup with USD Calculations**
 ```sql
@@ -132,32 +140,38 @@ HAVING COUNT(*) > 100
 ORDER BY imputation_rate DESC;
 ```
 
-### Best Practices:
-- **Check is_imputed**: Be aware of forward-filled prices for low liquidity
-- **Use hourly joins**: Match DATE_TRUNC('hour', timestamp) for accuracy
-- **Verify token addresses**: Ensure lowercase comparison
-- **Handle NULLs**: Not all tokens have price data
-
 {% enddocs %}
-
 
 {% docs dim_asset_metadata_table_doc %}
 
-## Table: price__dim_asset_metadata
+## What
 
-This table provides comprehensive metadata for all assets (tokens and native assets) tracked in the price schema across EVM blockchains. It includes provider, asset identifiers, names, symbols, contract addresses, blockchain, and verification status. This table is essential for joining price data to asset metadata and for cross-chain asset analysis.
+This table provides comprehensive metadata for all assets (tokens and native assets) tracked in the price schema across EVM blockchains. It includes provider, asset identifiers, names, symbols, contract addresses, blockchain, and verification status.
 
-### Key Features:
-- **Provider and Asset ID**: Source and unique identifier for each asset
-- **Comprehensive Metadata**: Name, symbol, contract address, blockchain, and blockchain ID
-- **Cross-Chain Support**: Assets mapped across multiple blockchains
-- **Verification**: Includes Flipside verification status
+## Key Use Cases
 
-### Important Relationships:
-- **Join with ez_prices_hourly**: For price time series
+- Join price data to asset metadata for enriched analysis
+- Cross-chain asset analysis and mapping
+- Asset discovery and verification status checking
+- Provider-specific data source analysis
+
+## Important Relationships
+
+- **Join with ez_prices_hourly**: For price time series data
 - **Join with core.dim_contracts**: For contract metadata
 
-### Sample Query:
+## Commonly-used Fields
+
+- `provider`: Data source (coingecko, coinmarketcap, etc.)
+- `asset_id`: Provider-specific unique identifier
+- `blockchain`: Network identifier
+- `token_address`: Contract address (NULL for native assets)
+- `symbol`: Token ticker symbol
+- `name`: Full asset name
+
+## Sample Queries
+
+**Basic Asset Lookup**
 ```sql
 SELECT *
 FROM <blockchain_name>.price.dim_asset_metadata
@@ -169,21 +183,34 @@ ORDER BY symbol;
 
 {% docs fact_prices_ohlc_hourly_table_doc %}
 
-## Table: price__fact_prices_ohlc_hourly
+## What
 
-This table provides hourly OHLC (Open, High, Low, Close) price data for all assets tracked in the price schema. It is designed for time series analysis, volatility studies, and historical price lookups. Each row represents one asset's price for a given hour.
+This table provides hourly OHLC (Open, High, Low, Close) price data for all assets tracked in the price schema. It is designed for time series analysis, volatility studies, and historical price lookups.
 
-### Key Features:
-- **OHLC Data**: Open, high, low, close prices for each hour
-- **Asset ID**: Unique identifier for the asset
-- **Hourly Granularity**: UTC hour timestamps
-- **Cross-Chain Support**: Assets from multiple blockchains
+## Key Use Cases
 
-### Important Relationships:
+- Technical analysis and candlestick chart creation
+- Volatility studies and risk assessment
+- Historical price lookups and trend analysis
+- Market timing and trading analysis
+
+## Important Relationships
+
 - **Join with dim_asset_metadata**: For asset metadata
 - **Join with ez_token_transfers**: For USD value calculations
 
-### Sample Query:
+## Commonly-used Fields
+
+- `hour`: UTC timestamp for the price period
+- `asset_id`: Unique identifier for the asset
+- `open`: Opening price at start of hour
+- `high`: Highest price during hour
+- `low`: Lowest price during hour
+- `close`: Closing price at end of hour
+
+## Sample Queries
+
+**OHLC Data Retrieval**
 ```sql
 SELECT hour, asset_id, open, high, low, close
 FROM <blockchain_name>.price.fact_prices_ohlc_hourly
@@ -196,18 +223,33 @@ ORDER BY hour DESC;
 
 {% docs ez_asset_metadata_table_doc %}
 
-## Table: ez_asset_metadata
+## What
 
 This curated dimensional table provides comprehensive metadata for tokens and native assets across EVM blockchains. It serves as the authoritative source for asset information, with quality checks and verification status to ensure reliability.
 
-### Key Features:
-- **Unique Assets**: One row per token address per blockchain
-- **Verified Data**: Flipside team verification for major assets
-- **Complete Metadata**: Names, symbols, decimals, and categorization
-- **Native Asset Support**: Includes blockchain native currencies
-- **Cross-Chain Mapping**: Same asset across multiple chains
+## Key Use Cases
 
-### Sample Queries:
+- Asset discovery and verification checking
+- Cross-chain asset mapping and analysis
+- Token metadata lookup for display purposes
+- Filtering for verified or native assets only
+
+## Important Relationships
+
+- **Join with ez_prices_hourly**: For price data enrichment
+- **Join with ez_token_transfers**: For transfer metadata
+
+## Commonly-used Fields
+
+- `token_address`: Contract address (NULL for native assets)
+- `symbol`: Token ticker symbol
+- `name`: Full asset name
+- `decimals`: Token decimal places
+- `is_verified`: Flipside verification status
+- `is_native`: Native asset flag
+- `blockchain`: Network identifier
+
+## Sample Queries
 
 **Verified Asset Discovery**
 ```sql
@@ -274,61 +316,33 @@ ORDER BY blockchain;
 
 {% docs ez_prices_address %}
 
-Contract address of the token on the blockchain.
+Contract address of the token on the blockchain. NULL for native assets (ETH, AVAX, etc.).
 
-**Format**: Lowercase hex string (0x + 40 characters)
-**NULL**: For native assets (ETH, AVAX, etc.)
+Example: '0xa0b86a33e6776a1e7f9f0b8b8b8b8b8b8b8b8b8b'
 
 {% enddocs %}
 
 {% docs ez_prices_decimals %}
 
-Number of decimal places for the token.
+Number of decimal places for the token. Most ERC-20 tokens use 18 decimals, USDC/USDT use 6, WBTC uses 8.
 
-**Standard Values**:
-- 18: Most ERC-20 tokens (ETH standard)
-- 6: USDC, USDT
-- 8: WBTC (Bitcoin standard)
-- 0: Some NFT or special tokens
-
-**Usage**: Required for converting raw amounts to human-readable values
+Example: 18
 
 {% enddocs %}
 
 {% docs ez_prices_hour %}
 
-UTC timestamp truncated to the hour for price recording.
+UTC timestamp truncated to the hour for price recording. Used for joining with hourly transaction data.
 
-**Format**: TIMESTAMP_NTZ rounded to hour
-**Frequency**: Hourly snapshots
-**Timezone**: Always UTC
-
-**Join Pattern**:
-```sql
--- Proper hourly join
-JOIN <blockchain_name>.price.ez_prices_hourly p
-ON DATE_TRUNC('hour', transaction_timestamp) = p.hour
-```
+Example: '2024-01-15 14:00:00.000'
 
 {% enddocs %}
 
 {% docs ez_prices_is_imputed %}
 
-Boolean flag indicating if the price was forward-filled due to missing data.
+Boolean flag indicating if the price was forward-filled due to missing data. TRUE means price carried forward from last known value.
 
-**TRUE**: Price carried forward from last known value
-**FALSE**: Actual price data from source
-
-**Common Reasons**:
-- Low liquidity tokens
-- Exchange API downtime
-- New token listings
-
-**Analysis Consideration**:
-```sql
--- Filter out imputed prices for volatility analysis
-WHERE is_imputed = FALSE
-```
+Example: false
 
 {% enddocs %}
 
@@ -336,163 +350,110 @@ WHERE is_imputed = FALSE
 
 USD price of one whole token unit at the recorded hour.
 
-**Format**: Decimal value
-**Unit**: US Dollars per token
-**Example**: For WETH at $3,000, price = 3000.00
+Example: 3000.50
 
 {% enddocs %}
 
 {% docs ez_prices_symbol %}
 
-Token ticker symbol as commonly recognized.
+Token ticker symbol as commonly recognized. Usually 3-5 uppercase characters.
 
-**Examples**: ETH, WBTC, USDC, UNI
-**Standards**: Usually 3-5 uppercase characters
-**Note**: Not unique - multiple tokens may share symbols
+Example: 'WETH'
 
 {% enddocs %}
 
 {% docs ez_prices_blockchain %}
 
-The blockchain network where the asset exists.
+The blockchain network where the asset exists. Lowercase by convention.
 
-**Values**: ethereum, polygon, avalanche, arbitrum, optimism, etc.
-**Case**: Lowercase by convention
-**Usage**: Required for multi-chain queries
+Example: 'ethereum'
 
 {% enddocs %}
 
 {% docs ez_prices_is_native %}
 
-Boolean indicating if the asset is the blockchain's native currency.
+Boolean indicating if the asset is the blockchain's native currency. TRUE for ETH on Ethereum, AVAX on Avalanche, etc.
 
-**TRUE**: Native assets (ETH on Ethereum, AVAX on Avalanche)
-**FALSE**: Token contracts (ERC-20, etc.)
-
-**Query Usage**:
-```sql
--- Get native asset prices only
-WHERE is_native = TRUE
-```
+Example: true
 
 {% enddocs %}
 
 {% docs ez_prices_is_deprecated %}
 
-Flag indicating if the asset is no longer actively supported.
+Flag indicating if the asset is no longer actively supported. TRUE for deprecated assets that may have stale prices.
 
-**TRUE**: Deprecated, may have stale prices
-**FALSE**: Active asset with current data
-
-**Common Deprecation Reasons**:
-- Token migration to new contract
-- Project closure
-- Exchange delisting
+Example: false
 
 {% enddocs %}
 
 {% docs ez_prices_open %}
 
-Opening price at the start of the hour in USD.
+Opening price at the start of the hour in USD. First recorded price in the hour for OHLC analysis.
 
-**OHLC Component**: First recorded price in the hour
-**Usage**: For candlestick charts and technical analysis
+Example: 2995.25
 
 {% enddocs %}
 
 {% docs ez_prices_high %}
 
-Highest price reached during the hour in USD.
+Highest price reached during the hour in USD. Maximum price in the hour for volatility analysis.
 
-**OHLC Component**: Maximum price in the hour
-**Usage**: Volatility analysis and resistance levels
+Example: 3005.75
 
 {% enddocs %}
 
 {% docs ez_prices_low %}
 
-Lowest price reached during the hour in USD.
+Lowest price reached during the hour in USD. Minimum price in the hour for support level analysis.
 
-**OHLC Component**: Minimum price in the hour
-**Usage**: Volatility analysis and support levels
+Example: 2985.50
 
 {% enddocs %}
 
 {% docs ez_prices_close %}
 
-Closing price at the end of the hour in USD.
+Closing price at the end of the hour in USD. Last recorded price in the hour, commonly used for valuations.
 
-**OHLC Component**: Last recorded price in the hour
-**Usage**: Most commonly used for point-in-time valuations
-
-**Note**: In ez_prices_hourly, typically close price is used as `price`
+Example: 3000.50
 
 {% enddocs %}
 
 {% docs ez_prices_is_verified %}
 
-Boolean indicating Flipside team verification of the asset.
+Boolean indicating Flipside team verification of the asset. TRUE for manually verified assets with validated metadata.
 
-**TRUE**: Manually verified by Flipside team
-**FALSE**: Unverified, use with caution
-
-**Verification Includes**:
-- Contract address validation
-- Symbol/name accuracy
-- Decimal precision
-- No malicious behavior
-
-**Best Practice**:
-```sql
--- Prefer verified assets for production queries
-WHERE is_verified = TRUE
-```
+Example: true
 
 {% enddocs %}
 
 {% docs ez_prices_provider %}
 
-Data source that provided the price information.
+Data source that provided the price information. Values include 'coingecko', 'coinmarketcap', 'dex_aggregated'.
 
-**Values**:
-- coingecko: CoinGecko API
-- coinmarketcap: CoinMarketCap API
-- dex_aggregated: On-chain DEX prices
-
-**Usage**: For data quality analysis and source preference
+Example: 'coingecko'
 
 {% enddocs %}
 
 {% docs ez_prices_asset_id %}
 
-Unique identifier for the asset from the price provider.
+Unique identifier for the asset from the price provider. Provider-specific ID format.
 
-**Format**: Provider-specific ID
-**Examples**: 
-- CoinGecko: 'ethereum', 'bitcoin'
-- CoinMarketCap: Numeric IDs
-
-**Usage**: For joining with provider-specific data
+Example: 'ethereum'
 
 {% enddocs %}
 
 {% docs ez_prices_name %}
 
-Full name of the asset or token.
+Full name of the asset or token. More descriptive than symbol.
 
-**Examples**: 
-- "Ethereum"
-- "USD Coin"
-- "Wrapped Bitcoin"
-
-**Note**: More descriptive than symbol
+Example: 'Wrapped Ether'
 
 {% enddocs %}
 
 {% docs ez_prices_blockchain_id %}
 
-The numeric or string identifier for the blockchain on which the asset exists. Used for cross-chain mapping and analytics.
+The numeric or string identifier for the blockchain on which the asset exists. Used for cross-chain mapping.
 
-**Examples**: 1 (Ethereum), 137 (Polygon), 'avalanche', etc.
+Example: '1'
 
 {% enddocs %}
