@@ -65,7 +65,7 @@
             },
             'woofi': {
                 'v1': {
-                    'woo_router_swap': '0xeaf1ac8e89ea0ae13e0f03634a4ff23502527024'
+                    'woo_router_swap': '0xeaf1ac8e89ea0ae13e0f03634a4ff23502527024',
                     'woo_swap': ['0xeaf1ac8e89ea0ae13e0f03634a4ff23502527024',
                     '0xed9e3f98bbed560e66b89aac922e29d4596a9642']
                 },
@@ -180,7 +180,7 @@
             },
             'synapse': {
                 'v1': {
-                    'token_bridge': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b'
+                    'token_bridge': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b',
                     'token_bridge_swap': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b'
                 }
             },
