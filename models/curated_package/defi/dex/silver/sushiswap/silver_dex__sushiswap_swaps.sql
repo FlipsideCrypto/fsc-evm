@@ -56,7 +56,7 @@ WITH swaps AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN {{ ref('silver_dex__sushi_pools') }} p
+        INNER JOIN {{ ref('silver_dex__sushiswap_pools') }} p
         ON l.contract_address = p.pool_address
     WHERE
         topics [0] :: STRING = '0xcd3829a3813dc3cdd188fd3d01dcf3268c16be2fdd2dd21d0665418816e46062'
