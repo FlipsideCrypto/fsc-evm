@@ -20,7 +20,7 @@
         'MAIN_CORE_BRONZE_TOKEN_READS_LIMIT': 30,
         'MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING': {
+        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
                     'uni_v2_pair_created': '0x9e5a52f57b3038f1b8eee45f28b3c1967e22799c'

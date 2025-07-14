@@ -26,7 +26,7 @@
             'USDC': '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
             'WAVAX': '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
         },
-        'CURATED_DEFI_DEX_POOLS_CONTRACT_MAPPING': {
+        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'arena-trade': {
                 'v1': {
                     'uni_v2_pair_created': '0xf16784dcaf838a3e16bef7711a62d12413c39bd1'
