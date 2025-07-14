@@ -1,0 +1,215 @@
+name: Update FSC EVM Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New fsc-evm version tag (e.g., v4.5.4)'
+        required: true
+        type: string
+      projects:
+        description: 'Comma-separated repo names or "all" (default: all). The "-models" suffix is automatically added. Examples: "ethereum" or "ethereum,base"'
+        required: false
+        type: string
+        default: 'all'
+      dry_run:
+        description: 'Dry run - show what would be updated without creating PRs'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  trigger-fsc-evm-update:
+    runs-on: ubuntu-latest
+    outputs:
+      workflow_run_id: ${{ steps.trigger.outputs.workflow_run_id }}
+    steps:
+      - name: Trigger FSC EVM Update Workflow
+        id: trigger
+        run: |
+          echo "Triggering FSC EVM update workflow..."
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "Projects: ${{ github.event.inputs.projects }}"
+          echo "Dry Run: ${{ github.event.inputs.dry_run }}"
+          
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.BUILD_ACTIONS_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/FlipsideCrypto/evm-build-actions/actions/workflows/update_fsc_evm_version.yml/dispatches \
+            -d '{
+              "ref": "main",
+              "inputs": {
+                "version": "${{ github.event.inputs.version }}",
+                "projects": "${{ github.event.inputs.projects }}",
+                "dry_run": "${{ github.event.inputs.dry_run }}"
+              }
+            }')
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          if [ "$http_code" -eq 204 ]; then
+            echo "✅ Workflow dispatched successfully!"
+            
+            # Wait a moment for the workflow to start, then get the run ID
+            sleep 10
+            
+            # Get the most recent workflow run for this workflow
+            run_response=$(curl -s -H "Authorization: Bearer ${{ secrets.BUILD_ACTIONS_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/FlipsideCrypto/evm-build-actions/actions/workflows/update_fsc_evm_version.yml/runs?per_page=1")
+            
+            workflow_run_id=$(echo "$run_response" | jq -r '.workflow_runs[0].id')
+            echo "workflow_run_id=$workflow_run_id" >> $GITHUB_OUTPUT
+            echo "📋 Workflow Run ID: $workflow_run_id"
+          else
+            echo "❌ Failed to dispatch workflow"
+            echo "HTTP Status Code: $http_code"
+            echo "Response Body: $body"
+            exit 1
+          fi
+
+  wait-and-get-summary:
+    needs: trigger-fsc-evm-update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for workflow completion
+        run: |
+          echo "⏳ Waiting for workflow to complete..."
+          
+          while true; do
+            status_response=$(curl -s -H "Authorization: Bearer ${{ secrets.BUILD_ACTIONS_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/FlipsideCrypto/evm-build-actions/actions/runs/${{ needs.trigger-fsc-evm-update.outputs.workflow_run_id }}")
+            
+            status=$(echo "$status_response" | jq -r '.status')
+            conclusion=$(echo "$status_response" | jq -r '.conclusion')
+            
+            echo "Status: $status, Conclusion: $conclusion"
+            
+            if [ "$status" = "completed" ]; then
+              if [ "$conclusion" = "success" ]; then
+                echo "✅ Workflow completed successfully!"
+              else
+                echo "❌ Workflow completed with status: $conclusion"
+              fi
+              break
+            fi
+            
+            echo "⏳ Still running... waiting 30 seconds"
+            sleep 30
+          done
+
+      - name: Get workflow summary
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BUILD_ACTIONS_TOKEN }}
+          script: |
+            const workflowRunId = '${{ needs.trigger-fsc-evm-update.outputs.workflow_run_id }}';
+            
+            try {
+              // Get all jobs from the workflow run
+              const jobsResponse = await github.rest.actions.listJobsForWorkflowRun({
+                owner: 'FlipsideCrypto',
+                repo: 'evm-build-actions',
+                run_id: workflowRunId
+              });
+              
+              const summarizeJob = jobsResponse.data.jobs.find(job => job.name === 'summarize');
+              const updateJobs = jobsResponse.data.jobs.filter(job => job.name.startsWith('update-repos'));
+              
+              // Count job results and collect per-repo status
+              let successful = 0;
+              let failed = 0;
+              let skipped = 0;
+              const repoStatuses = [];
+              
+              for (const job of updateJobs) {
+                // Extract repo name from matrix job name (e.g., "update-repos (ethereum-models)" -> "ethereum-models")
+                const repoName = job.name.match(/update-repos \((.+)\)/)?.[1] || job.name;
+                
+                let status, emoji;
+                if (job.conclusion === 'success') {
+                  successful++;
+                  status = 'Success';
+                  emoji = '✅';
+                } else if (job.conclusion === 'failure') {
+                  failed++;
+                  status = 'Failed';
+                  emoji = '❌';
+                } else if (job.conclusion === 'skipped') {
+                  skipped++;
+                  status = 'Skipped';
+                  emoji = '⏭️';
+                } else {
+                  status = 'Unknown';
+                  emoji = '❓';
+                }
+                
+                repoStatuses.push({
+                  repo: repoName,
+                  status: status,
+                  emoji: emoji,
+                  conclusion: job.conclusion
+                });
+              }
+              
+              // Sort by status (failed first, then success, then skipped)
+              repoStatuses.sort((a, b) => {
+                const statusOrder = { 'Failed': 0, 'Success': 1, 'Skipped': 2, 'Unknown': 3 };
+                return statusOrder[a.status] - statusOrder[b.status];
+              });
+              
+              // Create detailed status table
+              const statusTable = repoStatuses.map(repo => 
+                `| ${repo.emoji} ${repo.repo} | ${repo.status} |`
+              ).join('\n');
+              
+              // Get workflow run details
+              const runResponse = await github.rest.actions.getWorkflowRun({
+                owner: 'FlipsideCrypto',
+                repo: 'evm-build-actions',
+                run_id: workflowRunId
+              });
+              
+              const workflowRun = runResponse.data;
+              
+              // Create comprehensive summary with per-repo breakdown
+              const summary = `# FSC EVM Update Workflow Summary
+
+              **Workflow Run:** [View in evm-build-actions](https://github.com/FlipsideCrypto/evm-build-actions/actions/runs/${workflowRunId})
+              **Status:** ${workflowRun.conclusion || workflowRun.status}
+              **Started:** ${new Date(workflowRun.created_at).toLocaleString()}
+              **Completed:** ${workflowRun.updated_at ? new Date(workflowRun.updated_at).toLocaleString() : 'Still running'}
+              
+              ## Summary
+              | Status | Count |
+              |--------|-------|
+              | ✅ Successful | ${successful} |
+              | ❌ Failed | ${failed} |
+              | ⏭️ Skipped | ${skipped} |
+
+              ## Repository Details
+              | Repository | Status |
+              |------------|--------|
+              ${statusTable}
+
+              ## Workflow Details
+              - **Total Jobs:** ${jobsResponse.data.jobs.length}
+              - **Update Jobs:** ${updateJobs.length}
+              - **Duration:** ${workflowRun.updated_at ? Math.round((new Date(workflowRun.updated_at) - new Date(workflowRun.created_at)) / 1000) : 'N/A'}s
+              
+              > 💡 **Note:** For detailed results and logs, please check the [workflow run in evm-build-actions](https://github.com/FlipsideCrypto/evm-build-actions/actions/runs/${workflowRunId})
+              `;
+              
+              await core.summary.addRaw(summary).write();
+              console.log('✅ Enhanced summary with per-repo breakdown created');
+              
+              // Also log some key metrics
+              console.log(`📊 Job Summary: ${successful} successful, ${failed} failed, ${skipped} skipped`);
+              console.log(`📋 Repository breakdown: ${repoStatuses.length} repos processed`);
+              
+            } catch (error) {
+              console.error('Error fetching enhanced summary:', error);
+              await core.summary.addRaw('# FSC EVM Update Workflow Summary\n\nError fetching summary from the called workflow. Check the [workflow run](https://github.com/FlipsideCrypto/evm-build-actions/actions/runs/' + workflowRunId + ') for details.').write();
+            }

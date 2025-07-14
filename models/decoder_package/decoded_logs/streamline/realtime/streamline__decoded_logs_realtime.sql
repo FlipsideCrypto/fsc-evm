@@ -33,8 +33,9 @@ candidate_logs AS (
         ) AS _log_id
     FROM {{ ref('core__fact_event_logs') }}
     WHERE
-        inserted_timestamp >= DATEADD('hour', -48, SYSDATE())
-        AND tx_succeeded
+        tx_succeeded
+        AND inserted_timestamp >= DATEADD('hour', -48, SYSDATE())
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
 )
 SELECT
     l.block_number,

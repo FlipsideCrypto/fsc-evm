@@ -35,6 +35,7 @@ WITH bronze_blocks AS (
     {{ ref('bronze__blocks_fr') }}
     WHERE DATA IS NOT NULL
     {% endif %}
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
 )
 
 SELECT 

@@ -16,6 +16,7 @@
   {% set ns.GLOBAL_MAX_SEQUENCE_NUMBER = get_var('GLOBAL_MAX_SEQUENCE_NUMBER', 1000000000) %}
   {% set ns.GLOBAL_NODE_VAULT_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
   {% set ns.GLOBAL_NETWORK = get_var('GLOBAL_NETWORK', 'mainnet') %}
+  {% set ns.GLOBAL_START_BLOCK = get_var('GLOBAL_START_BLOCK', 0) %}
 
   {% set ns.GLOBAL_BRONZE_FR_ENABLED = none if get_var('GLOBAL_BRONZE_FR_ENABLED', false) else false %} {# Sets to none if true, still requires --full-refresh, otherwise will use incremental #}
   {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 
@@ -97,7 +98,6 @@
   {% set ns.MAIN_SL_TRANSACTIONS_PER_BLOCK = get_var('MAIN_SL_TRANSACTIONS_PER_BLOCK', 1) %}
   {% set ns.MAIN_SL_TESTING_LIMIT = get_var('MAIN_SL_TESTING_LIMIT', none) %}
   {% set ns.MAIN_SL_NEW_BUILD_ENABLED = get_var('MAIN_SL_NEW_BUILD_ENABLED', false) %}
-  {% set ns.MAIN_SL_MIN_BLOCK = get_var('MAIN_SL_MIN_BLOCK', none) %}
   {% set ns.MAIN_SL_CHAINHEAD_DELAY_MINUTES = get_var('MAIN_SL_CHAINHEAD_DELAY_MINUTES', 3) %}
   {% set ns.MAIN_SL_BLOCK_LOOKBACK_ENABLED = get_var('MAIN_SL_BLOCK_LOOKBACK_ENABLED', true) %}
   
@@ -238,10 +238,6 @@
   {# NFT Variables #}
 
   {# Curated Variables #}
-  {% set ns.CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT = get_var('CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT', '') %}
-  {% set ns.CURATED_VERTEX_PROJECT_NAME = get_var('CURATED_VERTEX_PROJECT_NAME', ns.GLOBAL_PROJECT_NAME) %}
-  {% set ns.CURATED_VERTEX_CLEARINGHOUSE_CONTRACT = get_var('CURATED_VERTEX_CLEARINGHOUSE_CONTRACT', '') %}
-  {% set ns.CURATED_VERTEX_TOKEN_MAPPING = get_var('CURATED_VERTEX_TOKEN_MAPPING', {}) %}
   {% set ns.CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT = get_var('CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT', '') %}
   {% set ns.CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT = get_var('CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT', '') %}
 

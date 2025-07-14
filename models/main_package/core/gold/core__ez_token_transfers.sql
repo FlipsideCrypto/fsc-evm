@@ -12,7 +12,7 @@
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature), SUBSTRING(origin_from_address, origin_to_address, from_address, to_address, origin_function_signature)",
-    tags = ['gold','core','transfers','ez','phase_3']
+    tags = ['gold','core','transfers','ez','phase_3', 'heal']
 ) }}
 
 WITH base AS (
@@ -57,7 +57,7 @@ WITH base AS (
             'erc20',
             NULL
         ) AS token_standard,
-        p.is_verified as token_is_verified,
+        coalesce(p.is_verified, p1.is_verified, false) as token_is_verified,
         fact_event_logs_id AS ez_token_transfers_id,
         {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,
@@ -110,7 +110,28 @@ AND f.modified_timestamp > (
 {% endif %}
 )
 {% if is_incremental() %}
-, heal_prices as (
+, broken_records as (
+    SELECT
+        *
+    FROM
+        {{ this }}
+    WHERE
+        block_timestamp::DATE > dateadd('day', 
+        {% if var('HEAL_MODEL') %}
+            -31
+        {% else %}
+            -3
+        {% endif %}
+        , 
+            SYSDATE())
+        AND (
+            amount_usd IS NULL
+            OR decimals IS NULL
+            OR symbol IS NULL
+            OR name IS NULL
+        )
+),
+heal_prices as (
 SELECT
     t0.block_number,
     t0.block_timestamp,
@@ -121,7 +142,7 @@ SELECT
     t0.to_address,
     t0.contract_address,
     t0.token_standard,
-    p0.is_verified as token_is_verified,
+    coalesce(p0.is_verified, false) as token_is_verified,
     t0.name,
     t0.symbol,
     t0.decimals,
@@ -152,7 +173,7 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    {{ this }}
+    broken_records
     t0
     INNER JOIN {{ ref('price__ez_prices_hourly') }}
     p0
@@ -161,7 +182,7 @@ FROM
         t0.block_timestamp
     ) = HOUR
     AND t0.contract_address = p0.token_address
-WHERE t0.amount_usd IS NULL AND t0.block_timestamp > dateadd('day', -31, SYSDATE())
+WHERE t0.amount_usd IS NULL
 ),
 heal_metadata as (
 SELECT
@@ -190,16 +211,15 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM    
-    {{ this }}
+    broken_records
     t0
     INNER JOIN {{ ref('core__dim_contracts') }}
     c0
     ON t0.contract_address = c0.address
-    WHERE t0.block_timestamp > dateadd('day', -31, SYSDATE())
-    and (
-    (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
-    OR (t0.name IS NULL AND c0.name IS NOT NULL)
-    OR (t0.decimals IS NULL AND c0.decimals IS NOT NULL)
+    WHERE (
+        (t0.symbol IS NULL AND c0.symbol IS NOT NULL) 
+        OR (t0.name IS NULL AND c0.name IS NOT NULL)
+        OR (t0.decimals IS NULL AND c0.decimals IS NOT NULL)
     ) 
 )
 {% endif %}
