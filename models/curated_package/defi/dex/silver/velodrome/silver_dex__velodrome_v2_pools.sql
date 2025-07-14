@@ -36,12 +36,12 @@ SELECT
         ELSE TRUE
     END AS stable,
     CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
-    m.protocol,
-    m.version,
+    'velodrome' AS protocol,
+    'v2' AS version,
     CONCAT(
-        m.protocol,
+        protocol,
         '-',
-        m.version
+        version
     ) AS platform,
     'PairCreated' AS event_name,
     CONCAT(
