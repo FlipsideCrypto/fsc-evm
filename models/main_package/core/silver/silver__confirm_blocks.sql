@@ -48,17 +48,21 @@ WITH bronze_confirm_blocks AS (
                 SELECT COALESCE(MAX(block_number), 0) FROM {{ this }} 
             ) +5000000
             AND DATA:result IS NOT NULL
+            AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
         {% else %}
             {{ ref('bronze__confirm_blocks') }}
             WHERE _inserted_timestamp >= (
                 SELECT COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
                 FROM {{ this }}
             ) AND DATA:result IS NOT NULL
+            AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
         {% endif %}
     {% else %}
         {{ ref('bronze__confirm_blocks_fr') }}
         WHERE DATA:result IS NOT NULL
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% endif %}
+
     qualify(ROW_NUMBER() over (PARTITION BY block_number ORDER BY _inserted_timestamp DESC)) = 1
 )
 

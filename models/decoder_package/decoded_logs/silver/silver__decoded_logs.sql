@@ -41,10 +41,12 @@ WHERE
             {{ this }}
     )
     AND is_object(DATA)
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
 {% else %}
     {{ ref('bronze__decoded_logs_fr') }}
 WHERE
     is_object(DATA)
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
 {% endif %}
 
 qualify(ROW_NUMBER() over (

@@ -45,10 +45,6 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
-    {% if vars.MAIN_SL_MIN_BLOCK is not none %}
-        WHERE block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
-    {% endif %}
-
     {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
         ORDER BY block_number DESC
         LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 
