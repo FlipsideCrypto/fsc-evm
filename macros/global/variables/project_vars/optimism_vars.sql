@@ -48,7 +48,7 @@
             },
             'dodo': {
                 'v2': {
-                    'deployer': '0x386a28709a31532d4f68b06fd28a27e4ea378364'
+                    'deployer': '0x386a28709a31532d4f68b06fd28a27e4ea378364',
                     'new_pool': ['0xdb9c53f2ced34875685b607c97a61a65da2f30a8',
                     '0x1f83858cd6d0ae7a08ab1fd977c06dabece6d711',
                     '0x2b800dc6270726f7e2266ce8cd5a3f8436fe0b40']
