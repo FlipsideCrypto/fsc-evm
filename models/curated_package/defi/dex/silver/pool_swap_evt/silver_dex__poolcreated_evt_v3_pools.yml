@@ -20,13 +20,7 @@ models:
                 - decimal
                 - float
                 - number
-      - name: INIT_TICK
-        tests:
-          - not_null
       - name: POOL_ADDRESS
-        tests:
-          - not_null
-      - name: TICK_SPACING
         tests:
           - not_null
       - name: TX_HASH
