@@ -106,34 +106,85 @@ AND modified_timestamp >= (
 )
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
+),
+legacy_pools AS ( --seed file CTE for GENESIS contracts, union as needed
+    SELECT
+        pool_address,
+        token0 AS token0_address,
+        token1 AS token1_address,
+        fee,
+        'uniswap' AS protocol,
+        'v3' AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
+        'PoolCreated' AS event_name
+    FROM
+        {{ ref('silver__univ3_ovm1_legacy_pools') }}
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        event_index,
+        event_name,
+        p.contract_address,
+        token0_address,
+        token1_address,
+        fee :: INTEGER AS fee,
+        (
+            fee / 10000
+        ) :: FLOAT AS fee_percent,
+        tick_spacing,
+        pool_address,
+        COALESCE(
+            init_tick,
+            0
+        ) AS init_tick,
+        platform,
+        protocol,
+        version,
+        p._log_id,
+        p.modified_timestamp
+    FROM
+        pools p
+        LEFT JOIN initial_info i
+        ON p.pool_address = i.contract_address
+    UNION
+    SELECT
+        0 AS block_number,
+        '1970-01-01 00:00:00' :: TIMESTAMP AS block_timestamp,
+        'GENESIS' AS tx_hash,
+        0 AS event_index,
+        event_name,
+        pool_address AS contract_address,
+        token0_address,
+        token1_address,
+        fee,
+        (
+            fee / 10000
+        ) :: FLOAT AS fee_percent,
+        NULL AS tick_spacing,
+        pool_address,
+        NULL AS init_tick,
+        platform,
+        protocol,
+        version,
+        CONCAT(
+            tx_hash,
+            '-',
+            contract_address
+        ) AS _log_id,
+        '1970-01-01 00:00:00' :: TIMESTAMP AS modified_timestamp
+    FROM
+        legacy_pools
 )
 SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    event_index,
-    event_name,
-    p.contract_address,
-    token0_address,
-    token1_address,
-    fee :: INTEGER AS fee,
-    (
-        fee / 10000
-    ) :: FLOAT AS fee_percent,
-    tick_spacing,
-    pool_address,
-    COALESCE(
-        init_tick,
-        0
-    ) AS init_tick,
-    platform,
-    protocol,
-    version,
-    p._log_id,
-    p.modified_timestamp
+    *
 FROM
-    pools p
-    LEFT JOIN initial_info i
-    ON p.pool_address = i.contract_address qualify(ROW_NUMBER() over(PARTITION BY pool_address
+    FINAL qualify(ROW_NUMBER() over(PARTITION BY pool_address
 ORDER BY
-    p.modified_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1

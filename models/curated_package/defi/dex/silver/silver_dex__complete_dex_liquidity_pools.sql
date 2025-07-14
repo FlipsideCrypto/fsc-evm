@@ -186,7 +186,7 @@ dodo_v2 AS (
     platform,
     protocol,
     version,
-    _log_id AS _id,
+    _id,
     modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__dodo_v2_pools') }}
@@ -454,6 +454,42 @@ WHERE
   )
 {% endif %}
 ),
+sushiswap AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__sushiswap_pools') }}
+
+{% if is_incremental() and 'sushiswap' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 trader_joe_v2 AS (
   SELECT
     block_number,
@@ -481,6 +517,78 @@ trader_joe_v2 AS (
     {{ ref('silver_dex__trader_joe_v2_pools') }}
 
 {% if is_incremental() and 'trader_joe_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+velodrome_v1 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__velodrome_v1_pools') }}
+
+{% if is_incremental() and 'velodrome_v1' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+velodrome_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    factory_address AS contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__velodrome_v2_pools') }}
+
+{% if is_incremental() and 'velodrome_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -549,7 +657,22 @@ all_pools AS (
   SELECT
     *
   FROM
+    sushiswap
+  UNION ALL
+  SELECT
+    *
+  FROM
     trader_joe_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    velodrome_v1
+  UNION ALL
+  SELECT
+    *
+  FROM
+    velodrome_v2
 ),
 complete_lps AS (
   SELECT

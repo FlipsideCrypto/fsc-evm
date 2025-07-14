@@ -575,6 +575,41 @@ WHERE
   )
 {% endif %}
 ),
+sushiswap AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__sushiswap_swaps') }}
+
+{% if is_incremental() and 'sushiswap' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 platypus AS (
   SELECT
     block_number,
@@ -680,6 +715,111 @@ WHERE
   )
 {% endif %}
 ),
+velodrome_v1 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__velodrome_v1_swaps') }}
+
+{% if is_incremental() and 'velodrome_v1' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+velodrome_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__velodrome_v2_swaps') }}
+
+{% if is_incremental() and 'velodrome_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+synthetix AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__synthetix_swaps') }}
+
+{% if is_incremental() and 'synthetix' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_dex AS (
   SELECT
     *
@@ -764,6 +904,11 @@ all_dex AS (
   SELECT
     *
   FROM
+    sushiswap
+  UNION ALL
+  SELECT
+    *
+  FROM
     platypus
   UNION ALL
   SELECT
@@ -775,6 +920,21 @@ all_dex AS (
     *
   FROM
     trader_joe_v2_1
+  UNION ALL
+  SELECT
+    *
+  FROM
+    velodrome_v1
+  UNION ALL
+  SELECT
+    *
+  FROM
+    velodrome_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    synthetix
 ),
 complete_dex_swaps AS (
   SELECT

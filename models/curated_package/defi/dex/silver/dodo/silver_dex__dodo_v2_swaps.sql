@@ -106,8 +106,14 @@ SELECT
     event_index,
     event_name,
     contract_address,
-    fromToken AS token_in,
-    toToken AS token_out,
+    CASE
+        WHEN fromToken = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+        ELSE fromToken
+    END AS token_in,
+    CASE
+        WHEN toToken = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+        ELSE toToken
+    END AS token_out,
     fromAmount AS amount_in_unadj,
     toAmount AS amount_out_unadj,
     trader_address AS sender,
