@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_bridge__everclear_intent_reads
+  - name: silver_bridge__everclear_reads
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
