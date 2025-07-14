@@ -189,7 +189,7 @@ balances AS (
         post_balance_precise - pre_balance_precise AS net_balance
     FROM
         state_storage s
-        INNER JOIN {{ ref('silver__storage_keys_test') }} k USING (storage_key) -- get address that the balance applies to
+        INNER JOIN {{ ref('silver__storage_keys') }} k USING (storage_key) -- get address that the balance applies to
         LEFT JOIN {{ ref('core__fact_transactions')}} tx USING (block_number, tx_position)
         LEFT JOIN {{ ref('price__ez_prices_hourly') }} 
         p
