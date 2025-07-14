@@ -101,6 +101,7 @@ requests AS (
         live.udf_api(
             'POST',
             '{{ vars.GLOBAL_NODE_URL }}',
+            {},
             rpc_request,
             '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS read_output,

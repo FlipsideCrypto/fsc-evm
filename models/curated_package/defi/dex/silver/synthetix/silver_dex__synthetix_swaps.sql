@@ -108,7 +108,7 @@ SELECT
     _log_id,
     modified_timestamp
 FROM
-    swaps_base s
+    swaps s
     LEFT JOIN (
         SELECT
             synth_symbol AS synth_symbol_in,

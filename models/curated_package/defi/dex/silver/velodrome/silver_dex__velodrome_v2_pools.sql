@@ -24,7 +24,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    l.contract_address AS factory_address,
+    contract_address AS factory_address,
     regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
     LOWER(CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))) AS token0,
     LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) AS token1,

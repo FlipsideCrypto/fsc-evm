@@ -19,7 +19,7 @@ WITH swaps AS (
         origin_function_signature,
         origin_from_address,
         origin_to_address,
-        block_timestamp,
+        l.block_timestamp,
         l.tx_hash,
         l.event_index,
         l.contract_address,
