@@ -1,26 +1,32 @@
 {% docs dim_contract_abis_table_doc %}
 
-## Table: dim_contract_abis
+## What
 
-This table contains Application Binary Interfaces (ABIs) for smart contracts deployed on EVM blockchains. ABIs define the contract's functions, events, and data structures, enabling the decoding of raw blockchain data into human-readable format. This table powers the decoded event logs and function calls throughout Flipside's data infrastructure.
+This table contains Application Binary Interfaces (ABIs) for smart contracts deployed on EVM blockchains. ABIs define the contract's functions, events, and data structures, enabling the decoding of raw blockchain data into human-readable format.
 
-### Key Features:
-- **Multi-Source Collection**: ABIs from block explorers, community submissions, and bytecode matching
-- **Comprehensive Coverage**: Major protocols, tokens, and verified contracts
-- **Continuous Updates**: New ABIs added daily through automated and manual processes
-- **Quality Validation**: ABIs verified for accuracy and completeness
+## Key Use Cases
 
-### ABI Sources (Priority Order):
-1. **Block Explorer Verified**: Contracts verified on Etherscan/similar (highest trust)
-2. **Community Submitted**: User-provided ABIs via [ABI Requestor](https://science.flipsidecrypto.xyz/abi-requestor/)
-3. **Bytecode Matched**: ABIs inferred from matching deployed bytecode
+- Decoding raw event logs into human-readable format
+- Identifying contract functions and their parameters
+- Enabling interaction with smart contracts programmatically
+- Analyzing contract patterns and implementations across chains
+- Supporting automated contract verification and bytecode matching
 
-### Important Relationships:
+## Important Relationships
+
 - **Powers ez_decoded_event_logs**: ABIs enable event decoding
 - **Join with dim_contracts**: Use `contract_address` for contract metadata
 - **Enables fact_decoded_event_logs**: Raw to decoded transformation
 
-### Sample Queries:
+## Commonly-used Fields
+
+- `contract_address`: The contract's blockchain address
+- `abi`: The contract's Application Binary Interface in JSON format
+- `abi_source`: The origin of the ABI data (explorer verified, user submitted, bytecode matched)
+- `bytecode`: The compiled contract code deployed on-chain
+- `created_timestamp`: When the ABI was added to the database
+
+## Sample queries
 
 **Find Contracts Without ABIs**
 ```sql
@@ -115,68 +121,13 @@ ORDER BY contract_count DESC
 LIMIT 20;
 ```
 
-### Submitting ABIs:
-1. Visit the [ABI Requestor](https://science.flipsidecrypto.xyz/abi-requestor/)
-2. Provide the contract address and network
-3. Paste the contract ABI in JSON format
-4. ABIs are typically processed within 24-48 hours
-
-### Quality Indicators:
-- **Verified Source**: Block explorer verified contracts are most reliable
-- **Function Count**: More functions/events = more comprehensive ABI
-- **Recent Updates**: Newer ABIs may include latest contract changes
-
 {% enddocs %}
 
 {% docs dim_contract_abis_abi %}
 
-The contract's Application Binary Interface in JSON format.
+The contract's Application Binary Interface in JSON format, containing function and event definitions that enable interaction with the smart contract.
 
-**Structure**: JSON array of function and event definitions
-**Contents**:
-- Function signatures and parameters
-- Event definitions with indexed parameters
-- Constructor and fallback functions
-- Error definitions (Solidity 0.8.4+)
-
-**Example Structure**:
-```json
-[
-  {
-    "name": "transfer",
-    "type": "function",
-    "inputs": [
-      {"name": "to", "type": "address"},
-      {"name": "value", "type": "uint256"}
-    ],
-    "outputs": [{"name": "", "type": "bool"}]
-  },
-  {
-    "name": "Transfer",
-    "type": "event",
-    "inputs": [
-      {"name": "from", "type": "address", "indexed": true},
-      {"name": "to", "type": "address", "indexed": true},
-      {"name": "value", "type": "uint256", "indexed": false}
-    ]
-  }
-]
-```
-
-**Usage Pattern**:
-```sql
--- Count functions and events in ABI
-SELECT 
-    contract_address,
-    ARRAY_SIZE(PARSE_JSON(abi)) AS total_entries,
-    SUM(CASE WHEN f.value:type = 'function' THEN 1 ELSE 0 END) AS function_count,
-    SUM(CASE WHEN f.value:type = 'event' THEN 1 ELSE 0 END) AS event_count
-FROM <blockchain_name>.core.dim_contract_abis,
-LATERAL FLATTEN(input => PARSE_JSON(abi)) f
-WHERE abi IS NOT NULL
-GROUP BY 1, abi
-LIMIT 100;
-```
+Example: '[{"name":"transfer","type":"function","inputs":[{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"outputs":[{"name":"","type":"bool"}]}]'
 
 {% enddocs %}
 
@@ -184,65 +135,14 @@ LIMIT 100;
 
 The origin of the ABI data, indicating trust level and collection method.
 
-**Values**:
-- `etherscan` / `{explorer}_verified`: Verified via block explorer (highest trust)
-- `user_submitted`: Community provided via ABI requestor
-- `bytecode_matched`: Inferred from matching bytecode patterns
-- `manual_entry`: Flipside team additions
-
-**Trust Hierarchy**:
-1. Explorer verified - Cryptographically verified source code
-2. User submitted - Community verified, widely used
-3. Bytecode matched - Automated inference, verify critical functions
-
-**Analysis Example**:
-```sql
--- ABI source distribution
-SELECT 
-    abi_source,
-    COUNT(*) AS contract_count,
-    SUM(CASE WHEN LENGTH(abi) > 1000 THEN 1 ELSE 0 END) AS complex_contracts
-FROM <blockchain_name>.core.dim_contract_abis
-WHERE abi IS NOT NULL
-GROUP BY 1
-ORDER BY 2 DESC;
-```
+Example: 'etherscan'
 
 {% enddocs %}
 
 {% docs dim_contract_abis_bytecode %}
 
-The compiled contract code deployed on-chain, used for bytecode matching.
+The compiled contract code deployed on-chain, used for bytecode matching and identifying identical contracts.
 
-**Format**: Hex string (0x prefixed)
-**Usage**:
-- Identify identical contracts (clones, proxies)
-- Match contracts with known ABIs
-- Detect contract patterns and families
-
-**Key Points**:
-- Excludes constructor parameters
-- Identifies implementation logic
-- Same bytecode = same functionality
-
-**Pattern Detection**:
-```sql
--- Find common bytecode patterns
-SELECT 
-    LEFT(bytecode, 10) AS bytecode_prefix,
-    COUNT(DISTINCT contract_address) AS instances,
-    ARRAY_AGG(DISTINCT abi_source) AS sources,
-    CASE 
-        WHEN COUNT(DISTINCT contract_address) > 100 THEN 'Factory Pattern'
-        WHEN COUNT(DISTINCT contract_address) > 10 THEN 'Common Implementation'
-        ELSE 'Unique/Rare'
-    END AS pattern_classification
-FROM <blockchain_name>.core.dim_contract_abis
-WHERE bytecode IS NOT NULL
-    AND LENGTH(bytecode) > 100
-GROUP BY 1
-HAVING COUNT(DISTINCT contract_address) > 5
-ORDER BY 2 DESC;
-```
+Example: '0x608060405234801561001057600080fd5b50...'
 
 {% enddocs %}

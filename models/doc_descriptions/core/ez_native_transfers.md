@@ -1,50 +1,35 @@
 {% docs ez_native_transfers_table_doc %}
 
-## Table: ez_native_transfers
+## What
 
 This convenience table tracks all native asset transfers (ETH, AVAX, MATIC, etc.) extracted from transaction traces. It provides a simplified view of value movements with decimal adjustments and USD conversions, making it easy to analyze fund flows without parsing complex trace data.
 
-### Key Features:
-- **Complete Coverage**: All native token movements from both external transactions and internal transfers
-- **Decimal Adjusted**: Amounts converted from Wei to standard units (e.g., ETH)
-- **USD Values**: Historical USD prices at time of transfer
-- **Simplified Structure**: Flattened view of trace data for easy querying
-- **Origin Tracking**: Links to original transaction sender/receiver
+## Key Use Cases
 
-### Data Sources:
-- **External Transfers**: From fact_transactions where value > 0
-- **Internal Transfers**: From fact_traces where type = 'CALL' and value > 0
-- **Failed Transfers**: Excluded - only successful value movements
-- **Price Data**: Historical native asset prices for USD conversion
+- Tracking native asset movements between wallets and contracts
+- Analyzing exchange deposits and withdrawals
+- Monitoring whale movements and large transfers
+- Calculating wallet balances from transfer history
+- Identifying internal transfers within smart contract executions
 
-### Native Token Mapping:
-| Blockchain | Native Token | Decimals |
-|------------|--------------|----------|
-| ETHEREUM   | ETH          | 18       |
-| BINANCE    | BNB          | 18       |
-| POLYGON    | POL          | 18       |
-| AVALANCHE  | AVAX         | 18       |
-| ARBITRUM   | ETH          | 18       |
-| OPTIMISM   | ETH          | 18       |
-| GNOSIS     | xDAI         | 18       |
-| BASE       | ETH          | 18       |
-| MANTLE     | MNT          | 18       |
-| SCROLL     | ETH          | 18       |
-| BOB        | ETH          | 18       |
-| BOBA       | ETH          | 18       |
-| CORE       | ETH          | 18       |
-| INK        | ETH          | 18       |
-| RONIN      | ETH          | 18       |
-| SCROLL     | ETH          | 18       |
-| SWELL      | ETH          | 18       |
+## Important Relationships
 
-### Important Relationships:
 - **Join with fact_transactions**: Use `tx_hash` for transaction context
 - **Join with fact_traces**: Use `tx_hash` and `trace_index` for trace details
 - **Join with dim_labels**: Use addresses for entity identification
 - **Complement to ez_token_transfers**: This table for native, that for tokens
 
-### Sample Queries:
+## Commonly-used Fields
+
+- `from_address`: The sender of the native asset transfer
+- `to_address`: The recipient of the native asset transfer
+- `amount`: Decimal-adjusted transfer amount
+- `amount_usd`: USD value at time of transfer
+- `origin_from_address`: Original transaction sender
+- `origin_to_address`: Original transaction recipient
+- `identifier`: Trace identifier (0 for external transfers)
+
+## Sample queries
 
 **Daily Native Asset Transfer Volume**
 ```sql
@@ -156,96 +141,13 @@ ORDER BY net_balance DESC
 LIMIT 50;
 ```
 
-### Critical Usage Notes:
-- **No Token Transfers**: This table excludes ERC-20, ERC-721, ERC-1155 transfers
-- **Success Only**: Failed transfers are excluded
-- **Price Timing**: USD values calculated at block timestamp
-- **Trace Coverage**: Includes all successful traces with value > 0
-
-### Performance Tips:
-- Always include block_timestamp in WHERE clause
-- Use amount_usd for cross-chain value comparisons
-- Filter by origin addresses for transaction-level analysis
-- Consider indexing on from_address, to_address for wallet analysis
-
-{% enddocs %}
-
-{% docs evm_amount %}
-
-Native asset amount transferred, adjusted to standard decimal units.
-
-**Format**: DECIMAL(38,0) - preserves precision
-**Conversion**: Raw Wei value / 10^18
-**Examples**:
-- 1.5 = 1.5 ETH (or native asset)
-- 0.001 = 0.001 ETH
-- 1000 = 1000 ETH
-
-**Key Points**:
-- Always positive (transfers have direction via from/to)
-- Decimal adjusted (not in Wei)
-- Use for calculations and aggregations
-
-**Query Examples**:
-```sql
--- Distribution of transfer sizes
-SELECT 
-    CASE 
-        WHEN amount < 0.1 THEN '< 0.1'
-        WHEN amount < 1 THEN '0.1 - 1'
-        WHEN amount < 10 THEN '1 - 10'
-        WHEN amount < 100 THEN '10 - 100'
-        ELSE '> 100'
-    END AS size_bucket,
-    COUNT(*) AS transfer_count,
-    SUM(amount) AS total_amount
-FROM <blockchain_name>.core.ez_native_transfers
-WHERE block_timestamp >= CURRENT_DATE - 7
-GROUP BY 1
-ORDER BY MIN(amount);
-```
-
 {% enddocs %}
 
 {% docs ez_native_transfers_amount_usd %}
 
 USD value of the native asset transfer at the time of the transaction.
 
-**Calculation**: amount * native_asset_price_usd
-**Price Source**: Historical price feeds at block timestamp
-**Precision**: 2 decimal places typical
-
-**NULL When**:
-- Price data unavailable for timestamp
-- Very early blockchain history
-- Price feed issues
-
-**Use Cases**:
-- Cross-chain value comparisons
-- Historical portfolio analysis
-- Large transfer monitoring
-- Volume aggregations in USD
-
-**Query Example**:
-```sql
--- Daily USD volume by transfer size
-SELECT 
-    DATE_TRUNC('day', block_timestamp) AS day,
-    CASE 
-        WHEN amount_usd < 100 THEN '< $100'
-        WHEN amount_usd < 1000 THEN '$100 - $1K'
-        WHEN amount_usd < 10000 THEN '$1K - $10K'
-        WHEN amount_usd < 100000 THEN '$10K - $100K'
-        ELSE '> $100K'
-    END AS size_category,
-    COUNT(*) AS transfers,
-    SUM(amount_usd) AS total_usd
-FROM <blockchain_name>.core.ez_native_transfers
-WHERE block_timestamp >= CURRENT_DATE - 30
-    AND amount_usd IS NOT NULL
-GROUP BY 1, 2
-ORDER BY 1 DESC, MIN(amount_usd);
-```
+Example: 2500.50
 
 {% enddocs %}
 
@@ -253,12 +155,7 @@ ORDER BY 1 DESC, MIN(amount_usd);
 
 Native asset amount transferred, adjusted to standard decimal units.
 
-**Format**: DECIMAL(38,0) - preserves precision
-**Conversion**: Raw Wei value / 10^18
-**Examples**:
-- 1.5 = 1.5 ETH (or native asset)
-- 0.001 = 0.001 ETH
-- 1000 = 1000 ETH
+Example: 1.5
 
 {% enddocs %}
 
@@ -266,12 +163,7 @@ Native asset amount transferred, adjusted to standard decimal units.
 
 Native asset amount transferred, decimal adjusted, returned as a string to preserve precision.
 
-**Format**: VARCHAR(38) - preserves precision
-**Conversion**: Raw Wei value / 10^18
-**Examples**:
-- 1.5 = 1.5 ETH (or native asset)
-- 0.001 = 0.001 ETH
-- 1000 = 1000 ETH
+Example: '1.500000000000000000'
 
 {% enddocs %}
 
@@ -279,12 +171,7 @@ Native asset amount transferred, decimal adjusted, returned as a string to prese
 
 Native asset amount transferred, no decimal adjustment, returned as a string to preserve precision.
 
-**Format**: VARCHAR(38) - preserves precision
-**Conversion**: Raw Wei value / 10^18
-**Examples**:
-- 1.5 = 1.5 ETH (or native asset)
-- 0.001 = 0.001 ETH
-- 1000 = 1000 ETH
+Example: '1500000000000000000'
 
 {% enddocs %}
 
@@ -292,10 +179,7 @@ Native asset amount transferred, no decimal adjustment, returned as a string to 
 
 The from address for the native asset transfer. This may or may not be the same as the origin_from_address.
 
-**Format**: VARCHAR(42) - 40 character address
-**Examples**:
-- 0x1234567890123456789012345678901234567890
-- 0x1234567890123456789012345678901234567890
+Example: '0x1234567890123456789012345678901234567890'
 
 {% enddocs %}
 
@@ -303,9 +187,6 @@ The from address for the native asset transfer. This may or may not be the same 
 
 The to address for the native asset transfer. This may or may not be the same as the origin_to_address.
 
-**Format**: VARCHAR(42) - 40 character address
-**Examples**:
-- 0x1234567890123456789012345678901234567890
-- 0x1234567890123456789012345678901234567890
+Example: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'
 
 {% enddocs %}

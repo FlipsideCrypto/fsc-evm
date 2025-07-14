@@ -1,28 +1,35 @@
 {% docs ez_token_transfers_table_doc %}
 
-## Table: ez_token_transfers
+## What
 
-This convenience table provides a comprehensive view of all ERC-20 token transfers with enriched metadata including decimal adjustments, USD values, and token information. It simplifies token flow analysis by joining transfer events with contract details and price data, eliminating the need for complex manual joins.
+This convenience table provides a comprehensive view of all ERC-20 token transfers with enriched metadata including decimal adjustments, USD values, and token information. It simplifies token flow analysis by joining transfer events with contract details and price data.
 
-### Key Features:
-- **ERC-20 Focus**: Specifically tracks fungible token transfers (not NFTs or native assets)
-- **Decimal Adjusted**: Automatic conversion from raw amounts to human-readable values
-- **USD Valuations**: Historical USD values at time of transfer
-- **Token Metadata**: Includes symbol, name, decimals from dim_contracts
-- **Price Integration**: Hourly token prices where available
+## Key Use Cases
 
-### Event Coverage:
-- **Transfer Event**: `0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef`
-- **Standard**: ERC-20 compliant tokens only
-- **Excludes**: Native assets (use ez_native_transfers), NFTs (use nft.ez_nft_transfers)
+- Tracking token movements and holder activity
+- Analyzing stablecoin flows and volumes
+- Monitoring DEX token inflows and outflows
+- Detecting new token launches and adoption
+- Calculating wallet token balances from transfer history
 
-### Important Relationships:
+## Important Relationships
+
 - **Join with fact_event_logs**: Use `tx_hash` and `event_index` for raw event details
 - **Join with fact_transactions**: Use `tx_hash` for transaction context
 - **Join with dim_contracts**: Use `contract_address` for token metadata
 - **Complement to ez_native_transfers**: Complete picture of value flows
 
-### Sample Queries:
+## Commonly-used Fields
+
+- `contract_address`: The token contract address (NOT the recipient)
+- `from_address`: Token sender address
+- `to_address`: Token recipient address
+- `amount`: Decimal-adjusted transfer amount
+- `amount_usd`: USD value at time of transfer
+- `symbol`: Token symbol (e.g., USDC, DAI)
+- `raw_amount`: Original amount without decimal adjustment
+
+## Sample queries
 
 **Top Token Transfers by USD Value**
 ```sql
@@ -133,27 +140,13 @@ LEFT JOIN <blockchain_name>.core.dim_contracts dc ON ft.contract_address = dc.ad
 ORDER BY transfer_count DESC;
 ```
 
-### Performance Optimization:
-- Filter by block_timestamp first
-- Use has_decimal and has_price flags
-- Consider contract_address for specific tokens
-- Symbol is not a safe filter as any token can have the same symbol, use contract_address for specific tokens
-
 {% enddocs %}
 
 {% docs ez_token_transfers_from_address %}
 
 The from address for the token transfer. This may or may not be the same as the origin_from_address.
 
-**Special Values**:
-- `0x0000...0000`: Minting event (tokens created)
-- Contract addresses: Protocol interactions
-- EOAs: User transfers
-
-**Format**: VARCHAR(42) - 40 character address
-**Examples**:
-- 0x1234567890123456789012345678901234567890
-- 0x1234567890123456789012345678901234567890
+Example: '0x1234567890123456789012345678901234567890'
 
 {% enddocs %}
 
@@ -161,28 +154,7 @@ The from address for the token transfer. This may or may not be the same as the 
 
 The to address for the token transfer. This may or may not be the same as the origin_to_address.
 
-Address receiving the tokens in this transfer.
-
-**Special Values**:
-- `0x0000...0000`: Burning event (tokens destroyed)
-- Contract addresses: DeFi deposits, DEX swaps
-- EOAs: User receipts
-
-**Burn Detection**:
-```sql
--- Token burn events
-SELECT 
-    DATE(block_timestamp) AS burn_date,
-    symbol,
-    COUNT(*) AS burn_count,
-    SUM(amount) AS total_burned,
-    SUM(amount_usd) AS usd_burned
-FROM <blockchain_name>.core.ez_token_transfers
-WHERE to_address = '0x0000000000000000000000000000000000000000'
-    AND block_timestamp >= CURRENT_DATE - 30
-GROUP BY 1, 2
-ORDER BY 5 DESC;
-```
+Example: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'
 
 {% enddocs %}
 
@@ -190,11 +162,7 @@ ORDER BY 5 DESC;
 
 The contract address for the token transfer.
 
-**Format**: VARCHAR(42) - 40 character address
-**Examples**:
-- 0x1234567890123456789012345678901234567890
-- 0x1234567890123456789012345678901234567890
-**Note**: This is NOT the recipient - it's the token. It is also the best way to identify the token being transferred.
+Example: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
 {% enddocs %}
 
@@ -202,13 +170,15 @@ The contract address for the token transfer.
 
 The token standard for the transfer, in this case always erc20.
 
+Example: 'erc20'
+
 {% enddocs %}
 
 {% docs ez_token_transfers_token_is_verified %}
 
 Boolean flag indicating if the token is verified by the Flipside team.
 
-**Format**: BOOLEAN
+Example: true
 
 {% enddocs %}
 
@@ -216,14 +186,7 @@ Boolean flag indicating if the token is verified by the Flipside team.
 
 Decimal-adjusted token amount for human-readable values.
 
-**Calculation**: raw_amount / 10^decimals
-**NULL When**: 
-- Token decimals unknown (has_decimal = FALSE)
-- Zero value transfers
-
-**Examples**:
-- Raw: 1000000, Decimals: 6 → Amount: 1.0 (USDC)
-- Raw: 1000000000000000000, Decimals: 18 → Amount: 1.0 (DAI)
+Example: 1000.50
 
 {% enddocs %}
 
@@ -231,22 +194,7 @@ Decimal-adjusted token amount for human-readable values.
 
 String representation of decimal-adjusted amount preserving full precision.
 
-**Format**: VARCHAR to prevent floating point errors
-**Use Cases**:
-- Exact balance calculations
-- Audit reconciliation
-- Large value transfers
-
-**Conversion Example**:
-```sql
--- Safe aggregation with precise amounts
-SELECT 
-    symbol,
-    SUM(CAST(amount_precise AS NUMERIC(38,18))) AS total_precise
-FROM ez_token_transfers
-WHERE block_timestamp >= CURRENT_DATE - 1
-GROUP BY 1;
-```
+Example: '1000.500000'
 
 {% enddocs %}
 
@@ -254,33 +202,7 @@ GROUP BY 1;
 
 USD value of the token transfer at transaction time.
 
-**Calculation**: amount * token_price
-**NULL When**:
-- No price data (has_price = FALSE)
-- No decimal data (has_decimal = FALSE)
-- Token not tracked by price feeds
-
-**Price Timing**: Hourly price at block_timestamp
-**Coverage**: Major tokens, varies by chain
-
-**Value Analysis**:
-```sql
--- Distribution of transfer values
-SELECT 
-    CASE 
-        WHEN amount_usd < 10 THEN '< $10'
-        WHEN amount_usd < 100 THEN '$10-100'
-        WHEN amount_usd < 1000 THEN '$100-1K'
-        WHEN amount_usd < 10000 THEN '$1K-10K'
-        ELSE '> $10K'
-    END AS value_bucket,
-    COUNT(*) AS transfers,
-    SUM(amount_usd) AS total_usd
-FROM <blockchain_name>.core.ez_token_transfers
-WHERE block_timestamp >= CURRENT_DATE - 7
-GROUP BY 1
-ORDER BY MIN(amount_usd);
-```
+Example: 1000.50
 
 {% enddocs %}
 
@@ -288,13 +210,7 @@ ORDER BY MIN(amount_usd);
 
 Original token amount without decimal adjustment.
 
-**Format**: Raw blockchain value
-**Use Cases**:
-- Verification with blockchain explorers
-- Custom decimal handling
-- Reconciliation checks
-
-**Relationship**: amount = raw_amount / 10^decimals
+Example: 1000500000
 
 {% enddocs %}
 
@@ -302,20 +218,6 @@ Original token amount without decimal adjustment.
 
 String representation of raw amount for precision preservation.
 
-**Format**: VARCHAR for exact values
-**Purpose**: Prevent numeric overflow or precision loss
+Example: '1000500000'
 
-**Usage Example**:
-```sql
--- Compare raw vs adjusted
-SELECT 
-    symbol,
-    raw_amount_precise,
-    amount_precise,
-    decimals
-FROM <blockchain_name>.core.ez_token_transfers
-JOIN <blockchain_name>.core.dim_contracts USING (contract_address)
-WHERE symbol = 'USDC' and token_is_verified
-LIMIT 5;
-```
 {% enddocs %}

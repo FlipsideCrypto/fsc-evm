@@ -1,50 +1,37 @@
 {% docs fact_transactions_table_doc %}
 
-## Table: fact_transactions
+## What
 
 This table contains comprehensive transaction-level data for EVM blockchains. Each row represents a single transaction with its execution details, gas consumption, and value transfers. This is a high-level table for analyzing on-chain activity, user behavior, and protocol interactions.
 
-### Key Use Cases:
-- Track wallet activity and transaction patterns
-- Analyze gas fee trends and optimization opportunities
-- Monitor smart contract interactions and usage
-- Calculate transaction volumes and network revenue
-- Detect MEV, arbitrage, and trading patterns
+## Key Use Cases
 
-### Native Token Mapping:
-| Blockchain | Native Token | Decimals |
-|------------|--------------|----------|
-| ETHEREUM   | ETH          | 18       |
-| BINANCE    | BNB          | 18       |
-| POLYGON    | POL          | 18       |
-| AVALANCHE  | AVAX         | 18       |
-| ARBITRUM   | ETH          | 18       |
-| OPTIMISM   | ETH          | 18       |
-| GNOSIS     | xDAI         | 18       |
-| BASE       | ETH          | 18       |
-| MANTLE     | MNT          | 18       |
-| SCROLL     | ETH          | 18       |
-| BOB        | ETH          | 18       |
-| BOBA       | ETH          | 18       |
-| CORE       | ETH          | 18       |
-| INK        | ETH          | 18       |
-| RONIN      | ETH          | 18       |
-| SWELL      | ETH          | 18       |
+- Tracking wallet activity and transaction patterns
+- Analyzing gas fee trends and optimization opportunities
+- Monitoring smart contract interactions and usage
+- Calculating transaction volumes and network revenue
+- Detecting MEV, arbitrage, and trading patterns
 
-### Important Relationships:
+## Important Relationships
+
 - **Join with fact_blocks**: Use `block_number` for block-level context
 - **Join with fact_traces**: Use `tx_hash` for internal transactions
 - **Join with fact_event_logs**: Use `tx_hash` for emitted events
 - **Join with ez_decoded_event_logs**: Use `tx_hash` for human-readable events
 - **Join with dim_contracts**: Use `to_address` for contract metadata
 
-### Transaction Types:
-- **Type 0**: Legacy transactions (pre-EIP-2718)
-- **Type 1**: Access list transactions (EIP-2930)
-- **Type 2**: Dynamic fee transactions (EIP-1559)
-- **Type 3**: Blob transactions (EIP-4844)
+## Commonly-used Fields
 
-### Sample Queries:
+- `tx_hash`: Unique transaction identifier
+- `from_address`: Transaction sender
+- `to_address`: Transaction recipient
+- `value`: Native token amount transferred
+- `gas_used`: Actual gas consumed
+- `gas_price`: Price per gas unit
+- `tx_fee`: Total transaction fee in native tokens
+- `block_timestamp`: When transaction was included
+
+## Sample queries
 
 ```sql
 -- Daily transaction statistics by type
@@ -92,25 +79,13 @@ ORDER BY 3 DESC
 LIMIT 50;
 ```
 
-### Critical Fields for Analysis:
-- **tx_hash**: Unique identifier for joining with other tables
-- **block_timestamp**: Essential for time-series analysis
-- **from_address / to_address**: Track fund flows and interactions
-- **value**: Native token transfers at the transaction level. Note: All native transfers will be found in the `fact_traces` table.
-- **gas_used * gas_price**: Actual transaction cost calculation
-- **tx_succeeded**: Filter for successful transactions only
-- **input_data**: Contains function calls and parameters for contract interactions
-
 {% enddocs %}
 
 {% docs fact_transactions_cumulative_gas_used %}
 
 Running total of gas consumed by all transactions up to and including this transaction within the block.
 
-**Usage**:
-- Last transaction's cumulative_gas_used = block's total gas_used
-- Calculate transaction's impact: current cumulative - previous cumulative
-- Useful for MEV analysis and transaction ordering studies
+Example: 1234567
 
 {% enddocs %}
 
@@ -118,12 +93,7 @@ Running total of gas consumed by all transactions up to and including this trans
 
 Total fee paid for transaction execution in native token units.
 
-**Calculation**:
-- Legacy (Type 0): `gas_used * gas_price / 1e18`
-- EIP-1559 (Type 2): `gas_used * effective_gas_price / 1e18`
-- Includes L1 fees for L2 chains where applicable
-
-**Important**: Already converted to native token units (not Wei/Gwei)
+Example: 0.002
 
 {% enddocs %}
 
@@ -131,11 +101,7 @@ Total fee paid for transaction execution in native token units.
 
 Maximum gas units the sender is willing to consume for this transaction.
 
-**Key Points**:
-- Must be ≥ actual gas_used or transaction fails
-- Standard ETH transfer: 21,000 gas
-- Complex operations require higher limits
-- Unused gas is refunded
+Example: 150000
 
 {% enddocs %}
 
@@ -143,10 +109,7 @@ Maximum gas units the sender is willing to consume for this transaction.
 
 Price per gas unit in Gwei (1 Gwei = 1e-9 native token).
 
-**Context**:
-- Type 0 & 1: Exact price paid per gas unit
-- Type 2: Maximum price, actual price is effective_gas_price
-- Market indicator: Higher = network congestion
+Example: 25
 
 {% enddocs %}
 
@@ -154,11 +117,7 @@ Price per gas unit in Gwei (1 Gwei = 1e-9 native token).
 
 Actual gas units consumed by transaction execution.
 
-**Insights**:
-- 21,000: Simple native token transfer
-- Higher values: Contract interactions
-- Compare to gas_limit for optimization opportunities
-- Failed transactions still consume gas
+Example: 89234
 
 {% enddocs %}
 
@@ -166,15 +125,7 @@ Actual gas units consumed by transaction execution.
 
 Encoded data sent with the transaction, containing function calls and parameters.
 
-**Structure**:
-- First 10 chars (including 0x): Function selector
-- Remaining: ABI-encoded parameters
-- Empty (0x): Simple value transfer
-
-**Example Uses**:
-- `0x095ea7b3...`: ERC-20 approve
-- `0xa9059cbb...`: ERC-20 transfer
-- `0x7ff36ab5...`: Uniswap swapExactETHForTokens
+Example: '0xa9059cbb0000000000000000000000001234567890123456789012345678901234567890'
 
 {% enddocs %}
 
@@ -182,19 +133,7 @@ Encoded data sent with the transaction, containing function calls and parameters
 
 Sequential counter of transactions sent by the from_address.
 
-**Key Facts**:
-- Starts at 0 for new addresses
-- Must be sequential (gaps cause pending)
-- Prevents replay attacks
-- Reset never occurs
-
-**Query Example**:
-```sql
--- Find address transaction count
-SELECT from_address, MAX(nonce) + 1 as tx_count
-FROM <blockchain_name>.core.fact_transactions
-GROUP BY from_address;
-```
+Example: 42
 
 {% enddocs %}
 
@@ -202,9 +141,7 @@ GROUP BY from_address;
 
 Actual price paid per gas unit for EIP-1559 transactions, in Gwei.
 
-**Calculation**: `base_fee_per_gas + priority_fee`
-**Relationship**: `effective_gas_price <= max_fee_per_gas`
-**Usage**: Calculate exact transaction costs for Type 2 transactions
+Example: 23.5
 
 {% enddocs %}
 
@@ -212,9 +149,7 @@ Actual price paid per gas unit for EIP-1559 transactions, in Gwei.
 
 Maximum total fee per gas unit sender is willing to pay (EIP-1559), in Gwei.
 
-**Components**: Includes both base fee and priority fee
-**NULL**: For legacy transaction types
-**Best Practice**: Set higher than expected base fee to ensure inclusion
+Example: 50
 
 {% enddocs %}
 
@@ -222,10 +157,7 @@ Maximum total fee per gas unit sender is willing to pay (EIP-1559), in Gwei.
 
 Maximum tip per gas unit for validator (EIP-1559), in Gwei.
 
-**Purpose**: Incentivizes validators to include transaction
-**Typical Values**:
-- 1-2 Gwei: Normal priority
-- >10 Gwei: High priority/MEV
+Example: 2
 
 {% enddocs %}
 
@@ -233,10 +165,7 @@ Maximum tip per gas unit for validator (EIP-1559), in Gwei.
 
 R component of ECDSA signature (32 bytes).
 
-**Usage**:
-- Transaction authentication
-- Signature verification
-- Forensic analysis
+Example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
 
 {% enddocs %}
 
@@ -244,7 +173,7 @@ R component of ECDSA signature (32 bytes).
 
 S component of ECDSA signature (32 bytes).
 
-**Usage**: Combined with r and v for complete signature verification
+Example: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
 
 {% enddocs %}
 
@@ -252,10 +181,7 @@ S component of ECDSA signature (32 bytes).
 
 Recovery identifier for ECDSA signature.
 
-**Values**:
-- 27-28: Legacy mainnet
-- 35+: EIP-155 replay protection
-- Encodes chain_id for replay protection
+Example: 27
 
 {% enddocs %}
 
@@ -263,8 +189,7 @@ Recovery identifier for ECDSA signature.
 
 Exact transaction fee as string to prevent floating-point precision loss.
 
-**Usage**: Critical for accounting and reconciliation where exact values matter
-**Format**: String representation of decimal value
+Example: '0.002345678901234567'
 
 {% enddocs %}
 
@@ -272,13 +197,7 @@ Exact transaction fee as string to prevent floating-point precision loss.
 
 Transaction envelope type (EIP-2718).
 
-**Types**:
-- 0: Legacy (pre-EIP-2718)
-- 1: Access list (EIP-2930)
-- 2: Dynamic fee (EIP-1559)
-- 3: Blob (EIP-4844)
-
-**Impact**: Determines fee calculation and available fields
+Example: 2
 
 {% enddocs %}
 
@@ -286,10 +205,7 @@ Transaction envelope type (EIP-2718).
 
 Minting event data for special transactions.
 
-**Applies To**:
-- Coinbase transactions
-- L2 sequencer rewards
-- Protocol-specific minting
+Example: null
 
 {% enddocs %}
 
@@ -297,8 +213,7 @@ Minting event data for special transactions.
 
 Hash linking L2 transactions to their L1 origin.
 
-**L2-Specific**: Used for deposit transactions and cross-layer tracing
-**NULL**: For standard L1 transactions
+Example: '0x9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba'
 
 {% enddocs %}
 
@@ -306,8 +221,7 @@ Hash linking L2 transactions to their L1 origin.
 
 ETH value for cross-chain transactions on L2s.
 
-**Context**: Some L2s distinguish between native token and ETH values
-**Example**: Mantle has both MNT (native) and ETH values
+Example: 0.5
 
 {% enddocs %}
 
@@ -315,8 +229,7 @@ ETH value for cross-chain transactions on L2s.
 
 Raw L1 data availability fee for L2 transactions, in Gwei.
 
-**L2-Specific**: Cost of posting transaction data to L1
-**Calculation**: Based on L1 gas price and transaction size
+Example: 123456789
 
 {% enddocs %}
 
@@ -324,8 +237,7 @@ Raw L1 data availability fee for L2 transactions, in Gwei.
 
 Formatted L1 fee for L2 transactions, in native token units.
 
-**Usage**: Add to execution fee for total L2 transaction cost
-**NULL**: For L1 transactions
+Example: '0.000123456789'
 
 {% enddocs %}
 
@@ -333,8 +245,7 @@ Formatted L1 fee for L2 transactions, in native token units.
 
 Y coordinate parity for signature recovery (EIP-2098).
 
-**Values**: 0 or 1
-**Purpose**: Compact signature representation
+Example: 1
 
 {% enddocs %}
 
@@ -342,8 +253,7 @@ Y coordinate parity for signature recovery (EIP-2098).
 
 Array of addresses and storage keys for optimized gas costs (EIP-2930).
 
-**Structure**: `[{address, storageKeys[]}, ...]`
-**Benefit**: Pre-declares state access for gas savings
+Example: [{"address": "0x123...", "storageKeys": ["0x456..."]}]
 
 {% enddocs %}
 
@@ -351,8 +261,7 @@ Array of addresses and storage keys for optimized gas costs (EIP-2930).
 
 ETH/MNT price ratio for Mantle network fee calculations.
 
-**Mantle-Specific**: Adjusts fees based on token price
-**Updates**: Set by protocol governance
+Example: 1.5
 
 {% enddocs %}
 
@@ -360,8 +269,7 @@ ETH/MNT price ratio for Mantle network fee calculations.
 
 Multiplier for L1 base fee in L2 fee calculation.
 
-**OP Stack**: Adjusts L1 cost based on network conditions
-**Range**: Typically 1000-2000 (divided by 1e6)
+Example: 1500
 
 {% enddocs %}
 
@@ -369,8 +277,7 @@ Multiplier for L1 base fee in L2 fee calculation.
 
 L1 blob base fee at time of L2 transaction.
 
-**Post-4844**: Cost per blob gas unit on L1
-**Impact**: Affects L2 data availability costs
+Example: 1
 
 {% enddocs %}
 
@@ -378,8 +285,7 @@ L1 blob base fee at time of L2 transaction.
 
 Multiplier for blob base fee in L2 calculations.
 
-**Purpose**: Adjusts blob costs for L2 economics
-**NULL**: Pre-4844 or non-blob transactions
+Example: 1000
 
 {% enddocs %}
 
@@ -387,8 +293,7 @@ Multiplier for blob base fee in L2 calculations.
 
 EIP-7702 authorization entries for EOA delegation.
 
-**Structure**: Array of delegations allowing contracts to act for EOAs
-**Use Case**: Account abstraction and smart wallets
+Example: []
 
 {% enddocs %}
 
@@ -396,8 +301,7 @@ EIP-7702 authorization entries for EOA delegation.
 
 OP Stack operator fee multiplier.
 
-**Purpose**: Protocol revenue mechanism
-**Calculation**: Part of L2 operator fee formula
+Example: 100
 
 {% enddocs %}
 
@@ -405,8 +309,7 @@ OP Stack operator fee multiplier.
 
 OP Stack fixed operator fee component.
 
-**Added To**: Scaled operator fees
-**Revenue**: Goes to L2 operator/treasury
+Example: 0
 
 {% enddocs %}
 
@@ -414,8 +317,7 @@ OP Stack fixed operator fee component.
 
 Arbitrum-specific priority transaction flag.
 
-**TRUE**: Transaction paid for priority inclusion
-**Impact**: Faster inclusion, higher fees
+Example: false
 
 {% enddocs %}
 
@@ -423,9 +325,7 @@ Arbitrum-specific priority transaction flag.
 
 Array of blob commitment hashes for EIP-4844 transactions.
 
-**Format**: Versioned 32-byte hashes
-**Usage**: Links to blob data without storing on-chain
-**L2 Benefit**: Reduced data availability costs
+Example: ['0x01234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd']
 
 {% enddocs %}
 
@@ -433,8 +333,7 @@ Array of blob commitment hashes for EIP-4844 transactions.
 
 Maximum price sender will pay per blob gas unit.
 
-**EIP-4844**: Separate fee market for blob data
-**NULL**: Non-blob transactions
+Example: 3
 
 {% enddocs %}
 
@@ -442,8 +341,6 @@ Maximum price sender will pay per blob gas unit.
 
 Actual price paid per blob gas unit.
 
-**Determined By**: Blob fee market dynamics
-**Usage**: Calculate total blob costs
-**Benefit**: Cheaper L2 data availability
+Example: 1
 
 {% enddocs %}

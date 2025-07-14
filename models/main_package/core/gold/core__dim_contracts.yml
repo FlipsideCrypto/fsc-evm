@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: core__dim_contracts
-    description: '{{ doc("evm_contracts_table_doc") }}'
+    description: '{{ doc("dim_contracts_table_doc") }}'
       
     columns:
       - name: ADDRESS
