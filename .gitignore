@@ -16,5 +16,4 @@ logs/
 .vscode/
 .env
 dbt-env/
-snowflake_worksheets/
 package-lock.yml
