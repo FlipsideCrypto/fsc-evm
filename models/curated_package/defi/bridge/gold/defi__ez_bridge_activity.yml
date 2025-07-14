@@ -24,6 +24,10 @@ models:
         description: '{{ doc("evm_origin_from") }}'
       - name: PLATFORM
         description: '{{ doc("evm_bridge_platform") }}'
+      - name: PROTOCOL
+        description: The protocol of the bridge.
+      - name: VERSION
+        description: The version of the bridge.
       - name: SENDER
         description: '{{ doc("evm_bridge_sender") }}'
       - name: RECEIVER

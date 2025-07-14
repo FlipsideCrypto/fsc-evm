@@ -28,6 +28,8 @@ SELECT
     bridge_address,
     event_name,
     platform,
+    protocol,
+    version,
     sender,
     receiver,
     destination_chain_receiver,

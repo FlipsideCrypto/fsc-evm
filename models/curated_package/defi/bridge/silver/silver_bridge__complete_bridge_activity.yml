@@ -41,6 +41,9 @@ models:
           - not_null
       - name: PLATFORM
           - not_null
+      - name: PROTOCOL
+        tests:
+          - not_null
       - name: VERSION
           - not_null
       - name: SENDER

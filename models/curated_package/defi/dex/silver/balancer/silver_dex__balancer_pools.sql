@@ -17,7 +17,7 @@ WITH contract_mapping AS (
         vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
     ) }}
     WHERE
-        protocol = 'balancer'
+        protocol IN ('balancer', 'beethoven_x')
 ),
 pools_registered AS (
 
