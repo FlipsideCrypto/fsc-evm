@@ -1,52 +1,54 @@
 version: 2
 models:
   - name: core__ez_token_transfers
-    description: '{{ doc("evm_ez_token_transfers_table_doc") }}'
+    description: '{{ doc("ez_token_transfers_table_doc") }}'
       
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("evm_block_number") }}'
+        description: '{{ doc("general_block_number") }}'
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("evm_block_timestamp") }}'
+        description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: TX_POSITION
-        description: '{{ doc("evm_tx_position") }}'
+        description: '{{ doc("general_tx_position") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: FROM_ADDRESS
-        description: '{{ doc("evm_transfer_from_address") }}'
+        description: '{{ doc("ez_token_transfers_from_address") }}'
       - name: TO_ADDRESS
-        description: '{{ doc("evm_transfer_to_address") }}'
+        description: '{{ doc("ez_token_transfers_to_address") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_contract_address") }}'
+        description: '{{ doc("ez_token_transfers_contract_address") }}'
       - name: TOKEN_STANDARD
-        description: '{{ doc("evm_token_standard") }}'
+        description: '{{ doc("ez_token_transfers_token_standard") }}'
+      - name: TOKEN_IS_VERIFIED
+        description: '{{ doc("ez_token_transfers_token_is_verified") }}'
       - name: NAME
-        description: '{{ doc("evm_contracts_name") }}'
+        description: '{{ doc("dim_contracts_name") }}'
       - name: SYMBOL
-        description: '{{ doc("evm_contracts_symbol") }}'
+        description: '{{ doc("dim_contracts_symbol") }}'
       - name: DECIMALS
-        description: '{{ doc("evm_decimals") }}'
+        description: '{{ doc("dim_contracts_decimals") }}'
       - name: RAW_AMOUNT_PRECISE
-        description: '{{ doc("evm_transfer_raw_amount_precise") }}'
+        description: '{{ doc("ez_token_transfers_raw_amount_precise") }}'
       - name: RAW_AMOUNT
-        description: '{{ doc("evm_transfer_raw_amount") }}'
+        description: '{{ doc("ez_token_transfers_raw_amount") }}'
       - name: AMOUNT_PRECISE
-        description: '{{ doc("evm_transfer_amount_precise") }}'
+        description: '{{ doc("ez_token_transfers_amount_precise") }}'
       - name: AMOUNT
-        description: '{{ doc("evm_transfer_amount") }}'
+        description: '{{ doc("ez_token_transfers_amount") }}'
       - name: AMOUNT_USD
-        description: '{{ doc("evm_transfer_amount_usd") }}'
+        description: '{{ doc("ez_token_transfers_amount_usd") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("evm_tx_origin_sig") }}'
+        description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_to") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: EZ_TOKEN_TRANSFERS_ID
-        description: '{{ doc("evm_pk") }}'
+        description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'
+        description: '{{ doc("general_inserted_timestamp") }}'
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}'
+        description: '{{ doc("general_modified_timestamp") }}'

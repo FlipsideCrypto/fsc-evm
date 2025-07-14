@@ -43,6 +43,7 @@ WITH bronze_transactions AS (
     {{ ref('bronze__transactions_fr') }}
     WHERE DATA IS NOT NULL
     {% endif %}
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
 )
 
 SELECT 

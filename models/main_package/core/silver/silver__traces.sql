@@ -43,6 +43,7 @@ WHERE
         FROM
             {{ this }}
     ) AND DATA :result IS NOT NULL 
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         AND block_number > 22207817
     {% endif %}
@@ -63,6 +64,7 @@ WHERE
             FROM
                 {{ this }}
         )
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% else %}
         _partition_by_block_id BETWEEN (
             SELECT
@@ -76,10 +78,12 @@ WHERE
             FROM
                 {{ this }}
         )
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% endif %}
 
     {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         AND block_number > 22207817
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% endif %}
 {% else %}
     {{ ref('bronze__traces_fr') }}
@@ -87,13 +91,16 @@ WHERE 1=1
     {% if not vars.GLOBAL_NEW_BUILD_ENABLED %}
         {% if vars.MAIN_CORE_SILVER_TRACES_PARTITION_KEY_ENABLED %}
            AND partition_key <= {{ vars.MAIN_CORE_SILVER_TRACES_FR_MAX_BLOCK }}
+           AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
         {% else %}
            AND _partition_by_block_id <= {{ vars.MAIN_CORE_SILVER_TRACES_FR_MAX_BLOCK }}
+           AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
         {% endif %}
     {% endif %}
 
     {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
         AND block_number > 22207817
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% endif %}
 {% endif %}
 
