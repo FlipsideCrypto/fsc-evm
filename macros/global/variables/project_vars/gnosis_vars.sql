@@ -72,7 +72,7 @@
                     'bridge': '0xaf368c91793cb22739386dfcbbb2f1a9e4bcbebf'
                 }
             }
-        }
+        },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x6f03052743cd99ce1b29265e377e320cd24eb632',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
     } %}
