@@ -22,65 +22,89 @@
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
-                    'uni_v2_pair_created': ''
+                    'uni_v2_pair_created': '0x8909dc15e40173ff4699343b6eb8132c65e18ec6'
                 },
                 'v3': {
-                    'uni_v3_pool_created': ''
+                    'uni_v3_pool_created': '0xdb1d10011ad0ff90774d0c6bb92e5c5c8b4461f7'
                 }
             },
             'sushiswap': {
                 'v1': {
-                    'deploy_pool': []
+                    'uni_v2_pair_created': '0xc35dadb65012ec5796536bd9864ed8773abc74c4'
                 }
             },
             'fraxswap': {
                 'v1': {
-                    'uni_v2_pair_created': ''
+                    'uni_v2_pair_created': ['0x5ca135cb8527d76e932f34b5145575f9d8cbe08e',
+                    '0xf89e6ca06121b6d4370f4b196ae458e8b969a011']
                 }
             },
             'kyberswap': {
                 'v1': {
-                    'static': ''
+                    'dynamic': '0x878dfe971d44e9122048308301f540910bbd934c',
+                    'static': '0x1c758af0688502e49140230f6b0ebd376d429be5'
                 },
                 'v2': {
-                    'elastic': ''
+                    'elastic': '0x5f1dddbf348ac2fbe22a163e30f99f9ece3dd50a'
                 }
             },
             'dodo': {
+                'v1': {
+                    'dodo_birth': '0xca459456a45e300aa7ef447dbb60f87cccb42828'
+                },
                 'v2': {
-                    'deployer': '',
-                    'new_pool': []
+                    'new_pool': ['0xafe0a75dffb395eaabd0a7e1bbbd0b11f8609eef',
+                    '0xd9cac3d964327e47399aebd8e1e6dcc4c251daae',
+                    '0x0fb9815938ad069bf90e14fe6c596c514bede767',
+                    '0x790b4a80fb1094589a3c0efc8740aa9b0c1733fb']
                 }
             },
             'hashflow': {
                 'v1': {
-                    'create': []
+                    'create': ['0x63ae536fec0b57bdeb1fd6a893191b4239f61bff',
+                    '0xa98242820ebf3a405d265ccd22a4ea8f64afb281',
+                    '0xb5574750a786a37e300a916974ecd63f93fc6754']
                 },
                 'v3': {
-                    'create_pool': ''
+                    'create_pool': '0xde828fdc3f497f16416d1bb645261c7c6a62dab5'
                 }
             },
             'woofi': {
                 'v1': {
-                    'woo_router_swap': '',
-                    'woo_swap': []
+                    'woo_swap': ['0xbf365ce9cfcb2d5855521985e351ba3bcf77fd3f',
+                    '0x2217c57c91e3c6c55a90b4ca280f532d65590559']
                 },
                 'v2': {
-                    'woo_router_swap': ''
+                    'woo_router_swap': ['0xc90bfe9951a4efbf20aca5ecd9966b2bf8a01294',
+                    '0x4f4fd4290c9bb49764701803af6445c5b03e8f06',
+                    '0xcef5be73ae943b77f9bc08859367d923c030a269',
+                    '0x4c4af8dbc524681930a27b2f1af5bcc8062e6fb7'],
+                    'woo_swap': ['0x59de3b49314bf5067719364a2cb43e8525ab93fa',
+                    '0xec054126922a9a1918435c9072c32f1b60cb2b90',
+                    '0xed9e3f98bbed560e66b89aac922e29d4596a9642']
                 }
             },
-            'curve': {
+            'biswap': {
                 'v1': {
-                    'deployer': []
+                    'uni_v2_pair_created': '0x858e3312ed3a876947ea49d572a7c42de08af7ee'
                 }
             },
-            'balancer': {
+            'trader_joe': {
                 'v1': {
-                    'vault': ''
+                    'uni_v2_pair_created': '0x4f8bdc85e3eec5b9de67097c3f59b6db025d9986'
+                },
+                'v2': {
+                    'lb_pair_created': '0x43646a8e839b2f2766392c1bf8f60f6e587b6960'
+                },
+                'v2.1': {
+                    'lb_pair_created': '0x8e42f2f4101563bf679975178e880fd87d3efd4e'
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': [],
+        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0x8e4842d0570c85ba3805a9508dce7c6a458359d0',
+        '0x0596908263ef2724fbfbcafa1c983fcd7a629038',
+        '0x165ba87e882208100672b6c56f477ee42502c820',
+        '0xab623fbcaeb522046185051911209f5b2c2a2e1f'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v3': {
