@@ -223,6 +223,64 @@ FROM
     ) 
 )
 {% endif %}
+{% if is_incremental() and var('HEAL_MODEL', false) %}
+, newly_verified_tokens as (
+    select token_address
+    from {{ ref('price__ez_asset_metadata') }}
+    where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+),
+heal_verified_tokens as (
+    select 
+        t.block_number,
+        t.block_timestamp,
+        t.tx_hash,
+        t.tx_position,
+        t.event_index,
+        t.from_address,
+        t.to_address,
+        t.contract_address,
+        t.token_standard,
+        coalesce(p.is_verified, false) as token_is_verified,
+        t.name,
+        t.symbol,
+        t.decimals,
+        t.raw_amount_precise,
+        t.raw_amount,
+        IFF(
+            t.decimals IS NULL,
+            NULL,
+            utils.udf_decimal_adjust(
+                t.raw_amount_precise,
+                t.decimals
+            )
+        ) AS amount_precise_heal,
+        amount_precise_heal :: FLOAT AS amount_heal,
+        IFF(
+            t.decimals IS NOT NULL
+            AND p.price IS NOT NULL,
+            ROUND(
+                amount_heal * p.price,
+                2
+            ),
+            NULL
+        ) AS amount_usd_heal,
+        t.origin_function_signature,
+        t.origin_from_address,
+        t.origin_to_address,
+        t.ez_token_transfers_id,
+        SYSDATE() AS inserted_timestamp,
+        SYSDATE() AS modified_timestamp
+    from {{ this }} t 
+    inner join newly_verified_tokens nv
+    on t.contract_address = nv.token_address
+    left join {{ ref('price__ez_prices_hourly')}} p
+    on DATE_TRUNC(
+        'hour',
+        t.block_timestamp
+    ) = HOUR
+    AND t.contract_address = p.token_address
+
+{% endif %}
 ,
 final AS (
 SELECT
@@ -264,6 +322,13 @@ SELECT
     *
 FROM
     heal_metadata
+{% endif %}
+{% if is_incremental() and var('HEAL_MODEL', false) %}
+UNION ALL
+SELECT
+    *
+FROM
+    heal_verified_tokens
 {% endif %}
 )
 SELECT
