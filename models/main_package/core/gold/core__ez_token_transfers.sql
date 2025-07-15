@@ -281,6 +281,7 @@ heal_verified_tokens as (
         t.block_timestamp
     ) = HOUR
     AND t.contract_address = p.token_address
+)
 
 {% endif %}
 ,
