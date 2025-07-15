@@ -20,16 +20,18 @@ WITH start_epoch AS (
     WHERE
         destination_count > 1
 ),
-
-start_epoch_chain as (
-    select 
-    min_epoch,
-    chainid 
-    from start_epoch, {{ ref('silver_bridge__everclear_chain_seed') }}
-    where chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+start_epoch_chain AS (
+    SELECT
+        min_epoch,
+        chainid
+    FROM
+        start_epoch,
+        {{ ref('silver_bridge__everclear_chain_seed') }}
+    WHERE
+        chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
 ),
 
-{% if is_incremental() %}   
+{% if is_incremental() %}
 in_progress_epoch AS (
     SELECT
         DATE_PART(
@@ -60,9 +62,10 @@ requests AS (
         chainid,
         min_epoch,
 
-{% if is_incremental() %} -- backfill run 
+{% if is_incremental() %}
+-- backfill run mode 1 
 {% if var(
-        'backfill',
+        'backfill_1',
         false
     ) %}
     live.udf_api(
@@ -78,7 +81,17 @@ requests AS (
             min_progress_epoch_plus_1_day
         )
     ) AS response,
-{% else %} -- regular incremental run
+    {% elif var( -- backfill run mode 2 
+        'backfill_2',
+        false
+    ) %}
+    live.udf_api(
+        CONCAT(
+            'https://api.everclear.org/intents/',
+        )
+    ) AS response,
+{% else %}
+    -- regular incremental run
     live.udf_api(
         CONCAT(
             'https://api.everclear.org/intents?limit=500&origins=',
@@ -88,7 +101,8 @@ requests AS (
         )
     ) AS response,
 {% endif %}
-{% else %} -- full refresh run 
+{% else %}
+    -- full refresh run
     live.udf_api(
         CONCAT(
             'https://api.everclear.org/intents?limit=',
@@ -101,32 +115,57 @@ requests AS (
             '&startDate=',
             min_epoch
         )
-    ) AS response,
+    ) AS response
 {% endif %}
-
-VALUE,
-LOWER(
-    VALUE :output_asset :: STRING
-) AS output_asset,
-VALUE :status :: STRING AS status,
-VALUE :hub_settlement_domain :: STRING AS destination_chain_id,
-TO_TIMESTAMP(
-    VALUE :intent_created_timestamp :: INT
-) AS intent_created_timestamp,
-VALUE :auto_id :: INT AS cursor_id,
-VALUE :intent_id :: STRING AS intent_id,
-SYSDATE() AS inserted_timestamp,
-SYSDATE() AS modified_timestamp
 FROM
-    start_epoch_chain,
+    start_epoch_chain
 
-{% if is_incremental() %}
-in_progress_epoch,
+{% if is_incremental() %},
+in_progress_epoch
 {% endif %}
+),
+results AS (
 
-LATERAL FLATTEN (
-    input => response :data :intents
-)
+{% if is_incremental() and var(
+    'backfill_2',
+    false
+) %}
+SELECT
+    chainid,
+    min_epoch,
+    response :data :intent AS VALUE,
+    LOWER(
+        VALUE :output_asset :: STRING
+    ) AS output_asset,
+    VALUE :status :: STRING AS status,
+    VALUE :hub_settlement_domain :: STRING AS destination_chain_id,
+    TO_TIMESTAMP(
+        VALUE :intent_created_timestamp :: INT
+    ) AS intent_created_timestamp,
+    VALUE :auto_id :: INT AS cursor_id,
+    VALUE :intent_id :: STRING AS intent_id
+FROM
+    response
+{% else %}
+SELECT
+    chainid,
+    min_epoch,
+    VALUE,
+    LOWER(
+        VALUE :output_asset :: STRING
+    ) AS output_asset,
+    VALUE :status :: STRING AS status,
+    VALUE :hub_settlement_domain :: STRING AS destination_chain_id,
+    TO_TIMESTAMP(
+        VALUE :intent_created_timestamp :: INT
+    ) AS intent_created_timestamp,
+    VALUE :auto_id :: INT AS cursor_id,
+    VALUE :intent_id :: STRING AS intent_id
+    requests,
+    LATERAL FLATTEN (
+        input => response :data :intents
+    )
+{% endif %}
 )
 SELECT
     min_epoch,
