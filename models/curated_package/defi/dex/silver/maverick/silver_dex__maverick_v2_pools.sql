@@ -1,3 +1,9 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -5,13 +11,21 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH created_pools AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'maverick'
+        AND version = 'v2'
+),
+created_pools AS (
 
     SELECT
         block_number,
         block_timestamp,
         tx_hash,
-        contract_address,
+        l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
         TRY_TO_NUMBER(
@@ -83,6 +97,10 @@ WITH created_pools AS (
             )
         ) AS accessor,
         -- null if permissionless pool
+        m.protocol,
+        m.version,
+        CONCAT(m.protocol, '-', m.version) AS platform,
+        'PairCreated' AS event_name,
         CONCAT(
             tx_hash,
             '-',
@@ -91,19 +109,21 @@ WITH created_pools AS (
         modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = LOWER('0x0A7e848Aca42d879EF06507Fca0E7b33A0a63c1e') --factory
-        AND topic_0 = '0x848331e408557f4b7eb6561ca1c18a3ac43004fbe64b8b5bce613855cfdf22d2' --paircreated
+        topic_0 = '0x848331e408557f4b7eb6561ca1c18a3ac43004fbe64b8b5bce613855cfdf22d2' --paircreated
         AND tx_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -111,6 +131,7 @@ SELECT
     block_timestamp,
     tx_hash,
     contract_address,
+    event_name,
     pool_address,
     protocolFeeRatio AS protocol_fee_ratio,
     feeAin,
@@ -122,6 +143,9 @@ SELECT
     tokenB,
     kinds,
     accessor,
+    platform,
+    protocol,
+    version,
     _log_id,
     modified_timestamp
 FROM

@@ -540,6 +540,41 @@ WHERE
   )
 {% endif %}
 ),
+gmx_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__gmx_v2_swaps') }}
+
+{% if is_incremental() and 'gmx_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 pharaoh_v1 AS (
   SELECT
     block_number,
@@ -855,6 +890,41 @@ WHERE
   )
 {% endif %}
 ),
+maverick_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__maverick_v2_swaps') }}
+
+{% if is_incremental() and 'maverick_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 pancakeswap_v2_ss AS (
   SELECT
     block_number,
@@ -1100,6 +1170,76 @@ WHERE
   )
 {% endif %}
 ),
+camelot_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__camelot_v2_swaps') }}
+
+{% if is_incremental() and 'camelot_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+zyberswap_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__zyberswap_v2_swaps') }}
+
+{% if is_incremental() and 'zyberswap_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_dex AS (
   SELECT
     *
@@ -1179,6 +1319,11 @@ all_dex AS (
   SELECT
     *
   FROM
+    gmx_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
     pharaoh_v1
   UNION ALL
   SELECT
@@ -1224,6 +1369,11 @@ all_dex AS (
   SELECT
     *
   FROM
+    maverick_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
     pancakeswap_v2_ss
   UNION ALL
   SELECT
@@ -1255,6 +1405,16 @@ all_dex AS (
     *
   FROM
     levelfi
+  UNION ALL
+  SELECT
+    *
+  FROM
+    camelot_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    zyberswap_v2
 ),
 complete_dex_swaps AS (
   SELECT

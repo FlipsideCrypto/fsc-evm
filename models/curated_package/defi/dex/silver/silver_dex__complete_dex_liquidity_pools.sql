@@ -634,6 +634,42 @@ WHERE
   )
 {% endif %}
 ),
+maverick_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    tick_spacing,
+    tokenA AS token0,
+    tokenB AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__maverick_v2_pools') }}
+
+{% if is_incremental() and 'maverick_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 pancakeswap_v2_ss AS (
   SELECT
     block_number,
@@ -814,6 +850,78 @@ WHERE
   )
 {% endif %}
 ),
+camelot_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__camelot_v2_pools') }}
+
+{% if is_incremental() and 'camelot_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+zyberswap_v2 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__zyberswap_v2_pools') }}
+
+{% if is_incremental() and 'zyberswap_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_pools AS (
   SELECT
     *
@@ -898,6 +1006,11 @@ all_pools AS (
   SELECT
     *
   FROM
+    maverick_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
     pancakeswap_v2_ss
   UNION ALL
   SELECT
@@ -919,6 +1032,16 @@ all_pools AS (
     *
   FROM
     glyph_v4
+  UNION ALL
+  SELECT
+    *
+  FROM
+    camelot_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    zyberswap_v2
 ),
 complete_lps AS (
   SELECT
@@ -937,7 +1060,9 @@ complete_lps AS (
         'pharaoh-v2',
         'kyberswap-v2',
         'pancakeswap-v3',
-        'glyph-v4'
+        'glyph-v4',
+        'sushiswap-v3',
+        'maverick-v2'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -964,6 +1089,8 @@ complete_lps AS (
           WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
           WHEN platform = 'glyph-v4' THEN ' GLYPH-V4 LP'
+          WHEN platform = 'sushiswap-v3' THEN 'SUSHI-V3 LP'
+          WHEN platform = 'maverick-v2' THEN 'MPv2 LP'
         END
       )
       WHEN pool_name IS NULL
@@ -1151,7 +1278,9 @@ heal_model AS (
         'pharaoh-v2',
         'kyberswap-v2',
         'pancakeswap-v3',
-        'glyph-v4'
+        'glyph-v4',
+        'sushiswap-v3',
+        'maverick-v2'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -1178,6 +1307,8 @@ heal_model AS (
           WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
           WHEN platform = 'glyph-v4' THEN ' GLYPH-V4 LP'
+          WHEN platform = 'sushiswap-v3' THEN 'SUSHI-V3 LP'
+          WHEN platform = 'maverick-v2' THEN 'MPv2 LP'
         END
       )
       WHEN pool_name IS NULL

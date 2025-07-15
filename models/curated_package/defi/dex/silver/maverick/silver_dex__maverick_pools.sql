@@ -17,6 +17,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'maverick'
+        AND version = 'v1'
 ),
 pools AS (
 

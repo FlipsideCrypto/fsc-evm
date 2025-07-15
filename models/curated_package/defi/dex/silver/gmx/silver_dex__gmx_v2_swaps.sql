@@ -1,3 +1,9 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,7 +12,15 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH decoded_logs AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'gmx'
+        AND version = 'v2'
+),
+decoded_logs AS (
 
     SELECT
         block_number,
@@ -15,7 +29,7 @@ WITH decoded_logs AS (
         origin_function_signature,
         origin_from_address,
         origin_to_address,
-        contract_address,
+        l.contract_address,
         topics,
         DATA,
         event_index,
@@ -26,6 +40,9 @@ WITH decoded_logs AS (
         decoded_log :topic1 :: STRING AS topic_1,
         decoded_log :topic2 :: STRING AS topic_2,
         decoded_log :eventData AS event_data,
+        m.protocol,
+        m.version,
+        CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash,
             '-',
@@ -33,10 +50,12 @@ WITH decoded_logs AS (
         ) AS _log_id,
         modified_timestamp
     FROM
-        {{ ref('core__ez_decoded_event_logs') }}
+        {{ ref('core__ez_decoded_event_logs') }} 
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = '0xc8ee91a54287db53897056e12d9819156d3822fb'
-        AND decoded_log :eventName :: STRING IN (
+        decoded_log :eventName :: STRING IN (
             'SwapInfo',
             'OrderExecuted'
         )
@@ -47,11 +66,11 @@ AND modified_timestamp >= (
     SELECT
         MAX(
             modified_timestamp
-        ) - INTERVAL '12 hours'
+        ) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 parse_data AS (
@@ -130,7 +149,10 @@ column_format AS (
         amount_out AS amount_out_unadj,
         price_impact_usd,
         price_impact_amount,
-        key
+        key,
+        platform,
+        protocol,
+        version
     FROM
         parse_data p
 ),
@@ -151,6 +173,7 @@ SELECT
     A.origin_to_address,
     A.contract_address,
     A.event_index,
+    A.event_name,
     market,
     receiver,
     sender,
@@ -163,8 +186,9 @@ SELECT
     amount_in_unadj,
     token_out,
     amount_out_unadj,
-    'gmx-v2' AS platform,
-    'Swap' AS event_name,
+    platform,
+    protocol,
+    version,
     A.key,
     A._log_id,
     A.modified_timestamp

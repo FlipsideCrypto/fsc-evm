@@ -18,6 +18,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'gmx'
+        AND version = 'v1'
 ),
 swaps AS (
 

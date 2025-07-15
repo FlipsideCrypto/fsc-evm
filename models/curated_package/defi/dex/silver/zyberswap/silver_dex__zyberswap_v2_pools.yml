@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_dex__camelot_pools
+  - name: silver_dex__zyberswap_v2_pools
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

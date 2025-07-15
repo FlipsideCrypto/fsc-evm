@@ -1,3 +1,9 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,16 +12,7 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH pools AS (
-
-    SELECT
-        pool_address,
-        tokenA,
-        tokenB
-    FROM
-        {{ ref('silver_dex__maverick_v2_pools') }}
-),
-swaps_base AS (
+WITH swaps AS (
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -76,17 +73,21 @@ swaps_base AS (
         ) AS amountOut,
         tokenA,
         tokenB,
+        p.platform,
+        p.protocol,
+        p.version,
+        'Swap' AS event_name,
         CONCAT(
-            tx_hash,
+            l.tx_hash,
             '-',
-            event_index
+            l.event_index
         ) AS _log_id,
-        modified_timestamp
+        l.modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN pools
-        ON l.contract_address = pool_address
+        INNER JOIN {{ ref('silver_dex__maverick_v2_pools') }} p
+        ON l.contract_address = p.pool_address
     WHERE
         l.topic_0 :: STRING = '0x103ed084e94a44c8f5f6ba8e3011507c41063177e29949083c439777d8d63f60' --Swap
         AND tx_succeeded
@@ -94,11 +95,11 @@ swaps_base AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -109,6 +110,7 @@ SELECT
     origin_from_address,
     origin_to_address,
     event_index,
+    event_name,
     contract_address,
     contract_address AS pool_address,
     sender_address AS sender,
@@ -126,11 +128,12 @@ SELECT
         WHEN token_A_in = TRUE THEN tokenB
         ELSE tokenA
     END AS token_out,
-    'Swap' AS event_name,
-    'maverick-v2' AS platform,
+    platform,
+    protocol,
+    version,
     _log_id,
     modified_timestamp
 FROM
-    swaps_base
+    swaps
 WHERE
     token_in <> token_out

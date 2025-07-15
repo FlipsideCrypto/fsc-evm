@@ -131,6 +131,9 @@
             'gmx': {
                 'v1': {
                     'swap': '0x489ee077994b6658eafa855c308275ead8097c4a'
+                },
+                'v2': {
+                    'swap': '0xc8ee91a54287db53897056e12d9819156d3822fb'
                 }
             },
             'ramses': {
@@ -158,7 +161,34 @@
                 'v2.2': {
                     'lb_pair_created': '0xb43120c4745967fa9b93e79c149e66b0f2d6fe0c'
                 }
-            }
+            },
+            'camelot': {
+                'v1': {
+                    'uni_v2_pair_created': '0x6eccab422d763ac031210895c81787e87b43a652'
+                },
+                'v2': {
+                    'pool': ['0xd490f2f6990c0291597fd1247651b4e0dcf684dd',
+                    '0x1a3c9b1d2f0529d97f2afc5136cc23e58f1fd35b']
+                }
+            },
+            'maverick': {
+                'v2': {
+                    'factory': '0x0a7e848aca42d879ef06507fca0e7b33a0a63c1e'
+                }
+            },
+            'pancakeswap': {
+                'v3': {
+                    'factory': '0x0bfbcf9fa4f9c56b0f40a671ad40e0805a091865'
+                }
+            },
+            'zyberswap': {
+                'v1': {
+                    'uni_v2_pair_created': '0xac2ee06a14c52570ef3b9812ed240bce359772e7'
+                },
+                'v2': {
+                    'pool': '0x9c2abd632771b433e5e7507bcaa41ca3b25d8544'
+                }
+            },
         },
         'CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID': 42161,
         'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0xd5a7e197bace1f3b26e2760321d6ce06ad07281a','0x8ab2d334ce64b50be9ab04184f7ccba2a6bb6391'],
