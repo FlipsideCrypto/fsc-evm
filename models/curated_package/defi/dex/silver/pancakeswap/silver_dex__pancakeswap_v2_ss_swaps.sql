@@ -1,3 +1,8 @@
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,25 +11,16 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH pools AS (
-
+WITH swaps AS (
     SELECT
-        pool_address,
-        tokenA,
-        tokenB
-    FROM
-        {{ ref('silver_dex__pancakeswap_v2_ss_pools') }}
-),
-swaps_base AS (
-    SELECT
-        block_number,
-        origin_function_signature,
-        origin_from_address,
-        origin_to_address,
-        block_timestamp,
-        tx_hash,
-        event_index,
-        contract_address,
+        l.block_number,
+        l.origin_function_signature,
+        l.origin_from_address,
+        l.origin_to_address,
+        l.block_timestamp,
+        l.tx_hash,
+        l.event_index,
+        l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS buyer_address,
         TRY_TO_NUMBER(
@@ -57,28 +53,33 @@ swaps_base AS (
             WHEN bought_id = 0 THEN tokenB
             ELSE tokenA
         END AS tokenIn,
+        p.protocol,
+        p.version,
+        CONCAT(p.protocol, '-', p.version) AS platform,
+        'TokenExchange' AS event_name,
         CONCAT(
-            tx_hash :: STRING,
+            l.tx_hash :: STRING,
             '-',
-            event_index :: STRING
+            l.event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        l.modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
-        INNER JOIN pools p
-        ON p.pool_address = contract_address
+        l
+        INNER JOIN {{ ref('silver_dex__pancakeswap_v2_ss_pools') }} p
+        ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xb2e76ae99761dc136e598d4a629bb347eccb9532a5f8bbd72e18467c3c34cc98' --TokenExchange
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -89,6 +90,7 @@ SELECT
     origin_to_address,
     tx_hash,
     event_index,
+    event_name,
     contract_address,
     buyer_address AS sender,
     buyer_address AS tx_to,
@@ -100,9 +102,10 @@ SELECT
     amountOut AS amount_out_unadj,
     tokenIn AS token_in,
     tokenOut AS token_out,
-    'TokenExchange' AS event_name,
-    'pancakeswap-v2' AS platform,
+    platform,
+    protocol,
+    version,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
-    swaps_base
+    swaps

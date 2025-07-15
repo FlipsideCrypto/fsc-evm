@@ -634,6 +634,42 @@ WHERE
   )
 {% endif %}
 ),
+pancakeswap_v2_ss AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    tokenA AS token0,
+    tokenB AS token1,
+    tokenC AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__pancakeswap_v2_ss_pools') }}
+
+{% if is_incremental() and 'pancakeswap_v2_ss' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 pancakeswap_v3 AS (
   SELECT
     block_number,
@@ -858,6 +894,11 @@ all_pools AS (
     *
   FROM
     maverick
+  UNION ALL
+  SELECT
+    *
+  FROM
+    pancakeswap_v2_ss
   UNION ALL
   SELECT
     *

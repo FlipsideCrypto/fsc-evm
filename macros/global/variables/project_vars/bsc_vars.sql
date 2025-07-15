@@ -99,6 +99,27 @@
                 'v2.1': {
                     'lb_pair_created': '0x8e42f2f4101563bf679975178e880fd87d3efd4e'
                 }
+            },
+            'level_finance': {
+                'v1': {
+                    'router': '0xa5abfb56a78d2bd4689b25b8a77fd49bb0675874'
+                }
+            },
+            'pancakeswap': {
+                'v1': {
+                    'uni_v2_pair_created': '0xbcfccbde45ce874adcb698cc183debcf17952812'
+                },
+                'v2': {
+                    'uni_v2_pair_created': ['0xca143ce32fe78f1f7019d7d551a6402fc5350c73',
+                    '0x7b13d1d2a1fa28b16862ebac6e3c52fa9c8d753e',
+                    '0x1f830fb91094a0e87c0a80150aa0af3805456090'],
+                    'mm_router': '0xfeacb05b373f1a08e68235ba7fc92636b92ced01',
+                    'ss_factory_1': '0x36bbb126e75351c0dfb651e39b38fe0bc436ffd2',
+                    'ss_factory_2': '0x25a55f9f2279a54951133d503490342b50e5cd15'
+                },
+                'v3': {
+                    'factory': '0x0bfbcf9fa4f9c56b0f40a671ad40e0805a091865'
+                }
             }
         },
         'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0x8e4842d0570c85ba3805a9508dce7c6a458359d0',

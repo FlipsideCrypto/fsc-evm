@@ -1,3 +1,8 @@
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,7 +11,14 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH swaps_base AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'level_finance'
+),
+swaps AS (
 
     SELECT
         l.block_number,
@@ -66,28 +78,33 @@ WITH swaps_base AS (
                 )
             )
         END AS fee,
+        m.protocol,
+        m.version,
+        CONCAT(m.protocol, '-', m.version) AS platform,
+        'Swap' AS event_name,
         CONCAT(
             tx_hash :: STRING,
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = '0xa5abfb56a78d2bd4689b25b8a77fd49bb0675874' --router
-        AND topics [0] :: STRING = '0xd6d34547c69c5ee3d2667625c188acf1006abb93e0ee7cf03925c67cf7760413' --swap
+        topics [0] :: STRING = '0xd6d34547c69c5ee3d2667625c188acf1006abb93e0ee7cf03925c67cf7760413' --swap
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -98,6 +115,7 @@ SELECT
     origin_from_address,
     origin_to_address,
     event_index,
+    event_name,
     contract_address,
     COALESCE(
         sender_address,
@@ -109,9 +127,10 @@ SELECT
     amountIn AS amount_in_unadj,
     amountOut AS amount_out_unadj,
     fee,
-    'Swap' AS event_name,
-    'level-finance' AS platform,
+    platform,
+    protocol,
+    version,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
-    swaps_base
+    swaps
