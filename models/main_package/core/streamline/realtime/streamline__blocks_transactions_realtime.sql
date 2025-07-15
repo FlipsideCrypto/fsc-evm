@@ -29,10 +29,6 @@ to_do AS (
         AND block_number >= (SELECT block_number FROM last_3_days)
     {% endif %}
 
-    {% if vars.MAIN_SL_MIN_BLOCK is not none %}
-        AND block_number >= {{ vars.MAIN_SL_MIN_BLOCK }}
-    {% endif %}
-
     EXCEPT
 
     SELECT block_number

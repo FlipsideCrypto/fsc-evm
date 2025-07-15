@@ -1,32 +1,32 @@
 version: 2
 models:
   - name: price__ez_prices_hourly
-    description: '{{ doc("evm_prices_ez_prices_hourly_table_doc") }}'
+    description: '{{ doc("ez_prices_hourly_table_doc") }}'
 
     columns:
       - name: HOUR
-        description: '{{ doc("evm_prices_hour")}}'
+        description: '{{ doc("ez_prices_hour")}}'
       - name: TOKEN_ADDRESS
-        description: '{{ doc("evm_prices_token_address") }}'
+        description: '{{ doc("ez_prices_address") }}'
       - name: SYMBOL
-        description: '{{ doc("evm_prices_symbol") }}'
+        description: '{{ doc("ez_prices_symbol") }}'
       - name: BLOCKCHAIN
-        description: '{{ doc("evm_prices_blockchain") }}'
+        description: '{{ doc("ez_prices_blockchain") }}'
       - name: DECIMALS
-        description: '{{ doc("evm_prices_decimals") }}'
+        description: '{{ doc("ez_prices_decimals") }}'
       - name: PRICE
-        description: '{{ doc("evm_prices_price") }}'
+        description: '{{ doc("ez_prices_price") }}'
       - name: IS_NATIVE
-        description: '{{ doc("evm_prices_is_native") }}'
+        description: '{{ doc("ez_prices_is_native") }}'
       - name: IS_IMPUTED
-        description: '{{ doc("evm_prices_is_imputed") }}'
+        description: '{{ doc("ez_prices_is_imputed") }}'
       - name: IS_DEPRECATED
-        description: '{{ doc("evm_prices_is_deprecated") }}'
+        description: '{{ doc("ez_prices_is_deprecated") }}'
       - name: IS_VERIFIED
-        description: '{{ doc("evm_prices_is_verified") }}'
+        description: '{{ doc("ez_prices_is_verified") }}'
       - name: EZ_PRICES_HOURLY_ID
-        description: '{{ doc("evm_pk") }}'   
+        description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'   
+        description: '{{ doc("general_inserted_timestamp") }}'   
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}' 
+        description: '{{ doc("general_modified_timestamp") }}' 

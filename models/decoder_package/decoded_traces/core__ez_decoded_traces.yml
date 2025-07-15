@@ -1,0 +1,65 @@
+version: 2
+models:
+  - name: core__ez_decoded_traces
+    description: '{{ doc("ez_decoded_traces_table_doc") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'   
+      - name: TX_HASH
+        description: '{{ doc("general_tx_hash") }}' 
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("general_block_timestamp") }}'
+      - name: TX_POSITION
+        description: '{{ doc("general_tx_position") }}'
+      - name: TRACE_INDEX
+        description: '{{ doc("fact_traces_trace_index") }}'
+      - name: FROM_ADDRESS
+        description: '{{ doc("fact_traces_from_address") }}'
+      - name: FROM_ADDRESS_NAME
+        description: The name of the address that initiated the trace, if the contract has a name() function.
+      - name: TO_ADDRESS
+        description: '{{ doc("fact_traces_to_address") }}'
+      - name: TO_ADDRESS_NAME
+        description: The name of the address that received the trace, if the contract has a name() function.
+      - name: VALUE
+        description: '{{ doc("general_value") }}'
+      - name: VALUE_PRECISE_RAW
+        description: '{{ doc("general_value_precise_raw") }}'
+      - name: VALUE_PRECISE
+        description: '{{ doc("general_value_precise") }}'
+      - name: GAS
+        description: '{{ doc("fact_traces_gas") }}'
+      - name: GAS_USED
+        description: '{{ doc("fact_traces_gas_used") }}'
+      - name: TYPE
+        description: '{{ doc("fact_traces_type") }}'
+      - name: TRACE_ADDRESS
+        description: '{{ doc("fact_traces_trace_address") }}' 
+      - name: SUB_TRACES
+        description: '{{ doc("fact_traces_sub_traces") }}' 
+      - name: ERROR_REASON
+        description: '{{ doc("fact_traces_error_reason") }}'
+      - name: TX_SUCCEEDED
+        description: '{{ doc("general_tx_succeeded") }}'
+      - name: TRACE_SUCCEEDED
+        description: '{{ doc("fact_traces_trace_succeeded") }}' 
+      - name: INPUT
+        description: '{{ doc("fact_traces_input") }}'
+      - name: OUTPUT
+        description: '{{ doc("fact_traces_output") }}'   
+      - name: FUNCTION_NAME
+        description: '{{ doc("ez_decoded_traces_function_name") }}'
+      - name: DECODED_INPUT_DATA
+        description: '{{ doc("ez_decoded_traces_decoded_input_data") }}'
+      - name: DECODED_OUTPUT_DATA  
+        description: '{{ doc("ez_decoded_traces_decoded_output_data") }}'
+      - name: FULL_DECODED_TRACE
+        description: '{{ doc("ez_decoded_traces_full_decoded_trace") }}'
+      - name: EZ_DECODED_TRACES_ID
+        description: '{{ doc("general_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}' 
+     

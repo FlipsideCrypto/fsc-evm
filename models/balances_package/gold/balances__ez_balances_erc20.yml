@@ -1,0 +1,56 @@
+version: 2
+models:
+  - name: balances__ez_balances_erc20
+    description: '{{ doc("ez_balances_erc20_table_doc") }}'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("general_block_timestamp") }}'
+      - name: TX_POSITION
+        description: '{{ doc("general_tx_position") }}'
+      - name: TX_HASH
+        description: '{{ doc("general_tx_hash") }}'
+      - name: TX_SUCCEEDED
+        description: '{{ doc("ez_balances_erc20_tx_succeeded") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("ez_balances_erc20_contract_address") }}'
+      - name: DECIMALS
+        description: '{{ doc("ez_balances_erc20_decimals") }}'
+      - name: SYMBOL
+        description: '{{ doc("ez_balances_erc20_symbol") }}'
+      - name: SLOT_NUMBER
+        description: '{{ doc("ez_balances_erc20_slot_number") }}'
+      - name: ADDRESS
+        description: '{{ doc("ez_balances_erc20_address") }}'
+      - name: PRE_BALANCE_HEX
+        description: '{{ doc("ez_balances_erc20_pre_balance_hex") }}'
+      - name: PRE_BALANCE_RAW
+        description: '{{ doc("ez_balances_erc20_pre_balance_raw") }}'
+      - name: PRE_BALANCE_PRECISE
+        description: '{{ doc("ez_balances_erc20_pre_balance_precise") }}'
+      - name: PRE_BALANCE
+        description: '{{ doc("ez_balances_erc20_pre_balance") }}'
+      - name: PRE_BALANCE_USD
+        description: '{{ doc("ez_balances_erc20_pre_balance_usd") }}'
+      - name: POST_BALANCE_HEX
+        description: '{{ doc("ez_balances_erc20_post_balance_hex") }}'
+      - name: POST_BALANCE_RAW
+        description: '{{ doc("ez_balances_erc20_post_balance_raw") }}'
+      - name: POST_BALANCE_PRECISE
+        description: '{{ doc("ez_balances_erc20_post_balance_precise") }}'
+      - name: POST_BALANCE
+        description: '{{ doc("ez_balances_erc20_post_balance") }}'
+      - name: POST_BALANCE_USD
+        description: '{{ doc("ez_balances_erc20_post_balance_usd") }}'
+      - name: NET_BALANCE_RAW
+        description: '{{ doc("ez_balances_erc20_net_balance_raw") }}'
+      - name: NET_BALANCE
+        description: '{{ doc("ez_balances_erc20_net_balance") }}'
+      - name: EZ_BALANCES_ERC20_ID
+        description: '{{ doc("general_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}'

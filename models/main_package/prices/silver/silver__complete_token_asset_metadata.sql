@@ -23,6 +23,7 @@ SELECT
     blockchain_id,
     is_deprecated,
     is_verified,
+    is_verified_modified_timestamp,
     provider,
     source,
     _inserted_timestamp,
