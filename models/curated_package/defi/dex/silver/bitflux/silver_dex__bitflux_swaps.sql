@@ -1,3 +1,9 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,22 +12,7 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH bitflux_pools AS (
-
-    SELECT
-        pool_address,
-        token0,
-        token1,
-        token2,
-        token3,
-        decimal0,
-        decimal1,
-        decimal2,
-        decimal3
-    FROM
-        {{ ref('silver_dex__bitflux_pools') }}
-),
-base_swaps AS (
+WITH swaps AS (
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -61,31 +52,35 @@ base_swaps AS (
         END AS token_in,
         tokensSold AS amount_in_unadj,
         tokensBought AS amount_out_unadj,
+        COALESCE(p1.platform, p2.platform) AS platform,
+        COALESCE(p1.protocol, p2.protocol) AS protocol,
+        COALESCE(p1.version, p2.version) AS version,
+        'TokenSwap' AS event_name,
         CONCAT(
             l.tx_hash :: STRING,
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        l.modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN bitflux_pools p1
+        INNER JOIN {{ ref('silver_dex__bitflux_pools') }} p1
         ON l.contract_address = p1.pool_address
-        INNER JOIN bitflux_pools p2
+        INNER JOIN {{ ref('silver_dex__bitflux_pools') }} p2
         ON l.contract_address = p2.pool_address
     WHERE
         topic_0 = '0xc6c1e0630dbe9130cc068028486c0d118ddcea348550819defd5cb8c257f8a38'
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -100,7 +95,7 @@ SELECT
     buyer AS recipient,
     buyer AS sender,
     buyer AS tx_to,
-    'TokenSwap' AS event_name,
+    event_name,
     event_index,
     token0,
     token1,
@@ -110,7 +105,10 @@ SELECT
     token_out,
     amount_in_unadj,
     amount_out_unadj,
+    platform,
+    protocol,
+    version,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
-    base_swaps
+    swaps

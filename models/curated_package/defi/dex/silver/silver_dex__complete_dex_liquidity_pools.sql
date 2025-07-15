@@ -706,6 +706,78 @@ WHERE
   )
 {% endif %}
 ),
+bitflux AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    token0,
+    token1,
+    token2,
+    token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _call_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__bitflux_pools') }}
+
+{% if is_incremental() and 'bitflux' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+glyph_v4 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    fee,
+    tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__glyph_v4_pools') }}
+
+{% if is_incremental() and 'glyph_v4' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_pools AS (
   SELECT
     *
@@ -796,6 +868,16 @@ all_pools AS (
     *
   FROM
     uniswap_v4
+  UNION ALL
+  SELECT
+    *
+  FROM
+    bitflux
+  UNION ALL
+  SELECT
+    *
+  FROM
+    glyph_v4
 ),
 complete_lps AS (
   SELECT
@@ -809,10 +891,12 @@ complete_lps AS (
       AND pool_name IS NOT NULL THEN pool_name
       WHEN pool_name IS NULL
       AND platform IN (
+        'corex-v1',
         'uniswap-v3',
         'pharaoh-v2',
         'kyberswap-v2',
-        'pancakeswap-v3'
+        'pancakeswap-v3',
+        'glyph-v4'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -838,12 +922,14 @@ complete_lps AS (
           WHEN platform = 'pancakeswap-v3' THEN ' PCS-V3 LP'
           WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
+          WHEN platform = 'glyph-v4' THEN ' GLYPH-V4 LP'
         END
       )
       WHEN pool_name IS NULL
       AND platform IN (
         'balancer-v1',
-        'curve-v1'
+        'curve-v1',
+        'bitflux-v1'
       ) THEN CONCAT(
         COALESCE(c0.token_symbol, SUBSTRING(token0, 1, 5) || '...' || SUBSTRING(token0, 39, 42)),
         CASE
@@ -1023,7 +1109,8 @@ heal_model AS (
         'uniswap-v3',
         'pharaoh-v2',
         'kyberswap-v2',
-        'pancakeswap-v3'
+        'pancakeswap-v3',
+        'glyph-v4'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -1049,12 +1136,14 @@ heal_model AS (
           WHEN platform = 'pancakeswap-v3' THEN ' PCS-V3 LP'
           WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
+          WHEN platform = 'glyph-v4' THEN ' GLYPH-V4 LP'
         END
       )
       WHEN pool_name IS NULL
       AND platform IN (
         'balancer-v1',
-        'curve-v1'
+        'curve-v1',
+        'bitflux-v1'
       ) THEN CONCAT(
         COALESCE(c0.token_symbol, SUBSTRING(token0, 1, 5) || '...' || SUBSTRING(token0, 39, 42)),
         CASE

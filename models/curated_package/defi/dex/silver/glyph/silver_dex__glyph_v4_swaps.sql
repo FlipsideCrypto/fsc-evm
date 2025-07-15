@@ -1,3 +1,9 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -45,6 +51,10 @@ WITH swaps_base AS (
         pool_address,
         tick_spacing,
         fee,
+        p.protocol,
+        p.version,
+        CONCAT(p.protocol, '-', p.version) AS platform,
+        'TokenSwap' AS event_name,
         CONCAT(
             l.tx_hash,
             '-',
@@ -76,6 +86,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
+    event_name,
     event_index,
     origin_function_signature,
     origin_from_address,
@@ -109,6 +120,9 @@ SELECT
         WHEN amount0_unadj < 0 THEN token0
         ELSE token1
     END AS token_out,
+    platform,
+    protocol,
+    version,
     _log_id,
     modified_timestamp
 FROM

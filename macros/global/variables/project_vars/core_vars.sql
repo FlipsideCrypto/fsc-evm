@@ -30,6 +30,18 @@
                 'v1': {
                     'uni_v3_pool_created': '0x526190295afb6b8736b14e4b42744fbd95203a3a'
                 }
+            },
+            'bitflux': {
+                'v1': {
+                    'create': ['0xa18481c844c1b7e707adaf67a6394f2b37f0705b',
+                    '0x5a65012ac60e8a22fd191c288c87a25dcbeef1c4',
+                    '0xfceb33c1e5cba985175ac4488e338dc4f0dd2a1f']
+                }
+            },
+            'glyph': {
+                'v4': {
+                    'pool_created': '0x74efe55bea4988e7d92d03efd8ddb8bf8b7bd597'
+                }
             }
         },
         'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': [],

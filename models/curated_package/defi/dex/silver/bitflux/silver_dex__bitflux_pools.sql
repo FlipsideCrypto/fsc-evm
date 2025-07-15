@@ -1,3 +1,9 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,14 +12,21 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH pool_traces AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'bitflux'
+),
+pool_traces AS (
 
     SELECT
         block_number,
         block_timestamp,
         tx_hash,
+        from_address AS deployer_address,
         to_address AS pool_address,
-        to_address AS contract_address,
         regexp_substr_all(SUBSTR(input, 11, len(input)), '.{64}') AS segmented_data,
         TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data [0] :: STRING)) / 32 AS token_index, 
         TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data [1] :: STRING)) / 32 AS decimal_index,
@@ -107,17 +120,26 @@ WITH pool_traces AS (
         utils.udf_hex_to_string(
             segmented_data [array_size(segmented_data)-1] :: STRING
         ) AS lp_symbol,
-        CONCAT(
-            tx_hash :: STRING,
+        m.protocol,
+        m.version,
+        CONCAT(m.protocol, '-', m.version) AS platform,
+        concat_ws(
             '-',
-            trace_index :: STRING -- using trace_index instead of event_index
-        ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+            block_number,
+            tx_position,
+            CONCAT(
+                t.TYPE,
+                '_',
+                trace_address
+            )
+        ) AS _call_id,
+        modified_timestamp
     FROM
-        {{ ref('core__fact_traces') }}
+        {{ ref('core__fact_traces') }} t 
+        INNER JOIN contract_mapping m 
+        ON t.from_address = m.contract_address
     WHERE
-        1 = 1
-        AND origin_function_signature = '0xb28cb6dc'
+        origin_function_signature = '0xb28cb6dc'
         AND LEFT(
             input,
             10
@@ -125,20 +147,21 @@ WITH pool_traces AS (
         AND trace_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    contract_address,
+    deployer_address,
+    pool_address AS contract_address,
     pool_address,
     token0,
     token1,
@@ -153,9 +176,12 @@ SELECT
     swap_fee,
     admin_fee,
     lp_token,
-    _log_id,
-    _inserted_timestamp
+    platform,
+    protocol,
+    version,
+    _call_id,
+    modified_timestamp
 FROM
     pool_traces qualify(ROW_NUMBER() over (PARTITION BY pool_address
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1
