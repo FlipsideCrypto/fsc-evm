@@ -52,6 +52,7 @@ erc20_transfers AS (
         AND DATA IS NOT NULL
         AND raw_amount IS NOT NULL
         AND l.block_timestamp > DATEADD('day', -31, SYSDATE())
+        AND l.block_timestamp < DATEADD('day', -1, SYSDATE())
 
 {% if is_incremental() %}
 AND l.modified_timestamp > (
@@ -110,6 +111,7 @@ wrapped_native_transfers AS (
         INNER JOIN verified_assets v USING (contract_address)
     WHERE
         block_timestamp > DATEADD('day', -31, SYSDATE())
+        AND block_timestamp < DATEADD('day', -1, SYSDATE())
         AND topic_0 IN (
             '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65',
             -- withdraw
