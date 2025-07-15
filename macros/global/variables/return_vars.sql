@@ -260,6 +260,7 @@
   {# Curated DEX Variables #}
   {% set ns.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING = get_var('CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING', {}) %}
   {% set ns.CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES = get_var('CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES', []) %}
+  {% set ns.CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID = get_var('CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID', 0) %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}

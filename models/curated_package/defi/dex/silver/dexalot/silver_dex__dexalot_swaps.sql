@@ -65,7 +65,7 @@ swaps AS (
             '0x68eb6d948c037c94e470f9a5b288dd93debbcd9342635408e66cb0211686f7f7',
             '0xfeb087be954e9eb692f863466081925668f8f5214f5c1d1a28438df811cbf042'
         )
-        AND destChainId = 43114
+        AND destChainId = {{ vars.CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID }}
         AND tx_succeeded
         AND event_removed = FALSE
 

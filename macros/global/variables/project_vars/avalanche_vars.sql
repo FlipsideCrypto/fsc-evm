@@ -138,6 +138,7 @@
                 }
             }
         },
+        'CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID': 43114,
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'allbridge': {
                 'v1': {
