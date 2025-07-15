@@ -176,7 +176,7 @@ SELECT
     VALUE :auto_id :: INT AS cursor_id,
     VALUE :intent_id :: STRING AS intent_id
 FROM
-    response
+    requests
 {% else %}
 SELECT
     chainid,
@@ -191,7 +191,9 @@ SELECT
         VALUE :intent_created_timestamp :: INT
     ) AS intent_created_timestamp,
     VALUE :auto_id :: INT AS cursor_id,
-    VALUE :intent_id :: STRING AS intent_id requests,
+    VALUE :intent_id :: STRING AS intent_id
+FROM
+    requests,
     LATERAL FLATTEN (
         input => response :data :intents
     )
@@ -208,4 +210,4 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    requests
+    results
