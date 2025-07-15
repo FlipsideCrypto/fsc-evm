@@ -598,6 +598,114 @@ WHERE
   )
 {% endif %}
 ),
+maverick AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    NULL AS fee,
+    NULL AS tick_spacing,
+    tokenA AS token0,
+    tokenB AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__maverick_pools') }}
+
+{% if is_incremental() and 'maverick' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+pancakeswap_v3 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    NULL AS pool_name,
+    fee,
+    tick_spacing,
+    token0_address AS token0,
+    token1_address AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__pancakeswap_v3_pools') }}
+
+{% if is_incremental() and 'pancakeswap_v3' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+uniswap_v4 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    pool_address,
+    pool_name,
+    fee,
+    tick_spacing,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    platform,
+    protocol,
+    version,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__uniswap_v4_pools') }}
+
+{% if is_incremental() and 'uniswap_v4' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_pools AS (
   SELECT
     *
@@ -673,6 +781,21 @@ all_pools AS (
     *
   FROM
     velodrome_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    maverick
+  UNION ALL
+  SELECT
+    *
+  FROM
+    pancakeswap_v3
+  UNION ALL
+  SELECT
+    *
+  FROM
+    uniswap_v4
 ),
 complete_lps AS (
   SELECT
@@ -682,12 +805,14 @@ complete_lps AS (
     p.contract_address,
     pool_address,
     CASE
-      WHEN pool_name IS NOT NULL THEN pool_name
+      WHEN platform NOT IN ('uniswap-v4')
+      AND pool_name IS NOT NULL THEN pool_name
       WHEN pool_name IS NULL
       AND platform IN (
         'uniswap-v3',
         'pharaoh-v2',
-        'kyberswap-v2'
+        'kyberswap-v2',
+        'pancakeswap-v3'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -710,14 +835,15 @@ complete_lps AS (
         ),
         CASE
           WHEN platform = 'uniswap-v3' THEN ' UNI-V3 LP'
+          WHEN platform = 'pancakeswap-v3' THEN ' PCS-V3 LP'
           WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
         END
       )
       WHEN pool_name IS NULL
       AND platform IN (
-        'balancer',
-        'curve'
+        'balancer-v1',
+        'curve-v1'
       ) THEN CONCAT(
         COALESCE(c0.token_symbol, SUBSTRING(token0, 1, 5) || '...' || SUBSTRING(token0, 39, 42)),
         CASE
@@ -748,6 +874,36 @@ complete_lps AS (
           WHEN token7 IS NOT NULL THEN '-' || COALESCE(c7.token_symbol, SUBSTRING(token7, 1, 5) || '...' || SUBSTRING(token7, 39, 42))
           ELSE ''
         END
+      )
+      WHEN platform = 'uniswap-v4' THEN CONCAT(
+        COALESCE(
+          c0.symbol,
+          CONCAT(SUBSTRING(token0, 1, 5), '...', SUBSTRING(token0, 39, 42))
+        ),
+        '-',
+        COALESCE(
+          c1.symbol,
+          CONCAT(SUBSTRING(token1, 1, 5), '...', SUBSTRING(token1, 39, 42))
+        ),
+        ' ',
+        COALESCE(
+          fee,
+          0
+        ),
+        ' ',
+        COALESCE(
+          tick_spacing,
+          0
+        ),
+        ' ',
+        CASE
+          WHEN REGEXP_LIKE(RIGHT(pool_name, 42), '0x[0-9a-fA-F]+$') THEN RIGHT(
+            pool_name,
+            42
+          )
+          ELSE ''
+        END,
+        ' UNI-V4 LP'
       )
       ELSE CONCAT(
         COALESCE(
@@ -860,12 +1016,14 @@ heal_model AS (
     t0.contract_address,
     pool_address,
     CASE
-      WHEN pool_name IS NOT NULL THEN pool_name
+      WHEN platform NOT IN ('uniswap-v4')
+      AND pool_name IS NOT NULL THEN pool_name
       WHEN pool_name IS NULL
       AND platform IN (
         'uniswap-v3',
         'pharaoh-v2',
-        'kyberswap-v2'
+        'kyberswap-v2',
+        'pancakeswap-v3'
       ) THEN CONCAT(
         COALESCE(
           c0.token_symbol,
@@ -888,14 +1046,15 @@ heal_model AS (
         ),
         CASE
           WHEN platform = 'uniswap-v3' THEN ' UNI-V3 LP'
+          WHEN platform = 'pancakeswap-v3' THEN ' PCS-V3 LP'
           WHEN platform = 'pharaoh-v2' THEN ''
           WHEN platform = 'kyberswap-v2' THEN ''
         END
       )
       WHEN pool_name IS NULL
       AND platform IN (
-        'balancer',
-        'curve'
+        'balancer-v1',
+        'curve-v1'
       ) THEN CONCAT(
         COALESCE(c0.token_symbol, SUBSTRING(token0, 1, 5) || '...' || SUBSTRING(token0, 39, 42)),
         CASE
@@ -927,6 +1086,32 @@ heal_model AS (
           ELSE ''
         END
       )
+      WHEN platform = 'uniswap-v4' THEN CONCAT(
+        COALESCE(
+          c0.symbol,
+          CONCAT(SUBSTRING(token0, 1, 5), '...', SUBSTRING(token0, 39, 42))
+        ),
+        '-',
+        COALESCE(
+          c1.symbol,
+          CONCAT(SUBSTRING(token1, 1, 5), '...', SUBSTRING(token1, 39, 42))
+        ),
+        ' ',
+        COALESCE(
+          fee,
+          0
+        ),
+        ' ',
+        COALESCE(
+          tick_spacing,
+          0
+        ),
+        ' ',
+        CASE
+          WHEN REGEXP_LIKE(SUBSTR(pool_name, len(pool_name) - 51, 42), '0x[0-9a-fA-F]+$') THEN SUBSTR(pool_name, len(pool_name) - 51, 42)
+          ELSE ''END,
+          ' UNI-V4 LP'
+        )
       ELSE CONCAT(
         COALESCE(
           c0.token_symbol,

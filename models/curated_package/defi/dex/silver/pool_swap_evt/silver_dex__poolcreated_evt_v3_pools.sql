@@ -122,7 +122,7 @@ legacy_pools AS ( --seed file CTE for GENESIS contracts, union as needed
         ) AS platform,
         'PoolCreated' AS event_name
     FROM
-        {{ ref('silver__univ3_ovm1_legacy_pools') }}
+        {{ ref('silver_dex__univ3_ovm1_legacy_pools') }}
 ),
 FINAL AS (
     SELECT

@@ -87,7 +87,7 @@
             },
             'synthetix': {
                 'v1': {
-                    'synth_swap': '0x8700daec35af8ff88c16bdf0418774cb3d7599b4'
+                    'synth_exchange': '0x8700daec35af8ff88c16bdf0418774cb3d7599b4'
                 }
             },
             'velodrome': {

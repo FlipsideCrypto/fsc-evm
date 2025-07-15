@@ -58,7 +58,7 @@ swaps AS (
             '-',
             m.version
         ) AS platform,
-        'Swap' AS event_name,
+        'SynthExchange' AS event_name,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -115,15 +115,17 @@ FROM
             synth_proxy_address AS token_in,
             decimals AS decimals_in
         FROM
-            {{ ref('silver__synthetix_synths_20230404') }}
+            {{ ref('silver_dex__synthetix_synths_20230404') }}
     ) sc1
     ON sc1.synth_symbol_in = s.symbol_in
+    AND sc1.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
     LEFT JOIN (
         SELECT
             synth_symbol AS synth_symbol_out,
             synth_proxy_address AS token_out,
             decimals AS decimals_out
         FROM
-            {{ ref('silver__synthetix_synths_20230404') }}
+            {{ ref('silver_dex__synthetix_synths_20230404') }}
     ) sc2
     ON sc2.synth_symbol_out = s.symbol_out
+    AND sc2.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'

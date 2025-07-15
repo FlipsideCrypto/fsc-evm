@@ -19,7 +19,61 @@ WITH contract_mapping AS (
         protocol = 'dodo'
         AND version = 'v1'
 ),
-pools AS (
+pool_tr AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        from_address AS deployer_address,
+        to_address AS pool_address,
+        base_token,
+        quote_token,
+        base_token_symbol,
+        quote_token_symbol,
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
+        concat_ws(
+            '-',
+            block_number,
+            tx_position,
+            CONCAT(
+                t.TYPE,
+                '_',
+                trace_address
+            )
+        ) AS _call_id,
+        modified_timestamp
+    FROM
+        {{ ref('core__fact_traces') }}
+        t
+        INNER JOIN {{ ref('silver_dex__dodo_v1_pool_metadata') }}
+        s
+        ON t.to_address = s.pool_address
+        INNER JOIN contract_mapping m
+        ON t.from_address = m.contract_address
+    WHERE
+        s.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+        AND m.type = 'deployer'
+        AND t.TYPE ILIKE 'create%'
+        AND tx_succeeded
+        AND trace_succeeded
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
+),
+pool_evt AS (
     SELECT
         block_number,
         block_timestamp,
@@ -62,6 +116,43 @@ AND modified_timestamp >= (
 )
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        event_index,
+        event_name,
+        contract_address,
+        baseToken AS base_token,
+        quoteToken AS quote_token,
+        newBorn AS pool_address,
+        protocol,
+        version,
+        platform,
+        _log_id AS _id,
+        modified_timestamp
+    FROM
+        pool_evt
+    UNION
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        NULL AS event_index,
+        NULL AS event_name,
+        deployer_address AS contract_address,
+        base_token,
+        quote_token,
+        pool_address,
+        protocol,
+        version,
+        platform,
+        _call_id AS _id,
+        modified_timestamp
+    FROM
+        pool_tr
 )
 SELECT
     block_number,
@@ -70,15 +161,15 @@ SELECT
     event_index,
     event_name,
     contract_address,
-    newBorn AS pool_address,
-    baseToken AS base_token,
-    quoteToken AS quote_token,
+    pool_address,
+    base_token,
+    quote_token,
     platform,
     protocol,
     version,
-    _log_id,
+    _id,
     modified_timestamp
 FROM
-    pools qualify(ROW_NUMBER() over (PARTITION BY pool_address
+    FINAL qualify(ROW_NUMBER() over (PARTITION BY pool_address
 ORDER BY
     modified_timestamp DESC)) = 1

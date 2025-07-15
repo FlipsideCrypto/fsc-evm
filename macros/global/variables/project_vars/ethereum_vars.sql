@@ -27,65 +27,135 @@
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
-                    'uni_v2_pair_created': ''
+                    'uni_v2_pair_created': '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
                 },
                 'v3': {
-                    'uni_v3_pool_created': ''
+                    'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+                },
+                'v4': {
+                    'factory': '0x000000000004444c5dc75cb358380d2e3de08a90'
                 }
             },
             'sushiswap': {
                 'v1': {
-                    'deploy_pool': []
+                    'uni_v2_pair_created': '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac'
                 }
             },
             'fraxswap': {
                 'v1': {
-                    'uni_v2_pair_created': ''
+                    'uni_v2_pair_created': ['0xb076b06f669e682609fb4a8c6646d2619717be4b',
+                    '0x43ec799eadd63848443e2347c49f5f52e8fe0f6f']
                 }
             },
             'kyberswap': {
                 'v1': {
-                    'static': ''
+                    'dynamic': '0x833e4083b7ae46cea85695c4f7ed25cdad8886de',
+                    'static': '0x1c758af0688502e49140230f6b0ebd376d429be5'
                 },
                 'v2': {
-                    'elastic': ''
+                    'elastic': '0x5f1dddbf348ac2fbe22a163e30f99f9ece3dd50a'
                 }
             },
             'dodo': {
+                'v1': {
+                    'deployer': ['0x5e5a7b76462e4bdf83aa98795644281bdba80b88',
+                    '0x17dbfa501f2f376d092fa69d3223a09bba4efdf7'],
+                    'dodo_birth': ['0xbd337924f000dceb119153d4d3b1744b22364d25',
+                    '0xe1b5d7a770cb1b40c859a52696e7e3dd1c57b0ba',
+                    '0x3a97247df274a17c59a3bd12735ea3fcdfb49950']
+                },
                 'v2': {
-                    'deployer': '',
-                    'new_pool': []
+                    'new_pool': ['0x95e887adf9eaa22cc1c6e3cb7f07adc95b4b25a8',
+                    '0x5336ede8f971339f6c0e304c66ba16f1296a2fbe',
+                    '0x6b4fa0bc61eddc928e0df9c7f01e407bfcd3e5ef',
+                    '0xb5dc5e183c2acf02ab879a8569ab4edaf147d537',
+                    '0x6fddb76c93299d985f4d3fc7ac468f9a168577a4',
+                    '0x79887f65f83bdf15bcc8736b5e5bcdb48fb8fe13',
+                    '0x72d220ce168c4f361dd4dee5d826a01ad8598f6c']
                 }
             },
             'hashflow': {
                 'v1': {
-                    'create': []
+                    'create': ['0x63ae536fec0b57bdeb1fd6a893191b4239f61bff',
+                    '0xc11a1e6fde432df9467d6d1a5454b54a63b86c8c',
+                    '0x596d32f9b7c1f2e73f5071c66b5e336e27d00da4']
                 },
                 'v3': {
-                    'create_pool': ''
+                    'create_pool': '0xde828fdc3f497f16416d1bb645261c7c6a62dab5'
                 }
             },
             'woofi': {
-                'v1': {
-                    'woo_router_swap': '',
-                    'woo_swap': []
-                },
                 'v2': {
-                    'woo_router_swap': ''
+                    'woo_router_swap': ['0x4c4af8dbc524681930a27b2f1af5bcc8062e6fb7',
+                    '0x044c08639bd59beb4f6ec52c0da6cd47283534e8']
                 }
             },
             'curve': {
                 'v1': {
-                    'deployer': []
+                    'deployer': ['0x7eeac6cddbd1d0b8af061742d41877d7f707289a',
+                    '0xf18056bbd320e96a48e3fbf8bc061322531aac99',
+                    '0xc447fcaf1def19a583f97b3620627bf69c05b5fb',
+                    '0xb9fc157394af804a3578134a6585c0dc9cc990d4',
+                    '0xfd6f33a0509ec67defc500755322abd9df1bd5b8',
+                    '0xbf7d65d769e82e7b862df338223263ba33f72623',
+                    '0xa6df4fcb1ca559155a678e9aff5de3f210c0ff84',
+                    '0x0959158b6040d32d04c301a72cbfd6b39e21c9ae',
+                    '0x745748bcfd8f9c2de519a71d789be8a63dd7d66c',
+                    '0x3e0139ce3533a42a7d342841aee69ab2bfee1d51',
+                    '0xbabe61887f1de2713c6f97e567623453d3c79f67',
+                    '0x7f7abe23fc1ad4884b726229ceaafb1179e9c9cf',
+                    '0x4f8846ae9380b90d2e71d5e3d042dff3e7ebb40d',
+                    '0x0c0e5f2ff0ff18a3be9b835635039256dc4b4963']
                 }
             },
             'balancer': {
                 'v1': {
-                    'vault': ''
+                    'vault': '0xba12222222228d8ba445958a75a0704d566bf2c8'
+                }
+            },
+            'maverick': {
+                'v1': {
+                    'swap': ['0x4faf448121bf2985b991c0261dd356a9803b3cae',
+                    '0xa5ebd82503c72299073657957f41b9cea6c0a43a']
+                }
+            },
+            'pancakeswap': {
+                'v1': {
+                    'uni_v2_pair_created': '0x1097053fd2ea711dad45caccc45eff7548fcb362'
+                },
+                'v2': {
+                    'mm_router': '0x9ca2a439810524250e543ba8fb6e88578af242bc'
+                },
+                'v3': {
+                    'factory': '0x0bfbcf9fa4f9c56b0f40a671ad40e0805a091865'
+                }
+            },
+            'shibaswap': {
+                'v1': {
+                    'uni_v2_pair_created': '0x115934131916c8b277dd010ee02de363c09d037c'
+                }
+            },
+            'synthetix': {
+                'v1': {
+                    'synth_exchange': ['0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
+                    '0xc011a72400e58ecd99ee497cf89e3775d4bd732f']
+                }
+            },
+            'trader_joe': {
+                'v2.1': {
+                    'lb_pair_created': '0xdc8d77b69155c7e68a95a4fb0f06a71ff90b943a'
+                }
+            },
+            'verse'
+                'v1': {
+                    'uni_v2_pair_created': '0xee3e9e46e34a27dc755a63e2849c9913ee1a06e2'
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': [],
+        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0x91e1c84ba8786b1fae2570202f0126c0b88f6ec7',
+        '0x9b64c81ba54ea51e1f6b7fefb3cff8aa6f1e2a09',
+        '0xe6aafa1c45d9d0c64686c1f1d17b9fe9c7dab05b',
+        '0xe55154d09265b18ac7cdac6e646672a5460389a1'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v1': {
