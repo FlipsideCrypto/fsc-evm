@@ -1,3 +1,9 @@
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -57,9 +63,9 @@ WITH raw AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        contract_address = LOWER('0xa05A3380889115bf313f1Db9d5f335157Be4D816')
+        contract_address = LOWER('{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}')
         AND topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
-        AND block_timestamp :: DATE >= '2024-09-15'
+        AND block_timestamp :: DATE >= '2024-09-01'
         AND tx_succeeded
 
 {% if is_incremental() %}
