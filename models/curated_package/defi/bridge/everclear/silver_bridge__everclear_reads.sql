@@ -103,8 +103,8 @@ requests AS (
             min_progress_epoch_plus_1_day
         )
     ) AS response,
+    -- backfill run mode 2
     {% elif var(
-        -- backfill run mode 2
         'backfill_2',
         false
     ) %}
