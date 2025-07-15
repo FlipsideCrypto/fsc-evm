@@ -73,13 +73,11 @@ edge AS (
         destination_count > 1
 
 {% if is_incremental() %}
-AND (
-    modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "10 days") }}'
-        FROM
-            {{ this }}
-    )
+AND intent_id NOT IN (
+    SELECT
+        intent_id
+    FROM
+        {{ this }}
 )
 {% endif %}
 ),
