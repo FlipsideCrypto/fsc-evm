@@ -424,7 +424,7 @@ WHERE
     )
 {% endif %}
 ),
-hop AS (
+hop_l2 AS (
     SELECT
         block_number,
         block_timestamp,
@@ -451,7 +451,7 @@ hop AS (
     FROM
         {{ ref('silver_bridge__hop_transfersent') }}
 
-{% if is_incremental() and 'hop' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'hop_l2' not in vars.CURATED_FR_MODELS %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -461,7 +461,43 @@ WHERE
     )
 {% endif %}
 ),
+hop_l1 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        NULL AS destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount AS amount_unadj,
+        platform,
+        protocol,
+        version,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__hop_transfersenttol2') }}
 
+{% if is_incremental() and 'hop_l1' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 layerzero_v2 AS (
     SELECT
         block_number,
@@ -835,6 +871,80 @@ WHERE
     )
 {% endif %}
 ),
+axie_infinity_v2 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        NULL AS destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount AS amount_unadj,
+        platform,
+        protocol,
+        version,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__axie_infinity_depositrequested') }}
+
+{% if is_incremental() and 'axie_infinity_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+gaszip_lz AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__gaszip_lz_sentdeposits') }}
+
+{% if is_incremental() and 'gaszip_lz' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT 
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 all_protocols AS (
     SELECT
         *
@@ -894,7 +1004,12 @@ all_protocols AS (
     SELECT
         *
     FROM
-        hop
+        hop_l2
+    UNION ALL
+    SELECT
+        *
+    FROM
+        hop_l1
     UNION ALL
     SELECT
         *
@@ -945,6 +1060,81 @@ all_protocols AS (
         *
     FROM
         avalanche_native_v2
+    UNION ALL
+    SELECT
+        *
+    FROM
+        axie_infinity_v2
+    UNION ALL
+    SELECT
+        *
+    FROM
+        gaszip_lz
+),
+eth_native_bridges AS ( --ethereum specific transfers out only, contracts sourced via seed file
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        NULL AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__ethereum_native_bridges_transfers_out') }}
+    WHERE
+        tx_hash NOT IN (
+            SELECT
+                DISTINCT tx_hash
+            FROM
+                all_protocols
+        )
+
+{% if is_incremental() and 'eth_native_bridges' not in vars.CURATED_FR_MODELS %}
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+{% endif %}
+
+{% if is_incremental() and 'eth_native_bridges' in vars.CURATED_FR_MODELS %}
+AND tx_hash NOT IN (
+    SELECT
+        DISTINCT tx_hash
+    FROM
+        {{ this }}
+    WHERE
+        version <> 'v1_native'
+)
+{% endif %}
+),
+all_bridges AS (
+    SELECT
+        *
+    FROM
+        all_protocols
+    UNION ALL
+    SELECT
+        *
+    FROM
+        eth_native_bridges
 ),
 complete_bridge_activity AS (
     SELECT
@@ -971,7 +1161,8 @@ complete_bridge_activity AS (
                 'allbridge-v2',
                 'chainlink_ccip-v1',
                 'layerzero-v2',
-                'stargate-v2'
+                'stargate-v2',
+                'gaszip_lz-v2',
             ) THEN destination_chain_id :: STRING
             WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
             ELSE d.chain_id :: STRING
@@ -984,7 +1175,8 @@ complete_bridge_activity AS (
                 'allbridge-v2',
                 'chainlink_ccip-v1',
                 'layerzero-v2',
-                'stargate-v2'
+                'stargate-v2',
+                'gaszip_lz-v2'
             ) THEN LOWER(destination_chain)
             WHEN d.chain IS NULL THEN LOWER(destination_chain)
             ELSE LOWER(

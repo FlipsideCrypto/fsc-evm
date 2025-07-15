@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -19,7 +25,7 @@ WITH base_contracts AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
@@ -72,13 +78,10 @@ contract_reads AS (
         ) AS rpc_request,
         live.udf_api(
             'POST',
-            CONCAT(
-                '{service}',
-                '/',
-                '{Authentication}'
-            ),{},
+            '{{ vars.GLOBAL_NODE_URL }}',
+            {},
             rpc_request,
-            'Vault/prod/ethereum/quicknode/mainnet'
+            '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS read_output,
         SYSDATE() AS _inserted_timestamp
     FROM
@@ -116,11 +119,8 @@ SELECT
     contract_address,
     CASE
         WHEN read_result IS NULL
-        AND contract_address IN (
-            '0xb8901acb165ed027e32754e0ffe830802919727f',
-            '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7'
-        ) --eth_bridge
-        THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+        AND contract_address IN ('{{ vars.CURATED_DEFI_BRIDGE_HOP_L1_CONTRACTS | join("', '") }}')
+        THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
         ELSE CONCAT('0x', SUBSTR(read_result, 27, 40))
     END AS token_address,
     _inserted_timestamp

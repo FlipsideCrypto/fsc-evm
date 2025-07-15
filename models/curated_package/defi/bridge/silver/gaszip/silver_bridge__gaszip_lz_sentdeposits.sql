@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,7 +12,14 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH senddeposits AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'gaszip_lz'
+),
+senddeposits AS (
     -- gaszip lz v2 event (only 1 per tx)
 
     SELECT
@@ -17,28 +30,38 @@ WITH senddeposits AS (
         origin_function_signature,
         tx_hash,
         event_index,
-        contract_address,
+        l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS to_address,
         TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data [2] :: STRING)) AS VALUE,
         TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data [3] :: STRING)) AS fee,
         CONCAT('0x', SUBSTR(segmented_data [4] :: STRING, 25, 40)) AS from_address,
-        modified_timestamp AS _inserted_timestamp
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = '0x26da582889f59eaae9da1f063be0140cd93e6a4f' -- gaszip l0 v2
-        AND topic_0 = '0xa22a487af6300dc77db439586e8ce7028fd7f1d734efd33b287bc1e2af4cd162' -- senddeposits
+        topic_0 = '0xa22a487af6300dc77db439586e8ce7028fd7f1d734efd33b287bc1e2af4cd162' -- senddeposits
         AND tx_succeeded
+        AND m.type = 'send_deposits'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 packetsent AS (
@@ -62,9 +85,11 @@ packetsent AS (
         ) event_rank
     FROM
         {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = '0x1a44076050125825900e736c501f859c50fe728c' -- l0 endpoint v2
-        AND topic_0 = '0x1ab700d4ced0c005b164c0f789fd09fcbb0156d4c2041b8a3bfbcd961cd1567f' -- packetsent
+        topic_0 = '0x1ab700d4ced0c005b164c0f789fd09fcbb0156d4c2041b8a3bfbcd961cd1567f' -- packetsent
         AND tx_hash IN (
             SELECT
                 tx_hash
@@ -72,15 +97,16 @@ packetsent AS (
                 senddeposits
         )
         AND tx_succeeded
+        AND m.type = 'packet_sent'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 nativetransfers AS (
@@ -98,8 +124,22 @@ nativetransfers AS (
     FROM
         {{ ref('core__ez_native_transfers') }}
     WHERE
-        from_address = '0x1a44076050125825900e736c501f859c50fe728c' -- l0 endpoint v2
-        AND to_address = '0x0bcac336466ef7f1e0b5c184aab2867c108331af' -- SendUln302
+        from_address IN (
+            SELECT
+                contract_address
+            FROM
+                contract_mapping
+            WHERE
+                type = 'packet_sent'
+        )
+        AND to_address IN (
+            SELECT
+                contract_address
+            FROM
+                contract_mapping
+            WHERE
+                type = 'send_uln'
+        )
         AND tx_hash IN (
             SELECT
                 tx_hash
@@ -110,11 +150,11 @@ nativetransfers AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -127,8 +167,6 @@ SELECT
     p.event_index,
     -- joins on packetsent event index instead of senddeposits for uniqueness
     'SendDeposit' AS event_name,
-    'gaszip-lz-v2' AS platform,
-    'v2' AS version,
     contract_address AS bridge_address,
     contract_address,
     from_address AS sender,
@@ -139,12 +177,15 @@ SELECT
     chain AS destination_chain,
     amount_precise_raw AS amount_unadj,
     token_address,
+    protocol,
+    version,
+    platform,
     CONCAT(
         s.tx_hash :: STRING,
         '-',
         p.event_index :: STRING
     ) AS _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
     senddeposits s
     INNER JOIN packetsent p

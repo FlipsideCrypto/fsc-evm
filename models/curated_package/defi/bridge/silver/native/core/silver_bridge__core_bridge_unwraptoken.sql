@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -18,8 +24,13 @@ WITH unwrap_token AS (
         tx_hash,
         event_index,
         'UnwrapToken' AS event_name,
-        'core-bridge' AS platform,
+        'core_bridge' AS protocol,
         'v1' AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS local_token,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS remote_token,
@@ -31,7 +42,7 @@ WITH unwrap_token AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
@@ -40,13 +51,13 @@ WITH unwrap_token AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -60,8 +71,9 @@ SELECT
     contract_address AS bridge_address,
     contract_address,
     event_name,
+    protocol,
+    version,
     platform,
-    'v1' AS version,
     origin_from_address AS sender,
     to_address AS receiver,
     receiver AS destination_chain_receiver,
@@ -70,7 +82,7 @@ SELECT
     local_token AS token_address,
     amount_unadj,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
     unwrap_token
     LEFT JOIN {{ ref('silver_bridge__stargate_chain_id_seed') }}

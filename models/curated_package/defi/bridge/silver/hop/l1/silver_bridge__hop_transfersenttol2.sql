@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -16,7 +22,6 @@ WITH base_evt AS (
         origin_from_address,
         origin_to_address,
         contract_address,
-        'hop' AS NAME,
         event_index,
         topics [0] :: STRING AS topic_0,
         event_name,
@@ -44,12 +49,19 @@ WITH base_evt AS (
             'SUCCESS',
             'FAIL'
         ) AS tx_status,
+        'hop' AS protocol,
+        'v1' AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
         CONCAT(
             tx_hash :: STRING,
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__ez_decoded_event_logs') }}
     WHERE
@@ -58,13 +70,13 @@ WITH base_evt AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 hop_tokens AS (
@@ -89,7 +101,6 @@ SELECT
     event_removed,
     tx_status,
     contract_address AS bridge_address,
-    NAME AS platform,
     origin_from_address AS sender,
     recipient AS receiver,
     receiver AS destination_chain_receiver,
@@ -100,8 +111,11 @@ SELECT
     deadline,
     relayer,
     relayerFee AS relayer_fee,
+    protocol,
+    version,
+    platform,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
     base_evt b
     LEFT JOIN hop_tokens h USING(contract_address)

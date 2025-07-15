@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -10,10 +16,16 @@ WITH bridges AS (
 
     SELECT
         LOWER(contract_address) AS bridge_address,
-        LOWER(contract_name) AS bridge_name,
+        LOWER(contract_name) AS protocol,
+        LOWER(version) AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
         LOWER(blockchain) AS blockchain
     FROM
-        {{ ref('silver_bridge__native_bridges_seed') }}
+        {{ ref('silver_bridge__ethereum_native_bridges_seed') }}
 ),
 token_transfers AS (
     SELECT
@@ -28,7 +40,9 @@ token_transfers AS (
         from_address,
         to_address,
         bridge_address,
-        bridge_name,
+        protocol,
+        version,
+        platform,
         blockchain,
         raw_amount,
         CONCAT(
@@ -36,7 +50,7 @@ token_transfers AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__ez_token_transfers') }}
         t
@@ -46,13 +60,13 @@ token_transfers AS (
         from_address <> '0x0000000000000000000000000000000000000000'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 native_transfers AS (
@@ -66,11 +80,13 @@ native_transfers AS (
         et.from_address,
         et.to_address,
         bridge_address,
-        bridge_name,
+        protocol,
+        version,
+        platform,
         blockchain,
         amount_precise_raw,
         et.ez_native_transfers_id AS _call_id,
-        et.modified_timestamp AS _inserted_timestamp
+        et.modified_timestamp
     FROM
         {{ ref('core__ez_native_transfers') }}
         et
@@ -92,7 +108,7 @@ native_transfers AS (
 {% if is_incremental() %}
 AND et.modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
@@ -109,7 +125,9 @@ FINAL AS (
         event_index,
         'Transfer' AS event_name,
         bridge_address,
-        bridge_name,
+        protocol,
+        version,
+        platform,
         from_address AS sender,
         to_address AS receiver,
         CASE 
@@ -122,7 +140,7 @@ FINAL AS (
         {{ dbt_utils.generate_surrogate_key(
             ['_log_id']
         ) }} AS _id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         token_transfers
     UNION ALL
@@ -136,7 +154,9 @@ FINAL AS (
         NULL AS event_index,
         NULL AS event_name,
         bridge_address,
-        bridge_name,
+        protocol,
+        version,
+        platform,
         from_address AS sender,
         to_address AS receiver,
         CASE 
@@ -149,7 +169,7 @@ FINAL AS (
         {{ dbt_utils.generate_surrogate_key(
             ['_call_id']
         ) }} AS _id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         native_transfers
 )

@@ -184,9 +184,16 @@
                 'v1': {
                     'token_bridge': '0x3ee18b2214aff97000d974cf647e7c347e8fa585'
                 }
+            },
+            'axie_infinity': {
+                'v2': {
+                    'deposit_requested': '0x64192819ac13ef72bf6b5ae239ac672b43a9af08'
+                }
             }
         },
-        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'ethereum mainnet'
+        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'ethereum mainnet',
+        'CURATED_DEFI_BRIDGE_HOP_L1_CONTRACTS': ['0xb8901acb165ed027e32754e0ffe830802919727f',
+        '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7']
     } %}
     
     {{ return(vars) }}

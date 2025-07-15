@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -6,7 +12,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH base_evt AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'axie_infinity'
+        AND version = 'v2'
+),
+base_evt AS (
 
     SELECT
         block_number,
@@ -15,8 +29,7 @@ WITH base_evt AS (
         origin_function_signature,
         origin_from_address,
         origin_to_address,
-        contract_address,
-        'axie_infinity' AS NAME,
+        l.contract_address,
         event_index,
         topics [0] :: STRING AS topic_0,
         event_name,
@@ -29,27 +42,36 @@ WITH base_evt AS (
         decoded_log :"receipt" :"mainchain" :"addr" :: STRING AS sender,
         decoded_log :"receipt" :"ronin" :"addr" :: STRING AS receiver,
         decoded_log :"receipt" :"mainchain" :"tokenAddr" :: STRING AS token_address,
+        m.protocol,
+        m.version,
+        CONCAT(
+            m.protocol,
+            '-',
+            m.version
+        ) AS platform,
         CONCAT(
             tx_hash :: STRING,
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__ez_decoded_event_logs') }}
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
         topics [0] :: STRING = '0xd7b25068d9dc8d00765254cfb7f5070f98d263c8d68931d937c7362fa738048b' -- DepositRequested
-        AND contract_address = '0x64192819ac13ef72bf6b5ae239ac672b43a9af08' -- Axie Infinity: Ronin Bridge V2
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
@@ -70,7 +92,10 @@ SELECT
     amount,
     chainId AS destination_chain_id,
     token_address,
+    protocol,
+    version,
+    platform,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
     base_evt

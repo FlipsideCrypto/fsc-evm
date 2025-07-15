@@ -1,10 +1,10 @@
 version: 2
 models:
-  - name: silver_bridge__native_bridges_transfers_out
+  - name: silver_bridge__core_bridge_unwraptoken
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - _ID
+            - _LOG_ID
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -12,24 +12,28 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        tests:
+          - not_null
+      - name: ORIGIN_FROM_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: ORIGIN_TO_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
       - name: TX_HASH
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-      - name: TOKEN_ADDRESS
+      - name: EVENT_INDEX
         tests:
           - not_null
-      - name: SENDER
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: DESTINATION_CHAIN_RECEIVER
+      - name: EVENT_NAME
         tests:
           - not_null
       - name: BRIDGE_ADDRESS
@@ -37,6 +41,17 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
+      - name: SENDER
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: RECEIVER
+        tests:
+          - not_null
+      - name: DESTINATION_CHAIN_RECEIVER
+        tests:
+          - not_null
       - name: AMOUNT_UNADJ
         tests:
           - not_null
@@ -45,8 +60,11 @@ models:
                 - DECIMAL
                 - FLOAT
                 - NUMBER
+      - name: TOKEN_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
       - name: _INSERTED_TIMESTAMP
         tests:
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
+          - not_null
