@@ -24,160 +24,18 @@
             'METH': '0xcda86a272531e8640cd7f1a92c01839911b90bb0',
             'WETH': '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
         },
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x41b491285a4f888f9f636cec8a363ab9770a0aef',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
-            'uniswap': {
-                'v2': {
-                    'uni_v2_pair_created': ''
-                },
-                'v3': {
-                    'uni_v3_pool_created': ''
-                }
-            },
-            'sushiswap': {
-                'v1': {
-                    'deploy_pool': []
-                }
-            },
-            'fraxswap': {
-                'v1': {
-                    'uni_v2_pair_created': ''
-                }
-            },
-            'kyberswap': {
-                'v1': {
-                    'static': ''
-                },
-                'v2': {
-                    'elastic': ''
-                }
-            },
-            'dodo': {
-                'v2': {
-                    'deployer': '',
-                    'new_pool': []
-                }
-            },
-            'hashflow': {
-                'v1': {
-                    'create': []
-                },
-                'v3': {
-                    'create_pool': ''
-                }
-            },
-            'woofi': {
-                'v1': {
-                    'woo_router_swap': '',
-                    'woo_swap': []
-                },
-                'v2': {
-                    'woo_router_swap': ''
-                }
-            },
-            'curve': {
-                'v1': {
-                    'deployer': []
-                }
-            },
-            'balancer': {
-                'v1': {
-                    'vault': ''
-                }
-            }
-        },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': [],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
-            'across': {
-                'v1': {
-                    'funds_deposited': ''
-                },
-                'v3': {
-                    'funds_deposited': ''
-                }
-            },
-            'allbridge': {
-                'v1': {
-                    'sent': ''
-                },
-                'v2': {
-                    'tokens_sent': '',
-                    'lp': []
-                }
-            },
-            'axelar': {
-                'v1': {
-                    'gateway': [],
-                    'gas_service': '',
-                    'squid_router': '',
-                    'burn': ''
-                }
-            },
-            'chainlink_ccip': {
-                'v1': {
-                    'router': ''
-                }
-            },
-            'celer_cbridge': {
-                'v1': {
-                    'bridge': ''
-                }
-            },
-            'dln_debridge': {
-                'v1': {
-                    'source': ''
-                }
-            },
-            'eywa': {
-                'v1': {
-                    'portal': []
-                }
-            },
             'layerzero': {
                 'v2': {
-                    'bridge': ''
-                }
-            },
-            'meson': {
-                'v1': {
-                    'bridge': ''
-                }
-            },
-            'multichain': {
-                'v7': {
-                    'router': ''
+                    'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
                 }
             },
             'stargate': {
-                'v1': {
-                    'factory': '',
-                    'bridge': ''
-                },
                 'v2': {
-                    'bridge': ''
-                }
-            },
-            'symbiosis': {
-                'v1': {
-                    'bridge': ''
-                }
-            },
-            'synapse': {
-                'v1': {
-                    'token_bridge': '',
-                    'token_bridge_swap': ''
-                }
-            },
-            'wormhole': {
-                'v1': {
-                    'token_bridge': ''
+                    'bridge': '0x41b491285a4f888f9f636cec8a363ab9770a0aef'
                 }
             }
-        },
-        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': '',
-        'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '',
-        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': ''
+        }
     } %}
     
     {{ return(vars) }}
