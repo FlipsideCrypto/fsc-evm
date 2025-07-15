@@ -119,7 +119,7 @@
                     'router': '0x881e3a65b4d4a04dd529061dd0071cf975f58bcd'
                 }
             },
-            'circle-cctp': {
+            'circle_cctp': {
                 'v1': {
                     'deposit': '0x1682ae6375c4e4a97e4b583bc394c861a46d8962'
                 },

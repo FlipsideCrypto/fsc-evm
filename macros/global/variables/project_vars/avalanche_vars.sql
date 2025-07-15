@@ -169,7 +169,7 @@
                     '0xef3c714c9425a8f3697a9c969dc1af30ba82e5d4']
                 }
             },
-            'circle-cctp': {
+            'circle_cctp': {
                 'v1': {
                     'deposit': '0x6b25532e1060ce10cc3b0a99e5683b91bfde6982'
                 },

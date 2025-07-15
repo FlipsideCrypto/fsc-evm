@@ -17,7 +17,7 @@ WITH contract_mapping AS (
         vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
     ) }}
     WHERE
-        protocol = 'circle-cctp'
+        protocol = 'circle_cctp'
         AND version = 'v1'
 ),
 base_evt AS (
