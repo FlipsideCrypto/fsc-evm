@@ -75,7 +75,7 @@ intent_list_to_requests AS (
             ORDER BY
                 block_timestamp ASC,
                 intent_id ASC
-        ) <= 20
+        ) <= 15
 ),
 {% endif %}
 
