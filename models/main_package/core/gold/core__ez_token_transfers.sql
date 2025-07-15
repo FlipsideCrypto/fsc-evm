@@ -4,6 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
+
 {{ config (
     materialized = "incremental",
     incremental_strategy = 'delete+insert',
@@ -359,4 +361,4 @@ SELECT
 FROM
     final
 
-qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id ORDER BY modified_timestamp DESC, amount_usd DESC NULLS LAST, decimals DESC NULLS LAST, symbol DESC NULLS LAST, name DESC NULLS LAST)) = 1
+qualify(ROW_NUMBER() over(PARTITION BY ez_token_transfers_id ORDER BY modified_timestamp DESC, amount_usd DESC NULLS LAST, is_verified desc nulls last, decimals DESC NULLS LAST, symbol DESC NULLS LAST, name DESC NULLS LAST)) = 1
