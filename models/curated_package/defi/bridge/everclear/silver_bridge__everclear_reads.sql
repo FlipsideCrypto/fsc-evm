@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -57,13 +55,37 @@ in_progress_epoch AS (
 ),
 {% endif %}
 
+{% if is_incremental() and var(
+    'backfill_2',
+    false
+) %}
+intent_list_to_requests AS (
+    SELECT
+        intent_id
+    FROM
+        {{ ref('silver_bridge__everclear_intent_added') }}
+    WHERE
+        destination_count > 1
+        AND intent_id NOT IN (
+            SELECT
+                intent_id
+            FROM
+                {{ this }}
+        ) qualify ROW_NUMBER() over (
+            ORDER BY
+                block_timestamp ASC,
+                intent_id ASC
+        ) <= 20
+),
+{% endif %}
+
 requests AS (
     SELECT
         chainid,
         min_epoch,
 
 {% if is_incremental() %}
--- backfill run mode 1 
+-- backfill run mode 1
 {% if var(
         'backfill_1',
         false
@@ -81,13 +103,15 @@ requests AS (
             min_progress_epoch_plus_1_day
         )
     ) AS response,
-    {% elif var( -- backfill run mode 2 
+    {% elif var(
+        -- backfill run mode 2
         'backfill_2',
         false
     ) %}
     live.udf_api(
         CONCAT(
             'https://api.everclear.org/intents/',
+            intent_id
         )
     ) AS response,
 {% else %}
@@ -122,6 +146,13 @@ FROM
 
 {% if is_incremental() %},
 in_progress_epoch
+{% endif %}
+
+{% if is_incremental() and var(
+    'backfill_2',
+    false
+) %},
+intent_list_to_requests
 {% endif %}
 ),
 results AS (
@@ -160,8 +191,7 @@ SELECT
         VALUE :intent_created_timestamp :: INT
     ) AS intent_created_timestamp,
     VALUE :auto_id :: INT AS cursor_id,
-    VALUE :intent_id :: STRING AS intent_id
-    requests,
+    VALUE :intent_id :: STRING AS intent_id requests,
     LATERAL FLATTEN (
         input => response :data :intents
     )
