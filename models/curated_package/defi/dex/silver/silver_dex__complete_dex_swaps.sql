@@ -1030,6 +1030,41 @@ WHERE
   )
 {% endif %}
 ),
+dackie AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    pool_address AS contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    recipient AS tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__dackie_swaps') }}
+
+{% if is_incremental() and 'dackie' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 uniswap_v4 AS (
   SELECT
     block_number,
@@ -1240,6 +1275,41 @@ WHERE
   )
 {% endif %}
 ),
+voodoo AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    token_in,
+    token_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    protocol,
+    version,
+    _log_id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__voodoo_swaps') }}
+
+{% if is_incremental() and 'voodoo' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_dex AS (
   SELECT
     *
@@ -1389,6 +1459,11 @@ all_dex AS (
   SELECT
     *
   FROM
+    dackie
+  UNION ALL
+  SELECT
+    *
+  FROM
     uniswap_v4
   UNION ALL
   SELECT
@@ -1415,6 +1490,16 @@ all_dex AS (
     *
   FROM
     zyberswap_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    voodoo
+  UNION ALL
+  SELECT
+    *
+  FROM
+    dackie
 ),
 complete_dex_swaps AS (
   SELECT

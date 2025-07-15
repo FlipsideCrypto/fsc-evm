@@ -98,6 +98,29 @@
                     'factory': '0xf1046053aa5682b4f9a81b5481394da16be5ff5a',
                     'converter': '0x585af0b397ac42dbef7f18395426bf878634f18d'
                 }
+            },
+            'maverick': {
+                'v1': {
+                    'swap': '0xb2855783a346735e4aae0c1eb894def861fa9b45'
+                },
+                'v2': {
+                    'factory': '0x0a7e848aca42d879ef06507fca0e7b33a0a63c1e'
+                }
+            },
+            'pancakeswap': {
+                'v3': {
+                    'factory': '0x0bfbcf9fa4f9c56b0f40a671ad40e0805a091865'
+                }
+            },
+            'voodoo': {
+                'v1': {
+                    'vault': '0x4f188afdc40e6d2ddddf5fd1b2df7aef7da52f50'
+                }
+            },
+            'dackieswap': {
+                'v1': {
+                    'factory': '0x3d237ac6d2f425d2e890cc99198818cc1fa48870'
+                }
             }
         },
         'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0xdd0951b69bc0cf9d39111e5037685fb573204c86','0x169ae3d5acc90f0895790f6321ee81cb040e8a6b'],

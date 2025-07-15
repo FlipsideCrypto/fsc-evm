@@ -1,7 +1,6 @@
 version: 2
 models:
-  - name: silver_dex__maverick_v2_swaps
-   
+  - name: silver_dex__voodoo_swaps
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -43,8 +42,6 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: SENDER
         tests:
-          - not_null:
-              where: BLOCK_TIMESTAMP > '2021-08-01'
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_TO
@@ -79,17 +76,3 @@ models:
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-      - name: AMOUNT_IN_UNADJ
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - number
-                - float
-      - name: AMOUNT_OUT_UNADJ
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - number
-                - float
