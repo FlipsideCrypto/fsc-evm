@@ -53,8 +53,8 @@ WITH swaps AS (
                 segmented_data [4] :: STRING
             )
         ) AS tick,
-        token0,
-        token1,
+        token0_address,
+        token1_address,
         p.platform,
         p.protocol,
         p.version,
@@ -99,8 +99,8 @@ SELECT
     reipient_address AS tx_to,
     amount0 AS amount0_unadj,
     amount1 AS amount1_unadj,
-    token0 AS token0_address,
-    token1 AS token1_address,
+    token0_address,
+    token1_address,
     price,
     liquidity,
     tick,

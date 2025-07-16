@@ -69,12 +69,12 @@ WITH swaps AS (
         token1_address,
         fee,
         tick_spacing,
-        m.protocol,
-        m.version,
+        p.protocol,
+        p.version,
         CONCAT(
-            m.protocol,
+            p.protocol,
             '-',
-            m.version
+            p.version
         ) AS platform,
         'Swap' AS event_name,
         CONCAT(

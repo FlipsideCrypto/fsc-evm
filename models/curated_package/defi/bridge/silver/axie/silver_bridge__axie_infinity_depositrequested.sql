@@ -85,7 +85,6 @@ SELECT
     topic_0,
     event_name,
     contract_address AS bridge_address,
-    NAME AS platform,
     sender,
     receiver,
     receiver AS destination_chain_receiver,

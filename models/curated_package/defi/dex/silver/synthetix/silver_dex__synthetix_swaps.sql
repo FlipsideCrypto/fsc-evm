@@ -113,7 +113,8 @@ FROM
         SELECT
             synth_symbol AS synth_symbol_in,
             synth_proxy_address AS token_in,
-            decimals AS decimals_in
+            decimals AS decimals_in,
+            blockchain
         FROM
             {{ ref('silver_dex__synthetix_synths_20230404') }}
     ) sc1
@@ -123,7 +124,8 @@ FROM
         SELECT
             synth_symbol AS synth_symbol_out,
             synth_proxy_address AS token_out,
-            decimals AS decimals_out
+            decimals AS decimals_out,
+            blockchain
         FROM
             {{ ref('silver_dex__synthetix_synths_20230404') }}
     ) sc2

@@ -69,7 +69,7 @@ WITH swaps AS (
         {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN {{ ref('silver_dex__camelot_v2_pools') }} p
-        ON p.pool_address = contract_address
+        ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67'
         AND tx_succeeded

@@ -115,7 +115,10 @@ parse_data AS (
         TRY_TO_NUMBER(
             event_data [2] [0] [0] [1] :: STRING
         ) AS price_impact_amount,
-        event_data [4] [0] [0] [1] :: STRING AS key
+        event_data [4] [0] [0] [1] :: STRING AS key,
+        protocol,
+        version,
+        platform
     FROM
         decoded_logs
     WHERE

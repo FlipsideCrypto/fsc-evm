@@ -69,12 +69,12 @@ WITH swaps AS (
         token1_address,
         fee,
         tick_spacing,
-        m.protocol,
-        m.version,
+        p.protocol,
+        p.version,
         CONCAT(
-            m.protocol,
+            p.protocol,
             '-',
-            m.version
+            p.version
         ) AS platform,
         'Swap' AS event_name,
         CONCAT(
@@ -87,7 +87,7 @@ WITH swaps AS (
         {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN {{ ref('silver_dex__pancakeswap_v3_pools') }} p
-        ON l.contract_address = pool_address
+        ON l.contract_address = p.pool_address
     WHERE
         topics [0] :: STRING = '0x19b47279256b2a23a1665c810c8d55a1758940ee09377d4f8d26497a3577dc83' --swap
         AND tx_succeeded

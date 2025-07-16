@@ -61,7 +61,7 @@ WITH swaps_base AS (
         {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN  {{ ref('silver_dex__aerodrome_pools') }} p
-        ON p.pool_address = contract_address
+        ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xb3e2773606abfd36b5bd91394b3a54d1398336c65005baf7bf7a05efeffaf75b'
         AND tx_succeeded
