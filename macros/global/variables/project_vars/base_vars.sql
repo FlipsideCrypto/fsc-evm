@@ -88,6 +88,35 @@
                 'v1': {
                     'uni_v2_pair_created': '0x04c9f118d21e8b767d2e50c946f0cc9f6c367300'
                 }
+            },
+            'maverick': {
+                'v1': {
+                    'swap': '0xb2855783a346735e4aae0c1eb894def861fa9b45'
+                },
+                'v2': {
+                    'factory': '0x0a7e848aca42d879ef06507fca0e7b33a0a63c1e'
+                }
+            },
+            'pancakeswap': {
+                'v3': {
+                    'factory': '0x0bfbcf9fa4f9c56b0f40a671ad40e0805a091865'
+                }
+            },
+            'voodoo': {
+                'v1': {
+                    'vault': '0x4f188afdc40e6d2ddddf5fd1b2df7aef7da52f50'
+                }
+            },
+            'dackieswap': {
+                'v1': {
+                    'factory': '0x3d237ac6d2f425d2e890cc99198818cc1fa48870'
+                }
+            },
+            'aerodrome': {
+                'v1': {
+                    'factory': '0x420dd381b31aef6683db6b902084cb0ffece40da'
+                    'slipstream': '0x5e7bb104d84c7cb9b682aac2f3d509f5f406809a'
+                }
             }
         },
         'CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID': 8453,
