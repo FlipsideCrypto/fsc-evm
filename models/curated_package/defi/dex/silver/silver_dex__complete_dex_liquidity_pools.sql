@@ -160,7 +160,7 @@ dodo_v1 AS (
     platform,
     protocol,
     version,
-    _log_id AS _id,
+    _id,
     modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('silver_dex__dodo_v1_pools') }}
