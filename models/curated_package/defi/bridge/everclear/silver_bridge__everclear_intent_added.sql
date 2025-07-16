@@ -1,9 +1,7 @@
 {# Set variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -12,7 +10,7 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH raw AS (
+WITH events AS (
 
     SELECT
         block_number,
@@ -44,29 +42,68 @@ WITH raw AS (
         utils.udf_hex_to_int(
             part [7] :: STRING
         ) AS source_chain_id,
-        utils.udf_hex_to_int(
-            part [11] :: STRING
-        ) AS amount_raw,
-        utils.udf_hex_to_int(
-            part [14] :: STRING
-        ) :: INT AS destination_count,
-        utils.udf_hex_to_int(
-            part [15] :: STRING
-        ) :: STRING AS destination_0,
-        CONCAT(
-            tx_hash,
-            '-',
-            event_index
-        ) AS _log_id,
-        inserted_timestamp,
-        modified_timestamp
+        {# utils.udf_hex_to_int(
+        part [11] :: STRING
+) AS amount_raw,
+#}
+utils.udf_hex_to_int(
+    part [14] :: STRING
+) :: INT AS destination_count,
+utils.udf_hex_to_int(
+    part [15] :: STRING
+) :: STRING AS destination_0,
+CONCAT(
+    tx_hash,
+    '-',
+    event_index
+) AS _log_id,
+inserted_timestamp,
+modified_timestamp
+FROM
+    {{ ref('core__fact_event_logs') }}
+WHERE
+    contract_address = LOWER('{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}')
+    AND topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
+    AND block_timestamp :: DATE >= '2024-09-01'
+    AND tx_succeeded
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
     FROM
-        {{ ref('core__fact_event_logs') }}
+        {{ this }}
+)
+{% endif %}
+),
+traces AS (
+    SELECT
+        tx_hash,
+        regexp_substr_all(SUBSTR(input, 11), '.{64}') AS inputs,
+        regexp_substr_all(SUBSTR(output, 3), '.{64}') AS outputs,
+        utils.udf_hex_to_int(
+            inputs [4] :: STRING
+        ) AS amount_raw,
+        '0x' || outputs [0] :: STRING AS intent_id
+    FROM
+        {{ ref('core__fact_traces') }}
     WHERE
-        contract_address = LOWER('{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}')
-        AND topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
-        AND block_timestamp :: DATE >= '2024-09-01'
+        block_timestamp :: DATE >= '2024-09-01'
+        AND TYPE = 'CALL'
+        AND to_address = '{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}'
+        AND LEFT(
+            input,
+            10
+        ) IN (
+            -- 3 versions of newIntent
+            '0x4a943d21',
+            -- address for senders
+            '0x1b5c3e8b',
+            -- bytes32 for senders
+            '0xb4c20477' -- permit2
+        )
         AND tx_succeeded
+        AND trace_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -99,4 +136,8 @@ SELECT
     inserted_timestamp,
     modified_timestamp
 FROM
-    raw
+    events
+    INNER JOIN traces USING (
+        tx_hash,
+        intent_id
+    )
