@@ -1419,6 +1419,7 @@ complete_lps AS (
       c7.token_decimals
     ) AS decimals,
     platform,
+    protocol,
     version,
     type,
     _id,
@@ -1618,6 +1619,7 @@ heal_model AS (
       c7.token_decimals
     ) AS decimals_heal,
     platform,
+    protocol,
     version,
     type,
     _id,
@@ -1997,6 +1999,7 @@ SELECT
   symbols_heal AS symbols,
   decimals_heal AS decimals,
   platform,
+  protocol,
   version,
   type,
   _id,
@@ -2010,7 +2013,9 @@ SELECT
   block_timestamp,
   tx_hash,
   platform,
+  protocol,
   version,
+  type,
   contract_address,
   pool_address,
   pool_id,
@@ -2028,7 +2033,6 @@ SELECT
   token5,
   token6,
   token7,
-  type,
   _id,
   _inserted_timestamp,
   {{ dbt_utils.generate_surrogate_key(
