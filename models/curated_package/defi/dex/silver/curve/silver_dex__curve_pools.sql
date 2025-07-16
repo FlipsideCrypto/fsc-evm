@@ -419,13 +419,13 @@ FINAL AS (
         token_type,
         CASE
             WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL }}'
-            WHEN pool_symbol IS NULL THEN C.token_symbol
+            WHEN pool_symbol IS NULL THEN C.symbol
             ELSE pool_symbol
         END AS pool_symbol,
         pool_name,
         CASE
             WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '18'
-            WHEN pool_decimals IS NULL THEN C.token_decimals
+            WHEN pool_decimals IS NULL THEN C.decimals
             ELSE pool_decimals
         END AS pool_decimals,
         pool_id,
@@ -436,8 +436,8 @@ FINAL AS (
         A._inserted_timestamp
     FROM
         all_pools A
-        LEFT JOIN {{ ref('silver__contracts') }} C
-        ON A.token_address = C.contract_address
+        LEFT JOIN {{ ref('core__dim_contracts') }} C
+        ON A.token_address = C.address
         LEFT JOIN contract_deployments d
         ON A.pool_address = d.contract_address qualify(ROW_NUMBER() over(PARTITION BY pool_address, token_address
     ORDER BY

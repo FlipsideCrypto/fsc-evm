@@ -4,7 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends_on: {{ ref('silver__complete_token_prices') }}
 {{ config(
   materialized = 'incremental',
   incremental_strategy = 'delete+insert',
@@ -14,7 +13,48 @@
   tags = ['silver_dex','defi','dex','curated','heal']
 ) }}
 
-WITH swap_evt_v3 AS (
+WITH contracts AS (
+
+  SELECT
+    address AS contract_address,
+    symbol AS token_symbol,
+    decimals AS token_decimals,
+    _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS contract_address,
+    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  WHERE
+    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
+prices AS (
+  SELECT
+    token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+  WHERE
+    token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
+swap_evt_v3 AS (
 
   SELECT
     block_number,
@@ -24,6 +64,7 @@ WITH swap_evt_v3 AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -59,6 +100,7 @@ swap_evt_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -94,6 +136,7 @@ quickswap_v2 AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -129,6 +172,7 @@ woofi AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -164,6 +208,7 @@ kyberswap_v1_dynamic AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -199,6 +244,7 @@ kyberswap_v1_static AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -234,6 +280,7 @@ kyberswap_v2_elastic AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -269,6 +316,7 @@ hashflow AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -304,6 +352,7 @@ hashflow_v3 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -339,6 +388,7 @@ curve AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     tokens_sold AS amount_in_unadj,
     tokens_bought AS amount_out_unadj,
@@ -374,6 +424,7 @@ balancer AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -409,6 +460,7 @@ dodo_v1 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -444,6 +496,7 @@ dodo_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -479,6 +532,7 @@ dexalot AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -514,6 +568,7 @@ gmx AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -549,6 +604,7 @@ gmx_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -584,6 +640,7 @@ pharaoh_v1 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -619,6 +676,7 @@ sushiswap AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -654,6 +712,7 @@ platypus AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -689,6 +748,7 @@ trader_joe_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -724,6 +784,7 @@ trader_joe_v2_1 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -759,6 +820,7 @@ velodrome_v1 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -794,6 +856,7 @@ velodrome_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -829,6 +892,7 @@ synthetix AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -864,6 +928,7 @@ maverick AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -899,6 +964,7 @@ maverick_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -934,6 +1000,7 @@ pancakeswap_v2_ss AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -969,6 +1036,7 @@ pancakeswap_v2_mm AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1004,6 +1072,7 @@ pancakeswap_v3 AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1039,6 +1108,7 @@ dackie AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1074,6 +1144,7 @@ uniswap_v4 AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1109,6 +1180,7 @@ bitflux AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1144,6 +1216,7 @@ glyph_v4 AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1179,6 +1252,7 @@ levelfi AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1214,6 +1288,7 @@ camelot_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1249,6 +1324,7 @@ zyberswap_v2 AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1284,6 +1360,7 @@ voodoo AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1319,6 +1396,7 @@ aerodrome AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1354,6 +1432,7 @@ aerodrome_slipstream AS (
     origin_from_address,
     origin_to_address,
     contract_address,
+    NULL AS pool_id,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
@@ -1590,6 +1669,7 @@ complete_dex_swaps AS (
     origin_from_address,
     origin_to_address,
     s.contract_address,
+    s.pool_id,
     event_name,
     token_in,
     p1.is_verified AS token_in_is_verified,
@@ -1653,20 +1733,20 @@ complete_dex_swaps AS (
     s._inserted_timestamp
   FROM
     all_dex s
-    LEFT JOIN {{ ref('silver__contracts') }}
+    LEFT JOIN contracts
     c1
     ON s.token_in = c1.contract_address
-    LEFT JOIN {{ ref('silver__contracts') }}
+    LEFT JOIN contracts
     c2
     ON s.token_out = c2.contract_address
-    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+    LEFT JOIN prices
     p1
     ON s.token_in = p1.token_address
     AND DATE_TRUNC(
       'hour',
       block_timestamp
     ) = p1.hour
-    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+    LEFT JOIN prices
     p2
     ON s.token_out = p2.token_address
     AND DATE_TRUNC(
@@ -1676,6 +1756,10 @@ complete_dex_swaps AS (
     LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools') }}
     lp
     ON s.contract_address = lp.pool_address
+    AND CASE
+      WHEN s.platform = 'uniswap-v4' THEN s.pool_id = lp.pool_id
+      ELSE TRUE
+    END
 ),
 
 {% if is_incremental() and var(
@@ -1690,6 +1774,7 @@ heal_model AS (
     origin_from_address,
     origin_to_address,
     t0.contract_address,
+    t0.pool_id,
     event_name,
     token_in,
     p1.is_verified AS token_in_is_verified,
@@ -1754,20 +1839,20 @@ heal_model AS (
   FROM
     {{ this }}
     t0
-    LEFT JOIN {{ ref('silver__contracts') }}
+    LEFT JOIN contracts
     c1
     ON t0.token_in = c1.contract_address
-    LEFT JOIN {{ ref('silver__contracts') }}
+    LEFT JOIN contracts
     c2
     ON t0.token_out = c2.contract_address
-    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+    LEFT JOIN prices
     p1
     ON t0.token_in = p1.token_address
     AND DATE_TRUNC(
       'hour',
       block_timestamp
     ) = p1.hour
-    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+    LEFT JOIN prices
     p2
     ON t0.token_out = p2.token_address
     AND DATE_TRUNC(
@@ -1777,6 +1862,10 @@ heal_model AS (
     LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools') }}
     lp
     ON t0.contract_address = lp.pool_address
+    AND CASE
+      WHEN t0.platform = 'uniswap-v4' THEN t0.pool_id = lp.pool_id
+      ELSE TRUE
+    END
   WHERE
     CONCAT(
       t0.block_number,
@@ -1810,7 +1899,7 @@ heal_model AS (
           SELECT
             1
           FROM
-            {{ ref('silver__contracts') }} C
+            contracts C
           WHERE
             C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
             AND C.token_decimals IS NOT NULL
@@ -1850,7 +1939,7 @@ heal_model AS (
               SELECT
                 1
               FROM
-                {{ ref('silver__contracts') }} C
+                contracts C
               WHERE
                 C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                 AND C.token_decimals IS NOT NULL
@@ -1890,7 +1979,7 @@ heal_model AS (
                   SELECT
                     1
                   FROM
-                    {{ ref('silver__complete_token_prices') }}
+                    prices
                     p
                   WHERE
                     p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
@@ -1936,7 +2025,7 @@ heal_model AS (
                   SELECT
                     1
                   FROM
-                    {{ ref('silver__complete_token_prices') }}
+                    prices
                     p
                   WHERE
                     p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
@@ -1971,6 +2060,7 @@ SELECT
   origin_from_address,
   origin_to_address,
   contract_address,
+  pool_id,
   event_name,
   token_in,
   token_in_is_verified,
@@ -2008,6 +2098,7 @@ SELECT
   origin_to_address,
   contract_address,
   pool_name,
+  pool_id,
   event_name,
   amount_in_unadj,
   amount_in,

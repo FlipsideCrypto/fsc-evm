@@ -4,7 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends_on: {{ ref('silver__complete_token_prices') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -14,7 +13,26 @@
     tags = ['silver_bridge','defi','bridge','curated','heal']
 ) }}
 
-WITH across AS (
+WITH contracts AS (
+    SELECT
+        address AS contract_address,
+        symbol AS token_symbol,
+        decimals AS token_decimals,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('core__dim_contracts') }}
+),
+prices AS (
+  SELECT
+    token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+),
+across AS (
 
     SELECT
         block_number,
@@ -1209,9 +1227,9 @@ complete_bridge_activity AS (
         b._inserted_timestamp
     FROM
         all_protocols b
-        LEFT JOIN {{ ref('silver__contracts') }} C
+        LEFT JOIN contracts C
         ON b.token_address = C.contract_address
-        LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+        LEFT JOIN prices
         p
         ON b.token_address = p.token_address
         AND DATE_TRUNC(
@@ -1271,9 +1289,9 @@ heal_model AS (
     FROM
         {{ this }}
         t0
-        LEFT JOIN {{ ref('silver__contracts') }} C
+        LEFT JOIN contracts C
         ON t0.token_address = C.contract_address
-        LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+        LEFT JOIN prices
         p
         ON t0.token_address = p.token_address
         AND DATE_TRUNC(
@@ -1313,7 +1331,7 @@ heal_model AS (
                     SELECT
                         1
                     FROM
-                        {{ ref('silver__contracts') }} C
+                        contracts C
                     WHERE
                         C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                         AND C.token_decimals IS NOT NULL
@@ -1353,7 +1371,7 @@ heal_model AS (
                             SELECT
                                 1
                             FROM
-                                {{ ref('silver__complete_token_prices') }}
+                                prices
                                 p
                             WHERE
                                 p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())

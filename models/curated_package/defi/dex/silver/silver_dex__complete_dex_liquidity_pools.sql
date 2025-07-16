@@ -16,12 +16,22 @@
 WITH contracts AS (
 
   SELECT
-    contract_address,
-    token_symbol,
-    token_decimals,
+    address AS contract_address,
+    symbol AS token_symbol,
+    decimals AS token_decimals,
     _inserted_timestamp
   FROM
-    {{ ref('silver__contracts') }}
+    {{ ref('core__dim_contracts') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS contract_address,
+    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  WHERE
+    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
 balancer AS (
   SELECT
@@ -1606,7 +1616,7 @@ heal_model AS (
           SELECT
             1
           FROM
-            {{ ref('silver__contracts') }} C
+            contracts C
           WHERE
             C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
             AND C.token_decimals IS NOT NULL
@@ -1646,7 +1656,7 @@ heal_model AS (
               SELECT
                 1
               FROM
-                {{ ref('silver__contracts') }} C
+                contracts C
               WHERE
                 C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                 AND C.token_decimals IS NOT NULL
@@ -1686,7 +1696,7 @@ heal_model AS (
                   SELECT
                     1
                   FROM
-                    {{ ref('silver__contracts') }} C
+                    contracts C
                   WHERE
                     C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                     AND C.token_decimals IS NOT NULL
@@ -1726,7 +1736,7 @@ heal_model AS (
                       SELECT
                         1
                       FROM
-                        {{ ref('silver__contracts') }} C
+                        contracts C
                       WHERE
                         C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                         AND C.token_decimals IS NOT NULL
@@ -1766,7 +1776,7 @@ heal_model AS (
                           SELECT
                             1
                           FROM
-                            {{ ref('silver__contracts') }} C
+                            contracts C
                           WHERE
                             C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                             AND C.token_decimals IS NOT NULL
@@ -1806,7 +1816,7 @@ heal_model AS (
                               SELECT
                                 1
                               FROM
-                                {{ ref('silver__contracts') }} C
+                                contracts C
                               WHERE
                                 C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                 AND C.token_decimals IS NOT NULL
@@ -1846,7 +1856,7 @@ heal_model AS (
                                   SELECT
                                     1
                                   FROM
-                                    {{ ref('silver__contracts') }} C
+                                    contracts C
                                   WHERE
                                     C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                     AND C.token_decimals IS NOT NULL
@@ -1886,7 +1896,7 @@ heal_model AS (
                                       SELECT
                                         1
                                       FROM
-                                        {{ ref('silver__contracts') }} C
+                                        contracts C
                                       WHERE
                                         C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                         AND C.token_decimals IS NOT NULL

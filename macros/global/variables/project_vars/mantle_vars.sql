@@ -5,6 +5,7 @@
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/mantle/quicknode/mainnet',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8',
         'GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL': 'WMNT',
+        'GLOBAL_NATIVE_ASSET_SYMBOL': 'MNT',
         'MAIN_SL_BLOCKS_PER_HOUR': 1800,
         'MAIN_PRICES_NATIVE_SYMBOLS': ['ETH', 'MNT'],
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': ['ethereum', 'mantle'],
