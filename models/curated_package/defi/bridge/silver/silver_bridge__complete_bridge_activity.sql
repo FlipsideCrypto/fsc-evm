@@ -1180,7 +1180,7 @@ complete_bridge_activity AS (
                 'chainlink_ccip-v1',
                 'layerzero-v2',
                 'stargate-v2',
-                'gaszip_lz-v2',
+                'gaszip_lz-v2'
             ) THEN destination_chain_id :: STRING
             WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
             ELSE d.chain_id :: STRING

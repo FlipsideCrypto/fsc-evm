@@ -11,7 +11,6 @@
     meta ={ 
         'database_tags':{
             'table':{
-                'PROTOCOL': 'ACROSS, ALLBRIDGE, AXELAR, AXIE, COREDAO, CELER, CBRIDGE, DLN, DEBRIDGE, EYWA, GASZIP, HOP, MESON, MULTICHAIN, STARGATE, SYMBIOSIS, SYNAPSE, WORMHOLE, CCIP',
                 'PURPOSE': 'BRIDGE'
         } } },
     tags = ['gold','defi','bridge','curated','ez']

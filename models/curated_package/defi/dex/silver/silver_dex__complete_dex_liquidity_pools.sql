@@ -19,7 +19,7 @@ WITH contracts AS (
     address AS contract_address,
     symbol AS token_symbol,
     decimals AS token_decimals,
-    _inserted_timestamp
+    modified_timestamp AS _inserted_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   UNION ALL
