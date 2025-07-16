@@ -284,6 +284,7 @@ ccip AS (
          platform,
          protocol,
          version,
+         type,
          _log_id AS _id,
          modified_timestamp AS _inserted_timestamp
      FROM
@@ -322,6 +323,7 @@ ccip AS (
          platform,
          protocol,
          version,
+         type,
          _log_id AS _id,
          modified_timestamp AS _inserted_timestamp
      FROM
@@ -359,6 +361,7 @@ ccip AS (
          platform,
          protocol,
          version,
+         type,
          _log_id AS _id,
          modified_timestamp AS _inserted_timestamp
      FROM
