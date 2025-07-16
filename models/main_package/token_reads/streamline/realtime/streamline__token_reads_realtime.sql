@@ -30,7 +30,7 @@ WITH threshold_count AS (
     SELECT
         date_trunc('day',b.block_timestamp) as block_day,
         r.contract_address,
-        r.latest_event_block,
+        r.latest_event_block as latest_block,
         r.total_event_count
     FROM
         {{ ref('silver__relevant_contracts') }} r 
