@@ -147,7 +147,7 @@
                     'lb_pair_created': '0xdc8d77b69155c7e68a95a4fb0f06a71ff90b943a'
                 }
             },
-            'verse'
+            'verse' {
                 'v1': {
                     'uni_v2_pair_created': '0xee3e9e46e34a27dc755a63e2849c9913ee1a06e2'
                 }
