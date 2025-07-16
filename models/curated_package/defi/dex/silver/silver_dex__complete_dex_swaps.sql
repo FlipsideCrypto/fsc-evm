@@ -1353,7 +1353,7 @@ aerodrome_slipstream AS (
     origin_function_signature,
     origin_from_address,
     origin_to_address,
-    pool_address AS contract_address,
+    contract_address,
     event_name,
     amount_in_unadj,
     amount_out_unadj,
