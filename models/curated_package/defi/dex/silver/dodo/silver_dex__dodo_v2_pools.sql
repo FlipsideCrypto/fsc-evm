@@ -28,6 +28,7 @@ pool_tr AS (
         to_address AS pool_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -80,6 +81,7 @@ pool_evt AS (
         CONCAT('0x', SUBSTR(segmented_data [3] :: STRING, 25, 40)) AS pool_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -136,6 +138,7 @@ FINAL AS (
         pool_address,
         protocol,
         version,
+        type,
         platform,
         _log_id AS _id,
         modified_timestamp
@@ -155,6 +158,7 @@ FINAL AS (
         pool_address,
         protocol,
         version,
+        type,
         platform,
         _call_id AS _id,
         modified_timestamp
@@ -175,6 +179,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _id,
     modified_timestamp
 FROM

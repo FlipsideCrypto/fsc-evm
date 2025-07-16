@@ -98,6 +98,7 @@ base_evt AS (
         END AS destination_caller,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -151,6 +152,7 @@ SELECT
     ) AS destination_chain,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

@@ -64,6 +64,7 @@ token_transfers AS (
         ) AS nonce,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -134,6 +135,7 @@ native_transfers AS (
         ) AS nonce,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -182,6 +184,7 @@ all_transfers AS (
         destination_recipient_address,
         protocol,
         version,
+        type,
         platform,
         {{ dbt_utils.generate_surrogate_key(
             ['_log_id']
@@ -208,6 +211,7 @@ all_transfers AS (
         destination_recipient_address,
         protocol,
         version,
+        type,
         platform,
         {{ dbt_utils.generate_surrogate_key(
             ['_call_id']
@@ -264,6 +268,7 @@ SELECT
     END AS destination_chain_receiver,
     protocol,
     version,
+    type,
     platform,
     _id,
     modified_timestamp

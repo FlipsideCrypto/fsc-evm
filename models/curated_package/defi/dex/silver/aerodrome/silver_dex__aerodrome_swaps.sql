@@ -50,6 +50,7 @@ WITH swaps_base AS (
         p.platform,
         p.protocol,
         p.version,
+        p.type,
         'Swap' AS event_name,
         CONCAT(
             l.tx_hash :: STRING,
@@ -119,6 +120,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

@@ -35,6 +35,7 @@ token_transfers AS (
         raw_amount,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -72,6 +73,7 @@ native_transfers AS (
         amount_precise_raw,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -115,6 +117,7 @@ all_transfers AS (
         contract_address AS token_address,
         protocol,
         version,
+        type,
         platform,
         {{ dbt_utils.generate_surrogate_key(
             ['_log_id']
@@ -139,6 +142,7 @@ all_transfers AS (
         '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}' AS token_address,
         protocol,
         version,
+        type,
         platform,
         {{ dbt_utils.generate_surrogate_key(
             ['_call_id']
@@ -198,6 +202,7 @@ SELECT
     token_address,
     t.protocol,
     t.version,
+    t.type,
     t.platform,
     _id,
     t.modified_timestamp

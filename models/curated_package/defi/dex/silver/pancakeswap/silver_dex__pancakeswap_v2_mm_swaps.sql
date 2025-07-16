@@ -67,6 +67,7 @@ swaps AS (
         quoteTokenAmount AS token_out_amount,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -124,6 +125,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

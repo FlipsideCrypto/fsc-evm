@@ -76,6 +76,7 @@ swap_evt_v3 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -112,6 +113,7 @@ swap_evt_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -148,6 +150,7 @@ quickswap_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -184,6 +187,7 @@ woofi AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -220,6 +224,7 @@ kyberswap_v1_dynamic AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -256,6 +261,7 @@ kyberswap_v1_static AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -292,6 +298,7 @@ kyberswap_v2_elastic AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -328,6 +335,7 @@ hashflow AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -364,6 +372,7 @@ hashflow_v3 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -400,6 +409,7 @@ curve AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     _inserted_timestamp
   FROM
@@ -436,6 +446,7 @@ balancer AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     _inserted_timestamp
   FROM
@@ -472,6 +483,7 @@ dodo_v1 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -508,6 +520,7 @@ dodo_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -544,6 +557,7 @@ dexalot AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -580,6 +594,7 @@ gmx AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -616,6 +631,7 @@ gmx_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -652,6 +668,7 @@ pharaoh_v1 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -688,6 +705,7 @@ sushiswap AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -724,6 +742,7 @@ platypus AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -760,6 +779,7 @@ trader_joe_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -796,6 +816,7 @@ trader_joe_v2_1 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -832,6 +853,7 @@ velodrome_v1 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -868,6 +890,7 @@ velodrome_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -904,6 +927,7 @@ synthetix AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -940,6 +964,7 @@ maverick AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -976,6 +1001,7 @@ maverick_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1012,6 +1038,7 @@ pancakeswap_v2_ss AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1048,6 +1075,7 @@ pancakeswap_v2_mm AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1084,6 +1112,7 @@ pancakeswap_v3 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1120,6 +1149,7 @@ dackie AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1156,6 +1186,7 @@ uniswap_v4 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1192,6 +1223,7 @@ bitflux AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1228,6 +1260,7 @@ glyph_v4 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1264,6 +1297,7 @@ levelfi AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1300,6 +1334,7 @@ camelot_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1336,6 +1371,7 @@ zyberswap_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1372,6 +1408,7 @@ voodoo AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1408,6 +1445,7 @@ aerodrome AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1444,6 +1482,7 @@ aerodrome_slipstream AS (
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1729,6 +1768,7 @@ complete_dex_swaps AS (
     s.platform,
     s.protocol,
     s.version,
+    s.type,
     s._log_id,
     s._inserted_timestamp
   FROM
@@ -1834,6 +1874,7 @@ heal_model AS (
     t0.platform,
     t0.protocol,
     t0.version,
+    t0.type,
     t0._log_id,
     t0._inserted_timestamp
   FROM
@@ -2083,6 +2124,7 @@ SELECT
   platform,
   protocol,
   version,
+  type,
   _log_id,
   _inserted_timestamp
 FROM
@@ -2112,6 +2154,7 @@ SELECT
   platform,
   protocol,
   version,
+  type,
   token_in,
   IFNULL(
     token_in_is_verified,

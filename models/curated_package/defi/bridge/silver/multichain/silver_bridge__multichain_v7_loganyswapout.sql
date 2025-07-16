@@ -47,6 +47,7 @@ base_evt AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -99,6 +100,7 @@ SELECT
     swapoutID AS swapout_id,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

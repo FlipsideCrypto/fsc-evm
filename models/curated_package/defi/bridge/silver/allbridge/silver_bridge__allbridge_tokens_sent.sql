@@ -42,6 +42,7 @@ base_evt AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash,
@@ -161,6 +162,7 @@ SELECT
     s.tx_succeeded,
     s.protocol,
     s.version,
+    s.type,
     s.platform,
     s._log_id,
     s.modified_timestamp

@@ -28,6 +28,7 @@ WITH unwrap AS (
         'Unwrap' AS event_name,
         'avalanche_native_bridge' AS protocol,
         'v2' AS version,
+        'native' AS type,
         CONCAT(
             protocol,
             '-',
@@ -114,6 +115,7 @@ SELECT
     amount_unadj,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp,

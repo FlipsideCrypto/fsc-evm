@@ -47,6 +47,7 @@ base_evt AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -104,6 +105,7 @@ SELECT
     token AS token_address,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

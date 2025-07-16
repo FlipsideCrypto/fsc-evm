@@ -48,6 +48,7 @@ base_evt AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -111,6 +112,7 @@ native_gas_paid AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -250,6 +252,7 @@ FINAL AS (
         b.platform,
         b.protocol,
         b.version,
+        b.type,
         b._log_id,
         b.modified_timestamp
     FROM

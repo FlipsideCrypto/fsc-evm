@@ -47,6 +47,7 @@ swaps AS (
         TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_data [6] :: STRING)) AS destAmount,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         'SwapExecuted' AS event_name,
         CONCAT(
@@ -101,6 +102,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

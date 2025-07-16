@@ -56,6 +56,7 @@ WITH base_evt AS (
             '-',
             version
         ) AS platform,
+        'transfer_sent_to_l2' AS type,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -113,6 +114,7 @@ SELECT
     relayerFee AS relayer_fee,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

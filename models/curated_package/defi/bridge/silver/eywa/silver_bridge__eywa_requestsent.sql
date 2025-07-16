@@ -37,6 +37,7 @@ base_evt AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -93,6 +94,7 @@ requestsent AS (
         tx_succeeded,
         protocol,
         version,
+        type,
         platform,
         _log_id,
         modified_timestamp
@@ -124,6 +126,7 @@ locked AS (
         tx_succeeded,
         protocol,
         version,
+        type,
         platform,
         _log_id,
         modified_timestamp
@@ -153,6 +156,7 @@ SELECT
     l.token AS token_address,
     r.protocol,
     r.version,
+    r.type,
     r.platform,
     r._log_id,
     r.modified_timestamp

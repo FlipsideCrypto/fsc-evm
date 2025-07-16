@@ -55,6 +55,7 @@ balancer AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     _inserted_timestamp
   FROM
@@ -124,6 +125,7 @@ curve AS (
     platform,
     protocol,
     version,
+    type,
     _call_id AS _id,
     _inserted_timestamp
   FROM
@@ -163,6 +165,7 @@ dodo_v1 AS (
     platform,
     protocol,
     version,
+    type,
     _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -200,6 +203,7 @@ dodo_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -238,6 +242,7 @@ kyberswap_v1_dynamic AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -275,6 +280,7 @@ kyberswap_v1_static AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -312,6 +318,7 @@ kyberswap_v2_elastic AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -349,6 +356,7 @@ quickswap_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -386,6 +394,7 @@ poolcreated_evt_v3 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -423,6 +432,7 @@ paircreated_evt_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -460,6 +470,7 @@ pharaoh_v1 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -497,6 +508,7 @@ sushiswap AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -534,6 +546,7 @@ trader_joe_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -571,6 +584,7 @@ velodrome_v1 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -608,6 +622,7 @@ velodrome_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -645,6 +660,7 @@ maverick AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -682,6 +698,7 @@ maverick_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -719,6 +736,7 @@ pancakeswap_v2_ss AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -756,6 +774,7 @@ pancakeswap_v3 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -793,6 +812,7 @@ dackie AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -830,6 +850,7 @@ uniswap_v4 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -867,6 +888,7 @@ bitflux AS (
     platform,
     protocol,
     version,
+    type,
     _call_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -904,6 +926,7 @@ glyph_v4 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -941,6 +964,7 @@ camelot_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -978,6 +1002,7 @@ zyberswap_v2 AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1015,6 +1040,7 @@ aerodrome AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1052,6 +1078,7 @@ aerodrome_slipstream AS (
     platform,
     protocol,
     version,
+    type,
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -1393,6 +1420,7 @@ complete_lps AS (
     ) AS decimals,
     platform,
     version,
+    type,
     _id,
     p._inserted_timestamp
   FROM
@@ -1591,6 +1619,7 @@ heal_model AS (
     ) AS decimals_heal,
     platform,
     version,
+    type,
     _id,
     t0._inserted_timestamp
   FROM
@@ -1969,6 +1998,7 @@ SELECT
   decimals_heal AS decimals,
   platform,
   version,
+  type,
   _id,
   _inserted_timestamp
 FROM
@@ -1998,6 +2028,7 @@ SELECT
   token5,
   token6,
   token7,
+  type,
   _id,
   _inserted_timestamp,
   {{ dbt_utils.generate_surrogate_key(

@@ -250,6 +250,7 @@
   {% set ns.CURATED_LOOKBACK_HOURS = get_var('CURATED_LOOKBACK_HOURS', '12 hours') %}
   {% set ns.CURATED_LOOKBACK_DAYS = get_var('CURATED_LOOKBACK_DAYS', '7 days') %}
   {% set ns.CURATED_FR_MODELS = get_var('CURATED_FR_MODELS', []) %}
+  {% set ns.CURATED_DEFI_RECENCY_EXCLUSION_LIST = get_var('CURATED_DEFI_RECENCY_EXCLUSION_LIST', []) %}
 
   {# Curated Bridge Variables #}
   {% set ns.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING = get_var('CURATED_DEFI_BRIDGE_CONTRACT_MAPPING', {}) %}

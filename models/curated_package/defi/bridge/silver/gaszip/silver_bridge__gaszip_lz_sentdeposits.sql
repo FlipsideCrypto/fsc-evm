@@ -38,6 +38,7 @@ senddeposits AS (
         CONCAT('0x', SUBSTR(segmented_data [4] :: STRING, 25, 40)) AS from_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -179,6 +180,7 @@ SELECT
     token_address,
     protocol,
     version,
+    type,
     platform,
     CONCAT(
         s.tx_hash :: STRING,

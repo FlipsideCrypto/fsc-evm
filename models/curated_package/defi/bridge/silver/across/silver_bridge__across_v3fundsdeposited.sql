@@ -88,6 +88,7 @@ base_evt AS (
         event_removed,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash :: STRING,
@@ -146,6 +147,7 @@ SELECT
     outputToken AS output_token,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

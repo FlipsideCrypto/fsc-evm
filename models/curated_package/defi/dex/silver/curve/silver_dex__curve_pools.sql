@@ -29,6 +29,7 @@ contract_deployments AS (
         to_address AS contract_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         concat_ws(
             '-',
@@ -432,6 +433,7 @@ FINAL AS (
         d.platform,
         d.protocol,
         d.version,
+        d.type,
         _call_id,
         A._inserted_timestamp
     FROM

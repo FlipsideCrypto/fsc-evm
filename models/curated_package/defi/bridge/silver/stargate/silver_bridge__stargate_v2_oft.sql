@@ -24,7 +24,7 @@ layerzero AS (
     SELECT
         tx_hash,
         payload,
-        l.TYPE,
+        tx_type,
         nonce,
         src_chain_id,
         src_chain,
@@ -42,6 +42,7 @@ layerzero AS (
         '0x' || SUBSTR(SUBSTR(payload, 233, 64), 25) AS to_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -133,7 +134,7 @@ SELECT
     dst_chain_id_oft,
     amount_sent,
     payload,
-    TYPE,
+    tx_type,
     nonce,
     sender_contract_address,
     receiver_contract_address,
@@ -144,6 +145,7 @@ SELECT
     origin_function_signature,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

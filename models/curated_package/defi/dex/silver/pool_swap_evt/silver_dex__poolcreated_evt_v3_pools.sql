@@ -44,6 +44,7 @@ pools AS (
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS pool_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -115,6 +116,7 @@ legacy_pools AS ( --seed file CTE for GENESIS contracts, union as needed
         fee,
         'uniswap' AS protocol,
         'v3' AS version,
+        'ovm1_legacy' AS type,
         CONCAT(
             protocol,
             '-',
@@ -147,6 +149,7 @@ FINAL AS (
         platform,
         protocol,
         version,
+        type,
         p._log_id,
         p.modified_timestamp
     FROM
@@ -173,6 +176,7 @@ FINAL AS (
         platform,
         protocol,
         version,
+        type,
         CONCAT(
             tx_hash,
             '-',

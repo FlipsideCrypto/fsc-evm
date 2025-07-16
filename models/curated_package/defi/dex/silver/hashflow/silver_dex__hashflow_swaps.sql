@@ -61,6 +61,7 @@ WITH router_swaps_base AS (
         p.platform,
         p.protocol,
         p.version,
+        p.type,
         'Swap' AS event_name,
         CONCAT(
             l.tx_hash :: STRING,
@@ -136,6 +137,7 @@ swaps_base AS (
         p.platform,
         p.protocol,
         p.version,
+        p.type,
         'Swap' AS event_name,
         CONCAT(
             l.tx_hash :: STRING,
@@ -183,6 +185,7 @@ FINAL AS (
         platform,
         protocol,
         version,
+        type,
         _log_id,
         modified_timestamp
     FROM
@@ -207,6 +210,7 @@ FINAL AS (
         platform,
         protocol,
         version,
+        type,
         _log_id,
         modified_timestamp
     FROM
@@ -237,6 +241,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

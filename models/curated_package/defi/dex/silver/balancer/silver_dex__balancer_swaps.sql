@@ -23,7 +23,8 @@ WITH pool_name AS (
         contract_address,
         platform,
         protocol,
-        version
+        version,
+        type
     FROM
         {{ ref('silver_dex__balancer_pools') }} p
 ),
@@ -103,6 +104,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     _inserted_timestamp
 FROM

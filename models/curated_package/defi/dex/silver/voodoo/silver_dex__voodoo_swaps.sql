@@ -77,6 +77,7 @@ swaps AS (
         ) AS feeBasisPoints,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         'Swap' AS event_name,
         CONCAT(
@@ -125,6 +126,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

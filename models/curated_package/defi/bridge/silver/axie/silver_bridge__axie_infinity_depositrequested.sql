@@ -44,6 +44,7 @@ base_evt AS (
         decoded_log :"receipt" :"mainchain" :"tokenAddr" :: STRING AS token_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -93,6 +94,7 @@ SELECT
     token_address,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

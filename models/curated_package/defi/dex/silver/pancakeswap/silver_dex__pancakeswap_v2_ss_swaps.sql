@@ -55,6 +55,7 @@ WITH swaps AS (
         END AS tokenIn,
         p.protocol,
         p.version,
+        p.type,
         CONCAT(p.protocol, '-', p.version) AS platform,
         'TokenExchange' AS event_name,
         CONCAT(
@@ -105,6 +106,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

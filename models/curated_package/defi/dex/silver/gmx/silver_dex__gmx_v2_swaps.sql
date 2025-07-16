@@ -42,6 +42,7 @@ decoded_logs AS (
         decoded_log :eventData AS event_data,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash,
@@ -118,6 +119,7 @@ parse_data AS (
         event_data [4] [0] [0] [1] :: STRING AS key,
         protocol,
         version,
+        type,
         platform
     FROM
         decoded_logs
@@ -155,7 +157,8 @@ column_format AS (
         key,
         platform,
         protocol,
-        version
+        version,
+        type
     FROM
         parse_data p
 ),
@@ -192,6 +195,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     A.key,
     A._log_id,
     A.modified_timestamp

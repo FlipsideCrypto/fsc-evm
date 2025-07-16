@@ -53,6 +53,7 @@ WITH swaps_base AS (
         fee,
         p.protocol,
         p.version,
+        p.type,
         CONCAT(p.protocol, '-', p.version) AS platform,
         'TokenSwap' AS event_name,
         CONCAT(
@@ -123,6 +124,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

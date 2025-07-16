@@ -56,6 +56,7 @@ raw AS (
         ) AS message_type,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -90,7 +91,7 @@ SELECT
     tx_hash,
     event_index,
     payload,
-    TYPE,
+    TYPE AS tx_type,
     nonce,
     src_chain_id,
     LOWER(
@@ -106,6 +107,7 @@ SELECT
     message_type,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

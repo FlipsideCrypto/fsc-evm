@@ -99,6 +99,7 @@ created_pools AS (
         -- null if permissionless pool
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         'PairCreated' AS event_name,
         CONCAT(
@@ -146,6 +147,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

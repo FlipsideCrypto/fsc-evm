@@ -86,6 +86,7 @@ base_evt AS (
         END AS destination_caller,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -137,6 +138,7 @@ SELECT
     burn_amount AS amount_unadj,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     e.modified_timestamp

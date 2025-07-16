@@ -93,6 +93,7 @@ events_swap AS (
         tick_spacing,
         p.protocol,
         p.version,
+        p.type,
         p.platform,
         modified_timestamp,
     FROM
@@ -175,6 +176,7 @@ traces_swap AS (
         ) AS trace_rank,
         p.protocol,
         p.version,
+        p.type,
         p.platform,
         modified_timestamp
     FROM
@@ -245,6 +247,7 @@ SELECT
     e.platform,
     e.protocol,
     e.version,
+    e.type,
     e.modified_timestamp
 FROM
     events_swap e

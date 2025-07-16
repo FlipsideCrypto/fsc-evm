@@ -56,6 +56,7 @@ WITH base_evt AS (
             '-',
             version
         ) AS platform,
+        'transfer_sent' AS type,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -108,6 +109,7 @@ SELECT
     transferNonce AS transfer_nonce,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

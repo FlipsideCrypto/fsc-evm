@@ -36,6 +36,7 @@ layerzero AS (
         '0x' || SUBSTR(SUBSTR(payload, 227, 64), 25) AS to_address,
         protocol,
         version,
+        type,
         CONCAT(
             protocol,
             '-',
@@ -142,6 +143,7 @@ SELECT
     message_type,
     l.protocol,
     l.version,
+    l.type,
     l.platform,
     o._log_id,
     o.modified_timestamp

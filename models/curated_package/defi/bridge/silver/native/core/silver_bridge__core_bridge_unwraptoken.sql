@@ -26,6 +26,7 @@ WITH unwrap_token AS (
         'UnwrapToken' AS event_name,
         'core_bridge' AS protocol,
         'v1' AS version,
+        'native' AS type,
         CONCAT(
             protocol,
             '-',
@@ -73,6 +74,7 @@ SELECT
     event_name,
     protocol,
     version,
+    type,
     platform,
     origin_from_address AS sender,
     to_address AS receiver,

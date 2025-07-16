@@ -23,7 +23,8 @@ WITH pool_meta AS (
         token_type::STRING AS token_type,
         platform,
         protocol,
-        version
+        version,
+        type
     FROM
         {{ ref('silver_dex__curve_pools') }}
 ),
@@ -72,6 +73,7 @@ curve_base AS (
         platform,
         protocol,
         version,
+        type,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -197,7 +199,8 @@ SELECT
     _inserted_timestamp,
     platform,
     protocol,
-    version
+    version,
+    type
 FROM
     curve_base s
     LEFT JOIN token_exchange e ON s._log_id = e._log_id
@@ -240,6 +243,7 @@ SELECT
     _inserted_timestamp,
     platform,
     protocol,
-    version
+    version,
+    type
 FROM
     ready_pool_info

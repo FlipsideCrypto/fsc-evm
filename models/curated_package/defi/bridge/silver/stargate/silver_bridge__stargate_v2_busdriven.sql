@@ -40,6 +40,7 @@ bus_driven_raw AS (
         origin_function_signature,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -85,6 +86,7 @@ bus_driven_array AS (
         origin_function_signature,
         protocol,
         version,
+        type,
         platform,
         _log_id,
         modified_timestamp
@@ -125,6 +127,7 @@ bus_driven AS (
         r.origin_function_signature,
         r.protocol,
         r.version,
+        r.type,
         r.platform,
         r._log_id,
         r.modified_timestamp
@@ -151,7 +154,7 @@ layerzero AS (
         tx_hash,
         guid,
         payload,
-        TYPE,
+        TYPE AS tx_type,
         nonce,
         src_chain_id,
         src_chain,
@@ -193,7 +196,7 @@ SELECT
     dst_receiver_address,
     amount_sent,
     payload,
-    TYPE,
+    tx_type,
     nonce,
     src_chain_id,
     src_chain,
@@ -207,6 +210,7 @@ SELECT
     origin_function_signature,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

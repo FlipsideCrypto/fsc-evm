@@ -122,6 +122,7 @@ pool_traces AS (
         ) AS lp_symbol,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         concat_ws(
             '-',
@@ -179,6 +180,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _call_id,
     modified_timestamp
 FROM

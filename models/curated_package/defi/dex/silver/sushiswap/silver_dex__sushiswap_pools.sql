@@ -33,6 +33,7 @@ pools AS (
         CONCAT('0x', SUBSTR(segmented_data [3] :: STRING, 25, 40)) AS token1,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -77,6 +78,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

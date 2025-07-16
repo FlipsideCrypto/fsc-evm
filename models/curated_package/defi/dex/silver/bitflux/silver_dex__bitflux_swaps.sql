@@ -55,6 +55,7 @@ WITH swaps AS (
         COALESCE(p1.platform, p2.platform) AS platform,
         COALESCE(p1.protocol, p2.protocol) AS protocol,
         COALESCE(p1.version, p2.version) AS version,
+        COALESCE(p1.type, p2.type) AS type,
         'TokenSwap' AS event_name,
         CONCAT(
             l.tx_hash :: STRING,
@@ -108,6 +109,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

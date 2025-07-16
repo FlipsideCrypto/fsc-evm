@@ -38,6 +38,7 @@ SELECT
     CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
     'velodrome' AS protocol,
     'v2' AS version,
+    'factory' AS type,
     CONCAT(
         protocol,
         '-',

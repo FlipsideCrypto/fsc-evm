@@ -28,6 +28,7 @@ pools AS (
         to_address AS contract_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -77,6 +78,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _call_id,
     modified_timestamp
 FROM

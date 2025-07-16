@@ -32,6 +32,7 @@ pool_creation AS (
         CONCAT('0x', SUBSTR(DATA, 27, 40)) AS pool_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         'PoolCreated' AS event_name,
         CONCAT(
@@ -164,6 +165,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

@@ -35,6 +35,7 @@ pools_registered AS (
         ) AS pool_address,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         'PoolRegistered' AS event_name,
         CONCAT(
@@ -86,6 +87,7 @@ tokens_registered AS (
         decoded_log :assetManagers AS asset_managers,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         event_name,
         CONCAT(
@@ -276,6 +278,7 @@ SELECT
     COALESCE(p.platform,t.platform) AS platform,
     COALESCE(p.protocol,t.protocol) AS protocol,
     COALESCE(p.version,t.version) AS version,
+    COALESCE(p.type,t.type) AS type,
     p._log_id,
     f._inserted_timestamp
 FROM

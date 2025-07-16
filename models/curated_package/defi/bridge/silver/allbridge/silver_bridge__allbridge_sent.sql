@@ -61,6 +61,7 @@ base_evt AS (
         tx_succeeded,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash :: STRING,
@@ -164,6 +165,7 @@ SELECT
     tokenSourceAddress AS token_address,
     protocol,
     version,
+    type,
     platform,
     _log_id,
     modified_timestamp

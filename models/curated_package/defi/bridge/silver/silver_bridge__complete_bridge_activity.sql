@@ -55,6 +55,7 @@ across AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -92,6 +93,7 @@ across_v3 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -129,6 +131,7 @@ allbridge AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -167,6 +170,7 @@ allbridge_v2 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -204,6 +208,7 @@ axelar AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -241,6 +246,7 @@ celer_cbridge AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -390,6 +396,7 @@ dln_debridge AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -427,6 +434,7 @@ eywa AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -464,6 +472,7 @@ hop_l2 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -501,6 +510,7 @@ hop_l1 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -538,6 +548,7 @@ layerzero_v2 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -576,6 +587,7 @@ meson AS (
         platform,
         protocol,
         version,
+        type,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -613,6 +625,7 @@ multichain AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -650,6 +663,7 @@ stargate AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -688,6 +702,7 @@ stargate_v2 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -726,6 +741,7 @@ symbiosis AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -763,6 +779,7 @@ synapse_tb AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -800,6 +817,7 @@ synapse_tbs AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -837,6 +855,7 @@ wormhole AS (
         platform,
         protocol,
         version,
+        type,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -874,6 +893,7 @@ avalanche_native_v2 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS_id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -911,6 +931,7 @@ axie_infinity_v2 AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -948,6 +969,7 @@ gaszip_lz AS (
         platform,
         protocol,
         version,
+        type,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -1111,6 +1133,7 @@ eth_native_bridges AS ( --ethereum specific transfers out only, contracts source
         platform,
         protocol,
         version,
+        type,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -1168,6 +1191,7 @@ complete_bridge_activity AS (
         platform,
         protocol,
         version,
+        type,
         sender,
         receiver,
         destination_chain_receiver,
@@ -1266,6 +1290,7 @@ heal_model AS (
         platform,
         protocol,
         version,
+        type,
         sender,
         receiver,
         destination_chain_receiver,
@@ -1411,6 +1436,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     sender,
     receiver,
     destination_chain_receiver,
@@ -1442,6 +1468,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     sender,
     receiver,
     destination_chain_receiver,

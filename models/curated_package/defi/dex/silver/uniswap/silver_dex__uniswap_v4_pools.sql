@@ -82,6 +82,7 @@ initialize AS (
         COALESCE(TRY_TO_BOOLEAN(SUBSTR(hook_flag, -1, 1)), FALSE) AS afterRemoveLiquidityReturnDelta,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -151,6 +152,7 @@ SELECT
     platform,
     protocol,
     version,
+    type,
     _log_id,
     modified_timestamp
 FROM

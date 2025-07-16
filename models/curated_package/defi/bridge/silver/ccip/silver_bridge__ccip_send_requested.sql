@@ -31,6 +31,7 @@ on_ramp_set AS (
         decoded_log :onRamp :: STRING AS onRampAddress,
         m.protocol,
         m.version,
+        m.type,
         CONCAT(
             m.protocol,
             '-',
@@ -162,6 +163,7 @@ SELECT
     tokens.value :token :: STRING AS token_address,
     C.protocol,
     C.version,
+    C.type,
     C.platform,
     C._log_id,
     C.modified_timestamp
