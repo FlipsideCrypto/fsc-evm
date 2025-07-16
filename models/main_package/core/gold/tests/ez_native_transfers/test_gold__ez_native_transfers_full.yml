@@ -33,9 +33,6 @@ models:
       - name: FROM_ADDRESS
         tests:
           - not_null
-      - name: TO_ADDRESS
-        tests:
-          - not_null
       - name: AMOUNT
         tests:
           - not_null

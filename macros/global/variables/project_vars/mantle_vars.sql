@@ -17,14 +17,6 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '24,54 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
-        'CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT': '0x736a2ada5f4700d49da6b28a74c4a77cdb3e2994',
-        'CURATED_VERTEX_CLEARINGHOUSE_CONTRACT': '0x5bcfc8ad38ee1da5f45d9795acadf57d37fec172',
-        'CURATED_VERTEX_TOKEN_MAPPING': {
-            'USDC': '0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
-            'wMNT': '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8',
-            'METH': '0xcda86a272531e8640cd7f1a92c01839911b90bb0',
-            'WETH': '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
-        },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'layerzero': {
                 'v2': {

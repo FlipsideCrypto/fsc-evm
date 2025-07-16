@@ -21,6 +21,7 @@ SELECT
     FALSE AS is_native,
     is_deprecated,
     is_verified,
+    is_verified_modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['complete_token_asset_metadata_id']) }} AS ez_asset_metadata_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
@@ -46,6 +47,7 @@ SELECT
     TRUE AS is_native,
     is_deprecated,
     TRUE AS is_verified,
+    null as is_verified_modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['complete_native_asset_metadata_id']) }} AS ez_asset_metadata_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

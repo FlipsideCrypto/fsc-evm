@@ -1,76 +1,76 @@
-{% docs evm_maker_ilk %}
+{% docs maker_ilk %}
 
 The collateral type of the CDP.
 
 {% enddocs %}
 
-{% docs evm_maker_urn_address %}
+{% docs maker_urn_address %}
 
 A specific CDP.
 
 {% enddocs %}
 
-{% docs evm_maker_art %}
+{% docs maker_art %}
 
 Normalized outstanding stablecoin debt.
 
 {% enddocs %}
 
-{% docs evm_maker_ink %}
+{% docs maker_ink %}
 
 Collateral balance.
 
 {% enddocs %}
 
-{% docs evm_maker_tab %}
+{% docs maker_tab %}
 
 Total dai wanted from the auction / total dai to be raised (in flip auction)
 
 {% enddocs %}
 
-{% docs evm_maker_id %}
+{% docs maker_id %}
 
 ID of the auction in the Flipper
 
 {% enddocs %}
 
-{% docs evm_maker_cdp %}
+{% docs maker_cdp %}
 
 The CDP vault number.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_cat_bite %}
+{% docs maker_fact_cat_bite %}
 
 The Cat is the system's liquidation agent: it enables keepers to mark positions as unsafe and send them to be auctioned.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_file %}
+{% docs maker_fact_vat_file %}
 
 Admin function to modify the system parameters.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_flux %}
+{% docs maker_fact_vat_flux %}
 
 Transfers of internal collateral balance of collateral type ilk within Vat from src to dst address.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_fold %}
+{% docs maker_fact_vat_fold %}
 
 Fold increases rate of a collateral type i to proportionally increase the outstanding debt of all its vaults, typically to assess the stability fee. It also increases the dai balance of address u to add a surplus to the Vow contract.
 
 {% enddocs %}
 
-{% docs evm_maker_rate %}
+{% docs maker_rate %}
 
 Stablecoin debt multiplier (accumulated stability fees)
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_fork %}
+{% docs maker_fact_vat_fork %}
 
 Moves locked collateral and/or outstanding debt from one vault src to another vault dst by dink and dart amounts.
 
@@ -78,31 +78,31 @@ This is a public function that can be called by an address that is authorized by
 
 {% enddocs %}
 
-{% docs evm_maker_vat_fork_dink %}
+{% docs maker_vat_fork_dink %}
 
 Amount of collateral to exchange.
 
 {% enddocs %}
 
-{% docs evm_maker_vat_fork_dart %}
+{% docs maker_vat_fork_dart %}
 
 Amount of stablecoin debt to exchange.
 
 {% enddocs %}
 
-{% docs evm_maker_vat_frob_dink %}
+{% docs maker_vat_frob_dink %}
 
 Change in collateral.
 
 {% enddocs %}
 
-{% docs evm_maker_vat_frob_dart %}
+{% docs maker_vat_frob_dart %}
 
 Change in debt.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_frob %}
+{% docs maker_fact_vat_frob %}
 
 Manipulates the locked collateral and outstanding debt balance of a vault u with collateral balance from address v and dai balance of address w
 
@@ -110,85 +110,85 @@ Positive dink and dart values add to the existing balances while negative value 
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_move %}
+{% docs maker_fact_vat_move %}
 
 Used to transfer internal dai balance of user within Vat to another address.
 
 {% enddocs %}
 
-{% docs evm_maker_rad %}
+{% docs maker_rad %}
 
 DAI amount.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_slip %}
+{% docs maker_fact_vat_slip %}
 
 Used to modify the internal collateral balance of a collateral type within Vat.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_pot_exit %}
+{% docs maker_fact_pot_exit %}
 
 Used when users want to "exit" their Dai from the Pot.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_pot_join %}
+{% docs maker_fact_pot_join %}
 
 Used when users want to join their Dai to the Pot.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_vat_suck %}
+{% docs maker_fact_vat_suck %}
 
 Generates dai on address u and accounted as bad debt on address v without opening a vault.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_urns %}
+{% docs maker_fact_urns %}
 
 Urn addresses are read by calling the urns function on the CDP manager contract for each created vault.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_dog_bark %}
+{% docs maker_fact_dog_bark %}
 
 This is the v1 liquidation function. Recent liquidations use the Cat contract.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_dai_join_join %}
+{% docs maker_fact_dai_join_join %}
 
 Enters collateral into the system.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_dai_join_exit %}
+{% docs maker_fact_dai_join_exit %}
 
 Removes collateral into the system.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_cdp_newcdp %}
+{% docs maker_fact_cdp_newcdp %}
 
 Creates a new CDP.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_cdp_move %}
+{% docs maker_fact_cdp_move %}
 
 Transfers of DAI from the cdp address to a dst address.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_cdp_frob %}
+{% docs maker_fact_cdp_frob %}
 
 Modifications of the collateral and debt balance of a CDP.
 
 {% enddocs %}
 
-{% docs evm_maker_fact_cdp_flux %}
+{% docs maker_fact_cdp_flux %}
 
 Wad amounts of CDP collateral from the cdp address to a dst address.
 

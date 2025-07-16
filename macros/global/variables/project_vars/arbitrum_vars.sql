@@ -19,19 +19,6 @@
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '5,35 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
         'MAIN_CORE_TRACES_ARB_MODE': true,
-        'CURATED_VERTEX_OFFCHAIN_EXCHANGE_CONTRACT': '0xa4369d8e3dc847aedf17f4125f1abb1bc18fc060',
-        'CURATED_VERTEX_CLEARINGHOUSE_CONTRACT': '0xae1ec28d6225dce2ff787dcb8ce11cf6d3ae064f',
-        'CURATED_VERTEX_TOKEN_MAPPING': {
-            'USDC': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-            'WETH': '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-            'wstETH': '0x5979d7b546e38e414f7e9822514be443a4800529',
-            'WBTC': '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
-            'ARB': '0x912ce59144191c1204e64559fe8253a0e49e6548',
-            'USDT': '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
-            'VRTX': '0x95146881b86b3ee99e63705ec87afe29fcc044d9',
-            'TRUMPWIN': '0xe215d028551d1721c6b61675aec501b1224bd0a1',
-            'HARRISWIN': '0xfbac82a384178ca5dd6df72965d0e65b1b8a028f'
-        },
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {

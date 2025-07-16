@@ -28,3 +28,4 @@ WHERE
         FROM
             {{ ref("streamline__get_chainhead") }}
     )
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}

@@ -37,7 +37,9 @@ WITH bronze_receipts AS (
         SELECT 
             COALESCE(MAX(_inserted_timestamp), '1900-01-01'::TIMESTAMP) AS _inserted_timestamp
         FROM {{ this }}
-    ) AND 
+    )
+    AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
+    AND 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
         DATA:result IS NOT NULL
     {% else %}
@@ -48,8 +50,10 @@ WITH bronze_receipts AS (
     WHERE 
     {% if vars.MAIN_CORE_RECEIPTS_BY_HASH_ENABLED %}
         DATA:result IS NOT NULL
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% else %}
         DATA IS NOT NULL
+        AND block_number >= {{ vars.GLOBAL_START_BLOCK }}
     {% endif %}
     {% endif %}
 )

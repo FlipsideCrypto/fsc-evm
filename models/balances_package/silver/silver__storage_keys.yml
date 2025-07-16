@@ -1,0 +1,36 @@
+version: 2
+models:
+  - name: silver__storage_keys
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - SLOT_NUMBER
+
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: SLOT_NUMBER
+        tests:
+          - not_null
+      - name: STORAGE_KEY
+        tests:
+          - not_null
+      - name: STORAGE_KEYS_ID
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_LTZ
+                - TIMESTAMP_NTZ
