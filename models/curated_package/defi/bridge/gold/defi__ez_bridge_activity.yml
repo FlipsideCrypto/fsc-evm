@@ -1,60 +1,56 @@
 version: 2
 models:
   - name: defi__ez_bridge_activity
-    description: '{{ doc("evm_ez_bridge_activity_table_doc") }}'
+    description: '{{ doc("ez_bridge_activity_table_doc") }}'
 
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("evm_block_number") }}'
+        description: '{{ doc("general_block_number") }}'
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("evm_block_timestamp") }}'
+        description: '{{ doc("general_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("evm_logs_tx_hash") }}'
+        description: '{{ doc("general_tx_hash") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("evm_logs_contract_address") }}'
+        description: '{{ doc("general_contract_address") }}'
       - name: EVENT_NAME
-        description: '{{ doc("evm_event_name") }}'
+        description: '{{ doc("general_event_name") }}'
       - name: EVENT_INDEX
-        description: '{{ doc("evm_event_index") }}'
+        description: '{{ doc("general_event_index") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("evm_nft_origin_sig") }}'
+        description: '{{ doc("general_origin_function_signature") }}'
       - name: ORIGIN_FROM_ADDRESS
-        description: '{{ doc("evm_bridge_origin_from") }}'
+        description: '{{ doc("general_from_address") }}'
       - name: ORIGIN_TO_ADDRESS
-        description: '{{ doc("evm_origin_from") }}'
+        description: '{{ doc("general_to_address") }}'
       - name: PLATFORM
-        description: '{{ doc("evm_bridge_platform") }}'
-      - name: PROTOCOL
-        description: The protocol of the bridge.
-      - name: VERSION
-        description: The version of the bridge.
+        description: '{{ doc("ez_bridge_activity_platform") }}'
       - name: SENDER
-        description: '{{ doc("evm_bridge_sender") }}'
+        description: '{{ doc("ez_bridge_activity_sender") }}'
       - name: RECEIVER
-        description: '{{ doc("evm_bridge_receiver") }}'
+        description: '{{ doc("ez_bridge_activity_receiver") }}'
       - name: DESTINATION_CHAIN_RECEIVER
-        description: '{{ doc("evm_bridge_destination_chain_receiver") }}'
+        description: '{{ doc("ez_bridge_activity_destination_chain_receiver") }}'
       - name: DESTINATION_CHAIN
-        description: '{{ doc("evm_bridge_destination_chain") }}'
+        description: '{{ doc("ez_bridge_activity_destination_chain") }}'
       - name: DESTINATION_CHAIN_ID
-        description: '{{ doc("evm_bridge_destination_chain_id") }}'
+        description: '{{ doc("ez_bridge_activity_destination_chain_id") }}'
       - name: BRIDGE_ADDRESS
-        description: '{{ doc("evm_bridge_address") }}'
+        description: '{{ doc("ez_bridge_activity_bridge_address") }}'
       - name: TOKEN_ADDRESS
-        description: '{{ doc("evm_bridge_token_address") }}'
+        description: '{{ doc("ez_bridge_activity_token_address") }}'
       - name: TOKEN_SYMBOL
-        description: '{{ doc("evm_bridge_token_symbol") }}'
-      - name: AMOUNT_UNADJ
-        description: '{{ doc("evm_bridge_amount_unadj") }}'
-      - name: AMOUNT
-        description: '{{ doc("evm_bridge_amount") }}'
-      - name: AMOUNT_USD
-        description: '{{ doc("evm_bridge_amount_usd") }}'
+        description: '{{ doc("ez_bridge_activity_token_symbol") }}'
       - name: TOKEN_IS_VERIFIED
-        description: '{{ doc("evm_prices_is_verified") }}'
+        description: '{{ doc("ez_bridge_activity_token_is_verified") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("ez_bridge_activity_amount_unadj") }}'
+      - name: AMOUNT
+        description: '{{ doc("ez_bridge_activity_amount") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("ez_bridge_activity_amount_usd") }}'
       - name: EZ_BRIDGE_ACTIVITY_ID
-        description: '{{ doc("evm_pk") }}'   
+        description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'   
+        description: '{{ doc("general_inserted_timestamp") }}'   
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}' 
+        description: '{{ doc("general_modified_timestamp") }}' 
