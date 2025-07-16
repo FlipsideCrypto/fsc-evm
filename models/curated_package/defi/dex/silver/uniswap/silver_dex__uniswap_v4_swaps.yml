@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_dex__uni_v4_swaps
+  - name: silver_dex__uniswap_v4_swaps
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

@@ -26,7 +26,7 @@ WITH pool_data AS (
         version,
         platform
     FROM
-        {{ ref('silver_dex__uni_v4_pools') }}
+        {{ ref('silver_dex__uniswap_v4_pools') }}
 ),
 events_swap AS (
     SELECT
