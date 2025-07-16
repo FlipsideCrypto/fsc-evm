@@ -23,7 +23,7 @@ layerzero AS (
     SELECT
         tx_hash,
         payload,
-        TYPE,
+        tx_type,
         nonce,
         src_chain_id,
         src_chain,
@@ -136,7 +136,7 @@ SELECT
     src_chain_id,
     src_chain,
     payload,
-    TYPE,
+    tx_type,
     nonce,
     sender_contract_address,
     receiver_contract_address,
