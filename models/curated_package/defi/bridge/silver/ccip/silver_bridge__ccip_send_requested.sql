@@ -102,6 +102,7 @@ ccip_sent AS (
         ) AS token_amounts_count,
         r.protocol,
         r.version,
+        r.type,
         CONCAT(
             r.protocol,
             '-',

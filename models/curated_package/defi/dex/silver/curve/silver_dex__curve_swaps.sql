@@ -35,7 +35,8 @@ pools AS (
         pool_name,
         platform,
         protocol,
-        version
+        version,
+        type
     FROM pool_meta
     QUALIFY (ROW_NUMBER() OVER (PARTITION BY pool_address ORDER BY pool_name ASC NULLS LAST)) = 1
 ),

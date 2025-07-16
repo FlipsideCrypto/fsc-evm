@@ -34,7 +34,7 @@ raw AS (
             payload,
             1,
             2
-        ) AS TYPE,
+        ) AS tx_type,
         SUBSTR(
             payload,
             3,
@@ -91,7 +91,7 @@ SELECT
     tx_hash,
     event_index,
     payload,
-    TYPE AS tx_type,
+    tx_type,
     nonce,
     src_chain_id,
     LOWER(

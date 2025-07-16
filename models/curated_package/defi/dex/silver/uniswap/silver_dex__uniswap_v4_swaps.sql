@@ -24,6 +24,7 @@ WITH pool_data AS (
         pool_address,
         protocol,
         version,
+        type,
         platform
     FROM
         {{ ref('silver_dex__uniswap_v4_pools') }}
