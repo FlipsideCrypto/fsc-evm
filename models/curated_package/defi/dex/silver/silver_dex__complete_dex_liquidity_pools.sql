@@ -1259,12 +1259,12 @@ complete_lps AS (
       )
       WHEN platform = 'uniswap-v4' THEN CONCAT(
         COALESCE(
-          c0.symbol,
+          c0.token_symbol,
           CONCAT(SUBSTRING(token0, 1, 5), '...', SUBSTRING(token0, 39, 42))
         ),
         '-',
         COALESCE(
-          c1.symbol,
+          c1.token_symbol,
           CONCAT(SUBSTRING(token1, 1, 5), '...', SUBSTRING(token1, 39, 42))
         ),
         ' ',
@@ -1477,12 +1477,12 @@ heal_model AS (
       )
       WHEN platform = 'uniswap-v4' THEN CONCAT(
         COALESCE(
-          c0.symbol,
+          c0.token_symbol,
           CONCAT(SUBSTRING(token0, 1, 5), '...', SUBSTRING(token0, 39, 42))
         ),
         '-',
         COALESCE(
-          c1.symbol,
+          c1.token_symbol,
           CONCAT(SUBSTRING(token1, 1, 5), '...', SUBSTRING(token1, 39, 42))
         ),
         ' ',
