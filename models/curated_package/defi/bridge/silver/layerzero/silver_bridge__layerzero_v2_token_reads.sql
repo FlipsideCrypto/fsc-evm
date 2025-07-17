@@ -58,12 +58,7 @@ node_call AS (
         live.udf_api(
             'POST',
             '{{ vars.GLOBAL_NODE_URL }}',
-            OBJECT_CONSTRUCT(
-                'Content-Type',
-                'application/json',
-                'fsc-quantum-state',
-                'livequery'
-            ),
+            {},
             rpc_request,
             '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
         ) AS response,
