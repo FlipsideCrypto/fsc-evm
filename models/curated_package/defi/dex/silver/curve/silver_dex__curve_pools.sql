@@ -478,15 +478,15 @@ legacy_pools AS (
     FROM
         {{ ref('silver_dex__eth_curve_pools_legacy') }}
     WHERE
+        {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+        1=1
+        AND 
         pool_address NOT IN (
             SELECT
                 pool_address
             FROM
-                FINAL
+                final_pools
         )
-        AND 
-        {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
-        1=1
         {% else %}
         1=0
         {% endif %}
