@@ -17,6 +17,7 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '25,55 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '45 5 * * *',
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['meson-v1','celer_cbridge-v1','chainlink_ccip-v1','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'curve': {
                 'v1': {
