@@ -1224,6 +1224,10 @@ all_pools AS (
     *
   FROM
     aerodrome_slipstream
+  SELECT
+    *
+  FROM
+    dackie
 ),
 complete_lps AS (
   SELECT
