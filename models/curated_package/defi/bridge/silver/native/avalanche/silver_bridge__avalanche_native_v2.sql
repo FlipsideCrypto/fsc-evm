@@ -53,6 +53,7 @@ WITH unwrap AS (
     WHERE
         block_timestamp :: DATE >= '2022-01-01'
         AND topic_0 = '0x37a06799a3500428a773d00284aa706101f5ad94dae9ec37e1c3773aa54c3304'
+        AND '{{ vars.GLOBAL_PROJECT_NAME }}' = 'avalanche'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

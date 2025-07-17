@@ -27,6 +27,8 @@ WITH bridges AS (
         LOWER(blockchain) AS blockchain
     FROM
         {{ ref('silver_bridge__ethereum_native_bridges_seed') }}
+    WHERE
+        '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum'
 ),
 token_transfers AS (
     SELECT

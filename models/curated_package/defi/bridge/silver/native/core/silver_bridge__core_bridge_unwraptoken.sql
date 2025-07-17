@@ -50,6 +50,7 @@ WITH unwrap_token AS (
         contract_address = '0xa4218e1f39da4aadac971066458db56e901bcbde'
         AND topic_0 = '0x3b661011d9e0ff8f0dc432bac4ed79eabf70cf52596ed9de985810ef36689e9e'
         AND tx_succeeded
+        AND '{{ vars.GLOBAL_PROJECT_NAME }}' = 'core'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
