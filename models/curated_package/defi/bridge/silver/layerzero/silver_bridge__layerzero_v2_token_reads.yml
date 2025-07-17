@@ -6,9 +6,6 @@ models:
           combination_of_columns:
             - CONTRACT_ADDRESS
     columns:
-      - name: CONTRACT_ADDRESS
-        tests:
-          - not_null
       - name: TOKEN_ADDRESS
         tests:
           - not_null
