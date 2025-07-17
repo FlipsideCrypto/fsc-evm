@@ -87,6 +87,7 @@ curve_base AS (
         ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING IN (
+            '0x143f1f8e861fbdeddd5b46e844b7d3ac7b86a122f36e8c463859ee6811b1f29c', --TokenExchange
             '0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140', --TokenExchange
             '0xb2e76ae99761dc136e598d4a629bb347eccb9532a5f8bbd72e18467c3c34cc98', --TokenExchange
             '0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b' --TokenExchangeUnderlying

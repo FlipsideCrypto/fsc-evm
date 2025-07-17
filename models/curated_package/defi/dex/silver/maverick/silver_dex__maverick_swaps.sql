@@ -88,7 +88,7 @@ WITH swaps AS (
         {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN {{ ref('silver_dex__maverick_pools') }} p
-        ON l.contract_address = p.contract_address
+        ON l.contract_address = p.pool_address
     WHERE
         l.topics [0] :: STRING = '0x3b841dc9ab51e3104bda4f61b41e4271192d22cd19da5ee6e292dc8e2744f713' --Swap
         AND tx_succeeded

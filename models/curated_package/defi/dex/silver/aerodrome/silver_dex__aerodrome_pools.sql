@@ -72,7 +72,6 @@ SELECT
     tx_hash,
     contract_address,
     event_name,
-    segmented_data,
     token0,
     token1,
     CASE
