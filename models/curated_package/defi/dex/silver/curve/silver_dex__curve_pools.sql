@@ -445,7 +445,6 @@ final_pools AS (
     ORDER BY
         A._inserted_timestamp DESC)) = 1
 ),
-{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
 legacy_pools AS (
     SELECT
         block_number,
@@ -485,20 +484,23 @@ legacy_pools AS (
             FROM
                 FINAL
         )
+        AND 
+        {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+        1=1
+        {% else %}
+        1=0
+        {% endif %}
 ),
-{% endif %}
 FINAL AS (
     SELECT
         *
     FROM
         final_pools
-    {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
     UNION ALL
     SELECT
         *
     FROM
         legacy_pools
-    {% endif %}
 )
 SELECT
     *,
