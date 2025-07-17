@@ -477,7 +477,7 @@ legacy_pools AS (
         _call_id,
         _inserted_timestamp :: TIMESTAMP AS _inserted_timestamp
     FROM
-        {{ ref('silver_dex__curve_pools_traces_backfill') }}
+        {{ ref('silver_dex__eth_curve_pools_legacy') }}
     WHERE
         pool_address NOT IN (
             SELECT
