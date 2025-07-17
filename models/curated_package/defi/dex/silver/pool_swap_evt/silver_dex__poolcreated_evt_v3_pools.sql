@@ -125,6 +125,19 @@ legacy_pools AS ( --seed file CTE for GENESIS contracts, union as needed
         'PoolCreated' AS event_name
     FROM
         {{ ref('silver_dex__univ3_ovm1_legacy_pools') }}
+    WHERE
+        {% if vars.GLOBAL_PROJECT_NAME == 'optimism' %}
+        1=1
+        AND 
+        pool_address NOT IN (
+            SELECT
+                pool_address
+            FROM
+                pools
+        )
+        {% else %}
+        1=0
+        {% endif %}
 ),
 FINAL AS (
     SELECT
