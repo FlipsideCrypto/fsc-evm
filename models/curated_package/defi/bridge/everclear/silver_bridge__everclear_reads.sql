@@ -8,6 +8,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "intent_id",
+    full_refresh = false,
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
