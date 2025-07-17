@@ -430,9 +430,9 @@ final_pools AS (
             ELSE pool_decimals
         END AS pool_decimals,
         pool_id,
-        d.platform,
         d.protocol,
         d.version,
+        d.platform,
         d.type,
         _call_id,
         A._inserted_timestamp
