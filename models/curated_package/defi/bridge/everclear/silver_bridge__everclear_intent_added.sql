@@ -1,7 +1,9 @@
 {# Set variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -42,30 +44,26 @@ WITH events AS (
         utils.udf_hex_to_int(
             part [7] :: STRING
         ) AS source_chain_id,
-        {# utils.udf_hex_to_int(
-        part [11] :: STRING
-) AS amount_raw,
-#}
-utils.udf_hex_to_int(
-    part [14] :: STRING
-) :: INT AS destination_count,
-utils.udf_hex_to_int(
-    part [15] :: STRING
-) :: STRING AS destination_0,
-CONCAT(
-    tx_hash,
-    '-',
-    event_index
-) AS _log_id,
-inserted_timestamp,
-modified_timestamp
-FROM
-    {{ ref('core__fact_event_logs') }}
-WHERE
-    contract_address = LOWER('{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}')
-    AND topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
-    AND block_timestamp :: DATE >= '2024-09-01'
-    AND tx_succeeded
+        utils.udf_hex_to_int(
+            part [14] :: STRING
+        ) :: INT AS destination_count,
+        utils.udf_hex_to_int(
+            part [15] :: STRING
+        ) :: STRING AS destination_0,
+        CONCAT(
+            tx_hash,
+            '-',
+            event_index
+        ) AS _log_id,
+        inserted_timestamp,
+        modified_timestamp
+    FROM
+        {{ ref('core__fact_event_logs') }}
+    WHERE
+        contract_address = LOWER('{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}')
+        AND topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
+        AND block_timestamp :: DATE >= '2024-09-01'
+        AND tx_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
