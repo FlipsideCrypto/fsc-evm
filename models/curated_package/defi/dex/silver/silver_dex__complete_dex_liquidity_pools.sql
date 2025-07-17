@@ -1224,6 +1224,7 @@ all_pools AS (
     *
   FROM
     aerodrome_slipstream
+  UNION ALL
   SELECT
     *
   FROM
