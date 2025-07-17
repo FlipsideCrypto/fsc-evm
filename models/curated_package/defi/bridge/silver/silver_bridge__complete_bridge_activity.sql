@@ -1253,7 +1253,7 @@ complete_bridge_activity AS (
         _id,
         b._inserted_timestamp
     FROM
-        all_protocols b
+        all_bridges b
         LEFT JOIN contracts C
         ON b.token_address = C.contract_address
         LEFT JOIN prices
