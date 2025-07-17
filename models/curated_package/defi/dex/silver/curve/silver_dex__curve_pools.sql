@@ -405,7 +405,7 @@ all_pools AS (
         3,
         4
 ),
-FINAL AS (
+final_pools AS (
     SELECT
         block_number,
         block_timestamp,
@@ -444,6 +444,61 @@ FINAL AS (
         ON A.pool_address = d.contract_address qualify(ROW_NUMBER() over(PARTITION BY pool_address, token_address
     ORDER BY
         A._inserted_timestamp DESC)) = 1
+),
+{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+legacy_pools AS (
+    SELECT
+        block_number,
+        block_timestamp :: TIMESTAMP AS block_timestamp,
+        tx_hash,
+        deployer_address,
+        pool_address,
+        token_address,
+        token_index :: STRING AS token_id,
+        token_type,
+        token_symbol AS pool_symbol,
+        pool_name,
+        token_decimals :: INTEGER AS pool_decimals,
+        CONCAT(
+            pool_id,
+            '-',
+            token_id,
+            '-',
+            token_type
+        ) AS pool_id,
+        'curve' AS protocol,
+        'v1' AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
+        'legacy' AS type,
+        _call_id,
+        _inserted_timestamp :: TIMESTAMP AS _inserted_timestamp
+    FROM
+        {{ ref('silver_dex__curve_pools_traces_backfill') }}
+    WHERE
+        pool_address NOT IN (
+            SELECT
+                pool_address
+            FROM
+                FINAL
+        )
+),
+{% endif %}
+FINAL AS (
+    SELECT
+        *
+    FROM
+        final_pools
+    {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+    UNION ALL
+    SELECT
+        *
+    FROM
+        legacy_pools
+    {% endif %}
 )
 SELECT
     *,
