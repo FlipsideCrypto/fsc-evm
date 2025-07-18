@@ -16,7 +16,7 @@ WITH bridges AS (
 
     SELECT
         LOWER(contract_address) AS bridge_address,
-        LOWER(contract_name) AS protocol,
+        LOWER(protocol) AS protocol,
         LOWER(version) AS version,
         CONCAT(
             protocol,
