@@ -175,21 +175,21 @@ traces_swap AS (
             ORDER BY
                 trace_index ASC
         ) AS trace_rank,
-        p.protocol,
-        p.version,
-        p.type,
-        p.platform,
         modified_timestamp
     FROM
         {{ ref('core__fact_traces') }} t 
-        INNER JOIN pool_data p
-        ON t.to_address = p.pool_address
     WHERE
         LEFT(
             input,
             10
         ) = '0xf3cd914c' -- swap
         AND trace_succeeded
+        AND to_address IN (
+            SELECT
+                DISTINCT pool_address
+            FROM
+                pool_data
+        )
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
