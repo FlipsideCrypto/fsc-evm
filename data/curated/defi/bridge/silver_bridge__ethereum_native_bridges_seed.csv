@@ -14,7 +14,7 @@ contract_address,contract_name,protocol,blockchain,version
 0x40ec5b33f54e0e8a33a975908c5ba1c14e5bbbdf,Polygon (Matic): ERC20 Bridge,polygon_erc20_bridge,Polygon Mainnet,v1_native
 0x401f6c983ea34274ec46f84d70b31c151321188b,Polygon (Matic): Plasma Bridge,polygon_plasma_bridge,Polygon Mainnet,v1_native
 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe,Polygon (Matic): zkEVM Bridge,polygon_zkevm_bridge,Polygon Mainnet,v1_native
-0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2,Axie Infinity: Ronin Bridge,axie_ronin_bridge,Ronin,v1_native
+0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2,Axie Infinity: Ronin Bridge,ronin_axie_bridge,Ronin,v1_native
 0xae0Ee0A63A2cE6BaeEFFE56e7714FB4EFE48D419,StarkNet: StarkGate ETH Bridge,starknet_starkgate_eth_bridge,Starknet,v1_native
 0x32400084C286CF3E17e7B677ea9583e60a000324,zkSync Era: Diamond Proxy,zksync_era_diamond_proxy,zkSync Era Mainnet,v1_native
 0xabea9132b05a70803a4e85094fd0e1800777fbef,zkSync Lite: Bridge,zksync_lite_bridge,zkSync Lite,v1_native
