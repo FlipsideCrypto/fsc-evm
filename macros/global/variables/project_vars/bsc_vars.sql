@@ -20,6 +20,7 @@
         'MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE': 4800,
         'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 600,
         'MAIN_SL_TRACES_REALTIME_ASYNC_CONCURRENT_REQUESTS': 50,
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['level_finance-v1','woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

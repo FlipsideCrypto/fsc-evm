@@ -168,7 +168,8 @@ dst_info AS (
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
     WHERE
-        topics [0] :: STRING = '0x5ce4019f772fda6cb703b26bce3ec3006eb36b73f1d3a0eb441213317d9f5e9d'
+        topics [0] :: STRING IN ('0x5ce4019f772fda6cb703b26bce3ec3006eb36b73f1d3a0eb441213317d9f5e9d',
+        '0x8d92c805c252261fcfff21ee60740eb8a38922469a7e6ee396976d57c22fc1c9')
         AND tx_succeeded
 
 {% if is_incremental() %}
