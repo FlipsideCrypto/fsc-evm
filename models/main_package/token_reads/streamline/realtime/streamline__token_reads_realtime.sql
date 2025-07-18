@@ -14,7 +14,7 @@
 
     SELECT
         r.contract_address,
-        r.latest_event_block as latest_block
+        r.latest_event_block AS latest_block
     FROM
         {{ ref('silver__relevant_contracts') }} r 
         LEFT JOIN {{ ref('streamline__token_reads_complete') }} c
