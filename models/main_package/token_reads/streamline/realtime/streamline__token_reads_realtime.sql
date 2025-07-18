@@ -10,44 +10,26 @@
     tags = ['streamline','token_reads','realtime','phase_2']
 ) }}
 
-WITH threshold_count AS (
+ base AS (
+
     SELECT
-        r.total_event_count,
-        ROW_NUMBER() OVER (ORDER BY r.total_event_count DESC) AS contract_rank
-    FROM {{ ref('silver__relevant_contracts') }} r
-    LEFT JOIN {{ ref('streamline__token_reads_complete') }} c
-    ON r.contract_address = c.contract_address
+        r.contract_address,
+        r.latest_event_block as latest_block
+    FROM
+        {{ ref('silver__relevant_contracts') }} r 
+        LEFT JOIN {{ ref('streamline__token_reads_complete') }} c
+        USING (contract_address)
     WHERE
         c.contract_address IS NULL
+        AND r.total_event_count >= 25
         AND r.latest_event_block > (
             SELECT max(block_number) 
             FROM {{ ref('core__fact_blocks') }} 
             WHERE block_timestamp::date = dateadd('day',-60,sysdate())::Date
         )
-),
- base AS (
-
-    SELECT
-        date_trunc('day',b.block_timestamp) as block_day,
-        r.contract_address,
-        r.latest_event_block as latest_block,
-        r.total_event_count
-    FROM
-        {{ ref('silver__relevant_contracts') }} r 
-        LEFT JOIN {{ ref('streamline__token_reads_complete') }} c
-        USING (contract_address)
-        LEFT JOIN {{ ref('core__fact_blocks') }} b
-        ON b.block_number = r.latest_event_block
-    WHERE
-        c.contract_address IS NULL
-        AND r.total_event_count >= (
-            SELECT GREATEST(MIN(CASE WHEN contract_rank <= 1000 THEN total_event_count END), 25)
-            FROM threshold_count
-        )
-        AND b.block_timestamp >= sysdate() - INTERVAL '60 DAYS'
-ORDER BY
-    block_day DESC, r.total_event_count DESC
-LIMIT {{ vars.MAIN_SL_TOKEN_READS_CONTRACT_LIMIT }}
+    ORDER BY
+        r.total_event_count DESC
+    LIMIT {{ vars.MAIN_SL_TOKEN_READS_CONTRACT_LIMIT }}
 
 ), 
 function_sigs AS (
