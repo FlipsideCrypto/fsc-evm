@@ -255,4 +255,6 @@ FROM
     INNER JOIN traces_swap t
     ON e.tx_hash = t.tx_hash
     AND trace_rank = event_rank
-    AND t.proxy_id = e.proxy_id
+    AND t.proxy_id = e.proxy_id qualify(ROW_NUMBER() over(PARTITION BY _log_id
+ORDER BY
+    e.modified_timestamp DESC)) = 1
