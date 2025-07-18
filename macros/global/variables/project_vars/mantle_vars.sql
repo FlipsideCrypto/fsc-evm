@@ -4,6 +4,8 @@
         'GLOBAL_NODE_PROVIDER': 'quicknode',
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/mantle/quicknode/mainnet',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8',
+        'GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL': 'WMNT',
+        'GLOBAL_NATIVE_ASSET_SYMBOL': 'MNT',
         'MAIN_SL_BLOCKS_PER_HOUR': 1800,
         'MAIN_PRICES_NATIVE_SYMBOLS': ['ETH', 'MNT'],
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': ['ethereum', 'mantle'],
@@ -15,8 +17,18 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '24,54 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x41b491285a4f888f9f636cec8a363ab9770a0aef',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c'
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'layerzero': {
+                'v2': {
+                    'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
+            'stargate': {
+                'v2': {
+                    'bridge': '0x41b491285a4f888f9f636cec8a363ab9770a0aef'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

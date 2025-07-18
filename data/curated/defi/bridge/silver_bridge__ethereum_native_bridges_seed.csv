@@ -1,0 +1,21 @@
+contract_address,contract_name,protocol,blockchain,version
+0xcee284f754e854890e311e3280b767f80797180d,Arbitrum One: L1 Arb - Custom Gateway,arbitrum_one_l1_arb_custom_gateway,Arbitrum One,v1_native
+0xa3a7b6f88361f48403514059f1f16c8e78d60eec,Arbitrum One: L1 ERC20 Gateway,arbitrum_one_l1_erc20_gateway,Arbitrum One,v1_native
+0xc1ebd02f738644983b6c4b2d440b8e77dde276bd,Arbitrum Nova: Bridge,arbitrum_nova_bridge,Arbitrum Nova,v1_native
+0xe78388b4ce79068e89bf8aa7f218ef6b9ab0e9d0,Avalanche: Old Bridge,avalanche_bridge,Avalanche C-Chain,v1_native
+0x8eb8a3b98659cce290402893d0123abb75e3ab28,Avalanche: Bridge,avalanche_bridge,Avalanche C-Chain,v1_native
+0x3154cf16ccdb4c6d922629664174b904d80f2c35,Base: Base Bridge,base_bridge,Base,v1_native
+0xdc1664458d2f0b6090bea60a8793a4e66c2f1c00,Boba Network: Gateway,boba_gateway,Boba Network,v1_native
+0x88ad09518695c6c3712ac10a214be5109a655671,Gnosis Chain: ETH-xDAI Omni Bridge,gnosis_eth_xdai_omni_bridge,Gnosis,v1_native
+0x4aa42145aa6ebf72e164c9bbc74fbd3788045016,Gnosis Chain: xDai Bridge,gnosis_xdai_bridge,Gnosis,v1_native
+0x23ddd3e3692d1861ed57ede224608875809e127f,Near: Rainbow Bridge,near_rainbow_bridge,Near,v1_native
+0x467194771dae2967aef3ecbedd3bf9a310c76c65,Optimism: L1 Escrow,optimism_l1_escrow,Optimism,v1_native
+0x99c9fc46f92e8a1c0dec1b1747d010903e884be1,Optimism: Gateway,optimism_gateway,Optimism,v1_native
+0x40ec5b33f54e0e8a33a975908c5ba1c14e5bbbdf,Polygon (Matic): ERC20 Bridge,polygon_erc20_bridge,Polygon Mainnet,v1_native
+0x401f6c983ea34274ec46f84d70b31c151321188b,Polygon (Matic): Plasma Bridge,polygon_plasma_bridge,Polygon Mainnet,v1_native
+0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe,Polygon (Matic): zkEVM Bridge,polygon_zkevm_bridge,Polygon Mainnet,v1_native
+0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2,Axie Infinity: Ronin Bridge,ronin_axie_bridge,Ronin,v1_native
+0xae0Ee0A63A2cE6BaeEFFE56e7714FB4EFE48D419,StarkNet: StarkGate ETH Bridge,starknet_starkgate_eth_bridge,Starknet,v1_native
+0x32400084C286CF3E17e7B677ea9583e60a000324,zkSync Era: Diamond Proxy,zksync_era_diamond_proxy,zkSync Era Mainnet,v1_native
+0xabea9132b05a70803a4e85094fd0e1800777fbef,zkSync Lite: Bridge,zksync_lite_bridge,zkSync Lite,v1_native
+0x1a0ad011913A150f69f6A19DF447A0CfD9551054,Zora: Bridge,zora_bridge,Zora,v1_native
