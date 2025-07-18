@@ -28,7 +28,7 @@ SELECT
     event_name,
     platform,
     protocol,
-    version,
+    version AS protocol_version,
     sender,
     receiver,
     destination_chain_receiver,

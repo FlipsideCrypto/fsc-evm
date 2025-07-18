@@ -18,6 +18,8 @@ SELECT
     block_timestamp AS creation_time,
     tx_hash AS creation_tx,
     platform,
+    protocol,
+    version AS protocol_version,
     contract_address AS factory_address,
     pool_address,
     pool_name,
