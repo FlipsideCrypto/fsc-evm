@@ -78,7 +78,23 @@
                 }
             }
         }
-    } %}
+    },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'colend': {
+                'v1': {
+                    'aave_v3_treasury': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
+            'gaszip_lz': {
+                'v2': {
+                    'send_deposits': '0x26da582889f59eaae9da1f063be0140cd93e6a4f',
+                    'packet_sent': '0x1a44076050125825900e736c501f859c50fe728c',
+                    'send_uln': '0x0bcac336466ef7f1e0b5c184aab2867c108331af'
+                }
+            }
+        }
+    },
+    %}
     
     {{ return(vars) }}
 {% endmacro %} 
