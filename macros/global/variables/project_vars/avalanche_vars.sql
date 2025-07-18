@@ -22,7 +22,7 @@
         'CUSTOM_GHA_SCHEDULED_DEXALOT_MAIN_CRON': '5 * * * *',
         'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['allbridge-v1','multichain-v7','platypus-v1','gmx-v1','woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
-            'arena-trade': {
+            'arena_trade': {
                 'v1': {
                     'uni_v2_pair_created': '0xf16784dcaf838a3e16bef7711a62d12413c39bd1'
                 }
