@@ -559,7 +559,7 @@ SYSDATE() AS modified_timestamp
                 all_transfers A
                 LEFT JOIN {{ ref('core__dim_contracts') }} C
                 ON A.contract_address = C.address
-                AND C.name IS NOT NULL
+                AND C.name IS NOT NULL AND C.name <> ''
             WHERE
                 to_address IS NOT NULL
         ),
