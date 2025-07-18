@@ -172,7 +172,7 @@ build_rpc_requests AS (
         inputs_pools
         LEFT JOIN pools_registered USING(pool_address)
 ),
-pool_token_reads AS ({% for item in range(10) %}
+pool_token_reads AS ({% for item in range(20) %}
     (
 SELECT
     live.udf_api('POST','{{ vars.GLOBAL_NODE_URL }}',{}, batch_rpc_request, '{{ vars.GLOBAL_NODE_VAULT_PATH }}') AS read_output, SYSDATE() AS _inserted_timestamp
