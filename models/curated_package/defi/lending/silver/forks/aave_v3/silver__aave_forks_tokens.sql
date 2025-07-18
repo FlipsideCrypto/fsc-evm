@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     unique_key = "atoken_address",
@@ -6,7 +12,7 @@
 
 WITH treasury_addresses AS (
     {{ curated_contract_mapping(
-        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+        vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
     ) }}
     WHERE
         type = 'treasury'
@@ -155,3 +161,4 @@ FROM
     ON A.treasury_address = t.contract_address qualify(ROW_NUMBER() over(PARTITION BY atoken_address
 ORDER BY
     A.atoken_created_block DESC)) = 1
+

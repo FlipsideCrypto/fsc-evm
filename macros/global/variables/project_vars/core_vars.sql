@@ -77,12 +77,11 @@
                     'send_uln': '0x0bcac336466ef7f1e0b5c184aab2867c108331af'
                 }
             }
-        }
-    },
+        },
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
             'colend': {
                 'v1': {
-                    'aave_v3_treasury': '0x1a44076050125825900e736c501f859c50fe728c'
+                    'aave_v3_treasury': '0xafc0e336ea7417e4fa32b3a82eec3c13de3f08a1'
                 }
             },
             'gaszip_lz': {
@@ -93,8 +92,6 @@
                 }
             }
         }
-    },
-    %}
-    
+    } %}
     {{ return(vars) }}
 {% endmacro %} 
