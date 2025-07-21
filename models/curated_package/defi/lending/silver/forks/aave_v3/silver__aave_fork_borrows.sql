@@ -29,7 +29,7 @@ token_meta AS (
     _inserted_timestamp,
     _log_id
     FROM
-        {{ ref('silver__aave_forks_tokens') }}
+        {{ ref('silver__aave_fork_tokens') }}
 ),
 borrow AS (
     SELECT

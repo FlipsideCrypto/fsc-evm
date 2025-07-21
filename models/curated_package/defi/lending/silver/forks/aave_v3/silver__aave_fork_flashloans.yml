@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__aave_forks_flashloans
+  - name: silver__aave_fork_flashloans
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

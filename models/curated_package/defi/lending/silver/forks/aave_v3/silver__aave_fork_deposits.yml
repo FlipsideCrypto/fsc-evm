@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__aave_forks_deposits
+  - name: silver__aave_fork_deposits
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
