@@ -83,21 +83,9 @@ traces_pull AS (
         from_address AS token_address,
         LEFT(input, 10) AS function_sig,
         regexp_substr_all(SUBSTR(input, 11), '.{64}') AS segmented_input,
-        CONCAT('0x', SUBSTR(segmented_input[0]::STRING, 25)) AS underlying_asset,
-        CASE 
-            WHEN function_sig = '0xd4af8de2' THEN utils.udf_hex_to_string(segmented_input[9]::STRING)
-            ELSE utils.udf_hex_to_string(segmented_input[8]::STRING)
-        END AS name,
-        CASE 
-            WHEN function_sig = '0xd4af8de2' THEN utils.udf_hex_to_string(segmented_input[11]::STRING)
-            ELSE utils.udf_hex_to_string(segmented_input[10]::STRING)
-        END AS symbol,
-        CASE 
-            WHEN function_sig = '0xd4af8de2' THEN TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_input[6]::STRING))
-            ELSE TRY_TO_NUMBER(utils.udf_hex_to_int(segmented_input[5]::STRING))
-        END AS decimals
+        CONCAT('0x', SUBSTR(segmented_input[0]::STRING, 25)) AS underlying_asset
     FROM
-        CORE_DEV.core.fact_traces
+        {{ ref('core__fact_traces') }}
         t
     WHERE
         tx_hash IN (
@@ -107,17 +95,16 @@ traces_pull AS (
                 log_pull
         )
         AND TYPE = 'DELEGATECALL'
+        AND trace_index = 1
 ),
 underlying_details AS (
     SELECT
-        l.tx_hash,
-        l.block_number,
         l.block_timestamp,
         l.origin_from_address,
         l.contract_address,
-        t.name as token_name,
-        t.symbol as token_symbol,
-        t.decimals as token_decimals,
+        l.token_name,
+        l.token_symbol,
+        l.token_decimals,
         t.underlying_asset AS underlying_asset_address,
         l._inserted_timestamp,
         l._log_id
@@ -125,6 +112,10 @@ underlying_details AS (
         log_pull l
         LEFT JOIN traces_pull t
         ON l.contract_address = t.token_address
+    WHERE
+        t.asset_identifier = 1 qualify(ROW_NUMBER() over(PARTITION BY l.contract_address
+    ORDER BY
+        block_timestamp ASC)) = 1
 ),
 {% if is_incremental() %}
 contract_detail_heal AS (
@@ -133,24 +124,32 @@ contract_detail_heal AS (
         l.block_number,
         l.block_timestamp,
         l.token_address,
-        l.token_name,
-        l.token_symbol,
-        l.token_decimals,
+        c1.token_name,
+        c1.token_symbol,
+        c1.token_decimals,
         underlying_asset_address,
-        c.token_name AS underlying_name,
-        c.token_symbol AS underlying_symbol,
-        c.token_decimals AS underlying_decimals,
-        protocol,
-        version,
+        c2.token_name AS underlying_name,
+        c2.token_symbol AS underlying_symbol,
+        c2.token_decimals AS underlying_decimals,
+        o.protocol,
+        o.version,
         l._inserted_timestamp,
         l._log_id
     FROM
         {{ this }} l
     WHERE
-    l.underlying_name IS NULL
-    AND l.token_name IS NOT NULL
-    LEFT JOIN contracts c
-    ON c.contract_address = l.underlying_asset_address
+        (
+            l.token_name IS NULL
+            AND c1.token_name IS NOT NULL
+        )
+        OR (
+            l.underlying_name IS NULL
+            AND c2.token_name IS NOT NULL
+        )
+    LEFT JOIN contracts c1
+    ON c1.contract_address = l.underlying_asset
+    LEFT JOIN contracts c2
+    ON c2.contract_address = l.token_address
 ),
 {% endif %}
 final AS (
