@@ -51,7 +51,7 @@ log_pull AS (
         topics [0] :: STRING = '0x7ac369dbd14fa5ea3f473ed67cc9d598964a77501540ba6751eb0b3decf5870d'
         AND origin_from_address IN (
             SELECT
-                origin_from_address
+                contract_address
             FROM
                 origin_from_addresses
         )
@@ -174,7 +174,7 @@ final AS (
         LEFT JOIN contracts C
         ON C.contract_address = l.underlying_asset
         LEFT JOIN origin_from_addresses o
-        ON o.origin_from_address = l.origin_from_address
+        ON o.contract_address = l.origin_from_address
 )
 
 SELECT
