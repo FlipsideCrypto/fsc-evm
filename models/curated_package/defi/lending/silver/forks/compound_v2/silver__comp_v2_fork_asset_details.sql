@@ -111,9 +111,7 @@ underlying_details AS (
     FROM
         log_pull l
         LEFT JOIN traces_pull t
-        ON l.contract_address = t.token_address
-    WHERE
-        t.asset_identifier = 1 qualify(ROW_NUMBER() over(PARTITION BY l.contract_address
+        ON l.contract_address = t.token_address qualify(ROW_NUMBER() over(PARTITION BY l.contract_address
     ORDER BY
         block_timestamp ASC)) = 1
 ),
