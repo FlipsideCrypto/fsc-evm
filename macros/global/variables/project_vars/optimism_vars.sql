@@ -113,10 +113,8 @@
                 }
             },
             'allbridge': {
-                'v1': {
-                    'sent': '0x97e5bf5068ea6a9604ee25851e6c9780ff50d5ab'
-                },
                 'v2': {
+                    'tokens_sent': '0x97e5bf5068ea6a9604ee25851e6c9780ff50d5ab',
                     'lp': ['0xb24a05d54fcacfe1fc00c59209470d4cafb0deea','0x3b96f88b2b9eb87964b852874d41b633e0f1f68f']
                 }
             },
