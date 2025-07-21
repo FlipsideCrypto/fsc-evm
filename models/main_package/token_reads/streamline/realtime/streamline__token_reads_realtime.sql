@@ -10,7 +10,7 @@
     tags = ['streamline','token_reads','realtime','phase_2']
 ) }}
 
- base AS (
+WITH base AS (
 
     SELECT
         r.contract_address,
