@@ -1,0 +1,11 @@
+version: 2
+models:
+  - name: silver_bridge__layerzero_v2_token_reads
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTRACT_ADDRESS
+    columns:
+      - name: TOKEN_ADDRESS
+        tests:
+          - not_null
