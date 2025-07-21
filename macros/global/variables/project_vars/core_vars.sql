@@ -82,19 +82,10 @@
             'colend': {
                 'v1': {
                     'aave_v3_treasury': '0x5a3e71b6d8e0ce3d568d3c9b089b6a31a3f43501'
-                },
-                'v1': {
-                    'aave_v3_treasury': '0xafc0e336ea7417e4fa32b3a82eec3c13de3f08a1'
-                }
-            },
-            'gaszip_lz': {
-                'v2': {
-                    'send_deposits': '0x26da582889f59eaae9da1f063be0140cd93e6a4f',
-                    'packet_sent': '0x1a44076050125825900e736c501f859c50fe728c',
-                    'send_uln': '0x0bcac336466ef7f1e0b5c184aab2867c108331af'
                 }
             }
         }
-    } %}
+    }
+%}
     {{ return(vars) }}
 {% endmacro %} 
