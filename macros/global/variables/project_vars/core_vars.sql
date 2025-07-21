@@ -81,11 +81,10 @@
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
             'colend': {
                 'v1': {
-                    'aave_v3_treasury': '0x5a3e71b6d8e0ce3d568d3c9b089b6a31a3f43501'
+                    'aave_v3_treasury': ['0x5a3e71b6d8e0ce3d568d3c9b089b6a31a3f43501','0xe88d2aebe73f15f2b7d5e4a77694a3fe74c7de74']
                 }
             }
         }
-    }
-%}
+    } %}
     {{ return(vars) }}
 {% endmacro %} 
