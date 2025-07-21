@@ -115,9 +115,9 @@ underlying_details AS (
         l.block_timestamp,
         l.origin_from_address,
         l.contract_address,
-        t.token_name as token_name,
-        t.token_symbol as token_symbol,
-        t.token_decimals as token_decimals,
+        t.name as token_name,
+        t.symbol as token_symbol,
+        t.decimals as token_decimals,
         t.underlying_asset AS underlying_asset_address,
         l._inserted_timestamp,
         l._log_id
@@ -150,7 +150,7 @@ contract_detail_heal AS (
     l.underlying_name IS NULL
     AND l.token_name IS NOT NULL
     LEFT JOIN contracts c
-    ON c.contract_address = l.underlying_asset
+    ON c.contract_address = l.underlying_asset_address
 ),
 {% endif %}
 final AS (
@@ -163,7 +163,7 @@ final AS (
         l.token_name,
         l.token_symbol,
         l.token_decimals,
-        l.underlying_asset AS underlying_asset_address,
+        l.underlying_asset_address,
         C.token_name AS underlying_name,
         C.token_symbol AS underlying_symbol,
         C.token_decimals AS underlying_decimals,
@@ -174,7 +174,7 @@ final AS (
     FROM
         underlying_details l
         LEFT JOIN contracts C
-        ON C.contract_address = l.underlying_asset
+        ON C.contract_address = l.underlying_asset_address
         LEFT JOIN origin_from_addresses o
         ON o.contract_address = l.origin_from_address
 )
