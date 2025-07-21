@@ -15,7 +15,7 @@ WITH treasury_addresses AS (
         vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
     ) }}
     WHERE
-        type = 'treasury'
+        type = 'aave_v3_treasury'
 ),
 DECODE AS (
 
