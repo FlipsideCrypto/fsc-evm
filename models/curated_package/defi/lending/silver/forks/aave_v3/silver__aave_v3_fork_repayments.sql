@@ -27,9 +27,9 @@ WITH token_meta AS (
         _inserted_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_fork_tokens') }}
+        {{ ref('silver__aave_v3_fork_tokens') }}
 ),
-deposits AS(
+repay AS(
     SELECT
         tx_hash,
         block_number,
@@ -41,19 +41,16 @@ deposits AS(
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS onBehalfOf,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower_address,
+        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS repayer,
         utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferal,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 42)) AS userAddress,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS deposit_quantity,
-        origin_from_address AS depositor_address,
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS repayed_amount,
         COALESCE(
             origin_to_address,
             contract_address
         ) AS lending_pool_contract,
+        origin_from_address AS repayer_address,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -63,7 +60,7 @@ deposits AS(
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING = '0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61'
+        topics [0] :: STRING = '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -93,12 +90,13 @@ SELECT
     contract_address,
     market,
     t.atoken_address AS token,
-    deposit_quantity AS amount_unadj,
-    deposit_quantity / pow(
+    repayed_amount AS amount_unadj,
+    repayed_amount / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    depositor_address,
+    repayer_address AS payer,
+    borrower_address AS borrower,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
@@ -106,11 +104,11 @@ SELECT
     t.underlying_symbol AS symbol,
     t.underlying_decimals AS underlying_decimals,
     'gnosis' AS blockchain,
-    d._log_id,
-    d._inserted_timestamp
+    r._log_id,
+    r._inserted_timestamp
 FROM
-    deposits d
+    repay r
     LEFT JOIN token_meta t
-    ON d.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY d._log_id
+    ON r.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
-    d._inserted_timestamp DESC)) = 1
+    r._inserted_timestamp DESC)) = 1

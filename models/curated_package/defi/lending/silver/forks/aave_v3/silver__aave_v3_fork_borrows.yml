@@ -1,13 +1,13 @@
 version: 2
 models:
-  - name: silver__aave_fork_liquidations
+  - name: silver__aave_v3_fork_borrows
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_HASH
             - EVENT_INDEX
     columns:
-      - name: BLOCKCHAIN
+      - name: TX_HASH
         tests:
           - not_null
       - name: BLOCK_NUMBER
@@ -19,35 +19,37 @@ models:
       - name: EVENT_INDEX
         tests:
           - not_null
-      - name: TX_HASH
+      - name: MARKET
         tests:
           - not_null
-      - name: COLLATERAL_ASSET
+      - name: TOKEN
         tests:
-          - not_null 
-      - name: COLLATERAL_TOKEN
+          - not_null
       - name: AMOUNT_UNADJ
-        tests: 
+        tests:
           - not_null
       - name: AMOUNT
-        tests: 
+        tests:
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
-                - float 
-      - name: DEBT_TOKEN
-      - name: LIQUIDATOR
-        tests: 
+                - float    
+      - name: BORROWER_ADDRESS
+        tests:
           - not_null
-      - name: BORROWER
+      - name: BORROW_RATE_MODE
+        tests:
+          - not_null 
+      - name: LENDING_POOL_CONTRACT
         tests: 
           - not_null
       - name: PLATFORM
         tests: 
           - not_null
-      - name: COLLATERAL_TOKEN_SYMBOL
+      - name: SYMBOL
         tests: 
           - not_null
-      - name: DEBT_TOKEN_SYMBOL
+      - name: BLOCKCHAIN
         tests: 
-          - not_null
+          - not_null 

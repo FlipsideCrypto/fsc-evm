@@ -27,9 +27,9 @@ WITH token_meta AS (
         _inserted_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_fork_tokens') }}
+        {{ ref('silver__aave_v3_fork_tokens') }}
 ),
-repay AS(
+flashloan AS (
     SELECT
         tx_hash,
         block_number,
@@ -40,17 +40,25 @@ repay AS(
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower_address,
-        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS repayer,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
+        COALESCE(
+            origin_to_address,
+            CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
+        ) AS initiator_address,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS market,
         utils.udf_hex_to_int(
-            segmented_data [0] :: STRING
-        ) :: INTEGER AS repayed_amount,
+            segmented_data [1] :: STRING
+        ) :: INTEGER AS flashloan_quantity,
+        utils.udf_hex_to_int(
+            segmented_data [3] :: STRING
+        ) :: INTEGER AS premium_quantity,
+        utils.udf_hex_to_int(
+            topics [3] :: STRING
+        ) :: INTEGER AS refferalCode,
         COALESCE(
             origin_to_address,
             contract_address
         ) AS lending_pool_contract,
-        origin_from_address AS repayer_address,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -60,7 +68,7 @@ repay AS(
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING = '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
+        topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -90,13 +98,18 @@ SELECT
     contract_address,
     market,
     t.atoken_address AS token,
-    repayed_amount AS amount_unadj,
-    repayed_amount / pow(
+    flashloan_quantity AS flashloan_amount_unadj,
+    flashloan_quantity / pow(
         10,
         t.underlying_decimals
-    ) AS amount,
-    repayer_address AS payer,
-    borrower_address AS borrower,
+    ) AS flashloan_amount,
+    premium_quantity AS premium_amount_unadj,
+    premium_quantity / pow(
+        10,
+        t.underlying_decimals
+    ) AS premium_amount,
+    initiator_address AS initiator_address,
+    target_address AS target_address,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
@@ -104,11 +117,11 @@ SELECT
     t.underlying_symbol AS symbol,
     t.underlying_decimals AS underlying_decimals,
     'gnosis' AS blockchain,
-    r._log_id,
-    r._inserted_timestamp
+    f._log_id,
+    f._inserted_timestamp
 FROM
-    repay r
+    flashloan f
     LEFT JOIN token_meta t
-    ON r.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY r._log_id
+    ON f.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY f._log_id
 ORDER BY
-    r._inserted_timestamp DESC)) = 1
+    f._inserted_timestamp DESC)) = 1

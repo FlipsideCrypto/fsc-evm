@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__aave_fork_tokens
+  - name: silver__aave_v3_fork_tokens
     tests:
     tests:
       - dbt_utils.unique_combination_of_columns:
