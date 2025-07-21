@@ -83,6 +83,9 @@
                 'v1': {
                     'aave_v3_treasury': '0x5a3e71b6d8e0ce3d568d3c9b089b6a31a3f43501'
                 }
+                'v2': {
+                    'aave_v3_treasury': '0xafc0e336ea7417e4fa32b3a82eec3c13de3f08a1'
+                }
             },
             'gaszip_lz': {
                 'v2': {
