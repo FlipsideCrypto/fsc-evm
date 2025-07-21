@@ -16,7 +16,9 @@ WITH asset_details AS (
     underlying_asset_address,
     underlying_name,
     underlying_symbol,
-    underlying_decimals
+    underlying_decimals,
+    protocol,
+    version
   FROM
     {{ ref('silver__comp_v2_fork_asset_details') }}
 ),
@@ -89,13 +91,46 @@ comp_v2_fork_combine AS (
     token,
     C.token_symbol,
     C.underlying_decimals,
-    b.platform,
+    C.protocol,
+    C.version,
+    C.protocol || '-' || C.version as platform,
     b._log_id,
     b._inserted_timestamp
   FROM
     comp_v2_fork_borrows b
     LEFT JOIN asset_details C
     ON b.token = C.token_address
+{% if is_incremental() %}
+  UNION ALL
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    borrower,
+    loan_amount_raw,
+    C.underlying_asset_address AS borrows_contract_address,
+    C.underlying_symbol AS borrows_contract_symbol,
+    token,
+    C.token_symbol,
+    C.underlying_decimals,
+    C.protocol,
+    C.version,
+    platform,
+    b._log_id,
+    sysdate() as _inserted_timestamp
+  FROM
+    {{this}} b
+  WHERE
+    (b.token_name IS NULL and C.token_name is not null)
+    OR (b.underlying_name IS NULL and C.underlying_name is not null)
+    LEFT JOIN asset_details C
+    ON b.token = C.token_address
+  {% endif %}
 )
 SELECT
   block_number,
@@ -117,6 +152,8 @@ SELECT
     underlying_decimals
   ) AS amount,
   platform,
+  protocol,
+  version,
   _inserted_timestamp,
   _log_id
 FROM

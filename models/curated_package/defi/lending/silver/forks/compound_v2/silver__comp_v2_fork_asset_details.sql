@@ -99,6 +99,7 @@ underlying_details AS (
         l.tx_hash,
         l.block_number,
         l.block_timestamp,
+        l.origin_from_address,
         l.contract_address,
         l.token_name,
         l.token_symbol,
@@ -129,6 +130,8 @@ contract_detail_heal AS (
         c2.token_name AS underlying_name,
         c2.token_symbol AS underlying_symbol,
         c2.token_decimals AS underlying_decimals,
+        o.protocol,
+        o.version,
         l._inserted_timestamp,
         l._log_id
     FROM
@@ -153,6 +156,7 @@ final AS (
         l.tx_hash,
         l.block_number,
         l.block_timestamp,
+        l.origin_from_address,
         l.contract_address AS token_address,
         l.token_name,
         l.token_symbol,
@@ -161,18 +165,23 @@ final AS (
         C.token_name AS underlying_name,
         C.token_symbol AS underlying_symbol,
         C.token_decimals AS underlying_decimals,
+        o.protocol,
+        o.version,
         l._inserted_timestamp,
         l._log_id
     FROM
         underlying_details l
         LEFT JOIN contracts C
         ON C.contract_address = l.underlying_asset
+        LEFT JOIN origin_from_addresses o
+        ON o.origin_from_address = l.origin_from_address
 )
 
 SELECT
     tx_hash,
     block_number,
     block_timestamp,
+    origin_from_address,
     token_address,
     token_name,
     token_symbol,
@@ -181,6 +190,8 @@ SELECT
     underlying_name,
     underlying_symbol,
     underlying_decimals,
+    protocol,
+    version,
     _inserted_timestamp,
     _log_id
 FROM
@@ -191,6 +202,7 @@ SELECT
     tx_hash,
     block_number,
     block_timestamp,
+    origin_from_address,
     token_address,
     token_name,
     token_symbol,
@@ -199,6 +211,8 @@ SELECT
     underlying_name,
     underlying_symbol,
     underlying_decimals,
+    protocol,
+    version,
     _inserted_timestamp,
     _log_id
 FROM
