@@ -31,7 +31,7 @@ events AS (
         origin_function_signature,
         tx_hash,
         event_index,
-        contract_address,
+        l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3), '.{64}') AS part,
         topic_1 AS intent_id,
         '0x' || SUBSTR(
