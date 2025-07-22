@@ -292,7 +292,7 @@ SELECT
     protocol,
     version,
     _log_id,
-    modified_timestamp
+    modified_timestamp AS _inserted_timestamp
 FROM
     heal_model
 {% endif %}
@@ -308,4 +308,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    modified_timestamp DESC)) = 1
+    _inserted_timestamp DESC)) = 1
