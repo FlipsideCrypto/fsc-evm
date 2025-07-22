@@ -59,11 +59,6 @@
                     'bridge': '0x3795c36e7d12a8c252a20c5a7b455f7c57b60283'
                 }
             },
-            'everclear': {
-                'v1': {
-                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
-                }
-            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x1a44076050125825900e736c501f859c50fe728c'

@@ -1,3 +1,9 @@
+{# Set variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -26,6 +32,10 @@ WITH regular AS (
         amount_raw,
         destination_count,
         destination_0,
+        protocol,
+        version,
+        type,
+        platform,
         _log_id,
         inserted_timestamp,
         modified_timestamp
@@ -38,7 +48,7 @@ WITH regular AS (
 AND (
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+            MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
@@ -64,6 +74,10 @@ edge AS (
         amount_raw,
         destination_count,
         destination_0,
+        protocol,
+        version,
+        type,
+        platform,
         _log_id,
         inserted_timestamp,
         modified_timestamp
@@ -121,6 +135,10 @@ complete_edge AS (
         destination_count,
         destination_0,
         destination_chain_id_reads AS destination_chain_id,
+        protocol,
+        version,
+        type,
+        platform,
         _log_id,
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp
@@ -147,6 +165,10 @@ combined AS (
         amount_raw,
         destination_count,
         destination_0 AS destination_chain_id,
+        protocol,
+        version,
+        type,
+        platform,
         _log_id,
         inserted_timestamp,
         modified_timestamp
@@ -171,6 +193,10 @@ combined AS (
         amount_raw,
         destination_count,
         destination_chain_id,
+        protocol,
+        version,
+        type,
+        platform,
         _log_id,
         inserted_timestamp,
         modified_timestamp
@@ -187,8 +213,10 @@ SELECT
     event_index,
     'IntentAdded' AS event_name,
     contract_address AS bridge_address,
-    'everclear' AS platform,
-    'v1' AS version,
+    protocol,
+    version,
+    type,
+    platform,
     intent_id,
     origin_from_address AS sender,
     initiator,
