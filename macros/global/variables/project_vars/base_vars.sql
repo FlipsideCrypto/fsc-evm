@@ -168,6 +168,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
@@ -206,9 +211,6 @@
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0xe22d2bedb3eca35e6397e0c6d62857094aa26f52',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x5634c4a5fed09819e3c46d86a965dd9447d86e47',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_BRIDGE_EVERCLEAR_CONTRACT': '0xa05a3380889115bf313f1db9d5f335157be4d816'
     } %}
     
     {{ return(vars) }}

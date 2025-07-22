@@ -59,6 +59,11 @@
                     'bridge': '0x3795c36e7d12a8c252a20c5a7b455f7c57b60283'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
@@ -77,9 +82,6 @@
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x6f03052743cd99ce1b29265e377e320cd24eb632',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0xaf368c91793cb22739386dfcbbb2f1a9e4bcbebf',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_BRIDGE_EVERCLEAR_CONTRACT': '0xa05a3380889115bf313f1db9d5f335157be4d816'
     } %}
     
     {{ return(vars) }}

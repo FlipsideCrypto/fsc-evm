@@ -212,6 +212,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'eywa': {
                 'v1': {
                     'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
@@ -270,9 +275,6 @@
         'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'ethereum mainnet',
         'CURATED_DEFI_BRIDGE_HOP_L1_CONTRACTS': ['0xb8901acb165ed027e32754e0ffe830802919727f',
         '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7']
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6d6620efa72948c5f68a3c8646d58c00d3f4a980',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_BRIDGE_EVERCLEAR_CONTRACT': '0xa05a3380889115bf313f1db9d5f335157be4d816'
     } %}
     
     {{ return(vars) }}
