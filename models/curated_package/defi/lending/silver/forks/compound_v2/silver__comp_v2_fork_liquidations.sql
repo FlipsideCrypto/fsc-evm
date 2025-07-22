@@ -138,6 +138,32 @@ liquidation_union AS (
 {% endif %}
 )
 SELECT
-    *
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    borrower,
+    token AS token_address,
+    token_symbol,
+    liquidator,
+    tokens_seized,
+    protocol_market,
+    collateral_token_symbol,
+    collateral_token,
+    collateral_symbol,
+    amount_unadj,
+    amount,
+    underlying_decimals,
+    debt_asset,
+    debt_asset_symbol,
+    protocol,
+    version,
+    platform,
+    modified_timestamp,
+    _log_id
 FROM
     liquidation_union qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1

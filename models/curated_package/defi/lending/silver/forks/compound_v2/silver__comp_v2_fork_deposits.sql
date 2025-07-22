@@ -75,7 +75,7 @@ comp_v2_fork_combine AS (
         b.mintAmount_raw,
         C.underlying_asset_address AS supplied_contract_addr,
         C.underlying_symbol AS supplied_symbol,
-        C.token_address,
+        b.token_address,
         C.token_symbol,
         C.token_decimals,
         C.underlying_decimals,

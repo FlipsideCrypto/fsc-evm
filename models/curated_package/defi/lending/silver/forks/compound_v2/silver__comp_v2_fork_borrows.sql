@@ -120,7 +120,7 @@ comp_v2_fork_combine AS (
     amount_unadj,
     C.underlying_asset_address AS borrows_contract_address,
     C.underlying_symbol AS borrows_contract_symbol,
-    token_address,
+    b.token_address,
     C.token_symbol,
     C.underlying_decimals,
     C.protocol,
