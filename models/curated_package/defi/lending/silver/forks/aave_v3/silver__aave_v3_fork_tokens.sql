@@ -51,10 +51,10 @@ DECODE AS (
         topics [0] = '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(
-            _inserted_timestamp
+            modified_timestamp
         ) - INTERVAL '12 hours'
     FROM
         {{ this }}
@@ -65,7 +65,7 @@ AND contract_address NOT IN (
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
 a_token_step_1 AS (

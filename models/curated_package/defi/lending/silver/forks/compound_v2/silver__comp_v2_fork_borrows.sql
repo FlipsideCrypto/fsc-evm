@@ -1,9 +1,15 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
-  materialized = 'incremental',
-  incremental_strategy = 'delete+insert',
-  unique_key = "block_number",
-  cluster_by = ['block_timestamp::DATE'],
-  tags = ['silver','defi','lending','curated']
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver','defi','lending','curated']
 ) }}
 -- pull all token addresses and corresponding name
 WITH asset_details AS (
@@ -64,14 +70,13 @@ comp_v2_fork_borrows AS (
     AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
-  SELECT
-    MAX(
-      _inserted_timestamp
-    ) - INTERVAL '12 hours'
-  FROM
-    {{ this }}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 comp_v2_fork_combine AS (

@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -64,20 +70,20 @@ flashloan AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 AND contract_address IN (
     SELECT
@@ -116,12 +122,11 @@ SELECT
     t.version,
     t.underlying_symbol AS symbol,
     t.underlying_decimals AS underlying_decimals,
-    'gnosis' AS blockchain,
     f._log_id,
-    f._inserted_timestamp
+    f.modified_timestamp
 FROM
     flashloan f
     LEFT JOIN token_meta t
     ON f.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY f._log_id
 ORDER BY
-    f._inserted_timestamp DESC)) = 1
+    f.modified_timestamp DESC)) = 1

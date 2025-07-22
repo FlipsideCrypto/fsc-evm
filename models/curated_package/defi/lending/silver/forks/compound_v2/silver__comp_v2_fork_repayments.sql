@@ -1,9 +1,15 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
-  materialized = 'incremental',
-  incremental_strategy = 'delete+insert',
-  unique_key = "block_number",
-  cluster_by = ['block_timestamp::DATE'],
-  tags = ['silver','defi','lending','curated']
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver','defi','lending','curated']
 ) }}
 -- pull all token addresses and corresponding name
 WITH asset_details AS (
@@ -45,9 +51,13 @@ comp_v2_fork_repayments AS (
         AND topics [0] :: STRING = '0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1'
         AND tx_succeeded
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
-    SELECT MAX(_inserted_timestamp) - INTERVAL '12 hours' FROM {{ this }}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 comp_v2_fork_combine AS (
@@ -72,7 +82,7 @@ comp_v2_fork_combine AS (
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        b._inserted_timestamp
+        b.modified_timestamp AS _inserted_timestamp
     FROM
         comp_v2_fork_repayments b
         LEFT JOIN asset_details C

@@ -1,9 +1,15 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
-  materialized = 'incremental',
-  incremental_strategy = 'delete+insert',
-  unique_key = "block_number",
-  cluster_by = ['block_timestamp::DATE'],
-  tags = ['silver','defi','lending','curated']
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver','defi','lending','curated']
 ) }}
 -- pull all token addresses and corresponding name
 WITH asset_details AS (
@@ -45,9 +51,13 @@ comp_v2_fork_deposits AS (
         AND topics [0] :: STRING = '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f'
         AND tx_succeeded
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
-    SELECT MAX(_inserted_timestamp) - INTERVAL '12 hours' FROM {{ this }}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 comp_v2_fork_combine AS (
@@ -73,7 +83,7 @@ comp_v2_fork_combine AS (
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        b._inserted_timestamp
+        b.modified_timestamp
     FROM
         comp_v2_fork_deposits b
         LEFT JOIN asset_details C
@@ -102,7 +112,7 @@ comp_v2_fork_combine AS (
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        sysdate() as _inserted_timestamp
+        sysdate() as modified_timestamp
     FROM
         {{this}} b
         LEFT JOIN asset_details C
@@ -132,7 +142,7 @@ SELECT
     platform,
     protocol,
     version,
-    _inserted_timestamp,
+    modified_timestamp,
     _log_id
 FROM
-    comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY _inserted_timestamp DESC)) = 1
+    comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1

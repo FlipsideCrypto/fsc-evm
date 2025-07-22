@@ -1,9 +1,15 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
-  materialized = 'incremental',
-  incremental_strategy = 'delete+insert',
-  unique_key = "block_number",
-  cluster_by = ['block_timestamp::DATE'],
-  tags = ['silver','defi','lending','curated']
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver','defi','lending','curated']
 ) }}
 -- pull all token addresses and corresponding name
 -- add the collateral liquidated here
@@ -48,9 +54,13 @@ comp_v2_fork_liquidations AS (
         AND topics [0] :: STRING = '0x298637f684da70674f26509b10f07ec2fbc77a335ab1e7d6215a4b2484d8bb52'
         AND tx_succeeded
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
-    SELECT MAX(_inserted_timestamp) - INTERVAL '12 hours' FROM {{ this }}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 liquidation_union AS (

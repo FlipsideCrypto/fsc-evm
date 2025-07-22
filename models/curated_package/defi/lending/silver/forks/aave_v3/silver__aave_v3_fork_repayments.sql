@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -24,7 +30,7 @@ WITH token_meta AS (
         underlying_name,
         protocol,
         version,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id
     FROM
         {{ ref('silver__aave_v3_fork_tokens') }}
@@ -56,20 +62,20 @@ repay AS(
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 AND contract_address IN (
     SELECT
@@ -103,12 +109,11 @@ SELECT
     t.version,
     t.underlying_symbol AS symbol,
     t.underlying_decimals AS underlying_decimals,
-    'gnosis' AS blockchain,
     r._log_id,
-    r._inserted_timestamp
+    r.modified_timestamp
 FROM
     repay r
     LEFT JOIN token_meta t
     ON r.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
-    r._inserted_timestamp DESC)) = 1
+    r.modified_timestamp DESC)) = 1

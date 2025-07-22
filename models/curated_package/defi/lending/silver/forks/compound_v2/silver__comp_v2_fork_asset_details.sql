@@ -57,21 +57,13 @@ log_pull AS (
         )
 
 {% if is_incremental() %}
-AND l.modified_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(
-            _inserted_timestamp
-        ) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND l.contract_address NOT IN (
-    SELECT
-        token_address
-    FROM
-        {{ this }}
-)
-AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 traces_pull AS (
