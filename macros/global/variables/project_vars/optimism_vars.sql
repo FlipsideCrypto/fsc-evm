@@ -19,7 +19,7 @@
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '20,50 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '10 5 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','across-v1','multichain-v7','hop-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','across-v1','multichain-v7','hop-v1','meson-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -49,11 +49,15 @@
                 }
             },
             'dodo': {
+                'v1': {
+                    'proxy': '0xdd0951b69bc0cf9d39111e5037685fb573204c86'
+                },
                 'v2': {
                     'deployer': '0x386a28709a31532d4f68b06fd28a27e4ea378364',
                     'new_pool': ['0xdb9c53f2ced34875685b607c97a61a65da2f30a8',
                     '0x1f83858cd6d0ae7a08ab1fd977c06dabece6d711',
-                    '0x2b800dc6270726f7e2266ce8cd5a3f8436fe0b40']
+                    '0x2b800dc6270726f7e2266ce8cd5a3f8436fe0b40'],
+                    'proxy': '0x169ae3d5acc90f0895790f6321ee81cb040e8a6b'
                 }
             },
             'hashflow': {
@@ -102,7 +106,6 @@
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0xdd0951b69bc0cf9d39111e5037685fb573204c86','0x169ae3d5acc90f0895790f6321ee81cb040e8a6b'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v1': {
@@ -113,10 +116,8 @@
                 }
             },
             'allbridge': {
-                'v1': {
-                    'sent': '0x97e5bf5068ea6a9604ee25851e6c9780ff50d5ab'
-                },
                 'v2': {
+                    'tokens_sent': '0x97e5bf5068ea6a9604ee25851e6c9780ff50d5ab',
                     'lp': ['0xb24a05d54fcacfe1fc00c59209470d4cafb0deea','0x3b96f88b2b9eb87964b852874d41b633e0f1f68f']
                 }
             },
