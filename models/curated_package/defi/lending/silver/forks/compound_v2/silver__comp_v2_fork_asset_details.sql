@@ -130,6 +130,10 @@ contract_detail_heal AS (
         l._log_id
     FROM
         {{ this }} l
+        LEFT JOIN contracts c1
+        ON c1.contract_address = l.underlying_asset
+        LEFT JOIN contracts c2
+        ON c2.contract_address = l.token_address
     WHERE
         (
             l.token_name IS NULL
@@ -139,10 +143,6 @@ contract_detail_heal AS (
             l.underlying_name IS NULL
             AND c2.token_name IS NOT NULL
         )
-    LEFT JOIN contracts c1
-    ON c1.contract_address = l.underlying_asset
-    LEFT JOIN contracts c2
-    ON c2.contract_address = l.token_address
 ),
 {% endif %}
 final AS (
