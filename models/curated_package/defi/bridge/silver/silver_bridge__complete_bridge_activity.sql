@@ -912,6 +912,44 @@ WHERE
     )
 {% endif %}
 ),
+core_native_bridge AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        type,
+        _log_id AS_id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__core_bridge_unwraptoken') }}
+
+{% if is_incremental() and 'core_native_bridge' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT 
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 axie_infinity_v2 AS (
     SELECT
         block_number,
@@ -1103,6 +1141,11 @@ all_protocols AS (
         *
     FROM
         avalanche_native_v2
+    UNION ALL
+    SELECT
+        *
+    FROM
+        core_native_bridge
     UNION ALL
     SELECT
         *
