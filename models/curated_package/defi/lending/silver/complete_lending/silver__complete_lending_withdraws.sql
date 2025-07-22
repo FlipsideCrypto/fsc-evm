@@ -146,8 +146,8 @@ complete_lending_withdraws AS (
         origin_function_signature,
         A.contract_address,
         CASE
-            WHEN platform = 'Compound V3' THEN 'WithdrawCollateral'
-            WHEN platform = 'Lodestar' THEN 'Redeem'
+            WHEN platform = 'compound_v3' THEN 'WithdrawCollateral'
+            WHEN platform = 'lodestar' THEN 'Redeem'
             ELSE 'Withdraw'
         END AS event_name,
         protocol_market,
@@ -181,28 +181,28 @@ complete_lending_withdraws AS (
 ) %}
 heal_model AS (
     SELECT
-        tx_hash,
-        block_number,
-        block_timestamp,
-        event_index,
-        origin_from_address,
-        origin_to_address,
-        origin_function_signature,
+        t0.tx_hash,
+        t0.block_number,
+        t0.block_timestamp,
+        t0.event_index,
+        t0.origin_from_address,
+        t0.origin_to_address,
+        t0.origin_function_signature,
         t0.contract_address,
-        event_name,
-        protocol_market,
-        depositor,
+        t0.event_name,
+        t0.protocol_market,
+        t0.depositor,
         t0.token_address,
         t0.token_symbol,
-        amount_unadj,
-        amount,
+        t0.amount_unadj,
+        t0.amount,
         ROUND(
-            amount * p.price,
+            t0.amount * p.price,
             2
         ) AS amount_usd_heal,
-        platform,
-        protocol,
-        version,
+        t0.platform,
+        t0.protocol,
+        t0.version,
         t0._log_id,
         t0.modified_timestamp
     FROM
@@ -273,7 +273,7 @@ FINAL AS (
     contract_address,
     event_name,
     protocol_market,
-    withdrawer,
+    depositor,
     token_address,
     token_symbol,
     amount_unadj,

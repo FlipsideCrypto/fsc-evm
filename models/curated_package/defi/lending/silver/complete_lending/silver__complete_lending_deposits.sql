@@ -146,9 +146,9 @@ complete_lending_deposits AS (
     origin_function_signature,
     A.contract_address,
     CASE
-      WHEN platform = 'Lodestar' THEN 'Mint'
-      WHEN platform = 'Compound V3' THEN 'SupplyCollateral'
-      WHEN platform = 'Aave V3' THEN 'Supply'
+      WHEN platform = 'lodestar' THEN 'Mint'
+      WHEN platform = 'compound_v3' THEN 'SupplyCollateral'
+      WHEN platform = 'aave_v3' THEN 'Supply'
       ELSE 'Deposit'
     END AS event_name,
     protocol_market,

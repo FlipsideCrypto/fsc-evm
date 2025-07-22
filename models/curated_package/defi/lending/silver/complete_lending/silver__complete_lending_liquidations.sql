@@ -154,9 +154,9 @@ complete_lending_liquidations AS (
     origin_function_signature,
     A.contract_address,
     CASE
-      WHEN platform = 'Compound V3' THEN 'AbsorbCollateral'
-      WHEN platform = 'Lodestar' THEN 'LiquidateBorrow'
-      WHEN platform = 'Silo' THEN 'Liquidate'
+      WHEN platform = 'compound_v3' THEN 'AbsorbCollateral'
+      WHEN platform = 'lodestar' THEN 'LiquidateBorrow'
+      WHEN platform = 'silo' THEN 'Liquidate'
       ELSE 'LiquidationCall'
     END AS event_name,
     liquidator,
@@ -167,7 +167,7 @@ complete_lending_liquidations AS (
     amount_unadj,
     liquidated_amount AS amount,
     CASE
-      WHEN platform <> 'Compound V3' THEN ROUND(
+      WHEN platform <> 'compound_v3' THEN ROUND(
         liquidated_amount * p.price,
         2
       )
@@ -199,37 +199,37 @@ complete_lending_liquidations AS (
 ) %}
 heal_model AS (
   SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
+    t0.tx_hash,
+    t0.block_number,
+    t0.block_timestamp,
+    t0.event_index,
+    t0.origin_from_address,
+    t0.origin_to_address,
+    t0.origin_function_signature,
     t0.contract_address,
-    event_name,
-    liquidator,
-    borrower,
-    protocol_market,
-    collateral_token,
-    collateral_token_symbol,
-    amount_unadj,
-    amount,
+    t0.event_name,
+    t0.liquidator,
+    t0.borrower,
+    t0.protocol_market,
+    t0.collateral_token,
+    t0.collateral_token_symbol,
+    t0.amount_unadj,
+    t0.amount,
     CASE
-      WHEN platform <> 'Compound V3' THEN ROUND(
-        amount * p.price,
+      WHEN t0.platform <> 'compound_v3' THEN ROUND(
+        t0.amount * p.price,
         2
       )
       ELSE ROUND(
-        amount_usd,
+        t0.amount_usd,
         2
       )
     END AS amount_usd_heal,
-    debt_token,
-    debt_token_symbol,
-    platform,
-    protocol,
-    version,
+    t0.debt_token,
+    t0.debt_token_symbol,
+    t0.platform,
+    t0.protocol,
+    t0.version,
     t0._LOG_ID,
     t0.modified_timestamp
   FROM
@@ -301,14 +301,14 @@ FINAL AS (
     event_name,
     liquidator,
     borrower,
-    protocol_collateral_asset,
-    protocol_debt_asset,
-    collateral_amount_unadj,
-    collateral_amount,
-    collateral_amount_usd,
-    debt_amount_unadj,
-    debt_amount,
-    debt_amount_usd,
+    protocol_market,
+    collateral_token,
+    collateral_token_symbol,
+    amount_unadj,
+    amount,
+    amount_usd,
+    debt_token,
+    debt_token_symbol,
     platform,
     protocol,
     version,
