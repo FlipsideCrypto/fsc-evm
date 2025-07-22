@@ -61,7 +61,9 @@
             },
             'dodo': {
                 'v1': {
-                    'dodo_birth': '0x357c5e9cfa8b834edcef7c7aabd8f9db09119d11'
+                    'dodo_birth': '0x357c5e9cfa8b834edcef7c7aabd8f9db09119d11',
+                    'proxy': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
+                    '0x6c30be15d88462b788dea7c6a860a2ccaf7b2670']
                 },
                 'v2': {
                     'new_pool': ['0x95e887adf9eaa22cc1c6e3cb7f07adc95b4b25a8',
@@ -106,8 +108,6 @@
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0xdbfaf391c37339c903503495395ad7d6b096e192',
-        '0x6c30be15d88462b788dea7c6a860a2ccaf7b2670'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v1': {

@@ -68,7 +68,11 @@
                     '0x17dbfa501f2f376d092fa69d3223a09bba4efdf7'],
                     'dodo_birth': ['0xbd337924f000dceb119153d4d3b1744b22364d25',
                     '0xe1b5d7a770cb1b40c859a52696e7e3dd1c57b0ba',
-                    '0x3a97247df274a17c59a3bd12735ea3fcdfb49950']
+                    '0x3a97247df274a17c59a3bd12735ea3fcdfb49950'],
+                    'proxy': ['0x91e1c84ba8786b1fae2570202f0126c0b88f6ec7',
+                    '0x9b64c81ba54ea51e1f6b7fefb3cff8aa6f1e2a09',
+                    '0xe6aafa1c45d9d0c64686c1f1d17b9fe9c7dab05b',
+                    '0xe55154d09265b18ac7cdac6e646672a5460389a1']
                 },
                 'v2': {
                     'new_pool': ['0x95e887adf9eaa22cc1c6e3cb7f07adc95b4b25a8',
@@ -158,10 +162,6 @@
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0x91e1c84ba8786b1fae2570202f0126c0b88f6ec7',
-        '0x9b64c81ba54ea51e1f6b7fefb3cff8aa6f1e2a09',
-        '0xe6aafa1c45d9d0c64686c1f1d17b9fe9c7dab05b',
-        '0xe55154d09265b18ac7cdac6e646672a5460389a1'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v1': {
