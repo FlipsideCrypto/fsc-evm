@@ -76,7 +76,7 @@ aave_v3_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A._INSERTED_TIMESTAMP
+        A.modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_withdraws') }} A
 
@@ -110,7 +110,7 @@ comp_v2_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A._INSERTED_TIMESTAMP
+        A.modified_timestamp
     FROM
         {{ ref('silver__comp_v2_fork_withdraws') }} A
 
@@ -164,7 +164,7 @@ complete_lending_withdraws AS (
         protocol,
         version,
         A._log_id,
-        A._inserted_timestamp
+        A.modified_timestamp
     FROM
         withdraws A
         LEFT JOIN prices
@@ -204,7 +204,7 @@ heal_model AS (
         protocol,
         version,
         t0._log_id,
-        t0._inserted_timestamp
+        t0.modified_timestamp
     FROM
         {{ this }}
         t0
@@ -232,10 +232,10 @@ heal_model AS (
                 t1
             WHERE
                 t1.amount_usd IS NULL
-                AND t1._inserted_timestamp < (
+                AND t1.modified_timestamp < (
                     SELECT
                         MAX(
-                            _inserted_timestamp
+                            modified_timestamp
                         ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
                     FROM
                         {{ this }}
@@ -247,7 +247,7 @@ heal_model AS (
                         {{ ref('silver__complete_token_prices') }}
                         p
                     WHERE
-                        p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
+                        p.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
                         AND p.price IS NOT NULL
                         AND p.token_address = t1.token_address
                         AND p.hour = DATE_TRUNC(
@@ -292,7 +292,7 @@ SELECT
     protocol,
     version,
     _log_id,
-    _inserted_timestamp
+    modified_timestamp
 FROM
     heal_model
 {% endif %}
@@ -308,4 +308,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1

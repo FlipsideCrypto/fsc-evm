@@ -127,7 +127,7 @@ a_token_step_2 AS (
         atoken_decimals,
         atoken_name,
         atoken_symbol,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id,
     FROM
         a_token_step_1

@@ -18,17 +18,17 @@ WITH contracts AS (
 
   SELECT
     address AS contract_address,
-    symbol AS token_symbol,
-    decimals AS token_decimals,
-    modified_timestamp AS _inserted_timestamp
+          symbol AS token_symbol,
+      decimals AS token_decimals,
+      modified_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   UNION ALL
   SELECT
     '0x0000000000000000000000000000000000000000' AS contract_address,
-    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
-    decimals AS token_decimals,
-    modified_timestamp AS _inserted_timestamp
+          '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+      decimals AS token_decimals,
+      modified_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   WHERE
@@ -40,7 +40,7 @@ prices AS (
     price,
     HOUR,
     is_verified,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('price__ez_prices_hourly') }}
   UNION ALL
@@ -49,7 +49,7 @@ prices AS (
     price,
     HOUR,
     is_verified,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('price__ez_prices_hourly') }}
   WHERE
@@ -76,7 +76,7 @@ aave_v3_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A._INSERTED_TIMESTAMP
+        A.modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_borrows') }} A
 
@@ -110,7 +110,7 @@ comp_v2_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A._INSERTED_TIMESTAMP
+        A.modified_timestamp
     FROM
         {{ ref('silver__comp_v2_fork_borrows') }} A
 
@@ -163,7 +163,7 @@ complete_lending_borrows AS (
         protocol,
         version,
         b._LOG_ID,
-        b._INSERTED_TIMESTAMP
+        b.modified_timestamp
     FROM
         borrow_union b
         LEFT JOIN prices
@@ -203,7 +203,7 @@ heal_model AS (
         protocol,
         version,
         t0._LOG_ID,
-        t0._INSERTED_TIMESTAMP
+        t0.modified_timestamp
     FROM
         {{ this }}
         t0
@@ -291,7 +291,7 @@ SELECT
     protocol,
     version,
     _LOG_ID,
-    _INSERTED_TIMESTAMP
+    modified_timestamp
 FROM
     heal_model
 {% endif %}
@@ -307,4 +307,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1

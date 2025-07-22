@@ -79,7 +79,7 @@ aave_v3_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A._INSERTED_TIMESTAMP
+        A.modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_flashloans') }} A
 
@@ -130,8 +130,8 @@ complete_lending_flashloans AS (
     platform,
     protocol,
     version,
-    f._LOG_ID,
-    f._INSERTED_TIMESTAMP
+            f._LOG_ID,
+        f.modified_timestamp
   FROM
     flashloans f
     LEFT JOIN prices
@@ -178,7 +178,7 @@ heal_model AS (
     protocol,
     version,
     t0._LOG_ID,
-    t0._INSERTED_TIMESTAMP
+    t0.modified_timestamp
   FROM
     {{ this }}
     t0
@@ -312,7 +312,7 @@ SELECT
   protocol,
   version,
   _LOG_ID,
-  _INSERTED_TIMESTAMP
+      modified_timestamp
 FROM
   heal_model
 {% endif %}
@@ -328,4 +328,4 @@ SELECT
 FROM
   FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-  _inserted_timestamp DESC)) = 1
+      modified_timestamp DESC)) = 1
