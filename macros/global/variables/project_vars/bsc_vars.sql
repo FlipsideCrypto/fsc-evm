@@ -52,7 +52,11 @@
             },
             'dodo': {
                 'v1': {
-                    'dodo_birth': '0xca459456a45e300aa7ef447dbb60f87cccb42828'
+                    'dodo_birth': '0xca459456a45e300aa7ef447dbb60f87cccb42828',
+                    'proxy': ['0x8e4842d0570c85ba3805a9508dce7c6a458359d0',
+                    '0x0596908263ef2724fbfbcafa1c983fcd7a629038',
+                    '0x165ba87e882208100672b6c56f477ee42502c820',
+                    '0xab623fbcaeb522046185051911209f5b2c2a2e1f']
                 },
                 'v2': {
                     'new_pool': ['0xafe0a75dffb395eaabd0a7e1bbbd0b11f8609eef',
@@ -124,10 +128,6 @@
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0x8e4842d0570c85ba3805a9508dce7c6a458359d0',
-        '0x0596908263ef2724fbfbcafa1c983fcd7a629038',
-        '0x165ba87e882208100672b6c56f477ee42502c820',
-        '0xab623fbcaeb522046185051911209f5b2c2a2e1f'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v3': {

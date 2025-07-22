@@ -26,8 +26,8 @@ SELECT
     amount_in,
     ROUND(
         CASE
-            WHEN token_in <> '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
-            OR NOT token_in_is_verified
+            WHEN (token_in <> '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+            OR NOT token_in_is_verified)
             AND (
                 amount_out_usd IS NULL
                 OR ABS((amount_in_usd - amount_out_usd) / NULLIF(amount_out_usd, 0)) > 0.75
@@ -41,8 +41,8 @@ SELECT
     amount_out,
     ROUND(
         CASE
-            WHEN token_out <> '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
-            OR NOT token_out_is_verified
+            WHEN (token_out <> '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+            OR NOT token_out_is_verified)
             AND (
                 amount_in_usd IS NULL
                 OR ABS((amount_out_usd - amount_in_usd) / NULLIF(amount_in_usd, 0)) > 0.75

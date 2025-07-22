@@ -12,7 +12,15 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH swaps AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'dodo'
+        AND type = 'proxy'
+),
+swaps AS (
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -84,7 +92,12 @@ WITH swaps AS (
         l.contract_address = p.pool_address
     WHERE
         l.topics [0] :: STRING = '0xc2c0245e056d5fb095f04cd6373bc770802ebd1e6c918eb78fdef843cdb37b0f' --dodoswap
-        AND trader_address NOT IN ('{{ vars.CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES | join("', '") }}')
+        AND trader_address NOT IN (
+            SELECT
+                contract_address
+            FROM
+                contract_mapping
+        )
         AND tx_succeeded
 
 {% if is_incremental() %}

@@ -48,7 +48,6 @@
                 }
             }
         },
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': [],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'layerzero': {
                 'v2': {

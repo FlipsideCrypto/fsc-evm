@@ -56,7 +56,8 @@
             },
             'dodo': {
                 'v1': {
-                    'dodo_birth': '0xbcc3401e16c25eaf4d3fed632ce3288503883b1f'
+                    'dodo_birth': '0xbcc3401e16c25eaf4d3fed632ce3288503883b1f',
+                    'proxy': '0xd5a7e197bace1f3b26e2760321d6ce06ad07281a'
                 },
                 'v2': {
                     'new_pool': ['0xa6cf3d163358af376ec5e8b7cc5e102a05fde63d',
@@ -65,7 +66,8 @@
                     '0x1506b54a1c0ea1b2f4a84866ec5776f7f6e7f0b1',
                     '0x9340e3296121507318874ce9c04afb4492af0284',
                     '0xc8fe2440744dcd733246a4db14093664defd5a53',
-                    '0xda4c4411c55b0785e501332354a036c04833b72b']
+                    '0xda4c4411c55b0785e501332354a036c04833b72b'],
+                    'proxy': '0x8ab2d334ce64b50be9ab04184f7ccba2a6bb6391'
                 }
             },
             'hashflow': {
@@ -180,7 +182,6 @@
             },
         },
         'CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID': 42161,
-        'CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES': ['0xd5a7e197bace1f3b26e2760321d6ce06ad07281a','0x8ab2d334ce64b50be9ab04184f7ccba2a6bb6391'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v1': {

@@ -12,7 +12,15 @@
     tags = ['silver_dex','defi','dex','curated']
 ) }}
 
-WITH sell_base_token AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'dodo'
+        AND type = 'proxy'
+),
+sell_base_token AS (
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -58,7 +66,12 @@ WITH sell_base_token AS (
         ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xd8648b6ac54162763c86fd54bf2005af8ecd2f9cb273a5775921fd7f91e17b2d' --sellBaseToken
-        AND seller_address NOT IN ('{{ vars.CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES | join("', '") }}')
+        AND seller_address NOT IN (
+            SELECT
+                contract_address
+            FROM
+                contract_mapping
+        )
         AND tx_succeeded
 
 {% if is_incremental() %}
@@ -117,7 +130,12 @@ buy_base_token AS (
         ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING = '0xe93ad76094f247c0dafc1c61adc2187de1ac2738f7a3b49cb20b2263420251a3' --buyBaseToken
-        AND buyer_address NOT IN ('{{ vars.CURATED_DEFI_DEX_DODO_PROXY_ADDRESSES | join("', '") }}')
+        AND buyer_address NOT IN (
+            SELECT
+                contract_address
+            FROM
+                contract_mapping
+        )
         AND tx_succeeded
 
 {% if is_incremental() %}
