@@ -105,7 +105,7 @@ comp_v2_fork AS (
         token_address,
         token_symbol,
         amount_unadj,
-        loan_amount AS amount,
+        amount,
         platform,
         protocol,
         version,
@@ -262,7 +262,27 @@ heal_model AS (
 
 FINAL AS (
     SELECT
-        *
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        event_name,
+        borrower,
+        protocol_market,
+        token_address,
+        token_symbol,
+        amount_unadj,
+        amount,
+        amount_usd,
+        platform,
+        protocol,
+        version,
+        _LOG_ID,
+        modified_timestamp AS _inserted_timestamp
     FROM
         complete_lending_borrows
 

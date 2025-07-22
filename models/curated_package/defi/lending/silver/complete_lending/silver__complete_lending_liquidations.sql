@@ -290,7 +290,30 @@ heal_model AS (
 
 FINAL AS (
   SELECT
-    *
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    liquidator,
+    borrower,
+    protocol_collateral_asset,
+    protocol_debt_asset,
+    collateral_amount_unadj,
+    collateral_amount,
+    collateral_amount_usd,
+    debt_amount_unadj,
+    debt_amount,
+    debt_amount_usd,
+    platform,
+    protocol,
+    version,
+    _LOG_ID,
+    modified_timestamp AS _inserted_timestamp
   FROM
     complete_lending_liquidations
 

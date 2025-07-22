@@ -264,7 +264,27 @@ heal_model AS (
 
 FINAL AS (
   SELECT
-    *
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    protocol_market,
+    depositor,
+    token_address,
+    token_symbol,
+    amount_unadj,
+    amount,
+    amount_usd,
+    platform,
+    protocol,
+    version,
+    _LOG_ID,
+    modified_timestamp AS _inserted_timestamp
   FROM
     complete_lending_deposits
 
@@ -293,7 +313,7 @@ SELECT
   protocol,
   version,
   _LOG_ID,
-      modified_timestamp AS _inserted_timestamp
+  modified_timestamp AS _inserted_timestamp
 FROM
   heal_model
 {% endif %}
