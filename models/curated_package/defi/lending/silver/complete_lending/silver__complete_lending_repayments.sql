@@ -325,6 +325,7 @@ FROM
 )
 SELECT
   *,
+  '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
   {{ dbt_utils.generate_surrogate_key(
     ['tx_hash','event_index']
   ) }} AS complete_lending_repayments_id,
