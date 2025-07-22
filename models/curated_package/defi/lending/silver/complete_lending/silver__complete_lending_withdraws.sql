@@ -20,7 +20,7 @@ WITH contracts AS (
     address AS contract_address,
     symbol AS token_symbol,
     decimals AS token_decimals,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   UNION ALL
@@ -28,7 +28,7 @@ WITH contracts AS (
     '0x0000000000000000000000000000000000000000' AS contract_address,
     '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
     decimals AS token_decimals,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   WHERE
@@ -40,7 +40,7 @@ prices AS (
     price,
     HOUR,
     is_verified,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('price__ez_prices_hourly') }}
   UNION ALL
@@ -49,7 +49,7 @@ prices AS (
     price,
     HOUR,
     is_verified,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('price__ez_prices_hourly') }}
   WHERE
@@ -82,9 +82,9 @@ aave_v3_fork AS (
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
 WHERE
-  _inserted_timestamp >= (
+  modified_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -116,9 +116,9 @@ comp_v2_fork AS (
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
 WHERE
-  _inserted_timestamp >= (
+  modified_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )

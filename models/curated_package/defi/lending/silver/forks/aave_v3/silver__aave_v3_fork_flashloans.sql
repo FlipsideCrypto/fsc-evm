@@ -28,10 +28,10 @@ WITH token_meta AS (
         underlying_address,
         underlying_decimals,
         underlying_name,
-        protocol,
-        version,
-        _inserted_timestamp,
-        _log_id
+            protocol,
+    version,
+    modified_timestamp,
+    _log_id
     FROM
         {{ ref('silver__aave_v3_fork_tokens') }}
 ),

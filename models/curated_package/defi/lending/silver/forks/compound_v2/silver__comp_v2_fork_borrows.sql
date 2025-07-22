@@ -51,7 +51,7 @@ comp_v2_fork_borrows AS (
     ) :: INTEGER AS totalBorrows,
     contract_address AS token,
     'Comp V2 Fork' AS platform,
-    modified_timestamp AS _inserted_timestamp,
+            modified_timestamp,
     CONCAT(
       tx_hash :: STRING,
       '-',
@@ -100,7 +100,7 @@ comp_v2_fork_combine AS (
     C.version,
     C.protocol || '-' || C.version as platform,
     b._log_id,
-    b._inserted_timestamp
+    b.modified_timestamp
   FROM
     comp_v2_fork_borrows b
     LEFT JOIN asset_details C
@@ -127,7 +127,7 @@ comp_v2_fork_combine AS (
     C.version,
     platform,
     b._log_id,
-    sysdate() as _inserted_timestamp
+    sysdate() as modified_timestamp
   FROM
     {{this}} b
   WHERE
@@ -159,9 +159,9 @@ SELECT
   platform,
   protocol,
   version,
-  _inserted_timestamp,
+      modified_timestamp,
   _log_id
 FROM
   comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-  _inserted_timestamp DESC)) = 1
+      modified_timestamp DESC)) = 1

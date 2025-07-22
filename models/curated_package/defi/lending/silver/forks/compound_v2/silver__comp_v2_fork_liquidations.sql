@@ -45,7 +45,7 @@ comp_v2_fork_liquidations AS (
         utils.udf_hex_to_int(segmented_data [4] :: STRING) :: INTEGER AS seizeTokens_raw,
         utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER AS repayAmount_raw,
         CONCAT('0x', SUBSTR(segmented_data [3] :: STRING, 25, 40)) AS tokenCollateral,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
     FROM
         {{ ref('core__fact_event_logs') }}
@@ -90,7 +90,7 @@ liquidation_union AS (
         asd1.protocol,
         asd1.version,
         asd1.protocol || '-' || asd1.version as platform,
-        l._inserted_timestamp,
+        l.modified_timestamp,
         l._log_id
     FROM
         comp_v2_fork_liquidations l
@@ -126,7 +126,7 @@ liquidation_union AS (
         C.protocol,
         C.version,
         C.protocol || '-' || C.version as platform,
-        b._inserted_timestamp,
+        b.modified_timestamp,
         b._log_id
     FROM
         {{this}} b
@@ -140,4 +140,4 @@ liquidation_union AS (
 SELECT
     *
 FROM
-    liquidation_union qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY _inserted_timestamp DESC)) = 1
+    liquidation_union qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1

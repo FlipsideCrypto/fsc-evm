@@ -32,7 +32,7 @@ token_meta AS (
     underlying_name,
     protocol,
     version,
-    _inserted_timestamp,
+    modified_timestamp,
     _log_id
     FROM
         {{ ref('silver__aave_v3_fork_tokens') }}
@@ -73,7 +73,7 @@ borrow AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
@@ -124,10 +124,10 @@ SELECT
     t.underlying_symbol AS symbol,
     t.underlying_decimals AS underlying_decimals,
     b._log_id,
-    b._inserted_timestamp
+    b.modified_timestamp
 FROM
     borrow b
     LEFT JOIN token_meta t
     ON b.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY b._log_id
 ORDER BY
-    b._inserted_timestamp DESC)) = 1
+    b.modified_timestamp DESC)) = 1

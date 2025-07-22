@@ -20,7 +20,7 @@ WITH contracts AS (
     address AS contract_address,
     symbol AS token_symbol,
     decimals AS token_decimals,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   UNION ALL
@@ -28,7 +28,7 @@ WITH contracts AS (
     '0x0000000000000000000000000000000000000000' AS contract_address,
     '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
     decimals AS token_decimals,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('core__dim_contracts') }}
   WHERE
@@ -40,7 +40,7 @@ prices AS (
     price,
     HOUR,
     is_verified,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('price__ez_prices_hourly') }}
   UNION ALL
@@ -49,7 +49,7 @@ prices AS (
     price,
     HOUR,
     is_verified,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
   FROM
     {{ ref('price__ez_prices_hourly') }}
   WHERE
@@ -83,9 +83,9 @@ aave_v3_fork AS (
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
 WHERE
-  _inserted_timestamp >= (
+  modified_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -118,9 +118,9 @@ comp_v2_fork AS (
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
 WHERE
-  _inserted_timestamp >= (
+  modified_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
@@ -236,10 +236,10 @@ heal_model AS (
         t1
       WHERE
         t1.amount_usd IS NULL
-        AND t1._inserted_timestamp < (
+        AND t1.modified_timestamp < (
           SELECT
             MAX(
-              _inserted_timestamp
+              modified_timestamp
             ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
           FROM
             {{ this }}
@@ -251,7 +251,7 @@ heal_model AS (
             {{ ref('silver__complete_token_prices') }}
             p
           WHERE
-            p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
+            p.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
             AND p.price IS NOT NULL
             AND p.token_address = t1.token_address
             AND p.hour = DATE_TRUNC(

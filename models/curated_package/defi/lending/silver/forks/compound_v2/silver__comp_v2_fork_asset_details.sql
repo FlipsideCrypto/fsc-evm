@@ -36,7 +36,7 @@ log_pull AS (
         C.token_name,
         C.token_symbol,
         C.token_decimals,
-        l.modified_timestamp AS _inserted_timestamp,
+        l.modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -76,7 +76,7 @@ traces_pull AS (
         LEFT(input, 10) AS function_sig,
         regexp_substr_all(SUBSTR(input, 11), '.{64}') AS segmented_input,
         CONCAT('0x', SUBSTR(segmented_input[0]::STRING, 25)) AS underlying_asset_address,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_traces') }}
         t
@@ -101,14 +101,14 @@ underlying_details AS (
         l.token_symbol,
         l.token_decimals,
         t.underlying_asset_address,
-        l._inserted_timestamp,
+        l.modified_timestamp,
         l._log_id
     FROM
         log_pull l
         LEFT JOIN traces_pull t
         ON l.contract_address = t.token_address qualify(ROW_NUMBER() over(PARTITION BY l.contract_address
     ORDER BY
-        t._inserted_timestamp ASC)) = 1
+        t.modified_timestamp ASC)) = 1
 ),
 {% if is_incremental() %}
 contract_detail_heal AS (
@@ -126,7 +126,7 @@ contract_detail_heal AS (
         c2.token_decimals AS underlying_decimals,
         o.protocol,
         o.version,
-        l._inserted_timestamp,
+        l.modified_timestamp,
         l._log_id
     FROM
         {{ this }} l
@@ -161,7 +161,7 @@ final AS (
         C.token_decimals AS underlying_decimals,
         o.protocol,
         o.version,
-        l._inserted_timestamp,
+        l.modified_timestamp,
         l._log_id
     FROM
         underlying_details l
@@ -186,7 +186,7 @@ SELECT
     underlying_decimals,
     protocol,
     version,
-    _inserted_timestamp,
+    modified_timestamp,
     _log_id
 FROM
     final
@@ -207,7 +207,7 @@ SELECT
     underlying_decimals,
     protocol,
     version,
-    _inserted_timestamp,
+    modified_timestamp,
     _log_id
 FROM
     contract_detail_heal

@@ -42,7 +42,7 @@ comp_v2_fork_deposits AS (
         utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER AS minttokens_raw,
         utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER AS mintAmount_raw,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS supplier,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
     FROM
         {{ ref('core__fact_event_logs') }}

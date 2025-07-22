@@ -39,7 +39,7 @@ DECODE AS (
         utils.udf_hex_to_string (
             segmented_data [9] :: STRING
         ) :: STRING AS atoken_symbol,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -79,7 +79,7 @@ a_token_step_1 AS (
         atoken_decimals,
         atoken_name,
         atoken_symbol,
-        _inserted_timestamp,
+        modified_timestamp,
         _log_id
     FROM
         DECODE
@@ -99,7 +99,7 @@ debt_tokens AS (
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS token_address,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40)) :: STRING AS token_stable_debt_address,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 27, 40)) :: STRING AS token_variable_debt_address,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -142,15 +142,15 @@ SELECT
     b.token_variable_debt_address,
     A.atoken_decimals AS atoken_decimals,
     t.protocol || '-' || t.version AS atoken_version,
-    atoken_name AS atoken_name,
-    C.token_symbol AS underlying_symbol,
-    A.underlying_asset AS underlying_address,
-    C.token_decimals AS underlying_decimals,
-    C.token_name AS underlying_name,
-    t.protocol,
-    t.version,
-    A._inserted_timestamp,
-    A._log_id
+            atoken_name AS atoken_name,
+        C.token_symbol AS underlying_symbol,
+        A.underlying_asset AS underlying_address,
+        C.token_decimals AS underlying_decimals,
+        C.token_name AS underlying_name,
+        t.protocol,
+        t.version,
+        A.modified_timestamp,
+        A._log_id
 FROM
     a_token_step_2 A
     LEFT JOIN debt_tokens b

@@ -42,7 +42,7 @@ comp_v2_fork_repayments AS (
         contract_address AS token,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS payer,
         utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER AS repayed_amount_raw,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
     FROM
         {{ ref('core__fact_event_logs') }}
@@ -82,7 +82,7 @@ comp_v2_fork_combine AS (
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        b.modified_timestamp AS _inserted_timestamp
+        b.modified_timestamp
     FROM
         comp_v2_fork_repayments b
         LEFT JOIN asset_details C
@@ -110,7 +110,7 @@ comp_v2_fork_combine AS (
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        sysdate() as _inserted_timestamp
+        sysdate() as modified_timestamp
     FROM
         {{this}} b
         LEFT JOIN asset_details C
@@ -140,7 +140,7 @@ SELECT
     platform,
     protocol,
     version,
-    _inserted_timestamp,
+    modified_timestamp,
     _log_id
 FROM
-    comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY _inserted_timestamp DESC)) = 1
+    comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1
