@@ -83,7 +83,8 @@ traces_pull AS (
         from_address AS token_address,
         LEFT(input, 10) AS function_sig,
         regexp_substr_all(SUBSTR(input, 11), '.{64}') AS segmented_input,
-        CONCAT('0x', SUBSTR(segmented_input[0]::STRING, 25)) AS underlying_asset
+        CONCAT('0x', SUBSTR(segmented_input[0]::STRING, 25)) AS underlying_asset_address,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('core__fact_traces') }}
         t
@@ -99,13 +100,15 @@ traces_pull AS (
 ),
 underlying_details AS (
     SELECT
+        l.tx_hash,
+        l.block_number,
         l.block_timestamp,
         l.origin_from_address,
         l.contract_address,
         l.token_name,
         l.token_symbol,
         l.token_decimals,
-        t.underlying_asset AS underlying_asset_address,
+        t.underlying_asset_address,
         l._inserted_timestamp,
         l._log_id
     FROM
@@ -113,7 +116,7 @@ underlying_details AS (
         LEFT JOIN traces_pull t
         ON l.contract_address = t.token_address qualify(ROW_NUMBER() over(PARTITION BY l.contract_address
     ORDER BY
-        block_timestamp ASC)) = 1
+        t._inserted_timestamp ASC)) = 1
 ),
 {% if is_incremental() %}
 contract_detail_heal AS (
