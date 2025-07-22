@@ -12,7 +12,16 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH events AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'everclear'
+        AND version = 'v1'
+),
+
+events AS (
 
     SELECT
         block_number,
@@ -50,6 +59,10 @@ WITH events AS (
         utils.udf_hex_to_int(
             part [15] :: STRING
         ) :: STRING AS destination_0,
+        m.protocol,
+        m.version,
+        m.type,
+        CONCAT(m.protocol, '-', m.version) AS platform,
         CONCAT(
             tx_hash,
             '-',
@@ -58,17 +71,19 @@ WITH events AS (
         inserted_timestamp,
         modified_timestamp
     FROM
-        {{ ref('core__fact_event_logs') }}
+        {{ ref('core__fact_event_logs') }} 
+        l
+        INNER JOIN contract_mapping m
+        ON l.contract_address = m.contract_address
     WHERE
-        contract_address = LOWER('{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}')
-        AND topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
+        topic_0 = '0xefe68281645929e2db845c5b42e12f7c73485fb5f18737b7b29379da006fa5f7'
         AND block_timestamp :: DATE >= '2024-09-01'
         AND tx_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
@@ -85,10 +100,12 @@ traces AS (
         '0x' || outputs [0] :: STRING AS intent_id
     FROM
         {{ ref('core__fact_traces') }}
+        t
+        INNER JOIN contract_mapping m
+        ON t.to_address = m.contract_address
     WHERE
         block_timestamp :: DATE >= '2024-09-01'
         AND TYPE = 'CALL'
-        AND to_address = '{{ vars.CURATED_BRIDGE_EVERCLEAR_CONTRACT }}'
         AND LEFT(
             input,
             10
@@ -106,7 +123,7 @@ traces AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ var("LOOKBACK", "12 hours") }}'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
@@ -130,6 +147,10 @@ SELECT
     amount_raw,
     destination_count,
     destination_0,
+    protocol,
+    version,
+    type,
+    platform,
     _log_id,
     inserted_timestamp,
     modified_timestamp
