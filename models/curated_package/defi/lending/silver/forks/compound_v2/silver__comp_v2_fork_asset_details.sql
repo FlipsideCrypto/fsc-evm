@@ -116,6 +116,7 @@ contract_detail_heal AS (
         l.tx_hash,
         l.block_number,
         l.block_timestamp,
+        l.origin_from_address,
         l.token_address,
         c1.token_name,
         c1.token_symbol,
