@@ -24,12 +24,12 @@
             },
             'everclear': {
                 'v1': {
-                    'bridge': '0x15a7ca97d1ed168fb34a4055cefa2e2f9bdb6c75'
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
                 }
             },
             'layerzero': {
                 'v2': {
-                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                    'bridge': '0xca29f3a6f966cb2fc0de625f8f325c0c46dbe958'
                 }
             },
             'stargate': {
