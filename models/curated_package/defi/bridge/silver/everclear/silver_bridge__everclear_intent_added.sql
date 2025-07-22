@@ -105,7 +105,7 @@ traces AS (
         ON t.to_address = m.contract_address
     WHERE
         block_timestamp :: DATE >= '2024-09-01'
-        AND TYPE = 'CALL'
+        AND t.TYPE = 'CALL'
         AND LEFT(
             input,
             10
