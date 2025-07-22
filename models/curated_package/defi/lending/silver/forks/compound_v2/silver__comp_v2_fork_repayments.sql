@@ -99,10 +99,10 @@ comp_v2_fork_combine AS (
         b.origin_function_signature,
         b.contract_address,
         b.borrower,
-        b.token,
+        b.token_address,
         C.token_symbol,
         b.payer,
-        b.repayed_amount_raw,
+        b.amount_unadj AS repayed_amount_raw,
         C.underlying_asset_address AS repay_contract_address,
         C.underlying_symbol AS repay_contract_symbol,
         C.underlying_decimals,
@@ -114,7 +114,7 @@ comp_v2_fork_combine AS (
     FROM
         {{this}} b
         LEFT JOIN asset_details C
-        ON b.token = C.token_address
+        ON b.token_address = C.token_address
     WHERE
         (b.token_symbol IS NULL and C.token_symbol is not null)
         OR (b.repay_contract_symbol IS NULL and C.underlying_symbol is not null)

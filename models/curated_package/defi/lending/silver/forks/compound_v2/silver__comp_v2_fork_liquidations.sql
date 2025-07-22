@@ -110,16 +110,16 @@ liquidation_union AS (
         b.origin_function_signature,
         b.contract_address,
         b.borrower,
-        b.token,
+        b.token_address,
         C.token_symbol,
         b.liquidator,
-        b.seizeTokens_raw / pow(10, C.token_decimals) AS tokens_seized,
-        b.tokenCollateral AS protocol_market,
+        b.tokens_seized * pow(10, C.token_decimals) AS tokens_seized,
+        b.protocol_market,
         C.token_symbol AS collateral_token_symbol,
         C.underlying_asset_address AS collateral_token,
         C.underlying_symbol AS collateral_symbol,
-        b.repayAmount_raw AS amount_unadj,
-        b.repayAmount_raw / pow(10, C.underlying_decimals) AS amount,
+        b.amount_unadj AS amount_unadj,
+        b.amount * pow(10, C.underlying_decimals) AS amount,
         C.underlying_decimals,
         C.underlying_asset_address AS debt_asset,
         C.underlying_symbol AS debt_asset_symbol,
@@ -131,7 +131,7 @@ liquidation_union AS (
     FROM
         {{this}} b
         LEFT JOIN asset_details C
-        ON b.token = C.token_address
+        ON b.token_address = C.token_address
     WHERE
         (b.token_symbol IS NULL and C.token_symbol is not null)
         OR (b.collateral_token_symbol IS NULL and C.underlying_symbol is not null)

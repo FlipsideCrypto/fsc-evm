@@ -117,10 +117,10 @@ comp_v2_fork_combine AS (
     origin_function_signature,
     contract_address,
     borrower,
-    loan_amount_raw,
+    amount_unadj,
     C.underlying_asset_address AS borrows_contract_address,
     C.underlying_symbol AS borrows_contract_symbol,
-    token,
+    token_address,
     C.token_symbol,
     C.underlying_decimals,
     C.protocol,
@@ -130,11 +130,11 @@ comp_v2_fork_combine AS (
     sysdate() as modified_timestamp
   FROM
     {{this}} b
-  WHERE
-    (b.token_name IS NULL and C.token_name is not null)
-    OR (b.underlying_name IS NULL and C.underlying_name is not null)
     LEFT JOIN asset_details C
-    ON b.token = C.token_address
+    ON b.token_address = C.token_address
+  WHERE
+    (b.token_symbol IS NULL and C.token_symbol is not null)
+    OR (b.borrows_contract_symbol IS NULL and C.underlying_symbol is not null)
   {% endif %}
 )
 SELECT

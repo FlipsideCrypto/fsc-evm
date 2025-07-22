@@ -131,7 +131,7 @@ contract_detail_heal AS (
     FROM
         {{ this }} l
         LEFT JOIN contracts c1
-        ON c1.contract_address = l.underlying_asset
+        ON c1.contract_address = l.underlying_asset_address
         LEFT JOIN contracts c2
         ON c2.contract_address = l.token_address
     WHERE
