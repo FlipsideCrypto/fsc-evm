@@ -155,6 +155,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0x7189c59e245135696bfd2906b56607755f84f3fd'
+                }
+            },
             'eywa': {
                 'v1': {
                     'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
@@ -213,9 +218,6 @@
         'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'polygon mainnet',
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x58c61aee5ed3d748a1467085ed2650b697a66234',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6ce9bf8cdab780416ad1fd87b318a077d2f50eac',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_BRIDGE_EVERCLEAR_CONTRACT': '0x7189c59e245135696bfd2906b56607755f84f3fd'
     } %}
     
     {{ return(vars) }}

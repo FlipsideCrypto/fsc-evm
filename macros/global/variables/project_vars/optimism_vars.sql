@@ -145,6 +145,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'eywa': {
                 'v1': {
                     'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
@@ -195,9 +200,6 @@
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x03d7f750777ec48d39d080b020d83eb2cb4e3547',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0xf1fcb4cbd57b67d683972a59b6a7b1e2e8bf27e6',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_BRIDGE_EVERCLEAR_CONTRACT': '0xa05a3380889115bf313f1db9d5f335157be4d816'
     } %}
     
     {{ return(vars) }}

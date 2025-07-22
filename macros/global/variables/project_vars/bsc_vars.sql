@@ -170,6 +170,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'eywa': {
                 'v2': {
                     'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
@@ -217,9 +222,6 @@
             }
         },
         'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'bnb smart chain mainnet'
-        'CURATED_BRIDGE_STARGATE_TOKEN_MESSAGING_CONTRACT': '0x6e3d884c96d640526f273c61dfcf08915ebd7e2b',
-        'CURATED_BRIDGE_LAYERZERO_ENDPOINT_V2_CONTRACT': '0x1a44076050125825900e736c501f859c50fe728c',
-        'CURATED_BRIDGE_EVERCLEAR_CONTRACT': '0xa05a3380889115bf313f1db9d5f335157be4d816'
     } %}
     
     {{ return(vars) }}
