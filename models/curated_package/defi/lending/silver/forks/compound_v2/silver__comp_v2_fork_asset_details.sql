@@ -124,8 +124,8 @@ contract_detail_heal AS (
         c2.token_name AS underlying_name,
         c2.token_symbol AS underlying_symbol,
         c2.token_decimals AS underlying_decimals,
-        o.protocol,
-        o.version,
+        l.protocol,
+        l.version,
         l.modified_timestamp,
         l._log_id
     FROM
