@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','liquidations']
 ) }}
 
 WITH atoken_meta AS (
@@ -97,24 +97,26 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    collateral_asset,
-    amc.atoken_address AS collateral_token,
-    liquidated_amount AS amount_unadj,
+    liquidator_address AS liquidator,
+    borrower_address AS borrower,
+    amc.atoken_address AS protocol_market,
+    collateral_asset AS collateral_token,
+    amc.underlying_symbol AS collateral_token_symbol,
+    liquidated_amount AS liquidated_amount_unadj,
     liquidated_amount / pow(
         10,
         amc.underlying_decimals
-    ) AS amount,
-    debt_asset,
-    amd.atoken_address AS debt_token,
-    liquidator_address AS liquidator,
-    borrower_address AS borrower,
+    ) AS liquidated_amount,
+    debt_asset AS debt_token,
+    amd.underlying_symbol AS debt_token_symbol,
+    debt_to_cover_amount AS repaid_amount_unadj,
+    debt_to_cover_amount / pow(
+        10,
+        amd.underlying_decimals
+    ) AS repaid_amount,
     amc.protocol || '-' || amc.version AS platform,
     amc.protocol,
     amc.version,
-    amc.underlying_symbol AS collateral_token_symbol,
-    amd.underlying_symbol AS debt_token_symbol,
-    amc.underlying_decimals AS collateral_token_decimals,
-    amd.underlying_decimals AS debt_token_decimals,
     l._log_id,
     l.modified_timestamp
 FROM
@@ -125,3 +127,4 @@ FROM
     ON l.debt_asset = amd.underlying_address qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
     l.modified_timestamp DESC)) = 1
+

@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','liquidations']
 ) }}
 
 WITH asset_details AS (
@@ -99,7 +99,7 @@ transfers AS (
     WHERE
         tx_hash IN (SELECT tx_hash FROM comp_v2_fork_liquidations)
 ),
-liquidation_union AS (
+transfers_join AS (
     SELECT
         l.block_number,
         l.block_timestamp,
@@ -113,11 +113,11 @@ liquidation_union AS (
         l.liquidator,
         l.tokenCollateral AS protocol_market,
         t1.contract_address AS collateral_token,
-        t1.symbol AS collateral_symbol,
+        t1.symbol AS collateral_token_symbol,
         t1.raw_amount AS liquidated_amount_unadj,
         t1.amount AS liquidated_amount,
         t2.contract_address AS debt_token,
-        t2.symbol AS debt_symbol,
+        t2.symbol AS debt_token_symbol,
         t2.raw_amount AS repaid_amount_unadj,
         t2.amount AS repaid_amount,
         protocol,
@@ -135,42 +135,53 @@ liquidation_union AS (
         ON l.tx_hash = t2.tx_hash
         AND t2.from_address = l.liquidator
         AND t2.contract_address = l.debt_token
-{# {% if is_incremental() %}
-    UNION ALL
-    SELECT
-        b.block_number,
-        b.block_timestamp,
-        b.tx_hash,
-        b.event_index,
-        b.origin_from_address,
-        b.origin_to_address,
-        b.origin_function_signature,
-        b.contract_address,
-        b.borrower,
-        b.protocol_market,
-        b.liquidator,
-        asd2.underlying_asset_address AS collateral_token,
-        asd2.underlying_symbol AS collateral_symbol,
-        b.amount_unadj AS amount_unadj,
-        b.amount_unadj * pow(10, asd1.underlying_decimals) AS amount,
-        asd1.underlying_decimals,
-        asd1.underlying_asset_address AS debt_asset,
-        asd1.underlying_symbol AS debt_asset_symbol,
-        asd1.protocol,
-        asd1.version,
-        asd1.protocol || '-' || asd1.version as platform,
-        b.modified_timestamp,
-        b._log_id
-    FROM
-        {{this}} b
-        LEFT JOIN asset_details asd1
-        ON l.protocol_market = asd1.token_address
-        LEFT JOIN asset_details asd2
-        ON l.tokenCollateral = asd2.token_address
-    WHERE
-        b.token_symbol IS NULL and C.underlying_symbol is not null
-{% endif %} #}
 )
+{% if is_incremental() %}
+,broken_records as (
+    SELECT
+        l.block_number,
+        l.block_timestamp,
+        l.tx_hash,
+        l.event_index,
+        l.origin_from_address,
+        l.origin_to_address,
+        l.origin_function_signature,
+        l.contract_address,
+        l.borrower,
+        l.liquidator,
+        l.protocol_market,
+        l.collateral_token,
+        coalesce(l.collateral_token_symbol, t1.symbol) AS collateral_token_symbol,
+        l.liquidated_amount_unadj,
+        coalesce(l.liquidated_amount, t1.amount) AS liquidated_amount,
+        l.debt_token,
+        coalesce(l.debt_token_symbol, t2.symbol) AS debt_token_symbol,
+        l.repaid_amount_unadj,
+        coalesce(l.repaid_amount, t2.amount) AS repaid_amount,
+        protocol,
+        version,
+        platform,
+        l.modified_timestamp,
+        l._log_id
+    FROM
+        {{this}} l
+        INNER JOIN transfers t1
+        ON l.tx_hash = t1.tx_hash
+        AND t1.to_address = l.liquidator
+        AND t1.contract_address = l.collateral_token
+        INNER JOIN transfers t2
+        ON l.tx_hash = t2.tx_hash
+        AND t2.from_address = l.liquidator
+        AND t2.contract_address = l.debt_token
+        WHERE (
+        (l.collateral_token_symbol IS NULL AND t1.symbol IS NOT NULL) 
+        OR (l.debt_token_symbol IS NULL AND t2.symbol IS NOT NULL)
+        OR (l.liquidated_amount IS NULL AND t1.amount IS NOT NULL)
+        OR (l.repaid_amount IS NULL AND t2.amount IS NOT NULL)
+    ) 
+)
+{% endif %}
+, liquidation_union AS (
 SELECT
     block_number,
     block_timestamp,
@@ -181,23 +192,55 @@ SELECT
     origin_function_signature,
     contract_address,
     borrower,
-    token AS token_address,
-    token_symbol,
     liquidator,
-    tokens_seized,
     protocol_market,
-    collateral_token_symbol,
     collateral_token,
-    collateral_symbol,
-    amount_unadj,
-    amount,
-    underlying_decimals,
-    debt_asset,
-    debt_asset_symbol,
+    collateral_token_symbol,
+    liquidated_amount_unadj,
+    liquidated_amount,
+    debt_token,
+    debt_token_symbol,
+    repaid_amount_unadj,
+    repaid_amount,
     protocol,
     version,
     platform,
     modified_timestamp,
     _log_id
+FROM
+    transfers_join
+{% if is_incremental() %}
+UNION ALL
+SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    borrower,
+    liquidator,
+    protocol_market,
+    collateral_token,
+    collateral_token_symbol,
+    liquidated_amount_unadj,
+    liquidated_amount,
+    debt_token,
+    debt_token_symbol,
+    repaid_amount_unadj,
+    repaid_amount,
+    protocol,
+    version,
+    platform,
+    modified_timestamp,
+    _log_id
+FROM
+    broken_records
+{% endif %}
+)
+SELECT
+    *
 FROM
     liquidation_union qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1

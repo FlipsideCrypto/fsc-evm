@@ -11,7 +11,7 @@
   unique_key = ['block_number','platform'],
   cluster_by = ['block_timestamp::DATE','platform'],
   post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, liquidator, borrower, collateral_token, collateral_token_symbol, debt_token, debt_token_symbol, protocol_market), SUBSTRING(origin_function_signature, event_name, liquidator, borrower, collateral_token, collateral_token_symbol, debt_token, debt_token_symbol, protocol_market)",
-  tags = ['silver','defi','lending','curated','heal']
+  tags = ['silver','defi','lending','curated','heal','liquidations','liquidations_complete']
 ) }}
 
 WITH contracts AS (
@@ -58,29 +58,30 @@ prices AS (
 aave_v3_fork AS (
 
     SELECT
-        tx_hash,
-        block_number,
-        block_timestamp,
-        event_index,
-        origin_from_address,
-        origin_to_address,
-        origin_function_signature,
-        contract_address,
-        liquidator,
-        borrower,
-        amount_unadj,
-        amount AS liquidated_amount,
-        NULL AS liquidated_amount_usd,
-        collateral_token AS protocol_collateral_asset,
-        collateral_asset,
-        collateral_token_symbol AS collateral_asset_symbol,
-        debt_asset,
-        debt_token_symbol AS debt_asset_symbol,
-        platform,
-        protocol,
-        version,
-        A._LOG_ID,
-        A.modified_timestamp
+      tx_hash,
+      block_number,
+      block_timestamp,
+      event_index,
+      origin_from_address,
+      origin_to_address,
+      origin_function_signature,
+      contract_address,
+      borrower,
+      liquidator,
+      protocol_market,
+      collateral_token,
+      collateral_token_symbol,
+      liquidated_amount_unadj,
+      liquidated_amount,
+      debt_token,
+      debt_token_symbol,
+      repaid_amount_unadj,
+      repaid_amount,
+      platform,
+      protocol,
+      version,
+      _log_id,
+      modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_liquidations') }} A
 
@@ -96,29 +97,30 @@ WHERE
 ),
 comp_v2_fork AS (
     SELECT
-        tx_hash,
-        block_number,
-        block_timestamp,
-        event_index,
-        origin_from_address,
-        origin_to_address,
-        origin_function_signature,
-        contract_address,
-        liquidator,
-        borrower,
-        amount_unadj,
-        amount AS liquidated_amount,
-        NULL AS liquidated_amount_usd,
-        protocol_market AS protocol_collateral_asset,
-        collateral_token AS collateral_asset,
-        collateral_token_symbol AS collateral_asset_symbol,
-        debt_asset,
-        debt_asset_symbol,
-        platform,
-        protocol,
-        version,
-        A._LOG_ID,
-        A.modified_timestamp
+      tx_hash,
+      block_number,
+      block_timestamp,
+      event_index,
+      origin_from_address,
+      origin_to_address,
+      origin_function_signature,
+      contract_address,
+      borrower,
+      liquidator,
+      protocol_market,
+      collateral_token,
+      collateral_token_symbol,
+      liquidated_amount_unadj,
+      liquidated_amount,
+      debt_token,
+      debt_token_symbol,
+      repaid_amount_unadj,
+      repaid_amount,
+      protocol,
+      version,
+      platform,
+      _log_id,
+      modified_timestamp
     FROM
         {{ ref('silver__comp_v2_fork_liquidations') }} A
 
@@ -134,12 +136,14 @@ WHERE
 ),
 liquidation_union AS (
   SELECT
-    *
+    *,
+    'aave_v3_fork' AS platform_type
   FROM
     aave_v3_fork
   UNION ALL
   SELECT
-    *
+    *,
+    'comp_v2_fork' AS platform_type
   FROM
     comp_v2_fork
 ),
@@ -155,43 +159,44 @@ complete_lending_liquidations AS (
     A.contract_address,
     CASE
       WHEN platform = 'compound_v3' THEN 'AbsorbCollateral'
-      WHEN platform = 'lodestar' THEN 'LiquidateBorrow'
+      WHEN platform = 'comp_v2_fork' THEN 'LiquidateBorrow'
       WHEN platform = 'silo' THEN 'Liquidate'
       ELSE 'LiquidationCall'
     END AS event_name,
     liquidator,
     borrower,
-    protocol_collateral_asset AS protocol_market,
-    collateral_asset AS collateral_token,
-    collateral_asset_symbol AS collateral_token_symbol,
-    amount_unadj,
-    liquidated_amount AS amount,
-    CASE
-      WHEN platform <> 'compound_v3' THEN ROUND(
-        liquidated_amount * p.price,
-        2
-      )
-      ELSE ROUND(
-        liquidated_amount_usd,
-        2
-      )
-    END AS amount_usd,
-    debt_asset AS debt_token,
-    debt_asset_symbol AS debt_token_symbol,
+    protocol_market,
+    collateral_token,
+    collateral_token_symbol,
+    liquidated_amount_unadj,
+    liquidated_amount,
+    ROUND(liquidated_amount * p1.price, 2) AS liquidated_amount_usd,
+    debt_token,
+    debt_token_symbol,
+    repaid_amount_unadj,
+    repaid_amount,
+    ROUND(repaid_amount * p2.price, 2) AS repaid_amount_usd,
     platform,
     protocol,
     version,
-            A._LOG_ID,
-        A.modified_timestamp
+    A._LOG_ID,
+    A.modified_timestamp
   FROM
     liquidation_union A
     LEFT JOIN prices
-    p
-    ON collateral_asset = p.token_address
+    p1
+    ON collateral_token = p1.token_address
     AND DATE_TRUNC(
       'hour',
       block_timestamp
-    ) = p.hour
+    ) = p1.hour
+    LEFT JOIN prices
+    p2
+    ON debt_token = p2.token_address
+    AND DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = p2.hour
 ),
 
 {% if is_incremental() and var(
@@ -213,20 +218,12 @@ heal_model AS (
     t0.protocol_market,
     t0.collateral_token,
     t0.collateral_token_symbol,
-    t0.amount_unadj,
-    t0.amount,
-    CASE
-      WHEN t0.platform <> 'compound_v3' THEN ROUND(
-        t0.amount * p.price,
-        2
-      )
-      ELSE ROUND(
-        t0.amount_usd,
-        2
-      )
-    END AS amount_usd_heal,
+    t0.liquidated_amount_unadj,
+    t0.liquidated_amount,
+    ROUND(t0.liquidated_amount * p1.price, 2) AS liquidated_amount_usd_heal,
     t0.debt_token,
     t0.debt_token_symbol,
+    ROUND(t0.repaid_amount * p2.price, 2) AS repaid_amount_usd_heal,
     t0.platform,
     t0.protocol,
     t0.version,
@@ -236,12 +233,19 @@ heal_model AS (
     {{ this }}
     t0
     LEFT JOIN prices
-    p
-    ON t0.collateral_token = p.token_address
+    p1
+    ON t0.collateral_token = p1.token_address
     AND DATE_TRUNC(
       'hour',
       block_timestamp
-    ) = p.hour
+    ) = p1.hour
+    LEFT JOIN prices
+    p2
+    ON t0.debt_token = p2.token_address
+    AND DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = p2.hour
   WHERE
     CONCAT(
       t0.block_number,
@@ -258,7 +262,7 @@ heal_model AS (
         {{ this }}
         t1
       WHERE
-        t1.amount_usd IS NULL
+        t1.liquidated_amount_usd IS NULL
         AND t1.modified_timestamp < (
           SELECT
             MAX(
@@ -271,13 +275,28 @@ heal_model AS (
           SELECT
             1
           FROM
-            {{ ref('silver__complete_token_prices') }}
-            p
+            {{ ref('price__ez_prices_hourly') }}
+            p1
           WHERE
-            p.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
-            AND p.price IS NOT NULL
-            AND p.token_address = t1.collateral_token
-            AND p.hour = DATE_TRUNC(
+            p1.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
+            AND p1.price IS NOT NULL
+            AND p1.token_address = t1.collateral_token
+            AND p1.hour = DATE_TRUNC(
+              'hour',
+              t1.block_timestamp
+            )
+        )
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            {{ ref('price__ez_prices_hourly') }}
+            p2
+          WHERE
+            p2.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
+            AND p2.price IS NOT NULL
+            AND p2.token_address = t1.debt_token
+            AND p2.hour = DATE_TRUNC(
               'hour',
               t1.block_timestamp
             )
@@ -304,11 +323,14 @@ FINAL AS (
     protocol_market,
     collateral_token,
     collateral_token_symbol,
-    amount_unadj,
-    amount,
-    amount_usd,
+    liquidated_amount_unadj,
+    liquidated_amount,
+    liquidated_amount_usd,
     debt_token,
     debt_token_symbol,
+    repaid_amount_unadj,
+    repaid_amount,
+    repaid_amount_usd,
     platform,
     protocol,
     version,
@@ -336,16 +358,19 @@ SELECT
   protocol_market,
   collateral_token,
   collateral_token_symbol,
-  amount_unadj,
-  amount,
-  amount_usd_heal AS amount_usd,
+  liquidated_amount_unadj,
+  liquidated_amount,
+  liquidated_amount_usd_heal AS liquidated_amount_usd,
   debt_token,
   debt_token_symbol,
+  repaid_amount_unadj,
+  repaid_amount,
+  repaid_amount_usd_heal AS repaid_amount_usd,
   platform,
   protocol,
   version,
   _LOG_ID,
-      modified_timestamp AS _inserted_timestamp
+  modified_timestamp AS _inserted_timestamp
 FROM
   heal_model
 {% endif %}
