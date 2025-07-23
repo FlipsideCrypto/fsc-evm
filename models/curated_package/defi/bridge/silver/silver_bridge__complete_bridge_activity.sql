@@ -444,7 +444,7 @@ everclear AS (
     FROM
         {{ ref('silver_bridge__everclear') }}
 
-{% if is_incremental() and 'everclear' not in var('HEAL_MODELS') %}
+{% if is_incremental() and 'everclear' not in vars.CURATED_FR_MODELS %}
 WHERE
     _inserted_timestamp >= (
         SELECT
