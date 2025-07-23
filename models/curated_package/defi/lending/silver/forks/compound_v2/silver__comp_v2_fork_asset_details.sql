@@ -76,6 +76,13 @@ traces_pull AS (
         LEFT(input, 10) AS function_sig,
         regexp_substr_all(SUBSTR(input, 11), '.{64}') AS segmented_input,
         CONCAT('0x', SUBSTR(segmented_input[0]::STRING, 25)) AS underlying_asset_address,
+        utils.udf_hex_to_string(
+        segmented_input[array_size(segmented_input) - 3]::STRING) AS token_name,
+        utils.udf_hex_to_string(
+        segmented_input[array_size(segmented_input) - 1]::STRING) AS token_symbol,
+        TRY_TO_NUMBER(
+        utils.udf_hex_to_int(
+        segmented_input[6]::STRING)) AS token_decimals,
         modified_timestamp
     FROM
         {{ ref('core__fact_traces') }}
@@ -97,9 +104,9 @@ underlying_details AS (
         l.block_timestamp,
         l.origin_from_address,
         l.contract_address,
-        l.token_name,
-        l.token_symbol,
-        l.token_decimals,
+        COALESCE(t.token_name, l.token_name) AS token_name,
+        COALESCE(t.token_symbol, l.token_symbol) AS token_symbol,
+        COALESCE(t.token_decimals, l.token_decimals) AS token_decimals,
         t.underlying_asset_address,
         l.modified_timestamp,
         l._log_id
@@ -171,7 +178,6 @@ final AS (
         LEFT JOIN origin_from_addresses o
         ON o.contract_address = l.origin_from_address
 )
-
 SELECT
     tx_hash,
     block_number,
