@@ -39,7 +39,7 @@ comp_v2_fork_repayments AS (
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS borrower,
-        contract_address AS token,
+        contract_address AS protocol_market,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS payer,
         utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER AS repayed_amount_raw,
         modified_timestamp,
@@ -47,7 +47,7 @@ comp_v2_fork_repayments AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        contract_address IN (SELECT token_address FROM asset_details)
+        contract_address IN (SELECT protocol_market FROM asset_details)
         AND topics [0] :: STRING = '0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1'
         AND tx_succeeded
 {% if is_incremental() %}
@@ -71,12 +71,12 @@ comp_v2_fork_combine AS (
         b.origin_function_signature,
         b.contract_address,
         b.borrower,
-        b.token,
+        b.protocol_market,
         C.token_symbol,
         b.payer,
         b.repayed_amount_raw,
-        C.underlying_asset_address AS repay_contract_address,
-        C.underlying_symbol AS repay_contract_symbol,
+        C.underlying_asset_address AS token_address,
+        C.underlying_symbol AS token_symbol,
         C.underlying_decimals,
         C.protocol,
         C.version,
@@ -86,7 +86,7 @@ comp_v2_fork_combine AS (
     FROM
         comp_v2_fork_repayments b
         LEFT JOIN asset_details C
-        ON b.token = C.token_address
+        ON b.protocol_market = C.token_address
 {% if is_incremental() %}
     UNION ALL
     SELECT
@@ -99,25 +99,24 @@ comp_v2_fork_combine AS (
         b.origin_function_signature,
         b.contract_address,
         b.borrower,
-        b.token_address,
+        b.protocol_market,
         C.token_symbol,
         b.payer,
         b.amount_unadj AS repayed_amount_raw,
-        C.underlying_asset_address AS repay_contract_address,
-        C.underlying_symbol AS repay_contract_symbol,
+        C.underlying_asset_address AS token_address,
+        C.underlying_symbol AS token_symbol,
         C.underlying_decimals,
         C.protocol,
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        sysdate() as modified_timestamp
+        b.modified_timestamp
     FROM
         {{this}} b
         LEFT JOIN asset_details C
-        ON b.token_address = C.token_address
+        ON b.protocol_market = C.token_address
     WHERE
-        (b.token_symbol IS NULL and C.token_symbol is not null)
-        OR (b.repay_contract_symbol IS NULL and C.underlying_symbol is not null)
+        b.token_symbol IS NULL and C.underlying_symbol is not null
 {% endif %}
 )
 SELECT
@@ -130,11 +129,10 @@ SELECT
     origin_function_signature,
     contract_address,
     borrower,
-    token AS token_address,
-    token_symbol,
     payer,
-    repay_contract_address,
-    repay_contract_symbol,
+    protocol_market,
+    token_address,
+    token_symbol,
     repayed_amount_raw AS amount_unadj,
     repayed_amount_raw / pow(10, underlying_decimals) AS amount,
     platform,

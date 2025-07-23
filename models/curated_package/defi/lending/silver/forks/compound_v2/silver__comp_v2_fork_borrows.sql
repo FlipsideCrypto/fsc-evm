@@ -49,9 +49,8 @@ comp_v2_fork_borrows AS (
     utils.udf_hex_to_int(
       segmented_data [3] :: STRING
     ) :: INTEGER AS totalBorrows,
-    contract_address AS token,
-    'Comp V2 Fork' AS platform,
-            modified_timestamp,
+    contract_address AS protocol_market,
+    modified_timestamp,
     CONCAT(
       tx_hash :: STRING,
       '-',
@@ -90,12 +89,11 @@ comp_v2_fork_combine AS (
     origin_function_signature,
     contract_address,
     borrower,
-    loan_amount_raw,
-    C.underlying_asset_address AS borrows_contract_address,
-    C.underlying_symbol AS borrows_contract_symbol,
-    token,
-    C.token_symbol,
+    protocol_market,
+    C.underlying_asset_address AS token_address,
+    C.underlying_symbol AS token_symbol,
     C.underlying_decimals,
+    loan_amount_raw,
     C.protocol,
     C.version,
     C.protocol || '-' || C.version as platform,
@@ -104,7 +102,7 @@ comp_v2_fork_combine AS (
   FROM
     comp_v2_fork_borrows b
     LEFT JOIN asset_details C
-    ON b.token = C.token_address
+    ON b.protocol_market = C.token_address
 {% if is_incremental() %}
   UNION ALL
   SELECT
@@ -117,24 +115,22 @@ comp_v2_fork_combine AS (
     origin_function_signature,
     contract_address,
     borrower,
-    amount_unadj,
-    C.underlying_asset_address AS borrows_contract_address,
-    C.underlying_symbol AS borrows_contract_symbol,
-    b.token_address,
-    C.token_symbol,
+    b.protocol_market,
+    C.underlying_asset_address AS token_address,
+    C.underlying_symbol AS token_symbol,
     C.underlying_decimals,
+    b.amount_unadj as loan_amount_raw,
     C.protocol,
     C.version,
     platform,
     b._log_id,
-    sysdate() as modified_timestamp
+    b.modified_timestamp
   FROM
     {{this}} b
     LEFT JOIN asset_details C
-    ON b.token_address = C.token_address
+    ON b.protocol_market = C.token_address
   WHERE
-    (b.token_symbol IS NULL and C.token_symbol is not null)
-    OR (b.borrows_contract_symbol IS NULL and C.underlying_symbol is not null)
+    b.token_symbol IS NULL and C.underlying_symbol is not null
   {% endif %}
 )
 SELECT
@@ -147,9 +143,8 @@ SELECT
   origin_function_signature,
   contract_address,
   borrower,
-  borrows_contract_address,
-  borrows_contract_symbol,
-  token AS token_address,
+  protocol_market,
+  token_address,
   token_symbol,
   loan_amount_raw AS amount_unadj,
   loan_amount_raw / pow(
@@ -159,7 +154,7 @@ SELECT
   platform,
   protocol,
   version,
-      modified_timestamp,
+  modified_timestamp,
   _log_id
 FROM
   comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id

@@ -79,9 +79,10 @@ aave_v3_fork AS (
         A.modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_borrows') }} A
+    WHERE
+        token_symbol IS NOT NULL
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
   modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -101,7 +102,7 @@ comp_v2_fork AS (
         origin_function_signature,
         contract_address,
         borrower,
-        token_address AS protocol_market,
+        protocol_market,
         token_address,
         token_symbol,
         amount_unadj,
@@ -113,15 +114,17 @@ comp_v2_fork AS (
         A.modified_timestamp
     FROM
         {{ ref('silver__comp_v2_fork_borrows') }} A
+    WHERE
+        token_symbol IS NOT NULL
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
   modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (token_symbol IS NOT NULL AND token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 borrow_union AS (

@@ -11,8 +11,7 @@
     cluster_by = ['block_timestamp::DATE'],
     tags = ['silver','defi','lending','curated']
 ) }}
--- pull all token addresses and corresponding name
--- add the collateral liquidated here
+
 WITH asset_details AS (
     SELECT
         token_address,
@@ -40,18 +39,28 @@ comp_v2_fork_liquidations AS (
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS borrower,
-        contract_address AS token,
+        contract_address AS protocol_market,
+        asd2.underlying_asset_address AS collateral_token,
+        asd2.underlying_symbol AS collateral_symbol,
+        asd1.underlying_asset_address AS debt_token,
+        asd1.underlying_symbol AS debt_symbol,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS liquidator,
         utils.udf_hex_to_int(segmented_data [4] :: STRING) :: INTEGER AS seizeTokens_raw,
         utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER AS repayAmount_raw,
         CONCAT('0x', SUBSTR(segmented_data [3] :: STRING, 25, 40)) AS tokenCollateral,
+        asd1.protocol,
+        asd1.version,
+        asd1.protocol || '-' || asd1.version as platform,
         modified_timestamp,
         CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
     FROM
         {{ ref('core__fact_event_logs') }}
+        LEFT JOIN asset_details asd1
+        ON contract_address = asd1.token_address
+        LEFT JOIN asset_details asd2
+        ON tokenCollateral = asd2.token_address
     WHERE
-        contract_address IN (SELECT token_address FROM asset_details)
-        AND topics [0] :: STRING = '0x298637f684da70674f26509b10f07ec2fbc77a335ab1e7d6215a4b2484d8bb52'
+        topics [0] :: STRING = '0x298637f684da70674f26509b10f07ec2fbc77a335ab1e7d6215a4b2484d8bb52'
         AND tx_succeeded
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -62,6 +71,33 @@ AND modified_timestamp >= (
 )
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
+),
+transfers AS (
+    SELECT
+        block_number, 
+        block_timestamp, 
+        tx_hash, 
+        tx_position, 
+        event_index, 
+        from_address, 
+        to_address, 
+        contract_address, 
+        name, 
+        symbol, 
+        decimals, 
+        raw_amount,
+        amount, 
+        amount_usd, 
+        origin_function_signature, 
+        origin_from_address, 
+        origin_to_address, 
+        ez_token_transfers_id, 
+        inserted_timestamp, 
+        modified_timestamp
+    FROM
+        {{ ref('core__ez_token_transfers') }}
+    WHERE
+        tx_hash IN (SELECT tx_hash FROM comp_v2_fork_liquidations)
 ),
 liquidation_union AS (
     SELECT
@@ -74,31 +110,32 @@ liquidation_union AS (
         l.origin_function_signature,
         l.contract_address,
         l.borrower,
-        l.token,
-        asd1.token_symbol AS token_symbol,
         l.liquidator,
-        l.seizeTokens_raw / pow(10, asd2.token_decimals) AS tokens_seized,
         l.tokenCollateral AS protocol_market,
-        asd2.token_symbol AS collateral_token_symbol,
-        asd2.underlying_asset_address AS collateral_token,
-        asd2.underlying_symbol AS collateral_symbol,
-        l.repayAmount_raw AS amount_unadj,
-        l.repayAmount_raw / pow(10, asd1.underlying_decimals) AS amount,
-        asd1.underlying_decimals,
-        asd1.underlying_asset_address AS debt_asset,
-        asd1.underlying_symbol AS debt_asset_symbol,
-        asd1.protocol,
-        asd1.version,
-        asd1.protocol || '-' || asd1.version as platform,
+        t1.contract_address AS collateral_token,
+        t1.symbol AS collateral_symbol,
+        t1.raw_amount AS liquidated_amount_unadj,
+        t1.amount AS liquidated_amount,
+        t2.contract_address AS debt_token,
+        t2.symbol AS debt_symbol,
+        t2.raw_amount AS repaid_amount_unadj,
+        t2.amount AS repaid_amount,
+        protocol,
+        version,
+        platform,
         l.modified_timestamp,
         l._log_id
     FROM
         comp_v2_fork_liquidations l
-        LEFT JOIN asset_details asd1
-        ON l.token = asd1.token_address
-        LEFT JOIN asset_details asd2
-        ON l.tokenCollateral = asd2.token_address
-{% if is_incremental() %}
+        LEFT JOIN transfers t1
+        ON l.tx_hash = t1.tx_hash
+        AND t1.to_address = l.liquidator
+        AND t1.contract_address = l.collateral_token
+        LEFT JOIN transfers t2
+        ON l.tx_hash = t2.tx_hash
+        AND t2.from_address = l.liquidator
+        AND t2.contract_address = l.debt_token
+{# {% if is_incremental() %}
     UNION ALL
     SELECT
         b.block_number,
@@ -110,32 +147,29 @@ liquidation_union AS (
         b.origin_function_signature,
         b.contract_address,
         b.borrower,
-        b.token_address,
-        C.token_symbol,
-        b.liquidator,
-        b.tokens_seized * pow(10, C.token_decimals) AS tokens_seized,
         b.protocol_market,
-        C.token_symbol AS collateral_token_symbol,
-        C.underlying_asset_address AS collateral_token,
-        C.underlying_symbol AS collateral_symbol,
+        b.liquidator,
+        asd2.underlying_asset_address AS collateral_token,
+        asd2.underlying_symbol AS collateral_symbol,
         b.amount_unadj AS amount_unadj,
-        b.amount * pow(10, C.underlying_decimals) AS amount,
-        C.underlying_decimals,
-        C.underlying_asset_address AS debt_asset,
-        C.underlying_symbol AS debt_asset_symbol,
-        C.protocol,
-        C.version,
-        C.protocol || '-' || C.version as platform,
+        b.amount_unadj * pow(10, asd1.underlying_decimals) AS amount,
+        asd1.underlying_decimals,
+        asd1.underlying_asset_address AS debt_asset,
+        asd1.underlying_symbol AS debt_asset_symbol,
+        asd1.protocol,
+        asd1.version,
+        asd1.protocol || '-' || asd1.version as platform,
         b.modified_timestamp,
         b._log_id
     FROM
         {{this}} b
-        LEFT JOIN asset_details C
-        ON b.token_address = C.token_address
+        LEFT JOIN asset_details asd1
+        ON l.protocol_market = asd1.token_address
+        LEFT JOIN asset_details asd2
+        ON l.tokenCollateral = asd2.token_address
     WHERE
-        (b.token_symbol IS NULL and C.token_symbol is not null)
-        OR (b.collateral_token_symbol IS NULL and C.underlying_symbol is not null)
-{% endif %}
+        b.token_symbol IS NULL and C.underlying_symbol is not null
+{% endif %} #}
 )
 SELECT
     block_number,

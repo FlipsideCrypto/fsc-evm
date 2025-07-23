@@ -37,7 +37,7 @@ comp_v2_fork_redemptions AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        contract_address AS token,
+        contract_address AS protocol_market,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER AS received_amount_raw,
         utils.udf_hex_to_int(segmented_data [3] :: STRING) :: INTEGER AS redeemed_token_raw,
@@ -47,7 +47,7 @@ comp_v2_fork_redemptions AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        contract_address IN (SELECT token_address FROM asset_details)
+        contract_address IN (SELECT protocol_market FROM asset_details)
         AND topics [0] :: STRING = '0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929'
         AND tx_succeeded
 {% if is_incremental() %}
@@ -70,12 +70,12 @@ comp_v2_fork_combine AS (
         b.origin_to_address,
         b.origin_function_signature,
         b.contract_address,
-        b.token,
+        b.protocol_market,
         b.redeemer,
         b.received_amount_raw,
         b.redeemed_token_raw,
-        C.underlying_asset_address AS received_contract_address,
-        C.underlying_symbol AS received_contract_symbol,
+        C.underlying_asset_address AS token_address,
+        C.underlying_symbol AS token_symbol,
         C.token_symbol,
         C.token_decimals,
         C.underlying_decimals,
@@ -87,7 +87,7 @@ comp_v2_fork_combine AS (
     FROM
         comp_v2_fork_redemptions b
         LEFT JOIN asset_details C
-        ON b.token = C.token_address
+        ON b.protocol_market = C.token_address
 {% if is_incremental() %}
     UNION ALL
     SELECT
@@ -99,12 +99,12 @@ comp_v2_fork_combine AS (
         b.origin_to_address,
         b.origin_function_signature,
         b.contract_address,
-        b.token_address,
+        b.protocol_market,
         b.redeemer,
         b.amount_unadj AS received_amount_raw,
         b.redeemed_token AS redeemed_token_raw,
-        C.underlying_asset_address AS received_contract_address,
-        C.underlying_symbol AS received_contract_symbol,
+        C.underlying_asset_address AS token_address,
+        C.underlying_symbol AS token_symbol,
         C.token_symbol,
         C.token_decimals,
         C.underlying_decimals,
@@ -112,14 +112,13 @@ comp_v2_fork_combine AS (
         C.version,
         C.protocol || '-' || C.version as platform,
         b._log_id,
-        sysdate() as modified_timestamp
+        b.modified_timestamp
     FROM
         {{this}} b
         LEFT JOIN asset_details C
-        ON b.token_address = C.token_address
+        ON b.protocol_market = C.token_address
     WHERE
-        (b.token_symbol IS NULL and C.token_symbol is not null)
-        OR (b.received_contract_symbol IS NULL and C.underlying_symbol is not null)
+        b.token_symbol IS NULL and C.underlying_symbol is not null
 {% endif %}
 )
 SELECT
@@ -131,14 +130,12 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    token AS token_address,
+    protocol_market,
+    redeemer,
+    token_address,
     token_symbol,
     received_amount_raw AS amount_unadj,
     received_amount_raw / pow(10, underlying_decimals) AS amount,
-    received_contract_address,
-    received_contract_symbol,
-    redeemed_token_raw / pow(10, token_decimals) AS redeemed_token,
-    redeemer,
     platform,
     protocol,
     version,
