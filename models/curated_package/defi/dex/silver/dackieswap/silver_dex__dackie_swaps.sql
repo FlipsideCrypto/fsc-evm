@@ -150,3 +150,5 @@ SELECT
     modified_timestamp
 FROM
     swaps
+WHERE amount_in_unadj IS NOT NULL 
+AND amount_out_unadj IS NOT NULL

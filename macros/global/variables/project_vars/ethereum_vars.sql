@@ -25,11 +25,7 @@
         'CUSTOM_GHA_NFT_LIST_CRON': '0 0,12 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','arbitrum one: l1 arb - custom gateway-v1_native',
-        'arbitrum one: l1 erc20 gateway-v1_native','avalanche: bridge-v1_native','axie_infinity-v2','base: base bridge-v1_native',
-        'gnosis chain: eth-xdai omni bridge-v1_native','hop-v1','multichain-v7','optimism: gateway-v1_native',
-        'polygon (matic): erc20 bridge-v1_native','polygon (matic): plasma bridge-v1_native','polygon (matic): zkevm bridge-v1_native',
-        'starknet: starkgate eth bridge-v1_native','zora: bridge-v1_native'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1_native','near_rainbow_bridge-v1_native','ronin_axie_bridge-v1_native'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
