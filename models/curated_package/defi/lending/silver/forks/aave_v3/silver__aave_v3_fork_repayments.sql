@@ -94,8 +94,9 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market,
-    t.atoken_address AS token,
+    market AS protocol_market,
+    t.underlying_address AS token_address,
+    t.underlying_symbol AS token_symbol,
     repayed_amount AS amount_unadj,
     repayed_amount / pow(
         10,
@@ -107,8 +108,6 @@ SELECT
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    t.underlying_symbol AS symbol,
-    t.underlying_decimals AS underlying_decimals,
     r._log_id,
     r.modified_timestamp
 FROM

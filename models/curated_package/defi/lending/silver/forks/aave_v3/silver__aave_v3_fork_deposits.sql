@@ -55,7 +55,7 @@ deposits AS(
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INTEGER AS deposit_quantity,
-        origin_from_address AS depositor_address,
+        origin_from_address AS depositor,
         COALESCE(
             origin_to_address,
             contract_address
@@ -97,20 +97,19 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market,
-    t.atoken_address AS token,
+    market AS protocol_market,
+    t.underlying_address AS token_address,
+    t.underlying_symbol AS token_symbol,
     deposit_quantity AS amount_unadj,
     deposit_quantity / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    depositor_address,
+    depositor,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    t.underlying_symbol AS symbol,
-    t.underlying_decimals AS underlying_decimals,
     d._log_id,
     d.modified_timestamp
 FROM

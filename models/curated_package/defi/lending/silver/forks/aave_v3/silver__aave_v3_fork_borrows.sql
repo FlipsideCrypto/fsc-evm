@@ -105,14 +105,15 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market,
-    t.atoken_address AS token,
+    borrower_address AS borrower,
+    market AS protocol_market,
+    t.underlying_address AS token_address,
+    t.underlying_symbol AS token_symbol,
     borrow_quantity AS amount_unadj,
     borrow_quantity / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    borrower_address,
     CASE
         WHEN borrow_rate_mode = 2 THEN 'Variable Rate'
         ELSE 'Stable Rate'
@@ -121,8 +122,6 @@ SELECT
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    t.underlying_symbol AS symbol,
-    t.underlying_decimals AS underlying_decimals,
     b._log_id,
     b.modified_timestamp
 FROM

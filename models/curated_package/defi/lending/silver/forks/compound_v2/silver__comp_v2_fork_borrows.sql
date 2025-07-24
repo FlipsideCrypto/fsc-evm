@@ -120,17 +120,18 @@ comp_v2_fork_combine AS (
     C.underlying_symbol AS token_symbol,
     C.underlying_decimals,
     b.amount_unadj as loan_amount_raw,
-    C.protocol,
-    C.version,
-    platform,
+    b.protocol,
+    b.version,
+    b.platform,
     b._log_id,
     b.modified_timestamp
   FROM
     {{this}} b
     LEFT JOIN asset_details C
     ON b.protocol_market = C.token_address
-  WHERE
-    b.token_symbol IS NULL and C.underlying_symbol is not null
+    WHERE
+        (b.token_symbol IS NULL and C.underlying_symbol is not null)
+        OR (b.amount IS NULL AND C.underlying_decimals IS NOT NULL)
   {% endif %}
 )
 SELECT

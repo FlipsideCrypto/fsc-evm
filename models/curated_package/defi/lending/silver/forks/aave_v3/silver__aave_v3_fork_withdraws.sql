@@ -93,20 +93,19 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market,
-    t.atoken_address AS token,
+    depositor,
+    market AS protocol_market,
+    t.underlying_address AS token_address,
+    t.underlying_symbol AS token_symbol,
     withdraw_amount AS amount_unadj,
     withdraw_amount / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    depositor AS depositor_address,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    t.underlying_symbol AS symbol,
-    t.underlying_decimals AS underlying_decimals,
     w._log_id,
     w.modified_timestamp
 FROM

@@ -127,4 +127,3 @@ FROM
     ON l.debt_asset = amd.underlying_address qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
     l.modified_timestamp DESC)) = 1
-

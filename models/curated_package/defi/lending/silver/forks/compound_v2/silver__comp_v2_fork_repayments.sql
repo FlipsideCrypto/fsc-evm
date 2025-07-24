@@ -47,7 +47,7 @@ comp_v2_fork_repayments AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        contract_address IN (SELECT protocol_market FROM asset_details)
+        contract_address IN (SELECT token_address FROM asset_details)
         AND topics [0] :: STRING = '0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1'
         AND tx_succeeded
 {% if is_incremental() %}
@@ -72,7 +72,6 @@ comp_v2_fork_combine AS (
         b.contract_address,
         b.borrower,
         b.protocol_market,
-        C.token_symbol,
         b.payer,
         b.repayed_amount_raw,
         C.underlying_asset_address AS token_address,
@@ -100,15 +99,14 @@ comp_v2_fork_combine AS (
         b.contract_address,
         b.borrower,
         b.protocol_market,
-        C.token_symbol,
         b.payer,
         b.amount_unadj AS repayed_amount_raw,
         C.underlying_asset_address AS token_address,
         C.underlying_symbol AS token_symbol,
         C.underlying_decimals,
-        C.protocol,
-        C.version,
-        C.protocol || '-' || C.version as platform,
+        b.protocol,
+        b.version,
+        b.platform,
         b._log_id,
         b.modified_timestamp
     FROM
@@ -116,7 +114,8 @@ comp_v2_fork_combine AS (
         LEFT JOIN asset_details C
         ON b.protocol_market = C.token_address
     WHERE
-        b.token_symbol IS NULL and C.underlying_symbol is not null
+        (b.token_symbol IS NULL and C.underlying_symbol is not null)
+        OR (b.amount IS NULL AND C.underlying_decimals IS NOT NULL)
 {% endif %}
 )
 SELECT

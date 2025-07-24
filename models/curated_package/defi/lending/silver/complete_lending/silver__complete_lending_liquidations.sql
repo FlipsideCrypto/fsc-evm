@@ -84,15 +84,19 @@ aave_v3_fork AS (
       modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_liquidations') }} A
+    WHERE
+        collateral_token_symbol IS NOT NULL
+        AND debt_token_symbol IS NOT NULL
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (A.collateral_token_symbol IS NOT NULL AND A.collateral_token NOT IN (SELECT collateral_token FROM {{this}}))
+  OR (A.debt_token_symbol IS NOT NULL AND A.debt_token NOT IN (SELECT debt_token FROM {{this}}))
 {% endif %}
 ),
 comp_v2_fork AS (
@@ -123,15 +127,19 @@ comp_v2_fork AS (
       modified_timestamp
     FROM
         {{ ref('silver__comp_v2_fork_liquidations') }} A
+    WHERE
+        collateral_token_symbol IS NOT NULL
+        AND debt_token_symbol IS NOT NULL
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (A.collateral_token_symbol IS NOT NULL AND A.collateral_token NOT IN (SELECT collateral_token FROM {{this}}))
+  OR (A.debt_token_symbol IS NOT NULL AND A.debt_token NOT IN (SELECT debt_token FROM {{this}}))
 {% endif %}
 ),
 liquidation_union AS (

@@ -47,7 +47,7 @@ comp_v2_fork_deposits AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        contract_address IN (SELECT protocol_market FROM asset_details)
+        contract_address IN (SELECT token_address FROM asset_details)
         AND topics [0] :: STRING = '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f'
         AND tx_succeeded
 {% if is_incremental() %}
@@ -71,13 +71,10 @@ comp_v2_fork_combine AS (
         b.origin_function_signature,
         b.contract_address,
         b.supplier,
-        b.minttokens_raw,
         b.mintAmount_raw,
         b.protocol_market,
         C.underlying_asset_address AS token_address,
         C.underlying_symbol AS token_symbol,
-        C.token_symbol,
-        C.token_decimals,
         C.underlying_decimals,
         C.protocol,
         C.version,
@@ -100,15 +97,14 @@ comp_v2_fork_combine AS (
         b.origin_function_signature,
         b.contract_address,
         b.supplier,
-        b.issued_tokens AS minttokens_raw,
         b.amount_unadj AS mintAmount_raw,
         b.protocol_market,
         C.underlying_asset_address AS token_address,
         C.underlying_symbol AS token_symbol,
         C.underlying_decimals,
-        C.protocol,
-        C.version,
-        C.protocol || '-' || C.version as platform,
+        b.protocol,
+        b.version,
+        b.platform,
         b._log_id,
         b.modified_timestamp
     FROM
@@ -116,8 +112,8 @@ comp_v2_fork_combine AS (
         LEFT JOIN asset_details C
         ON b.protocol_market = C.token_address
     WHERE
-        (b.protocol_market IS NULL and C.token_symbol is not null)
-        OR (b.token_symbol IS NULL and C.underlying_symbol is not null)
+        (b.token_symbol IS NULL and C.underlying_symbol is not null)
+        OR (b.amount IS NULL AND C.underlying_decimals IS NOT NULL)
 {% endif %}
 )
 SELECT

@@ -10,8 +10,8 @@
   incremental_strategy = 'delete+insert',
   unique_key = ['block_number','platform'],
   cluster_by = ['block_timestamp::DATE','platform'],
-  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, flashloan_token, flashloan_token_symbol, protocol_market), SUBSTRING(origin_function_signature, event_name, flashloan_token, flashloan_token_symbol, protocol_market)",
-  tags = ['silver','defi','lending','curated','heal']
+  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, token_address, token_symbol, protocol_market), SUBSTRING(origin_function_signature, event_name, token_address, token_symbol, protocol_market)",
+  tags = ['silver','defi','lending','curated','heal','flashloans','lending_complete']
 ) }}
 
 WITH contracts AS (
@@ -66,31 +66,33 @@ aave_v3_fork AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        market AS protocol_token,
-        token AS token_address,
+        protocol_market,
+        initiator,
+        target,
+        token_address,
+        token_symbol,
         flashloan_amount_unadj,
         flashloan_amount,
         premium_amount_unadj,
         premium_amount,
-        initiator_address,
-        target_address,
         platform,
-        symbol,
         protocol,
         version,
         A._LOG_ID,
         A.modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_flashloans') }} A
+    WHERE
+        token_symbol IS NOT NULL
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (A.token_symbol IS NOT NULL AND A.token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 flashloans AS (
@@ -110,11 +112,11 @@ complete_lending_flashloans AS (
     origin_function_signature,
     f.contract_address,
     'FlashLoan' AS event_name,
-    protocol_token AS protocol_market,
-    initiator_address AS initiator,
-    target_address AS target,
-    f.token_address AS flashloan_token,
-    f.symbol AS flashloan_token_symbol,
+    protocol_market,
+    initiator,
+    target,
+    f.token_address,
+    f.token_symbol,
     flashloan_amount_unadj,
     flashloan_amount,
     ROUND(
@@ -130,8 +132,8 @@ complete_lending_flashloans AS (
     platform,
     protocol,
     version,
-            f._LOG_ID,
-        f.modified_timestamp
+    f._LOG_ID,
+    f.modified_timestamp
   FROM
     flashloans f
     LEFT JOIN prices
@@ -160,8 +162,8 @@ heal_model AS (
     protocol_market,
     initiator,
     target,
-    flashloan_token,
-    flashloan_token_symbol,
+    token_address,
+    token_symbol,
     flashloan_amount_unadj,
     flashloan_amount,
     ROUND(
@@ -184,7 +186,7 @@ heal_model AS (
     t0
     LEFT JOIN prices
     p
-    ON t0.flashloan_token = p.token_address
+    ON t0.token_address = p.token_address
     AND DATE_TRUNC(
       'hour',
       block_timestamp
@@ -223,7 +225,7 @@ heal_model AS (
           WHERE
             p.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
             AND p.price IS NOT NULL
-            AND p.token_address = t1.flashloan_token
+            AND p.token_address = t1.token_address
             AND p.hour = DATE_TRUNC(
               'hour',
               t1.block_timestamp
@@ -265,7 +267,7 @@ heal_model AS (
           WHERE
             p.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
             AND p.price IS NOT NULL
-            AND p.token_address = t2.flashloan_token
+            AND p.token_address = t2.token_address
             AND p.hour = DATE_TRUNC(
               'hour',
               t2.block_timestamp
@@ -291,8 +293,8 @@ FINAL AS (
     protocol_market,
     initiator,
     target,
-    flashloan_token,
-    flashloan_token_symbol,
+    token_address,
+    token_symbol,
     flashloan_amount_unadj,
     flashloan_amount,
     flashloan_amount_usd,
@@ -324,8 +326,8 @@ SELECT
   protocol_market,
   initiator,
   target,
-  flashloan_token,
-  flashloan_token_symbol,
+  token_address,
+  token_symbol,
   flashloan_amount_unadj,
   flashloan_amount,
   flashloan_amount_usd_heal AS flashloan_amount_usd,
@@ -336,7 +338,7 @@ SELECT
   protocol,
   version,
   _LOG_ID,
-      modified_timestamp AS _inserted_timestamp
+  modified_timestamp AS _inserted_timestamp
 FROM
   heal_model
 {% endif %}

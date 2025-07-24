@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','flashloans']
 ) }}
 
 WITH token_meta AS (
@@ -102,8 +102,12 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market,
-    t.atoken_address AS token,
+    market AS protocol_market,
+    initiator_address AS initiator,
+    target_address AS target,
+    t.underlying_address AS token_address,
+    t.underlying_symbol AS token_symbol,
+    t.underlying_decimals AS token_decimals,
     flashloan_quantity AS flashloan_amount_unadj,
     flashloan_quantity / pow(
         10,
@@ -114,14 +118,9 @@ SELECT
         10,
         t.underlying_decimals
     ) AS premium_amount,
-    initiator_address AS initiator_address,
-    target_address AS target_address,
-    lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    t.underlying_symbol AS symbol,
-    t.underlying_decimals AS underlying_decimals,
     f._log_id,
     f.modified_timestamp
 FROM

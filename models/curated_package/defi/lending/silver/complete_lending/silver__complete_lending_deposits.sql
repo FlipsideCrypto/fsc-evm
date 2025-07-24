@@ -66,10 +66,10 @@ aave_v3_fork AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        depositor_address,
-        market AS protocol_market,
-        token AS token_address,
-        symbol AS token_symbol,
+        depositor,
+        protocol_market,
+        token_address,
+        token_symbol,
         amount_unadj,
         amount,
         platform,
@@ -79,15 +79,17 @@ aave_v3_fork AS (
         A.modified_timestamp
     FROM
         {{ ref('silver__aave_v3_fork_deposits') }} A
+    WHERE
+        token_symbol IS NOT NULL
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (A.token_symbol IS NOT NULL AND A.token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 comp_v2_fork AS (
@@ -100,8 +102,8 @@ comp_v2_fork AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        supplier AS depositor_address,
-        token_address AS protocol_market,
+        supplier AS depositor,
+        protocol_market,
         token_address,
         token_symbol,
         amount_unadj,
@@ -113,25 +115,29 @@ comp_v2_fork AS (
         A.modified_timestamp
     FROM
         {{ ref('silver__comp_v2_fork_deposits') }} A
+    WHERE
+        token_symbol IS NOT NULL
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
-WHERE
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (A.token_symbol IS NOT NULL AND A.token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 deposits AS (
   SELECT
-    *
+    *,
+    'aave_v3_fork' AS platform_type
   FROM
     aave_v3_fork
   UNION ALL
   SELECT
-    *
+    *,
+    'comp_v2_fork' AS platform_type
   FROM
     comp_v2_fork
 ),
@@ -146,13 +152,13 @@ complete_lending_deposits AS (
     origin_function_signature,
     A.contract_address,
     CASE
-      WHEN platform = 'lodestar' THEN 'Mint'
+      WHEN platform_type = 'comp_v2_fork' THEN 'Mint'
       WHEN platform = 'compound_v3' THEN 'SupplyCollateral'
-      WHEN platform = 'aave_v3' THEN 'Supply'
+      WHEN platform_type = 'aave_v3_fork' THEN 'Supply'
       ELSE 'Deposit'
     END AS event_name,
     protocol_market,
-    depositor_address AS depositor,
+    depositor,
     A.token_address,
     A.token_symbol,
     amount_unadj,

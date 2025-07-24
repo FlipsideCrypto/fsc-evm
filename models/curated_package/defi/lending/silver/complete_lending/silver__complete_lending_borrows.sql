@@ -66,10 +66,10 @@ aave_v3_fork AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        borrower_address AS borrower,
-        market AS protocol_market,
-        token AS token_address,
-        symbol AS token_symbol,
+        borrower,
+        protocol_market,
+        token_address,
+        token_symbol,
         amount_unadj,
         amount,
         platform,
@@ -83,12 +83,13 @@ aave_v3_fork AS (
         token_symbol IS NOT NULL
 
 {% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
+  OR (A.token_symbol IS NOT NULL AND A.token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 comp_v2_fork AS (
@@ -118,23 +119,25 @@ comp_v2_fork AS (
         token_symbol IS NOT NULL
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
-  modified_timestamp >= (
+  AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
       {{ this }}
   )
-  OR (token_symbol IS NOT NULL AND token_address NOT IN (SELECT token_address FROM {{this}}))
+  OR (A.token_symbol IS NOT NULL AND A.token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 borrow_union AS (
     SELECT
-        *
+        *,
+        'aave_v3_fork' AS platform_type
     FROM
         aave_v3_fork
     UNION ALL
     SELECT
-        *
+        *,
+        'comp_v2_fork' AS platform_type
     FROM
         comp_v2_fork
 ),
@@ -149,7 +152,7 @@ complete_lending_borrows AS (
         origin_function_signature,
         b.contract_address,
         CASE
-            WHEN platform = 'compound_v3' THEN 'Withdraw'
+            WHEN platform_type = 'compound_v3' THEN 'Withdraw'
             ELSE 'Borrow'
         END AS event_name,
         borrower,
