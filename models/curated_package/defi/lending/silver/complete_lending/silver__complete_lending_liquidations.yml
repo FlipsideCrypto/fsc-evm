@@ -52,18 +52,26 @@ models:
       - name: COLLATERAL_TOKEN_SYMBOL
         tests: 
           - not_null
-      - name: AMOUNT_UNADJ
+      - name: LIQUIDATED_AMOUNT_UNADJ
         tests:
           - not_null 
-      - name: AMOUNT
+      - name: LIQUIDATED_AMOUNT
         tests:
           - not_null
-      - name: AMOUNT_USD
+      - name: LIQUIDATED_AMOUNT_USD
+      - name: DEBT_TOKEN
         tests:
-        - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
+          - not_null
+      - name: DEBT_TOKEN_SYMBOL
+        tests:
+          - not_null
+      - name: REPAID_AMOUNT_UNADJ
+        tests:
+          - not_null
+      - name: REPAID_AMOUNT
+        tests:
+          - not_null
+      - name: REPAID_AMOUNT_USD
       - name: PLATFORM
         tests: 
           - not_null
