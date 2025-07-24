@@ -25,7 +25,8 @@
         'CUSTOM_GHA_NFT_LIST_CRON': '0 0,12 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1_native','near_rainbow_bridge-v1_native','ronin_axie_bridge-v1_native'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1_native','near_rainbow_bridge-v1_native',
+        'ronin_axie_bridge-v1_native','multichain-v7','hop-v1','axie_infinity-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
