@@ -168,6 +168,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x1a44076050125825900e736c501f859c50fe728c'

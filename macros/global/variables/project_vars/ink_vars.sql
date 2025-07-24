@@ -22,6 +22,11 @@
                     'funds_deposited': '0xef684c38f94f48775959ecf2012d7e864ffb9dd4'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0xca29f3a6f966cb2fc0de625f8f325c0c46dbe958'
