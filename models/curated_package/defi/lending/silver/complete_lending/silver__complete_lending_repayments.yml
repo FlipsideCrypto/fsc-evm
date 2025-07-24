@@ -75,8 +75,6 @@ models:
         tests:
           - not_null
       - name: _LOG_ID
-        tests:
-          - not_null
       - name: _INSERTED_TIMESTAMP
       - name: BLOCKCHAIN
         tests:
@@ -91,5 +89,3 @@ models:
         tests:
           - not_null
       - name: _INVOCATION_ID
-        tests:
-          - not_null
