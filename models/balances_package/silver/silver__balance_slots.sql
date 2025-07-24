@@ -9,6 +9,7 @@
     unique_key = ['contract_address'],
     incremental_strategy = 'delete+insert',
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
+    post_hook = '{{ unverify_balances() }}',
     tags = ['silver','balances','phase_4']
 ) }}
 
