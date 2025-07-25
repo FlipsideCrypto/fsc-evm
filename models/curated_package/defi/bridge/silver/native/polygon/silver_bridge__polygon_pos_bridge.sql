@@ -36,11 +36,11 @@ SELECT
     'native' AS TYPE,
     fact_traces_id AS _id,
     inserted_timestamp,
-    modified_timestamp
+    t.modified_timestamp
 FROM
-    {{ ref('core__fact_traces') }}
-    INNER JOIN {{ ref('silver_bridge__polygon_pos_contracts') }}
-    ON address = to_address
+    {{ ref('core__fact_traces') }} t 
+    INNER JOIN {{ ref('silver_bridge__polygon_pos_contracts') }} c 
+    ON c.address = t.to_address
 WHERE
     LEFT(
         input,
