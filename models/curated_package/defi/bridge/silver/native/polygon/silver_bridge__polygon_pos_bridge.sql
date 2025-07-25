@@ -7,7 +7,8 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = "address",
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
