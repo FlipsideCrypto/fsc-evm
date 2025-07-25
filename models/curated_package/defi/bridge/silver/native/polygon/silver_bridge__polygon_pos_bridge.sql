@@ -46,7 +46,7 @@ WHERE
         input,
         10
     ) = '0x2e1a7d4d' -- withdraw
-    AND block_timestamp :: DATE >= '2020-05-30'
+    AND block_timestamp :: DATE >= '2025-01-01' --'2020-05-30'
     AND TYPE = 'CALL'
     AND '{{ vars.GLOBAL_PROJECT_NAME }}' = 'polygon'
 
