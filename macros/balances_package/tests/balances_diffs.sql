@@ -32,10 +32,11 @@ WITH source AS (
         {{ model }}
 )
 SELECT
-    block_number,
+    s.block_number,
     prev_block_number,
-    tx_position,
-    address,
+    t.block_number AS missing_block_number,
+    s.tx_position,
+    s.address,
     pre_balance_raw,
     pre_balance_precise,
     prev_post_balance_precise,
