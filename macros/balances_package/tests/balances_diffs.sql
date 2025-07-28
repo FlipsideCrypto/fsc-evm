@@ -1,5 +1,6 @@
 {% test balances_diffs_native(
-    model
+    model,
+    test_model
 ) %}
 
 {# Get variables #}
@@ -40,10 +41,19 @@ SELECT
     prev_post_balance_precise,
     pre_balance_precise - prev_post_balance_precise AS diff
 FROM
-    source
+    source s
+    LEFT JOIN {{ ref(test_model) }} t 
+    ON t.block_number > s.prev_block_number AND t.block_number < s.block_number
+    AND (
+        from_address = s.address
+        OR to_address = s.address
+        OR origin_from_address = s.address
+        OR origin_to_address = s.address
+    )
 WHERE
     diff <> 0
     AND diff IS NOT NULL 
+    AND t.block_number IS NOT NULL
     {% if vars.BALANCES_EXCLUSION_LIST_ENABLED %}
         AND address NOT IN (
             SELECT
