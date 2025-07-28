@@ -206,6 +206,9 @@ balances AS (
             tx.block_timestamp
         ) = p1.HOUR
         AND p1.is_native
+    WHERE 
+        pre_balance_hex <> CONCAT('0x', LPAD(SUBSTR(k.address, 3), 64, '0'))
+        AND post_balance_hex <> CONCAT('0x', LPAD(SUBSTR(k.address, 3), 64, '0'))
 )
 
 {% if is_incremental() %},
@@ -272,7 +275,6 @@ missing_data AS (
             p.price IS NOT NULL 
             OR (contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}' AND p1.price IS NOT NULL)
         )
-        
 )
 {% endif %},
 FINAL AS (
