@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -38,9 +36,10 @@ SELECT
     inserted_timestamp,
     t.modified_timestamp
 FROM
-    {{ ref('core__fact_traces') }} t 
-    INNER JOIN {{ ref('silver_bridge__polygon_pos_contracts') }} c 
-    ON c.address = t.to_address
+    {{ ref('core__fact_traces') }}
+    t
+    INNER JOIN {{ ref('silver_bridge__polygon_pos_contracts') }} C
+    ON C.address = t.to_address
 WHERE
     LEFT(
         input,
@@ -49,6 +48,8 @@ WHERE
     AND block_timestamp :: DATE >= '2025-01-01' --'2020-05-30'
     AND TYPE = 'CALL'
     AND '{{ vars.GLOBAL_PROJECT_NAME }}' = 'polygon'
+    AND trace_succeeded
+    AND tx_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
