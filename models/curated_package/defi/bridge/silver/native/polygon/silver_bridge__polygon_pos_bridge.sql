@@ -54,11 +54,11 @@ WHERE
     AND tx_succeeded
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND t.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+AND t.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
