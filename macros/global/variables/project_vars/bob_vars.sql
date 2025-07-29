@@ -18,6 +18,13 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '20 5 * * *',
         'DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE': 50,
         'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50,
+        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
+            'uniswap': {
+                'v3': {
+                    'uni_v3_pool_created': '0xcb2436774c3e191c85056d248ef4260ce5f27a9d'
+                }
+            }
+        },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'dln_debridge': {
                 'v1': {
