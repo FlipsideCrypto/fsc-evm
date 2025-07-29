@@ -1550,6 +1550,13 @@ heal_model AS (
                     GROUP BY
                         1
                 )
+                OR t0.token_address IN (
+                    SELECT
+                        token_address
+                    FROM
+                        {{ ref('price__ez_asset_metadata') }}
+                    WHERE ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+                )
         ),
     {% endif %}
 
