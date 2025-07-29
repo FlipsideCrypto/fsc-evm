@@ -23,6 +23,11 @@
                 'v3': {
                     'uni_v3_pool_created': '0xcb2436774c3e191c85056d248ef4260ce5f27a9d'
                 }
+            },
+            'velodrome': {
+                'v2': {
+                    'factory': '0x31832f2a97fd20664d76cc421207669b55ce4bc0'
+                }
             }
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
