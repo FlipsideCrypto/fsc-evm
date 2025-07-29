@@ -1550,12 +1550,26 @@ heal_model AS (
                     GROUP BY
                         1
                 )
-                OR t0.token_address IN (
-                    SELECT
-                        token_address
-                    FROM
-                        {{ ref('price__ez_asset_metadata') }}
-                    WHERE ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+                OR concat(
+                  t0.block_number,
+                  '-',
+                  t0.platform,
+                  '-',
+                  t0.version
+                ) IN (  
+                    select concat(
+                      t3.block_number,
+                      '-',
+                      t3.platform,
+                      '-',
+                      t3.version
+                    )
+                    from {{ this }} t3
+                    where t3.token_address in (
+                      select token_address
+                      from {{ ref('price__ez_asset_metadata') }}
+                      where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+                    )
                 )
         ),
     {% endif %}
