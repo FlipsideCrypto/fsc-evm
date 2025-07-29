@@ -17,7 +17,36 @@
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '21,51 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '20 5 * * *',
         'DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE': 50,
-        'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50
+        'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50,
+        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
+            'uniswap': {
+                'v3': {
+                    'uni_v3_pool_created': '0xcb2436774c3e191c85056d248ef4260ce5f27a9d'
+                }
+            },
+            'velodrome': {
+                'v2': {
+                    'factory': '0x31832f2a97fd20664d76cc421207669b55ce4bc0'
+                }
+            }
+        },
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'dln_debridge': {
+                'v1': {
+                    'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
+                }
+            },
+            'layerzero': {
+                'v2': {
+                    'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
+            'meson': {
+                'v1': {
+                    'bridge': '0x25ab3efd52e6470681ce037cd546dc60726948d3'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}
