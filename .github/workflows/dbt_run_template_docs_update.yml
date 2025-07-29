@@ -46,7 +46,7 @@ jobs:
       
       - name: deploy seed files
         run: |
-          dbt seed --t prod
+          dbt seed -t prod
 
       - name: checkout docs branch
         run: |
