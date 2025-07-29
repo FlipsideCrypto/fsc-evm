@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -9,6 +10,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = ['block_number','platform','version'],
     cluster_by = ['block_timestamp::DATE','platform'],
+    incremental_predicates = [fsc_evm.standard_predicate()],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, bridge_address, sender, receiver, destination_chain_receiver, destination_chain_id, destination_chain, token_address, token_symbol), SUBSTRING(origin_function_signature, bridge_address, sender, receiver, destination_chain_receiver, destination_chain, token_address, token_symbol)",
     tags = ['silver_bridge','defi','bridge','curated','heal','complete']
 ) }}
@@ -1549,6 +1551,27 @@ heal_model AS (
                         )
                     GROUP BY
                         1
+                )
+                OR concat(
+                  t0.block_number,
+                  '-',
+                  t0.platform,
+                  '-',
+                  t0.version
+                ) IN (  
+                    select concat(
+                      t3.block_number,
+                      '-',
+                      t3.platform,
+                      '-',
+                      t3.version
+                    )
+                    from {{ this }} t3
+                    where t3.token_address in (
+                      select token_address
+                      from {{ ref('price__ez_asset_metadata') }}
+                      where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+                    )
                 )
         ),
     {% endif %}
