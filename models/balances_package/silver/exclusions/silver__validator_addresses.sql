@@ -20,7 +20,7 @@ FROM
     {{ ref('core__fact_traces') }}
 WHERE
     origin_function_signature = '0xf340fa01'
-    AND origin_to_address = '{{ vars.BALANCES_VALIDATOR_CONTRACT_ADDRESS }}'
+    AND origin_to_address IN ('{{ vars.BALANCES_VALIDATOR_CONTRACT_ADDRESS | join("', '") }}')
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -35,3 +35,30 @@ AND modified_timestamp > (
                 {{ this }}
         )
     {% endif %}
+
+UNION
+
+SELECT
+    DISTINCT origin_to_address AS address,
+    {{ dbt_utils.generate_surrogate_key(['address']) }} AS validator_addresses_id,
+    SYSDATE() AS modified_timestamp,
+    SYSDATE() AS inserted_timestamp
+FROM
+    {{ ref('core__fact_traces') }}
+WHERE
+    origin_to_address IN ('{{ vars.BALANCES_VALIDATOR_CONTRACT_ADDRESS | join("', '") }}')
+
+{% if is_incremental() %}
+AND modified_timestamp > (
+    SELECT
+        COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP)
+    FROM
+        {{ this }})
+        AND address NOT IN (
+            SELECT
+                DISTINCT address
+            FROM
+                {{ this }}
+        )
+    {% endif %}
+
