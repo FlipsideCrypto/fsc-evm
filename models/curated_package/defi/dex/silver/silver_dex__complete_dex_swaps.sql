@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
