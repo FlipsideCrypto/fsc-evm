@@ -18,6 +18,23 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '20 5 * * *',
         'DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE': 50,
         'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'dln_debridge': {
+                'v1': {
+                    'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
+                }
+            },
+            'layerzero': {
+                'v2': {
+                    'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
+            'meson': {
+                'v1': {
+                    'bridge': '0x25ab3efd52e6470681ce037cd546dc60726948d3'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}
