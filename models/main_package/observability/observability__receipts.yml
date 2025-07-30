@@ -1,0 +1,12 @@
+models:
+  - name: observability__receipts
+    columns:
+      - name: test_timestamp
+        tests:
+          - not_null
+      - name: blocks_impacted_count
+        tests:
+          - accepted_values:
+              values: [0]
+              config:
+                where: "test_timestamp >= DATEADD('day',-5,SYSDATE())" 
