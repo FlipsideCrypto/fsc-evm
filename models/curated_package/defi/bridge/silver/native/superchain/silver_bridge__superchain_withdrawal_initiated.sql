@@ -89,8 +89,10 @@ SELECT
         l2_token
     ) AS token_address,
     amount_unadj,
-    concat('{{ vars.GLOBAL_PROJECT_NAME }}', 'l2_standard_bridge-v1') AS platform,
-    concat('{{ vars.GLOBAL_PROJECT_NAME }}', 'l2_standard_bridge') AS protocol,
+    'superchain_l2_standard_bridge-v1' AS platform,
+    'superchain_l2_standard_bridge' AS protocol,
+    --concat('{{ vars.GLOBAL_PROJECT_NAME }}', 'l2_standard_bridge-v1') AS platform,
+    --concat('{{ vars.GLOBAL_PROJECT_NAME }}', 'l2_standard_bridge') AS protocol,
     'v1' AS version,
     'native' AS TYPE,
     CONCAT(
