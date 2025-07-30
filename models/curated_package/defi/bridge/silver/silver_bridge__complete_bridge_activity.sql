@@ -1058,7 +1058,7 @@ superchain_l2_standard_bridge AS (
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('silver_bridge__superchain_withdrawal_initiated') }}
+        {{ ref('silver_bridge__superchain_l2_standard_bridge') }}
 
 {% if is_incremental() and 'superchain_l2_standard_bridge' not in vars.CURATED_FR_MODELS %}
 WHERE
