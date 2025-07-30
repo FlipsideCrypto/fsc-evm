@@ -89,8 +89,8 @@ SELECT
         l2_token
     ) AS token_address,
     amount_unadj,
-    concat(''{{ vars.GLOBAL_PROJECT_NAME }}'', '_native-v1') AS platform,
-    concat(''{{ vars.GLOBAL_PROJECT_NAME }}'', '_native') AS protocol,
+    concat('{{ vars.GLOBAL_PROJECT_NAME }}', 'l2_standard_bridge-v1') AS platform,
+    concat('{{ vars.GLOBAL_PROJECT_NAME }}', 'l2_standard_bridge') AS protocol,
     'v1' AS version,
     'native' AS TYPE,
     CONCAT(
@@ -102,3 +102,4 @@ SELECT
     modified_timestamp
 FROM
     base
+-- base_l2_standard_bridge_v1-native ? 
