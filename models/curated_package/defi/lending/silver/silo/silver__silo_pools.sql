@@ -24,6 +24,8 @@ WITH silo_factory_addresses AS (
         tx_hash,
         contract_address,
         event_index,
+        data,
+        topics,
         modified_timestamp,
         CASE
             WHEN contract_address = (select contract_address from silo_factory_addresses where type = 'silo_factory') THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
