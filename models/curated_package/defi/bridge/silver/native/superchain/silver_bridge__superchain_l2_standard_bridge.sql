@@ -55,8 +55,8 @@ base AS (
         modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
-        inner join contract_mapping 
-        using (contract_address)
+        INNER JOIN contract_mapping 
+        USING (contract_address)
     WHERE
         topic_0 = '0x73d170910aba9e6d50b102db522b1dbcd796216f5128b445aa2135272886497e' -- withdrawal initiated
         AND block_timestamp :: DATE >= '2021-11-01'
@@ -92,9 +92,9 @@ SELECT
         l2_token
     ) AS token_address,
     amount_unadj,
-    CONCAT('{{ vars.GLOBAL_PROJECT_NAME }}', '_l2_standard_bridge-v1') AS platform,
     CONCAT('{{ vars.GLOBAL_PROJECT_NAME }}', '_l2_standard_bridge') AS protocol,
     'v1' AS version,
+    CONCAT(protocol, '-', version) AS platform,
     'native' AS TYPE,
     CONCAT(
         tx_hash,
