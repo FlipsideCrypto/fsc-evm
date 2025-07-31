@@ -51,6 +51,21 @@
                     'bridge': '0x25ab3efd52e6470681ce037cd546dc60726948d3'
                 }
             }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'segment_finance': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0xac5694794e95ab182c363ee37f604bfd4cc14bbd'
+                },
+            'shoebill_finance': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0xcff0e961d0dec9dadf8587f66f158738e1366264'
+                },
+            'layerbank': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'
+                }
+            }
         }
     } %}
     
