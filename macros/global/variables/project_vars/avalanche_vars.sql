@@ -177,6 +177,11 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0x9aa2ecad5c77dfcb4f34893993f313ec4a370460'
+                }
+            },
             'eywa': {
                 'v1': {
                     'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',

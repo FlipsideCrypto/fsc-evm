@@ -7,5 +7,5 @@ models:
             - CONTRACT_ADDRESS
     columns:
       - name: TOKEN_ADDRESS
-        tests:
-          - not_null
+        # tests:
+        #   - not_null

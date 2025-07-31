@@ -14,6 +14,7 @@ models:
           column_name: TX_POSITION
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
       - fsc_evm.balances_diffs_native:
+          test_model: test_gold__fact_traces_full
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
 
     columns:

@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -9,6 +10,7 @@
   incremental_strategy = 'delete+insert',
   unique_key = ['block_number','platform','version'],
   cluster_by = ['block_timestamp::DATE','platform'],
+  incremental_predicates = [fsc_evm.standard_predicate()],
   post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_function_signature, origin_from_address, origin_to_address, contract_address, pool_name, event_name, sender, tx_to, token_in, token_out, symbol_in, symbol_out), SUBSTRING(origin_function_signature, pool_name, event_name, sender, tx_to, token_in, token_out, symbol_in, symbol_out)",
   tags = ['silver_dex','defi','dex','curated','heal','complete','swap']
 ) }}
@@ -2073,6 +2075,49 @@ heal_model AS (
                 )
               GROUP BY
                 1
+            )
+            OR     
+            CONCAT(
+              t0.block_number,
+              '-',
+              t0.platform,
+              '-',
+              t0.version
+            ) IN (
+                select concat(
+                  t5.block_number,
+                  '-',
+                  t5.platform,
+                  '-',
+                  t5.version
+                )
+                from {{ this }} t5
+                where t5.token_in in (
+                  select token_address
+                  from {{ ref('price__ez_asset_metadata') }}
+                  where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+                )
+              )
+            OR concat(
+              t0.block_number,
+              '-',
+              t0.platform,
+              '-',
+              t0.version
+            ) IN (  
+              select concat(
+                t6.block_number,
+                '-',
+                t6.platform,
+                '-',
+                t6.version
+              )
+              from {{ this }} t6
+              where t6.token_out in (
+                select token_address
+                from {{ ref('price__ez_asset_metadata') }}
+                where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+              )
             )
         ),
       {% endif %}

@@ -221,11 +221,26 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             },
+            'everclear': {
+                'v1': {
+                    'bridge': '0xa05a3380889115bf313f1db9d5f335157be4d816'
+                }
+            },
             'eywa': {
                 'v2': {
                     'portal': ['0xece9cf6a8f2768a3b8b65060925b646afeaa5167',
                     '0xac8f44ceca92b2a4b30360e5bd3043850a0ffcbe',
                     '0xbf0b5d561b986809924f88099c4ff0e6bcce60c9']
+                }
+            },
+            'hyperliquid': {
+                'v1': {
+                    'bridge': '0xc67e9efdb8a66a4b91b1f3731c75f500130373a4',
+                    'token': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'
+                },
+                'v2': {
+                    'bridge': '0x2df1c51e09aecf9cacb7bc98cb1742757f163df7',
+                    'token': '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
                 }
             },
             'layerzero': {

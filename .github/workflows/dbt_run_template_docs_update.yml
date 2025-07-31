@@ -44,9 +44,9 @@ jobs:
           pip install -r requirements.txt
           dbt deps
       
-      - name: refresh ddl for datashare
+      - name: deploy seed files
         run: |
-          cnt=$(dbt ls -m fsc_utils.datashare._datashare___create_gold | wc -l ); if [ $cnt -eq 1 ]; then dbt run -m fsc_utils.datashare._datashare___create_gold; fi; 
+          dbt seed -t prod
 
       - name: checkout docs branch
         run: |

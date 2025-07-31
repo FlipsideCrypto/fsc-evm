@@ -12,6 +12,7 @@
 
     SELECT
         -1 AS block_number
+    WHERE 0=1
 {% else %}
     SELECT
         DISTINCT cb.block_number AS block_number

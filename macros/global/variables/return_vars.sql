@@ -25,6 +25,8 @@
   {% set ns.GLOBAL_GOLD_FR_ENABLED = none if get_var('GLOBAL_GOLD_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_STREAMLINE_FR_ENABLED = none if get_var('GLOBAL_STREAMLINE_FR_ENABLED', false) else false %} 
   {% set ns.GLOBAL_NEW_BUILD_ENABLED = get_var('GLOBAL_NEW_BUILD_ENABLED', false) %}
+
+  {% set ns.GLOBAL_CHANGE_TRACKING_ENABLED = get_var('GLOBAL_CHANGE_TRACKING_ENABLED', false) %}
   
   {# Main GHA Workflow Variables #}
   {% set ns.MAIN_GHA_STREAMLINE_CHAINHEAD_CRON = get_var('MAIN_GHA_STREAMLINE_CHAINHEAD_CRON', '0,30 * * * *') %}
