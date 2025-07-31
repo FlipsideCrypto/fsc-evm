@@ -26,7 +26,7 @@ WITH unwrap AS (
         contract_address AS bridge_address,
         contract_address AS token_address,
         'Unwrap' AS event_name,
-        'avalanche_native_bridge' AS protocol,
+        'avalanche_bridge' AS protocol,
         'v2' AS version,
         'native' AS type,
         CONCAT(

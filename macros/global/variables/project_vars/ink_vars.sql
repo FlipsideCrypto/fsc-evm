@@ -16,6 +16,7 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['superchain_l2_standard_bridge-v1'],
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
                 'v3': {
@@ -30,6 +31,11 @@
             'layerzero': {
                 'v2': {
                     'bridge': '0xca29f3a6f966cb2fc0de625f8f325c0c46dbe958'
+                }
+            },
+            'l2_standard_bridge': {
+                'v1': {
+                    'bridge': '0x4200000000000000000000000000000000000010'
                 }
             },
             'stargate': {

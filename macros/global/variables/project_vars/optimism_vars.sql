@@ -19,7 +19,7 @@
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '20,50 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '10 5 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','across-v1','multichain-v7','hop-v1','meson-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','across-v1','multichain-v7','hop-v1','meson-v1','symbiosis-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -160,6 +160,11 @@
             'layerzero': {
                 'v2': {
                     'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
+                }
+            },
+            'l2_standard_bridge': {
+                'v1': {
+                    'bridge': '0x4200000000000000000000000000000000000010'
                 }
             },
             'meson': {

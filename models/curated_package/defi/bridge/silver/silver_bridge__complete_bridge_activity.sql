@@ -571,6 +571,46 @@ WHERE
     )
 {% endif %}
 ),
+
+hyperliquid AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        type,
+        _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__hyperliquid') }}
+
+{% if is_incremental() and 'hyperliquid' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+
 layerzero_v2 AS (
     SELECT
         block_number,
@@ -1032,6 +1072,45 @@ WHERE
 {% endif %}
 ),
 
+superchain_l2_standard_bridge AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        type,
+        _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__superchain_l2_standard_bridge') }}
+
+{% if is_incremental() and 'superchain_l2_standard_bridge' not in vars.CURATED_FR_MODELS %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT 
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+
 axie_infinity_v2 AS (
     SELECT
         block_number,
@@ -1182,6 +1261,11 @@ all_protocols AS (
     SELECT
         *
     FROM
+        hyperliquid
+    UNION ALL
+    SELECT
+        *
+    FROM
         layerzero_v2
     UNION ALL
     SELECT
@@ -1238,6 +1322,11 @@ all_protocols AS (
         *
     FROM
         polygon_pos_bridge
+    UNION ALL
+    SELECT
+        *
+    FROM
+        superchain_l2_standard_bridge
     UNION ALL
     SELECT
         *
@@ -1344,7 +1433,13 @@ complete_bridge_activity AS (
                 'stargate-v2',
                 'gaszip_lz-v2',
                 'everclear-v1',
-                'polygon_pos_bridge-v1'
+                'polygon_pos_bridge-v1',
+                'bob_l2_standard_bridge-v1',
+                'ink_l2_standard_bridge-v1',
+                'base_l2_standard_bridge-v1',
+                'optimism_l2_standard_bridge-v1',
+                'hyperliquid-v1',
+                'hyperliquid-v2'
             ) THEN destination_chain_id :: STRING
             WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
             ELSE d.chain_id :: STRING
@@ -1360,7 +1455,13 @@ complete_bridge_activity AS (
                 'stargate-v2',
                 'gaszip_lz-v2',
                 'everclear-v1',
-                'polygon_pos_bridge-v1'
+                'polygon_pos_bridge-v1',
+                'bob_l2_standard_bridge-v1',
+                'ink_l2_standard_bridge-v1',
+                'base_l2_standard_bridge-v1',
+                'optimism_l2_standard_bridge-v1',
+                'hyperliquid-v1',
+                'hyperliquid-v2'
             ) THEN LOWER(destination_chain)
             WHEN d.chain IS NULL THEN LOWER(destination_chain)
             ELSE LOWER(
