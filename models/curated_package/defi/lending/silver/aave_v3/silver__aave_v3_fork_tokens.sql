@@ -142,15 +142,15 @@ SELECT
     b.token_variable_debt_address,
     A.atoken_decimals AS atoken_decimals,
     t.protocol || '-' || t.version AS atoken_version,
-            atoken_name AS atoken_name,
-        C.token_symbol AS underlying_symbol,
-        A.underlying_asset AS underlying_address,
-        C.token_decimals AS underlying_decimals,
-        C.token_name AS underlying_name,
-        t.protocol,
-        t.version,
-        A.modified_timestamp,
-        A._log_id
+    A.atoken_name AS atoken_name,
+    C.token_symbol AS underlying_symbol,
+    A.underlying_asset AS underlying_address,
+    C.token_decimals AS underlying_decimals,
+    C.token_name AS underlying_name,
+    t.protocol,
+    t.version,
+    A.modified_timestamp,
+    A._log_id
 FROM
     a_token_step_2 A
     LEFT JOIN debt_tokens b
