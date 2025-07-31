@@ -102,9 +102,9 @@ SELECT
     s.block_number,
     prev_block_number,
     t.block_number AS missing_block_number,
-    tx_position,
+    s.tx_position,
     address,
-    contract_address,
+    s.contract_address,
     pre_balance_raw,
     pre_balance_precise,
     prev_post_balance_precise,
@@ -114,8 +114,8 @@ FROM
     LEFT JOIN {{ ref(test_model) }} t 
     ON t.block_number > s.prev_block_number AND t.block_number < s.block_number
     AND (
-        from_address = s.address
-        OR to_address = s.address
+        CONCAT('0x', SUBSTR(topic_1, 27, 40)) :: STRING = s.address
+        OR CONCAT('0x', SUBSTR(topic_2, 27, 40)) :: STRING = s.address
     )
 WHERE
     diff <> 0
