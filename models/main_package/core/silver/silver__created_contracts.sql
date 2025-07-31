@@ -5,7 +5,7 @@
     materialized = "incremental",
     unique_key = "created_contract_address",
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(block_timestamp, tx_hash, created_contract_address, creator_address), SUBSTRING(created_contract_address, creator_address)",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(block_timestamp, tx_hash, created_contract_address, creator_address), SUBSTRING(created_contract_address, creator_address)", -- Moved to daily_search_optimization maintenance model
     tags = ['silver','core','phase_2']
 ) }}
 

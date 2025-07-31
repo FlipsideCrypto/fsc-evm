@@ -4,7 +4,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)", -- Moved to daily_search_optimization maintenance model
     tags = ['silver','core','phase_2']
 ) }}
 

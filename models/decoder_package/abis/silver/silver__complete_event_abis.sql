@@ -5,7 +5,7 @@
     materialized = 'incremental',
     unique_key = ["parent_contract_address","event_signature","start_block"],
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION", -- Moved to daily_search_optimization maintenance model
     tags = ['silver','abis','phase_2']
 ) }}
 

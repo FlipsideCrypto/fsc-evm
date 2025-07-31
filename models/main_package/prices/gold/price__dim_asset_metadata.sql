@@ -6,7 +6,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'dim_asset_metadata_id',
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(asset_id, token_address, symbol, name),SUBSTRING(asset_id, token_address, symbol, name)", -- Moved to daily_search_optimization maintenance model
     tags = ['gold','prices','phase_3']
 ) }}
 
