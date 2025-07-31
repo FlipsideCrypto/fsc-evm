@@ -12,7 +12,15 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH base AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'l2_standard_bridge'
+),
+
+base AS (
 
     SELECT
         block_number,
@@ -47,16 +55,11 @@ WITH base AS (
         modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
+        inner join contract_mapping 
+        using (contract_address)
     WHERE
-        contract_address = '0x4200000000000000000000000000000000000010' -- superchain l2 bridge
-        AND topic_0 = '0x73d170910aba9e6d50b102db522b1dbcd796216f5128b445aa2135272886497e' -- withdrawal initiated
+        topic_0 = '0x73d170910aba9e6d50b102db522b1dbcd796216f5128b445aa2135272886497e' -- withdrawal initiated
         AND block_timestamp :: DATE >= '2021-11-01'
-        AND '{{ vars.GLOBAL_PROJECT_NAME }}' IN (
-            'base',
-            'bob',
-            'ink',
-            'optimism'
-        )
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

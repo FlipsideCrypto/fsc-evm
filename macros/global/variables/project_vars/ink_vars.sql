@@ -33,6 +33,11 @@
                     'bridge': '0xca29f3a6f966cb2fc0de625f8f325c0c46dbe958'
                 }
             },
+            'l2_standard_bridge': {
+                'v1': {
+                    'bridge': '0x4200000000000000000000000000000000000010'
+                }
+            },
             'stargate': {
                 'v2': {
                     'bridge': '0x45f1a95a4d3f3836523f5c83673c797f4d4d263b'
