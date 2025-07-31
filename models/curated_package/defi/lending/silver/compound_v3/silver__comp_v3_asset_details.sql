@@ -126,6 +126,6 @@ contracts_dim AS (
         SYSDATE() AS modified_timestamp,
         '{{ invocation_id }}' AS _invocation_id
     FROM
-        comp_v3_data 
+        comp_v3_data c
 LEFT JOIN origin_from_addresses o
-    ON comp_v3_data.contract_address = o.contract_address
+    ON c.ctoken_address = o.contract_address
