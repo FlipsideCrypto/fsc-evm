@@ -129,7 +129,6 @@ SELECT
     factory_address,
     silo_address,
     l.token_address,
-    l.version,
     C.token_name,
     C.token_symbol,
     C.token_decimals,
@@ -140,8 +139,8 @@ SELECT
     dt.token_symbol AS protocol_debt_token_symbol,
     dt.token_decimals AS protocol_debt_token_decimals,
     sf.protocol,
-    sf.version,
-    sf.protocol || '-' || sf.version AS platform,
+    l.version,
+    sf.protocol || '-' || l.version AS platform,
     l._log_id,
     l._inserted_timestamp
 FROM

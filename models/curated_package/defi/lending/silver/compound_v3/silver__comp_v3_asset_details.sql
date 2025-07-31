@@ -47,7 +47,7 @@ contracts_dim AS (
                     ],
                     concat_ws('-', contract_address, '0xc55dae63', block_number)
                 ),
-                vars.GLOBAL_NODE_VAULT_PATH
+                '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
             ) AS api_response
         FROM
             {{ ref('core__fact_event_logs') }}
