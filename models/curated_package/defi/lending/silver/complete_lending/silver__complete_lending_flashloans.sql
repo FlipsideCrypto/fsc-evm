@@ -92,7 +92,6 @@ aave_v3_fork AS (
     FROM
       {{ this }}
   )
-  OR (A.token_symbol IS NOT NULL AND A.token_address NOT IN (SELECT token_address FROM {{this}}))
 {% endif %}
 ),
 flashloans AS (

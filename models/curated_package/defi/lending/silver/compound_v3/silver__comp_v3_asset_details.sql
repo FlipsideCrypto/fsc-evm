@@ -14,8 +14,7 @@ WITH origin_from_addresses AS (
     WHERE
         type = 'comp_v3_origin_from_address'
 ),
-    
-    WITH contracts_dim AS (
+contracts_dim AS (
         SELECT
             address,
             name,

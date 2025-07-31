@@ -129,7 +129,7 @@ SELECT
     factory_address,
     silo_address,
     l.token_address,
-    version,
+    l.version,
     C.token_name,
     C.token_symbol,
     C.token_decimals,

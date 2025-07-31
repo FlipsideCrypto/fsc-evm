@@ -95,8 +95,6 @@ aave_v3_fork AS (
     FROM
       {{ this }}
   )
-  OR (A.collateral_token_symbol IS NOT NULL AND A.collateral_token NOT IN (SELECT collateral_token FROM {{this}}))
-  OR (A.debt_token_symbol IS NOT NULL AND A.debt_token NOT IN (SELECT debt_token FROM {{this}}))
 {% endif %}
 ),
 comp_v2_fork AS (
@@ -138,8 +136,6 @@ comp_v2_fork AS (
     FROM
       {{ this }}
   )
-  OR (A.collateral_token_symbol IS NOT NULL AND A.collateral_token NOT IN (SELECT collateral_token FROM {{this}}))
-  OR (A.debt_token_symbol IS NOT NULL AND A.debt_token NOT IN (SELECT debt_token FROM {{this}}))
 {% endif %}
 ),
 liquidation_union AS (
