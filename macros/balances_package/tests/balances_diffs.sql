@@ -67,7 +67,8 @@ WHERE
     {% endtest %}
 
     {% test balances_diffs_erc20(
-        model
+        model,
+        test_model
     ) %}
     WITH source AS (
         SELECT
