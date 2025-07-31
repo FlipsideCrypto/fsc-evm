@@ -1,7 +1,9 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -87,8 +89,8 @@ SELECT
         l2_token
     ) AS token_address,
     amount_unadj,
-    'superchain_l2_standard_bridge-v1' AS platform,
-    'superchain_l2_standard_bridge' AS protocol,
+    CONCAT('{{ vars.GLOBAL_PROJECT_NAME }}', '_l2_standard_bridge-v1') AS platform,
+    CONCAT('{{ vars.GLOBAL_PROJECT_NAME }}', '_l2_standard_bridge') AS protocol,
     'v1' AS version,
     'native' AS TYPE,
     CONCAT(
