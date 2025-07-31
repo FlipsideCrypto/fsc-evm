@@ -23,7 +23,7 @@ WITH bridges AS (
             '-',
             version
         ) AS platform,
-        'native' AS type,
+        'ethereum_native' AS type,
         LOWER(blockchain) AS blockchain
     FROM
         {{ ref('silver_bridge__ethereum_native_bridges_seed') }}
@@ -45,7 +45,7 @@ token_transfers AS (
         bridge_address,
         protocol,
         version,
-        type,
+        b.type,
         platform,
         blockchain,
         raw_amount,
@@ -86,7 +86,7 @@ native_transfers AS (
         bridge_address,
         protocol,
         version,
-        type,
+        b.type,
         platform,
         blockchain,
         amount_precise_raw,
