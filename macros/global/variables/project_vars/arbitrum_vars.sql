@@ -233,6 +233,16 @@
                     '0xbf0b5d561b986809924f88099c4ff0e6bcce60c9']
                 }
             },
+            'hyperliquid': {
+                'v1': {
+                    'bridge': '0xc67e9efdb8a66a4b91b1f3731c75f500130373a4',
+                    'token': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'
+                },
+                'v2': {
+                    'bridge': '0x2df1c51e09aecf9cacb7bc98cb1742757f163df7',
+                    'token': '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x1a44076050125825900e736c501f859c50fe728c'
