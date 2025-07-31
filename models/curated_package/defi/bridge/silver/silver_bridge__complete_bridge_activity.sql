@@ -1389,7 +1389,7 @@ AND tx_hash NOT IN (
     FROM
         {{ this }}
     WHERE
-        version <> 'v1_native'
+        type <> 'ethereum_native'
 )
 {% endif %}
 ),
