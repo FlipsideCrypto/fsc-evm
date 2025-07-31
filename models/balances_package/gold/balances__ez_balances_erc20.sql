@@ -207,8 +207,8 @@ balances AS (
         ) = p1.HOUR
         AND p1.is_native
     WHERE 
-        pre_balance_hex <> CONCAT('0x', LPAD(SUBSTR(k.address, 3), 64, '0'))
-        AND post_balance_hex <> CONCAT('0x', LPAD(SUBSTR(k.address, 3), 64, '0'))
+        COALESCE(pre_balance_hex, '0x0') <> CONCAT('0x', LPAD(SUBSTR(k.address, 3), 64, '0'))
+        AND COALESCE(post_balance_hex, '0x0') <> CONCAT('0x', LPAD(SUBSTR(k.address, 3), 64, '0'))
 )
 
 {% if is_incremental() %},
