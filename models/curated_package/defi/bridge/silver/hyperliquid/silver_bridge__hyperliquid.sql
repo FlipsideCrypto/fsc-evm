@@ -54,8 +54,8 @@ SELECT
     from_address AS destination_chain_receiver,
     t.contract_address AS token_address,
     raw_amount AS amount_unadj,
-    '42161' AS destination_chain_id,
-    'arbitrum' AS destination_chain,
+    '999' AS destination_chain_id,
+    'hyperliquid' AS destination_chain,
     CONCAT(
         tx_hash,
         '-',
