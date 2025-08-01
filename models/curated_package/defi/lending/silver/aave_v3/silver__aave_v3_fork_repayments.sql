@@ -109,7 +109,8 @@ SELECT
     t.protocol,
     t.version,
     r._log_id,
-    r.modified_timestamp
+    r.modified_timestamp,
+    'Repay' AS event_name
 FROM
     repay r
     LEFT JOIN token_meta t

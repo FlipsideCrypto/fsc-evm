@@ -156,7 +156,8 @@ SELECT
   protocol,
   version,
   modified_timestamp,
-  _log_id
+  _log_id,
+  'Borrow' AS event_name
 FROM
   comp_v2_fork_combine qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY

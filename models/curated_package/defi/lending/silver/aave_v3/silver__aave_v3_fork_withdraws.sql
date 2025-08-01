@@ -107,7 +107,8 @@ SELECT
     t.protocol,
     t.version,
     w._log_id,
-    w.modified_timestamp
+    w.modified_timestamp,
+    'Withdraw' AS event_name
 FROM
     withdraw w
     LEFT JOIN atoken_meta t

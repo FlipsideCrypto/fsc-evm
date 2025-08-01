@@ -79,7 +79,8 @@ SELECT
     d.version,
     d.platform,
     d._log_id,
-    d._inserted_timestamp
+    d._inserted_timestamp,
+    'Borrow' AS event_name
 FROM
     borrows d
     LEFT JOIN {{ ref('silver__contracts') }} C

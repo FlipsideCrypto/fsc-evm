@@ -75,7 +75,8 @@ SELECT
     d.version,
     d.platform,
     d._log_id,
-    d._inserted_timestamp
+    d._inserted_timestamp,
+    'Deposit' AS event_name
 FROM
     deposits d
     LEFT JOIN {{ ref('silver__contracts') }} C

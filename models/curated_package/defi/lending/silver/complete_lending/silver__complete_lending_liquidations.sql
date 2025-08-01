@@ -56,7 +56,6 @@ prices AS (
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
 aave_v3_fork AS (
-
     SELECT
       tx_hash,
       block_number,
@@ -81,7 +80,8 @@ aave_v3_fork AS (
       protocol,
       version,
       _log_id,
-      modified_timestamp
+      modified_timestamp,
+      event_name
     FROM
         {{ ref('silver__aave_v3_fork_liquidations') }} A
     WHERE
@@ -122,7 +122,8 @@ comp_v2_fork AS (
       version,
       platform,
       _log_id,
-      modified_timestamp
+      modified_timestamp,
+      event_name
     FROM
         {{ ref('silver__comp_v2_fork_liquidations') }} A
     WHERE
@@ -130,6 +131,90 @@ comp_v2_fork AS (
         AND debt_token_symbol IS NOT NULL
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+compound_v3 AS (
+    SELECT
+      tx_hash,
+      block_number,
+      block_timestamp,
+      event_index,
+      origin_from_address,
+      origin_to_address,
+      origin_function_signature,
+      contract_address,
+      borrower,
+      liquidator,
+      protocol_market,
+      token_address AS collateral_token,
+      token_symbol AS collateral_token_symbol,
+      amount_unadj AS liquidated_amount_unadj,
+      amount AS liquidated_amount,
+      debt_token,
+      debt_token_symbol,
+      repaid_amount_unadj,
+      repaid_amount,
+      protocol,
+      version,
+      platform,
+      _log_id,
+      modified_timestamp,
+      event_name
+    FROM
+        {{ ref('silver__comp_v3_liquidations') }} A
+    WHERE
+        collateral_token_symbol IS NOT NULL
+        AND debt_token_symbol IS NOT NULL
+
+{% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+silo AS (
+    SELECT
+      tx_hash,
+      block_number,
+      block_timestamp,
+      event_index,
+      origin_from_address,
+      origin_to_address,
+      origin_function_signature,
+      contract_address,
+      borrower,
+      liquidator,
+      protocol_market,
+      token_address AS collateral_token,
+      token_symbol AS collateral_token_symbol,
+      amount_unadj AS liquidated_amount_unadj,
+      amount AS liquidated_amount,
+      debt_asset AS debt_token,
+      debt_asset_symbol AS debt_token_symbol,
+      repaid_amount_unadj,
+      repaid_amount,
+      protocol,
+      version,
+      platform,
+      _log_id,
+      modified_timestamp,
+      event_name
+    FROM
+        {{ ref('silver__silo_liquidations') }} A
+    WHERE
+        collateral_token_symbol IS NOT NULL
+        AND debt_token_symbol IS NOT NULL
+
+{% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -150,6 +235,18 @@ liquidation_union AS (
     'comp_v2_fork' AS platform_type
   FROM
     comp_v2_fork
+  UNION ALL
+  SELECT
+    *,
+    'compound_v3' AS platform_type
+  FROM
+    compound_v3
+  UNION ALL
+  SELECT
+    *,
+    'silo' AS platform_type
+  FROM
+    silo
 ),
 complete_lending_liquidations AS (
   SELECT
@@ -161,12 +258,7 @@ complete_lending_liquidations AS (
     origin_to_address,
     origin_function_signature,
     A.contract_address,
-    CASE
-      WHEN platform = 'compound_v3' THEN 'AbsorbCollateral'
-      WHEN platform = 'comp_v2_fork' THEN 'LiquidateBorrow'
-      WHEN platform = 'silo' THEN 'Liquidate'
-      ELSE 'LiquidationCall'
-    END AS event_name,
+    A.event_name,
     liquidator,
     borrower,
     protocol_market,

@@ -115,7 +115,8 @@ SELECT
     d.version,
     d.platform,
     d._log_id,
-    d._inserted_timestamp
+    d._inserted_timestamp,
+    'Liquidate' AS event_name
 FROM
     liquidations d
     LEFT JOIN contracts C

@@ -123,7 +123,8 @@ SELECT
     t.protocol,
     t.version,
     b._log_id,
-    b.modified_timestamp
+    b.modified_timestamp,
+    'Borrow' AS event_name
 FROM
     borrow b
     LEFT JOIN token_meta t

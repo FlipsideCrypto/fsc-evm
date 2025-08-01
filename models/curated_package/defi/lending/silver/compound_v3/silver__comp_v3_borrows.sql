@@ -100,7 +100,8 @@ SELECT
     A.version,
     A.platform,
     _log_id,
-    _inserted_timestamp
+    _inserted_timestamp,
+    'Withdraw' AS event_name
 FROM
     borrow w
     LEFT JOIN comp_assets A

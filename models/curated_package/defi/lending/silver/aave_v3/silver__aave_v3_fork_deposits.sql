@@ -111,7 +111,8 @@ SELECT
     t.protocol,
     t.version,
     d._log_id,
-    d.modified_timestamp
+    d.modified_timestamp,
+    'Supply' AS event_name
 FROM
     deposits d
     LEFT JOIN token_meta t

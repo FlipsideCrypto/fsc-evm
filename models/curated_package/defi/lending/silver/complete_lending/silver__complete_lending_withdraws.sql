@@ -76,7 +76,8 @@ aave_v3_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A.modified_timestamp
+        A.modified_timestamp,
+        A.event_name
     FROM
         {{ ref('silver__aave_v3_fork_withdraws') }} A
     WHERE
@@ -111,13 +112,50 @@ comp_v2_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A.modified_timestamp
+        A.modified_timestamp,
+        A.event_name
     FROM
         {{ ref('silver__comp_v2_fork_withdraws') }} A
     WHERE
         token_symbol IS NOT NULL
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+compound_v3 AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        depositor,
+        protocol_market,
+        token_address,
+        token_symbol,
+        amount_unadj,
+        amount,
+        platform,
+        protocol,
+        version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__comp_v3_withdraws') }} A
+    WHERE
+        token_symbol IS NOT NULL
+
+{% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -138,6 +176,12 @@ withdraws AS (
         'comp_v2_fork' AS platform_type
     FROM
         comp_v2_fork
+    UNION ALL
+    SELECT
+        *,
+        'compound_v3' AS platform_type
+    FROM
+        compound_v3
 ),
 complete_lending_withdraws AS (
     SELECT
@@ -149,11 +193,7 @@ complete_lending_withdraws AS (
         origin_to_address,
         origin_function_signature,
         A.contract_address,
-        CASE
-            WHEN platform_type = 'compound_v3' THEN 'WithdrawCollateral'
-            WHEN platform_type = 'comp_v2_fork' THEN 'Redeem'
-            ELSE 'Withdraw'
-        END AS event_name,
+        A.event_name,
         protocol_market,
         depositor,
         A.token_address,

@@ -117,14 +117,14 @@ SELECT
     origin_to_address,
     origin_function_signature,
     t.contract_address,
-    loan_token AS market,
+    loan_token AS token_address,
     amount AS amount_unadj,
     amount / pow(
         10,
         C.token_decimals
     ) AS amount,
-    depositor_address,
-    t.contract_address AS lending_pool_contract,
+    depositor_address AS depositor,
+    t.contract_address AS protocol_market,
     C.token_symbol,
     C.token_decimals,
     m.protocol || '-' || m.version AS platform,

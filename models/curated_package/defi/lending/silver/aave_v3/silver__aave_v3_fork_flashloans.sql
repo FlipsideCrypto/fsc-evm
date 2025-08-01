@@ -122,7 +122,8 @@ SELECT
     t.protocol,
     t.version,
     f._log_id,
-    f.modified_timestamp
+    f.modified_timestamp,
+    'FlashLoan' AS event_name
 FROM
     flashloan f
     LEFT JOIN token_meta t

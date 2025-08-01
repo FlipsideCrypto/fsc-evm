@@ -104,7 +104,8 @@ SELECT
     A.version,
     A.platform,
     _log_id,
-    _inserted_timestamp
+    _inserted_timestamp,
+    'Supply' AS event_name
 FROM
     repayments w
     LEFT JOIN comp_assets A

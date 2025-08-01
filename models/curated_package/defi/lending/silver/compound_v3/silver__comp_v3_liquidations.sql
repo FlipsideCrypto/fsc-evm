@@ -109,7 +109,8 @@ SELECT
     A.version,
     A.platform,
     l._log_id,
-    l._inserted_timestamp
+    l._inserted_timestamp,
+    'AbsorbCollateral' AS event_name
 FROM
     liquidations l
     LEFT JOIN comp_assets A

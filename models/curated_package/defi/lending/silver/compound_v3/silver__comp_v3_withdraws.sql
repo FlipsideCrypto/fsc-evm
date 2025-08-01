@@ -96,7 +96,8 @@ SELECT
     A.version,
     A.platform,
     _log_id,
-    _inserted_timestamp
+    _inserted_timestamp,
+    'WithdrawCollateral' AS event_name
 FROM
     withdraw w
     LEFT JOIN comp_assets A

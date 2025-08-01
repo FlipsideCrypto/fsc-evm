@@ -118,7 +118,8 @@ SELECT
     amc.protocol,
     amc.version,
     l._log_id,
-    l.modified_timestamp
+    l.modified_timestamp,
+    'LiquidationCall' AS event_name
 FROM
     liquidation l
     INNER JOIN atoken_meta amc

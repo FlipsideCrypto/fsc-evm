@@ -241,6 +241,7 @@ FROM
 {% endif %}
 )
 SELECT
-    *
+    *,
+    'LiquidateBorrow' AS event_name
 FROM
     liquidation_union qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1

@@ -97,7 +97,8 @@ SELECT
     A.version,
     A.platform,
     _log_id,
-    _inserted_timestamp
+    _inserted_timestamp,
+    'SupplyCollateral' AS event_name
 FROM
     supply w
     LEFT JOIN comp_assets A
