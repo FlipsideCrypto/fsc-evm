@@ -40,7 +40,6 @@ supply AS (
             segmented_data [0] :: STRING
         ) :: INTEGER AS supply_amount,
         origin_from_address AS depositor_address,
-        'Compound V3' AS compound_version,
         C.contract_address AS underlying_asset_address,
         C.token_name,
         C.token_symbol,
@@ -85,8 +84,8 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    compound_market,
-    depositor_address,
+    compound_market as protocol_market,
+    depositor_address as depositor,
     asset AS token_address,
     token_symbol AS token_symbol,
     supply_amount AS amount_unadj,
@@ -94,7 +93,6 @@ SELECT
         10,
         w.token_decimals
     ) AS amount,
-    compound_version,
     A.protocol,
     A.version,
     A.platform,

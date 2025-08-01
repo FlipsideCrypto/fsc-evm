@@ -44,7 +44,6 @@ repayments AS (
             segmented_data [1] :: STRING
         ) :: INTEGER AS usd_value,
         origin_from_address AS depositor,
-        'Compound V3' AS compound_version,
         compound_market_name,
         compound_market_symbol,
         compound_market_decimals,
@@ -90,8 +89,8 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    w.asset AS compound_market,
-    repayer,
+    w.asset AS protocol_market,
+    repayer as payer,
     borrower,
     depositor,
     underlying_asset AS token_address,
@@ -101,7 +100,6 @@ SELECT
         10,
         w.compound_market_decimals
     ) AS amount,
-    compound_version,
     A.protocol,
     A.version,
     A.platform,

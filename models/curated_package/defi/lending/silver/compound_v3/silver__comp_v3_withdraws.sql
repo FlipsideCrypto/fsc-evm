@@ -40,7 +40,6 @@ withdraw AS (
             segmented_data [0] :: STRING
         ) :: INTEGER AS withdraw_amount,
         origin_from_address AS depositor_address,
-        'Compound V3' AS compound_version,
         C.token_name,
         C.token_symbol,
         C.token_decimals,
@@ -84,8 +83,8 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    compound_market,
-    depositor_address,
+    compound_market as protocol_market,
+    depositor_address as depositor,
     w.token_address,
     w.token_symbol,
     withdraw_amount AS amount_unadj,
@@ -93,7 +92,6 @@ SELECT
         10,
         w.token_decimals
     ) AS amount,
-    compound_version,
     A.protocol,
     A.version,
     A.platform,

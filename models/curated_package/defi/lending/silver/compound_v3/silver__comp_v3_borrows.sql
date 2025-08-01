@@ -41,7 +41,6 @@ borrow AS (
             segmented_data [0] :: STRING
         ) :: INTEGER AS borrow_amount,
         origin_from_address AS borrower_address,
-        'Compound V3' AS compound_version,
         C.compound_market_name AS NAME,
         C.compound_market_symbol AS symbol,
         C.compound_market_decimals AS decimals,
@@ -87,7 +86,7 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    w.asset AS compound_market,
+    w.asset AS protocol_market,
     borrower_address AS borrower,
     w.underlying_asset_address AS token_address,
     w.underlying_asset_symbol AS token_symbol,
@@ -97,7 +96,6 @@ SELECT
         w.decimals
     ) AS amount,
     w.symbol AS itoken_symbol,
-    compound_version,
     A.protocol,
     A.version,
     A.platform,
