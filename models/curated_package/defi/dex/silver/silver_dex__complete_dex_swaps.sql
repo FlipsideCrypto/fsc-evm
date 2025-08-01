@@ -11,7 +11,6 @@
   unique_key = ['block_number','platform','version'],
   cluster_by = ['block_timestamp::DATE','platform'],
   incremental_predicates = [fsc_evm.standard_predicate()],
-  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_function_signature, origin_from_address, origin_to_address, contract_address, pool_name, event_name, sender, tx_to, token_in, token_out, symbol_in, symbol_out), SUBSTRING(origin_function_signature, pool_name, event_name, sender, tx_to, token_in, token_out, symbol_in, symbol_out)",
   tags = ['silver_dex','defi','dex','curated','heal','complete','swap']
 ) }}
 
