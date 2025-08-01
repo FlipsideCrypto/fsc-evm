@@ -271,7 +271,54 @@
         },
         'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'ethereum mainnet',
         'CURATED_DEFI_BRIDGE_HOP_L1_CONTRACTS': ['0xb8901acb165ed027e32754e0ffe830802919727f',
-        '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7']
+        '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7'],
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'dforce': {
+                'v1': {
+                    'comp_v2_origin_from_address': [
+                        '0x70a0d319c76b0a99be5e8cd2685219aea9406845',
+                        '0x655284bebcc6e1dffd098ec538750d43b57bc743',
+                        '0xde6d6f23aabbdc9469c8907ece7c379f98e4cb75'
+                    ]
+                }
+            },
+            'lodestar': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                }
+            },
+            'compound': {
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'radiant': {
+                'v1': {
+                    'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+                }
+            },
+            'aave': {
+                'v2': {
+                    'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+                }
+            },
+            'silo': {
+                'v1': {
+                    'silo_factory': '0x4166487056a922d784b073d4d928a516b074b719',
+                    'silo_collateral_token': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
+                }
+            },
+            'layerbank': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

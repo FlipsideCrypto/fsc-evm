@@ -9,33 +9,35 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','flashloans']
+    tags = ['silver','defi','lending','curated']
 ) }}
 
-WITH token_meta AS (
+WITH --borrows from Aave LendingPool contracts
+token_meta AS (
+
     SELECT
-        atoken_created_block,
-        version_pool,
-        treasury_address,
-        atoken_symbol,
-        atoken_address,
-        token_stable_debt_address,
-        token_variable_debt_address,
-        atoken_decimals,
-        atoken_version,
-        atoken_name,
-        underlying_symbol,
-        underlying_address,
-        underlying_decimals,
-        underlying_name,
-            protocol,
+    atoken_created_block,
+    version_pool,
+    treasury_address,
+    atoken_symbol,
+    atoken_address,
+    token_stable_debt_address,
+    token_variable_debt_address,
+    atoken_decimals,
+    atoken_version,
+    atoken_name,
+    underlying_symbol,
+    underlying_address,
+    underlying_decimals,
+    underlying_name,
+    protocol,
     version,
     modified_timestamp,
     _log_id
     FROM
-        {{ ref('silver__aave_v3_fork_tokens') }}
+        {{ ref('silver__aave_v3_tokens') }}
 ),
-flashloan AS (
+borrow AS (
     SELECT
         tx_hash,
         block_number,
@@ -46,21 +48,22 @@ flashloan AS (
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
-        COALESCE(
-            origin_to_address,
-            CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
-        ) AS initiator_address,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS market,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS flashloan_quantity,
-        utils.udf_hex_to_int(
-            segmented_data [3] :: STRING
-        ) :: INTEGER AS premium_quantity,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS onBehalfOf,
         utils.udf_hex_to_int(
             topics [3] :: STRING
-        ) :: INTEGER AS refferalCode,
+        ) :: INTEGER AS refferal,
+        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS userAddress,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: INTEGER AS borrow_quantity,
+        utils.udf_hex_to_int(
+            segmented_data [2] :: STRING
+        ) :: INTEGER AS borrow_rate_mode,
+        utils.udf_hex_to_int(
+            segmented_data [3] :: STRING
+        ) :: INTEGER AS borrowrate,
+        origin_from_address AS borrower_address,
         COALESCE(
             origin_to_address,
             contract_address
@@ -74,7 +77,10 @@ flashloan AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0'
+        topics [0] :: STRING IN (
+            '0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b',
+            '0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0'
+        )
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -102,31 +108,29 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
+    borrower_address AS borrower,
     market AS protocol_market,
-    initiator_address AS initiator,
-    target_address AS target,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
-    t.underlying_decimals AS token_decimals,
-    flashloan_quantity AS flashloan_amount_unadj,
-    flashloan_quantity / pow(
+    borrow_quantity AS amount_unadj,
+    borrow_quantity / pow(
         10,
         t.underlying_decimals
-    ) AS flashloan_amount,
-    premium_quantity AS premium_amount_unadj,
-    premium_quantity / pow(
-        10,
-        t.underlying_decimals
-    ) AS premium_amount,
+    ) AS amount,
+    CASE
+        WHEN borrow_rate_mode = 2 THEN 'Variable Rate'
+        ELSE 'Stable Rate'
+    END AS borrow_rate_mode,
+    lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    f._log_id,
-    f.modified_timestamp,
-    'FlashLoan' AS event_name
+    b._log_id,
+    b.modified_timestamp,
+    'Borrow' AS event_name
 FROM
-    flashloan f
+    borrow b
     LEFT JOIN token_meta t
-    ON f.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY f._log_id
+    ON b.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY b._log_id
 ORDER BY
-    f.modified_timestamp DESC)) = 1
+    b.modified_timestamp DESC)) = 1

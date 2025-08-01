@@ -25,7 +25,7 @@ WITH asset_details AS (
         protocol,
         version
     FROM
-        {{ ref('silver__comp_v2_fork_asset_details') }}
+        {{ ref('silver__comp_v2_asset_details') }}
 ),
 comp_v2_fork_redemptions AS (
     SELECT

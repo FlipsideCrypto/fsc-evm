@@ -55,7 +55,7 @@ prices AS (
   WHERE
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
-aave_v3_fork AS (
+aave_v3 AS (
     SELECT
       tx_hash,
       block_number,
@@ -76,19 +76,19 @@ aave_v3_fork AS (
       debt_token_symbol,
       repaid_amount_unadj,
       repaid_amount,
-      platform,
       protocol,
       version,
+      platform,
       _log_id,
       modified_timestamp,
       event_name
     FROM
-        {{ ref('silver__aave_v3_fork_liquidations') }} A
+        {{ ref('silver__aave_v3_liquidations') }} A
     WHERE
         collateral_token_symbol IS NOT NULL
         AND debt_token_symbol IS NOT NULL
 
-{% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'aave_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -125,7 +125,7 @@ comp_v2_fork AS (
       modified_timestamp,
       event_name
     FROM
-        {{ ref('silver__comp_v2_fork_liquidations') }} A
+        {{ ref('silver__comp_v2_liquidations') }} A
     WHERE
         collateral_token_symbol IS NOT NULL
         AND debt_token_symbol IS NOT NULL
@@ -152,10 +152,10 @@ compound_v3 AS (
       borrower,
       liquidator,
       protocol_market,
-      token_address AS collateral_token,
-      token_symbol AS collateral_token_symbol,
-      amount_unadj AS liquidated_amount_unadj,
-      amount AS liquidated_amount,
+      collateral_token,
+      collateral_token_symbol,
+      liquidated_amount_unadj,
+      liquidated_amount,
       debt_token,
       debt_token_symbol,
       repaid_amount_unadj,
@@ -268,9 +268,9 @@ morpho AS (
 liquidation_union AS (
   SELECT
     *,
-    'aave_v3_fork' AS platform_type
+    'aave_v3' AS platform_type
   FROM
-    aave_v3_fork
+    aave_v3
   UNION ALL
   SELECT
     *,

@@ -55,7 +55,7 @@ prices AS (
   WHERE
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
-aave_v3_fork AS (
+aave_v3 AS (
 
     SELECT
         tx_hash,
@@ -66,9 +66,9 @@ aave_v3_fork AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        protocol_market,
         initiator,
         target,
+        protocol_market,
         token_address,
         token_symbol,
         flashloan_amount_unadj,
@@ -81,11 +81,11 @@ aave_v3_fork AS (
         A._LOG_ID,
         A.modified_timestamp
     FROM
-        {{ ref('silver__aave_v3_fork_flashloans') }} A
+        {{ ref('silver__aave_v3_flashloans') }} A
     WHERE
         token_symbol IS NOT NULL
 
-{% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'aave_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -96,9 +96,10 @@ aave_v3_fork AS (
 ),
 flashloans AS (
   SELECT
-    *
+    *,
+    'aave_v3' AS platform_type
   FROM
-    aave_v3_fork
+    aave_v3
 ),
 complete_lending_flashloans AS (
   SELECT

@@ -33,7 +33,7 @@ WITH token_meta AS (
         modified_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_v3_fork_tokens') }}
+        {{ ref('silver__aave_v3_tokens') }}
 ),
 repay AS(
     SELECT
@@ -66,7 +66,11 @@ repay AS(
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING = '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
+        topics [0] :: STRING IN (
+            '0x4cdde6e09bb755c9a5589ebaec640bbfedff1362d4b255ebf8339782b9942faa',
+            '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
+        )
+
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

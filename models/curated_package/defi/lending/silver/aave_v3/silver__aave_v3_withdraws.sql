@@ -33,7 +33,7 @@ WITH atoken_meta AS (
         modified_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_v3_fork_tokens') }}
+        {{ ref('silver__aave_v3_tokens') }}
 ),
 withdraw AS(
     SELECT
@@ -65,7 +65,10 @@ withdraw AS(
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING = '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7'
+        topics [0] :: STRING IN (
+            '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7',
+            '0x9c4ed599cd8555b9c1e8cd7643240d7d71eb76b792948c49fcb4d411f7b6b3c6'
+        )
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

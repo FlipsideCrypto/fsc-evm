@@ -55,7 +55,7 @@ prices AS (
   WHERE
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
-aave_v3_fork AS (
+aave_v3 AS (
 
     SELECT
         tx_hash,
@@ -77,13 +77,14 @@ aave_v3_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A.modified_timestamp
+        A.modified_timestamp,
+        A.event_name
     FROM
-        {{ ref('silver__aave_v3_fork_repayments') }} A
+        {{ ref('silver__aave_v3_repayments') }} A
     WHERE
         token_symbol IS NOT NULL
 
-{% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'aave_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -113,14 +114,15 @@ comp_v2_fork AS (
         protocol,
         version,
         A._LOG_ID,
-        A.modified_timestamp
+        A.modified_timestamp,
+        A.event_name
     FROM
-        {{ ref('silver__comp_v2_fork_repayments') }} A
+        {{ ref('silver__comp_v2_repayments') }} A
 
     WHERE
         token_symbol IS NOT NULL
 
-{% if is_incremental() and 'aave_v3_fork' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -243,9 +245,9 @@ morpho AS (
 repayments AS (
   SELECT
     *,
-    'aave_v3_fork' AS platform_type
+    'aave_v3' AS platform_type
   FROM
-    aave_v3_fork
+    aave_v3
   UNION ALL
   SELECT
     *,
