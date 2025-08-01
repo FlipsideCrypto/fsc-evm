@@ -194,12 +194,12 @@ silo AS (
       borrower,
       liquidator,
       protocol_market,
-      token_address AS collateral_token,
-      token_symbol AS collateral_token_symbol,
-      amount_unadj AS liquidated_amount_unadj,
-      amount AS liquidated_amount,
-      debt_asset AS debt_token,
-      debt_asset_symbol AS debt_token_symbol,
+      collateral_token,
+      collateral_token_symbol,
+      liquidated_amount_unadj,
+      liquidated_amount,
+      debt_token,
+      debt_token_symbol,
       repaid_amount_unadj,
       repaid_amount,
       protocol,
@@ -215,6 +215,48 @@ silo AS (
         AND debt_token_symbol IS NOT NULL
 
 {% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+morpho AS (
+    SELECT
+      tx_hash,
+      block_number,
+      block_timestamp,
+      event_index,
+      origin_from_address,
+      origin_to_address,
+      origin_function_signature,
+      contract_address,
+      borrower,
+      liquidator,
+      protocol_market,
+      collateral_token,
+      collateral_token_symbol,
+      liquidated_amount_unadj,
+      liquidated_amount,
+      debt_token,
+      debt_token_symbol,
+      repaid_amount_unadj,
+      repaid_amount,
+      protocol,
+      version,
+      platform,
+      _log_id,
+      modified_timestamp,
+      event_name
+    FROM
+        {{ ref('silver__morpho_liquidations') }} A
+    WHERE
+        collateral_token_symbol IS NOT NULL
+        AND debt_token_symbol IS NOT NULL
+
+{% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -247,6 +289,12 @@ liquidation_union AS (
     'silo' AS platform_type
   FROM
     silo
+  UNION ALL
+  SELECT
+    *,
+    'morpho' AS platform_type
+  FROM
+    morpho
 ),
 complete_lending_liquidations AS (
   SELECT

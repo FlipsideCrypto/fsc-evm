@@ -164,6 +164,78 @@ compound_v3 AS (
   )
 {% endif %}
 ),
+silo AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        depositor,
+        protocol_market,
+        token_address,
+        token_symbol,
+        amount_unadj,
+        amount,
+        platform,
+        protocol,
+        version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__silo_deposits') }} A
+    WHERE
+        token_symbol IS NOT NULL
+
+{% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+morpho AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        depositor,
+        protocol_market,
+        token_address,
+        token_symbol,
+        amount_unadj,
+        amount,
+        platform,
+        protocol,
+        version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__morpho_deposits') }} A
+    WHERE
+        token_symbol IS NOT NULL
+
+{% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 deposits AS (
   SELECT
     *,
@@ -182,6 +254,18 @@ deposits AS (
     'compound_v3' AS platform_type
   FROM
     compound_v3
+  UNION ALL
+  SELECT
+    *,
+    'silo' AS platform_type
+  FROM
+    silo
+  UNION ALL
+  SELECT
+    *,
+    'morpho' AS platform_type
+  FROM
+    morpho
 ),
 complete_lending_deposits AS (
   SELECT

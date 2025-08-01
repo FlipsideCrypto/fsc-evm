@@ -92,17 +92,15 @@ SELECT
     absorber as liquidator,
     borrower,
     depositor_address,
-    asset AS token_address,
-    token_symbol,
-    collateral_absorbed AS amount_unadj,
+    asset AS collateral_token,
+    token_symbol AS collateral_token_symbol,
+    collateral_absorbed AS liquidated_amount_unadj,
     collateral_absorbed / pow(
         10,
         token_decimals
-    ) AS amount,
-    usd_value / pow(
-        10,
-        8
-    ) AS amount_usd,
+    ) AS liquidated_amount,
+    null as repaid_amount_unadj,
+    null as repaid_amount,
     A.underlying_asset_address AS debt_token,
     A.underlying_asset_symbol AS debt_token_symbol,
     A.protocol,

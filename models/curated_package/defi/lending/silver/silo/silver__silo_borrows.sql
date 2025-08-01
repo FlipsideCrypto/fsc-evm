@@ -65,10 +65,9 @@ SELECT
     origin_to_address,
     origin_function_signature,
     d.contract_address,
-    silo_market,
+    silo_market as protocol_market,
     asset_address AS token_address,
     C.token_symbol,
-    token_decimals,
     amount AS amount_unadj,
     amount / pow(
         10,

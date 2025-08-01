@@ -88,7 +88,8 @@ SELECT
     m.protocol,
     m.version,
     f._log_id,
-    f._inserted_timestamp
+    f._inserted_timestamp,
+    'Flashloan' AS event_name
 FROM
     flashloan f
     LEFT JOIN {{ ref('silver__contracts') }} C

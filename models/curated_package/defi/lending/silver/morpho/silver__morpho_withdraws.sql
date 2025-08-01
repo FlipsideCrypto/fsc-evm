@@ -131,7 +131,8 @@ SELECT
     m.protocol,
     m.version,
     t._call_id AS _id,
-    t._inserted_timestamp
+    t._inserted_timestamp,
+    'Withdraw' AS event_name
 FROM
     tx_join t
     LEFT JOIN {{ ref('silver__contracts') }} C

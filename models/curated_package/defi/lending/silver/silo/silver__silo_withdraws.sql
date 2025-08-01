@@ -66,7 +66,7 @@ SELECT
     origin_to_address,
     origin_function_signature,
     d.contract_address,
-    silo_market,
+    silo_market as protocol_market,
     asset_address AS token_address,
     C.token_symbol,
     amount AS amount_unadj,
@@ -74,7 +74,7 @@ SELECT
         10,
         C.token_decimals
     ) AS amount,
-    depositor_address,
+    depositor_address AS depositor,
     d.protocol,
     d.version,
     d.platform,
