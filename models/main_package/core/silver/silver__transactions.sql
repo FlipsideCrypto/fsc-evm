@@ -11,7 +11,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['modified_timestamp::DATE','partition_key'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)", -- Moved to daily_search_optimization maintenance model
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','core','phase_2']

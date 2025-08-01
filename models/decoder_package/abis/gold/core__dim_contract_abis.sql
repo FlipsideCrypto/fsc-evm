@@ -5,7 +5,7 @@
     materialized = "incremental",
     unique_key = "contract_address",
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,bytecode), SUBSTRING(contract_address,bytecode)",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address,bytecode), SUBSTRING(contract_address,bytecode)", -- Moved to daily_search_optimization maintenance model
     tags = ['gold','abis','phase_2']
 ) }}
 

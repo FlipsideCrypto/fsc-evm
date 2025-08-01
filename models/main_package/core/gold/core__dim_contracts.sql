@@ -4,7 +4,7 @@
     materialized = 'incremental',
     unique_key = 'address',
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, symbol, name), SUBSTRING(address, symbol, name)",
+    -- post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, symbol, name), SUBSTRING(address, symbol, name)", -- Moved to daily_search_optimization maintenance model
     tags = ['gold','core','phase_2']
 ) }}
 
