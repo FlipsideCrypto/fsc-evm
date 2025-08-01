@@ -1439,7 +1439,9 @@ complete_bridge_activity AS (
                 'base_l2_standard_bridge-v1',
                 'optimism_l2_standard_bridge-v1',
                 'hyperliquid-v1',
-                'hyperliquid-v2'
+                'hyperliquid-v2',
+                'circle_cctp-v1',
+                'circle_cctp-v2'
             ) THEN destination_chain_id :: STRING
             WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
             ELSE d.chain_id :: STRING
@@ -1461,7 +1463,9 @@ complete_bridge_activity AS (
                 'base_l2_standard_bridge-v1',
                 'optimism_l2_standard_bridge-v1',
                 'hyperliquid-v1',
-                'hyperliquid-v2'
+                'hyperliquid-v2',
+                'circle_cctp-v1',
+                'circle_cctp-v2'
             ) THEN LOWER(destination_chain)
             WHEN d.chain IS NULL THEN LOWER(destination_chain)
             ELSE LOWER(
