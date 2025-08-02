@@ -215,7 +215,55 @@
             }
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0xe22d2bedb3eca35e6397e0c6d62857094aa26f52',
-        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
+        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'dforce': {
+                'v1': {
+                    'comp_v2_origin_from_address': [
+                        '0x70a0d319c76b0a99be5e8cd2685219aea9406845',
+                        '0x655284bebcc6e1dffd098ec538750d43b57bc743',
+                        '0xde6d6f23aabbdc9469c8907ece7c379f98e4cb75'
+                    ]
+                }
+            },
+            'lodestar': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                }
+            },
+            'compound': {
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'radiant': {
+                'v1': {
+                    'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']
+                }
+            },
+            'aave_v3': {
+                'v1': {
+                    'aave_v3_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                }
+            },
+            'silo': {
+                'v1': {
+                    'silo_factory': '0x4166487056a922d784b073d4d928a516b074b719',
+                    'silo_collateral_token': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
+                }
+            },
+            'layerbank': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'
+                }
+            }
+        }
+
     } %}
     
     {{ return(vars) }}
