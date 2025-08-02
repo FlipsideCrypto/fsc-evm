@@ -238,32 +238,27 @@ morpho AS (
 ),
 deposits AS (
   SELECT
-    *,
-    'aave_v3_fork' AS platform_type
+    *
   FROM
     aave_v3_fork
   UNION ALL
   SELECT
-    *,
-    'comp_v2_fork' AS platform_type
+    *
   FROM
     comp_v2_fork
   UNION ALL
   SELECT
-    *,
-    'compound_v3' AS platform_type
+    *
   FROM
     compound_v3
   UNION ALL
   SELECT
-    *,
-    'silo' AS platform_type
+    *
   FROM
     silo
   UNION ALL
   SELECT
-    *,
-    'morpho' AS platform_type
+    *
   FROM
     morpho
 ),

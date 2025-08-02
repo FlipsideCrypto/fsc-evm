@@ -56,7 +56,6 @@ prices AS (
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
 aave_v3 AS (
-
     SELECT
         tx_hash,
         block_number,
@@ -68,7 +67,6 @@ aave_v3 AS (
         contract_address,
         initiator,
         target,
-        protocol_market,
         token_address,
         token_symbol,
         flashloan_amount_unadj,
@@ -79,7 +77,8 @@ aave_v3 AS (
         protocol,
         version,
         A._LOG_ID,
-        A.modified_timestamp
+        A.modified_timestamp,
+        A.event_name
     FROM
         {{ ref('silver__aave_v3_flashloans') }} A
     WHERE
@@ -94,12 +93,54 @@ aave_v3 AS (
   )
 {% endif %}
 ),
+morpho AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        initiator,
+        target,
+        token_address,
+        token_symbol,
+        flashloan_amount_unadj,
+        flashloan_amount,
+        premium_amount_unadj,
+        premium_amount,
+        platform,
+        protocol,
+        version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__morpho_flashloans') }} A
+    WHERE
+        token_symbol IS NOT NULL
+
+{% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 flashloans AS (
   SELECT
-    *,
-    'aave_v3' AS platform_type
+    *
   FROM
     aave_v3
+  UNION ALL
+  SELECT
+    *
+  FROM
+    morpho
 ),
 complete_lending_flashloans AS (
   SELECT

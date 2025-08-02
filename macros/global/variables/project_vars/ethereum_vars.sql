@@ -300,11 +300,13 @@
             'aave': {
                 'v3': {
                     'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
-                }
-            },
-            'aave': {
+                },
                 'v2': {
                     'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+                },
+                'v1': {
+                    'aave_proxies': ['0x4965f6fa20fe9728decf5165016fc338a5a85abf',
+                    '0xed2ebe33a237d2e2ba8bbea210616ee3d10b92db']
                 }
             },
             'silo': {

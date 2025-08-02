@@ -54,15 +54,24 @@ borrow AS (
             topics [3] :: STRING
         ) :: INTEGER AS refferal,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS userAddress,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS borrow_quantity,
-        utils.udf_hex_to_int(
-            segmented_data [2] :: STRING
-        ) :: INTEGER AS borrow_rate_mode,
-        utils.udf_hex_to_int(
-            segmented_data [3] :: STRING
-        ) :: INTEGER AS borrowrate,
+        CASE
+            WHEN topics [0] :: STRING = '0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553' THEN utils.udf_hex_to_int(
+                segmented_data [0] :: STRING
+            ) :: INTEGER
+            ELSE utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER
+        END AS borrow_quantity,
+        CASE
+            WHEN topics [0] :: STRING = '0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553' THEN utils.udf_hex_to_int(
+                segmented_data [1] :: STRING
+            ) :: INTEGER
+            ELSE utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER
+        END AS borrow_rate_mode,
+        CASE
+            WHEN topics [0] :: STRING = '0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553' THEN utils.udf_hex_to_int(
+                segmented_data [2] :: STRING
+            ) :: INTEGER
+            ELSE utils.udf_hex_to_int(segmented_data [3] :: STRING) :: INTEGER
+        END AS borrow_rate,
         origin_from_address AS borrower_address,
         COALESCE(
             origin_to_address,
@@ -79,7 +88,8 @@ borrow AS (
     WHERE
         topics [0] :: STRING IN (
             '0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b',
-            '0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0'
+            '0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0',
+            '0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553'
         )
 
 {% if is_incremental() %}
