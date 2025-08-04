@@ -26,7 +26,7 @@ v1_proxy_addresses AS (
 ),
 contracts AS (
     SELECT
-        address,
+        contract_address,
         symbol,
         decimals,
         name
@@ -224,9 +224,9 @@ FROM
     aave_v1_tokens_filtered A
     LEFT JOIN v1_proxy_addresses v1
     ON A.proxy_address = v1.contract_address
-    LEFT JOIN {{ ref('silver__contracts') }} C
+    LEFT JOIN contracts C
     ON C.contract_address = A.a_token_address
-    LEFT JOIN {{ ref('silver__contracts') }} c2
+    LEFT JOIN contracts c2
     ON c2.contract_address = A.underlying_asset
 
 UNION ALL

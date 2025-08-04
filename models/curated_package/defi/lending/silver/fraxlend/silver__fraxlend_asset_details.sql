@@ -27,6 +27,7 @@ logs AS (
         block_timestamp,
         event_index,
         contract_address,
+        topics,
         origin_from_address,
         origin_to_address,
         origin_function_signature,
