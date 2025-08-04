@@ -62,6 +62,15 @@ AND modified_timestamp >= (
 AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
+contracts AS (
+    SELECT
+        contract_address,
+        token_name,
+        token_decimals,
+        token_symbol
+    FROM
+        {{ ref('silver__contracts') }}
+),
 logs_transform AS (
     SELECT
         l.tx_hash,
@@ -84,23 +93,23 @@ logs_transform AS (
         l.modified_timestamp AS _inserted_timestamp
     FROM
         logs l
-        LEFT JOIN {{ ref('core__dim_contracts') }}
-        ON address = pool_address
+        LEFT JOIN contracts c
+        ON c.contract_address = pool_address
 )
 SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    contract_address,
-    origin_from_address,
-    origin_to_address,
-    frax_market_address,
-    frax_market_name,
-    frax_market_symbol,
+    l.tx_hash,
+    l.block_number,
+    l.block_timestamp,
+    l.event_index,
+    l.contract_address,
+    l.origin_from_address,
+    l.origin_to_address,
+    l.frax_market_address,
+    l.frax_market_name,
+    l.frax_market_symbol,
     l.decimals,
     c.name AS underlying_name,
-    underlying_asset,
+    l.underlying_asset,
     c.symbol AS underlying_symbol,
     c.decimals AS underlying_decimals,
     f.protocol || '-' || f.version AS platform,
@@ -111,9 +120,9 @@ SELECT
 FROM
     logs_transform l
 LEFT JOIN 
-    {{ ref('core__dim_contracts') }} c
+    contracts c
 ON
-    c.address =  underlying_asset
+    c.contract_address =  underlying_asset
 LEFT JOIN 
     fraxlend_origin_from_address f
 ON

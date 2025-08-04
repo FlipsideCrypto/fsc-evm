@@ -27,10 +27,11 @@ v1_proxy_addresses AS (
 contracts AS (
     SELECT
         contract_address,
-        symbol,
-        decimals,
-        name
-    FROM {{ ref('silver__contracts') }}
+        token_name,
+        token_decimals,
+        token_symbol
+    FROM
+        {{ ref('silver__contracts') }}
 ),
 DECODE AS (
 
@@ -205,13 +206,13 @@ SELECT
     A.atoken_created_block,
     A.version_pool,
     A.treasury_address,
-    C.symbol AS atoken_symbol,
+    C.token_symbol AS atoken_symbol,
     A.a_token_address AS atoken_address,
     b.token_stable_debt_address,
     b.token_variable_debt_address,
-    C.decimals AS atoken_decimals,
+    C.token_decimals AS atoken_decimals,
     v1.protocol || '-' || v1.version AS atoken_version,
-    C.name AS atoken_name,
+    C.token_name AS atoken_name,
     c2.token_symbol AS underlying_symbol,
     A.underlying_asset AS underlying_address,
     c2.token_decimals AS underlying_decimals,
@@ -224,8 +225,8 @@ FROM
     aave_v1_tokens_filtered A
     LEFT JOIN v1_proxy_addresses v1
     ON A.proxy_address = v1.contract_address
-    LEFT JOIN contracts C
-    ON C.contract_address = A.a_token_address
+    LEFT JOIN contracts c
+    ON c.contract_address = A.a_token_address
     LEFT JOIN contracts c2
     ON c2.contract_address = A.underlying_asset
 
@@ -235,13 +236,13 @@ SELECT
     A.atoken_created_block,
     A.version_pool,
     A.treasury_address,
-    C.symbol AS atoken_symbol,
+    C.token_symbol AS atoken_symbol,
     A.a_token_address AS atoken_address,
     b.token_stable_debt_address,
     b.token_variable_debt_address,
-    C.decimals AS atoken_decimals,
+    C.token_decimals AS atoken_decimals,
     t.protocol || '-' || t.version AS atoken_version,
-    C.name AS atoken_name,
+    C.token_name AS atoken_name,
     c2.token_symbol AS underlying_symbol,
     A.underlying_asset AS underlying_address,
     c2.token_decimals AS underlying_decimals,
@@ -260,7 +261,7 @@ FROM
     ON c2.contract_address = A.underlying_asset
     LEFT JOIN treasury_addresses t
     ON A.treasury_address = t.contract_address
-    qualify(ROW_NUMBER() over(PARTITION BY atoken_address
+    qualify(ROW_NUMBER() over(PARTITION BY A.a_token_address
 ORDER BY
     A.atoken_created_block DESC)) = 1
 
