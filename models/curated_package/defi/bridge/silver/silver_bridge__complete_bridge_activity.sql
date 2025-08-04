@@ -1428,10 +1428,10 @@ complete_bridge_activity AS (
             ELSE destination_chain_id :: STRING
         END AS destination_chain_id,
         CASE
-            WHEN destination_chain_id :: STRING IS NULL 
-            THEN LOWER(d.chain_id :: STRING)
-            ELSE LOWER(destination_chain_id :: STRING)
-        END AS destination_chain_id_lower,
+            WHEN destination_chain :: STRING IS NULL 
+            THEN LOWER(d.chain :: STRING)
+            ELSE LOWER(destination_chain :: STRING)
+        END AS destination_chain,
         b.token_address,
         CASE
             WHEN platform = 'axelar-v1' THEN COALESCE(
