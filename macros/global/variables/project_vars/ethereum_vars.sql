@@ -288,8 +288,19 @@
                 }
             },
             'compound': {
+                'v2': {
+                    'comp_v2_origin_from_address': ['0x54a37d93e57c5da659f508069cf65a381b61e189',
+                    '0x96fa6acfc5f683db191234c74d315e5d732b07c0',
+                    '0xa7ff0d561cd15ed525e31bbe0af3fe34ac2059f6',
+                    '0x2b384212edc04ae8bb41738d05ba20e33277bf33',
+                    '0x5f32db4e59165e2745496a456eaab10a03dd38be',
+                    '0x3cafceed09e25951c33046699d07d7761eb3ed4f',
+                    '0x18c8f1222083997405f2e482338a4650ac02e1d6',
+                    '0xfe83af639f769ead20bad76067abc120245a06a9',
+                    '0xa8f4514e4db0ce95e30142cc8baa5e6c921e16a5']
+                },
                 'v3': {
-                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                    'comp_v3_origin_from_address': ['0x343715fa797b8e9fe48b9efab4b54f01ca860e78', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
                 }
             },
             'fraxlend': {
@@ -304,8 +315,8 @@
                 }
             },
             'radiant': {
-                'v1': {
-                    'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']
+                'v2': {
+                    'aave_treasury': '0x28e395a54a64284dba39652921cd99924f4e3797'
                 }
             },
             'aave': {
@@ -315,20 +326,52 @@
                 'v2': {
                     'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
                 },
+                'v2.1': {
+                    'aave_treasury': [
+                        '0xfeaecde9eb0cd43fde13427c6c7ef406780a8136',
+                        '0xfab4c9775a4316ec67a8223ecd0f70f87ff532fc',
+                        '0xef62a0c391d89381ddf8a8c90ba772081107d287',
+                        '0xeef7d082d9be2f5ec73c072228706286dea1f492',
+                        '0xeb32b3a1de9a1915d2b452b673c53883b9fa6a97',
+                        '0xe9562bf0a11315a1e39f9182f446ea58002f010e',
+                        '0xe5971a8a741892f3b3ac3e9c94d02588190ce220',
+                        '0xd6035f8803ee9f173b1d3ebc3bde0ea6b5165636',
+                        '0xc66bfa05cce646f05f71dee333e3229ce24bbb7e',
+                        '0x9b054b76d6de1c4892ba025456a9c4f9be5b1766',
+                        '0x997b26eff106f138e71160022caab0afc5814643',
+                        '0x8da51a5a3129343468a63a96ccae1ff1352a3dfe',
+                        '0x6febce732191dc915d6fb7dc5fe3aefddb85bd1b',
+                        '0x6e7e38bb73e19b62ab5567940caaa514e9d85982',
+                        '0x6bb2bdd21920fcb2ad855ab5d523222f31709d1f',
+                        '0x6474d116476b8eda1b21472a599ff76a829abcbb',
+                        '0x55e575d092c934503d7635a837584e2900e01d2b',
+                        '0x46406ecd20fde1df4d80f15f07c434fa95cb6b33',
+                        '0x312edeadf68e69a0f53518bf27eacd1abcc2897e',
+                        '0x27c67541a4ea26a436e311b2e6ffec82083a6983',
+                        '0x118ee405c6be8f9ba7cc7a98064eb5da462235cf',
+                        '0x04a0577a89e1b9e8f6c87ee26cce6a168fffc5b5'
+                    ]
+                },
                 'v1': {
-                    'aave_proxies': ['0x4965f6fa20fe9728decf5165016fc338a5a85abf',
-                    '0xed2ebe33a237d2e2ba8bbea210616ee3d10b92db']
+                    'aave_proxies': [
+                        '0x4965f6fa20fe9728decf5165016fc338a5a85abf',
+                        '0xed2ebe33a237d2e2ba8bbea210616ee3d10b92db'
+                    ]
                 }
             },
             'silo': {
                 'v1': {
-                    'silo_factory': '0x4166487056a922d784b073d4d928a516b074b719',
-                    'silo_collateral_token': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
+                    'silo_factory': '0xb7d391192080674281baab8b3083154a5f64cd0a',
+                    'silo_tokens_factory': '0x0e37df413f97fc198a84a21bc463c41b516ad622',
+                },
+                'v2': {
+                    'silo_factory': '0x4D919CEcfD4793c0D47866C8d0a02a0950737589',
+                    'silo_tokens_factory': '0x7ed1160719ab280760faa0ba26cf13139904cba5',
                 }
             },
-            'layerbank': {
+            'morpho': {
                 'v1': {
-                    'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'
+                    'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
                 }
             }
         }

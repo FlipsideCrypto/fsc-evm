@@ -318,9 +318,9 @@
                 }
             },
             'silo': {
-                'v1': {
+                'v2': {
                     'silo_factory': '0x4166487056a922d784b073d4d928a516b074b719',
-                    'silo_collateral_token': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
+                    'silo_tokens_factory': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
                 }
             },
             'layerbank': {

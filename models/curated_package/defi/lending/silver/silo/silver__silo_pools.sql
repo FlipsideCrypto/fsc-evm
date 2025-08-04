@@ -15,7 +15,7 @@ WITH silo_factory_addresses AS (
         vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
     ) }}
     WHERE
-        type in('silo_factory', 'silo_collateral_token')
+        type in('silo_factory', 'silo_tokens_factory')
 ),
  logs_pull AS (
 
@@ -29,7 +29,7 @@ WITH silo_factory_addresses AS (
         modified_timestamp,
         CASE
             WHEN contract_address = (select contract_address from silo_factory_addresses where type = 'silo_factory') THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
-            WHEN contract_address = (select contract_address from silo_factory_addresses where type = 'silo_collateral_token') THEN CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))
+            WHEN contract_address = (select contract_address from silo_factory_addresses where type = 'silo_tokens_factory') THEN CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))
             ELSE NULL
         END AS tokens
     FROM
@@ -106,7 +106,7 @@ silo_collateral_token AS (
         LEFT JOIN contracts C
         ON CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) = C.contract_address
     WHERE
-        l.contract_address = (select contract_address from silo_factory_addresses where type = 'silo_collateral_token')
+        l.contract_address = (select contract_address from silo_factory_addresses where type = 'silo_token_factory')
         AND topics [0] :: STRING = '0xd97e9f840332422474cda9bb0976c87735b44cda62a3fe2a4e13e2e862671812'
 ),
 silo_debt_token AS (
@@ -120,7 +120,7 @@ silo_debt_token AS (
         LEFT JOIN contracts C
         ON CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) = C.contract_address
     WHERE
-        l.contract_address = (select contract_address from silo_factory_addresses where type = 'silo_collateral_token')
+        l.contract_address = (select contract_address from silo_factory_addresses where type = 'silo_token_factory')
         AND topics [0] :: STRING = '0x94f128ebf0749edb8bb9d165d016ce008a16bc82cbd40cc81ded2be79140d020'
 )
 SELECT
