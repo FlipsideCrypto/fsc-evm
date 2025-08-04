@@ -31,7 +31,7 @@ WITH log_join AS (
       segmented_data [1] :: STRING
     ) :: INTEGER / pow(
       10,
-      decimals
+      f.underlying_decimals
     ) AS shares_to_liquidate,
     utils.udf_hex_to_int(
       segmented_data [2] :: STRING
@@ -40,19 +40,19 @@ WITH log_join AS (
       segmented_data [2] :: STRING
     ) :: INTEGER / pow(
       10,
-      decimals
+      f.underlying_decimals
     ) AS liquidator_repay_amount,
     utils.udf_hex_to_int(
       segmented_data [3] :: STRING
     ) :: INTEGER / pow(
       10,
-      decimals
+      f.underlying_decimals
     ) AS shares_to_adjust,
     utils.udf_hex_to_int(
       segmented_data [4] :: STRING
     ) :: INTEGER / pow(
       10,
-      decimals
+      f.underlying_decimals
     ) AS amount_to_adjust,
     liquidator_repay_amount / NULLIF(
       shares_to_liquidate,
