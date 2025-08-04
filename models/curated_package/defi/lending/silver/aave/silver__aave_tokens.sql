@@ -17,7 +17,7 @@ WITH treasury_addresses AS (
     WHERE
         type = 'aave_treasury'
 ),
-v1_v2_pool_addresses AS (
+aave_version_addresses AS (
     {{ curated_contract_mapping(
         vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
     ) }}
@@ -217,7 +217,7 @@ a_token_step_1 AS (
         FROM
             treasury_addresses
     )
-    and version_pool in (select distinct aave_version_address from v1_v2_pool_addresses)
+    and version_pool in (select distinct aave_version_address from aave_version_addresses)
 ),
 debt_tokens AS (
     SELECT
