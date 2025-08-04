@@ -321,39 +321,18 @@
             },
             'aave': {
                 'v3': {
-                    'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+                    'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c'
                 },
                 'v2': {
-                    'aave_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+                    'aave_pool_addresses': ['0x311bb771e4f8952e6da169b425e7e92d6ac45756',
+                    '0x4e1c7865e7be78a7748724fa0409e88dc14e67aa']
                 },
                 'v2.1': {
-                    'aave_treasury': [
-                        '0xfeaecde9eb0cd43fde13427c6c7ef406780a8136',
-                        '0xfab4c9775a4316ec67a8223ecd0f70f87ff532fc',
-                        '0xef62a0c391d89381ddf8a8c90ba772081107d287',
-                        '0xeef7d082d9be2f5ec73c072228706286dea1f492',
-                        '0xeb32b3a1de9a1915d2b452b673c53883b9fa6a97',
-                        '0xe9562bf0a11315a1e39f9182f446ea58002f010e',
-                        '0xe5971a8a741892f3b3ac3e9c94d02588190ce220',
-                        '0xd6035f8803ee9f173b1d3ebc3bde0ea6b5165636',
-                        '0xc66bfa05cce646f05f71dee333e3229ce24bbb7e',
-                        '0x9b054b76d6de1c4892ba025456a9c4f9be5b1766',
-                        '0x997b26eff106f138e71160022caab0afc5814643',
-                        '0x8da51a5a3129343468a63a96ccae1ff1352a3dfe',
-                        '0x6febce732191dc915d6fb7dc5fe3aefddb85bd1b',
-                        '0x6e7e38bb73e19b62ab5567940caaa514e9d85982',
-                        '0x6bb2bdd21920fcb2ad855ab5d523222f31709d1f',
-                        '0x6474d116476b8eda1b21472a599ff76a829abcbb',
-                        '0x55e575d092c934503d7635a837584e2900e01d2b',
-                        '0x46406ecd20fde1df4d80f15f07c434fa95cb6b33',
-                        '0x312edeadf68e69a0f53518bf27eacd1abcc2897e',
-                        '0x27c67541a4ea26a436e311b2e6ffec82083a6983',
-                        '0x118ee405c6be8f9ba7cc7a98064eb5da462235cf',
-                        '0x04a0577a89e1b9e8f6c87ee26cce6a168fffc5b5'
-                    ]
+                    'aave_pool_addresses': '0x23a875ede3f1030138701683e42e9b16a7f87768'
                 },
                 'v1': {
-                    'aave_proxies': [
+                    'aave_pool_addresses': [
+                        '0x1e70af20976b2c7e72fdc8016bcdffded12f3464',
                         '0x4965f6fa20fe9728decf5165016fc338a5a85abf',
                         '0xed2ebe33a237d2e2ba8bbea210616ee3d10b92db'
                     ]
