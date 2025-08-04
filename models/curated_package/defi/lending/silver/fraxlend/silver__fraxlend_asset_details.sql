@@ -107,11 +107,11 @@ SELECT
     l.frax_market_address,
     l.frax_market_name,
     l.frax_market_symbol,
-    l.decimals,
-    c.name AS underlying_name,
+    l.decimals as frax_market_decimals,
+    c.token_name AS underlying_name,
     l.underlying_asset,
-    c.symbol AS underlying_symbol,
-    c.decimals AS underlying_decimals,
+    c.token_symbol AS underlying_symbol,
+    c.token_decimals AS underlying_decimals,
     f.protocol || '-' || f.version AS platform,
     f.protocol,
     f.version,
@@ -130,4 +130,4 @@ ON
 WHERE
     frax_market_name IS NOT NULL
 AND 
-    c.decimals IS NOT NULL
+    c.token_decimals IS NOT NULL
