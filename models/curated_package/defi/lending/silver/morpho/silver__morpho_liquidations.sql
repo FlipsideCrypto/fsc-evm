@@ -51,7 +51,7 @@ traces AS (
                 trace_address
             )
         ) AS _call_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_traces') }}
     WHERE
@@ -66,13 +66,13 @@ traces AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
 logs AS(
@@ -108,7 +108,7 @@ logs AS(
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -128,13 +128,13 @@ logs AS(
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT
@@ -167,7 +167,7 @@ SELECT
     m.protocol,
     m.version,
     t._call_id AS _id,
-    t._inserted_timestamp
+    t.modified_timestamp
 FROM
     traces t
     INNER JOIN logs l

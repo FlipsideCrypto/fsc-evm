@@ -61,7 +61,7 @@ traces AS (
                 trace_address
             )
         ) AS _call_id,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         origin_from_address,
         origin_to_address,
         origin_function_signature
@@ -131,7 +131,7 @@ SELECT
     m.protocol,
     m.version,
     t._call_id AS _id,
-    t._inserted_timestamp,
+    t.modified_timestamp,
     'Withdraw' AS event_name
 FROM
     tx_join t

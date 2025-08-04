@@ -9,16 +9,16 @@
 WITH log_join AS (
 
   SELECT
-    tx_hash,
-    block_timestamp,
-    block_number,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
+    l.tx_hash,
+    l.block_timestamp,
+    l.block_number,
+    l.event_index,
+    l.origin_from_address,
+    l.origin_to_address,
+    l.origin_function_signature,
+    l.contract_address,
     regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-    origin_from_address AS liquidator,
+    l.origin_from_address AS liquidator,
     CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 42)) AS borrower,
     utils.udf_hex_to_int(
       segmented_data [0] :: STRING
@@ -71,7 +71,7 @@ WITH log_join AS (
             '-',
             l.event_index
         ) AS _log_id,
-    l.modified_timestamp AS _inserted_timestamp
+    l.modified_timestamp
   FROM
     {{ ref('silver__fraxlend_asset_details') }}
     f
@@ -86,7 +86,7 @@ WITH log_join AS (
 AND l.modified_timestamp >= (
   SELECT
     MAX(
-      _inserted_timestamp
+      modified_timestamp
     ) - INTERVAL '12 hours'
   FROM
     {{ this }}
@@ -121,8 +121,8 @@ SELECT
   version,
   platform,
   _log_id,
-  _inserted_timestamp
+  modified_timestamp
 FROM
   log_join l qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-  _inserted_timestamp DESC)) = 1
+  modified_timestamp DESC)) = 1

@@ -87,6 +87,7 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 aave_v1_tokens AS (
     SELECT
         block_number AS atoken_created_block,
+        '0x398ec7346dcd622edc5ae82352f02be94c62d119' AS version_pool,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS a_token_address,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS proxy_address,
@@ -123,6 +124,7 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 aave_v1_tokens_filtered AS (
     SELECT
         atoken_created_block,
+        version_pool,
         a_token_address,
         segmented_data,
         proxy_address,
@@ -205,11 +207,11 @@ a_token_step_2 AS (
 SELECT
     A.atoken_created_block,
     A.version_pool,
-    A.treasury_address,
+    NULL AS treasury_address,
     C.token_symbol AS atoken_symbol,
     A.a_token_address AS atoken_address,
-    b.token_stable_debt_address,
-    b.token_variable_debt_address,
+    NULL AS token_stable_debt_address,
+    NULL AS token_variable_debt_address,
     C.token_decimals AS atoken_decimals,
     v1.protocol || '-' || v1.version AS atoken_version,
     C.token_name AS atoken_name,
@@ -264,4 +266,3 @@ FROM
     qualify(ROW_NUMBER() over(PARTITION BY A.a_token_address
 ORDER BY
     A.atoken_created_block DESC)) = 1
-

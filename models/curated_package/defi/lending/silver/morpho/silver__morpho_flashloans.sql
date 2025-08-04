@@ -41,7 +41,7 @@ flashloan AS(
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -88,7 +88,7 @@ SELECT
     m.protocol,
     m.version,
     f._log_id,
-    f._inserted_timestamp,
+    f.modified_timestamp,
     'Flashloan' AS event_name
 FROM
     flashloan f

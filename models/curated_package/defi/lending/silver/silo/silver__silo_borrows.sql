@@ -30,7 +30,7 @@ WITH borrows AS(
         p.protocol,
         p.version,
         p.platform,
-        l.modified_timestamp AS _inserted_timestamp,
+        l.modified_timestamp,
         CONCAT(
             l.tx_hash :: STRING,
             '-',
@@ -49,7 +49,7 @@ WITH borrows AS(
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -78,11 +78,11 @@ SELECT
     d.version,
     d.platform,
     d._log_id,
-    d._inserted_timestamp,
+    d.modified_timestamp,
     'Borrow' AS event_name
 FROM
     borrows d
     LEFT JOIN {{ ref('silver__contracts') }} C
     ON d.asset_address = C.contract_address qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    d._inserted_timestamp DESC)) = 1
+    d.modified_timestamp DESC)) = 1

@@ -45,7 +45,7 @@ WITH silo_factory_addresses AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -83,7 +83,7 @@ silo_pull AS (
                 40
             )
         ) :: INTEGER AS version,
-        modified_timestamp AS _inserted_timestamp,
+        modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -142,7 +142,7 @@ SELECT
     l.version,
     sf.protocol || '-' || l.version AS platform,
     l._log_id,
-    l._inserted_timestamp
+    l.modified_timestamp
 FROM
     silo_pull l
     LEFT JOIN contracts C
@@ -156,4 +156,4 @@ FROM
 WHERE
     silo_address IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    l._inserted_timestamp DESC)) = 1
+    l.modified_timestamp DESC)) = 1

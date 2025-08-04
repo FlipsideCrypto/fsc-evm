@@ -81,16 +81,16 @@ logs_transform AS (
         l.origin_from_address,
         l.origin_to_address,
         pool_address AS frax_market_address,
-        NAME AS frax_market_name,
-        symbol AS frax_market_symbol,
-        decimals,
+        c.token_name AS frax_market_name,
+        c.token_symbol AS frax_market_symbol,
+        c.token_decimals AS frax_market_decimals,
         CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 42)) AS underlying_asset,
         CONCAT(
             l.tx_hash,
             '-',
             l.event_index
         ) AS _log_id,
-        l.modified_timestamp AS _inserted_timestamp
+        l.modified_timestamp
     FROM
         logs l
         LEFT JOIN contracts c
@@ -107,7 +107,7 @@ SELECT
     l.frax_market_address,
     l.frax_market_name,
     l.frax_market_symbol,
-    l.decimals as frax_market_decimals,
+    l.frax_market_decimals,
     c.token_name AS underlying_name,
     l.underlying_asset,
     c.token_symbol AS underlying_symbol,
