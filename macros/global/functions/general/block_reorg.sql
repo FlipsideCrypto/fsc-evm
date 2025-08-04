@@ -61,7 +61,6 @@
     {% set rows_to_delete = count_result.columns[0].values()[0] %}
     
     {% if rows_to_delete > 0 %}
-      {# Execute the delete using NOT EXISTS instead of LEFT JOIN #}
       {% set sql %}
         DELETE FROM {{ relation }} t
         WHERE t.block_timestamp between dateadd('day',-10,sysdate()) and dateadd('hour',-12,sysdate())
