@@ -5,7 +5,7 @@
     materialized = 'incremental',
     unique_key = ["contract_address", "implementation_contract"],
     cluster_by = ["start_timestamp::date"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(contract_address, implementation_contract)",
     tags = ['silver','core','phase_2']
 ) }}
 
