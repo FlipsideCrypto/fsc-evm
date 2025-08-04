@@ -22,6 +22,13 @@ v1_v2_pool_addresses AS (
         vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
     ) }}
     WHERE
+        type = 'aave_version_address'
+),
+v1_v2_pool_addresses AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
+    ) }}
+    WHERE
         type = 'aave_pool_addresses'
 ),
 contracts AS (
@@ -65,6 +72,7 @@ DECODE AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] = '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b'
+        
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -87,7 +95,6 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 aave_v1_v2_tokens AS (
     SELECT
         block_number AS atoken_created_block,
-        '0x398ec7346dcd622edc5ae82352f02be94c62d119' AS version_pool,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS a_token_address,
         null as atoken_stable_debt_address,
@@ -109,7 +116,7 @@ aave_v1_v2_tokens AS (
             contract_address
         FROM
             v1_v2_pool_addresses
-        and version = 'v1'
+        WHERE version = 'v1'
     )
 
 {% if is_incremental() %}
@@ -132,14 +139,11 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
     UNION ALL
     SELECT
         block_number AS atoken_created_block,
-        case when version = 'v2' then '0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'
-        when version = 'v2.1' then '0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'
-        end as version_pool,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS a_token_address,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40)) :: STRING AS atoken_stable_debt_address,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 27, 40)) :: STRING AS atoken_variable_debt_address,
-        contract_address AS pool_address,
+        l.contract_address AS pool_address,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS underlying_address,
         l.modified_timestamp,
         CONCAT(
@@ -148,17 +152,9 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
             l.event_index
         ) AS _log_id
     FROM
-        {{ ref('core__fact_event_logs') }}
-        l
+        {{ ref('core__fact_event_logs') }} l
     WHERE
         topics [0] = '0x3a0ca721fc364424566385a1aa271ed508cc2c0949c2272575fb3013a163a45f'
-    AND contract_address IN (
-        SELECT
-            contract_address
-        FROM
-            v1_v2_pool_addresses
-        and version in ('v2', 'v2.1')
-    )
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
@@ -183,18 +179,22 @@ aave_v1_v2_tokens_step_1 AS (
         version_pool,
         a_token_address,
         segmented_data,
+        CASE 
+            WHEN v1.version = 'v1' THEN '0x398ec7346dcd622edc5ae82352f02be94c62d119'
+            WHEN v1.version = 'v2' THEN '0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'
+            WHEN v1.version = 'v2.1' THEN '0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'
+        END AS version_pool,
         pool_address,
         underlying_asset,
         modified_timestamp,
+        v1.version,
+        v1.protocol,
         _log_id
     FROM
-        aave_v1_v2_tokens
-    WHERE pool_address IN (
-        SELECT
-            contract_address
-        FROM v1_v2_pool_addresses
-        and version in ('v1', 'v2', 'v2.1')
-    )
+        aave_v1_v2_tokens t
+    INNER JOIN v1_v2_pool_addresses v1
+    ON v1.contract_address = t.pool_address
+    
 ),
 a_token_step_1 AS (
     SELECT
@@ -217,6 +217,7 @@ a_token_step_1 AS (
         FROM
             treasury_addresses
     )
+    and version_pool in (select distinct aave_version_address from v1_v2_pool_addresses)
 ),
 debt_tokens AS (
     SELECT
@@ -256,7 +257,7 @@ a_token_step_2 AS (
         atoken_name,
         atoken_symbol,
         modified_timestamp,
-        _log_id,
+        _log_id
     FROM
         a_token_step_1
 )
@@ -269,20 +270,18 @@ SELECT
     NULL AS token_stable_debt_address,
     NULL AS token_variable_debt_address,
     C.token_decimals AS atoken_decimals,
-    v1.protocol || '-' || v1.version AS atoken_version,
+    atoken_version,
     C.token_name AS atoken_name,
     c2.token_symbol AS underlying_symbol,
     A.underlying_asset AS underlying_address,
     c2.token_decimals AS underlying_decimals,
     c2.token_name AS underlying_name,
-    v1.protocol,
-    v1.version,
+    A.protocol,
+    A.version,
     A.modified_timestamp,
     A._log_id
 FROM
-    aave_v1_tokens_filtered A
-    LEFT JOIN v1_v2_pool_addresses v1
-    ON A.pool_address = v1.contract_address
+    aave_v1_v2_tokens_step_1 A
     LEFT JOIN contracts c
     ON c.contract_address = A.a_token_address
     LEFT JOIN contracts c2

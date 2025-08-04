@@ -316,12 +316,14 @@
             },
             'radiant': {
                 'v2': {
-                    'aave_treasury': '0x28e395a54a64284dba39652921cd99924f4e3797'
+                    'aave_treasury': '0x28e395a54a64284dba39652921cd99924f4e3797',
+                    'aave_version_address': '0xa950974f64aa33f27f6c5e017eee93bf7588ed07'
                 }
             },
             'aave': {
                 'v3': {
-                    'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c'
+                    'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+                    'aave_version_address': '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'
                 },
                 'v2': {
                     'aave_pool_addresses': ['0x311bb771e4f8952e6da169b425e7e92d6ac45756',
