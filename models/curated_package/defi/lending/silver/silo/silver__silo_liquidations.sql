@@ -101,8 +101,8 @@ SELECT
     protocol_collateral_token,
     depositor_address AS borrower,
     receiver_address AS liquidator,
-    d.asset_address AS token_address,
-    C.token_symbol,
+    d.asset_address AS collateral_token,
+    C.token_symbol AS collateral_token_symbol,
     amount AS liquidated_amount_unadj,
     amount / pow(
         10,

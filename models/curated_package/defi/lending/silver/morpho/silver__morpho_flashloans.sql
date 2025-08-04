@@ -73,10 +73,11 @@ SELECT
     origin_to_address,
     origin_function_signature,
     f.contract_address,
+    f.contract_address AS protocol_market,
     caller AS initiator,
     null as target,
-    token AS protocol_market,
-    C.token_symbol,
+    token AS token_address,
+    C.token_symbol AS token_symbol,
     flashloan_quantity AS flashloan_amount_unadj,
     flashloan_quantity / pow(
         10,

@@ -205,7 +205,7 @@ morpho AS (
         tx_hash,
         block_number,
         block_timestamp,
-        event_index,
+        null as event_index,
         origin_from_address,
         origin_to_address,
         origin_function_signature,
