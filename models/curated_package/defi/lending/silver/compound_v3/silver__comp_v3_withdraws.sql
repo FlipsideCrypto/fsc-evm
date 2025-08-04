@@ -48,7 +48,7 @@ withdraw AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        l.modified_timestamp AS _inserted_timestamp
+        l.modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -67,7 +67,7 @@ withdraw AS (
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -96,11 +96,11 @@ SELECT
     A.version,
     A.platform,
     _log_id,
-    _inserted_timestamp,
+    modified_timestamp,
     'WithdrawCollateral' AS event_name
 FROM
     withdraw w
     LEFT JOIN comp_assets A
-    ON w.compound_market = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    ON w.compound_market = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    w.modified_timestamp DESC)) = 1

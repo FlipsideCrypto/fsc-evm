@@ -53,7 +53,7 @@ liquidations AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        l.modified_timestamp AS _inserted_timestamp
+        l.modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -72,7 +72,7 @@ liquidations AS (
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -107,11 +107,11 @@ SELECT
     A.version,
     A.platform,
     l._log_id,
-    l._inserted_timestamp,
+    l.modified_timestamp,
     'AbsorbCollateral' AS event_name
 FROM
     liquidations l
     LEFT JOIN comp_assets A
-    ON l.compound_market = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    ON l.compound_market = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    l.modified_timestamp DESC)) = 1

@@ -54,7 +54,7 @@ logs AS (
 AND modified_timestamp >= (
     SELECT
         MAX(
-            _inserted_timestamp
+            modified_timestamp
         ) - INTERVAL '36 hours'
     FROM
         {{ this }}
@@ -116,7 +116,7 @@ SELECT
     f.protocol,
     f.version,
     l._log_id,
-    l._inserted_timestamp,
+    l.modified_timestamp,
 FROM
     logs_transform l
 LEFT JOIN 

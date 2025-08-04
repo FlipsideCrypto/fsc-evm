@@ -79,13 +79,13 @@ traces AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
 tx_join AS (
@@ -105,7 +105,7 @@ tx_join AS (
         on_behalf_address,
         receiver_address,
         _call_id,
-        _inserted_timestamp
+        modified_timestamp
     FROM
         traces
 )

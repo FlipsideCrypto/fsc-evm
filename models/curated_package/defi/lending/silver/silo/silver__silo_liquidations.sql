@@ -36,7 +36,7 @@ WITH liquidations AS(
             WHEN shareamountrepaid > 0 THEN 'debt_token_event'
             ELSE 'collateral_token_event'
         END AS liquidation_event_type,
-        l.modified_timestamp AS _inserted_timestamp,
+        l.modified_timestamp,
         CONCAT(
             l.tx_hash :: STRING,
             '-',
@@ -55,7 +55,7 @@ WITH liquidations AS(
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -116,7 +116,7 @@ SELECT
     d.version,
     d.platform,
     d._log_id,
-    d._inserted_timestamp,
+    d.modified_timestamp,
     'Liquidate' AS event_name
 FROM
     liquidations d
@@ -127,4 +127,4 @@ FROM
 WHERE
     d.liquidation_event_type = 'collateral_token_event' qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
-    d._inserted_timestamp DESC)) = 1
+    d.modified_timestamp DESC)) = 1

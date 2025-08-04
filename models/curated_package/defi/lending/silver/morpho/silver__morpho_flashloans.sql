@@ -57,7 +57,7 @@ flashloan AS(
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
