@@ -1423,51 +1423,15 @@ complete_bridge_activity AS (
         receiver,
         destination_chain_receiver,
         CASE
-            WHEN platform IN (
-                'stargate-v1',
-                'wormhole-v1',
-                'meson-v1',
-                'allbridge-v2',
-                'chainlink_ccip-v1',
-                'layerzero-v2',
-                'stargate-v2',
-                'gaszip_lz-v2',
-                'everclear-v1',
-                'polygon_pos_bridge-v1',
-                'bob_l2_standard_bridge-v1',
-                'ink_l2_standard_bridge-v1',
-                'base_l2_standard_bridge-v1',
-                'optimism_l2_standard_bridge-v1',
-                'hyperliquid-v1',
-                'hyperliquid-v2'
-            ) THEN destination_chain_id :: STRING
-            WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
-            ELSE d.chain_id :: STRING
+            WHEN destination_chain_id :: STRING IS NULL 
+            THEN d.chain_id :: STRING
+            ELSE destination_chain_id :: STRING
         END AS destination_chain_id,
         CASE
-            WHEN platform IN (
-                'stargate-v1',
-                'wormhole-v1',
-                'meson-v1',
-                'allbridge-v2',
-                'chainlink_ccip-v1',
-                'layerzero-v2',
-                'stargate-v2',
-                'gaszip_lz-v2',
-                'everclear-v1',
-                'polygon_pos_bridge-v1',
-                'bob_l2_standard_bridge-v1',
-                'ink_l2_standard_bridge-v1',
-                'base_l2_standard_bridge-v1',
-                'optimism_l2_standard_bridge-v1',
-                'hyperliquid-v1',
-                'hyperliquid-v2'
-            ) THEN LOWER(destination_chain)
-            WHEN d.chain IS NULL THEN LOWER(destination_chain)
-            ELSE LOWER(
-                d.chain
-            )
-        END AS destination_chain,
+            WHEN destination_chain_id :: STRING IS NULL 
+            THEN LOWER(d.chain_id :: STRING)
+            ELSE LOWER(destination_chain_id :: STRING)
+        END AS destination_chain_id_lower,
         b.token_address,
         CASE
             WHEN platform = 'axelar-v1' THEN COALESCE(
