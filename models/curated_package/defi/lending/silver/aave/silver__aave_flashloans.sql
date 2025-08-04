@@ -9,10 +9,10 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','flashloans']
 ) }}
 
-WITH atoken_meta AS (
+WITH token_meta AS (
     SELECT
         atoken_created_block,
         version_pool,
@@ -28,15 +28,16 @@ WITH atoken_meta AS (
         underlying_address,
         underlying_decimals,
         underlying_name,
-        protocol,
-        version,
-        modified_timestamp,
-        _log_id
+            protocol,
+    version,
+    modified_timestamp,
+    _log_id
     FROM
-        {{ ref('silver__aave_v3_tokens') }}
+        {{ ref('silver__aave_tokens') }}
 ),
-withdraw AS(
+flashloan AS (
     SELECT
+        tx_hash,
         block_number,
         block_timestamp,
         event_index,
@@ -45,13 +46,21 @@ withdraw AS(
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS useraddress,
-        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS depositor,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
+        COALESCE(
+            origin_to_address,
+            CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
+        ) AS initiator_address,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS market,
         utils.udf_hex_to_int(
-            segmented_data [0] :: STRING
-        ) :: INTEGER AS withdraw_amount,
-        tx_hash,
+            segmented_data [1] :: STRING
+        ) :: INTEGER AS flashloan_quantity,
+        utils.udf_hex_to_int(
+            segmented_data [3] :: STRING
+        ) :: INTEGER AS premium_quantity,
+        utils.udf_hex_to_int(
+            topics [3] :: STRING
+        ) :: INTEGER AS refferalCode,
         COALESCE(
             origin_to_address,
             contract_address
@@ -66,8 +75,8 @@ withdraw AS(
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7',
-            '0x9c4ed599cd8555b9c1e8cd7643240d7d71eb76b792948c49fcb4d411f7b6b3c6'
+            '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0', --v3
+            '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' --v2
         )
 
 {% if is_incremental() %}
@@ -83,7 +92,7 @@ AND contract_address IN (
     SELECT
         DISTINCT(version_pool)
     FROM
-        atoken_meta
+        token_meta
 )
 AND tx_succeeded
 )
@@ -96,25 +105,31 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    depositor,
     market AS protocol_market,
+    initiator_address AS initiator,
+    target_address AS target,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
-    withdraw_amount AS amount_unadj,
-    withdraw_amount / pow(
+    t.underlying_decimals AS token_decimals,
+    flashloan_quantity AS flashloan_amount_unadj,
+    flashloan_quantity / pow(
         10,
         t.underlying_decimals
-    ) AS amount,
-    lending_pool_contract,
+    ) AS flashloan_amount,
+    premium_quantity AS premium_amount_unadj,
+    premium_quantity / pow(
+        10,
+        t.underlying_decimals
+    ) AS premium_amount,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    w._log_id,
-    w.modified_timestamp,
-    'Withdraw' AS event_name
+    f._log_id,
+    f.modified_timestamp,
+    'FlashLoan' AS event_name
 FROM
-    withdraw w
-    LEFT JOIN atoken_meta t
-    ON w.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY w._log_id
+    flashloan f
+    LEFT JOIN token_meta t
+    ON f.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY f._log_id
 ORDER BY
-    w.modified_timestamp DESC)) = 1
+    f.modified_timestamp DESC)) = 1

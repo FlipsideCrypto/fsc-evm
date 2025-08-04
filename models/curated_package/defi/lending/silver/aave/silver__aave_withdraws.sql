@@ -12,7 +12,7 @@
     tags = ['silver','defi','lending','curated']
 ) }}
 
-WITH token_meta AS (
+WITH atoken_meta AS (
     SELECT
         atoken_created_block,
         version_pool,
@@ -33,11 +33,10 @@ WITH token_meta AS (
         modified_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_v3_tokens') }}
+        {{ ref('silver__aave_tokens') }}
 ),
-repay AS(
+withdraw AS(
     SELECT
-        tx_hash,
         block_number,
         block_timestamp,
         event_index,
@@ -47,16 +46,16 @@ repay AS(
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower_address,
-        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS repayer,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS useraddress,
+        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS depositor,
         utils.udf_hex_to_int(
             segmented_data [0] :: STRING
-        ) :: INTEGER AS repayed_amount,
+        ) :: INTEGER AS withdraw_amount,
+        tx_hash,
         COALESCE(
             origin_to_address,
             contract_address
         ) AS lending_pool_contract,
-        origin_from_address AS repayer_address,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -67,10 +66,9 @@ repay AS(
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0x4cdde6e09bb755c9a5589ebaec640bbfedff1362d4b255ebf8339782b9942faa',
-            '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
+            '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7',
+            '0x9c4ed599cd8555b9c1e8cd7643240d7d71eb76b792948c49fcb4d411f7b6b3c6'
         )
-
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -85,7 +83,7 @@ AND contract_address IN (
     SELECT
         DISTINCT(version_pool)
     FROM
-        token_meta
+        atoken_meta
 )
 AND tx_succeeded
 )
@@ -98,26 +96,25 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
+    depositor,
     market AS protocol_market,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
-    repayed_amount AS amount_unadj,
-    repayed_amount / pow(
+    withdraw_amount AS amount_unadj,
+    withdraw_amount / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    repayer_address AS payer,
-    borrower_address AS borrower,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    r._log_id,
-    r.modified_timestamp,
-    'Repay' AS event_name
+    w._log_id,
+    w.modified_timestamp,
+    'Withdraw' AS event_name
 FROM
-    repay r
-    LEFT JOIN token_meta t
-    ON r.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY r._log_id
+    withdraw w
+    LEFT JOIN atoken_meta t
+    ON w.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY
-    r.modified_timestamp DESC)) = 1
+    w.modified_timestamp DESC)) = 1

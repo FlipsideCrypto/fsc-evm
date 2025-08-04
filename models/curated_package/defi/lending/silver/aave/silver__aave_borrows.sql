@@ -35,7 +35,7 @@ token_meta AS (
     modified_timestamp,
     _log_id
     FROM
-        {{ ref('silver__aave_v3_tokens') }}
+        {{ ref('silver__aave_tokens') }}
 ),
 borrow AS (
     SELECT

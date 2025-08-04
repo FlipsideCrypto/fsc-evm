@@ -292,6 +292,17 @@
                     'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
                 }
             },
+            'fraxlend': {
+                'v1': {
+                    'fraxlend_origin_from_address': ['0xcbc616d595d38483e6adc45c7e426f44bf230928',
+                    '0x381e2495e683868f693aa5b1414f712f21d34b40',
+                    '0x05fb8ec3c41da95b26fcb85503daf8b89b89a935',
+                    '0xf4e1d185666a624099298fcc42c50ba662dc7e52',
+                    '0x31562ae726afebe25417df01bedc72ef489f45b3',
+                    '0xdb3388e770f49a604e11f1a2084b39279492a61f',
+                    '0x6e74053a3798e0fc9a9775f7995316b27f21c4d2']
+                }
+            },
             'radiant': {
                 'v1': {
                     'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']

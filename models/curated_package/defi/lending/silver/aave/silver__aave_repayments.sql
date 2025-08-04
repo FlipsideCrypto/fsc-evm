@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','flashloans']
+    tags = ['silver','defi','lending','curated']
 ) }}
 
 WITH token_meta AS (
@@ -28,14 +28,14 @@ WITH token_meta AS (
         underlying_address,
         underlying_decimals,
         underlying_name,
-            protocol,
-    version,
-    modified_timestamp,
-    _log_id
+        protocol,
+        version,
+        modified_timestamp,
+        _log_id
     FROM
-        {{ ref('silver__aave_v3_tokens') }}
+        {{ ref('silver__aave_tokens') }}
 ),
-flashloan AS (
+repay AS(
     SELECT
         tx_hash,
         block_number,
@@ -46,25 +46,17 @@ flashloan AS (
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
-        COALESCE(
-            origin_to_address,
-            CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
-        ) AS initiator_address,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS market,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower_address,
+        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS repayer,
         utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS flashloan_quantity,
-        utils.udf_hex_to_int(
-            segmented_data [3] :: STRING
-        ) :: INTEGER AS premium_quantity,
-        utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferalCode,
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS repayed_amount,
         COALESCE(
             origin_to_address,
             contract_address
         ) AS lending_pool_contract,
+        origin_from_address AS repayer_address,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -75,9 +67,10 @@ flashloan AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0', --v3
-            '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' --v2
+            '0x4cdde6e09bb755c9a5589ebaec640bbfedff1362d4b255ebf8339782b9942faa',
+            '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
         )
+
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -106,30 +99,25 @@ SELECT
     origin_function_signature,
     contract_address,
     market AS protocol_market,
-    initiator_address AS initiator,
-    target_address AS target,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
-    t.underlying_decimals AS token_decimals,
-    flashloan_quantity AS flashloan_amount_unadj,
-    flashloan_quantity / pow(
+    repayed_amount AS amount_unadj,
+    repayed_amount / pow(
         10,
         t.underlying_decimals
-    ) AS flashloan_amount,
-    premium_quantity AS premium_amount_unadj,
-    premium_quantity / pow(
-        10,
-        t.underlying_decimals
-    ) AS premium_amount,
+    ) AS amount,
+    repayer_address AS payer,
+    borrower_address AS borrower,
+    lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    f._log_id,
-    f.modified_timestamp,
-    'FlashLoan' AS event_name
+    r._log_id,
+    r.modified_timestamp,
+    'Repay' AS event_name
 FROM
-    flashloan f
+    repay r
     LEFT JOIN token_meta t
-    ON f.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY f._log_id
+    ON r.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
-    f.modified_timestamp DESC)) = 1
+    r.modified_timestamp DESC)) = 1

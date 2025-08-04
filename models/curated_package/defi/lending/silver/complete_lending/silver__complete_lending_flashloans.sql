@@ -55,7 +55,7 @@ prices AS (
   WHERE
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
-aave_v3 AS (
+aave AS (
     SELECT
         tx_hash,
         block_number,
@@ -80,11 +80,11 @@ aave_v3 AS (
         A.modified_timestamp,
         A.event_name
     FROM
-        {{ ref('silver__aave_v3_flashloans') }} A
+        {{ ref('silver__aave_flashloans') }} A
     WHERE
         token_symbol IS NOT NULL
 
-{% if is_incremental() and 'aave_v3' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -135,7 +135,7 @@ flashloans AS (
   SELECT
     *
   FROM
-    aave_v3
+    aave
   UNION ALL
   SELECT
     *
