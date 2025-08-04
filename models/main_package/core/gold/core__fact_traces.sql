@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = vars.MAIN_CORE_GOLD_TRACES_UNIQUE_KEY,
     cluster_by = ['block_timestamp::DATE'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(block_number,tx_hash,from_address,to_address,trace_address,type,origin_from_address,origin_to_address,origin_function_signature), SUBSTRING(input,output,type,trace_address)",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(block_number,tx_hash,from_address,to_address,trace_address,type,origin_from_address,origin_to_address,origin_function_signature)",
     incremental_predicates = [fsc_evm.standard_predicate()],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold','core','traces','phase_2']
