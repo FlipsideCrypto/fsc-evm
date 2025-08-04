@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "compound_market_address",
-    tags = ['silver','defi','lending','curated','asset_details']
+    tags = ['silver','defi','lending','curated','compound']
 ) }}
 
 {# Get variables #}

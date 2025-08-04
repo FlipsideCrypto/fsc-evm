@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','compound']
 ) }}
 -- pull all token addresses and corresponding name
 WITH asset_details AS (

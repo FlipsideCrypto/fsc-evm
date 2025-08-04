@@ -225,7 +225,7 @@ morpho AS (
         platform,
         protocol,
         version,
-        A._LOG_ID,
+        _id as _log_id,
         A.modified_timestamp,
         A.event_name
     FROM

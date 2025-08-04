@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "silo_address",
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','silo']
 ) }}
 
 {# Get variables #}

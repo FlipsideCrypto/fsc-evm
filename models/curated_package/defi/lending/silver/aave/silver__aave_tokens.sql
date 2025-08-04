@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "atoken_address",
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','aave']
 ) }}
 
 WITH treasury_addresses AS (

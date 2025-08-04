@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = '_log_id',
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','fraxlend']
 ) }}
 
 {# Get variables #}

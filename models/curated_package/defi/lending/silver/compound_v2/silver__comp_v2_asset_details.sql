@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "token_address",
-    tags = ['silver','defi','lending','curated']
+    tags = ['silver','defi','lending','curated','compound']
 ) }}
 
 WITH origin_from_addresses AS (
