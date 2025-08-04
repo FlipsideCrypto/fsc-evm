@@ -70,7 +70,7 @@
           AND cb.tx_hash = t.tx_hash
         );
       {% endset %}
-      {# {% do run_query(sql) %} #}
+      {% do run_query(sql) %}
       {{ log("✅ DELETED " ~ rows_to_delete ~ " rows from " ~ model, info=true) }}
     {% else %}
       {{ log("ℹ️  No rows to delete from " ~ model, info=true) }}
