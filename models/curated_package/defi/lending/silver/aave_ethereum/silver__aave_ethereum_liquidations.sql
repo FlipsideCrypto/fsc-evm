@@ -108,7 +108,7 @@ SELECT
     liquidator_address AS liquidator,
     borrower_address AS borrower,
     amc.atoken_address AS protocol_market,
-    collateral_asset AS collateral_token,
+    l.collateral_asset AS collateral_token,
     amc.underlying_symbol AS collateral_token_symbol,
     liquidated_amount AS liquidated_amount_unadj,
     liquidated_amount / pow(
