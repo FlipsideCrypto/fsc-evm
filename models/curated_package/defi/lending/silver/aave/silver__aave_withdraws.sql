@@ -118,7 +118,7 @@ SELECT
     'Withdraw' AS event_name
 FROM
     withdraw w
-    LEFT JOIN atoken_meta t
+    INNER JOIN atoken_meta t
     ON w.market = t.underlying_address
     and w.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY

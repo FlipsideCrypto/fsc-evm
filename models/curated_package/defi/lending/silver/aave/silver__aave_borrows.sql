@@ -144,7 +144,7 @@ SELECT
     'Borrow' AS event_name
 FROM
     borrow b
-    LEFT JOIN token_meta t
+    INNER JOIN token_meta t
     ON b.market = t.underlying_address
     and b.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY b._log_id
 ORDER BY

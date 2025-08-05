@@ -133,6 +133,7 @@ SELECT
     'FlashLoan' AS event_name
 FROM
     flashloan f
+    INNER JOIN token_meta t
     ON f.market = t.underlying_address
     and f.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY f._log_id
 ORDER BY
