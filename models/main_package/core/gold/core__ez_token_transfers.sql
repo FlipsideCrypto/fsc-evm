@@ -59,7 +59,7 @@ WITH base AS (
             'erc20',
             NULL
         ) AS token_standard,
-        coalesce(p.is_verified, p1.is_verified, false) as token_is_verified,
+        IFF(contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}', true, coalesce(p.is_verified, false)) as token_is_verified,
         fact_event_logs_id AS ez_token_transfers_id,
         {% if is_incremental() or vars.GLOBAL_NEW_BUILD_ENABLED %}
         SYSDATE() AS inserted_timestamp,

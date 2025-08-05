@@ -287,20 +287,40 @@
     ),
     labeled_transfers AS (
         SELECT
-            t.*,
-            l.label_type,
+            t.block_date,
+            t.origin_from_address,
+            t.origin_to_address,
+            t.contract_address,
+            t.event_index,
+            t.block_timestamp,
+            t.block_number,
+            t.tx_hash,
+            t.transfer_type,
+            t.value,
+            t.token_from_address,
+            t.token_to_address,
+            t.is_mint,
+            lbl_from.label_type AS from_type,
+            lbl_from.label_subtype AS from_subtype,
+            lbl_to.label_type AS to_type,
+            lbl_to.label_subtype AS to_subtype,
             CASE
                 WHEN is_mint AND transfer_type = 'erc721_transfer' THEN 'n_nft_mint'
                 WHEN is_mint AND transfer_type = 'erc1155_transfer' THEN 'n_nft_mint'
                 WHEN is_mint AND transfer_type = 'erc1155_transfer_batch' THEN 'n_nft_mint'
-                WHEN l.label_type = 'bridge' and l.label_subtype <> 'token_contract' THEN 'n_bridge_in'
-                WHEN l.label_type = 'cex' THEN 'n_cex_withdrawals'
+                WHEN lbl_from.label_type = 'bridge' and lbl_from.label_subtype <> 'token_contract' THEN 'n_bridge_in'
+                WHEN (transfer_type = 'native_transfer' or (transfer_type = 'erc20_transfer' and am.is_verified)) 
+                AND from_type = 'cex' and from_subtype in ('hot_wallet', 'deposit_wallet')
+                AND to_type IS NULL
+                THEN 'n_cex_withdrawals'
                 ELSE NULL
             END AS label_metric_name,
             metric_rank
         FROM
             all_transfers t
-        LEFT JOIN {{ ref('core__dim_labels') }} l ON t.token_from_address = l.address
+        LEFT JOIN {{ ref('core__dim_labels') }} lbl_from ON t.token_from_address = lbl_from.address
+        LEFT JOIN {{ ref('core__dim_labels') }} lbl_to ON t.token_to_address = lbl_to.address
+        LEFT JOIN {{ ref('price__ez_asset_metadata')}} am ON t.contract_address = am.token_address
         LEFT JOIN {{ ref('scores__scoring_activity_categories') }} a ON a.metric = label_metric_name
     ),
     eligible_events AS (
@@ -320,7 +340,6 @@
             n.metric AS name_metric_name,
             CASE
                 WHEN l.label_type = 'bridge' THEN 'n_bridge_in'
-                WHEN l.label_type = 'cex' THEN 'n_cex_withdrawals'
                 WHEN l.label_type = 'dex' THEN 'n_swap_tx'
                 WHEN l.label_type = 'defi' THEN 'n_other_defi'
                 ELSE NULL
@@ -343,7 +362,9 @@
         WHERE
             e.event_sig NOT IN (
                 '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', -- transfers
-                '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925' -- approvals
+                '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925', -- approvals,
+                '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb', -- transfer batch
+                '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62' -- transfer single
             )
     ),
     prioritized_eligible_events AS (

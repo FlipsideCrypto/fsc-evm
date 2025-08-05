@@ -72,7 +72,7 @@ WITH actions AS (
         AND modified_timestamp > '{{ max_modified_timestamp }}'
         {% endif %}
 ),
-priorititized_txs AS (
+prioritized_actions AS (
     SELECT
         block_date,
         origin_from_address,
@@ -98,6 +98,7 @@ simple_aggs AS (
         block_date,
         CASE
             WHEN action_type = 'contract_interaction' THEN origin_from_address
+            WHEN metric_name = 'n_cex_withdrawals' THEN action_details :token_to_address :: STRING
             ELSE action_details :token_from_address :: STRING
         END AS user_address,
         SUM(IFF(metric_name = 'n_bridge_in', 1, 0)) AS n_bridge_in,
@@ -111,7 +112,7 @@ simple_aggs AS (
         SUM(IFF(metric_name = 'n_stake_tx', 1, 0)) AS n_stake_tx,
         SUM(IFF(metric_name = 'n_restakes', 1, 0)) AS n_restakes
     FROM
-        priorititized_txs
+        prioritized_actions
     GROUP BY
         ALL
 ),
