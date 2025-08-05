@@ -12,7 +12,7 @@
 
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
-        vars.curated_defi_bridge_contract_mapping
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
     ) }}
     WHERE
         protocol = 'chainlink_ccip'
