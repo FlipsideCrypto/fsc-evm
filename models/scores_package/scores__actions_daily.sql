@@ -97,9 +97,16 @@ simple_aggs AS (
     SELECT
         block_date,
         CASE
-            WHEN action_type = 'contract_interaction' THEN origin_from_address
+            WHEN metric_name = 'n_bridge_in' THEN action_details :token_to_address :: STRING
             WHEN metric_name = 'n_cex_withdrawals' THEN action_details :token_to_address :: STRING
-            ELSE action_details :token_from_address :: STRING
+            WHEN metric_name = 'n_other_defi' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_lp_adds' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_swap_tx' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_nft_mints' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_nft_trades' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_gov_votes' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_stake_tx' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_restakes' THEN origin_from_address :: STRING
         END AS user_address,
         SUM(IFF(metric_name = 'n_bridge_in', 1, 0)) AS n_bridge_in,
         SUM(IFF(metric_name = 'n_cex_withdrawals', 1, 0)) AS n_cex_withdrawals,
