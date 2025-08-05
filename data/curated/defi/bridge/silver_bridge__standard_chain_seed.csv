@@ -285,6 +285,7 @@ sx network,sx_network
 taiko,taiko
 taker,taker
 tangle,tangle
+tbwg chain,tbwg_chain
 telos,telos
 telos evm mainnet,telosevm
 telosevm,telosevm
