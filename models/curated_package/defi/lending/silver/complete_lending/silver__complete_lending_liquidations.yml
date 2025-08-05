@@ -26,8 +26,6 @@ models:
         tests:
           - not_null
       - name: ORIGIN_TO_ADDRESS
-        tests:
-          - not_null
       - name: ORIGIN_FUNCTION_SIGNATURE
         tests:
           - not_null

@@ -43,7 +43,7 @@ models:
       - name: PAYER
         tests:
           - not_null:
-              where: PLATFORM <> 'Silo'
+              where: PLATFORM <> 'silo-v1'
       - name: BORROWER
         tests:
           - not_null
