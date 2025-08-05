@@ -1,12 +1,12 @@
 models:
   - name: observability__traces
     columns:
-      - name: test_timestamp
+      - name: TEST_TIMESTAMP
         tests:
           - not_null
-      - name: blocks_impacted_count
+      - name: BLOCKS_IMPACTED_COUNT
         tests:
-          - accepted_values:
-              values: [0]
-              config:
-                where: "test_timestamp >= DATEADD('day',-5,SYSDATE())" 
+          - accepted_values_recent_row:
+              value: 0
+              timestamp_column: 'TEST_TIMESTAMP'
+              context_column: 'MISSING_LIST' 
