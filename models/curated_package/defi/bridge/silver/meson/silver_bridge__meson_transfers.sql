@@ -199,7 +199,7 @@ SELECT
     END AS destination_chain_receiver,
     amount_unadj,
     destination_chain_id,
-    COALESCE(LOWER(chain),'other') AS destination_chain,
+    LOWER(chain) AS destination_chain,
     token_address,
     t.protocol,
     t.version,
