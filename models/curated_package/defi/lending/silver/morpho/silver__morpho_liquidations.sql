@@ -167,7 +167,8 @@ SELECT
     m.protocol,
     m.version,
     t._call_id AS _id,
-    t.modified_timestamp
+    t.modified_timestamp,
+    'Liquidate' AS event_name
 FROM
     traces t
     INNER JOIN logs l

@@ -75,7 +75,7 @@ aave AS (
         premium_amount,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         A._LOG_ID,
         A.modified_timestamp,
         A.event_name
@@ -113,8 +113,8 @@ morpho AS (
         premium_amount,
         platform,
         protocol,
-        version,
-        _id as _log_id,
+        version :: STRING AS version,
+        A._log_id,
         A.modified_timestamp,
         A.event_name
     FROM
@@ -172,7 +172,7 @@ complete_lending_flashloans AS (
     ) AS premium_amount_usd,
     platform,
     protocol,
-    version,
+    version :: STRING AS version,
     f._LOG_ID,
     f.modified_timestamp
   FROM
@@ -344,7 +344,7 @@ FINAL AS (
     premium_amount_usd,
     platform,
     protocol,
-    version,
+    version :: STRING AS version,
     _LOG_ID,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -377,7 +377,7 @@ SELECT
   premium_amount_usd_heal AS premium_amount_usd,
   platform,
   protocol,
-  version,
+  version :: STRING AS version,
   _LOG_ID,
   modified_timestamp AS _inserted_timestamp
 FROM

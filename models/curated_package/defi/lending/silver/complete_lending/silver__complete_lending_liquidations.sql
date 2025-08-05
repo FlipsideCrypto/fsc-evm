@@ -77,7 +77,7 @@ aave AS (
       repaid_amount_unadj,
       repaid_amount,
       protocol,
-      version,
+      version :: STRING AS version,
       platform,
       _log_id,
       modified_timestamp,
@@ -119,7 +119,7 @@ comp_v2_fork AS (
       repaid_amount_unadj,
       repaid_amount,
       protocol,
-      version,
+      version :: STRING AS version,
       platform,
       _log_id,
       modified_timestamp,
@@ -161,7 +161,7 @@ compound_v3 AS (
       repaid_amount_unadj,
       repaid_amount,
       protocol,
-      version,
+      version :: STRING AS version,
       platform,
       _log_id,
       modified_timestamp,
@@ -203,7 +203,7 @@ silo AS (
       repaid_amount_unadj,
       repaid_amount,
       protocol,
-      version,
+      version :: STRING AS version,
       platform,
       _log_id,
       modified_timestamp,
@@ -365,7 +365,7 @@ heal_model AS (
     ROUND(t0.repaid_amount * p2.price, 2) AS repaid_amount_usd_heal,
     t0.platform,
     t0.protocol,
-    t0.version,
+    t0.version :: STRING AS version,
     t0._LOG_ID,
     t0.modified_timestamp
   FROM
@@ -472,7 +472,7 @@ FINAL AS (
     repaid_amount_usd,
     platform,
     protocol,
-    version,
+    version :: STRING AS version,
     _LOG_ID,
     modified_timestamp AS _inserted_timestamp
   FROM
@@ -507,7 +507,7 @@ SELECT
   repaid_amount_usd_heal AS repaid_amount_usd,
   platform,
   protocol,
-  version,
+  version :: STRING AS version,
   _LOG_ID,
   modified_timestamp AS _inserted_timestamp
 FROM

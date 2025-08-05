@@ -74,7 +74,7 @@ aave AS (
         amount,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         A._LOG_ID,
         A.modified_timestamp,
         A.event_name
@@ -110,7 +110,7 @@ comp_v2_fork AS (
         amount,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         A._LOG_ID,
         A.modified_timestamp,
         A.event_name
@@ -146,7 +146,7 @@ compound_v3 AS (
         amount,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         A._LOG_ID,
         A.modified_timestamp,
         A.event_name
@@ -182,7 +182,7 @@ silo AS (
         amount,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         A._LOG_ID,
         A.modified_timestamp,
         A.event_name
@@ -218,7 +218,7 @@ morpho AS (
         amount,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         _id as _log_id,
         A.modified_timestamp,
         A.event_name
@@ -285,7 +285,7 @@ complete_lending_borrows AS (
         ) AS amount_usd,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         b._LOG_ID,
         b.modified_timestamp
     FROM
@@ -325,7 +325,7 @@ heal_model AS (
         ) AS amount_usd_heal,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         t0._LOG_ID,
         t0.modified_timestamp
     FROM
@@ -404,7 +404,7 @@ FINAL AS (
         amount_usd,
         platform,
         protocol,
-        version,
+        version :: STRING AS version,
         _LOG_ID,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -433,7 +433,7 @@ SELECT
     amount_usd_heal AS amount_usd,
     platform,
     protocol,
-    version,
+    version :: STRING AS version,
     _LOG_ID,
     modified_timestamp AS _inserted_timestamp
 FROM
