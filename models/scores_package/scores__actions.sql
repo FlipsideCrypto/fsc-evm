@@ -253,9 +253,9 @@
             lbl_to.label_type AS to_type,
             lbl_to.label_subtype AS to_subtype,
             CASE
-                WHEN is_mint AND transfer_type = 'erc721_transfer' THEN 'n_nft_mint'
-                WHEN is_mint AND transfer_type = 'erc1155_transfer' THEN 'n_nft_mint'
-                WHEN is_mint AND transfer_type = 'erc1155_transfer_batch' THEN 'n_nft_mint'
+                WHEN is_mint AND transfer_type = 'erc721_transfer' THEN 'n_nft_mints'
+                WHEN is_mint AND transfer_type = 'erc1155_transfer' THEN 'n_nft_mints'
+                WHEN is_mint AND transfer_type = 'erc1155_transfer_batch' THEN 'n_nft_mints'
                 WHEN lbl_from.label_type = 'bridge' and lbl_from.label_subtype <> 'token_contract' THEN 'n_bridge_in'
                 WHEN (transfer_type = 'native_transfer' or (transfer_type = 'erc20_transfer' and am.is_verified)) 
                 AND from_type = 'cex' and from_subtype in ('hot_wallet', 'deposit_wallet')
