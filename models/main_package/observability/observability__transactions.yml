@@ -6,7 +6,6 @@ models:
           - not_null
       - name: BLOCKS_IMPACTED_COUNT
         tests:
-          - accepted_values:
-              values: [0]
-              config:
-                where: "TEST_TIMESTAMP = (SELECT MAX(TEST_TIMESTAMP) FROM {{ this }})" 
+          - accepted_values_recent_row:
+              value: 0
+              timestamp_column: 'TEST_TIMESTAMP' 
