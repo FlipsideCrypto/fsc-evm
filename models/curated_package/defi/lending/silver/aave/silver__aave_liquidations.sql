@@ -60,6 +60,14 @@ liquidation AS(
             origin_to_address,
             contract_address
         ) AS lending_pool_contract,
+        CASE
+            WHEN debt_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE debt_asset
+        END AS debt_asset,
+        CASE
+            WHEN collateral_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE collateral_asset
+        END AS collateral_asset,
         CONCAT(
             tx_hash :: STRING,
             '-',

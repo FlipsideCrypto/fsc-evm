@@ -78,8 +78,8 @@ borrow AS (
         END AS borrow_rate,
         origin_from_address AS borrower_address,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,

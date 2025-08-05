@@ -47,27 +47,50 @@ flashloan AS (
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
-        COALESCE(
-            origin_to_address,
-            CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
-        ) AS initiator_address,
+        CASE
+            WHEN topics [0] :: STRING = '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
+            WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0'
+            AND origin_to_address IS NULL THEN CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
+            WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0' THEN origin_to_address
+            ELSE origin_from_address
+        END AS initiator_address,
+        CASE
+            WHEN topics [0] :: STRING = '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' THEN CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40))
+            WHEN topics [0] :: STRING = '0x5b8f46461c1dd69fb968f1a003acee221ea3e19540e350233b612ddb43433b55' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
+            WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
+        END AS asset_1,
+        CASE
+            WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0' THEN utils.udf_hex_to_int(
+                segmented_data [1] :: STRING
+            ) :: INTEGER
+            ELSE utils.udf_hex_to_int(
+                segmented_data [0] :: STRING
+            ) :: INTEGER
+        END AS flashloan_quantity,
+        CASE
+            WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0' THEN utils.udf_hex_to_int(
+                segmented_data [3] :: STRING
+            ) :: INTEGER
+            ELSE utils.udf_hex_to_int(
+                segmented_data [1] :: STRING
+            ) :: INTEGER
+        END AS premium_quantity,
+        CASE
+            WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0' THEN utils.udf_hex_to_int(
+                topics [3] :: STRING
+            ) :: INTEGER
+            ELSE utils.udf_hex_to_int(
+                segmented_data [2] :: STRING
+            ) :: INTEGER
+        END AS refferalCode,
         CASE 
             WHEN LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' 
                 THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
             ELSE CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
         END AS market,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS flashloan_quantity,
-        utils.udf_hex_to_int(
-            segmented_data [3] :: STRING
-        ) :: INTEGER AS premium_quantity,
-        utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferalCode,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,
@@ -79,8 +102,9 @@ flashloan AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0', --v3
-            '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' --v2
+            '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac',
+            '0x5b8f46461c1dd69fb968f1a003acee221ea3e19540e350233b612ddb43433b55',
+            '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0'
         )
 
 {% if is_incremental() %}

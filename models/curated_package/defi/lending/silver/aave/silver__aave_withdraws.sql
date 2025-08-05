@@ -51,14 +51,17 @@ withdraw AS(
             ELSE CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))
         END AS market,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS useraddress,
-        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS depositor,
+        CASE
+            WHEN topics [0] :: STRING = '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7' THEN CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40))
+            ELSE origin_from_address
+        END AS depositor,
         utils.udf_hex_to_int(
             segmented_data [0] :: STRING
         ) :: INTEGER AS withdraw_amount,
         tx_hash,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,
@@ -115,7 +118,10 @@ SELECT
     t.version,
     w._log_id,
     w.modified_timestamp,
-    'Withdraw' AS event_name
+    CASE
+        WHEN w.topics [0] :: STRING = '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7' THEN 'Withdraw'
+        ELSE 'RedeemUnderlying'
+    END AS event_name
 FROM
     withdraw w
     INNER JOIN atoken_meta t
