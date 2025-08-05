@@ -10,7 +10,7 @@
     tags = ['silver','defi','lending','curated','aave']
 ) }}
 
-contracts AS (
+WITH contracts AS (
     SELECT
         contract_address,
         token_name,

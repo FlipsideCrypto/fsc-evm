@@ -119,7 +119,7 @@ SELECT
     w._log_id,
     w.modified_timestamp,
     CASE
-        WHEN v.version = 'v1' THEN 'RedeemUnderlying'
+        WHEN t.version = 'v1' THEN 'RedeemUnderlying'
         ELSE 'Withdraw'
     END AS event_name
 FROM
