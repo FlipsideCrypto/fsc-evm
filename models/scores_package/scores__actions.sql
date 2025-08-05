@@ -75,18 +75,14 @@
         FROM
             {{ ref('core__fact_transactions') }} t
 
-        {% if is_incremental() %}
-            WHERE t.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
-        {% endif %}
-
         WHERE 
             tx_succeeded
-
-        {% if is_incremental() %}
+            {% if is_incremental() %}
+            AND t.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
             AND 1=1
-        {% else %}
+            {% else %}
             AND block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
+            {% endif %}
     ),
     raw_logs AS (
         SELECT
@@ -105,17 +101,13 @@
             {{ ref('core__fact_event_logs') }} l
         JOIN txs USING (block_number, tx_hash)
 
-        {% if is_incremental() %}
-            WHERE l.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
-        {% endif %}
-
         WHERE
-            
-        {% if is_incremental() %}
-            1=1
-        {% else %}
+            {% if is_incremental() %}
+            l.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
+            AND 1=1
+            {% else %}
             l.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
+            {% endif %}
     ),
     decoded_event_logs AS (
         SELECT
@@ -129,17 +121,13 @@
             {{ ref('core__ez_decoded_event_logs') }} dl
         JOIN txs USING (block_number, tx_hash)
 
-        {% if is_incremental() %}
-            WHERE dl.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
-        {% endif %}
-
         WHERE
-            
-        {% if is_incremental() %}
-            1=1
-        {% else %}
+            {% if is_incremental() %}
+            dl.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
+            AND 1=1
+            {% else %}
             dl.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
+            {% endif %}
     ),
     native_transfers AS (
         SELECT
@@ -154,19 +142,15 @@
             {{ ref('core__fact_traces') }} tr
         JOIN txs USING (block_number, tx_hash)
 
-        {% if is_incremental() %}
-            WHERE tr.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
-        {% endif %}
-
         WHERE
-
-        {% if is_incremental() %}
-            1=1
-        {% else %}
+            {% if is_incremental() %}
+            tr.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
+            AND 1=1
+            {% else %}
             tr.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
-        AND value > 0
-        AND trace_succeeded
+            {% endif %}
+            AND value > 0
+            AND trace_succeeded
     ),
     event_names AS (
         SELECT
