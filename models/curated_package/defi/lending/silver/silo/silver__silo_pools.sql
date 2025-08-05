@@ -139,8 +139,8 @@ SELECT
     dt.token_symbol AS protocol_debt_token_symbol,
     dt.token_decimals AS protocol_debt_token_decimals,
     sf.protocol,
-    l.version,
-    sf.protocol || '-' || l.version AS platform,
+    sf.version,
+    sf.protocol || '-' || sf.version AS platform,
     l._log_id,
     l.modified_timestamp
 FROM

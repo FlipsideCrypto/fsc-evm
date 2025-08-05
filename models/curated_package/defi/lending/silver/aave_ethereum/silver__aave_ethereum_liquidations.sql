@@ -63,11 +63,11 @@ liquidation AS(
         CASE
             WHEN debt_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
             ELSE debt_asset
-        END AS debt_asset,
+        END AS debt_token,
         CASE
             WHEN collateral_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
             ELSE collateral_asset
-        END AS collateral_asset,
+        END AS collateral_token,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -108,14 +108,14 @@ SELECT
     liquidator_address AS liquidator,
     borrower_address AS borrower,
     amc.atoken_address AS protocol_market,
-    l.collateral_asset AS collateral_token,
+    l.collateral_token,
     amc.underlying_symbol AS collateral_token_symbol,
     liquidated_amount AS liquidated_amount_unadj,
     liquidated_amount / pow(
         10,
         amc.underlying_decimals
     ) AS liquidated_amount,
-    debt_asset AS debt_token,
+    l.debt_token,
     amd.underlying_symbol AS debt_token_symbol,
     debt_to_cover_amount AS repaid_amount_unadj,
     debt_to_cover_amount / pow(
