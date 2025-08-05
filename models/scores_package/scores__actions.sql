@@ -76,16 +76,7 @@
             {{ ref('core__fact_transactions') }} t
 
         {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON t.block_timestamp::date = b.block_date
+            WHERE t.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
         {% endif %}
 
         WHERE 
@@ -115,16 +106,7 @@
         JOIN txs USING (block_number, tx_hash)
 
         {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON l.block_timestamp::date = b.block_date
+            WHERE l.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
         {% endif %}
 
         WHERE
@@ -148,16 +130,7 @@
         JOIN txs USING (block_number, tx_hash)
 
         {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON dl.block_timestamp::date = b.block_date
+            WHERE dl.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
         {% endif %}
 
         WHERE
@@ -182,16 +155,7 @@
         JOIN txs USING (block_number, tx_hash)
 
         {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON tr.block_timestamp::date = b.block_date
+            WHERE tr.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
         {% endif %}
 
         WHERE
@@ -404,7 +368,8 @@
                 'value', value,
                 'token_from_address', token_from_address,
                 'token_to_address', token_to_address,
-                'label_type', label_type,
+                'from_label_type', from_type,
+                'to_label_type', to_type,
                 'contract_address', contract_address
             ) AS action_details,
             label_metric_name AS metric_name,
