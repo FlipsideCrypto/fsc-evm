@@ -96,6 +96,34 @@ traces_pull AS (
         )
         AND TYPE = 'DELEGATECALL'
         AND trace_index = 1
+    UNION
+        SELECT
+        block_number,
+        tx_hash,
+        type,
+        block_timestamp,
+        from_address AS token_address,
+        LEFT(input, 10) AS function_sig,
+        regexp_substr_all(SUBSTR(input, 11), '.{64}') AS segmented_input,
+        to_address AS underlying_asset_address,
+        c.token_name,
+        c.token_symbol,
+        c.token_decimals,
+        modified_timestamp
+    FROM
+        {{ ref('core__fact_traces') }}
+        t
+    LEFT JOIN contracts c
+    ON c.contract_address = t.to_address
+    WHERE
+        tx_hash IN (
+            SELECT
+                tx_hash
+            FROM
+                log_pull
+        )
+        and function_sig = '0x18160ddd'
+        and from_address in (select contract_address from log_pull)
 ),
 underlying_details AS (
     SELECT
