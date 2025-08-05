@@ -1,13 +1,13 @@
 {% test accepted_values_recent_row(
     model,
-    test_column,
+    column_name,
     context_column,
     value,
     timestamp_column
 ) %}
 
 SELECT
-    {{ test_column }},
+    {{ column_name }},
     {{ context_column }}
 FROM
     {{ model }}
@@ -20,6 +20,6 @@ WHERE
         FROM
             {{ model }}
     )
-    AND {{ test_column }} <> {{ value }}
+    AND {{ column_name }} <> {{ value }}
 
 {% endtest %}
