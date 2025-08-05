@@ -83,19 +83,8 @@ prioritized_actions AS (
         tx_hash,
         action_type,
         action_details,
-        metric_name
-    FROM
-        actions
-    WHERE
-        action_type <> 'tx' qualify ROW_NUMBER() over (
-            PARTITION BY tx_hash
-            ORDER BY
-                metric_rank ASC
-        ) = 1
-),
-simple_aggs AS (
-    SELECT
-        block_date,
+        metric_name,
+        metric_rank,
         CASE
             WHEN metric_name = 'n_bridge_in' THEN action_details :token_to_address :: STRING
             WHEN metric_name = 'n_cex_withdrawals' THEN action_details :token_to_address :: STRING
@@ -107,7 +96,17 @@ simple_aggs AS (
             WHEN metric_name = 'n_gov_votes' THEN origin_from_address :: STRING
             WHEN metric_name = 'n_stake_tx' THEN origin_from_address :: STRING
             WHEN metric_name = 'n_restakes' THEN origin_from_address :: STRING
-        END AS user_address,
+        END AS user_address
+    FROM
+        actions
+    WHERE
+        action_type <> 'tx' 
+        qualify ROW_NUMBER() over (PARTITION BY tx_hash, user_address ORDER BY metric_rank ASC nulls last, metric_name ASC nulls last) = 1
+),
+simple_aggs AS (
+    SELECT
+        block_date,
+        user_address,
         SUM(IFF(metric_name = 'n_bridge_in', 1, 0)) AS n_bridge_in,
         SUM(IFF(metric_name = 'n_cex_withdrawals', 1, 0)) AS n_cex_withdrawals,
         SUM(IFF(metric_name = 'n_other_defi', 1, 0)) AS n_other_defi,
