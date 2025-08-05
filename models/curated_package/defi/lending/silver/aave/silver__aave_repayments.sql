@@ -46,19 +46,15 @@ repay AS(
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CASE 
-            WHEN LOWER(CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' 
-                THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-            ELSE CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))
-        END AS market,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower_address,
         CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS repayer,
         utils.udf_hex_to_int(
             segmented_data [0] :: STRING
         ) :: INTEGER AS repayed_amount,
         COALESCE(
-            contract_address,
-            origin_to_address
+            origin_to_address,
+            contract_address
         ) AS lending_pool_contract,
         origin_from_address AS repayer_address,
         CONCAT(
@@ -72,7 +68,6 @@ repay AS(
     WHERE
         topics [0] :: STRING IN (
             '0x4cdde6e09bb755c9a5589ebaec640bbfedff1362d4b255ebf8339782b9942faa',
-            '0xb718f0b14f03d8c3adf35b15e3da52421b042ac879e5a689011a8b1e0036773d',
             '0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051'
         )
 

@@ -33,7 +33,7 @@ WITH atoken_meta AS (
         modified_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_tokens') }}
+        {{ ref('silver__aave_ethereum_tokens') }}
 ),
 liquidation AS(
     SELECT
@@ -60,6 +60,14 @@ liquidation AS(
             origin_to_address,
             contract_address
         ) AS lending_pool_contract,
+        CASE
+            WHEN debt_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE debt_asset
+        END AS debt_asset,
+        CASE
+            WHEN collateral_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE collateral_asset
+        END AS collateral_asset,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -69,11 +77,7 @@ liquidation AS(
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING IN (
-            '0xe413a321e8681d831f4dbccbca790d2952b56f977908e45be37335533e005286',
-            '0x56864757fd5b1fc9f38f5f3a981cd8ae512ce41b902cf73fc506ee369c6bc237',
-            '0xe76026d190f8c969db64638eaf9bc7087a3758e7fe58c017135a5051b4d7c4f8'
-        )
+        topics [0] :: STRING = '0x56864757fd5b1fc9f38f5f3a981cd8ae512ce41b902cf73fc506ee369c6bc237'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

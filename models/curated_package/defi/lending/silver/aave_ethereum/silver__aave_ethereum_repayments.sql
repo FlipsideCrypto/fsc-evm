@@ -28,14 +28,14 @@ WITH token_meta AS (
         underlying_address,
         underlying_decimals,
         underlying_name,
-            protocol,
-    version,
-    modified_timestamp,
-    _log_id
+        protocol,
+        version,
+        modified_timestamp,
+        _log_id
     FROM
-        {{ ref('silver__aave_tokens') }}
+        {{ ref('silver__aave_ethereum_tokens') }}
 ),
-deposits AS(
+repay AS(
     SELECT
         tx_hash,
         block_number,
@@ -46,33 +46,35 @@ deposits AS(
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS onBehalfOf,
+        CASE 
+            WHEN LOWER(CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' 
+                THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))
+        END AS market,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower_address,
+        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS repayer,
         utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferal,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 42)) AS userAddress,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS deposit_quantity,
-        origin_from_address AS depositor_address,
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS repayed_amount,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
-        modified_timestamp,
+        origin_from_address AS repayer_address,
         CONCAT(
             tx_hash :: STRING,
             '-',
             event_index :: STRING
-        ) AS _log_id
+        ) AS _log_id,
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0xde6857219544bb5b7746f48ed30be6386fefc61b2f864cacf559893bf50fd951',
-            '0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61'
+            '0x4cdde6e09bb755c9a5589ebaec640bbfedff1362d4b255ebf8339782b9942faa',
+            '0xb718f0b14f03d8c3adf35b15e3da52421b042ac879e5a689011a8b1e0036773d'
         )
+
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -103,23 +105,24 @@ SELECT
     t.atoken_address AS protocol_market,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
-    deposit_quantity AS amount_unadj,
-    deposit_quantity / pow(
+    repayed_amount AS amount_unadj,
+    repayed_amount / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    depositor,
+    repayer_address AS payer,
+    borrower_address AS borrower,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    d._log_id,
-    d.modified_timestamp,
-    'Supply' AS event_name
+    r._log_id,
+    r.modified_timestamp,
+    'Repay' AS event_name
 FROM
-    deposits d
+    repay r
     INNER JOIN token_meta t
-    ON d.market = t.underlying_address
-    and d.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY d._log_id
+    ON r.market = t.underlying_address
+    and r.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
-    d.modified_timestamp DESC)) = 1
+    r.modified_timestamp DESC)) = 1

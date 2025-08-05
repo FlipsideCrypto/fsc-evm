@@ -12,7 +12,7 @@
     tags = ['silver','defi','lending','curated','aave']
 ) }}
 
-WITH token_meta AS (
+WITH atoken_meta AS (
     SELECT
         atoken_created_block,
         version_pool,
@@ -28,16 +28,15 @@ WITH token_meta AS (
         underlying_address,
         underlying_decimals,
         underlying_name,
-            protocol,
-    version,
-    modified_timestamp,
-    _log_id
+        protocol,
+        version,
+        modified_timestamp,
+        _log_id
     FROM
         {{ ref('silver__aave_tokens') }}
 ),
-deposits AS(
+withdraw AS(
     SELECT
-        tx_hash,
         block_number,
         block_timestamp,
         event_index,
@@ -46,32 +45,36 @@ deposits AS(
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS onBehalfOf,
+        CASE 
+            WHEN LOWER(CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' 
+                THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))
+        END AS market,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS useraddress,
+        CASE
+            WHEN topics [0] :: STRING = '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7' THEN CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40))
+            ELSE origin_from_address
+        END AS depositor,
         utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferal,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 42)) AS userAddress,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS deposit_quantity,
-        origin_from_address AS depositor_address,
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS withdraw_amount,
+        tx_hash,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
-        modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
             '-',
             event_index :: STRING
-        ) AS _log_id
+        ) AS _log_id,
+        modified_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0xde6857219544bb5b7746f48ed30be6386fefc61b2f864cacf559893bf50fd951',
-            '0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61'
+            '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7',
+            '0x9c4ed599cd8555b9c1e8cd7643240d7d71eb76b792948c49fcb4d411f7b6b3c6'
         )
 
 {% if is_incremental() %}
@@ -87,7 +90,7 @@ AND contract_address IN (
     SELECT
         DISTINCT(version_pool)
     FROM
-        token_meta
+        atoken_meta
 )
 AND tx_succeeded
 )
@@ -100,26 +103,29 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
+    depositor,
     t.atoken_address AS protocol_market,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
-    deposit_quantity AS amount_unadj,
-    deposit_quantity / pow(
+    withdraw_amount AS amount_unadj,
+    withdraw_amount / pow(
         10,
         t.underlying_decimals
     ) AS amount,
-    depositor,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    d._log_id,
-    d.modified_timestamp,
-    'Supply' AS event_name
+    w._log_id,
+    w.modified_timestamp,
+    CASE
+        WHEN w.topics [0] :: STRING = '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7' THEN 'Withdraw'
+        ELSE 'RedeemUnderlying'
+    END AS event_name
 FROM
-    deposits d
-    INNER JOIN token_meta t
-    ON d.market = t.underlying_address
-    and d.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY d._log_id
+    withdraw w
+    INNER JOIN atoken_meta t
+    ON w.market = t.underlying_address
+    and w.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY
-    d.modified_timestamp DESC)) = 1
+    w.modified_timestamp DESC)) = 1
