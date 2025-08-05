@@ -27,6 +27,7 @@ contracts_dim AS (
     comp_v3_base AS (
         SELECT
             contract_address,
+            origin_from_address,
             block_number,
             live.udf_api(
                 'POST',
@@ -65,17 +66,19 @@ contracts_dim AS (
             SELECT MAX(modified_timestamp) - INTERVAL '12 hours' FROM {{ this }}
         )
         AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+        and contract_address not in (select compound_market_address from {{ this }})
         {% endif %}
 
         QUALIFY ROW_NUMBER() OVER (
             PARTITION BY contract_address
-            ORDER BY block_number ASC
+            ORDER BY block_number DESC
         ) = 1
     ),
 
     comp_v3_data AS (
         SELECT
             l.contract_address AS ctoken_address,
+            l.origin_from_address,
             c1.symbol AS ctoken_symbol,
             c1.name AS ctoken_name,
             c1.decimals AS ctoken_decimals,
@@ -117,6 +120,7 @@ contracts_dim AS (
         underlying_symbol AS underlying_asset_symbol,
         underlying_decimals AS underlying_asset_decimals,
         created_block AS created_block_number,
+        origin_from_address,
         o.protocol,
         o.version,
         o.protocol || '-' || o.version AS platform,
@@ -128,4 +132,4 @@ contracts_dim AS (
     FROM
         comp_v3_data c
 LEFT JOIN origin_from_addresses o
-    ON c.ctoken_address = o.contract_address
+    ON c.origin_from_address = o.contract_address
