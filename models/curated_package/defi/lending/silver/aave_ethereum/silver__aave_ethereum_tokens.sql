@@ -128,7 +128,7 @@ aave_v1_v2_tokens_step_1 AS (
         aave_v1_v2_tokens t
     INNER JOIN v1_v2_pool_addresses v1
     ON v1.contract_address = t.pool_address
-),
+)
 SELECT
     A.atoken_created_block,
     A.version_pool,

@@ -56,14 +56,10 @@ deposits AS(
             topics [3] :: STRING
         ) :: INTEGER AS refferal,
         CASE
-            WHEN topics [0] :: STRING = '0xde6857219544bb5b7746f48ed30be6386fefc61b2f864cacf559893bf50fd951' THEN CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40))
             WHEN topics [0] :: STRING = '0xc12c57b1c73a2c3a2ea4613e9476abb3d8d146857aab7329e24243fb59710c82' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
             WHEN topics [0] :: STRING = '0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 42))
         END AS userAddress,
         CASE
-            WHEN topics [0] :: STRING = '0xde6857219544bb5b7746f48ed30be6386fefc61b2f864cacf559893bf50fd951' THEN utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            ) :: INTEGER
             WHEN topics [0] :: STRING = '0xc12c57b1c73a2c3a2ea4613e9476abb3d8d146857aab7329e24243fb59710c82' THEN utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             ) :: INTEGER
@@ -71,7 +67,7 @@ deposits AS(
                 segmented_data [1] :: STRING
             ) :: INTEGER
         END AS deposit_quantity,
-        origin_from_address AS depositor_address,
+        origin_from_address AS depositor,
         COALESCE(
             contract_address,
             origin_to_address

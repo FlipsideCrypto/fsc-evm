@@ -55,7 +55,7 @@ deposits AS(
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INTEGER AS deposit_quantity,
-        origin_from_address AS depositor_address,
+        origin_from_address AS depositor,
         COALESCE(
             origin_to_address,
             contract_address

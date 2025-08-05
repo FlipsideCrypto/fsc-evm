@@ -119,8 +119,8 @@ SELECT
     w._log_id,
     w.modified_timestamp,
     CASE
-        WHEN w.topics [0] :: STRING = '0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7' THEN 'Withdraw'
-        ELSE 'RedeemUnderlying'
+        WHEN v.version = 'v1' THEN 'RedeemUnderlying'
+        ELSE 'Withdraw'
     END AS event_name
 FROM
     withdraw w
