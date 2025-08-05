@@ -12,52 +12,18 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH contract_mapping AS (
-    {{ curated_contract_mapping(
-        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
-    ) }}
-    WHERE
-        protocol = 'chainlink_ccip'
-),
-on_ramp_set AS (
-    SELECT
-        block_timestamp,
-        tx_hash,
-        event_name,
-        TRY_TO_NUMBER(
-            decoded_log :destChainSelector :: STRING
-        ) AS destChainSelector,
-        chain_name,
-        decoded_log :onRamp :: STRING AS onRampAddress,
-        m.protocol,
-        m.version,
-        m.type,
-        CONCAT(
-            m.protocol,
-            '-',
-            m.version
-        ) AS platform,
-        modified_timestamp
-    FROM
-        {{ ref('core__ez_decoded_event_logs') }} l 
-        INNER JOIN contract_mapping m
-        ON l.contract_address = m.contract_address
-        INNER JOIN {{ ref('silver_bridge__ccip_chain_seed') }}
-        ON destChainSelector = chain_selector
-    WHERE
-        topic_0 = '0x1f7d0ec248b80e5c0dde0ee531c4fc8fdb6ce9a2b3d90f560c74acd6a7202f23' -- onrampset
-        AND tx_succeeded
-        AND event_removed = FALSE
+WITH on_ramp_set AS (
 
-{% if is_incremental() %}
-AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+        dest_chain_selector,
+        chain_name,
+        on_ramp_address,
+        protocol,
+        version,
+        type,
+        platform
     FROM
-        {{ this }}
-)
-AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
-{% endif %}
+        {{ ref('silver_bridge__ccip_on_ramp_address') }}
 ),
 ccip_sent AS (
     SELECT
@@ -94,7 +60,7 @@ ccip_sent AS (
         TRY_TO_NUMBER(
             decoded_log :message :sourceChainSelector :: STRING
         ) AS source_chain_selector,
-        destChainSelector AS dest_chain_selector,
+        dest_chain_selector,
         chain_name,
         decoded_log :message :tokenAmounts AS token_amounts,
         ARRAY_SIZE(
@@ -118,11 +84,12 @@ ccip_sent AS (
         {{ ref('core__ez_decoded_event_logs') }}
         l
         INNER JOIN on_ramp_set r
-        ON onRampAddress = contract_address
+        ON on_ramp_address = contract_address
     WHERE
         topic_0 = '0xd0c3c799bf9e2639de44391e7f524d229b2b55f5b1ea94b2bf7da42f7243dddd' -- CCIPSendRequested
         AND tx_succeeded
         AND event_removed = FALSE
+        and block_timestamp::DATE >= '2023-01-01'
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
