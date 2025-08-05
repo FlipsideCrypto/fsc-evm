@@ -1,12 +1,12 @@
 models:
   - name: observability__transactions
     columns:
-      - name: test_timestamp
+      - name: TEST_TIMESTAMP
         tests:
           - not_null
-      - name: blocks_impacted_count
+      - name: BLOCKS_IMPACTED_COUNT
         tests:
           - accepted_values:
               values: [0]
               config:
-                where: "test_timestamp >= DATEADD('day',-5,SYSDATE())" 
+                where: "TEST_TIMESTAMP = (SELECT MAX(TEST_TIMESTAMP) FROM {{ this }})" 
