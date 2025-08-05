@@ -101,7 +101,7 @@ AND modified_timestamp >= (
 )
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
-AND contract_address IN (
+AND lending_pool_contract IN (
     SELECT
         DISTINCT(version_pool)
     FROM
@@ -119,7 +119,7 @@ SELECT
     origin_function_signature,
     contract_address,
     borrower_address AS borrower,
-    market AS protocol_market,
+    t.atoken_address AS protocol_market,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
     borrow_quantity AS amount_unadj,

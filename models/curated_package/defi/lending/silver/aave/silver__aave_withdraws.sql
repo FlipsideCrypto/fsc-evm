@@ -97,7 +97,7 @@ SELECT
     origin_function_signature,
     contract_address,
     depositor,
-    market AS protocol_market,
+    t.atoken_address AS protocol_market,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
     withdraw_amount AS amount_unadj,

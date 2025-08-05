@@ -272,10 +272,22 @@ SELECT
     C.token_decimals AS atoken_decimals,
     atoken_version,
     C.token_name AS atoken_name,
-    c2.token_symbol AS underlying_symbol,
-    A.underlying_asset AS underlying_address,
-    c2.token_decimals AS underlying_decimals,
-    c2.token_name AS underlying_name,
+    CASE
+        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'ETH'
+        ELSE c2.token_symbol
+    END AS underlying_symbol,
+    CASE
+        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+        ELSE A.underlying_asset
+    END AS underlying_address,
+    CASE
+        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 18
+        ELSE c2.token_decimals
+    END AS underlying_decimals,
+    CASE
+        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'Ethereum'
+        ELSE c2.token_name
+    END AS underlying_name,
     A.protocol,
     A.version,
     A.modified_timestamp,

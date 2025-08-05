@@ -105,7 +105,7 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market AS protocol_market,
+    t.atoken_address AS protocol_market,
     initiator_address AS initiator,
     target_address AS target,
     t.underlying_address AS token_address,

@@ -98,7 +98,7 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    market AS protocol_market,
+    t.atoken_address AS protocol_market,
     t.underlying_address AS token_address,
     t.underlying_symbol AS token_symbol,
     repayed_amount AS amount_unadj,
