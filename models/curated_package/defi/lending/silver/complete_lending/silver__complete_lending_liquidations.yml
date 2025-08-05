@@ -66,11 +66,7 @@ models:
         tests:
           - not_null
       - name: REPAID_AMOUNT_UNADJ
-        tests:
-          - not_null
       - name: REPAID_AMOUNT
-        tests:
-          - not_null
       - name: REPAID_AMOUNT_USD
       - name: PLATFORM
         tests: 

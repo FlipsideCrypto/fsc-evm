@@ -3,7 +3,7 @@
   incremental_strategy = 'delete+insert',
   unique_key = "block_number",
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['silver','defi','lending','curated','fraxlend']
+      tags = ['silver','defi','lending','curated','fraxlend','fraxlend']
 ) }}
 
 WITH log_join AS (

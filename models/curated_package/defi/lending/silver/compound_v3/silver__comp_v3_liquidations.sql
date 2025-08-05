@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','compound']
+    tags = ['silver','defi','lending','curated','compound','compound_v3']
 ) }}
 
 WITH comp_assets AS (
@@ -35,7 +35,7 @@ liquidations AS (
         l.contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         l.contract_address AS compound_market,
-        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS asset,
+        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) AS collateral_token,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS absorber,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower,
         utils.udf_hex_to_int(
@@ -44,7 +44,6 @@ liquidations AS (
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INTEGER AS usd_value,
-        origin_from_address AS depositor_address,
         C.token_name,
         C.token_symbol,
         C.token_decimals,
@@ -58,7 +57,7 @@ liquidations AS (
         {{ ref('core__fact_event_logs') }}
         l
         LEFT JOIN {{ ref('silver__contracts') }} C
-        ON asset = C.contract_address
+        ON collateral_token = C.contract_address
     WHERE
         topics [0] = '0x9850ab1af75177e4a9201c65a2cf7976d5d28e40ef63494b44366f86b2f9412e' --AbsorbCollateral
         AND l.contract_address IN (
@@ -78,6 +77,45 @@ AND l.modified_timestamp >= (
 )
 AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
+),
+repayments AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        l.contract_address,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
+        l.contract_address AS compound_market,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS absorber,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS collateral_token,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS repaid_amount_unadj,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        l.modified_timestamp
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+        LEFT JOIN {{ ref('silver__contracts') }} C
+        ON collateral_token = C.contract_address
+    WHERE
+        topics [0] = '0x428a71022c65d48a5617ad1aa0b2ec7f865096caee9b5cd593fe1d83f01e36ca' --BuyCollateral
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
+        AND tx_hash in (select tx_hash from liquidations)
+        AND tx_succeeded
 )
 SELECT
     tx_hash,
@@ -91,16 +129,18 @@ SELECT
     compound_market as protocol_market,
     absorber as liquidator,
     borrower,
-    depositor_address,
-    asset AS collateral_token,
-    token_symbol AS collateral_token_symbol,
+    collateral_token,
+    l.token_symbol AS collateral_token_symbol,
     collateral_absorbed AS liquidated_amount_unadj,
     collateral_absorbed / pow(
         10,
-        token_decimals
+        l.token_decimals
     ) AS liquidated_amount,
-    null as repaid_amount_unadj,
-    null as repaid_amount,
+    r.repaid_amount_unadj,
+    r.repaid_amount_unadj / pow(
+        10,
+        a.underlying_asset_decimals
+    ) AS repaid_amount,
     A.underlying_asset_address AS debt_token,
     A.underlying_asset_symbol AS debt_token_symbol,
     A.protocol,
@@ -112,6 +152,11 @@ SELECT
 FROM
     liquidations l
     LEFT JOIN comp_assets A
-    ON l.compound_market = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY l._log_id
+    ON l.compound_market = A.compound_market_address 
+    LEFT JOIN repayments r
+    ON l.tx_hash = r.tx_hash
+    AND l.absorber = r.absorber
+    AND l.collateral_token = r.collateral_token
+qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
     l.modified_timestamp DESC)) = 1
