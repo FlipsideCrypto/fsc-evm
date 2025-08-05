@@ -51,7 +51,11 @@ flashloan AS (
             origin_to_address,
             CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 27, 40))
         ) AS initiator_address,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS market,
+        CASE 
+            WHEN LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' 
+                THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
+        END AS market,
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INTEGER AS flashloan_quantity,

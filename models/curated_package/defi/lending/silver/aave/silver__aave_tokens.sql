@@ -24,13 +24,6 @@ aave_version_addresses AS (
     WHERE
         type = 'aave_version_address'
 ),
-v1_v2_pool_addresses AS (
-    {{ curated_contract_mapping(
-        vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
-    ) }}
-    WHERE
-        type = 'aave_pool_addresses'
-),
 contracts AS (
     SELECT
         contract_address,
@@ -40,57 +33,14 @@ contracts AS (
     FROM
         {{ ref('silver__contracts') }}
 ),
-DECODE AS (
+{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
 
-    SELECT
-        block_number AS atoken_created_block,
-        contract_address AS a_token_address,
-        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS underlying_asset,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS version_pool,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS treasury_address,
-        utils.udf_hex_to_int(
-            SUBSTR(
-                segmented_data [2] :: STRING,
-                27,
-                40
-            )
-        ) :: INTEGER AS atoken_decimals,
-        utils.udf_hex_to_string (
-            segmented_data [7] :: STRING
-        ) :: STRING AS atoken_name,
-        utils.udf_hex_to_string (
-            segmented_data [9] :: STRING
-        ) :: STRING AS atoken_symbol,
-        modified_timestamp,
-        CONCAT(
-            tx_hash :: STRING,
-            '-',
-            event_index :: STRING
-        ) AS _log_id
-    FROM
-        {{ ref('core__fact_event_logs') }}
+v1_v2_pool_addresses AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
+    ) }}
     WHERE
-        topics [0] = '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b'
-        
-
-{% if is_incremental() %}
-AND modified_timestamp >= (
-    SELECT
-        MAX(
-            modified_timestamp
-        ) - INTERVAL '12 hours'
-    FROM
-        {{ this }}
-)
-AND contract_address NOT IN (
-    SELECT
-        atoken_address
-    FROM
-        {{ this }}
-)
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
-{% endif %}
+        type = 'aave_pool_addresses'
 ),
 aave_v1_v2_tokens AS (
     SELECT
@@ -176,7 +126,6 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 aave_v1_v2_tokens_step_1 AS (
     SELECT
         atoken_created_block,
-        version_pool,
         a_token_address,
         segmented_data,
         CASE 
@@ -194,7 +143,59 @@ aave_v1_v2_tokens_step_1 AS (
         aave_v1_v2_tokens t
     INNER JOIN v1_v2_pool_addresses v1
     ON v1.contract_address = t.pool_address
-    
+),
+{% endif %}
+DECODE AS (
+
+    SELECT
+        block_number AS atoken_created_block,
+        contract_address AS a_token_address,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS underlying_asset,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS version_pool,
+        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS treasury_address,
+        utils.udf_hex_to_int(
+            SUBSTR(
+                segmented_data [2] :: STRING,
+                27,
+                40
+            )
+        ) :: INTEGER AS atoken_decimals,
+        utils.udf_hex_to_string (
+            segmented_data [7] :: STRING
+        ) :: STRING AS atoken_name,
+        utils.udf_hex_to_string (
+            segmented_data [9] :: STRING
+        ) :: STRING AS atoken_symbol,
+        modified_timestamp,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id
+    FROM
+        {{ ref('core__fact_event_logs') }}
+    WHERE
+        topics [0] = '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b'
+        
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(
+            modified_timestamp
+        ) - INTERVAL '12 hours'
+    FROM
+        {{ this }}
+)
+AND contract_address NOT IN (
+    SELECT
+        atoken_address
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+{% endif %}
 ),
 a_token_step_1 AS (
     SELECT
@@ -217,7 +218,7 @@ a_token_step_1 AS (
         FROM
             treasury_addresses
     )
-    and version_pool in (select distinct aave_version_address from aave_version_addresses)
+    and version_pool in (select distinct contract_address from aave_version_addresses)
 ),
 debt_tokens AS (
     SELECT
@@ -244,23 +245,8 @@ debt_tokens AS (
             FROM
                 a_token_step_1
         )
-),
-a_token_step_2 AS (
-    SELECT
-        atoken_created_block,
-        a_token_address,
-        segmented_data,
-        underlying_asset,
-        version_pool,
-        treasury_address,
-        atoken_decimals,
-        atoken_name,
-        atoken_symbol,
-        modified_timestamp,
-        _log_id
-    FROM
-        a_token_step_1
 )
+{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
 SELECT
     A.atoken_created_block,
     A.version_pool,
@@ -270,7 +256,7 @@ SELECT
     NULL AS token_stable_debt_address,
     NULL AS token_variable_debt_address,
     C.token_decimals AS atoken_decimals,
-    atoken_version,
+    A.protocol || '-' || A.version AS atoken_version,
     C.token_name AS atoken_name,
     CASE
         WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'ETH'
@@ -298,8 +284,8 @@ FROM
     ON c.contract_address = A.a_token_address
     LEFT JOIN contracts c2
     ON c2.contract_address = A.underlying_asset
-
 UNION ALL
+{% endif %}
 
 SELECT
     A.atoken_created_block,
@@ -321,7 +307,7 @@ SELECT
     A.modified_timestamp,
     A._log_id
 FROM
-    a_token_step_2 A
+    a_token_step_1 A
     LEFT JOIN debt_tokens b
     ON A.a_token_address = b.token_address
     LEFT JOIN contracts C
