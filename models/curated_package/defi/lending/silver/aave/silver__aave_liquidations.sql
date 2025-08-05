@@ -127,7 +127,9 @@ FROM
     liquidation l
     INNER JOIN atoken_meta amc
     ON l.collateral_asset = amc.underlying_address
+    and l.lending_pool_contract = amc.version_pool
     INNER JOIN atoken_meta amd
-    ON l.debt_asset = amd.underlying_address qualify(ROW_NUMBER() over(PARTITION BY l._log_id
+    ON l.debt_asset = amd.underlying_address
+    and l.lending_pool_contract = amd.version_pool qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
     l.modified_timestamp DESC)) = 1

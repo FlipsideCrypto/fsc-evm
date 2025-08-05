@@ -122,6 +122,7 @@ SELECT
 FROM
     repay r
     LEFT JOIN token_meta t
-    ON r.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY r._log_id
+    ON r.market = t.underlying_address
+    and r.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
     r.modified_timestamp DESC)) = 1

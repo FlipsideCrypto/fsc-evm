@@ -122,7 +122,7 @@ SELECT
     'Supply' AS event_name
 FROM
     deposits d
-    LEFT JOIN token_meta t
-    ON d.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY d._log_id
+    ON d.market = t.underlying_address
+    and d.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY d._log_id
 ORDER BY
     d.modified_timestamp DESC)) = 1

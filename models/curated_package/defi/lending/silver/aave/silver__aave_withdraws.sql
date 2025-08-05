@@ -119,6 +119,7 @@ SELECT
 FROM
     withdraw w
     LEFT JOIN atoken_meta t
-    ON w.market = t.underlying_address qualify(ROW_NUMBER() over(PARTITION BY w._log_id
+    ON w.market = t.underlying_address
+    and w.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY
     w.modified_timestamp DESC)) = 1
