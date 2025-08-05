@@ -287,7 +287,7 @@
             s.metric AS sig_metric_name,
             n.metric AS name_metric_name,
             CASE
-                WHEN l.label_type = 'bridge' and e.contract_address <> w.wrapped_asset_address THEN 'n_bridge_in'
+                WHEN l.label_type = 'bridge' and l.label_subtype <> 'token_contract' THEN 'n_bridge_in'
                 WHEN l.label_type = 'dex' THEN 'n_swap_tx'
                 WHEN l.label_type = 'defi' THEN 'n_other_defi'
                 ELSE NULL
