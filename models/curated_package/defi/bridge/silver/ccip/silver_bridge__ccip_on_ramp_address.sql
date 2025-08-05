@@ -18,7 +18,8 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'chainlink_ccip'
-),
+)
+
 SELECT
     block_timestamp,
     tx_hash,
@@ -41,7 +42,7 @@ FROM
     INNER JOIN contract_mapping m
     ON l.contract_address = m.contract_address
     INNER JOIN {{ ref('silver_bridge__ccip_chain_seed') }}
-    ON destChainSelector = chain_selector
+    ON dest_chain_selector = chain_selector
 WHERE
     topic_0 = '0x1f7d0ec248b80e5c0dde0ee531c4fc8fdb6ce9a2b3d90f560c74acd6a7202f23' -- onrampset
     AND tx_succeeded
