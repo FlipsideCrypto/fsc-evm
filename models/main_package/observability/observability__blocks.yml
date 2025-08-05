@@ -9,3 +9,4 @@ models:
           - accepted_values_recent_row:
               value: 0
               timestamp_column: 'TEST_TIMESTAMP'
+              context_column: 'MISSING_LIST'
