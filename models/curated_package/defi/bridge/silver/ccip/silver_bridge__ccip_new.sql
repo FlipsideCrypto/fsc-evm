@@ -36,11 +36,7 @@ raw_traces AS (
             10
         ) AS function_sig,
         trace_address,
-        REGEXP_REPLACE(
-            trace_address,
-            '_[0-9]+$',
-            ''
-        ) AS parent_address,
+        REGEXP_REPLACE(trace_address, '_[0-9]+_[0-9]+$', '') AS parent_address,
         c.contract_address 
     FROM
         {{ ref('core__fact_traces') }} t 
