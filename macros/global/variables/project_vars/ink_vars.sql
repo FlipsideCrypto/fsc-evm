@@ -20,7 +20,7 @@
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
-                    'uni_v2_pair_created': ['0xbd5b41358a6601924f1fd708af1535a671f530a9', '0x458c5d5b75ccba22651d2c5b61cb1ea1e0b0f95d', '0xfe57a6ba1951f69ae2ed4abe23e0f095df500c04']
+                    'uni_v2_pair_created': ['0x458c5d5b75ccba22651d2c5b61cb1ea1e0b0f95d', '0xfe57a6ba1951f69ae2ed4abe23e0f095df500c04']
                 },
                 'v3': {
                     'uni_v3_pool_created': '0x640887a9ba3a9c53ed27d0f7e8246a4f933f3424'
@@ -32,14 +32,18 @@
                 }
             },
             'squidswap': {
-                'v2': {
+                'v1': {
                     'uni_v2_pair_created': '0x63b54dbbd2dabf89d5c536746e534711f6094199'
+                }
+            },
+            'inkswap': {
+                'v1': {
+                    'uni_v2_pair_created': '0xbd5b41358a6601924f1fd708af1535a671f530a9'
                 }
             },
             'velodrome': {
                 'v2': {
-                    'factory': '0x31832f2a97fd20664d76cc421207669b55ce4bc0',
-                    'converter': ''
+                    'factory': '0x31832f2a97fd20664d76cc421207669b55ce4bc0'
                 }
             }
         },
