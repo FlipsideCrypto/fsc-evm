@@ -261,7 +261,7 @@ SELECT
     circle_trace_index,
     parent_trace_index,
     CONCAT(
-        tx_hash,
+        f.tx_hash,
         '-',
         trace_index,
         '-',
