@@ -25,7 +25,7 @@ SELECT
     block_timestamp,
     tx_hash,
     event_name,
-    contract_address as bridge_address,
+    l.contract_address as bridge_address,
     decoded_log :destChainSelector :: STRING AS dest_chain_selector,
     chain_name,
     decoded_log :onRamp :: STRING AS on_ramp_address,
