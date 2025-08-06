@@ -21,6 +21,7 @@ WITH contract_mapping AS (
 )
 
 SELECT
+    block_number,
     block_timestamp,
     tx_hash,
     event_name,

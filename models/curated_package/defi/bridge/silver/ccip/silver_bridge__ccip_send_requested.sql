@@ -12,133 +12,250 @@
     tags = ['silver_bridge','defi','bridge','curated']
 ) }}
 
-WITH on_ramp_set AS (
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        protocol = 'circle_cctp'
+        AND version = 'v1'
+),
+-- to exclude circle transactions
 
+raw_traces AS (
     SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        trace_index,
+        from_address,
+        to_address,
+        input,
+        output,
+        regexp_substr_all(SUBSTR(input, 11), '.{64}') AS part,
+        LEFT(
+            input,
+            10
+        ) AS function_sig,
+        trace_address,
+        REGEXP_REPLACE(trace_address, '_[0-9]+_[0-9]+$', '') AS parent_address,
+        c.contract_address,
+        modified_timestamp 
+    FROM
+        {{ ref('core__fact_traces') }} t 
+        LEFT JOIN contract_mapping C
+        ON to_address = contract_address
+    WHERE
+        block_timestamp :: DATE >= '2023-10-01'
+        AND tx_succeeded
+        AND trace_succeeded
+        AND t.TYPE = 'CALL'
+        AND (
+            (
+                C.contract_address IS NOT NULL
+                AND function_sig IN (
+                    '0xf856ddb6',
+                    '0x6fd3504e'
+                )
+            ) 
+            -- circle cctp v1 address & functions - depositForBurn, depositForBurnWithCaller
+            OR (
+                function_sig = '0xdf0aa9e9'
+            ) -- forwardFromRouter
+        )
+),
+circle_calls AS (
+    SELECT
+        tx_hash,
+        trace_index AS circle_trace_index,
+        from_address,
+        to_address,
+        trace_address,
+        parent_address AS circle_parent_address
+    FROM
+        raw_traces
+    WHERE
+        contract_address IS NOT NULL
+        AND function_sig IN (
+            '0xf856ddb6',
+            '0x6fd3504e'
+        )
+),
+circle_exclusion_join AS (
+    SELECT
+        C.tx_hash,
+        circle_trace_index,
+        r.trace_index AS parent_trace_index
+    FROM
+        circle_calls C
+        INNER JOIN raw_traces r
+        ON C.circle_parent_address = r.trace_address
+        AND C.tx_hash = r.tx_hash
+    WHERE r.function_sig = '0xdf0aa9e9' --forwardFromRouter
+),
+ccip_decoded AS (
+    SELECT
+        t.block_number,
+        t.block_timestamp,
+        origin_from_address,
+        origin_to_address,,
+        origin_function_signature,
+        t.tx_hash,
+        input,
+        part,
+        utils.udf_hex_to_int(
+            part [0] :: STRING
+        ) :: STRING AS dest_chain_selector,
+        utils.udf_hex_to_int(
+            part [2] :: STRING
+        ) :: INT AS fee_token_amount,
+        '0x' || SUBSTR(
+            part [3] :: STRING,
+            25
+        ) AS original_sender,
+        utils.udf_hex_to_int(
+            part [4] :: STRING
+        ) :: INT / 32 AS offset_receiver,
+        utils.udf_hex_to_int(
+            part [offset_receiver + 4] :: STRING
+        ) :: INT * 2 AS receiver_length,
+        (
+            offset_receiver + 5
+        ) * 64 AS receiver_byteskip,
+        SUBSTR(input, (11 + receiver_byteskip), receiver_length) AS receiver_raw,
+        '0x' || SUBSTR(
+            receiver_raw,
+            25,
+            40
+        ) AS receiver_evm,
+        utils.udf_hex_to_int(
+            part [6] :: STRING
+        ) :: INT / 32 AS offset_token_amount,
+        utils.udf_hex_to_int(
+            part [offset_token_amount + 4] :: STRING
+        ) :: INT AS token_amount_array,
+        chain_name, 
+        trace_index,
+        from_address,
+        contract_address,
+        protocol,
+        version,
+        type,
+        platform,
+        t.modified_timestamp,
+        ROW_NUMBER() over (
+            ORDER BY
+                trace_index ASC
+        ) AS rn
+    FROM
+        raw_traces t
+        INNER JOIN {{ ref('silver_bridge__ccip_on_ramp_address') }}
+        ON to_address = on_ramp_address
+    WHERE
+        function_sig = '0xdf0aa9e9'
+),
+tokens_raw AS (
+    SELECT
+        tx_hash,
+        trace_index,
+        INDEX,
+        ROW_NUMBER() over (
+            PARTITION BY tx_hash,
+            trace_index
+            ORDER BY
+                INDEX ASC
+        ) - 1 AS row_num,
+        TRUNC(
+            row_num / 2
+        ) AS GROUPING,
+        VALUE :: STRING AS VALUE
+    FROM
+        ccip_decoded,
+        LATERAL FLATTEN (
+            input => part
+        )
+    WHERE
+        INDEX BETWEEN (
+            offset_token_amount + 5
+        )
+        AND (offset_token_amount + 5 + (2 * token_amount_array) - 1)
+),
+token_grouping AS (
+    SELECT
+        tx_hash,
+        trace_index,
+        GROUPING,
+        ARRAY_AGG(VALUE) within GROUP (
+            ORDER BY
+                INDEX ASC
+        ) AS token_array
+    FROM
+        tokens_raw
+    GROUP BY
+        ALL
+),
+final_ccip AS (
+    SELECT
+        block_timestamp,
+        tx_hash,
+        trace_index,
+        grouping, 
+        '0x' || SUBSTR(
+            token_array [0] :: STRING,
+            25
+        ) AS token_address,
+        utils.udf_hex_to_int(
+            token_array [1] :: STRING
+        ) :: INT AS amount_unadj,
         dest_chain_selector,
+        receiver_raw,
+        receiver_evm,
         chain_name,
-        on_ramp_address,
         protocol,
         version,
         type,
         platform
     FROM
-        {{ ref('silver_bridge__ccip_on_ramp_address') }}
-),
-ccip_sent AS (
-    SELECT
-        l.block_number,
-        l.block_timestamp,
-        l.tx_hash,
-        l.origin_function_signature,
-        l.origin_from_address,
-        l.origin_to_address,
-        contract_address,
-        l.event_name,
-        l.event_index,
-        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT(
-            '0x',
-            segmented_data [13] :: STRING
-        ) AS message_id,
-        l.decoded_log,
-        decoded_log :message :feeToken :: STRING AS fee_token,
-        TRY_TO_NUMBER(
-            decoded_log :message :feeTokenAmount :: STRING
-        ) AS fee_token_amount,
-        TRY_TO_NUMBER(
-            decoded_log :message :gasLimit :: STRING
-        ) AS gas_limit,
-        TRY_TO_NUMBER(
-            decoded_log :message :nonce :: STRING
-        ) AS nonce,
-        decoded_log :message :receiver :: STRING AS receiver,
-        decoded_log :message :sender :: STRING AS sender,
-        TRY_TO_NUMBER(
-            decoded_log :message :sequenceNumber :: STRING
-        ) AS sequence_number,
-        TRY_TO_NUMBER(
-            decoded_log :message :sourceChainSelector :: STRING
-        ) AS source_chain_selector,
-        dest_chain_selector,
-        chain_name,
-        decoded_log :message :tokenAmounts AS token_amounts,
-        ARRAY_SIZE(
-            decoded_log :message :tokenAmounts
-        ) AS token_amounts_count,
-        r.protocol,
-        r.version,
-        r.type,
-        CONCAT(
-            r.protocol,
-            '-',
-            r.version
-        ) AS platform,
-        CONCAT(
-            l.tx_hash :: STRING,
-            '-',
-            l.event_index :: STRING
-        ) AS _log_id,
-        l.modified_timestamp
-    FROM
-        {{ ref('core__ez_decoded_event_logs') }}
-        l
-        INNER JOIN on_ramp_set r
-        ON on_ramp_address = contract_address
-    WHERE
-        topic_0 = '0xd0c3c799bf9e2639de44391e7f524d229b2b55f5b1ea94b2bf7da42f7243dddd' -- CCIPSendRequested
-        AND tx_succeeded
-        AND event_removed = FALSE
-        and block_timestamp::DATE >= '2023-01-01'
-
-{% if is_incremental() %}
-AND l.modified_timestamp >= (
-    SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
-    FROM
-        {{ this }}
-)
-AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
-{% endif %}
+        ccip_decoded
+        INNER JOIN token_grouping USING (
+            tx_hash,
+            trace_index
+        )
 )
 SELECT
-    C.block_number,
-    C.block_timestamp,
-    C.origin_function_signature,
-    C.origin_from_address,
-    C.origin_to_address,
-    C.tx_hash,
-    C.event_name,
-    C.event_index,
-    C.contract_address AS bridge_address,
-    C.message_id,
-    C.nonce,
-    C.receiver,
-    C.sender,
-    C.receiver AS destination_chain_receiver,
-    C.sequence_number,
-    C.source_chain_selector,
-    C.dest_chain_selector AS destination_chain_id,
-    C.chain_name AS destination_chain,
-    C.gas_limit,
-    C.fee_token,
-    -- Divide the fee evenly by the number of tokens in the array
-    C.fee_token_amount / C.token_amounts_count AS fee_token_amount_per_token,
-    C.token_amounts_count,
-    TRY_TO_NUMBER(
-        tokens.value :amount :: STRING
-    ) AS amount_unadj,
-    tokens.value :token :: STRING AS token_address,
-    C.protocol,
-    C.version,
-    C.type,
-    C.platform,
-    C._log_id,
-    C.modified_timestamp
+    block_number, 
+    block_timestamp,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    f.tx_hash,
+    trace_index,
+    null as event_index,
+    contract_address as bridge_address,
+    null as event_name, 
+    origin_from_address as sender, 
+    receiver_evm as receiver,  
+    receiver_evm as destination_chain_receiver, 
+    dest_chain_selector::string as destination_chain_id,
+    chain_name as destination_chain, 
+    token_address,
+    amount_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    circle_trace_index,
+    parent_trace_index,
+    CONCAT(tx_hash, '-', trace_index, '-', grouping) as _id, 
+    modified_timestamp
+
 FROM
-    ccip_sent C,
-    LATERAL FLATTEN(
-        input => C.token_amounts
-    ) AS tokens
-WHERE
-    token_amounts_count > 0
+    final_ccip f
+    LEFT JOIN circle_exclusion_join C
+    ON f.tx_hash = C.tx_hash
+    AND f.trace_index = C.parent_trace_index
+
+    WHERE parent_trace_index IS NULL
