@@ -27,7 +27,6 @@ raw_traces AS (
         trace_index,
         from_address,
         to_address,
-        TYPE,
         input,
         output,
         regexp_substr_all(SUBSTR(input, 11), '.{64}') AS part,
@@ -42,7 +41,7 @@ raw_traces AS (
             ''
         ) AS parent_address
     FROM
-        {{ ref('core__fact_traces') }}
+        {{ ref('core__fact_traces') }} t 
         LEFT JOIN contract_mapping C
         ON to_address = contract_address
     WHERE
@@ -56,9 +55,9 @@ raw_traces AS (
                 )
             ) -- depositforburn with caller. this is specific to bridges
             --0x6fd3504e --depositForBurn    0xf856ddb6 -- depositforburn with caller
-            OR (
-                function_sig = '0x9a4575b9'
-            ) --lockOrBurn
+            -- OR (
+            --     function_sig = '0x9a4575b9'
+            -- ) --lockOrBurn
             OR (
                 function_sig = '0xdf0aa9e9'
             ) -- forwardFromRouter
@@ -84,12 +83,14 @@ circle_calls AS (
 circle_exclusion_join AS (
     SELECT
         C.tx_hash,
-        circle_trace_index
+        circle_trace_index,
+        r.trace_index AS parent_trace_index
     FROM
         circle_calls C
         INNER JOIN raw_traces r
         ON C.circle_parent_address = r.trace_address
         AND C.tx_hash = r.tx_hash
+    WHERE r.function_sig = '0xdf0aa9e9' --forwardFromRouter
 ),
 ccip_decoded AS (
     SELECT
@@ -207,6 +208,7 @@ SELECT
     tx_hash,
     trace_index,
     circle_trace_index,
+    parent_trace_index,
     '0x' || SUBSTR(
         token_array [0] :: STRING,
         25
@@ -222,4 +224,4 @@ FROM
     final_ccip f
     LEFT JOIN circle_exclusion_join C
     ON f.tx_hash = C.tx_hash
-    AND f.trace_index = C.circle_trace_index
+    AND f.trace_index = C.parent_trace_index
