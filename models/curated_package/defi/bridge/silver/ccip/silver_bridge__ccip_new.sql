@@ -39,7 +39,8 @@ raw_traces AS (
             trace_address,
             '_[0-9]+$',
             ''
-        ) AS parent_address
+        ) AS parent_address,
+        c.contract_address 
     FROM
         {{ ref('core__fact_traces') }} t 
         LEFT JOIN contract_mapping C
