@@ -95,8 +95,8 @@ SELECT
   version,
   platform,
   _log_id,
-  'BorrowAsset' as event_name
   modified_timestamp
+  'BorrowAsset' as event_name
 FROM
   log_join qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
