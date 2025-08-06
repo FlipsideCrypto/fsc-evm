@@ -298,10 +298,7 @@ active_day AS (
             UNION ALL
             SELECT
                 block_date,
-                COALESCE(
-                    action_details: token_to_address :: STRING,
-                    origin_from_address :: STRING
-                ) AS user_address,
+                action_details: token_to_address :: STRING AS user_address,
                 1 AS active_day
             FROM
                 actions
@@ -310,10 +307,7 @@ active_day AS (
             UNION ALL
             SELECT
                 block_date,
-                COALESCE(
-                    action_details: token_to_address :: STRING,
-                    origin_from_address :: STRING
-                ) AS user_address,
+                action_details: token_to_address :: STRING AS user_address,
                 1 AS active_day
             FROM
                 actions
