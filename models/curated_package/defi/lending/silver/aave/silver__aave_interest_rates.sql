@@ -47,6 +47,7 @@ reserve_data AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
+        contract_address as lending_pool_contract,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token_address,
         utils.udf_hex_to_int(
@@ -112,8 +113,8 @@ SELECT
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
-    b._log_id,
-    b.modified_timestamp,
+    r._log_id,
+    r.modified_timestamp,
     'Borrow' AS event_name
 FROM
     reserve_data r
@@ -121,4 +122,4 @@ FROM
     ON r.token_address = t.underlying_address
     and r.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
-    b.modified_timestamp DESC)) = 1
+    r.modified_timestamp DESC)) = 1
