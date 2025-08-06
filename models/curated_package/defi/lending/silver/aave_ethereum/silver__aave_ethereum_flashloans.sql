@@ -102,6 +102,7 @@ flashloan AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING IN (
+            '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac',
             '0x5b8f46461c1dd69fb968f1a003acee221ea3e19540e350233b612ddb43433b55',
             '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0'
         )
