@@ -44,7 +44,7 @@
             'velodrome': {
                 'v2': {
                     'factory': '0x31832f2a97fd20664d76cc421207669b55ce4bc0',
-                    'slipstream': '0x04625b046c69577efc40e6c0bb83cdbafab5a55f'
+                    'superchain_slipstream': '0x04625b046c69577efc40e6c0bb83cdbafab5a55f'
                 }
             }
         },

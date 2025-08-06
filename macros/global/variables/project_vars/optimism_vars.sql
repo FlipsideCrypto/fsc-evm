@@ -102,7 +102,8 @@
                 },
                 'v2': {
                     'factory': '0xf1046053aa5682b4f9a81b5481394da16be5ff5a',
-                    'converter': '0x585af0b397ac42dbef7f18395426bf878634f18d'
+                    'converter': '0x585af0b397ac42dbef7f18395426bf878634f18d',
+                    'superchain_slipstream': '0x04625b046c69577efc40e6c0bb83cdbafab5a55f'
                 }
             }
         },
