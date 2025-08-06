@@ -37,7 +37,7 @@ token_meta AS (
     FROM
         {{ ref('silver__aave_tokens') }}
 ),
-borrow AS (
+reserve_data AS (
     SELECT
         tx_hash,
         block_number,
@@ -48,26 +48,22 @@ borrow AS (
         origin_function_signature,
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS market,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS onBehalfOf,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token_address,
         utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferal,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS userAddress,
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS liquidity_rate,
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
-        ) :: INTEGER AS borrow_quantity,
+        ) :: INTEGER AS stable_borrow_rate,
         utils.udf_hex_to_int(
             segmented_data [2] :: STRING
-        ) :: INTEGER AS borrow_rate_mode,
+        ) :: INTEGER AS variable_borrow_rate,
         utils.udf_hex_to_int(
             segmented_data [3] :: STRING
-        ) :: INTEGER AS borrowrate,
-        origin_from_address AS borrower_address,
-        COALESCE(
-            origin_to_address,
-            contract_address
-        ) AS lending_pool_contract,
+        ) :: INTEGER AS liquidity_index,
+        utils.udf_hex_to_int(
+            segmented_data [4] :: STRING
+        ) :: INTEGER AS variable_borrow_index,
         modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
@@ -77,11 +73,7 @@ borrow AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING IN (
-            '0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b',
-            '0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0'
-        )
-
+        topics [0] :: STRING = '0x804c9b842b2748a22bb64b345453a3de7ca54a6ca45ce00d415894979e22897a'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -109,15 +101,12 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    borrower_address AS borrower,
-    t.atoken_address AS protocol_market,
-    t.underlying_address AS token_address,
-    t.underlying_symbol AS token_symbol,
-    borrow_quantity AS amount_unadj,
-    borrow_quantity / pow(
-        10,
-        t.underlying_decimals
-    ) AS amount,
+    token_address,
+    liquidity_rate,
+    stable_borrow_rate,
+    variable_borrow_rate,
+    liquidity_index,
+    variable_borrow_index,
     CASE
         WHEN borrow_rate_mode = 2 THEN 'Variable Rate'
         ELSE 'Stable Rate'
@@ -130,9 +119,9 @@ SELECT
     b.modified_timestamp,
     'Borrow' AS event_name
 FROM
-    borrow b
+    reserve_data r
     INNER JOIN token_meta t
-    ON b.market = t.underlying_address
-    and b.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY b._log_id
+    ON r.token_address = t.underlying_address
+    and r.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY
     b.modified_timestamp DESC)) = 1
