@@ -45,7 +45,7 @@ raw_traces AS (
             '_[0-9]+_[0-9]+$',
             ''
         ) AS parent_address,
-        C.contract_address,
+        c.contract_address, 
         modified_timestamp
     FROM
         {{ ref('core__fact_traces') }}
@@ -145,6 +145,7 @@ ccip_decoded AS (
         trace_index,
         from_address,
         contract_address,
+        bridge_address,
         protocol,
         version,
         TYPE,
@@ -227,6 +228,7 @@ final_ccip AS (
         TYPE,
         platform,
         contract_address,
+        bridge_address,
         modified_timestamp 
     FROM
         ccip_decoded
@@ -245,7 +247,7 @@ SELECT
     trace_index,
     grouping,
     NULL AS event_index,
-    contract_address AS bridge_address,
+    bridge_address,
     NULL AS event_name,
     origin_from_address AS sender,
     receiver_evm AS receiver,
