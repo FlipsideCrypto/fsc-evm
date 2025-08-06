@@ -97,7 +97,8 @@ SELECT
   version,
   platform,
   _log_id,
-  modified_timestamp
+  modified_timestamp,
+  'RepayAsset' as event_name
 FROM
   log_join l qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY

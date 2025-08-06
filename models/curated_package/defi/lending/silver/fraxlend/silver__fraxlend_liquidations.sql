@@ -101,6 +101,7 @@ SELECT
   origin_to_address,
   origin_function_signature,
   contract_address,
+  contract_address as protocol_market,
   liquidator,
   borrower,
   underlying_asset as collateral_token,
