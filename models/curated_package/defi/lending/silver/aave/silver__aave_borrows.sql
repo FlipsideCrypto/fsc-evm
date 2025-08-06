@@ -65,8 +65,8 @@ borrow AS (
         ) :: INTEGER AS borrowrate,
         origin_from_address AS borrower_address,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         modified_timestamp,
         CONCAT(

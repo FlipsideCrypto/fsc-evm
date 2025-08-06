@@ -57,8 +57,8 @@ liquidation AS(
         ) :: INTEGER AS liquidated_amount,
         CONCAT('0x', SUBSTR(segmented_data [2] :: STRING, 25, 40)) AS liquidator_address,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,

@@ -59,8 +59,8 @@ flashloan AS (
             segmented_data [3] :: STRING
         ) :: INTEGER AS refferalCode,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,

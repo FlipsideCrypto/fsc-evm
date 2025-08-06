@@ -53,8 +53,8 @@ withdraw AS(
         ) :: INTEGER AS withdraw_amount,
         tx_hash,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,

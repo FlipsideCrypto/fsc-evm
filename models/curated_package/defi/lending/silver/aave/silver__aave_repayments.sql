@@ -53,8 +53,8 @@ repay AS(
             segmented_data [0] :: STRING
         ) :: INTEGER AS repayed_amount,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         origin_from_address AS repayer_address,
         CONCAT(
