@@ -57,9 +57,7 @@ aave_v1_v2_tokens AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(
-            modified_timestamp
-        ) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
@@ -69,7 +67,7 @@ AND CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) NOT IN (
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
     UNION ALL
     SELECT
@@ -93,9 +91,7 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(
-            modified_timestamp
-        ) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
@@ -105,7 +101,7 @@ AND CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) NOT IN (
     FROM
         {{ this }}
 )
-AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 aave_v1_v2_tokens_step_1 AS (

@@ -73,11 +73,11 @@ repayments AS (
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
-AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 )
 SELECT
