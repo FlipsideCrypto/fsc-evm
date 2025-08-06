@@ -23,6 +23,7 @@ aave_version_addresses AS (
     ) }}
     WHERE
         type = 'aave_version_address'
+        and (version = 'v3' or protocol <> 'aave')
 ),
 contracts AS (
     SELECT
