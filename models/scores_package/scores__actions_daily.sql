@@ -101,6 +101,7 @@ prioritized_actions AS (
         actions
     WHERE
         action_type <> 'tx' 
+    qualify ROW_NUMBER() over (PARTITION BY tx_hash, user_address, metric_name ORDER BY metric_rank ASC nulls last) = 1
 ),
 simple_aggs AS (
     SELECT
