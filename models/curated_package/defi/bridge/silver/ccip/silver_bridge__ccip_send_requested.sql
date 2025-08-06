@@ -226,6 +226,7 @@ final_ccip AS (
         version,
         TYPE,
         platform,
+        contract_address,
         modified_timestamp 
     FROM
         ccip_decoded
