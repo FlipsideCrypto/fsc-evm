@@ -23,6 +23,7 @@ WITH contract_mapping AS (
 -- to exclude circle transactions
 raw_traces AS (
     SELECT
+        block_timestamp,
         tx_hash,
         trace_index,
         from_address,
@@ -96,6 +97,7 @@ circle_exclusion_join AS (
 ),
 ccip_decoded AS (
     SELECT
+        t.block_timestamp,
         t.tx_hash,
         input,
         part,
@@ -186,6 +188,7 @@ token_grouping AS (
 ),
 final_ccip AS (
     SELECT
+        block_timestamp,
         tx_hash,
         trace_index,
         '0x' || SUBSTR(
@@ -207,6 +210,7 @@ final_ccip AS (
         )
 )
 SELECT
+    f.block_timestamp,
     f.tx_hash,
     trace_index,
     circle_trace_index,
