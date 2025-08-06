@@ -96,7 +96,7 @@ circle_exclusion_join AS (
 ),
 ccip_decoded AS (
     SELECT
-        tx_hash,
+        t.tx_hash,
         input,
         part,
         utils.udf_hex_to_int(
@@ -138,7 +138,7 @@ ccip_decoded AS (
                 trace_index ASC
         ) AS rn
     FROM
-        raw_traces
+        raw_traces t
         INNER JOIN {{ ref('silver_bridge__ccip_on_ramp_address') }}
         ON to_address = on_ramp_address
     WHERE
@@ -211,13 +211,8 @@ SELECT
     trace_index,
     circle_trace_index,
     parent_trace_index,
-    '0x' || SUBSTR(
-        token_array [0] :: STRING,
-        25
-    ) AS token_address,
-    utils.udf_hex_to_int(
-        token_array [1] :: STRING
-    ) :: INT AS amount_unadj,
+    token_address,
+    amount_unadj,
     dest_chain_selector,
     receiver_raw,
     receiver_evm,
