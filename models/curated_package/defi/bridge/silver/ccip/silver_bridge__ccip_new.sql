@@ -207,7 +207,7 @@ final_ccip AS (
         )
 )
 SELECT
-    tx_hash,
+    f.tx_hash,
     trace_index,
     circle_trace_index,
     parent_trace_index,
