@@ -128,6 +128,42 @@ aave_ethereum AS (
   )
 {% endif %}
 ),
+fraxlend AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        depositor,
+        protocol_market,
+        token_address,
+        token_symbol,
+        amount_unadj,
+        amount,
+        platform,
+        protocol,
+        version :: STRING AS version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__fraxlend_withdraws') }} A
+    WHERE
+        token_symbol IS NOT NULL
+
+{% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 comp_v2_fork AS (
     SELECT
         tx_hash,
@@ -297,11 +333,16 @@ withdraws AS (
         *
     FROM
         silo
-    UNION ALL
-    SELECT
-        *
-    FROM
-        morpho
+      UNION ALL
+  SELECT
+    *
+  FROM
+    fraxlend
+  UNION ALL
+  SELECT
+    *
+  FROM
+    morpho
 ),
 complete_lending_withdraws AS (
     SELECT

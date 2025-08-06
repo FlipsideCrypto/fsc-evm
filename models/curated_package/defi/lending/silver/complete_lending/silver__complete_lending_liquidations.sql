@@ -139,6 +139,48 @@ aave_ethereum AS (
   )
 {% endif %}
 ),
+fraxlend AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        liquidator,
+        borrower,
+        protocol_market,
+        collateral_token,
+        collateral_token_symbol,
+        liquidated_amount_unadj,
+        liquidated_amount,
+        debt_token,
+        debt_token_symbol,
+        repaid_amount_unadj,
+        repaid_amount,
+        platform,
+        protocol,
+        version :: STRING AS version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__fraxlend_liquidations') }} A
+    WHERE
+        collateral_token_symbol IS NOT NULL
+        AND debt_token_symbol IS NOT NULL
+
+{% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 comp_v2_fork AS (
     SELECT
       tx_hash,
@@ -332,6 +374,11 @@ liquidation_union AS (
     *
   FROM
     silo
+  UNION ALL
+  SELECT
+    *
+  FROM
+    fraxlend
   UNION ALL
   SELECT
     *

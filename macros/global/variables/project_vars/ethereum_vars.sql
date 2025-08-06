@@ -349,7 +349,7 @@
                     'silo_tokens_factory': '0x0e37df413f97fc198a84a21bc463c41b516ad622',
                 },
                 'v2': {
-                    'silo_factory': '0x4D919CEcfD4793c0D47866C8d0a02a0950737589',
+                    'silo_factory': '0x4d919cecfd4793c0d47866c8d0a02a0950737589',
                     'silo_tokens_factory': '0x7ed1160719ab280760faa0ba26cf13139904cba5',
                 }
             },
