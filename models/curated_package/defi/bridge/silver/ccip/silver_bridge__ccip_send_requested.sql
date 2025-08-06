@@ -203,7 +203,11 @@ token_grouping AS (
 ),
 final_ccip AS (
     SELECT
+        block_number,
         block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
         tx_hash,
         trace_index,
         GROUPING,
@@ -221,7 +225,8 @@ final_ccip AS (
         protocol,
         version,
         TYPE,
-        platform
+        platform,
+        modified_timestamp 
     FROM
         ccip_decoded
         INNER JOIN token_grouping USING (
@@ -237,6 +242,7 @@ SELECT
     origin_function_signature,
     f.tx_hash,
     trace_index,
+    grouping,
     NULL AS event_index,
     contract_address AS bridge_address,
     NULL AS event_name,
