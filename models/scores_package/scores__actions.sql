@@ -293,12 +293,11 @@
                 ELSE NULL
             END AS label_metric_name,
             COALESCE(sig_metric_name, label_metric_name, name_metric_name) AS metric_name_0,
-            IFF(
-                wrapped_asset_address IS NOT NULL
-                AND e.event_sig = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c',
-                'n_swap_tx',
-                metric_name_0
-            ) AS metric_name,
+            CASE 
+                WHEN wrapped_asset_address IS NOT NULL AND e.event_sig = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' THEN 'n_swap_tx'
+                WHEN metric_name_0 = 'n_bridge_in' THEN 'n_other_defi' -- any events labeled as bridge would be bridges out, therefore we need to label them as other_defi
+                ELSE metric_name_0
+            END AS metric_name,
             metric_rank
         FROM
             event_names e
