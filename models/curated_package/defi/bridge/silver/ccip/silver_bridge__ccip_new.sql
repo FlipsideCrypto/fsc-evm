@@ -44,6 +44,8 @@ raw_traces AS (
         ON to_address = contract_address
     WHERE
         block_timestamp :: DATE >= '2023-10-01'
+        AND tx_succeeded
+        AND trace_succeeded
         AND t.TYPE = 'CALL'
         AND (
             (
