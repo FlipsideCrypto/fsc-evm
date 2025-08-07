@@ -20,7 +20,7 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
         'MAIN_CORE_TRACES_ARB_MODE': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3','gmx-v1','hyperliquid-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

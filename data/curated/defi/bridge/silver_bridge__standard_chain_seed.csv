@@ -86,6 +86,7 @@ crypto,crypto
 crypto chain,crypto
 cyber,cyber
 darwinia,darwinia
+darwinia pangoro testnet,darwinia_pangoro_testnet
 defiverse mainnet,defiverse
 degen,degen
 degen chain,degen
@@ -93,12 +94,15 @@ dexalot,dexalot
 dfk,dfk
 dfk chain,dfk
 dfk_chain,dfk
+diode testnet staging,diode_testnet_staging
+dithereum testnet,dithereum_testnet
 dm2_verse,dm2_verse
 dogechain,dogechain
 dogechain mainnet,dogechain
 dos_chain,dos
 dos,dos
 duck,duck
+dxchain mainnet,dxchain
 dymension,dymension
 ebi,ebi
 eclipse,eclipse
@@ -118,6 +122,7 @@ fetch,fetch
 filecoin,filecoin
 flame,flame
 flare,flare
+flare testnet coston,flare_testnet_coston
 flow_evm,flow_evm
 flow,flow
 fraxchain,fraxchain
@@ -181,6 +186,7 @@ masa,masa
 merlin,merlin
 merlin mainnet,merlin
 metachain one mainnet,metachain_one
+metadium testnet,metadium_testnet
 meter,meter
 metis,metis
 metis andromeda mainnet,metis_andromeda
@@ -279,6 +285,7 @@ sx network,sx_network
 taiko,taiko
 taker,taker
 tangle,tangle
+tbwg chain,tbwg_chain
 telos,telos
 telos evm mainnet,telosevm
 telosevm,telosevm
@@ -295,6 +302,7 @@ tomochain,tomochain
 ton,ton
 tron,tron
 treasure,treasure
+u2u solaris mainnet,u2u_solaris_mainnet
 umee,umee
 unichain,unichain
 unit zero mainnet,unit_zero
