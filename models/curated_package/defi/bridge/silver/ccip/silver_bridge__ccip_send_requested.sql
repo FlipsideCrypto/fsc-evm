@@ -45,7 +45,7 @@ raw_traces AS (
             '_[0-9]+_[0-9]+$',
             ''
         ) AS parent_address,
-        c.contract_address, 
+        C.contract_address,
         modified_timestamp
     FROM
         {{ ref('core__fact_traces') }}
@@ -69,6 +69,16 @@ raw_traces AS (
                 function_sig = '0xdf0aa9e9'
             ) -- forwardFromRouter
         )
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
 ),
 circle_calls AS (
     SELECT
@@ -229,7 +239,7 @@ final_ccip AS (
         platform,
         contract_address,
         bridge_address,
-        modified_timestamp 
+        modified_timestamp
     FROM
         ccip_decoded
         INNER JOIN token_grouping USING (
@@ -245,7 +255,7 @@ SELECT
     origin_function_signature,
     f.tx_hash,
     trace_index,
-    grouping,
+    GROUPING,
     NULL AS event_index,
     bridge_address,
     NULL AS event_name,
