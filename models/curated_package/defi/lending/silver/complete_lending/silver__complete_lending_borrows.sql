@@ -340,6 +340,11 @@ borrow_union AS (
         *
     FROM
         morpho
+    UNION ALL
+    SELECT
+        *
+    FROM
+        fraxlend
 ),
 complete_lending_borrows AS (
     SELECT

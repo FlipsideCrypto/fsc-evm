@@ -25,13 +25,13 @@ WITH log_join AS (
     ) :: INTEGER AS repay_amount_unadj,
     repay_amount_unadj / pow(
       10,
-      f.underlying_decimals
+      18 --FRAX Decimals
     ) AS repay_amount,
     utils.udf_hex_to_int(
       segmented_data [1] :: STRING
     ) :: INTEGER / pow(
       10,
-      f.underlying_decimals
+      18 --FRAX Decimals
     ) AS repay_shares,
     repay_amount / NULLIF(
       repay_shares,
