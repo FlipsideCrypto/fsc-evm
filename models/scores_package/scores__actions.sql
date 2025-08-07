@@ -75,27 +75,14 @@
         FROM
             {{ ref('core__fact_transactions') }} t
 
-        {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON t.block_timestamp::date = b.block_date
-        {% endif %}
-
         WHERE 
             tx_succeeded
-
-        {% if is_incremental() %}
+            {% if is_incremental() %}
+            AND t.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
             AND 1=1
-        {% else %}
+            {% else %}
             AND block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
+            {% endif %}
     ),
     raw_logs AS (
         SELECT
@@ -114,26 +101,13 @@
             {{ ref('core__fact_event_logs') }} l
         JOIN txs USING (block_number, tx_hash)
 
-        {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON l.block_timestamp::date = b.block_date
-        {% endif %}
-
         WHERE
-            
-        {% if is_incremental() %}
-            1=1
-        {% else %}
+            {% if is_incremental() %}
+            l.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
+            AND 1=1
+            {% else %}
             l.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
+            {% endif %}
     ),
     decoded_event_logs AS (
         SELECT
@@ -147,26 +121,13 @@
             {{ ref('core__ez_decoded_event_logs') }} dl
         JOIN txs USING (block_number, tx_hash)
 
-        {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON dl.block_timestamp::date = b.block_date
-        {% endif %}
-
         WHERE
-            
-        {% if is_incremental() %}
-            1=1
-        {% else %}
+            {% if is_incremental() %}
+            dl.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
+            AND 1=1
+            {% else %}
             dl.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
+            {% endif %}
     ),
     native_transfers AS (
         SELECT
@@ -181,28 +142,15 @@
             {{ ref('core__fact_traces') }} tr
         JOIN txs USING (block_number, tx_hash)
 
-        {% if is_incremental() %}
-            INNER JOIN (
-                {% if block_dates|length == 1 %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                {% else %}
-                    SELECT CAST('{{ block_dates[0] }}' AS DATE) AS block_date
-                    {% for date in block_dates[1:] %}
-                    UNION ALL SELECT CAST('{{ date }}' AS DATE)
-                    {% endfor %}
-                {% endif %}
-            ) b ON tr.block_timestamp::date = b.block_date
-        {% endif %}
-
         WHERE
-
-        {% if is_incremental() %}
-            1=1
-        {% else %}
+            {% if is_incremental() %}
+            tr.block_timestamp::date IN ({% for date in block_dates %}{% if not loop.first %}, {% endif %}'{{ date }}'{% endfor %})
+            AND 1=1
+            {% else %}
             tr.block_timestamp :: DATE < (SELECT MAX(block_timestamp)::DATE FROM {{ ref('core__fact_transactions') }})
-        {% endif %}
-        AND value > 0
-        AND trace_succeeded
+            {% endif %}
+            AND value > 0
+            AND trace_succeeded
     ),
     event_names AS (
         SELECT
@@ -287,20 +235,40 @@
     ),
     labeled_transfers AS (
         SELECT
-            t.*,
-            l.label_type,
+            t.block_date,
+            t.origin_from_address,
+            t.origin_to_address,
+            t.contract_address,
+            t.event_index,
+            t.block_timestamp,
+            t.block_number,
+            t.tx_hash,
+            t.transfer_type,
+            t.value,
+            t.token_from_address,
+            t.token_to_address,
+            t.is_mint,
+            lbl_from.label_type AS from_type,
+            lbl_from.label_subtype AS from_subtype,
+            lbl_to.label_type AS to_type,
+            lbl_to.label_subtype AS to_subtype,
             CASE
-                WHEN is_mint AND transfer_type = 'erc721_transfer' THEN 'n_nft_mint'
-                WHEN is_mint AND transfer_type = 'erc1155_transfer' THEN 'n_nft_mint'
-                WHEN is_mint AND transfer_type = 'erc1155_transfer_batch' THEN 'n_nft_mint'
-                WHEN l.label_type = 'bridge' and l.label_subtype <> 'token_contract' THEN 'n_bridge_in'
-                WHEN l.label_type = 'cex' THEN 'n_cex_withdrawals'
+                WHEN is_mint AND transfer_type = 'erc721_transfer' THEN 'n_nft_mints'
+                WHEN is_mint AND transfer_type = 'erc1155_transfer' THEN 'n_nft_mints'
+                WHEN is_mint AND transfer_type = 'erc1155_transfer_batch' THEN 'n_nft_mints'
+                WHEN lbl_from.label_type = 'bridge' and lbl_from.label_subtype <> 'token_contract' THEN 'n_bridge_in'
+                WHEN (transfer_type = 'native_transfer' or (transfer_type = 'erc20_transfer' and am.is_verified)) 
+                AND from_type = 'cex' and from_subtype in ('hot_wallet', 'deposit_wallet')
+                AND to_type IS NULL
+                THEN 'n_cex_withdrawals'
                 ELSE NULL
             END AS label_metric_name,
             metric_rank
         FROM
             all_transfers t
-        LEFT JOIN {{ ref('core__dim_labels') }} l ON t.token_from_address = l.address
+        LEFT JOIN {{ ref('core__dim_labels') }} lbl_from ON t.token_from_address = lbl_from.address
+        LEFT JOIN {{ ref('core__dim_labels') }} lbl_to ON t.token_to_address = lbl_to.address
+        LEFT JOIN {{ ref('price__ez_asset_metadata')}} am ON t.contract_address = am.token_address
         LEFT JOIN {{ ref('scores__scoring_activity_categories') }} a ON a.metric = label_metric_name
     ),
     eligible_events AS (
@@ -319,19 +287,17 @@
             s.metric AS sig_metric_name,
             n.metric AS name_metric_name,
             CASE
-                WHEN l.label_type = 'bridge' THEN 'n_bridge_in'
-                WHEN l.label_type = 'cex' THEN 'n_cex_withdrawals'
+                WHEN l.label_type = 'bridge' and l.label_subtype <> 'token_contract' THEN 'n_bridge_in'
                 WHEN l.label_type = 'dex' THEN 'n_swap_tx'
                 WHEN l.label_type = 'defi' THEN 'n_other_defi'
                 ELSE NULL
             END AS label_metric_name,
             COALESCE(sig_metric_name, label_metric_name, name_metric_name) AS metric_name_0,
-            IFF(
-                wrapped_asset_address IS NOT NULL
-                AND e.event_sig = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c',
-                'n_swap_tx',
-                metric_name_0
-            ) AS metric_name,
+            CASE 
+                WHEN wrapped_asset_address IS NOT NULL AND e.event_sig = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' THEN 'n_swap_tx'
+                WHEN metric_name_0 = 'n_bridge_in' THEN 'n_other_defi' -- any events labeled as bridge would be bridges out, therefore we need to label them as other_defi
+                ELSE metric_name_0
+            END AS metric_name,
             metric_rank
         FROM
             event_names e
@@ -343,7 +309,9 @@
         WHERE
             e.event_sig NOT IN (
                 '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef', -- transfers
-                '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925' -- approvals
+                '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925', -- approvals,
+                '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb', -- transfer batch
+                '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62' -- transfer single
             )
     ),
     prioritized_eligible_events AS (
@@ -383,7 +351,8 @@
                 'value', value,
                 'token_from_address', token_from_address,
                 'token_to_address', token_to_address,
-                'label_type', label_type,
+                'from_label_type', from_type,
+                'to_label_type', to_type,
                 'contract_address', contract_address
             ) AS action_details,
             label_metric_name AS metric_name,

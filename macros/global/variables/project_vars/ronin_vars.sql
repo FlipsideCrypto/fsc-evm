@@ -18,7 +18,8 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_SL_CHAINHEAD_DELAY_MINUTES': 6,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '19,49 * * * *',
-        'MAIN_GHA_SCHEDULED_SCORES_CRON': '20 5 * * *'
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '20 5 * * *',
+        'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true
     } %}
     
     {{ return(vars) }}

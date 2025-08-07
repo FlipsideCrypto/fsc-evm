@@ -72,7 +72,7 @@ WITH actions AS (
         AND modified_timestamp > '{{ max_modified_timestamp }}'
         {% endif %}
 ),
-priorititized_txs AS (
+prioritized_actions AS (
     SELECT
         block_date,
         origin_from_address,
@@ -83,23 +83,30 @@ priorititized_txs AS (
         tx_hash,
         action_type,
         action_details,
-        metric_name
+        metric_name,
+        metric_rank,
+        CASE
+            WHEN metric_name = 'n_bridge_in' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_cex_withdrawals' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_other_defi' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_lp_adds' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_swap_tx' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_nft_mints' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_nft_trades' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_gov_votes' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_stake_tx' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_restakes' THEN origin_from_address :: STRING
+        END AS user_address
     FROM
         actions
     WHERE
-        action_type <> 'tx' qualify ROW_NUMBER() over (
-            PARTITION BY tx_hash
-            ORDER BY
-                metric_rank ASC
-        ) = 1
+        action_type <> 'tx' 
+    qualify ROW_NUMBER() over (PARTITION BY tx_hash, user_address, metric_name ORDER BY metric_rank ASC nulls last) = 1
 ),
 simple_aggs AS (
     SELECT
         block_date,
-        CASE
-            WHEN action_type = 'contract_interaction' THEN origin_from_address
-            ELSE action_details :token_from_address :: STRING
-        END AS user_address,
+        user_address,
         SUM(IFF(metric_name = 'n_bridge_in', 1, 0)) AS n_bridge_in,
         SUM(IFF(metric_name = 'n_cex_withdrawals', 1, 0)) AS n_cex_withdrawals,
         SUM(IFF(metric_name = 'n_other_defi', 1, 0)) AS n_other_defi,
@@ -111,7 +118,7 @@ simple_aggs AS (
         SUM(IFF(metric_name = 'n_stake_tx', 1, 0)) AS n_stake_tx,
         SUM(IFF(metric_name = 'n_restakes', 1, 0)) AS n_restakes
     FROM
-        priorititized_txs
+        prioritized_actions
     GROUP BY
         ALL
 ),
@@ -291,10 +298,7 @@ active_day AS (
             UNION ALL
             SELECT
                 block_date,
-                COALESCE(
-                    action_details: token_to_address :: STRING,
-                    origin_from_address :: STRING
-                ) AS user_address,
+                action_details: token_to_address :: STRING AS user_address,
                 1 AS active_day
             FROM
                 actions
@@ -303,10 +307,7 @@ active_day AS (
             UNION ALL
             SELECT
                 block_date,
-                COALESCE(
-                    action_details: token_to_address :: STRING,
-                    origin_from_address :: STRING
-                ) AS user_address,
+                action_details: token_to_address :: STRING AS user_address,
                 1 AS active_day
             FROM
                 actions

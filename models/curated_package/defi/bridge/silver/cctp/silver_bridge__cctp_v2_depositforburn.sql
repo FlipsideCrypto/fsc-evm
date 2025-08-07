@@ -146,10 +146,7 @@ SELECT
     origin_from_address AS receiver,
     mint_recipient AS destination_chain_receiver,
     destination_domain AS destination_chain_id,
-    COALESCE(
-        chain,
-        'other'
-    ) AS destination_chain,
+    chain AS destination_chain,
     protocol,
     version,
     type,
