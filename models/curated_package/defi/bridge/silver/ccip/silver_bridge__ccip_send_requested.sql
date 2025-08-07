@@ -278,7 +278,7 @@ SELECT
         trace_index,
         '-',
         GROUPING
-    ) AS _id,
+    ) AS _log_id,
     modified_timestamp
 FROM
     final_ccip f
