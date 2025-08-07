@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "atoken_address",
-    tags = ['silver','defi','lending','curated','aave','aave']
+    tags = ['silver','defi','lending','curated','aave','aave_tokens']
 ) }}
 
 WITH treasury_addresses AS (
@@ -94,18 +94,19 @@ a_token_step_1 AS (
         treasury_address,
         atoken_decimals,
         atoken_name,
+        SPLIT_PART(atoken_name, ' ', 1) AS protocol,        
         atoken_symbol,
         modified_timestamp,
         _log_id
     FROM
         DECODE
-    WHERE treasury_address IN (
+    {# WHERE treasury_address IN (
         SELECT
             contract_address
         FROM
             treasury_addresses
-    )
-    and version_pool in (select distinct contract_address from aave_version_addresses)
+    ) #}
+    {# and version_pool in (select distinct contract_address from aave_version_addresses) #}
 ),
 debt_tokens AS (
     SELECT
@@ -149,7 +150,7 @@ SELECT
     A.underlying_asset AS underlying_address,
     c2.token_decimals AS underlying_decimals,
     c2.token_name AS underlying_name,
-    t.protocol,
+    A.protocol,
     t.version,
     A.modified_timestamp,
     A._log_id
