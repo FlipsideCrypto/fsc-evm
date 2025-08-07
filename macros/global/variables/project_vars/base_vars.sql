@@ -116,8 +116,10 @@
             },
             'aerodrome': {
                 'v1': {
-                    'factory': '0x420dd381b31aef6683db6b902084cb0ffece40da',
-                    'slipstream': '0x5e7bb104d84c7cb9b682aac2f3d509f5f406809a'
+                    'factory': '0x420dd381b31aef6683db6b902084cb0ffece40da'
+                },
+                'v2': {
+                    'superchain_slipstream': '0x5e7bb104d84c7cb9b682aac2f3d509f5f406809a'
                 }
             }
         },

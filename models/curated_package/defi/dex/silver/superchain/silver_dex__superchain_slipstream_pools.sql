@@ -17,9 +17,7 @@ WITH contract_mapping AS (
         vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
     ) }}
     WHERE
-        protocol = 'aerodrome'
-        AND version = 'v1'
-        AND type = 'slipstream'
+        type = 'superchain_slipstream'
 ),
 created_pools AS (
 

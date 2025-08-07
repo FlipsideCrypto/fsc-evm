@@ -1463,7 +1463,7 @@ WHERE
   )
 {% endif %}
 ),
-aerodrome_slipstream AS (
+superchain_slipstream AS (
   SELECT
     block_number,
     block_timestamp,
@@ -1488,9 +1488,9 @@ aerodrome_slipstream AS (
     _log_id,
     modified_timestamp AS _inserted_timestamp
   FROM
-    {{ ref('silver_dex__aerodrome_slipstream_swaps') }}
+    {{ ref('silver_dex__superchain_slipstream_swaps') }}
 
-{% if is_incremental() and 'aerodrome_slipstream' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'superchain_slipstream' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -1699,7 +1699,7 @@ all_dex AS (
   SELECT
     *
   FROM
-    aerodrome_slipstream
+    superchain_slipstream
 ),
 complete_dex_swaps AS (
   SELECT
