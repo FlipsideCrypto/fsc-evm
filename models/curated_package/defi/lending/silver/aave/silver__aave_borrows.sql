@@ -1,15 +1,10 @@
-{# Get variables #}
-{% set vars = return_vars() %}
-
-{# Log configuration details #}
-{{ log_model_details() }}
 
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','aave','aave']
+    tags = ['silver','defi','lending','curated','aave','borrows']
 ) }}
 
 WITH --borrows from Aave LendingPool contracts
@@ -131,7 +126,7 @@ SELECT
     'Borrow' AS event_name
 FROM
     borrow b
-    INNER JOIN token_meta t
+    LEFT JOIN token_meta t
     ON b.market = t.underlying_address
     and b.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY b._log_id
 ORDER BY

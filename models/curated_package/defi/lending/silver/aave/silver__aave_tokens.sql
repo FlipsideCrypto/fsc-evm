@@ -39,6 +39,7 @@ DECODE AS (
     SELECT
         block_number AS atoken_created_block,
         contract_address AS a_token_address,
+        tx_hash,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS underlying_asset,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS version_pool,
@@ -88,25 +89,19 @@ a_token_step_1 AS (
     SELECT
         atoken_created_block,
         a_token_address,
+        tx_hash,
         segmented_data,
         underlying_asset,
         version_pool,
         treasury_address,
         atoken_decimals,
-        atoken_name,
-        SPLIT_PART(atoken_name, ' ', 1) AS protocol,        
+        atoken_name,  
         atoken_symbol,
         modified_timestamp,
         _log_id
     FROM
         DECODE
-    {# WHERE treasury_address IN (
-        SELECT
-            contract_address
-        FROM
-            treasury_addresses
-    ) #}
-    {# and version_pool in (select distinct contract_address from aave_version_addresses) #}
+    WHERE version_pool in (select distinct lower(contract_address) from aave_version_addresses)
 ),
 debt_tokens AS (
     SELECT
@@ -136,6 +131,7 @@ debt_tokens AS (
 )
 
 SELECT
+    A.tx_hash,
     A.atoken_created_block,
     A.version_pool,
     A.treasury_address,
@@ -150,7 +146,7 @@ SELECT
     A.underlying_asset AS underlying_address,
     c2.token_decimals AS underlying_decimals,
     c2.token_name AS underlying_name,
-    A.protocol,
+    t.protocol,
     t.version,
     A.modified_timestamp,
     A._log_id
@@ -162,8 +158,8 @@ FROM
     ON C.contract_address = A.a_token_address
     LEFT JOIN contracts c2
     ON c2.contract_address = A.underlying_asset
-    LEFT JOIN treasury_addresses t
-    ON A.treasury_address = t.contract_address
+    LEFT JOIN aave_version_addresses t
+    ON A.version_pool = t.contract_address
     qualify(ROW_NUMBER() over(PARTITION BY A.a_token_address
 ORDER BY
     A.atoken_created_block DESC)) = 1

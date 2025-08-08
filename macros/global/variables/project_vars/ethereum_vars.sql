@@ -273,18 +273,21 @@
         'CURATED_DEFI_BRIDGE_HOP_L1_CONTRACTS': ['0xb8901acb165ed027e32754e0ffe830802919727f',
         '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7'],
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
-            'dforce': {
+            'flux': {
                 'v1': {
-                    'comp_v2_origin_from_address': [
-                        '0x70a0d319c76b0a99be5e8cd2685219aea9406845',
-                        '0x655284bebcc6e1dffd098ec538750d43b57bc743',
-                        '0xde6d6f23aabbdc9469c8907ece7c379f98e4cb75'
-                    ]
+                    'comp_v2_origin_from_address': '0x690043fb6826f9d9381c56f43971f4f044bce3aa'
                 }
             },
-            'lodestar': {
+            'strike': {
                 'v1': {
-                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                    'comp_v2_origin_from_address': '0x752dfb1c709eea4621c8e95f48f3d0b6dde5d126'
+                }
+            },
+            'cream': {
+                'v1': {
+                    'comp_v2_origin_from_address': ['0x197939c1ca20c2b506d6811d8b6cdb3394471074',
+                    '0xc2b86361005c48fd44a68c2c32b398a2d261b17a',
+                    '0xc068f6b5bd4c6313e41c547af0684b0849bb5c66']
                 }
             },
             'compound': {
@@ -318,6 +321,18 @@
                 'v2': {
                     'aave_treasury': '0x28e395a54a64284dba39652921cd99924f4e3797',
                     'aave_version_address': '0xa950974f64aa33f27f6c5e017eee93bf7588ed07'
+                }
+            },
+            'spark': {
+                'v1': {
+                    'aave_treasury': '0xb137e7d16564c81ae2b0c8ee6b55de81dd46ece5',
+                    'aave_version_address': '0xc13e21b648a5ee794902342038ff3adab66be987'
+                }
+            },
+            'sturdy': {
+                'v1': {
+                    'aave_treasury': '0xfd1d36995d76c0f75bbe4637c84c06e4a68bbb3a',
+                    'aave_version_address': ['0xa422ca380bd70eef876292839222159e41aaee17','0x9f72dc67cec672bb99e3d02cbea0a21536a2b657']
                 }
             },
             'aave': {

@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','aave','aave']
+    tags = ['silver','defi','lending','curated','aave','interest_rates']
 ) }}
 
 WITH --borrows from Aave LendingPool contracts
@@ -36,6 +36,29 @@ token_meta AS (
     _log_id
     FROM
         {{ ref('silver__aave_tokens') }}
+    UNION ALL
+    SELECT
+    atoken_created_block,
+    version_pool,
+    treasury_address,
+    atoken_symbol,
+    atoken_address,
+    token_stable_debt_address,
+    token_variable_debt_address,
+    atoken_decimals,
+    atoken_version,
+    atoken_name,
+    underlying_symbol,
+    underlying_address,
+    underlying_decimals,
+    underlying_name,
+    protocol,
+    version,
+    modified_timestamp,
+    _log_id
+    FROM
+        {{ ref('silver__aave_ethereum_tokens') }}
+    
 ),
 reserve_data AS (
     SELECT
@@ -104,7 +127,7 @@ SELECT
     r.contract_address,
     r.token_address,
     t.underlying_symbol AS token_symbol,
-    liquidity_rate / pow(10, 27) AS liquidity_rate,
+    liquidity_rate / pow(10, 27) AS supply_rate,
     stable_borrow_rate / pow(10, 27) AS stable_borrow_rate,
     variable_borrow_rate / pow(10, 27) AS variable_borrow_rate,
     r.liquidity_index,

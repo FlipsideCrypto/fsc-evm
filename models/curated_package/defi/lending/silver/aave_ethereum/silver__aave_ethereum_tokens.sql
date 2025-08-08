@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "atoken_address",
-    tags = ['silver','defi','lending','curated','aave','aave_ethereum']
+    tags = ['silver','defi','lending','curated','aave_ethereum']
 ) }}
 
 WITH contracts AS (

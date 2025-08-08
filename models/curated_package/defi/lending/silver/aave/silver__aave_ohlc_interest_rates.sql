@@ -7,20 +7,20 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = ['hour', 'protocol', 'platform', 'version', 'token_address'],
-    cluster_by = ['hour::DATE', 'protocol', 'platform'],
-    tags = ['silver','defi','lending','curated','aave','ohlc']
+    unique_key = ['day', 'protocol', 'platform', 'version', 'token_address'],
+    cluster_by = ['day::DATE', 'protocol', 'platform'],
+    tags = ['silver','defi','lending','curated','aave','interest_rates','ohlc']
 ) }}
 
-WITH hourly_rates AS (
+WITH daily_rates AS (
     SELECT
-        DATE_TRUNC('hour', block_timestamp) AS hour,
+        DATE_TRUNC('day', block_timestamp) AS day,
         protocol,
         platform,
         version,
         token_address,
         token_symbol,
-        liquidity_rate,
+        supply_rate,
         stable_borrow_rate,
         variable_borrow_rate,
         block_timestamp,
@@ -28,7 +28,7 @@ WITH hourly_rates AS (
     FROM
         {{ ref('silver__aave_interest_rates') }}
     WHERE
-        liquidity_rate IS NOT NULL
+        supply_rate IS NOT NULL
         OR stable_borrow_rate IS NOT NULL
         OR variable_borrow_rate IS NOT NULL
 
@@ -42,74 +42,215 @@ AND modified_timestamp >= (
 AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
-rate_aggregations AS (
+window_calculations AS (
     SELECT
-        hour,
+        day,
         protocol,
         platform,
         version,
         token_address,
         token_symbol,
-        -- Liquidity Rate OHLC
-        MIN(liquidity_rate) AS liquidity_rate_low,
-        MAX(liquidity_rate) AS liquidity_rate_high,
-        FIRST_VALUE(liquidity_rate) OVER (
-            PARTITION BY hour, protocol, platform, version, token_address 
+        supply_rate,
+        stable_borrow_rate,
+        variable_borrow_rate,
+        FIRST_VALUE(supply_rate) OVER (
+            PARTITION BY day, protocol, platform, version, token_address 
             ORDER BY block_timestamp ASC
-        ) AS liquidity_rate_open,
-        LAST_VALUE(liquidity_rate) OVER (
-            PARTITION BY hour, protocol, platform, version, token_address 
+        ) AS supply_rate_open,
+        LAST_VALUE(supply_rate) OVER (
+            PARTITION BY day, protocol, platform, version, token_address 
             ORDER BY block_timestamp ASC
             ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-        ) AS liquidity_rate_close,
-        -- Stable Borrow Rate OHLC
-        MIN(stable_borrow_rate) AS stable_borrow_rate_low,
-        MAX(stable_borrow_rate) AS stable_borrow_rate_high,
+        ) AS supply_rate_close,
         FIRST_VALUE(stable_borrow_rate) OVER (
-            PARTITION BY hour, protocol, platform, version, token_address 
+            PARTITION BY day, protocol, platform, version, token_address 
             ORDER BY block_timestamp ASC
         ) AS stable_borrow_rate_open,
         LAST_VALUE(stable_borrow_rate) OVER (
-            PARTITION BY hour, protocol, platform, version, token_address 
+            PARTITION BY day, protocol, platform, version, token_address 
             ORDER BY block_timestamp ASC
             ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
         ) AS stable_borrow_rate_close,
-        -- Variable Borrow Rate OHLC
-        MIN(variable_borrow_rate) AS variable_borrow_rate_low,
-        MAX(variable_borrow_rate) AS variable_borrow_rate_high,
         FIRST_VALUE(variable_borrow_rate) OVER (
-            PARTITION BY hour, protocol, platform, version, token_address 
+            PARTITION BY day, protocol, platform, version, token_address 
             ORDER BY block_timestamp ASC
         ) AS variable_borrow_rate_open,
         LAST_VALUE(variable_borrow_rate) OVER (
-            PARTITION BY hour, protocol, platform, version, token_address 
+            PARTITION BY day, protocol, platform, version, token_address 
             ORDER BY block_timestamp ASC
             ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
         ) AS variable_borrow_rate_close,
+        modified_timestamp
+    FROM
+        daily_rates
+),
+rate_aggregations AS (
+    SELECT
+        day,
+        protocol,
+        platform,
+        version,
+        token_address,
+        token_symbol,
+        -- Supply Rate OHLC
+        MIN(supply_rate) AS supply_rate_low,
+        MAX(supply_rate) AS supply_rate_high,
+        MAX(supply_rate_open) AS supply_rate_open,
+        MAX(supply_rate_close) AS supply_rate_close,
+        -- Stable Borrow Rate OHLC
+        MIN(stable_borrow_rate) AS stable_borrow_rate_low,
+        MAX(stable_borrow_rate) AS stable_borrow_rate_high,
+        MAX(stable_borrow_rate_open) AS stable_borrow_rate_open,
+        MAX(stable_borrow_rate_close) AS stable_borrow_rate_close,
+        -- Variable Borrow Rate OHLC
+        MIN(variable_borrow_rate) AS variable_borrow_rate_low,
+        MAX(variable_borrow_rate) AS variable_borrow_rate_high,
+        MAX(variable_borrow_rate_open) AS variable_borrow_rate_open,
+        MAX(variable_borrow_rate_close) AS variable_borrow_rate_close,
         COUNT(*) AS rate_updates_count,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        hourly_rates
+        window_calculations
     GROUP BY
-        hour,
+        day,
         protocol,
         platform,
         version,
         token_address,
         token_symbol
+),
+-- Fill missing days with forward fill using window functions
+filled_rates AS (
+    SELECT
+        day,
+        protocol,
+        platform,
+        version,
+        token_address,
+        token_symbol,
+        -- Forward fill supply rate values using LAST_VALUE to get the last known value
+        COALESCE(
+            supply_rate_open,
+            LAST_VALUE(supply_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS supply_rate_open,
+        COALESCE(
+            supply_rate_high,
+            LAST_VALUE(supply_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS supply_rate_high,
+        COALESCE(
+            supply_rate_low,
+            LAST_VALUE(supply_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS supply_rate_low,
+        COALESCE(
+            supply_rate_close,
+            LAST_VALUE(supply_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS supply_rate_close,
+        -- Forward fill stable borrow rate values
+        COALESCE(
+            stable_borrow_rate_open,
+            LAST_VALUE(stable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS stable_borrow_rate_open,
+        COALESCE(
+            stable_borrow_rate_high,
+            LAST_VALUE(stable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS stable_borrow_rate_high,
+        COALESCE(
+            stable_borrow_rate_low,
+            LAST_VALUE(stable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS stable_borrow_rate_low,
+        COALESCE(
+            stable_borrow_rate_close,
+            LAST_VALUE(stable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS stable_borrow_rate_close,
+        -- Forward fill variable borrow rate values
+        COALESCE(
+            variable_borrow_rate_open,
+            LAST_VALUE(variable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS variable_borrow_rate_open,
+        COALESCE(
+            variable_borrow_rate_high,
+            LAST_VALUE(variable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS variable_borrow_rate_high,
+        COALESCE(
+            variable_borrow_rate_low,
+            LAST_VALUE(variable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS variable_borrow_rate_low,
+        COALESCE(
+            variable_borrow_rate_close,
+            LAST_VALUE(variable_borrow_rate_close) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS variable_borrow_rate_close,
+        COALESCE(rate_updates_count, 0) AS rate_updates_count,
+        COALESCE(
+            modified_timestamp,
+            LAST_VALUE(modified_timestamp) IGNORE NULLS OVER (
+                PARTITION BY protocol, platform, version, token_address, token_symbol
+                ORDER BY day
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            )
+        ) AS modified_timestamp
+    FROM
+        rate_aggregations
 )
 SELECT
-    hour,
+    day,
     protocol,
     platform,
     version,
     token_address,
     token_symbol,
-    -- Liquidity Rate OHLC
-    liquidity_rate_open,
-    liquidity_rate_high,
-    liquidity_rate_low,
-    liquidity_rate_close,
+    -- Supply Rate OHLC
+    supply_rate_open,
+    supply_rate_high,
+    supply_rate_low,
+    supply_rate_close,
     -- Stable Borrow Rate OHLC
     stable_borrow_rate_open,
     stable_borrow_rate_high,
@@ -123,17 +264,10 @@ SELECT
     rate_updates_count,
     '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
     {{ dbt_utils.generate_surrogate_key(
-        ['hour', 'protocol', 'platform', 'version', 'token_address']
+        ['day', 'protocol', 'platform', 'version', 'token_address']
     ) }} AS aave_interest_rates_ohlc_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    rate_aggregations
-WHERE
-    (liquidity_rate_open IS NOT NULL OR liquidity_rate_high IS NOT NULL OR liquidity_rate_low IS NOT NULL OR liquidity_rate_close IS NOT NULL)
-    OR (stable_borrow_rate_open IS NOT NULL OR stable_borrow_rate_high IS NOT NULL OR stable_borrow_rate_low IS NOT NULL OR stable_borrow_rate_close IS NOT NULL)
-    OR (variable_borrow_rate_open IS NOT NULL OR variable_borrow_rate_high IS NOT NULL OR variable_borrow_rate_low IS NOT NULL OR variable_borrow_rate_close IS NOT NULL)
-qualify(ROW_NUMBER() over(PARTITION BY hour, protocol, platform, version, token_address
-ORDER BY
-    modified_timestamp DESC)) = 1 
+    filled_rates 
