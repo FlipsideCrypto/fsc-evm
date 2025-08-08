@@ -210,6 +210,14 @@
                     'router': '0x141fa059441e0ca23ce184b6a78bafd2a517dde8'
                 }
             },
+            'circle_cctp': {
+                'v1': {
+                    'deposit': '0x19330d10d9cc8751218eaf51e8885d058642e08a'
+                },
+                'v2': {
+                    'deposit': '0x28b5a0e9c621a5badaa536219b3a228c8168cf5d'
+                }
+            },
             'celer_cbridge': {
                 'v1': {
                     'bridge': ['0xdd90e5e87a2081dcf0391920868ebc2ffb81a1af',

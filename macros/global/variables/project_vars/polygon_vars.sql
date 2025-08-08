@@ -141,6 +141,14 @@
                     'router': '0x849c5ed5a80f5b408dd4969b78c2c8fdf0565bfe'
                 }
             },
+            'circle_cctp': {
+                'v1': {
+                    'deposit': '0x9daf8c91aefae50b9c0e69629d3f6ca40ca3b3fe'
+                },
+                'v2': {
+                    'deposit': '0x28b5a0e9c621a5badaa536219b3a228c8168cf5d'
+                }
+            },
             'celer_cbridge': {
                 'v1': {
                     'bridge': ['0x88dcdc47d2f83a99cf0000fdf667a468bb958a78',
