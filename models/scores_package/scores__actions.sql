@@ -6,6 +6,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{% set include_gaming_metrics = var('INCLUDE_GAMING_METRICS', false) %}
+
 {{ config (
     materialized = "incremental",
     unique_key = "block_date",
@@ -290,9 +292,19 @@
                 WHEN l.label_type = 'bridge' and l.label_subtype <> 'token_contract' THEN 'n_bridge_in'
                 WHEN l.label_type = 'dex' THEN 'n_swap_tx'
                 WHEN l.label_type = 'defi' THEN 'n_other_defi'
+                {% if include_gaming_metrics %}
+                WHEN l.label_type IN ('nft', 'token', 'games') THEN 'n_gaming_actions'
+                {% endif %}
                 ELSE NULL
             END AS label_metric_name,
+            {% if include_gaming_metrics %}
+            CASE
+                WHEN l.label_type IN ('nft', 'token', 'games') THEN label_metric_name
+                ELSE COALESCE(sig_metric_name, label_metric_name, name_metric_name)
+            END AS metric_name_0,
+            {% else %}
             COALESCE(sig_metric_name, label_metric_name, name_metric_name) AS metric_name_0,
+            {% endif %}
             CASE 
                 WHEN wrapped_asset_address IS NOT NULL AND e.event_sig = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' THEN 'n_swap_tx'
                 WHEN metric_name_0 = 'n_bridge_in' THEN 'n_other_defi' -- any events labeled as bridge would be bridges out, therefore we need to label them as other_defi
