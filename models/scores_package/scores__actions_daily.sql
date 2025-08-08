@@ -470,7 +470,7 @@ SELECT
         net_token_accumulate,
         0
     ) AS net_token_accumulate,
-    ,IFNULL(net_nft_accumulate, 0) AS net_nft_accumulate,
+    IFNULL(net_nft_accumulate, 0) AS net_nft_accumulate,
     IFNULL(nft_collection_addresses, ARRAY_CONSTRUCT()) AS nft_collection_addresses,
     IFNULL(validator_addresses, ARRAY_CONSTRUCT()) AS validator_addresses,
     IFNULL(
@@ -513,3 +513,6 @@ FROM
     LEFT JOIN contract_interactions ci
     ON ad.user_address = ci.user_address
     AND ad.block_date = ci.block_date
+    LEFT JOIN net_nft_accumulate nna
+    ON ad.user_address = nna.user_address
+    AND ad.block_date = nna.block_date
