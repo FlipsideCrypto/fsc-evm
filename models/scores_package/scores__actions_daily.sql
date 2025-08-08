@@ -461,10 +461,10 @@ SELECT
         0
     ) AS n_restakes,
     {% if include_gaming_metrics %}
-    ,IFNULL(n_gaming_actions, 0) AS n_gaming_actions
-    ,IFNULL(net_gaming_token_accumulate, 0) AS net_gaming_token_accumulate
-    ,IFNULL(net_gaming_nft_accumulate, 0) AS net_gaming_nft_accumulate
-    ,IFNULL(gaming_nft_collection_addresses, ARRAY_CONSTRUCT()) AS gaming_nft_collection_addresses,
+    IFNULL(n_gaming_actions, 0) AS n_gaming_actions,
+    IFNULL(net_gaming_token_accumulate, 0) AS net_gaming_token_accumulate,
+    IFNULL(net_gaming_nft_accumulate, 0) AS net_gaming_nft_accumulate,
+    IFNULL(gaming_nft_collection_addresses, ARRAY_CONSTRUCT()) AS gaming_nft_collection_addresses,
     {% endif %}
     IFNULL(
         net_token_accumulate,
