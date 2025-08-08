@@ -5,6 +5,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - _log_id
+      - curated_recency_defi
     columns:
       - name: TX_HASH
         tests:
