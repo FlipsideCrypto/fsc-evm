@@ -21,7 +21,7 @@
         'MAIN_CORE_BRONZE_TOKEN_READS_LIMIT': 30,
         'MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','synapse-v1','across-v1','allbridge-v1','multichain-v7','hop-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','synapse-v1','across-v1','allbridge-v1','multichain-v7','hop-v1','symbiosis-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
