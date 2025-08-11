@@ -74,14 +74,12 @@ WHERE
             partition_key,
             block_number,
             tx_position,
-            state_json,
             tx_hash,
             pre_state_json,
             pre.key AS address,
             pre.value :nonce :: bigint AS pre_nonce,
             pre.value :balance :: STRING AS pre_hex_balance,
             pre.value :storage :: variant AS pre_storage,
-            pre.value :code :: STRING AS pre_code,
             _inserted_timestamp
         FROM
             state_tracer,
@@ -94,14 +92,12 @@ WHERE
             partition_key,
             block_number,
             tx_position,
-            state_json,
             tx_hash,
             post_state_json,
             post.key AS address,
             post.value :nonce :: bigint AS post_nonce,
             post.value :balance :: STRING AS post_hex_balance,
             post.value :storage :: variant AS post_storage,
-            post.value :code :: STRING AS post_code,
             _inserted_timestamp
         FROM
             state_tracer,
