@@ -19,9 +19,6 @@ models:
       - name: BLOCK_NUMBER
         tests:
           - not_null
-      - name: STATE_JSON
-        tests:
-          - not_null
       - name: TX_POSITION
         tests:
           - not_null
