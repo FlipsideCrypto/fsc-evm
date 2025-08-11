@@ -5,7 +5,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - _LOG_ID
-      - curated_recency_defi
+      - curated_recency_defi:
+          threshold_days: 60
     columns:
       - name: TX_HASH
         tests:

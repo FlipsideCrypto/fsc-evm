@@ -114,7 +114,7 @@ SELECT
     f.protocol,
     f.version,
     l._log_id,
-    l.modified_timestamp,
+    l.modified_timestamp
 FROM
     logs_transform l
 LEFT JOIN 

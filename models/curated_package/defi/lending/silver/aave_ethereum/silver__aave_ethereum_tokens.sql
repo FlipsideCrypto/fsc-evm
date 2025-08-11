@@ -1,3 +1,4 @@
+
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -88,6 +89,13 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}
         {{ ref('core__fact_event_logs') }} l
     WHERE
         topics [0] = '0x3a0ca721fc364424566385a1aa271ed508cc2c0949c2272575fb3013a163a45f'
+        AND contract_address IN (
+        SELECT
+            contract_address
+        FROM
+            v1_v2_pool_addresses
+        WHERE (version in ('v2','v2.1') and protocol = 'aave')
+    )
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT

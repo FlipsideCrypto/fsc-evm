@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',

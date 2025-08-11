@@ -26,7 +26,7 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
         'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1_native','near_rainbow_bridge-v1_native',
-        'ronin_axie_bridge-v1_native','multichain-v7','hop-v1','axie_infinity-v2'],
+        'ronin_axie_bridge-v1_native','multichain-v7','hop-v1','axie_infinity-v2','aave-v1','aave-v2.1','silo-v2','silo-v1','flux-v1','aave-v2','spark-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -281,13 +281,6 @@
             'strike': {
                 'v1': {
                     'comp_v2_origin_from_address': '0x752dfb1c709eea4621c8e95f48f3d0b6dde5d126'
-                }
-            },
-            'cream': {
-                'v1': {
-                    'comp_v2_origin_from_address': ['0x197939c1ca20c2b506d6811d8b6cdb3394471074',
-                    '0xc2b86361005c48fd44a68c2c32b398a2d261b17a',
-                    '0xc068f6b5bd4c6313e41c547af0684b0849bb5c66']
                 }
             },
             'compound': {

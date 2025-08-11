@@ -1,3 +1,5 @@
+{# Get variables #}
+{% set vars = return_vars() %}
 
 {{ config(
     materialized = 'incremental',

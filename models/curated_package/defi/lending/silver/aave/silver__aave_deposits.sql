@@ -115,7 +115,7 @@ SELECT
     t.version,
     d._log_id,
     d.modified_timestamp,
-    'Supply' AS event_name
+    'Deposit' AS event_name
 FROM
     deposits d
     INNER JOIN token_meta t

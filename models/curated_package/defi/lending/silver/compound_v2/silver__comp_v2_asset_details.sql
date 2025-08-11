@@ -114,7 +114,7 @@ traces_pull AS (
         {{ ref('core__fact_traces') }}
         t
     LEFT JOIN contracts c
-    ON c.contract_address = t.to_address
+    ON c.contract_address = t.from_address
     WHERE
         tx_hash IN (
             SELECT
@@ -215,10 +215,10 @@ SELECT
     token_name,
     token_symbol,
     token_decimals,
-    case when token_name = 'Compound Ether' then '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' else underlying_asset_address end as underlying_asset_address,
-    case when token_name = 'Compound Ether' then 'Ether' else underlying_name end as underlying_name,
-    case when token_name = 'Compound Ether' then 'ETH' else underlying_symbol end as underlying_symbol,
-    case when token_name = 'Compound Ether' then 18 else underlying_decimals end as underlying_decimals,
+    case when token_symbol LIKE '%ETH%' AND underlying_asset_address is null then '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' else underlying_asset_address end as underlying_asset_address,
+    case when token_symbol LIKE '%ETH%' AND underlying_name is null then 'Ether' else underlying_name end as underlying_name,
+    case when token_symbol LIKE '%ETH%' AND underlying_symbol is null then 'ETH' else underlying_symbol end as underlying_symbol,
+    case when token_symbol LIKE '%ETH%' AND underlying_decimals is null then 18 else underlying_decimals end as underlying_decimals,
     protocol,
     version,
     modified_timestamp,

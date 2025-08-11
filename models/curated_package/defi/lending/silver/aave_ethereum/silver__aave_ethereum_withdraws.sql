@@ -33,7 +33,7 @@ WITH atoken_meta AS (
         modified_timestamp,
         _log_id
     FROM
-        {{ ref('silver__aave_tokens') }}
+        {{ ref('silver__aave_ethereum_tokens') }}
 ),
 withdraw AS(
     SELECT

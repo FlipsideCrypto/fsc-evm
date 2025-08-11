@@ -102,6 +102,9 @@ a_token_step_1 AS (
     FROM
         DECODE
     WHERE version_pool in (select distinct lower(contract_address) from aave_version_addresses)
+    and underlying_asset not in (
+        '0x0000000000000000000000000000000000000001',
+        '0x0000000000000000000000000000000000000000')
 ),
 debt_tokens AS (
     SELECT
