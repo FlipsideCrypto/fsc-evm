@@ -1,5 +1,6 @@
 {% test curated_recency_defi(
-    model
+    model,
+    threshold_days=30
 ) %}
 
 {# Get variables #}
@@ -10,7 +11,7 @@ WITH source AS (
         platform,
         MAX(block_timestamp) AS latest_timestamp,
         SYSDATE() AS sys_ts,
-        DATEADD('day', -30, SYSDATE()) AS threshold_ts,
+        DATEADD('day', -{{ threshold_days }}, SYSDATE()) AS threshold_ts,
         COUNT(
             CASE
                 WHEN block_timestamp >= threshold_ts THEN 1 
