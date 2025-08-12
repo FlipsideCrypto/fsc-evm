@@ -1,13 +1,13 @@
 {% macro ink_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'somnia',
-        'GLOBAL_NODE_PROVIDER': '',
+        'GLOBAL_NODE_PROVIDER': 'flipside',
         'GLOBAL_NODE_URL': "{URL}",
-        'GLOBAL_NODE_VAULT_PATH': '',
+        'GLOBAL_NODE_VAULT_PATH': 'vault/prod/evm/flipside/somnia/mainnet',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '',
         'GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL': '',
         'GLOBAL_NATIVE_ASSET_SYMBOL': '',
-        'MAIN_SL_BLOCKS_PER_HOUR': 0,
+        'MAIN_SL_BLOCKS_PER_HOUR': 36000,
         'MAIN_PRICES_NATIVE_SYMBOLS': '',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': '',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'somnia',
