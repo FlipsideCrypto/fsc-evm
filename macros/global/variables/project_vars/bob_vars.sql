@@ -66,7 +66,7 @@
             'euler': {
                 'v1': {
                     'euler_origin_to_address': '0x046a9837a61d6b6263f54f4e27ee072ba4bdc7e4'
-                },
+                }
             },
             'layerbank': {
                 'v1': {
@@ -74,7 +74,8 @@
                 }
             }
         }
+
     } %}
     
     {{ return(vars) }}
-{% endmacro %} 
+{% endmacro %}
