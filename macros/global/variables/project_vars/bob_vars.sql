@@ -63,6 +63,11 @@
                     'comp_v2_origin_from_address': '0xcff0e961d0dec9dadf8587f66f158738e1366264'
                 }
             },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0x046a9837a61d6b6263f54f4e27ee072ba4bdc7e4'
+                },
+            },
             'layerbank': {
                 'v1': {
                     'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'

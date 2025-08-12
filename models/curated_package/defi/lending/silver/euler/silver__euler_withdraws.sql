@@ -24,8 +24,8 @@ WITH token_meta AS (
         underlying_name,
         underlying_symbol,
         underlying_decimals,
-        'euler' as protocol,
-        'v1' as version,
+        protocol,
+        version,
         dToken
     FROM
         {{ ref('silver__euler_tokens') }}

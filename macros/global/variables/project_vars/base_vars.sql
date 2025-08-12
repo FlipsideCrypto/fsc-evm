@@ -237,6 +237,11 @@
                     'aave_version_address': '0x30798cfe2cca822321ceed7e6085e633aabc492f'
                 },
             },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0x7f321498a801a191a93c840750ed637149ddf8d0'
+                },
+            },
             'granary': {
                 'v1': {
                     'aave_version_address': '0xb702ce183b4e1faa574834715e5d4a6378d0eed3'
