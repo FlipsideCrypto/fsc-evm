@@ -297,7 +297,7 @@
                     ]
                 }
             },
-            'lodestar': {
+            'exactly': {
                 'v1': {
                     'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
                 }
@@ -312,9 +312,14 @@
                     'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']
                 }
             },
-            'aave_v3': {
-                'v1': {
-                    'aave_v3_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
                 }
             },
             'silo': {

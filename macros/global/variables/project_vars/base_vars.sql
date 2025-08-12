@@ -217,18 +217,9 @@
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0xe22d2bedb3eca35e6397e0c6d62857094aa26f52',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
-            'dforce': {
+            'sonne': {
                 'v1': {
-                    'comp_v2_origin_from_address': [
-                        '0x70a0d319c76b0a99be5e8cd2685219aea9406845',
-                        '0x655284bebcc6e1dffd098ec538750d43b57bc743',
-                        '0xde6d6f23aabbdc9469c8907ece7c379f98e4cb75'
-                    ]
-                }
-            },
-            'lodestar': {
-                'v1': {
-                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                    'comp_v2_origin_from_address': '0xfb59ce8986943163f14c590755b29db2998f2322'
                 }
             },
             'compound': {
@@ -236,30 +227,40 @@
                     'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
                 }
             },
-            'radiant': {
-                'v1': {
-                    'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']
-                }
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0xa238dd80c259a72e81d7e4664a9801593f98d1c5'
+                },
             },
-            'aave_v3': {
+            'radiant': {
+                'v2': {
+                    'aave_version_address': '0x30798cfe2cca822321ceed7e6085e633aabc492f'
+                },
+            },
+            'granary': {
                 'v1': {
-                    'aave_v3_treasury': '0x053d55f9b5af8694c503eb288a1b7e552f590710'
-                }
+                    'aave_version_address': '0xb702ce183b4e1faa574834715e5d4a6378d0eed3'
+                },
+            },
+            'seamless': {
+                'v1': {
+                    'aave_version_address': '0x8f44fd754285aa6a2b8b9b97739b79746e0475a7'
+                },
             },
             'morpho': {
                 'v1': {
                     'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
                 }
             },
-            'silo': {
-                'v2': {
-                    'silo_factory': '0x408822e4e8682413666809b0655161093cd36f2b',
-                    'silo_tokens_factory': '0x0f9d4fa99a0ca3c3c0dedd287531c04e054c5f39',
-                }
-            },
-            'layerbank': {
+            'moonwell': {
                 'v1': {
-                    'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'
+                    'comp_v2_origin_from_address': ['0x5c000728eb8a4c7f6e78495da2900b0370adb1ed',
+                    '0xc3f9774af21a030ab785cb45510ba9edc9d0c8cd',
+                    '0xc84065601e39a623d75dfddd278346b9778d8943',
+                    '0x0f23882f0a4bf32d4cb1e70c3831747b83dd2287',
+                    '0x29b28b0ff5b6b26448f3ac02cd209539626d96ab',
+                    '0x10b83c88e88910cd5293324800d1a6e751004be5',
+                    '0x3073fcad986fbe9f94cc6caa44f76c12e34516d4']
                 }
             }
         }

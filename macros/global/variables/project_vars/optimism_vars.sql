@@ -204,7 +204,34 @@
             }
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x03d7f750777ec48d39d080b020d83eb2cb4e3547',
-        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
+        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'exactly': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                }
+            },
+            'sonne': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0xfb59ce8986943163f14c590755b29db2998f2322'
+                }
+            },
+            'compound': {
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'granary': {
+                'v1': {
+                    'aave_version_address': '0x8fd4af47e4e63d1d2d45582c3286b4bd9bb95dfe'
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

@@ -351,6 +351,11 @@
                     'aave_version_address': '0x398ec7346dcd622edc5ae82352f02be94c62d119'
                 }
             },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0x29a56a1b8214d9cf7c5561811750d5cbdb45cc8e'
+                }
+            },
             'silo': {
                 'v1': {
                     'silo_factory': '0xb7d391192080674281baab8b3083154a5f64cd0a',

@@ -9,8 +9,14 @@
     unique_key = "contract_address",
     tags = ['silver','defi','lending','curated','euler','tokens']
 ) }}
-
-with base_events as (
+WITH euler_addresses AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        type = 'euler_origin_to_address'
+),
+base_events as (
     select 
         block_number,
         block_timestamp,
@@ -34,7 +40,12 @@ with base_events as (
         {{ ref('core__fact_event_logs') }} l
     where 
         topic_0 = '0x0cd345140b9008a43f99a999a328ece572a0193e8c8bf5f5755585e6f293b85e'
-    AND origin_to_address = '0x29a56a1b8214d9cf7c5561811750d5cbdb45cc8e'
+    AND origin_to_address in (
+        select
+            distinct(contract_address)
+        from
+            euler_addresses
+    )
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
@@ -64,6 +75,8 @@ select
     u.token_symbol as underlying_symbol,
     u.token_decimals as underlying_decimals,
     b.dToken,
+    e.protocol,
+    e.version,
     b._log_id,
     b.modified_timestamp
 from base_events b
@@ -71,3 +84,5 @@ left join {{ ref('silver__contracts') }} c
     on b.contract_address = c.contract_address
 left join {{ ref('silver__contracts') }} u
     on b.underlying_address = u.contract_address
+left join euler_addresses e
+    on b.origin_to_address = e.contract_address
