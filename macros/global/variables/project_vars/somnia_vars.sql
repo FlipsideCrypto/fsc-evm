@@ -1,4 +1,4 @@
-{% macro ink_vars() %}
+{% macro somnia_vars() %}
     {% set vars = {
         'GLOBAL_PROJECT_NAME': 'somnia',
         'GLOBAL_NODE_PROVIDER': 'flipside',
