@@ -30,7 +30,7 @@ WITH token_meta AS (
     FROM
         {{ ref('silver__euler_tokens') }}
 ),
-base AS(
+base AS (
     SELECT
         tx_hash,
         block_number,

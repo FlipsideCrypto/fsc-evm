@@ -91,11 +91,14 @@ SELECT
     l.liquidator,
     l.borrower,
     l.collateral_asset AS protocol_market,
-    amc.underlying_address AS collateral_token_address,
+    amc.underlying_address AS collateral_token,
     amc.underlying_symbol AS collateral_token_symbol,
-    w.amount_unadj AS liquidated_amount_unadj,
-    w.amount AS liquidated_amount,
-    amd.underlying_address AS debt_token_address,
+    coalesce(w.amount_unadj, l.yield_balance) AS liquidated_amount_unadj,
+    coalesce(w.amount, l.yield_balance / pow(
+        10,
+        amd.underlying_decimals
+    )) AS liquidated_amount,
+    amd.underlying_address AS debt_token,
     amd.underlying_symbol AS debt_token_symbol,
     l.repaid_amount_unadj AS repaid_amount_unadj,
     l.repaid_amount_unadj / pow(

@@ -92,6 +92,43 @@ aave AS (
   )
 {% endif %}
 ),
+euler AS (
+
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        borrower,
+        protocol_market,
+        token_address,
+        token_symbol,
+        amount_unadj,
+        amount,
+        platform,
+        protocol,
+        version :: STRING AS version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver__euler_borrows') }} A
+    WHERE
+        token_symbol IS NOT NULL
+
+{% if is_incremental() and 'euler' not in vars.CURATED_FR_MODELS %}
+  AND A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 fraxlend AS (
 
     SELECT
@@ -345,6 +382,11 @@ borrow_union AS (
         *
     FROM
         fraxlend
+    UNION ALL
+    SELECT
+        *
+    FROM
+        euler
 ),
 complete_lending_borrows AS (
     SELECT
