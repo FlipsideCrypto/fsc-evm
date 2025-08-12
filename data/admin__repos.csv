@@ -14,6 +14,6 @@ kaia_vars,kaia-models,kaia,false
 mantle_vars,mantle-models,mantle,false
 optimism_vars,optimism-models,optimism,true
 polygon_vars,polygon-models,polygon,true
-ronin_vars,ronin-models,ronin,true
-scroll_vars,scroll-models,scroll,true
+ronin_vars,ronin-models,ronin,false
+scroll_vars,scroll-models,scroll,false
 swell_vars,swell-models,swell,false
