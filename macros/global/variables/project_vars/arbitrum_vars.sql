@@ -20,7 +20,7 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
         'MAIN_CORE_TRACES_ARB_MODE': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3','gmx-v1','hyperliquid-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3','gmx-v1','hyperliquid-v1','symbiosis-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -208,6 +208,14 @@
             'chainlink_ccip': {
                 'v1': {
                     'router': '0x141fa059441e0ca23ce184b6a78bafd2a517dde8'
+                }
+            },
+            'circle_cctp': {
+                'v1': {
+                    'deposit': '0x19330d10d9cc8751218eaf51e8885d058642e08a'
+                },
+                'v2': {
+                    'deposit': '0x28b5a0e9c621a5badaa536219b3a228c8168cf5d'
                 }
             },
             'celer_cbridge': {

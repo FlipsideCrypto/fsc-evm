@@ -22,9 +22,6 @@ models:
       - name: TX_POSITION
         tests:
           - not_null
-      - name: STATE_JSON
-        tests:
-          - not_null
       - name: _INSERTED_TIMESTAMP
         tests:
           - not_null

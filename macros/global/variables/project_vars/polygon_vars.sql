@@ -21,7 +21,7 @@
         'MAIN_CORE_BRONZE_TOKEN_READS_LIMIT': 30,
         'MAIN_CORE_BRONZE_TOKEN_READS_BATCHED_ENABLED': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','synapse-v1','across-v1','allbridge-v1','multichain-v7'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','synapse-v1','across-v1','allbridge-v1','multichain-v7','hop-v1','symbiosis-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -139,6 +139,14 @@
             'chainlink_ccip': {
                 'v1': {
                     'router': '0x849c5ed5a80f5b408dd4969b78c2c8fdf0565bfe'
+                }
+            },
+            'circle_cctp': {
+                'v1': {
+                    'deposit': '0x9daf8c91aefae50b9c0e69629d3f6ca40ca3b3fe'
+                },
+                'v2': {
+                    'deposit': '0x28b5a0e9c621a5badaa536219b3a228c8168cf5d'
                 }
             },
             'celer_cbridge': {

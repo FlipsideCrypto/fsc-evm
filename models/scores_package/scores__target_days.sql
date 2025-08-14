@@ -37,7 +37,6 @@ date_spine AS (
     WHERE
         day_of_week = 1
         AND date_day < DATEADD('day', -90, SYSDATE() :: DATE) -- every sunday, excluding last 90 days
-        AND date_day <= '2024-07-01'
     UNION
 {% endif %}
 
@@ -46,7 +45,7 @@ date_spine AS (
     FROM
         {{ ref('scores__dates') }}
     WHERE
-        date_day >= '2024-07-01'
+        date_day >= DATEADD('day', -90, SYSDATE() :: DATE)
         and date_day <= (SELECT MAX(block_date) FROM chain_dates where n_hours = 24)
 ),
 day_of_chain AS (

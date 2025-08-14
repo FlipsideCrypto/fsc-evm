@@ -4,6 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{% set include_gaming_metrics = var('INCLUDE_GAMING_METRICS', false) %}
+
 {{ config (
     materialized = "incremental",
     unique_key = "block_date",
@@ -72,7 +74,7 @@ WITH actions AS (
         AND modified_timestamp > '{{ max_modified_timestamp }}'
         {% endif %}
 ),
-priorititized_txs AS (
+prioritized_actions AS (
     SELECT
         block_date,
         origin_from_address,
@@ -83,23 +85,33 @@ priorititized_txs AS (
         tx_hash,
         action_type,
         action_details,
-        metric_name
+        metric_name,
+        metric_rank,
+        CASE
+            WHEN metric_name = 'n_bridge_in' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_cex_withdrawals' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_other_defi' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_lp_adds' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_swap_tx' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_nft_mints' THEN action_details :token_to_address :: STRING
+            WHEN metric_name = 'n_nft_trades' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_gov_votes' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_stake_tx' THEN origin_from_address :: STRING
+            WHEN metric_name = 'n_restakes' THEN origin_from_address :: STRING
+            {% if include_gaming_metrics %}
+            WHEN metric_name = 'n_gaming_actions' THEN origin_from_address :: STRING
+            {% endif %}
+        END AS user_address
     FROM
         actions
     WHERE
-        action_type <> 'tx' qualify ROW_NUMBER() over (
-            PARTITION BY tx_hash
-            ORDER BY
-                metric_rank ASC
-        ) = 1
+        action_type <> 'tx' 
+    qualify ROW_NUMBER() over (PARTITION BY tx_hash, user_address, metric_name ORDER BY metric_rank ASC nulls last) = 1
 ),
 simple_aggs AS (
     SELECT
         block_date,
-        CASE
-            WHEN action_type = 'contract_interaction' THEN origin_from_address
-            ELSE action_details :token_from_address :: STRING
-        END AS user_address,
+        user_address,
         SUM(IFF(metric_name = 'n_bridge_in', 1, 0)) AS n_bridge_in,
         SUM(IFF(metric_name = 'n_cex_withdrawals', 1, 0)) AS n_cex_withdrawals,
         SUM(IFF(metric_name = 'n_other_defi', 1, 0)) AS n_other_defi,
@@ -110,8 +122,11 @@ simple_aggs AS (
         SUM(IFF(metric_name = 'n_gov_votes', 1, 0)) AS n_gov_votes,
         SUM(IFF(metric_name = 'n_stake_tx', 1, 0)) AS n_stake_tx,
         SUM(IFF(metric_name = 'n_restakes', 1, 0)) AS n_restakes
+        {% if include_gaming_metrics %}
+        ,SUM(IFF(metric_name = 'n_gaming_actions', 1, 0)) AS n_gaming_actions,
+        {% endif %}
     FROM
-        priorititized_txs
+        prioritized_actions
     GROUP BY
         ALL
 ),
@@ -119,9 +134,18 @@ xfer_in AS (
     SELECT
         block_date,
         action_details :token_to_address :: STRING AS user_address,
+        {% if include_gaming_metrics %}
+        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_xfer_in,
+        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_xfer_in
+        {% else %}
         COUNT(1) AS n_xfer_in
+        {% endif %}
     FROM
-        actions
+        actions a
+        {% if include_gaming_metrics %}
+        LEFT JOIN {{ ref('core__dim_labels') }} l 
+        ON a.action_details:contract_address::string = l.address
+        {% endif %}
     WHERE
         action_type IN (
             'erc20_transfer',
@@ -134,9 +158,18 @@ xfer_out AS (
     SELECT
         block_date,
         action_details :token_from_address :: STRING AS user_address,
+        {% if include_gaming_metrics %}
+        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_xfer_out,
+        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_xfer_out
+        {% else %}
         COUNT(1) AS n_xfer_out
+        {% endif %}
     FROM
-        actions
+        actions a
+        {% if include_gaming_metrics %}
+        LEFT JOIN {{ ref('core__dim_labels') }} l 
+        ON a.action_details:contract_address::string = l.address
+        {% endif %}
     WHERE
         action_type IN (
             'erc20_transfer',
@@ -156,9 +189,76 @@ net_token_accumulate AS (
             b.user_address
         ) AS user_address,
         COALESCE(n_xfer_in / (ifnull(n_xfer_in,0) + ifnull(n_xfer_out,0)),0) AS net_token_accumulate
+        {% if include_gaming_metrics %}
+        ,COALESCE(n_gaming_xfer_in / NULLIF(n_gaming_xfer_in + n_gaming_xfer_out, 0), 0) AS net_gaming_token_accumulate
+        {% endif %}
     FROM
         xfer_in A full
         OUTER JOIN xfer_out b
+        ON A.user_address = b.user_address
+        AND A.block_date = b.block_date
+),
+nft_in AS (
+    SELECT
+        block_date,
+        action_details :token_to_address :: STRING AS user_address,
+        {% if include_gaming_metrics %}
+        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_nft_in,
+        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_nft_in
+        {% else %}
+        COUNT(1) AS n_nft_in
+        {% endif %}
+    FROM
+        actions a
+        {% if include_gaming_metrics %}
+        LEFT JOIN {{ ref('core__dim_labels') }} l 
+        ON a.action_details:contract_address::string = l.address
+        {% endif %}
+    WHERE
+        action_type IN (
+            'erc721_transfer',
+            'erc1155_transfer',
+            'erc1155_transfer_batch'
+        )
+    GROUP BY
+        ALL
+),
+nft_out AS (
+    SELECT
+        block_date,
+        action_details :token_from_address :: STRING AS user_address,
+        {% if include_gaming_metrics %}
+        COUNT(IFF(l.label_type != 'games' OR l.label_type IS NULL, 1, 0)) AS n_nft_out,
+        COUNT(IFF(l.label_type = 'games', 1, 0)) AS n_gaming_nft_out
+        {% else %}
+        COUNT(1) AS n_nft_out
+        {% endif %}
+    FROM
+        actions a
+        {% if include_gaming_metrics %}
+        LEFT JOIN {{ ref('core__dim_labels') }} l 
+        ON a.action_details:contract_address::string = l.address
+        {% endif %}
+    WHERE
+        action_type IN (
+            'erc721_transfer',
+            'erc1155_transfer',
+            'erc1155_transfer_batch'
+        )
+    GROUP BY
+        ALL
+),
+net_nft_accumulate AS (
+    SELECT
+        COALESCE(A.block_date, b.block_date) AS block_date,
+        COALESCE(A.user_address, b.user_address) AS user_address,
+        COALESCE(n_nft_in / NULLIF(n_nft_in + n_nft_out, 0), 0) AS net_nft_accumulate
+        {% if include_gaming_metrics %}
+        ,COALESCE(n_gaming_nft_in / NULLIF(n_gaming_nft_in + n_gaming_nft_out, 0), 0) AS net_gaming_nft_accumulate
+        {% endif %}
+    FROM
+        nft_in A 
+        FULL OUTER JOIN nft_out b
         ON A.user_address = b.user_address
         AND A.block_date = b.block_date
 ),
@@ -166,7 +266,12 @@ nft_collections AS (
     SELECT
         block_date,
         user_address,
+        {% if include_gaming_metrics %}
+        ARRAY_AGG(IFF(l.label_type != 'games' OR l.label_type IS NULL, nft_address, NULL)) AS nft_collection_addresses,
+        ARRAY_AGG(IFF(l.label_type = 'games', nft_address, NULL)) AS gaming_nft_collection_addresses
+        {% else %}
         ARRAY_AGG(nft_address) AS nft_collection_addresses
+        {% endif %}
     FROM
         (
             SELECT
@@ -195,9 +300,11 @@ nft_collections AS (
                     'erc1155_transfer_batch'
                 )
             qualify row_number() over (partition by user_address, block_date order by block_date asc) <= 1000
-        )
-    GROUP BY
-        ALL
+        ) nfts
+    {% if include_gaming_metrics %}
+    LEFT JOIN {{ ref('core__dim_labels') }} l ON nfts.nft_address = l.address
+    {% endif %}
+    GROUP BY ALL
 ),
 staking_validators AS (
     SELECT
@@ -291,10 +398,7 @@ active_day AS (
             UNION ALL
             SELECT
                 block_date,
-                COALESCE(
-                    action_details: token_to_address :: STRING,
-                    origin_from_address :: STRING
-                ) AS user_address,
+                action_details: token_to_address :: STRING AS user_address,
                 1 AS active_day
             FROM
                 actions
@@ -303,10 +407,7 @@ active_day AS (
             UNION ALL
             SELECT
                 block_date,
-                COALESCE(
-                    action_details: token_to_address :: STRING,
-                    origin_from_address :: STRING
-                ) AS user_address,
+                action_details: token_to_address :: STRING AS user_address,
                 1 AS active_day
             FROM
                 actions
@@ -359,10 +460,17 @@ SELECT
         n_restakes,
         0
     ) AS n_restakes,
+    {% if include_gaming_metrics %}
+    IFNULL(n_gaming_actions, 0) AS n_gaming_actions,
+    IFNULL(net_gaming_token_accumulate, 0) AS net_gaming_token_accumulate,
+    IFNULL(net_gaming_nft_accumulate, 0) AS net_gaming_nft_accumulate,
+    IFNULL(gaming_nft_collection_addresses, ARRAY_CONSTRUCT()) AS gaming_nft_collection_addresses,
+    {% endif %}
     IFNULL(
         net_token_accumulate,
         0
     ) AS net_token_accumulate,
+    IFNULL(net_nft_accumulate, 0) AS net_nft_accumulate,
     IFNULL(nft_collection_addresses, ARRAY_CONSTRUCT()) AS nft_collection_addresses,
     IFNULL(validator_addresses, ARRAY_CONSTRUCT()) AS validator_addresses,
     IFNULL(
@@ -405,3 +513,6 @@ FROM
     LEFT JOIN contract_interactions ci
     ON ad.user_address = ci.user_address
     AND ad.block_date = ci.block_date
+    LEFT JOIN net_nft_accumulate nna
+    ON ad.user_address = nna.user_address
+    AND ad.block_date = nna.block_date
