@@ -28,13 +28,14 @@ verified_contracts AS (
         {{ ref('price__ez_asset_metadata') }}
     WHERE
         is_verified
+        AND token_address IS NOT NULL
 ),
 logs AS (
     SELECT
         l.block_number,
         l.contract_address,
-        CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 42)) AS from_address,
-        CONCAT('0x', SUBSTR(l.topics [2] :: STRING, 27, 42)) AS to_address
+        CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 42)) AS address1,
+        CONCAT('0x', SUBSTR(l.topics [2] :: STRING, 27, 42)) AS address2
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -72,22 +73,22 @@ transfers AS (
     SELECT
         DISTINCT block_number,
         contract_address,
-        from_address AS address
+        address1 AS address
     FROM
         logs
     WHERE
-        from_address IS NOT NULL
-        AND from_address <> '0x0000000000000000000000000000000000000000'
+        address1 IS NOT NULL
+        AND address1 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
         DISTINCT block_number,
         contract_address,
-        to_address AS address
+        address2 AS address
     FROM
         logs
     WHERE
-        to_address IS NOT NULL
-        AND to_address <> '0x0000000000000000000000000000000000000000'
+        address2 IS NOT NULL
+        AND address2 <> '0x0000000000000000000000000000000000000000'
 ),
 to_do AS (
     SELECT
