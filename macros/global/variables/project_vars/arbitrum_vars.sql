@@ -322,6 +322,11 @@
                     'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
                 }
             },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x6c247b1f6182318877311737bac0844baa518f5e'
+                }
+            },
             'silo': {
                 'v2': {
                     'silo_factory': '0x4166487056a922d784b073d4d928a516b074b719',

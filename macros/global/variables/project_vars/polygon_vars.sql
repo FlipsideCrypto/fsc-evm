@@ -233,6 +233,11 @@
                     'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
                     'aave_version_address': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf'
                 }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x1bf0c2541f820e775182832f06c0b7fc27a25f67'
+                }
             }
         }
     } %}

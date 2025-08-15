@@ -231,7 +231,34 @@
                 }
             }
         },
-        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'avalanche c-chain'
+        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'avalanche c-chain',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'benqi': {
+                'v1': {
+                    'comp_v2_origin_from_address': ['0x5423819b3b5bb38b0e9e9e59f22f9034e2d8819b',
+                    '0x0df1a01ade3cd67ccc11d89f2859a0de514cd679',
+                    '0xf799c20563218190424c3aec6022ce9faf588eb7',
+                    '0x0cf89de760b234b82e475d609a6de8ec48c68677',
+                    '0xfb45e03b83ad113cd0d4e697354a6a9be6decc55']
+                }
+            },
+            'joe_lend': {
+                'v1': {
+                    'comp_v2_origin_from_address': ['0x5d3e4c0fe11e0ae4c32f0ff74b4544c49538ac61',
+                    '0x72c5456d731fdd9d3480f997226a631231de61cc']
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                }
+            },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0x7f53e2755eb3c43824e162f7f6f087832b9c9df6'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

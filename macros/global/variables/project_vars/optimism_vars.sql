@@ -230,6 +230,11 @@
                 'v3': {
                     'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
                 }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0xce95afbb8ea029495c66020883f87aae8864af92'
+                }
             }
         }
     } %}

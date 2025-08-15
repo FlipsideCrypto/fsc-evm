@@ -48,7 +48,7 @@ comp_v2_fork_redemptions AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         contract_address IN (SELECT token_address FROM asset_details)
-        AND topics [0] :: STRING = '0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929'
+        AND topics [0] :: STRING IN ('0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929','0xbd5034ffbd47e4e72a94baa2cdb74c6fad73cb3bcdc13036b72ec8306f5a7646')
         AND tx_succeeded
 {% if is_incremental() %}
 AND modified_timestamp >= (

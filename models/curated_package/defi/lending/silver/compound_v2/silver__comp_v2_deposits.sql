@@ -48,7 +48,7 @@ comp_v2_fork_deposits AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         contract_address IN (SELECT token_address FROM asset_details)
-        AND topics [0] :: STRING = '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f'
+        AND topics [0] :: STRING IN ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f','0xb4c03061fb5b7fed76389d5af8f2e0ddb09f8c70d1333abbb62582835e10accb')
         AND tx_succeeded
 {% if is_incremental() %}
 AND modified_timestamp >= (

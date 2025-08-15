@@ -43,7 +43,44 @@
                     'bridge': '0x45f1a95a4d3f3836523f5c83673c797f4d4d263b'
                 }
             }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'benqi': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                }
+            },
+            'sonne': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0xfb59ce8986943163f14c590755b29db2998f2322'
+                }
+            },
+            'compound': {
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'granary': {
+                'v1': {
+                    'aave_version_address': '0x8fd4af47e4e63d1d2d45582c3286b4bd9bb95dfe'
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x857f3eefe8cbda3bc49367c996cd664a880d3042'
+                }
+            }
         }
+    } %}
+    
+    {{ return(vars) }}
+{% endmacro %} 
+        
     } %}
     
     {{ return(vars) }}
