@@ -52,6 +52,7 @@ erc20_transfers AS (
         AND topic_2 IS NOT NULL
         AND DATA IS NOT NULL
         AND raw_amount IS NOT NULL
+        AND from_address <> to_address  --exclude self-transfers
 
 {% if is_incremental() %}
 AND l.modified_timestamp > (
@@ -127,7 +128,6 @@ all_transfers AS (
         erc20_transfers
     WHERE
         to_address <> '0x0000000000000000000000000000000000000000'
-        AND to_address <> from_address  --exclude self-transfers
     UNION ALL
     SELECT
         block_number,
@@ -145,7 +145,6 @@ all_transfers AS (
         erc20_transfers
     WHERE
         from_address <> '0x0000000000000000000000000000000000000000'
-        AND from_address <> to_address  --exclude self-transfers
     UNION ALL
     SELECT
         block_number,
