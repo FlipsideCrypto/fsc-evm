@@ -6,7 +6,7 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = ['block_number', 'address', 'contract_address'],
+    unique_key = ['block_number', 'tx_position', 'address', 'contract_address'],
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp::date'],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
@@ -35,8 +35,7 @@ erc20_transfers AS (
         contract_address,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) :: STRING AS from_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) :: STRING AS to_address,
-        utils.udf_hex_to_int(SUBSTR(DATA, 3, 64)) AS raw_amount_precise,
-        TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
+        TRY_TO_NUMBER(utils.udf_hex_to_int(SUBSTR(DATA, 3, 64))) AS raw_amount,
         C.decimals,
         tx_succeeded
     FROM
@@ -52,7 +51,7 @@ erc20_transfers AS (
         AND topic_1 IS NOT NULL
         AND topic_2 IS NOT NULL
         AND DATA IS NOT NULL
-        AND raw_amount_precise IS NOT NULL
+        AND raw_amount IS NOT NULL
 
 {% if is_incremental() %}
 AND l.modified_timestamp > (
@@ -87,8 +86,7 @@ wrapped_native_transfers AS (
                 27
             )
         ) AS to_address,
-        utils.udf_hex_to_int(DATA) AS raw_amount_precise,
-        TRY_TO_NUMBER(raw_amount_precise) AS raw_amount,
+        TRY_TO_NUMBER(utils.udf_hex_to_int(DATA :: STRING)) AS raw_amount,
         18 AS decimals,
         tx_succeeded
     FROM
@@ -101,7 +99,7 @@ wrapped_native_transfers AS (
             -- withdraw
             '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' --deposit
         )
-        AND raw_amount_precise IS NOT NULL
+        AND raw_amount IS NOT NULL
 
 {% if is_incremental() %}
 AND l.modified_timestamp > (
@@ -121,7 +119,6 @@ all_transfers AS (
         event_index,
         contract_address,
         to_address AS address,
-        raw_amount_precise,
         raw_amount,
         decimals,
         tx_succeeded,
@@ -139,7 +136,6 @@ all_transfers AS (
         event_index,
         contract_address,
         from_address AS address,
-        raw_amount_precise * -1 AS raw_amount_precise,
         raw_amount * -1 AS raw_amount,
         decimals,
         tx_succeeded,
@@ -157,7 +153,6 @@ all_transfers AS (
         event_index,
         contract_address,
         to_address AS address,
-        raw_amount_precise,
         raw_amount,
         decimals,
         tx_succeeded,
@@ -175,7 +170,6 @@ all_transfers AS (
         event_index,
         contract_address,
         from_address AS address,
-        raw_amount_precise * -1 AS raw_amount_precise,
         raw_amount * -1 AS raw_amount,
         decimals,
         tx_succeeded,
@@ -197,11 +191,6 @@ running_balances AS (
         decimals,
         tx_succeeded,
         direction,
-        SUM(raw_amount_precise) OVER (
-            PARTITION BY contract_address, address
-            ORDER BY block_number, tx_position, event_index
-            ROWS UNBOUNDED PRECEDING
-        ) AS balance_precise_raw,
         SUM(raw_amount) OVER (
             PARTITION BY contract_address, address
             ORDER BY block_number, tx_position, event_index
@@ -221,19 +210,20 @@ running_balances AS (
 SELECT
     block_number,
     block_timestamp,
+    tx_position,
+    tx_hash,
     contract_address,
     address,
     decimals,
     tx_succeeded,
-    balance_precise_raw,
     balance_raw,
     balance,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'address', 'contract_address']) }} AS ez_balances_erc20_transfers_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address', 'contract_address']) }} AS ez_balances_erc20_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
     running_balances
 QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY block_number, contract_address, address 
-    ORDER BY tx_position DESC, event_index DESC
+    PARTITION BY block_number, tx_position, contract_address, address 
+    ORDER BY event_index DESC
 ) = 1
