@@ -127,6 +127,7 @@ all_transfers AS (
         erc20_transfers
     WHERE
         to_address <> '0x0000000000000000000000000000000000000000'
+        AND to_address <> from_address  --exclude self-transfers
     UNION ALL
     SELECT
         block_number,
@@ -144,6 +145,7 @@ all_transfers AS (
         erc20_transfers
     WHERE
         from_address <> '0x0000000000000000000000000000000000000000'
+        AND from_address <> to_address  --exclude self-transfers
     UNION ALL
     SELECT
         block_number,
