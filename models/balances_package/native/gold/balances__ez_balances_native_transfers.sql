@@ -167,12 +167,15 @@ SELECT
     tx_succeeded,
     trace_succeeded,
     balance_raw,
-    balance,
+    CASE 
+        WHEN ABS(r.balance) < 1e-15 THEN 0 
+        ELSE r.balance 
+    END AS balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS ez_balances_native_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    running_balances
+    running_balances r
 QUALIFY ROW_NUMBER() OVER (
     PARTITION BY block_number, tx_position, address 
     ORDER BY trace_index DESC
