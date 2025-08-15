@@ -37,6 +37,7 @@ WITH native_transfers AS (
             'STATICCALL'
         )
         AND from_address <> to_address
+        AND trace_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp > (
