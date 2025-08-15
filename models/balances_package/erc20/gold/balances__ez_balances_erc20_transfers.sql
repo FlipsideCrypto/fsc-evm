@@ -1,13 +1,15 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {{ config (
     materialized = "incremental",
-    unique_key = ['block_number'],
+    unique_key = ['block_number', 'address', 'contract_address'],
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp::date'],
-    full_refresh = vars.global_gold_fr_enabled,
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     post_hook = '{{ unverify_balances() }}',
     tags = ['gold','balances','phase_4','heal']
 ) }}
@@ -192,42 +194,25 @@ running_balances AS (
         event_index,
         contract_address,
         address,
-        raw_amount_precise,
-        raw_amount,
         decimals,
         tx_succeeded,
         direction,
-        SUM(raw_amount_precise) over (
-            PARTITION BY contract_address,
-            address
-            ORDER BY
-                block_timestamp,
-                block_number,
-                tx_position,
-                event_index rows unbounded preceding
+        SUM(raw_amount_precise) OVER (
+            PARTITION BY contract_address, address
+            ORDER BY block_number, tx_position, event_index
+            ROWS UNBOUNDED PRECEDING
         ) AS balance_precise_raw,
-        SUM(raw_amount) over (
-            PARTITION BY contract_address,
-            address
-            ORDER BY
-                block_timestamp,
-                block_number,
-                tx_position,
-                event_index rows unbounded preceding
+        SUM(raw_amount) OVER (
+            PARTITION BY contract_address, address
+            ORDER BY block_number, tx_position, event_index
+            ROWS UNBOUNDED PRECEDING
         ) AS balance_raw,
         CASE
-            WHEN decimals IS NOT NULL THEN SUM(raw_amount) over (
-                PARTITION BY contract_address,
-                address
-                ORDER BY
-                    block_timestamp,
-                    block_number,
-                    tx_position,
-                    event_index rows unbounded preceding
-            ) / pow(
-                10,
-                decimals
-            ) AS balance
+            WHEN decimals IS NOT NULL THEN SUM(raw_amount) OVER (
+                PARTITION BY contract_address, address
+                ORDER BY block_number, tx_position, event_index
+                ROWS UNBOUNDED PRECEDING
+            ) / POW(10, decimals)
             ELSE NULL
         END AS balance
     FROM
@@ -236,21 +221,19 @@ running_balances AS (
 SELECT
     block_number,
     block_timestamp,
-    tx_position,
-    tx_hash,
-    event_index,
     contract_address,
     address,
-    raw_amount_precise,
-    raw_amount,
     decimals,
     tx_succeeded,
-    direction,
     balance_precise_raw,
     balance_raw,
     balance,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'event_index', 'address', 'contract_address']) }} AS ez_balances_erc20_transfers_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'address', 'contract_address']) }} AS ez_balances_erc20_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
     running_balances
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY block_number, contract_address, address 
+    ORDER BY tx_position DESC, event_index DESC
+) = 1
