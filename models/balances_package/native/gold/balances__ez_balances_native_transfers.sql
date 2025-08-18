@@ -24,8 +24,8 @@ WITH native_transfers AS (
         from_address,
         to_address,
         18 AS decimals,
-        value * POW(10, decimals) AS raw_amount,
-        value AS amount,
+        value_precise_raw :: NUMBER(38,0) AS raw_amount,
+        value_precise :: NUMBER(38,18) AS amount,
         tx_succeeded,
         trace_succeeded
     FROM
@@ -57,8 +57,8 @@ tx_fees AS (
         from_address,
         to_address,
         18 AS decimals,
-        tx_fee * POW(10, decimals) AS raw_tx_fee,
-        tx_fee,
+        (tx_fee_precise :: NUMBER(38,18) * POW(10, decimals)) :: NUMBER(38,0) AS raw_tx_fee,
+        tx_fee_precise :: NUMBER(38,18) AS tx_fee,
         tx_succeeded
     FROM
         {{ ref('core__fact_transactions') }}
@@ -167,10 +167,7 @@ SELECT
     tx_succeeded,
     trace_succeeded,
     balance_raw,
-    CASE 
-        WHEN ABS(r.balance) < 1e-15 THEN 0 
-        ELSE r.balance 
-    END AS balance,
+    balance,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'tx_position', 'address']) }} AS ez_balances_native_transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
