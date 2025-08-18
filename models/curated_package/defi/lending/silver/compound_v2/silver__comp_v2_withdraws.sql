@@ -39,16 +39,28 @@ comp_v2_fork_redemptions AS (
         contract_address,
         contract_address AS protocol_market,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER AS received_amount_raw,
-        utils.udf_hex_to_int(segmented_data [3] :: STRING) :: INTEGER AS redeemed_token_raw,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS depositor,
+        CASE 
+            WHEN topics[0]::STRING = '0x3f693fff038bb8a046aa76d9516190ac7444f7d69cf952c4cbdc086fdef2d6fc' THEN
+                utils.udf_hex_to_int(segmented_data[3]::STRING)::INTEGER
+            ELSE
+                utils.udf_hex_to_int(segmented_data[1]::STRING)::INTEGER
+        END AS received_amount_raw,
+        CASE 
+            WHEN topics[0]::STRING = '0x3f693fff038bb8a046aa76d9516190ac7444f7d69cf952c4cbdc086fdef2d6fc' THEN
+                utils.udf_hex_to_int(segmented_data[2]::STRING)::INTEGER
+            ELSE
+                utils.udf_hex_to_int(segmented_data[3]::STRING)::INTEGER
+        END AS redeemed_token_raw,
+        CONCAT('0x', SUBSTR(segmented_data[0]::STRING, 25, 40)) AS depositor,
         modified_timestamp,
-        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
+        CONCAT(tx_hash::STRING, '-', event_index::STRING) AS _log_id
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         contract_address IN (SELECT token_address FROM asset_details)
-        AND topics [0] :: STRING IN ('0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929','0xbd5034ffbd47e4e72a94baa2cdb74c6fad73cb3bcdc13036b72ec8306f5a7646')
+        AND topics [0] :: STRING IN ('0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929'
+        ,'0xbd5034ffbd47e4e72a94baa2cdb74c6fad73cb3bcdc13036b72ec8306f5a7646'
+        ,'0x3f693fff038bb8a046aa76d9516190ac7444f7d69cf952c4cbdc086fdef2d6fc')
         AND tx_succeeded
 {% if is_incremental() %}
 AND modified_timestamp >= (

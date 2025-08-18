@@ -39,16 +39,26 @@ comp_v2_fork_deposits AS (
         contract_address,
         contract_address AS protocol_market,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER AS minttokens_raw,
-        utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER AS mintAmount_raw,
-        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS supplier,
+        CASE 
+            WHEN topics[0]::STRING = '0x2f00e3cdd69a77be7ed215ec7b2a36784dd158f921fca79ac29deffa353fe6ee' 
+                THEN utils.udf_hex_to_int(segmented_data[3]::STRING)::INTEGER
+            ELSE utils.udf_hex_to_int(segmented_data[2]::STRING)::INTEGER
+        END AS minttokens_raw,
+        CASE 
+            WHEN topics[0]::STRING = '0x2f00e3cdd69a77be7ed215ec7b2a36784dd158f921fca79ac29deffa353fe6ee' 
+                THEN utils.udf_hex_to_int(segmented_data[2]::STRING)::INTEGER
+            ELSE utils.udf_hex_to_int(segmented_data[1]::STRING)::INTEGER
+        END AS mintAmount_raw,
+        CONCAT('0x', SUBSTR(segmented_data[0]::STRING, 25, 40)) AS supplier,
         modified_timestamp,
-        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
+        CONCAT(tx_hash::STRING, '-', event_index::STRING) AS _log_id
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
         contract_address IN (SELECT token_address FROM asset_details)
-        AND topics [0] :: STRING IN ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f','0xb4c03061fb5b7fed76389d5af8f2e0ddb09f8c70d1333abbb62582835e10accb')
+        AND topics [0] :: STRING IN ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f'
+        ,'0xb4c03061fb5b7fed76389d5af8f2e0ddb09f8c70d1333abbb62582835e10accb'
+        ,'0x2f00e3cdd69a77be7ed215ec7b2a36784dd158f921fca79ac29deffa353fe6ee')
         AND tx_succeeded
 {% if is_incremental() %}
 AND modified_timestamp >= (

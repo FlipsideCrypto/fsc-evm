@@ -48,7 +48,8 @@ comp_v2_fork_repayments AS (
         {{ ref('core__fact_event_logs') }}
     WHERE
         contract_address IN (SELECT token_address FROM asset_details)
-        AND topics [0] :: STRING = '0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1'
+        AND topics [0] :: STRING in ('0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1'
+        ,'0x6fadbf7329d21f278e724fa0d4511001a158f2a97ee35c5bc4cf8b64417399ef')
         AND tx_succeeded
 {% if is_incremental() %}
 AND modified_timestamp >= (

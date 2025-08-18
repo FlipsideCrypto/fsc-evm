@@ -20,7 +20,8 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
         'MAIN_CORE_TRACES_ARB_MODE': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3',
+        'radiant-v1','radiant-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -309,12 +310,10 @@
             },
             'radiant': {
                 'v1': {
-                    'aave_v3_treasury': ['0xe10997b8d5c6e8b660451f61accf4bba00bc901f', '0xf48ccab0a329d5469b556668ca00ec87b6fe5b5f']
-                }
-            },
-            'aave': {
-                'v3': {
-                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                    'aave_version_address': '0x2032b9a8e9f7e76768ca9271003d3e43e1616b1f'
+                },
+                'v2': {
+                    'aave_version_address': '0xf4b1486dd74d07706052a33d31d7c0aafd0659e1'
                 }
             },
             'aave': {
@@ -333,9 +332,9 @@
                     'silo_tokens_factory': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
                 }
             },
-            'layerbank': {
+            'lodestar': {
                 'v1': {
-                    'comp_v2_origin_from_address': '0x561064e20290d9cb371b631a86634ae39b462279'
+                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
                 }
             }
         }

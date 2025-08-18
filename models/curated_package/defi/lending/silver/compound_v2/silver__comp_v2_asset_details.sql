@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "token_address",
-    tags = ['silver','defi','lending','curated','compound','compound_v2']
+    tags = ['silver','defi','lending','curated','compound','compound_v2','comp_v2_asset_details']
 ) }}
 
 WITH origin_from_addresses AS (
@@ -48,7 +48,8 @@ log_pull AS (
         LEFT JOIN contracts C
         ON C.contract_address = l.contract_address
     WHERE
-        topics [0] :: STRING = '0x7ac369dbd14fa5ea3f473ed67cc9d598964a77501540ba6751eb0b3decf5870d'
+        topics [0] :: STRING in('0x7ac369dbd14fa5ea3f473ed67cc9d598964a77501540ba6751eb0b3decf5870d'
+        ,'0x70aea8d848e8a90fb7661b227dc522eb6395c3dac71b63cb59edd5c9899b2364')
         AND origin_from_address IN (
             SELECT
                 contract_address
@@ -215,10 +216,26 @@ SELECT
     token_name,
     token_symbol,
     token_decimals,
-    case when token_symbol LIKE '%ETH%' AND underlying_asset_address is null then '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' else underlying_asset_address end as underlying_asset_address,
-    case when token_symbol LIKE '%ETH%' AND underlying_name is null then 'Ether' else underlying_name end as underlying_name,
-    case when token_symbol LIKE '%ETH%' AND underlying_symbol is null then 'ETH' else underlying_symbol end as underlying_symbol,
-    case when token_symbol LIKE '%ETH%' AND underlying_decimals is null then 18 else underlying_decimals end as underlying_decimals,
+    CASE 
+        WHEN token_symbol LIKE '%' || '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' || '%' AND underlying_asset_address IS NULL 
+            THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+        ELSE underlying_asset_address 
+    END AS underlying_asset_address,
+    CASE 
+        WHEN token_symbol LIKE '%' || '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' || '%' AND underlying_name IS NULL 
+            THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL }}'
+        ELSE underlying_name 
+    END AS underlying_name,
+    CASE 
+        WHEN token_symbol LIKE '%' || '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' || '%' AND underlying_symbol IS NULL 
+            THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL }}'
+        ELSE underlying_symbol 
+    END AS underlying_symbol,
+    CASE 
+        WHEN token_symbol LIKE '%' || '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' || '%' AND underlying_decimals IS NULL 
+            THEN 18
+        ELSE underlying_decimals 
+    END AS underlying_decimals,
     protocol,
     version,
     modified_timestamp,

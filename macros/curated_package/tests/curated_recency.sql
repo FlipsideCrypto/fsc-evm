@@ -47,7 +47,7 @@ WITH source AS (
             source
         WHERE
             (latest_timestamp < threshold_ts 
-            OR percent_delta < 10)
+            OR (percent_delta < 10 AND percent_delta <> 0))
             AND platform NOT IN ('{{ vars.CURATED_DEFI_RECENCY_EXCLUSION_LIST | join("', '") }}')
 -- failure to meet threshold requires manual review to determine if
 -- the protocol has newly deployed contracts, stale contracts, etc.
