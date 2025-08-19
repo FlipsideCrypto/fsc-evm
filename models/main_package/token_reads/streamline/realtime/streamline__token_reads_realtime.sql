@@ -14,7 +14,8 @@ WITH base AS (
 
     SELECT
         r.contract_address,
-        r.latest_event_block AS latest_block
+        r.latest_event_block AS latest_block,
+        r.total_event_count
     FROM
         {{ ref('silver__relevant_contracts') }} r 
         LEFT JOIN {{ ref('streamline__token_reads_complete') }} c
@@ -27,10 +28,15 @@ WITH base AS (
             FROM {{ ref('core__fact_blocks') }} 
             WHERE block_timestamp::date = dateadd('day',-60,sysdate())::Date
         )
+    UNION ALL
+    select 
+        contract_address,
+        latest_event_block,
+        total_event_count
+    FROM {{ ref('_missing_token_reads') }}
     ORDER BY
-        r.total_event_count DESC
+        total_event_count DESC
     LIMIT {{ vars.MAIN_SL_TOKEN_READS_CONTRACT_LIMIT }}
-
 ), 
 function_sigs AS (
     SELECT
