@@ -13,7 +13,7 @@
     incremental_strategy = 'delete+insert',
     cluster_by = ['modified_timestamp::date', 'partition_key'],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','balances','phase_4']
+    tags = ['silver','balances','phase_4','test_state']
 ) }}
 
 WITH state_tracer AS (

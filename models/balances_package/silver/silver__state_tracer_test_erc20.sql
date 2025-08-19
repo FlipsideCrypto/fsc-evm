@@ -13,7 +13,7 @@
     incremental_strategy = 'delete+insert',
     cluster_by = ['modified_timestamp::date', 'partition_key'],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','balances','phase_4']
+    tags = ['silver','balances','phase_4','test_state']
 ) }}
 
 WITH state_tracer AS (
@@ -120,7 +120,8 @@ state_tracer_final AS (
         pre_storage,
         post_nonce,
         post_hex_balance,
-        post_storage
+        post_storage,
+        pre._inserted_timestamp
     FROM
         pre_state pre
         LEFT JOIN post_state post USING(
@@ -138,7 +139,8 @@ state_tracer_realtime AS (
         post_state_json,
         address,
         pre_storage,
-        post_storage
+        post_storage,
+        _inserted_timestamp
     FROM
         state_tracer_final
         t
@@ -171,7 +173,8 @@ state_tracer_history AS (
         post_state_json,
         address,
         pre_storage,
-        post_storage
+        post_storage,
+        _inserted_timestamp
     FROM
         state_tracer_final
         t
@@ -198,7 +201,8 @@ pre_state_storage AS (
         address,
         pre_storage,
         pre.key :: STRING AS storage_key,
-        pre.value :: STRING AS pre_storage_value_hex
+        pre.value :: STRING AS pre_storage_value_hex,
+        _inserted_timestamp
     FROM
         state_tracer_union,
         LATERAL FLATTEN(
@@ -214,7 +218,8 @@ post_state_storage AS (
         address,
         post_storage,
         post.key :: STRING AS storage_key,
-        post.value :: STRING AS post_storage_value_hex
+        post.value :: STRING AS post_storage_value_hex,
+        _inserted_timestamp
     FROM
         state_tracer_union,
         LATERAL FLATTEN(
@@ -247,7 +252,8 @@ state_storage AS (
         COALESCE(
             post_storage_value_hex,
             '0x0000000000000000000000000000000000000000000000000000000000000000'
-        ) AS post_storage_hex
+        ) AS post_storage_hex,
+        _inserted_timestamp
     FROM
         pre_state_storage pre full
         OUTER JOIN post_state_storage post USING (
