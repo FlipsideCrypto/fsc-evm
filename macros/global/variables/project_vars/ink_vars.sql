@@ -80,8 +80,3 @@
     
     {{ return(vars) }}
 {% endmacro %} 
-        
-    } %}
-    
-    {{ return(vars) }}
-{% endmacro %} 

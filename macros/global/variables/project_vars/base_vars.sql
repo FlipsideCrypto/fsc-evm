@@ -20,7 +20,7 @@
         'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 450,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '15,45 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '15 5 * * *',
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['voodoo-v1','woofi-v1','woofi-v3','across-v1','celer_cbridge-v1','hop-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['voodoo-v1','woofi-v1','woofi-v3','across-v1','celer_cbridge-v1','hop-v1','seamless-v1','granary-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
