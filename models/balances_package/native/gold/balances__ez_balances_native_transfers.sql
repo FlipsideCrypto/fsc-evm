@@ -38,6 +38,7 @@ WITH native_transfers AS (
         )
         AND from_address <> to_address
         AND trace_succeeded
+        AND tx_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp > (
