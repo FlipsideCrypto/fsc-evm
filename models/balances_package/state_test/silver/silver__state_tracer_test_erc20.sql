@@ -207,6 +207,7 @@ SELECT
     partition_key,
     block_number,
     tx_position,
+    tx_hash,
     contract_address,
     storage_key,
     pre_storage_hex,
