@@ -19,15 +19,13 @@ WITH state_tracer AS (
         block_number,
         tx_position,
         tx_hash,
-        pre_state_json,
-        post_state_json,
         address,
         pre_nonce,
         pre_hex_balance,
         post_nonce,
         post_hex_balance
     FROM
-        {{ ref('silver__state_tracer') }}
+        {{ ref('silver__state_tracer_native') }}
 
 {% if is_incremental() %}
 WHERE
@@ -43,7 +41,6 @@ WHERE
             block_number,
             tx_position,
             tx_hash,
-            pre_state_json,
             address,
             pre_nonce AS nonce,
             pre_hex_balance AS hex_balance
@@ -57,7 +54,6 @@ WHERE
             block_number,
             tx_position,
             tx_hash,
-            post_state_json,
             address,
             post_nonce AS nonce,
             post_hex_balance AS hex_balance
