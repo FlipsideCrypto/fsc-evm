@@ -79,7 +79,7 @@
                 {% if error_code %}
                 AND DATA :error :code IS NULL
                 {% else %}
-                AND DATA :error IS NULL
+                AND (DATA :error IS NULL OR DATA :error :: STRING IS NULL)
                 {% endif %}
             AND DATA IS NOT NULL
             {% endif %}
@@ -168,7 +168,7 @@ WHERE
         {% if error_code %}
         AND DATA :error :code IS NULL
         {% else %}
-        AND DATA :error IS NULL
+        AND (DATA :error IS NULL OR DATA :error :: STRING IS NULL)
         {% endif %}
     AND DATA IS NOT NULL
     {% endif %}
