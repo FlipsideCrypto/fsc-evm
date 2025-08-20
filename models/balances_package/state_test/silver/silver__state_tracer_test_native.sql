@@ -22,7 +22,6 @@ WITH state_tracer AS (
         partition_key,
         block_number,
         array_index AS tx_position,
-        DATA AS state_json,
         DATA :txHash :: STRING AS tx_hash,
         DATA :result :pre :: variant AS pre_state_json,
         DATA :result :post :: variant AS post_state_json,
