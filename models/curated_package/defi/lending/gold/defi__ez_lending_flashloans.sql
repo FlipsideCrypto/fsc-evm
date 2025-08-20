@@ -49,4 +49,4 @@ SELECT
         '2000-01-01'
     ) AS modified_timestamp
 FROM 
-    {{ ref('silver__complete_lending_flashloans') }}
+    {{ ref('silver_lending__complete_lending_flashloans') }}
