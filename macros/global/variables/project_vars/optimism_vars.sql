@@ -206,9 +206,15 @@
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x03d7f750777ec48d39d080b020d83eb2cb4e3547',
         'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
-            'exactly': {
+            'moonwell': {
                 'v1': {
-                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                    'comp_v2_origin_from_address': ['0x5c000728eb8a4c7f6e78495da2900b0370adb1ed',
+                    '0xc3f9774af21a030ab785cb45510ba9edc9d0c8cd',
+                    '0xc84065601e39a623d75dfddd278346b9778d8943',
+                    '0x0f23882f0a4bf32d4cb1e70c3831747b83dd2287',
+                    '0x29b28b0ff5b6b26448f3ac02cd209539626d96ab',
+                    '0x10b83c88e88910cd5293324800d1a6e751004be5',
+                    '0x3073fcad986fbe9f94cc6caa44f76c12e34516d4']
                 }
             },
             'sonne': {
