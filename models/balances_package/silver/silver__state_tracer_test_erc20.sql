@@ -131,6 +131,7 @@ state_tracer_final AS (
 ),
 pre_state_storage AS (
     SELECT
+        partition_key,
         block_number,
         tx_position,
         tx_hash,
@@ -148,6 +149,7 @@ pre_state_storage AS (
 ),
 post_state_storage AS (
     SELECT
+        partition_key,
         block_number,
         tx_position,
         tx_hash,
@@ -165,6 +167,7 @@ post_state_storage AS (
 ),
 state_storage AS (
     SELECT
+        partition_key,
         block_number,
         COALESCE(
             pre.tx_position,
@@ -201,6 +204,7 @@ state_storage AS (
         )
 )
 SELECT 
+    partition_key,
     block_number,
     tx_position,
     contract_address,
