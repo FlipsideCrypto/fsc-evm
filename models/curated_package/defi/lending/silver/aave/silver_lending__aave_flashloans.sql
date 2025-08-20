@@ -54,7 +54,7 @@ flashloan AS (
             ELSE origin_from_address
         END AS initiator_address,
         CASE
-            WHEN topics [0] :: STRING = '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' THEN CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40))
+            WHEN topics [0] :: STRING = '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' THEN COALESCE(CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)),CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)))
             WHEN topics [0] :: STRING = '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
         END AS asset_1,
         CASE
@@ -82,8 +82,8 @@ flashloan AS (
             ) :: INTEGER
         END AS refferalCode,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CONCAT(
             tx_hash :: STRING,

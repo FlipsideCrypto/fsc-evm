@@ -82,7 +82,7 @@ aave AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_flashloans') }} A
-
+    WHERE flashloan_amount is not null
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -120,7 +120,7 @@ aave_ethereum AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_ethereum_flashloans') }} A
-
+    WHERE flashloan_amount is not null
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -158,7 +158,7 @@ morpho AS (
         A.event_name
     FROM
         {{ ref('silver_lending__morpho_flashloans') }} A
-
+    WHERE flashloan_amount is not null
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (

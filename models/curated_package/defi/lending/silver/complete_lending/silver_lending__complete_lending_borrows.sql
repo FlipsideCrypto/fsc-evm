@@ -80,7 +80,7 @@ aave AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -116,7 +116,7 @@ euler AS (
         A.event_name
     FROM
         {{ ref('silver_lending__euler_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'euler' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -152,7 +152,7 @@ fraxlend AS (
         A.event_name
     FROM
         {{ ref('silver_lending__fraxlend_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -188,7 +188,7 @@ aave_ethereum AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_ethereum_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -223,7 +223,7 @@ comp_v2_fork AS (
         A.event_name
     FROM
         {{ ref('silver_lending__comp_v2_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -258,7 +258,7 @@ compound_v3 AS (
         A.event_name
     FROM
         {{ ref('silver_lending__comp_v3_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -293,7 +293,7 @@ silo AS (
         A.event_name
     FROM
         {{ ref('silver_lending__silo_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -328,7 +328,7 @@ morpho AS (
         A.event_name
     FROM
         {{ ref('silver_lending__morpho_borrows') }} A
-
+    WHERE amount is not null
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
