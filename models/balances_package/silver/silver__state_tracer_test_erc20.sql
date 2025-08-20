@@ -22,7 +22,6 @@ WITH state_tracer AS (
         partition_key,
         block_number,
         array_index AS tx_position,
-        DATA AS state_json,
         DATA :txHash :: STRING AS tx_hash,
         DATA :result :pre :: variant AS pre_state_json,
         DATA :result :post :: variant AS post_state_json,
@@ -62,7 +61,7 @@ WHERE
             {{ ref('bronze__state_tracer_fr') }}
         WHERE
             DATA IS NOT NULL
-            AND partition_key >= 25000000 --temp
+            AND partition_key >= 25000000 AND partition_key <= 27000000 --temp
             {# AND partition_key <= {{ vars.BALANCES_SILVER_STATE_TRACER_FR_MAX_BLOCK }} #}
         {% endif %}
 
@@ -130,68 +129,6 @@ state_tracer_final AS (
             address
         )
 ),
-state_tracer_realtime AS (
-    SELECT
-        block_number,
-        tx_position,
-        tx_hash,
-        pre_state_json,
-        post_state_json,
-        address,
-        pre_storage,
-        post_storage,
-        _inserted_timestamp
-    FROM
-        state_tracer_final
-        t
-        INNER JOIN {{ ref('price__ez_asset_metadata') }}
-        v --limits balances to verified assets only
-        ON t.address = v.token_address
-    WHERE
-        is_verified
-        AND asset_id IS NOT NULL
-        AND token_address IS NOT NULL
-),
-{% if is_incremental() and var('HEAL_MODEL',false) %}
-new_contracts AS (
-    SELECT DISTINCT contract_address
-    FROM {{ ref('price__ez_asset_metadata') }}
-    WHERE token_address NOT IN (
-        SELECT DISTINCT contract_address 
-        FROM {{ this }}
-    )
-    AND is_verified
-    AND asset_id IS NOT NULL
-    AND token_address IS NOT NULL
-),
-state_tracer_history AS (
-    SELECT
-        block_number,
-        tx_position,
-        tx_hash,
-        pre_state_json,
-        post_state_json,
-        address,
-        pre_storage,
-        post_storage,
-        _inserted_timestamp
-    FROM
-        state_tracer_final
-        t
-        INNER JOIN new_contracts
-        v --limits balances to verified assets only
-        ON t.address = v.contract_address
-),
-{% endif %}
-state_tracer_union AS (
-    SELECT *
-    FROM state_tracer_realtime
-{% if is_incremental() and var('HEAL_MODEL',false) %}
-    UNION
-    SELECT *
-    FROM state_tracer_history
-{% endif %}
-),
 pre_state_storage AS (
     SELECT
         block_number,
@@ -204,7 +141,7 @@ pre_state_storage AS (
         pre.value :: STRING AS pre_storage_value_hex,
         _inserted_timestamp
     FROM
-        state_tracer_union,
+        state_tracer_final,
         LATERAL FLATTEN(
             input => pre_storage
         ) pre
@@ -221,7 +158,7 @@ post_state_storage AS (
         post.value :: STRING AS post_storage_value_hex,
         _inserted_timestamp
     FROM
-        state_tracer_union,
+        state_tracer_final,
         LATERAL FLATTEN(
             input => post_storage
         ) post

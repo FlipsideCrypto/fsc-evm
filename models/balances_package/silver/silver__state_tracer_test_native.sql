@@ -62,7 +62,7 @@ WHERE
             {{ ref('bronze__state_tracer_fr') }}
         WHERE
             DATA IS NOT NULL
-            AND partition_key >= 25000000 --temp
+            AND partition_key >= 25000000 AND partition_key <= 27000000 --temp
             {# AND partition_key <= {{ vars.BALANCES_SILVER_STATE_TRACER_FR_MAX_BLOCK }} #}
         {% endif %}
 
@@ -80,7 +80,6 @@ WHERE
             pre.key AS address,
             pre.value :nonce :: bigint AS pre_nonce,
             pre.value :balance :: STRING AS pre_hex_balance,
-            pre.value :storage :: variant AS pre_storage,
             _inserted_timestamp
         FROM
             state_tracer,
@@ -98,7 +97,6 @@ WHERE
             post.key AS address,
             post.value :nonce :: bigint AS post_nonce,
             post.value :balance :: STRING AS post_hex_balance,
-            post.value :storage :: variant AS post_storage,
             _inserted_timestamp
         FROM
             state_tracer,
@@ -114,10 +112,8 @@ SELECT
     pre.address,
     pre_nonce,
     pre_hex_balance,
-    pre_storage,
     post_nonce,
     post_hex_balance,
-    post_storage,
     {{ dbt_utils.generate_surrogate_key(['pre.block_number', 'pre.tx_position', 'pre.address']) }} AS state_tracer_id,
     _inserted_timestamp,
     SYSDATE() AS modified_timestamp,
