@@ -174,8 +174,8 @@ transfers_join AS (
         AND t2.from_address = l.liquidator
         AND t2.contract_address = l.debt_token
         WHERE (
-        (l.collateral_token_symbol IS NULL AND t1.symbol IS NOT NULL) 
-        OR (l.debt_token_symbol IS NULL AND t2.symbol IS NOT NULL)
+        ((l.collateral_token_symbol IS NULL OR l.collateral_token_symbol = '') AND t1.symbol IS NOT NULL)
+        OR ((l.debt_token_symbol IS NULL OR l.debt_token_symbol = '') AND t2.symbol IS NOT NULL)
         OR (l.liquidated_amount IS NULL AND t1.amount IS NOT NULL)
         OR (l.repaid_amount IS NULL AND t2.amount IS NOT NULL)
     ) 
@@ -241,7 +241,32 @@ FROM
 {% endif %}
 )
 SELECT
-    *,
+        block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    borrower,
+    liquidator,
+    protocol_market,
+    collateral_token,
+    collateral_token_symbol,
+    liquidated_amount_unadj,
+    liquidated_amount,
+    debt_token,
+    debt_token_symbol,
+    repaid_amount_unadj,
+    repaid_amount,
+    protocol,
+    version,
+    platform,
+    _log_id,
+    modified_timestamp as _inserted_timestamp,
+    SYSDATE() as modified_timestamp,
+    SYSDATE() as inserted_timestamp,
     'LiquidateBorrow' AS event_name
 FROM
     liquidation_union qualify(ROW_NUMBER() over(PARTITION BY _log_id ORDER BY modified_timestamp DESC)) = 1

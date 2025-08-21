@@ -130,7 +130,7 @@ comp_v2_fork_combine AS (
     LEFT JOIN asset_details C
     ON b.protocol_market = C.token_address
     WHERE
-        (b.token_symbol IS NULL and C.underlying_symbol is not null)
+        (b.token_symbol IS NULL OR b.token_symbol = '') and C.underlying_symbol is not null
         OR (b.amount IS NULL AND C.underlying_decimals IS NOT NULL)
   {% endif %}
 )
@@ -155,7 +155,9 @@ SELECT
   platform,
   protocol,
   version,
-  modified_timestamp,
+  modified_timestamp as _inserted_timestamp,
+  SYSDATE() as modified_timestamp,
+  SYSDATE() as inserted_timestamp,
   _log_id,
   'Borrow' AS event_name
 FROM

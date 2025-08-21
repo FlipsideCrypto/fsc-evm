@@ -1,3 +1,5 @@
+
+  -- depends_on: {{ ref('silver_lending__token_metadata') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -7,6 +9,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "token_address",
+    merge_exclude_columns = ['inserted_timestamp'],
     tags = ['silver','defi','lending','curated','compound','compound_v2','comp_v2_asset_details']
 ) }}
 
@@ -170,9 +173,9 @@ contract_detail_heal AS (
         l._log_id
     FROM
         {{ this }} l
-        LEFT JOIN contracts c1
+        INNER JOIN contracts c1
         ON c1.contract_address = l.underlying_asset_address
-        LEFT JOIN contracts c2
+        INNER JOIN contracts c2
         ON c2.contract_address = l.token_address
     WHERE
         (
@@ -183,10 +186,45 @@ contract_detail_heal AS (
             l.underlying_name IS NULL
             AND c2.token_name IS NOT NULL
         )
+    UNION ALL
+    SELECT
+        l.tx_hash,
+        l.block_number,
+        l.block_timestamp,
+        l.origin_from_address,
+        l.token_address,
+        tm.token_name,
+        tm.token_symbol,
+        tm.token_decimals,
+        underlying_asset_address,
+        tm.underlying_token_name AS underlying_name,
+        tm.underlying_token_symbol AS underlying_symbol,
+        tm.underlying_token_decimals AS underlying_decimals,
+        l.protocol,
+        l.version,
+        l.modified_timestamp,
+        l._log_id
+    FROM
+        {{ this }} l
+        INNER JOIN {{ ref('silver_lending__token_metadata') }} tm
+        ON tm.token_address = l.token_address
+    WHERE
+        (
+            (l.token_name IS NULL OR l.token_name = '')
+            AND tm.token_name IS NOT NULL
+        )
+        OR (
+            (l.underlying_symbol IS NULL OR l.underlying_symbol = '')
+            AND tm.underlying_token_symbol IS NOT NULL
+        )
+        OR (
+            (l.underlying_decimals IS NULL OR l.underlying_decimals = 0)
+            AND tm.underlying_token_decimals IS NOT NULL
+        )
 ),
 {% endif %}
 final AS (
-    SELECT
+    SELECT  
         l.tx_hash,
         l.block_number,
         l.block_timestamp,
@@ -241,7 +279,9 @@ SELECT
     END AS underlying_decimals,
     protocol,
     version,
-    modified_timestamp,
+    modified_timestamp as _inserted_timestamp,
+    SYSDATE() as modified_timestamp,
+    SYSDATE() as inserted_timestamp,
     _log_id
 FROM
     final
@@ -262,7 +302,9 @@ SELECT
     underlying_decimals,
     protocol,
     version,
-    modified_timestamp,
+    modified_timestamp as _inserted_timestamp,
+    SYSDATE() as modified_timestamp,
+    SYSDATE() as inserted_timestamp,
     _log_id
 FROM
     contract_detail_heal
