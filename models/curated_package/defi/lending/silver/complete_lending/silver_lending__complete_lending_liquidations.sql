@@ -14,27 +14,7 @@
   tags = ['silver','defi','lending','curated','heal','liquidations','complete_lending']
 ) }}
 
-WITH contracts AS (
-
-  SELECT
-    address AS contract_address,
-    symbol AS token_symbol,
-    decimals AS token_decimals,
-    modified_timestamp
-  FROM
-    {{ ref('core__dim_contracts') }}
-  UNION ALL
-  SELECT
-    '0x0000000000000000000000000000000000000000' AS contract_address,
-    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
-    decimals AS token_decimals,
-    modified_timestamp
-  FROM
-    {{ ref('core__dim_contracts') }}
-  WHERE
-    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
-),
-prices AS (
+ WITH prices AS (
   SELECT
     token_address,
     price,
