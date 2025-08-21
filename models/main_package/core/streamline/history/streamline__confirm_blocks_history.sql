@@ -50,11 +50,6 @@ to_do AS (
     WHERE 1=1
         AND block_number IS NOT NULL
         AND block_number <= (SELECT block_number FROM look_back)
-        AND _inserted_timestamp >= DATEADD(
-            'day',
-            -4,
-            SYSDATE()
-        )
     {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
         AND block_number <= (SELECT block_number FROM last_3_days)
     {% endif %}
