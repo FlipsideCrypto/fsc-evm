@@ -6,22 +6,15 @@
 
 {{ config (
     materialized = "view",
-    tags = ['test_silver','balances','recent_test','phase_4']
+    tags = ['test_silver','balances','full_test','phase_4']
 ) }}
 
 SELECT
     *
 FROM
-    {{ ref('silver__state_tracer') }}
-WHERE
-    block_number > (
-        SELECT
-            block_number
-        FROM
-            {{ ref('_block_lookback') }}
-    )
+    {{ ref('silver__state_tracer_native') }}
 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
-AND
+WHERE
     block_number NOT IN (
         SELECT
             block_number :: INT
