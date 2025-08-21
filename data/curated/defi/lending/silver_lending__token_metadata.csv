@@ -1,3 +1,4 @@
 blockchain,token_symbol,token_name,token_address,token_decimals,underlying_token_symbol,underlying_token_name,underlying_token_address,underlying_token_decimals,created_at
 ethereum,cSAI,Compound SAI,0xa4c993e32876795abf80842adb0a241bb0eecd47,8,SAI,Single Collateral DAI,0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359,18,2017-12-18
 ethereum,cSAI,Compound SAI,0xf5dce57282a584d2746faf1593d3121fcac444dc,8,SAI,Single Collateral DAI,0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359,18,2017-12-18
+ethereum,cMKR,Compound Maker,0x95b4ef2869ebd94beb4eee400a99824bf5dc325b,8,MKR,Maker,0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2,18,2017-12-18
