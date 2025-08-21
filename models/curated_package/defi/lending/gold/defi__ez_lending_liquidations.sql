@@ -36,19 +36,8 @@ SELECT
     repaid_amount_unadj,
     repaid_amount,
     repaid_amount_usd,
-    COALESCE (
-        complete_lending_liquidations_id,
-        {{ dbt_utils.generate_surrogate_key(
-            ['tx_hash', 'event_index']
-        ) }}
-    ) AS ez_lending_liquidations_id,
-    COALESCE(
-        inserted_timestamp,
-        '2000-01-01'
-    ) AS inserted_timestamp,
-    COALESCE(
-        modified_timestamp,
-        '2000-01-01'
-    ) AS modified_timestamp
+    complete_lending_liquidations_id AS ez_lending_liquidations_id,
+    inserted_timestamp,
+    modified_timestamp
 FROM 
     {{ ref('silver_lending__complete_lending_liquidations') }}
