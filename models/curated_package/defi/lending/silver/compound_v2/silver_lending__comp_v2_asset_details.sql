@@ -221,6 +221,7 @@ contract_detail_heal AS (
             (l.underlying_decimals IS NULL OR l.underlying_decimals = 0)
             AND tm.underlying_token_decimals IS NOT NULL
         )
+        AND tm.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
 ),
 {% endif %}
 final AS (
