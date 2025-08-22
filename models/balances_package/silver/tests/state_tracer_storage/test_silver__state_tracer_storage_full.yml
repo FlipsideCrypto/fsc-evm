@@ -7,7 +7,8 @@ models:
           combination_of_columns:
             - BLOCK_NUMBER
             - TX_POSITION
-            - ADDRESS
+            - CONTRACT_ADDRESS
+            - STORAGE_KEY
       - fsc_evm.balances_sequence_gaps:
           column_name: BLOCK_NUMBER
 
@@ -16,6 +17,12 @@ models:
         tests:
           - not_null
       - name: TX_POSITION
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: STORAGE_KEY
         tests:
           - not_null
       - name: _INSERTED_TIMESTAMP

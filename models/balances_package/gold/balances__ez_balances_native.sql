@@ -247,10 +247,6 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    FINAL
-
-{% if is_incremental() %}
-qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position, address
+    FINAL qualify (ROW_NUMBER() over (PARTITION BY block_number, tx_position, address
 ORDER BY
     modified_timestamp DESC)) = 1
-{% endif %}

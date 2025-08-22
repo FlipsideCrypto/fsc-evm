@@ -293,4 +293,6 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    FINAL
+    FINAL qualify(ROW_NUMBER() over (PARTITION BY block_number, tx_position, address, contract_address
+ORDER BY
+    modified_timestamp DESC)) = 1
