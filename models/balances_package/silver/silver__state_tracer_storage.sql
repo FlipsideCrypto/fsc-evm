@@ -166,8 +166,14 @@ post_state_storage AS (
 ),
 state_storage AS (
     SELECT
-        partition_key,
-        block_number,
+        COALESCE(
+            pre.partition_key,
+            post.partition_key
+        ) AS partition_key,
+        COALESCE(
+            pre.block_number,
+            post.block_number
+        ) AS block_number,
         COALESCE(
             pre.tx_position,
             post.tx_position
@@ -192,7 +198,10 @@ state_storage AS (
             post_storage_value_hex,
             '0x0000000000000000000000000000000000000000000000000000000000000000'
         ) AS post_storage_hex,
-        _inserted_timestamp
+        COALESCE(
+            pre._inserted_timestamp,
+            post._inserted_timestamp
+        ) AS _inserted_timestamp
     FROM
         pre_state_storage pre full
         OUTER JOIN post_state_storage post USING (
