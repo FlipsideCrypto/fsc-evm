@@ -3,8 +3,9 @@ models:
   - name: silver_bridge__complete_bridge_activity
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - _ID
+          arguments:
+            combination_of_columns:
+              - _ID
       - curated_recency_defi
 
     columns:
@@ -18,12 +19,14 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: BRIDGE_ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: DESTINATION_CHAIN_RECEIVER
         tests:
           - not_null
@@ -31,12 +34,14 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: RECEIVER
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: AMOUNT_UNADJ
         tests:
           - not_null
@@ -44,7 +49,8 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: PLATFORM
         tests:
           - not_null
@@ -60,5 +66,6 @@ models:
       - name: MODIFIED_TIMESTAMP
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
+              arguments:
+                datepart: day
+                interval: 3
