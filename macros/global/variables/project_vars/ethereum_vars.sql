@@ -335,20 +335,17 @@
                 },
                 'v2': {
                     'aave_pool_addresses': ['0x311bb771e4f8952e6da169b425e7e92d6ac45756',
-                    '0x4e1c7865e7be78a7748724fa0409e88dc14e67aa'],
-                    'aave_version_address': ['0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9','0x987115C38Fd9Fd2aA2c6F1718451D167c13a3186']
+                    '0x4e1c7865e7be78a7748724fa0409e88dc14e67aa']
                 },
                 'v2.1': {
-                    'aave_pool_addresses': '0x23a875ede3f1030138701683e42e9b16a7f87768',
-                    'aave_version_address': '0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'
+                    'aave_pool_addresses': '0x23a875ede3f1030138701683e42e9b16a7f87768'
                 },
                 'v1': {
                     'aave_pool_addresses': [
                         '0x1e70af20976b2c7e72fdc8016bcdffded12f3464',
                         '0x4965f6fa20fe9728decf5165016fc338a5a85abf',
                         '0xed2ebe33a237d2e2ba8bbea210616ee3d10b92db'
-                    ],
-                    'aave_version_address': '0x398ec7346dcd622edc5ae82352f02be94c62d119'
+                    ]
                 }
             },
             'euler': {
