@@ -27,15 +27,9 @@ WITH log_join AS (
     utils.udf_hex_to_int(
       segmented_data [0] :: STRING
     ) :: INTEGER AS withdraw_amount_unadj,
-    withdraw_amount_unadj / pow(
-      10,
-      f.underlying_decimals
-    ) AS withdraw_amount,
     f.frax_market_address,
     f.frax_market_symbol,
     f.underlying_asset,
-    f.underlying_symbol,
-    f.underlying_decimals,
     f.protocol,
     f.version,
     f.platform,
@@ -78,12 +72,9 @@ SELECT
   receiver,
   owner as depositor,
   withdraw_amount_unadj as amount_unadj,
-  withdraw_amount as amount,
   frax_market_address as protocol_market,
   frax_market_symbol as protocol_market_symbol,
   underlying_asset as token_address,
-  underlying_symbol as token_symbol,
-  underlying_decimals as token_decimals,
   protocol,
   version,
   platform,

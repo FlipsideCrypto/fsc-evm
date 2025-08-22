@@ -117,8 +117,6 @@ contracts_dim AS (
         ctoken_decimals AS compound_market_decimals,
         underlying_address AS underlying_asset_address,
         underlying_name AS underlying_asset_name,
-        underlying_symbol AS underlying_asset_symbol,
-        underlying_decimals AS underlying_asset_decimals,
         created_block AS created_block_number,
         origin_from_address,
         o.protocol,

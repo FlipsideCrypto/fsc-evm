@@ -18,8 +18,6 @@ WITH comp_assets AS (
         compound_market_decimals,
         underlying_asset_address,
         underlying_asset_name,
-        underlying_asset_symbol,
-        underlying_asset_decimals,
         protocol,
         version,
         platform
@@ -43,10 +41,6 @@ supply AS (
             segmented_data [0] :: STRING
         ) :: INTEGER AS supply_amount,
         origin_from_address AS depositor_address,
-        C.contract_address AS underlying_asset_address,
-        C.token_name,
-        C.token_symbol,
-        C.token_decimals,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -56,8 +50,6 @@ supply AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        LEFT JOIN {{ ref('silver__contracts') }} C
-        ON asset = C.contract_address
     WHERE
         topics [0] = '0xfa56f7b24f17183d81894d3ac2ee654e3c26388d17a28dbd9549b8114304e1f4' --SupplyCollateral
         AND l.contract_address IN (
@@ -90,12 +82,7 @@ SELECT
     compound_market as protocol_market,
     depositor_address as depositor,
     asset AS token_address,
-    token_symbol AS token_symbol,
     supply_amount AS amount_unadj,
-    supply_amount / pow(
-        10,
-        w.token_decimals
-    ) AS amount,
     A.protocol,
     A.version,
     A.platform,

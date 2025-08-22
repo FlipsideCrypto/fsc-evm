@@ -26,25 +26,12 @@ WITH log_join AS (
     utils.udf_hex_to_int(
       segmented_data [0] :: STRING
     ) :: INTEGER AS repay_amount_unadj,
-    repay_amount_unadj / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS repay_amount,
     utils.udf_hex_to_int(
       segmented_data [1] :: STRING
-    ) :: INTEGER / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS repay_shares,
-    repay_amount / NULLIF(
-      repay_shares,
-      0
-    ) AS repay_share_price,
+    ) :: INTEGER AS repay_shares_raw,
     f.frax_market_address,
     f.frax_market_symbol,
     f.underlying_asset,
-    f.underlying_symbol,
-    f.underlying_decimals,
     f.protocol,
     f.version,
     f.platform,
@@ -86,16 +73,12 @@ SELECT
   payer,
   borrower,
   repay_amount_unadj as amount_unadj,
-  repay_amount as amount,
-  repay_shares as shares_repaid,
-  repay_share_price as price,
+  repay_shares_raw as shares_repaid_unadj,
   frax_market_address as protocol_market,
   frax_market_symbol as protocol_market_symbol,
   lower('0x853d955aCEf822Db058eb8505911ED77F175b99e') AS token_address,
   'FRAX' AS token_symbol,
   underlying_asset as collateral_token,
-  underlying_symbol as collateral_token_symbol,
-  underlying_decimals as collateral_token_decimals,
   protocol,
   version,
   platform,

@@ -16,46 +16,34 @@ WITH --borrows from Aave LendingPool contracts
 token_meta AS (
 
     SELECT
-    atoken_created_block,
-    version_pool,
-    treasury_address,
-    atoken_symbol,
-    atoken_address,
-    token_stable_debt_address,
-    token_variable_debt_address,
-    atoken_decimals,
-    atoken_version,
-    atoken_name,
-    underlying_symbol,
-    underlying_address,
-    underlying_decimals,
-    underlying_name,
-    protocol,
-    version,
-    modified_timestamp,
-    _log_id
+        atoken_created_block,
+        version_pool,
+        treasury_address,
+        atoken_address,
+        token_stable_debt_address,
+        token_variable_debt_address,
+        atoken_version,
+        underlying_address,
+        protocol,
+        version,
+        modified_timestamp,
+        _log_id
     FROM
         {{ ref('silver_lending__aave_tokens') }}
     UNION ALL
     SELECT
-    atoken_created_block,
-    version_pool,
-    treasury_address,
-    atoken_symbol,
-    atoken_address,
-    token_stable_debt_address,
-    token_variable_debt_address,
-    atoken_decimals,
-    atoken_version,
-    atoken_name,
-    underlying_symbol,
-    underlying_address,
-    underlying_decimals,
-    underlying_name,
-    protocol,
-    version,
-    modified_timestamp,
-    _log_id
+        atoken_created_block,
+        version_pool,
+        treasury_address,
+        atoken_address,
+        token_stable_debt_address,
+        token_variable_debt_address,
+        atoken_version,
+        underlying_address,
+        protocol,
+        version,
+        modified_timestamp,
+        _log_id
     FROM
         {{ ref('silver_lending__aave_ethereum_tokens') }}
     
@@ -126,10 +114,9 @@ SELECT
     r.origin_function_signature,
     r.contract_address,
     r.token_address,
-    t.underlying_symbol AS token_symbol,
-    liquidity_rate / pow(10, 27) AS supply_rate,
-    stable_borrow_rate / pow(10, 27) AS stable_borrow_rate,
-    variable_borrow_rate / pow(10, 27) AS variable_borrow_rate,
+    liquidity_rate AS supply_rate_unadj,
+    stable_borrow_rate AS stable_borrow_rate_unadj,
+    variable_borrow_rate AS variable_borrow_rate_unadj,
     r.liquidity_index,
     r.variable_borrow_index,
     r.lending_pool_contract,
@@ -141,7 +128,7 @@ SELECT
     'Borrow' AS event_name
 FROM
     reserve_data r
-    INNER JOIN token_meta t
+    LEFT JOIN token_meta t
     ON r.token_address = t.underlying_address
     and r.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY

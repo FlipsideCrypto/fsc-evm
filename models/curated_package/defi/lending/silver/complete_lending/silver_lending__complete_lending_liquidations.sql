@@ -13,8 +13,27 @@
   post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, liquidator, borrower, collateral_token, collateral_token_symbol, debt_token, debt_token_symbol, protocol_market)",
   tags = ['silver','defi','lending','curated','heal','liquidations','complete_lending']
 ) }}
+WITH contracts AS (
 
- WITH prices AS (
+  SELECT
+    address AS contract_address,
+    symbol AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS contract_address,
+    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  WHERE
+    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
+prices AS (
   SELECT
     token_address,
     price,
@@ -49,13 +68,9 @@ aave AS (
       liquidator,
       protocol_market,
       collateral_token,
-      collateral_token_symbol,
       liquidated_amount_unadj,
-      liquidated_amount,
       debt_token,
-      debt_token_symbol,
       repaid_amount_unadj,
-      repaid_amount,
       platform,
       protocol,
       version :: STRING AS version,
@@ -64,10 +79,7 @@ aave AS (
       event_name
     FROM
         {{ ref('silver_lending__aave_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
+
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -92,13 +104,9 @@ aave AS (
       liquidator,
       protocol_market,
       collateral_token,
-      collateral_token_symbol,
       liquidated_amount_unadj,
-      liquidated_amount,
       debt_token,
-      debt_token_symbol,
       repaid_amount_unadj,
-      repaid_amount,
       platform,
       protocol,
       version :: STRING AS version,
@@ -107,10 +115,6 @@ aave AS (
       event_name
     FROM
         {{ ref('silver_lending__euler_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
 
 {% if is_incremental() and 'euler' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -135,13 +139,9 @@ aave_ethereum AS (
         borrower,
         protocol_market,
         collateral_token,
-        collateral_token_symbol,
         liquidated_amount_unadj,
-        liquidated_amount,
         debt_token,
-        debt_token_symbol,
         repaid_amount_unadj,
-        repaid_amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -150,10 +150,6 @@ aave_ethereum AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_ethereum_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -178,13 +174,9 @@ fraxlend AS (
         borrower,
         protocol_market,
         collateral_token,
-        collateral_token_symbol,
         liquidated_amount_unadj,
-        liquidated_amount,
         debt_token,
-        debt_token_symbol,
         repaid_amount_unadj,
-        repaid_amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -193,10 +185,6 @@ fraxlend AS (
         A.event_name
     FROM
         {{ ref('silver_lending__fraxlend_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
 
 {% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -221,13 +209,9 @@ comp_v2_fork AS (
       liquidator,
       protocol_market,
       collateral_token,
-      collateral_token_symbol,
       liquidated_amount_unadj,
-      liquidated_amount,
       debt_token,
-      debt_token_symbol,
       repaid_amount_unadj,
-      repaid_amount,
       platform,
       protocol,
       version :: STRING AS version,
@@ -236,10 +220,6 @@ comp_v2_fork AS (
       event_name
     FROM
         {{ ref('silver_lending__comp_v2_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -264,13 +244,9 @@ compound_v3 AS (
       liquidator,
       protocol_market,
       collateral_token,
-      collateral_token_symbol,
       liquidated_amount_unadj,
-      liquidated_amount,
       debt_token,
-      debt_token_symbol,
       repaid_amount_unadj,
-      repaid_amount,
       platform,
       protocol,
       version :: STRING AS version,
@@ -279,10 +255,6 @@ compound_v3 AS (
       event_name
     FROM
         {{ ref('silver_lending__comp_v3_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
 
 {% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -307,13 +279,9 @@ silo AS (
       liquidator,
       protocol_market,
       collateral_token,
-      collateral_token_symbol,
       liquidated_amount_unadj,
-      liquidated_amount,
       debt_token,
-      debt_token_symbol,
       repaid_amount_unadj,
-      repaid_amount,
       platform,
       protocol,
       version :: STRING AS version,
@@ -321,11 +289,7 @@ silo AS (
       modified_timestamp,
       event_name
     FROM
-        {{ ref('silver_lending__silo_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
+        {{ ref('silver_lending__silo_liquidations') }} A  
 
 {% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -350,13 +314,9 @@ morpho AS (
       liquidator,
       protocol_market,
       collateral_token,
-      collateral_token_symbol,
       liquidated_amount_unadj,
-      liquidated_amount,
       debt_token,
-      debt_token_symbol,
       repaid_amount_unadj,
-      repaid_amount,
       platform,
       protocol,
       version :: STRING AS version,
@@ -365,10 +325,6 @@ morpho AS (
       event_name
     FROM
         {{ ref('silver_lending__morpho_liquidations') }} A
-    WHERE
-        collateral_token_symbol IS NOT NULL
-        AND debt_token_symbol IS NOT NULL
-        AND liquidated_amount is not null
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -435,14 +391,14 @@ complete_lending_liquidations AS (
     borrower,
     protocol_market,
     collateral_token,
-    collateral_token_symbol,
+    C.token_symbol AS collateral_token_symbol,
     liquidated_amount_unadj,
-    liquidated_amount,
+    liquidated_amount_unadj / pow(10, C.token_decimals) AS liquidated_amount,
     ROUND(liquidated_amount * p1.price, 2) AS liquidated_amount_usd,
     debt_token,
-    debt_token_symbol,
+    C2.token_symbol AS debt_token_symbol,
     repaid_amount_unadj,
-    repaid_amount,
+    repaid_amount_unadj / pow(10, C2.token_decimals) AS repaid_amount,
     ROUND(repaid_amount * p2.price, 2) AS repaid_amount_usd,
     platform,
     protocol,
@@ -451,6 +407,10 @@ complete_lending_liquidations AS (
     A.modified_timestamp
   FROM
     liquidation_union A
+    LEFT JOIN contracts C
+    ON A.collateral_token = C.contract_address
+    LEFT JOIN contracts C2
+    ON A.debt_token = C2.contract_address
     LEFT JOIN prices
     p1
     ON collateral_token = p1.token_address
@@ -647,7 +607,7 @@ SELECT
   *,
   '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
   {{ dbt_utils.generate_surrogate_key(
-    ['tx_hash','event_index']
+    ['_log_id']
   ) }} AS complete_lending_liquidations_id,
   SYSDATE() AS inserted_timestamp,
   SYSDATE() AS modified_timestamp,

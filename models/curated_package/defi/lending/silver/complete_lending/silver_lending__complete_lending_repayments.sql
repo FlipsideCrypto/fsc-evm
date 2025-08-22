@@ -14,7 +14,27 @@
   tags = ['silver','defi','lending','curated','heal','complete_lending']
 ) }}
 
- WITH prices AS (
+ WITH contracts AS (
+
+  SELECT
+    address AS contract_address,
+    symbol AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS contract_address,
+    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  WHERE
+    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
+prices AS (
   SELECT
     token_address,
     price,
@@ -50,9 +70,7 @@ aave AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -61,7 +79,6 @@ aave AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -87,9 +104,7 @@ euler AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -98,7 +113,6 @@ euler AS (
         A.event_name
     FROM
         {{ ref('silver_lending__euler_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'euler' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -123,9 +137,7 @@ aave_ethereum AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -134,7 +146,6 @@ aave_ethereum AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_ethereum_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -159,9 +170,7 @@ fraxlend AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -170,7 +179,6 @@ fraxlend AS (
         A.event_name
     FROM
         {{ ref('silver_lending__fraxlend_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -195,9 +203,7 @@ comp_v2_fork AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -206,7 +212,6 @@ comp_v2_fork AS (
         A.event_name
     FROM
         {{ ref('silver_lending__comp_v2_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -231,9 +236,7 @@ compound_v3 AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -242,7 +245,6 @@ compound_v3 AS (
         A.event_name
     FROM
         {{ ref('silver_lending__comp_v3_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -267,9 +269,7 @@ silo AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -278,7 +278,6 @@ silo AS (
         A.event_name
     FROM
         {{ ref('silver_lending__silo_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -303,9 +302,7 @@ morpho AS (
         borrower,
         protocol_market,
         token_address,
-        token_symbol,
         amount_unadj,
-        amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -314,7 +311,6 @@ morpho AS (
         A.event_name
     FROM
         {{ ref('silver_lending__morpho_repayments') }} A
-    WHERE amount is not null
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -381,13 +377,10 @@ complete_lending_repayments AS (
     payer,
     borrower,
     A.token_address,
-    A.token_symbol,
+    C.token_symbol,
     amount_unadj,
-    amount,
-    ROUND(
-      amount * price,
-      2
-    ) AS amount_usd,
+    amount_unadj / pow(10, C.token_decimals) AS amount,
+    amount * price AS amount_usd,
     platform,
     protocol,
     version :: STRING AS version,
@@ -395,6 +388,8 @@ complete_lending_repayments AS (
     A.modified_timestamp
   FROM
     repayments A
+    LEFT JOIN contracts C
+    ON A.token_address = C.contract_address
     LEFT JOIN prices
     p
     ON A.token_address = p.token_address
@@ -552,7 +547,7 @@ SELECT
   *,
   '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
   {{ dbt_utils.generate_surrogate_key(
-    ['tx_hash','event_index']
+    ['_log_id']
   ) }} AS complete_lending_repayments_id,
   SYSDATE() AS inserted_timestamp,
   SYSDATE() AS modified_timestamp,

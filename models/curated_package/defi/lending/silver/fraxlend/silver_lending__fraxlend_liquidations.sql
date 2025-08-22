@@ -26,46 +26,21 @@ WITH log_join AS (
     utils.udf_hex_to_int(
       segmented_data [0] :: STRING
     ) :: INTEGER AS collateral_for_liquidator_unadj,
-    collateral_for_liquidator_unadj / pow(
-      10,
-      f.underlying_decimals
-    ) AS collateral_for_liquidator,
     utils.udf_hex_to_int(
       segmented_data [1] :: STRING
-    ) :: INTEGER / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS shares_to_liquidate,
+    ) :: INTEGER AS shares_to_liquidate_raw,
     utils.udf_hex_to_int(
       segmented_data [2] :: STRING
     ) :: INTEGER  AS liquidator_repay_amount_unadj,
     utils.udf_hex_to_int(
-      segmented_data [2] :: STRING
-    ) :: INTEGER / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS liquidator_repay_amount,
-    utils.udf_hex_to_int(
       segmented_data [3] :: STRING
-    ) :: INTEGER / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS shares_to_adjust,
+    ) :: INTEGER AS shares_to_adjust_raw,
     utils.udf_hex_to_int(
       segmented_data [4] :: STRING
-    ) :: INTEGER / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS amount_to_adjust,
-    liquidator_repay_amount / NULLIF(
-      shares_to_liquidate,
-      0
-    ) AS liquidator_share_price,
+    ) :: INTEGER AS amount_to_adjust_raw,
     f.frax_market_address,
     f.frax_market_symbol,
     f.underlying_asset,
-    f.underlying_symbol,
-    f.underlying_decimals,
     f.protocol,
     f.version,
     f.platform,
@@ -108,18 +83,13 @@ SELECT
   liquidator,
   borrower,
   underlying_asset as collateral_token,
-  underlying_symbol as collateral_token_symbol,
   collateral_for_liquidator_unadj as liquidated_amount_unadj,
-  collateral_for_liquidator as liquidated_amount,
-  shares_to_liquidate as shares_liquidated,
+  shares_to_liquidate_raw as shares_liquidated_unadj,
   LOWER('0x853d955aCEf822Db058eb8505911ED77F175b99e') AS debt_token,
   'FRAX' AS debt_token_symbol,
   liquidator_repay_amount_unadj as repaid_amount_unadj,
-  liquidator_repay_amount as repaid_amount,
-  shares_to_adjust,
-  amount_to_adjust,
-  liquidator_share_price,
-  underlying_decimals as collateral_token_decimals, 
+  shares_to_adjust_raw as shares_to_adjust_unadj,
+  amount_to_adjust_raw as amount_to_adjust_unadj,
   protocol,
   version,
   platform,

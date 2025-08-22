@@ -119,15 +119,9 @@ SELECT
     t.contract_address,
     loan_token AS token_address,
     amount AS amount_unadj,
-    amount / pow(
-        10,
-        C.token_decimals
-    ) AS amount,
     on_behalf_address AS payer,
     borrower_address as borrower,
     t.contract_address AS protocol_market,
-    C.token_symbol,
-    C.token_decimals,
     m.protocol || '-' || m.version AS platform,
     m.protocol,
     m.version,
@@ -136,7 +130,5 @@ SELECT
     'Repay' AS event_name
 FROM
     tx_join t
-    LEFT JOIN {{ ref('silver__contracts') }} C
-    ON C.contract_address = t.loan_token
     LEFT JOIN morpho_blue_addresses m
     ON m.contract_address = t.contract_address

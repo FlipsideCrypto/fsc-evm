@@ -65,29 +65,13 @@ AND l.modified_timestamp >= (
 AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
-contracts AS (
-    SELECT
-        *
-    FROM
-        {{ ref('silver__contracts') }}
-    WHERE
-        contract_address IN (
-            SELECT
-                asset_address
-            FROM
-                liquidations
-        )
-),
 debt_token_isolate AS (
     SELECT
         tx_hash,
         asset_address,
-        C.token_symbol,
         liquidation_event_type
     FROM
         liquidations d
-        LEFT JOIN contracts C
-        ON d.asset_address = C.contract_address
     WHERE
         liquidation_event_type = 'debt_token_event'
 )
@@ -105,16 +89,9 @@ SELECT
     depositor_address AS borrower,
     receiver_address AS liquidator,
     d.asset_address AS collateral_token,
-    C.token_symbol AS collateral_token_symbol,
     amount AS liquidated_amount_unadj,
-    amount / pow(
-        10,
-        C.token_decimals
-    ) AS liquidated_amount,
     i.asset_address AS debt_token,
-    i.token_symbol AS debt_token_symbol,
     null as repaid_amount_unadj,
-    null as repaid_amount,
     d.protocol,
     d.version,
     d.platform,
@@ -123,8 +100,6 @@ SELECT
     'Liquidate' AS event_name
 FROM
     liquidations d
-    LEFT JOIN contracts C
-    ON d.asset_address = C.contract_address
     LEFT JOIN debt_token_isolate i
     ON d.tx_hash = i.tx_hash
 WHERE

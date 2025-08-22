@@ -77,14 +77,8 @@ SELECT
     caller AS initiator,
     null as target,
     token AS token_address,
-    C.token_symbol AS token_symbol,
     flashloan_quantity AS flashloan_amount_unadj,
-    flashloan_quantity / pow(
-        10,
-        C.token_decimals
-    ) AS flashloan_amount,
     null as premium_amount_unadj,
-    null as premium_amount,
     m.protocol || '-' || m.version AS platform,
     m.protocol,
     m.version,
@@ -93,7 +87,5 @@ SELECT
     'Flashloan' AS event_name
 FROM
     flashloan f
-    LEFT JOIN {{ ref('silver__contracts') }} C
-    ON f.token = C.contract_address
     LEFT JOIN morpho_blue_addresses m
     ON m.contract_address = f.contract_address

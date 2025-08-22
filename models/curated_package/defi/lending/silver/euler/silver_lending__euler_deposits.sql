@@ -22,8 +22,6 @@ WITH token_meta AS (
         creator,
         underlying_address,
         underlying_name,
-        underlying_symbol,
-        underlying_decimals,
         protocol,
         version,
         dToken
@@ -90,12 +88,7 @@ SELECT
     d.contract_address,
     t.dToken AS protocol_market,
     t.underlying_address AS token_address,
-    t.underlying_symbol AS token_symbol,
     deposit_quantity AS amount_unadj,
-    deposit_quantity / pow(
-        10,
-        t.underlying_decimals
-    ) AS amount,
     depositor,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
@@ -105,7 +98,7 @@ SELECT
     'Deposit' AS event_name
 FROM
     deposits d
-    INNER JOIN token_meta t
+    LEFT JOIN token_meta t
     ON d.contract_address = t.contract_address qualify(ROW_NUMBER() over(PARTITION BY d._log_id
 ORDER BY
     d.modified_timestamp DESC)) = 1

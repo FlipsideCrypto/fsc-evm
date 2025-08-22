@@ -26,24 +26,12 @@ WITH log_join AS (
     utils.udf_hex_to_int(
       segmented_data [0] :: STRING
     ) :: INTEGER AS borrow_amount_unadj,
-    borrow_amount_unadj / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS borrow_amount,
     utils.udf_hex_to_int(
       segmented_data [1] :: STRING
-    ) :: INTEGER / pow(
-      10,
-      18 --FRAX Decimals
-    ) AS shares_added,
-    borrow_amount / NULLIF(
-      shares_added,
-      0
-    ) AS borrow_share_price,
+    ) :: INTEGER AS shares_added_raw,
     f.frax_market_address,
     f.frax_market_symbol,
     f.underlying_asset,
-    f.underlying_symbol,
     f.protocol,
     f.version,
     f.platform,
@@ -85,15 +73,12 @@ SELECT
   borrower,
   receiver,
   borrow_amount_unadj as amount_unadj,
-  borrow_amount as amount,
-  shares_added as shares_added,
-  borrow_share_price as price,
+  shares_added_raw as shares_added_unadj,
   frax_market_address as protocol_market,
   frax_market_symbol as protocol_market_symbol,
   lower('0x853d955aCEf822Db058eb8505911ED77F175b99e') AS token_address,
   'FRAX' AS token_symbol,
   underlying_asset AS collateral_asset,
-  underlying_symbol,
   protocol,
   version,
   platform,

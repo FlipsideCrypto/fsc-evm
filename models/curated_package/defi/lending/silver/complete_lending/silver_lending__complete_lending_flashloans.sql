@@ -14,7 +14,27 @@
   tags = ['silver','defi','lending','curated','heal','flashloans','complete_lending']
 ) }}
 
- WITH prices AS (
+ WITH contracts AS (
+
+  SELECT
+    address AS contract_address,
+    symbol AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS contract_address,
+    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  WHERE
+    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
+prices AS (
   SELECT
     token_address,
     price,
@@ -49,11 +69,8 @@ aave AS (
         initiator,
         target,
         token_address,
-        token_symbol,
         flashloan_amount_unadj,
-        flashloan_amount,
         premium_amount_unadj,
-        premium_amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -62,7 +79,6 @@ aave AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_flashloans') }} A
-    WHERE flashloan_amount is not null
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -87,11 +103,8 @@ aave_ethereum AS (
         initiator,
         target,
         token_address,
-        token_symbol,
         flashloan_amount_unadj,
-        flashloan_amount,
         premium_amount_unadj,
-        premium_amount,
         platform,
         protocol,
         version :: STRING AS version,
@@ -100,7 +113,6 @@ aave_ethereum AS (
         A.event_name
     FROM
         {{ ref('silver_lending__aave_ethereum_flashloans') }} A
-    WHERE flashloan_amount is not null
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -125,20 +137,16 @@ morpho AS (
         initiator,
         target,
         token_address,
-        token_symbol,
         flashloan_amount_unadj,
-        flashloan_amount,
         premium_amount_unadj,
-        premium_amount,
         platform,
         protocol,
         version :: STRING AS version,
-        A._log_id,
+        _LOG_ID,
         A.modified_timestamp,
         A.event_name
     FROM
         {{ ref('silver_lending__morpho_flashloans') }} A
-    WHERE flashloan_amount is not null
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
   AND A.modified_timestamp >= (
@@ -180,19 +188,13 @@ complete_lending_flashloans AS (
     initiator,
     target,
     f.token_address,
-    f.token_symbol,
+    c.token_symbol,
     flashloan_amount_unadj,
-    flashloan_amount,
-    ROUND(
-      flashloan_amount * price,
-      2
-    ) AS flashloan_amount_usd,
+    flashloan_amount_unadj / pow(10, c.token_decimals) AS flashloan_amount,
+    flashloan_amount * price AS flashloan_amount_usd,
     premium_amount_unadj,
-    premium_amount,
-    ROUND(
-      premium_amount * price,
-      2
-    ) AS premium_amount_usd,
+    premium_amount_unadj / pow(10, c.token_decimals) AS premium_amount,
+    premium_amount * price AS premium_amount_usd,
     platform,
     protocol,
     version :: STRING AS version,
@@ -200,6 +202,8 @@ complete_lending_flashloans AS (
     f.modified_timestamp
   FROM
     flashloans f
+    LEFT JOIN {{ ref('silver__contracts') }} C
+    ON f.token_address = C.contract_address
     LEFT JOIN prices
     p
     ON f.token_address = p.token_address
@@ -213,7 +217,7 @@ complete_lending_flashloans AS (
   'HEAL_MODEL'
 ) %}
 heal_model AS (
-  SELECT
+  SELECT 
     tx_hash,
     block_number,
     block_timestamp,
@@ -230,16 +234,10 @@ heal_model AS (
     token_symbol,
     flashloan_amount_unadj,
     flashloan_amount,
-    ROUND(
-      flashloan_amount * p.price,
-      2
-    ) AS flashloan_amount_usd_heal,
+    ROUND(flashloan_amount * price, 2)  AS flashloan_amount_usd_heal,
     premium_amount_unadj,
     premium_amount,
-    ROUND(
-      premium_amount * p.price,
-      2
-    ) AS premium_amount_usd_heal,
+    ROUND(premium_amount * price, 2) AS premium_amount_usd_heal,
     platform,
     protocol,
     version,
@@ -411,7 +409,7 @@ SELECT
   *,
   '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
   {{ dbt_utils.generate_surrogate_key(
-    ['tx_hash','event_index']
+    ['_log_id']
   ) }} AS complete_lending_flashloans_id,
   SYSDATE() AS inserted_timestamp,
   SYSDATE() AS modified_timestamp,

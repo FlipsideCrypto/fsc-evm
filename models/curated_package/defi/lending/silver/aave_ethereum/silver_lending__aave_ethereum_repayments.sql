@@ -12,22 +12,17 @@
     tags = ['silver','defi','lending','curated','aave_ethereum']
 ) }}
 
-WITH token_meta AS (
+WITH 
+token_meta AS (
+
     SELECT
         atoken_created_block,
         version_pool,
         treasury_address,
-        atoken_symbol,
         atoken_address,
         token_stable_debt_address,
         token_variable_debt_address,
-        atoken_decimals,
-        atoken_version,
-        atoken_name,
-        underlying_symbol,
         underlying_address,
-        underlying_decimals,
-        underlying_name,
         protocol,
         version,
         modified_timestamp,
@@ -104,13 +99,8 @@ SELECT
     origin_function_signature,
     contract_address,
     t.atoken_address AS protocol_market,
-    t.underlying_address AS token_address,
-    t.underlying_symbol AS token_symbol,
+    market AS token_address,
     repayed_amount AS amount_unadj,
-    repayed_amount / pow(
-        10,
-        t.underlying_decimals
-    ) AS amount,
     repayer_address AS payer,
     borrower_address AS borrower,
     lending_pool_contract,
@@ -122,7 +112,7 @@ SELECT
     'Repay' AS event_name
 FROM
     repay r
-    INNER JOIN token_meta t
+    LEFT JOIN token_meta t
     ON r.market = t.underlying_address
     and r.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY r._log_id
 ORDER BY

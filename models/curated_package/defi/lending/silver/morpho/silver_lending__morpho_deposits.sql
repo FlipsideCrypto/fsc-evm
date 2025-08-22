@@ -119,12 +119,6 @@ SELECT
     t.contract_address,
     loan_token AS token_address,
     amount AS amount_unadj,
-    amount / pow(
-        10,
-        C.token_decimals
-    ) AS amount,
-    C.token_symbol,
-    C.token_decimals,
     depositor_address AS depositor,
     t.contract_address AS protocol_market,
     m.protocol || '-' || m.version AS platform,
@@ -135,7 +129,5 @@ SELECT
     'Deposit' AS event_name
 FROM
     tx_join t
-    LEFT JOIN {{ ref('silver__contracts') }} C
-    ON C.contract_address = t.loan_token
     LEFT JOIN morpho_blue_addresses m
     ON m.contract_address = t.contract_address

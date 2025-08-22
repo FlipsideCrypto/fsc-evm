@@ -12,26 +12,21 @@
     tags = ['silver','defi','lending','curated','aave_ethereum']
 ) }}
 
-WITH token_meta AS (
+WITH 
+token_meta AS (
+
     SELECT
         atoken_created_block,
         version_pool,
         treasury_address,
-        atoken_symbol,
         atoken_address,
         token_stable_debt_address,
         token_variable_debt_address,
-        atoken_decimals,
-        atoken_version,
-        atoken_name,
-        underlying_symbol,
         underlying_address,
-        underlying_decimals,
-        underlying_name,
-            protocol,
-    version,
-    modified_timestamp,
-    _log_id
+        protocol,
+        version,
+        modified_timestamp,
+        _log_id
     FROM
         {{ ref('silver_lending__aave_ethereum_tokens') }}
 ),
@@ -136,19 +131,9 @@ SELECT
     t.atoken_address AS protocol_market,
     initiator_address AS initiator,
     target_address AS target,
-    t.underlying_address AS token_address,
-    t.underlying_symbol AS token_symbol,
-    t.underlying_decimals AS token_decimals,
+    asset_1 AS token_address,
     flashloan_quantity AS flashloan_amount_unadj,
-    flashloan_quantity / pow(
-        10,
-        t.underlying_decimals
-    ) AS flashloan_amount,
     premium_quantity AS premium_amount_unadj,
-    premium_quantity / pow(
-        10,
-        t.underlying_decimals
-    ) AS premium_amount,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
     t.version,
@@ -157,7 +142,7 @@ SELECT
     'FlashLoan' AS event_name
 FROM
     flashloan f
-    INNER JOIN token_meta t
+    LEFT JOIN token_meta t
     ON f.market = t.underlying_address
     and f.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY f._log_id
 ORDER BY

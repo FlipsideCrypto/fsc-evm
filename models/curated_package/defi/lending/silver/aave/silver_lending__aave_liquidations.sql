@@ -12,22 +12,17 @@
     tags = ['silver','defi','lending','curated','aave','aave']
 ) }}
 
-WITH atoken_meta AS (
+WITH token_meta AS (
+
     SELECT
         atoken_created_block,
         version_pool,
         treasury_address,
-        atoken_symbol,
         atoken_address,
         token_stable_debt_address,
         token_variable_debt_address,
-        atoken_decimals,
         atoken_version,
-        atoken_name,
-        underlying_symbol,
         underlying_address,
-        underlying_decimals,
-        underlying_name,
         protocol,
         version,
         modified_timestamp,
@@ -88,7 +83,7 @@ AND contract_address IN (
     SELECT
         DISTINCT(version_pool)
     FROM
-        atoken_meta
+        token_meta
 )
 AND tx_succeeded
 )
@@ -105,19 +100,9 @@ SELECT
     borrower_address AS borrower,
     amc.atoken_address AS protocol_market,
     collateral_asset AS collateral_token,
-    amc.underlying_symbol AS collateral_token_symbol,
     liquidated_amount AS liquidated_amount_unadj,
-    liquidated_amount / pow(
-        10,
-        amc.underlying_decimals
-    ) AS liquidated_amount,
     debt_asset AS debt_token,
-    amd.underlying_symbol AS debt_token_symbol,
     debt_to_cover_amount AS repaid_amount_unadj,
-    debt_to_cover_amount / pow(
-        10,
-        amd.underlying_decimals
-    ) AS repaid_amount,
     amc.protocol || '-' || amc.version AS platform,
     amc.protocol,
     amc.version,
@@ -126,10 +111,10 @@ SELECT
     'LiquidationCall' AS event_name
 FROM
     liquidation l
-    INNER JOIN atoken_meta amc
+    LEFT JOIN token_meta amc
     ON l.collateral_asset = amc.underlying_address
     and l.lending_pool_contract = amc.version_pool
-    INNER JOIN atoken_meta amd
+    LEFT JOIN token_meta amd
     ON l.debt_asset = amd.underlying_address
     and l.lending_pool_contract = amd.version_pool qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY

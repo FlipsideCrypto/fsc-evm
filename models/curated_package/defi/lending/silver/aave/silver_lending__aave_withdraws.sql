@@ -12,22 +12,17 @@
     tags = ['silver','defi','lending','curated','aave','aave']
 ) }}
 
-WITH atoken_meta AS (
+WITH token_meta AS (
+
     SELECT
         atoken_created_block,
         version_pool,
         treasury_address,
-        atoken_symbol,
         atoken_address,
         token_stable_debt_address,
         token_variable_debt_address,
-        atoken_decimals,
         atoken_version,
-        atoken_name,
-        underlying_symbol,
         underlying_address,
-        underlying_decimals,
-        underlying_name,
         protocol,
         version,
         modified_timestamp,
@@ -83,7 +78,7 @@ AND contract_address IN (
     SELECT
         DISTINCT(version_pool)
     FROM
-        atoken_meta
+        token_meta
 )
 AND tx_succeeded
 )
@@ -98,13 +93,8 @@ SELECT
     contract_address,
     depositor,
     t.atoken_address AS protocol_market,
-    t.underlying_address AS token_address,
-    t.underlying_symbol AS token_symbol,
+    market AS token_address,
     withdraw_amount AS amount_unadj,
-    withdraw_amount / pow(
-        10,
-        t.underlying_decimals
-    ) AS amount,
     lending_pool_contract,
     t.protocol || '-' || t.version AS platform,
     t.protocol,
@@ -114,7 +104,7 @@ SELECT
     'Withdraw' AS event_name
 FROM
     withdraw w
-    INNER JOIN atoken_meta t
+    LEFT JOIN token_meta t
     ON w.market = t.underlying_address
     and w.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY

@@ -67,12 +67,7 @@ SELECT
     d.contract_address,
     silo_market as protocol_market,
     asset_address AS token_address,
-    C.token_symbol,
     amount AS amount_unadj,
-    amount / pow(
-        10,
-        C.token_decimals
-    ) AS amount,
     null as payer,
     depositor_address AS borrower,
     d.protocol,
@@ -83,7 +78,6 @@ SELECT
     'Repay' AS event_name
 FROM
     deposits d
-    LEFT JOIN {{ ref('silver__contracts') }} C
-    ON d.asset_address = C.contract_address qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
     d.modified_timestamp DESC)) = 1

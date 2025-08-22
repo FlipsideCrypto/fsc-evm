@@ -18,8 +18,6 @@ WITH comp_assets AS (
         compound_market_decimals,
         underlying_asset_address,
         underlying_asset_name,
-        underlying_asset_symbol,
-        underlying_asset_decimals,
         protocol,
         version,
         platform
@@ -47,9 +45,6 @@ liquidations AS (
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INTEGER AS usd_value,
-        C.token_name,
-        C.token_symbol,
-        C.token_decimals,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -59,8 +54,6 @@ liquidations AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        LEFT JOIN {{ ref('silver__contracts') }} C
-        ON collateral_token = C.contract_address
     WHERE
         topics [0] = '0x9850ab1af75177e4a9201c65a2cf7976d5d28e40ef63494b44366f86b2f9412e' --AbsorbCollateral
         AND l.contract_address IN (
@@ -107,8 +100,6 @@ repayments AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        LEFT JOIN {{ ref('silver__contracts') }} C
-        ON collateral_token = C.contract_address
     WHERE
         topics [0] = '0x428a71022c65d48a5617ad1aa0b2ec7f865096caee9b5cd593fe1d83f01e36ca' --BuyCollateral
         AND l.contract_address IN (
@@ -133,19 +124,9 @@ SELECT
     l.absorber as liquidator,
     l.borrower,
     l.collateral_token,
-    l.token_symbol AS collateral_token_symbol,
     collateral_absorbed AS liquidated_amount_unadj,
-    collateral_absorbed / pow(
-        10,
-        l.token_decimals
-    ) AS liquidated_amount,
     r.repaid_amount_unadj,
-    r.repaid_amount_unadj / pow(
-        10,
-        a.underlying_asset_decimals
-    ) AS repaid_amount,
     A.underlying_asset_address AS debt_token,
-    A.underlying_asset_symbol AS debt_token_symbol,
     A.protocol,
     A.version,
     A.platform,

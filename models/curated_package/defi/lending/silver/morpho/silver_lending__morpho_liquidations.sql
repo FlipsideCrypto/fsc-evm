@@ -150,19 +150,9 @@ SELECT
     l.caller AS liquidator,
     l.borrower,
     t.loan_token AS debt_token,
-    c0.token_symbol AS debt_token_symbol,
     l.repay_assets AS repaid_amount_unadj,
-    l.repay_assets / pow(
-        10,
-        c0.token_decimals
-    ) AS repaid_amount,
     t.collateral_token AS collateral_token,
-    c1.token_symbol AS collateral_token_symbol,
     l.seized_assets AS liquidated_amount_unadj,
-    l.seized_assets / pow(
-        10,
-        c1.token_decimals
-    ) AS liquidated_amount,
     m.protocol || '-' || m.version AS platform,
     m.protocol,
     m.version,
@@ -174,11 +164,5 @@ FROM
     INNER JOIN logs l
     ON l.tx_hash = t.tx_hash
     AND l.event_index_order = t.trace_index_order
-    LEFT JOIN {{ ref('silver__contracts') }}
-    c0
-    ON c0.contract_address = t.loan_token
-    LEFT JOIN {{ ref('silver__contracts') }}
-    c1
-    ON c1.contract_address = t.collateral_token
     LEFT JOIN morpho_blue_addresses m
     ON m.contract_address = l.contract_address

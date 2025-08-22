@@ -17,15 +17,6 @@ WITH aave_version_addresses AS (
     WHERE
         type = 'aave_version_address'
 ),
-contracts AS (
-    SELECT
-        contract_address,
-        token_name,
-        token_decimals,
-        token_symbol
-    FROM
-        {{ ref('silver__contracts') }}
-),
 DECODE AS (
 
     SELECT
@@ -130,17 +121,11 @@ SELECT
     A.atoken_created_block,
     A.version_pool,
     A.treasury_address,
-    C.token_symbol AS atoken_symbol,
     A.a_token_address AS atoken_address,
     b.token_stable_debt_address,
     b.token_variable_debt_address,
-    C.token_decimals AS atoken_decimals,
     t.protocol || '-' || t.version AS atoken_version,
-    C.token_name AS atoken_name,
-    c2.token_symbol AS underlying_symbol,
     A.underlying_asset AS underlying_address,
-    c2.token_decimals AS underlying_decimals,
-    c2.token_name AS underlying_name,
     t.protocol,
     t.version,
     A.modified_timestamp,
@@ -149,12 +134,8 @@ FROM
     a_token_step_1 A
     LEFT JOIN debt_tokens b
     ON A.a_token_address = b.token_address
-    LEFT JOIN contracts C
-    ON C.contract_address = A.a_token_address
-    LEFT JOIN contracts c2
-    ON c2.contract_address = A.underlying_asset
     LEFT JOIN aave_version_addresses t
     ON A.version_pool = t.contract_address
-    qualify(ROW_NUMBER() over(PARTITION BY A.a_token_address,A.version_pool
+    qualify(ROW_NUMBER() over(PARTITION BY A.underlying_address,A.version_pool
 ORDER BY
     A.atoken_created_block DESC)) = 1

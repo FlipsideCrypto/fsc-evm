@@ -21,8 +21,6 @@ WITH asset_details AS (
     token_decimals,
     underlying_asset_address,
     underlying_name,
-    underlying_symbol,
-    underlying_decimals,
     protocol,
     version
   FROM
@@ -91,8 +89,6 @@ comp_v2_fork_combine AS (
     borrower,
     protocol_market,
     C.underlying_asset_address AS token_address,
-    C.underlying_symbol AS token_symbol,
-    C.underlying_decimals,
     loan_amount_raw,
     C.protocol,
     C.version,
@@ -117,8 +113,6 @@ comp_v2_fork_combine AS (
     borrower,
     b.protocol_market,
     C.underlying_asset_address AS token_address,
-    C.underlying_symbol AS token_symbol,
-    C.underlying_decimals,
     b.amount_unadj as loan_amount_raw,
     b.protocol,
     b.version,
@@ -146,12 +140,7 @@ SELECT
   borrower,
   protocol_market,
   token_address,
-  token_symbol,
   loan_amount_raw AS amount_unadj,
-  loan_amount_raw / pow(
-    10,
-    underlying_decimals
-  ) AS amount,
   platform,
   protocol,
   version,

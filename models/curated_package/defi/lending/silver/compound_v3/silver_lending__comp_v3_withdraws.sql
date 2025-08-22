@@ -18,8 +18,6 @@ WITH comp_assets AS (
         compound_market_decimals,
         underlying_asset_address,
         underlying_asset_name,
-        underlying_asset_symbol,
-        underlying_asset_decimals,
         protocol,
         version,
         platform
@@ -43,9 +41,6 @@ withdraw AS (
             segmented_data [0] :: STRING
         ) :: INTEGER AS withdraw_amount,
         origin_from_address AS depositor_address,
-        C.token_name,
-        C.token_symbol,
-        C.token_decimals,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -55,8 +50,6 @@ withdraw AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        LEFT JOIN {{ ref('silver__contracts') }} C
-        ON token_address = C.contract_address
     WHERE
         topics [0] = '0xd6d480d5b3068db003533b170d67561494d72e3bf9fa40a266471351ebba9e16' --WithdrawCollateral
         AND l.contract_address IN (
@@ -89,12 +82,7 @@ SELECT
     compound_market as protocol_market,
     depositor_address as depositor,
     w.token_address,
-    w.token_symbol,
     withdraw_amount AS amount_unadj,
-    withdraw_amount / pow(
-        10,
-        w.token_decimals
-    ) AS amount,
     A.protocol,
     A.version,
     A.platform,

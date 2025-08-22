@@ -18,8 +18,6 @@ WITH comp_assets AS (
         compound_market_decimals,
         underlying_asset_address,
         underlying_asset_name,
-        underlying_asset_symbol,
-        underlying_asset_decimals,
         protocol,
         version,
         platform
@@ -48,7 +46,6 @@ borrow AS (
         C.compound_market_symbol AS symbol,
         C.compound_market_decimals AS decimals,
         C.underlying_asset_address,
-        C.underlying_asset_symbol,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -92,12 +89,7 @@ SELECT
     w.asset AS protocol_market,
     borrower_address AS borrower,
     w.underlying_asset_address AS token_address,
-    w.underlying_asset_symbol AS token_symbol,
     borrow_amount AS amount_unadj,
-    borrow_amount / pow(
-        10,
-        w.decimals
-    ) AS amount,
     w.symbol AS itoken_symbol,
     A.protocol,
     A.version,

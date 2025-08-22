@@ -22,8 +22,6 @@ WITH token_meta AS (
         creator,
         underlying_address,
         underlying_name,
-        underlying_symbol,
-        underlying_decimals,
         protocol,
         version,
         dToken
@@ -92,19 +90,9 @@ SELECT
     l.borrower,
     l.collateral_asset AS protocol_market,
     amc.underlying_address AS collateral_token,
-    amc.underlying_symbol AS collateral_token_symbol,
     coalesce(w.amount_unadj, l.yield_balance) AS liquidated_amount_unadj,
-    coalesce(w.amount, l.yield_balance / pow(
-        10,
-        amd.underlying_decimals
-    )) AS liquidated_amount,
     amd.underlying_address AS debt_token,
-    amd.underlying_symbol AS debt_token_symbol,
     l.repaid_amount_unadj AS repaid_amount_unadj,
-    l.repaid_amount_unadj / pow(
-        10,
-        amd.underlying_decimals
-    ) AS repaid_amount,
     amc.protocol || '-' || amc.version AS platform,
     amc.protocol,
     amc.version,

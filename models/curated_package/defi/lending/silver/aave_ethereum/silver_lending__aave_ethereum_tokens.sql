@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "atoken_address",
-    tags = ['silver','defi','lending','curated','aave_ethereum']
+    tags = ['silver','defi','lending','curated','aave_ethereum','tokens']
 ) }}
 
 WITH contracts AS (
@@ -137,36 +137,17 @@ SELECT
     A.atoken_created_block,
     A.version_pool,
     NULL AS treasury_address,
-    C.token_symbol AS atoken_symbol,
     A.a_token_address AS atoken_address,
     NULL AS token_stable_debt_address,
     NULL AS token_variable_debt_address,
-    C.token_decimals AS atoken_decimals,
     A.protocol || '-' || A.version AS atoken_version,
-    C.token_name AS atoken_name,
-    CASE
-        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'ETH'
-        ELSE c2.token_symbol
-    END AS underlying_symbol,
-    CASE
-        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-        ELSE A.underlying_asset
-    END AS underlying_address,
-    CASE
-        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 18
-        ELSE c2.token_decimals
-    END AS underlying_decimals,
-    CASE
-        WHEN A.underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'Ethereum'
-        ELSE c2.token_name
-    END AS underlying_name,
+    A.underlying_asset AS underlying_address,
     A.protocol,
     A.version,
     A.modified_timestamp,
     A._log_id
 FROM
     aave_v1_v2_tokens_step_1 A
-    LEFT JOIN contracts c
-    ON c.contract_address = A.a_token_address
-    LEFT JOIN contracts c2
-    ON c2.contract_address = A.underlying_asset
+qualify(ROW_NUMBER() over(PARTITION BY underlying_address,version_pool
+ORDER BY
+    A.atoken_created_block DESC)) = 1
