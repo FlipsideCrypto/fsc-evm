@@ -1925,9 +1925,15 @@ heal_model AS (
                   where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
                 )
                 and ((t5.decimals_in is null and exists (select 1 from contracts c where c.contract_address = t5.token_in and c.token_decimals is not null)) or
-                (t5.decimals_out is null and exists (select 1 from contracts c where c.contract_address = t5.token_out and c.token_decimals is not null)) or
-                (t5.amount_in_usd is null and exists (select 1 from prices p where p.token_address = t5.token_in and p.price is not null)) or
-                (t5.amount_out_usd is null and exists (select 1 from prices p where p.token_address = t5.token_out and p.price is not null)))
+                (t5.amount_in_usd is null and exists (select 1 from prices p where p.token_address = t5.token_in and p.hour = date_trunc('hour', t5.block_timestamp) and p.price is not null)))
+                and t5._inserted_timestamp < (
+                  SELECT
+                    MAX(
+                      _inserted_timestamp
+                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+                  FROM
+                    {{ this }}
+                )
               )
             OR concat(
               t0.block_number,
@@ -1949,9 +1955,15 @@ heal_model AS (
                 from {{ ref('price__ez_asset_metadata') }}
                 where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
               ) and ((t6.decimals_out is null and exists (select 1 from contracts c where c.contract_address = t6.token_out and c.token_decimals is not null)) or
-                (t6.decimals_in is null and exists (select 1 from contracts c where c.contract_address = t6.token_in and c.token_decimals is not null)) or
-                (t6.amount_in_usd is null and exists (select 1 from prices p where p.token_address = t6.token_in and p.price is not null)) or
-                (t6.amount_out_usd is null and exists (select 1 from prices p where p.token_address = t6.token_out and p.price is not null)))
+                (t6.amount_out_usd is null and exists (select 1 from prices p where p.token_address = t6.token_out and p.hour = date_trunc('hour', t6.block_timestamp) and p.price is not null)))
+                and t6._inserted_timestamp < (
+                  SELECT
+                    MAX(
+                      _inserted_timestamp
+                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+                  FROM
+                    {{ this }}
+                )
             )
         ),
       {% endif %}
