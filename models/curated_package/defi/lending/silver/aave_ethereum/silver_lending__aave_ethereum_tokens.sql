@@ -11,16 +11,7 @@
     tags = ['silver','defi','lending','curated','aave_ethereum','tokens']
 ) }}
 
-WITH contracts AS (
-    SELECT
-        contract_address,
-        token_name,
-        token_decimals,
-        token_symbol
-    FROM
-        {{ ref('silver__contracts') }}
-),
-
+WITH
 v1_v2_pool_addresses AS (
     {{ curated_contract_mapping(
         vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
@@ -123,7 +114,10 @@ aave_v1_v2_tokens_step_1 AS (
             WHEN v1.version = 'v2.1' THEN '0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'
         END AS version_pool,
         pool_address,
-        underlying_asset,
+        CASE 
+            WHEN underlying_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ELSE underlying_asset
+        END AS underlying_asset,
         modified_timestamp,
         v1.version,
         v1.protocol,
@@ -136,10 +130,7 @@ aave_v1_v2_tokens_step_1 AS (
 SELECT
     A.atoken_created_block,
     A.version_pool,
-    NULL AS treasury_address,
     A.a_token_address AS atoken_address,
-    NULL AS token_stable_debt_address,
-    NULL AS token_variable_debt_address,
     A.protocol || '-' || A.version AS atoken_version,
     A.underlying_asset AS underlying_address,
     A.protocol,

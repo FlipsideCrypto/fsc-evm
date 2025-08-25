@@ -136,6 +136,6 @@ FROM
     ON A.a_token_address = b.token_address
     LEFT JOIN aave_version_addresses t
     ON A.version_pool = t.contract_address
-    qualify(ROW_NUMBER() over(PARTITION BY A.underlying_address,A.version_pool
+    qualify(ROW_NUMBER() over(PARTITION BY A.underlying_asset,A.version_pool
 ORDER BY
     A.atoken_created_block DESC)) = 1

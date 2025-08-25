@@ -18,10 +18,7 @@ token_meta AS (
     SELECT
         atoken_created_block,
         version_pool,
-        treasury_address,
         atoken_address,
-        token_stable_debt_address,
-        token_variable_debt_address,
         underlying_address,
         protocol,
         version,

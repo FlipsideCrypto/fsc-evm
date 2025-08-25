@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','aave_ethereum']
+    tags = ['silver','defi','lending','curated','aave_ethereum','flashloans']
 ) }}
 
 WITH 
@@ -18,10 +18,7 @@ token_meta AS (
     SELECT
         atoken_created_block,
         version_pool,
-        treasury_address,
         atoken_address,
-        token_stable_debt_address,
-        token_variable_debt_address,
         underlying_address,
         protocol,
         version,
@@ -83,6 +80,7 @@ flashloan AS (
                 THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
             ELSE CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
         END AS market,
+        case when asset_1 = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' then '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' else asset_1 end AS underlying_address,
         COALESCE(
             contract_address,
             origin_to_address
@@ -131,7 +129,8 @@ SELECT
     t.atoken_address AS protocol_market,
     initiator_address AS initiator,
     target_address AS target,
-    asset_1 AS token_address,
+    f.underlying_address AS token_address,
+    f.market,
     flashloan_quantity AS flashloan_amount_unadj,
     premium_quantity AS premium_amount_unadj,
     t.protocol || '-' || t.version AS platform,
@@ -143,7 +142,7 @@ SELECT
 FROM
     flashloan f
     LEFT JOIN token_meta t
-    ON f.market = t.underlying_address
+    ON f.underlying_address = t.underlying_address
     and f.lending_pool_contract = t.version_pool qualify(ROW_NUMBER() over(PARTITION BY f._log_id
 ORDER BY
     f.modified_timestamp DESC)) = 1

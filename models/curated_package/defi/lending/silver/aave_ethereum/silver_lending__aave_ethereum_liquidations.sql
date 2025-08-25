@@ -18,10 +18,7 @@ token_meta AS (
     SELECT
         atoken_created_block,
         version_pool,
-        treasury_address,
         atoken_address,
-        token_stable_debt_address,
-        token_variable_debt_address,
         underlying_address,
         protocol,
         version,
@@ -52,8 +49,8 @@ liquidation AS(
         ) :: INTEGER AS liquidated_amount,
         CONCAT('0x', SUBSTR(segmented_data [2] :: STRING, 25, 40)) AS liquidator_address,
         COALESCE(
-            origin_to_address,
-            contract_address
+            contract_address,
+            origin_to_address
         ) AS lending_pool_contract,
         CASE
             WHEN debt_asset = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
@@ -119,10 +116,7 @@ SELECT
 FROM
     liquidation l
     LEFT JOIN token_meta amc
-    ON l.collateral_asset = amc.underlying_address
-    and l.lending_pool_contract = amc.version_pool
-    LEFT JOIN token_meta amd
-    ON l.debt_asset = amd.underlying_address
-    and l.lending_pool_contract = amd.version_pool qualify(ROW_NUMBER() over(PARTITION BY l._log_id
+    on l.collateral_token = amc.underlying_address
+    and l.lending_pool_contract = amc.version_pool qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
     l.modified_timestamp DESC)) = 1
