@@ -1952,6 +1952,7 @@ heal_model AS (
                 select token_address
                 from {{ ref('price__ez_asset_metadata') }}
                 where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (select max(_inserted_timestamp)::date from {{ this }})) -- newly verified token out
+              )
                 and t6._inserted_timestamp < (
                   SELECT
                     MAX(
