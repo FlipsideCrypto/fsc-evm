@@ -1922,10 +1922,10 @@ heal_model AS (
                 where t5.token_in in (
                   select token_address
                   from {{ ref('price__ez_asset_metadata') }}
-                  where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
+                  where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE()) -- newly verified token in
                 )
-                and ((t5.decimals_in is null and exists (select 1 from contracts c where c.contract_address = t5.token_in and c.token_decimals is not null)) or
-                (t5.amount_in_usd is null and exists (select 1 from prices p where p.token_address = t5.token_in and p.hour = date_trunc('hour', t5.block_timestamp) and p.price is not null)))
+                and ((t5.decimals_in is null and exists (select 1 from contracts c where c.contract_address = t5.token_in and c.token_decimals is not null)) or -- no decimal in the table but does exist in the contracts table
+                (t5.amount_in_usd is null and exists (select 1 from prices p where p.token_address = t5.token_in and p.hour = date_trunc('hour', t5.block_timestamp) and p.price is not null))) -- or no price in the table but does exist in the prices table
                 and t5._inserted_timestamp < (
                   SELECT
                     MAX(
@@ -1953,9 +1953,9 @@ heal_model AS (
               where t6.token_out in (
                 select token_address
                 from {{ ref('price__ez_asset_metadata') }}
-                where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
-              ) and ((t6.decimals_out is null and exists (select 1 from contracts c where c.contract_address = t6.token_out and c.token_decimals is not null)) or
-                (t6.amount_out_usd is null and exists (select 1 from prices p where p.token_address = t6.token_out and p.hour = date_trunc('hour', t6.block_timestamp) and p.price is not null)))
+                where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE()) -- newly verified token out
+              ) and ((t6.decimals_out is null and exists (select 1 from contracts c where c.contract_address = t6.token_out and c.token_decimals is not null)) or -- no decimal in the table but does exist in the contracts table
+                (t6.amount_out_usd is null and exists (select 1 from prices p where p.token_address = t6.token_out and p.hour = date_trunc('hour', t6.block_timestamp) and p.price is not null))) -- or no price in the table but does exist in the prices table
                 and t6._inserted_timestamp < (
                   SELECT
                     MAX(
