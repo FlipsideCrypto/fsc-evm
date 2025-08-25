@@ -1910,181 +1910,8 @@ heal_model AS (
       t0.platform,
       '-',
       t0.version
-    ) IN (
-      SELECT
-        CONCAT(
-          t1.block_number,
-          '-',
-          t1.platform,
-          '-',
-          t1.version
-        )
-      FROM
-        {{ this }}
-        t1
-      WHERE
-        t1.decimals_in IS NULL
-        AND t1._inserted_timestamp < (
-          SELECT
-            MAX(
-              _inserted_timestamp
-            ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-          FROM
-            {{ this }}
-        )
-        AND EXISTS (
-          SELECT
-            1
-          FROM
-            contracts C
-          WHERE
-            C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-            AND C.token_decimals IS NOT NULL
-            AND C.contract_address = t1.token_in)
-          GROUP BY
-            1
-        )
-        OR CONCAT(
-          t0.block_number,
-          '-',
-          t0.platform,
-          '-',
-          t0.version
-        ) IN (
-          SELECT
-            CONCAT(
-              t2.block_number,
-              '-',
-              t2.platform,
-              '-',
-              t2.version
-            )
-          FROM
-            {{ this }}
-            t2
-          WHERE
-            t2.decimals_out IS NULL
-            AND t2._inserted_timestamp < (
-              SELECT
-                MAX(
-                  _inserted_timestamp
-                ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-              FROM
-                {{ this }}
-            )
-            AND EXISTS (
-              SELECT
-                1
-              FROM
-                contracts C
-              WHERE
-                C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                AND C.token_decimals IS NOT NULL
-                AND C.contract_address = t2.token_out)
-              GROUP BY
-                1
-            )
-            OR CONCAT(
-              t0.block_number,
-              '-',
-              t0.platform,
-              '-',
-              t0.version
-            ) IN (
-              SELECT
-                CONCAT(
-                  t3.block_number,
-                  '-',
-                  t3.platform,
-                  '-',
-                  t3.version
-                )
-              FROM
-                {{ this }}
-                t3
-              WHERE
-                t3.amount_in_usd IS NULL
-                AND t3._inserted_timestamp < (
-                  SELECT
-                    MAX(
-                      _inserted_timestamp
-                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-                  FROM
-                    {{ this }}
-                )
-                AND EXISTS (
-                  SELECT
-                    1
-                  FROM
-                    prices
-                    p
-                  WHERE
-                    p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                    AND p.price IS NOT NULL
-                    AND p.token_address = t3.token_in
-                    AND p.hour = DATE_TRUNC(
-                      'hour',
-                      t3.block_timestamp
-                    )
-                )
-              GROUP BY
-                1
-            )
-            OR CONCAT(
-              t0.block_number,
-              '-',
-              t0.platform,
-              '-',
-              t0.version
-            ) IN (
-              SELECT
-                CONCAT(
-                  t4.block_number,
-                  '-',
-                  t4.platform,
-                  '-',
-                  t4.version
-                )
-              FROM
-                {{ this }}
-                t4
-              WHERE
-                t4.amount_out_usd IS NULL
-                AND t4._inserted_timestamp < (
-                  SELECT
-                    MAX(
-                      _inserted_timestamp
-                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-                  FROM
-                    {{ this }}
-                )
-                AND EXISTS (
-                  SELECT
-                    1
-                  FROM
-                    prices
-                    p
-                  WHERE
-                    p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                    AND p.price IS NOT NULL
-                    AND p.token_address = t4.token_out
-                    AND p.hour = DATE_TRUNC(
-                      'hour',
-                      t4.block_timestamp
-                    )
-                )
-              GROUP BY
-                1
-            )
-            OR     
-            CONCAT(
-              t0.block_number,
-              '-',
-              t0.platform,
-              '-',
-              t0.version
-            ) IN (
-                select concat(
+      ) IN (
+        select concat(
                   t5.block_number,
                   '-',
                   t5.platform,
@@ -2097,6 +1924,7 @@ heal_model AS (
                   from {{ ref('price__ez_asset_metadata') }}
                   where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
                 )
+                and (t5.decimals_in is null or t5.symbol_in is null or t5.amount_in_usd is null)
               )
             OR concat(
               t0.block_number,
@@ -2117,7 +1945,7 @@ heal_model AS (
                 select token_address
                 from {{ ref('price__ez_asset_metadata') }}
                 where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
-              )
+              ) and (t6.decimals_out is null or t6.symbol_out is null or t6.amount_out_usd is null)
             )
         ),
       {% endif %}
