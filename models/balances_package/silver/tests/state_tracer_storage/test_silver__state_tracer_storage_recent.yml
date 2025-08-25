@@ -1,25 +1,28 @@
 version: 2
 models:
-  - name: test_silver__state_tracer_full
-    description: "This is a view used to test all of the state tracer data."
+  - name: test_silver__state_tracer_storage_recent
+    description: "This is a view used to test the last three days of state tracer data."
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_NUMBER
             - TX_POSITION
-            - ADDRESS
+            - CONTRACT_ADDRESS
+            - STORAGE_KEY
       - fsc_evm.balances_sequence_gaps:
           column_name: BLOCK_NUMBER
-      - fsc_evm.balances_sequence_gaps:
-          partition_by:
-            - BLOCK_NUMBER
-          column_name: TX_POSITION
 
     columns:
       - name: BLOCK_NUMBER
         tests:
           - not_null
       - name: TX_POSITION
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: STORAGE_KEY
         tests:
           - not_null
       - name: _INSERTED_TIMESTAMP

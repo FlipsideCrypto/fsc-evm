@@ -12,7 +12,7 @@
 SELECT
     *
 FROM
-    {{ ref('silver__state_tracer') }}
+    {{ ref('silver__state_tracer_storage') }}
 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
 WHERE
     block_number NOT IN (
