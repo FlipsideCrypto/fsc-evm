@@ -1922,7 +1922,7 @@ heal_model AS (
                 where t5.token_in in (
                   select token_address
                   from {{ ref('price__ez_asset_metadata') }}
-                  where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE()) -- newly verified token in
+                  where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (select max(_inserted_timestamp)::date from {{ this }})) -- newly verified token in
                 )
                 and t5._inserted_timestamp < (
                   SELECT
@@ -1951,7 +1951,7 @@ heal_model AS (
               where t6.token_out in (
                 select token_address
                 from {{ ref('price__ez_asset_metadata') }}
-                where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE()) -- newly verified token out
+                where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (select max(_inserted_timestamp)::date from {{ this }})) -- newly verified token out
                 and t6._inserted_timestamp < (
                   SELECT
                     MAX(
