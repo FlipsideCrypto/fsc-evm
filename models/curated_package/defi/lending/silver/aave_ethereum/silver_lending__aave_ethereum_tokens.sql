@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "atoken_address",
-    tags = ['silver','defi','lending','curated','aave_ethereum','tokens']
+    tags = ['silver','defi','lending','curated','aave_ethereum']
 ) }}
 
 WITH

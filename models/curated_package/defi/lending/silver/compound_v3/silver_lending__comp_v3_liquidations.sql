@@ -6,7 +6,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','compound','compound_v3']
+    tags = ['silver','defi','lending','curated','comp_v3']
 ) }}
 
 WITH comp_assets AS (

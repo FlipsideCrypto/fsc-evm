@@ -9,7 +9,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = ['day', 'protocol', 'platform', 'version', 'token_address'],
     cluster_by = ['day::DATE', 'protocol', 'platform'],
-    tags = ['silver','defi','lending','curated','aave','interest_rates','ohlc']
+    tags = ['silver','defi','lending','curated','aave']
 ) }}
 
 WITH daily_rates AS (

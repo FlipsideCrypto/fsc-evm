@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "contract_address",
-    tags = ['silver','defi','lending','curated','euler','tokens']
+    tags = ['silver','defi','lending','curated','euler']
 ) }}
 WITH euler_addresses AS (
     {{ curated_contract_mapping(

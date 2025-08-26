@@ -231,7 +231,7 @@ comp_v2_fork AS (
   )
 {% endif %}
 ),
-compound_v3 AS (
+comp_v3 AS (
     SELECT
       tx_hash,
       block_number,
@@ -257,7 +257,7 @@ compound_v3 AS (
     FROM
         {{ ref('silver_lending__comp_v3_liquidations') }} A
 
-{% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'comp_v3' not in vars.CURATED_FR_MODELS %}
   WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -355,7 +355,7 @@ liquidation_union AS (
   SELECT
     *
   FROM
-    compound_v3
+    comp_v3
   UNION ALL
   SELECT
     *

@@ -174,52 +174,6 @@ flashloans AS (
   FROM
     morpho
 ),
-{% if is_incremental()%}
-token_metadata AS (
-select 
-    underlying_token_address,
-    underlying_token_symbol,
-    underlying_token_decimals
- from 
-  {{ ref('silver_lending__token_metadata') }}
-),
-contract_metadata_heals AS (
-  SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
-    event_name,
-    protocol_market,
-    initiator,
-    target,
-    t0.token_address,
-    tm.underlying_token_symbol as token_symbol,
-    flashloan_amount_unadj,
-    flashloan_amount_unadj / pow(10, tm.underlying_token_decimals) AS flashloan_amount,
-    premium_amount_unadj,
-    premium_amount_unadj / pow(10, tm.underlying_token_decimals) AS premium_amount,
-    platform,
-    protocol,
-    version,
-    t0._LOG_ID,
-    t0.modified_timestamp
-  FROM
-    {{ this }}
-    t0
-    INNER JOIN token_metadata
-    tm
-    ON t0.token_address = tm.underlying_token_address
-  WHERE
-    (t0.token_symbol is null or t0.token_symbol = '' and tm.underlying_token_symbol is not null)
-    or (t0.flashloan_amount is null and tm.underlying_token_decimals is not null)
-    or (t0.premium_amount is null and tm.underlying_token_decimals is not null)
-),
-{% endif %}
 complete_lending_flashloans AS (
   SELECT
     tx_hash,

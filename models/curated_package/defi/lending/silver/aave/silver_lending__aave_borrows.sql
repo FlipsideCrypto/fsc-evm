@@ -6,7 +6,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    tags = ['silver','defi','lending','curated','aave','borrows']
+    tags = ['silver','defi','lending','curated','aave']
 ) }}
 
 WITH --borrows from Aave LendingPool contracts

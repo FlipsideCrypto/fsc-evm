@@ -10,7 +10,7 @@
     materialized = 'incremental',
     unique_key = "token_address",
     merge_exclude_columns = ['inserted_timestamp'],
-    tags = ['silver','defi','lending','curated','compound','compound_v2','comp_v2_asset_details']
+    tags = ['silver','defi','lending','curated','comp_v2']
 ) }}
 
 WITH origin_from_addresses AS (
