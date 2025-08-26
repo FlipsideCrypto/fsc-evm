@@ -5,6 +5,7 @@
 {{ log_model_details() }}
 
 -- depends_on: {{ ref('silver__complete_token_prices') }}
+-- depends_on: {{ ref('silver_lending__token_metadata') }}
 {{ config(
   materialized = 'incremental',
   incremental_strategy = 'delete+insert',
@@ -81,7 +82,7 @@ aave AS (
         {{ ref('silver_lending__aave_deposits') }} A
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  where A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -114,7 +115,7 @@ euler AS (
         {{ ref('silver_lending__euler_deposits') }} A
 
 {% if is_incremental() and 'euler' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -146,7 +147,7 @@ aave_ethereum AS (
         {{ ref('silver_lending__aave_ethereum_deposits') }} A
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -178,7 +179,7 @@ fraxlend AS (
         {{ ref('silver_lending__fraxlend_deposits') }} A
 
 {% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -210,7 +211,7 @@ comp_v2_fork AS (
         {{ ref('silver_lending__comp_v2_deposits') }} A
 
 {% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -242,7 +243,7 @@ compound_v3 AS (
         {{ ref('silver_lending__comp_v3_deposits') }} A
 
 {% if is_incremental() and 'compound_v3' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -274,7 +275,7 @@ silo AS (
         {{ ref('silver_lending__silo_deposits') }} A
 
 {% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -306,7 +307,7 @@ morpho AS (
         {{ ref('silver_lending__morpho_deposits') }} A
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -355,6 +356,49 @@ deposits AS (
   FROM
     euler
 ),
+
+{% if is_incremental()%}
+token_metadata AS (
+select 
+    underlying_token_address,
+    underlying_token_symbol,
+    underlying_token_decimals
+ from 
+  {{ ref('silver_lending__token_metadata') }}
+),
+contract_metadata_heals AS (
+  SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    protocol_market,
+    borrower,
+    t0.token_address,
+    tm.underlying_token_symbol as token_symbol,
+    amount_unadj,
+    amount_unadj / pow(10, tm.underlying_token_decimals) AS amount,
+    platform,
+    protocol,
+    version,
+    t0._LOG_ID,
+    t0.modified_timestamp
+  FROM
+    {{ this }}
+    t0
+    INNER JOIN token_metadata
+    tm
+    ON t0.token_address = tm.underlying_token_address
+  WHERE
+    (t0.token_symbol is null or t0.token_symbol = '' and tm.underlying_token_symbol is not null)
+    or (t0.amount is null and tm.underlying_token_decimals is not null)
+),
+{% endif %}
 complete_lending_deposits AS (
   SELECT
     tx_hash,

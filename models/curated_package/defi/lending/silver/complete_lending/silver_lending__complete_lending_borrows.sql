@@ -1,3 +1,4 @@
+  -- depends_on: {{ ref('silver_lending__token_metadata') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -81,7 +82,7 @@ aave AS (
         {{ ref('silver_lending__aave_borrows') }} A
 
 {% if is_incremental() and 'aave' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -114,7 +115,7 @@ euler AS (
         {{ ref('silver_lending__euler_borrows') }} A
 
 {% if is_incremental() and 'euler' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -147,7 +148,7 @@ fraxlend AS (
         {{ ref('silver_lending__fraxlend_borrows') }} A
 
 {% if is_incremental() and 'fraxlend' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -180,7 +181,7 @@ morpho AS (
         {{ ref('silver_lending__morpho_borrows') }} A
 
 {% if is_incremental() and 'morpho' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -213,7 +214,7 @@ silo AS (
         {{ ref('silver_lending__silo_borrows') }} A
 
 {% if is_incremental() and 'silo' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -246,7 +247,7 @@ aave_ethereum AS (
         {{ ref('silver_lending__aave_ethereum_borrows') }} A
 
 {% if is_incremental() and 'aave_ethereum' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -279,7 +280,7 @@ comp_v2 AS (
         {{ ref('silver_lending__comp_v2_borrows') }} A
 
 {% if is_incremental() and 'comp_v2' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -312,7 +313,7 @@ comp_v3 AS (
         {{ ref('silver_lending__comp_v3_borrows') }} A
 
 {% if is_incremental() and 'comp_v3' not in vars.CURATED_FR_MODELS %}
-  AND A.modified_timestamp >= (
+  WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
     FROM
@@ -361,6 +362,48 @@ borrows AS (
   FROM
     comp_v3
 ),
+{% if is_incremental()%}
+token_metadata AS (
+select 
+    underlying_token_address,
+    underlying_token_symbol,
+    underlying_token_decimals
+ from 
+  {{ ref('silver_lending__token_metadata') }}
+),
+contract_metadata_heals AS (
+  SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    protocol_market,
+    borrower,
+    t0.token_address,
+    tm.underlying_token_symbol as token_symbol,
+    amount_unadj,
+    amount_unadj / pow(10, tm.underlying_token_decimals) AS amount,
+    platform,
+    protocol,
+    version,
+    t0._LOG_ID,
+    t0.modified_timestamp
+  FROM
+    {{ this }}
+    t0
+    INNER JOIN token_metadata
+    tm
+    ON t0.token_address = tm.underlying_token_address
+  WHERE
+    (t0.token_symbol is null or t0.token_symbol = '' and tm.underlying_token_symbol is not null)
+    or (t0.amount is null and tm.underlying_token_decimals is not null)
+),
+{% endif %}
 complete_lending_borrows AS (
   SELECT
     tx_hash,
@@ -371,7 +414,7 @@ complete_lending_borrows AS (
     origin_to_address,
     origin_function_signature,
     b.contract_address,
-    'Borrow' AS event_name,
+    event_name,
     protocol_market,
     borrower,
     b.token_address,
@@ -399,6 +442,7 @@ complete_lending_borrows AS (
       block_timestamp
     ) = p.hour
 ),
+
 
 {% if is_incremental() and var(
   'HEAL_MODEL'
@@ -539,6 +583,43 @@ SELECT
   modified_timestamp AS _inserted_timestamp
 FROM
   heal_model
+{% endif %}
+{% if is_incremental()%}
+  UNION ALL
+    SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    b.contract_address,
+    event_name,
+    protocol_market,
+    borrower,
+    b.token_address,
+    b.token_symbol,
+    amount_unadj,
+    amount,
+    ROUND(
+      amount * price,
+      2
+    ) AS amount_usd,
+    platform,
+    protocol,
+    version :: STRING AS version,
+    b._LOG_ID,
+    b.modified_timestamp
+  FROM
+    contract_metadata_heals b
+    LEFT JOIN prices
+    p
+    ON b.token_address = p.token_address
+    AND DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = p.hour
 {% endif %}
 )
 SELECT

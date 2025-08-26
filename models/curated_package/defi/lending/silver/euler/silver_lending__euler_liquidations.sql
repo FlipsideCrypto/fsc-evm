@@ -105,9 +105,10 @@ FROM
     ON l.collateral_asset = amc.contract_address
     LEFT JOIN token_meta amd
     ON l.debt_asset = amd.contract_address 
-            LEFT JOIN {{ ref('silver_lending__euler_withdraws') }} w
+    LEFT JOIN {{ ref('silver_lending__euler_withdraws') }} w
     ON l.tx_hash = w.tx_hash
     AND l.collateral_asset = w.contract_address
-    AND l.liquidator = w.depositor qualify(ROW_NUMBER() over(PARTITION BY l._log_id
+    AND l.liquidator = w.depositor 
+WHERE amc.contract_address is not null qualify(ROW_NUMBER() over(PARTITION BY l._log_id
 ORDER BY
     l.modified_timestamp DESC)) = 1
