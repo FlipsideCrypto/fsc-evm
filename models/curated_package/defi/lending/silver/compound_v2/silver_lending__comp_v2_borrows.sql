@@ -99,34 +99,6 @@ comp_v2_fork_combine AS (
     comp_v2_fork_borrows b
     LEFT JOIN asset_details C
     ON b.protocol_market = C.token_address
-{% if is_incremental() %}
-  UNION ALL
-  SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
-    borrower,
-    b.protocol_market,
-    C.underlying_asset_address AS token_address,
-    b.amount_unadj as loan_amount_raw,
-    b.protocol,
-    b.version,
-    b.platform,
-    b._log_id,
-    b.modified_timestamp
-  FROM
-    {{this}} b
-    LEFT JOIN asset_details C
-    ON b.protocol_market = C.token_address
-    WHERE
-        (b.token_symbol IS NULL OR b.token_symbol = '') and C.underlying_symbol is not null
-        OR (b.amount IS NULL AND C.underlying_decimals IS NOT NULL)
-  {% endif %}
 )
 SELECT
   block_number,

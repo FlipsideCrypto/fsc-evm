@@ -91,34 +91,6 @@ comp_v2_fork_combine AS (
         comp_v2_fork_deposits b
         LEFT JOIN asset_details C
         ON b.protocol_market = C.token_address
-{% if is_incremental() %}
-    UNION ALL
-    SELECT
-        b.block_number,
-        b.block_timestamp,
-        b.tx_hash,
-        b.event_index,
-        b.origin_from_address,
-        b.origin_to_address,
-        b.origin_function_signature,
-        b.contract_address,
-        b.supplier,
-        b.amount_unadj AS mintAmount_raw,
-        b.protocol_market,
-        C.underlying_asset_address AS token_address,
-        b.protocol,
-        b.version,
-        b.platform,
-        b._log_id,
-        b.modified_timestamp
-    FROM
-        {{this}} b
-        LEFT JOIN asset_details C
-        ON b.protocol_market = C.token_address
-    WHERE
-        (b.token_symbol IS NULL OR b.token_symbol = '') and C.underlying_symbol is not null
-        OR (b.amount IS NULL AND C.underlying_decimals IS NOT NULL)
-{% endif %}
 )
 SELECT
     block_number,
@@ -129,7 +101,7 @@ SELECT
     origin_to_address,
     origin_function_signature,
     contract_address,
-    supplier,
+    supplier as depositor,
     protocol_market,
     token_address,
     mintAmount_raw AS amount_unadj,

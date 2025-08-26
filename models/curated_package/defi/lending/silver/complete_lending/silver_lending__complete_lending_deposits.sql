@@ -197,7 +197,7 @@ comp_v2_fork AS (
         origin_to_address,
         origin_function_signature,
         contract_address,
-        supplier AS depositor,
+        depositor,
         protocol_market,
         token_address,
         amount_unadj,
@@ -378,7 +378,7 @@ contract_metadata_heals AS (
     contract_address,
     event_name,
     protocol_market,
-    borrower,
+    depositor,
     t0.token_address,
     tm.underlying_token_symbol as token_symbol,
     amount_unadj,
@@ -577,6 +577,43 @@ SELECT
   modified_timestamp AS _inserted_timestamp
 FROM
   heal_model
+{% endif %}
+{% if is_incremental()%}
+UNION ALL
+SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    protocol_market,
+    depositor,
+    cm.token_address,
+    cm.token_symbol,
+    cm.amount_unadj,
+    cm.amount,
+    ROUND(
+      amount * price,
+      2
+    ) AS amount_usd,
+    platform,
+    protocol,
+    version,
+    cm._LOG_ID,
+    cm.modified_timestamp
+FROM
+  contract_metadata_heals cm
+  LEFT JOIN prices
+  p
+  ON cm.token_address = p.token_address
+  AND DATE_TRUNC(
+    'hour',
+    block_timestamp
+  ) = p.hour
 {% endif %}
 )
 SELECT

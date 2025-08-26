@@ -152,78 +152,6 @@ underlying_details AS (
     ORDER BY
         t.modified_timestamp ASC)) = 1
 ),
-{% if is_incremental() %}
-contract_detail_heal AS (
-    SELECT
-        l.tx_hash,
-        l.block_number,
-        l.block_timestamp,
-        l.origin_from_address,
-        l.token_address,
-        c1.token_name,
-        c1.token_symbol,
-        c1.token_decimals,
-        underlying_asset_address,
-        c2.token_name AS underlying_name,
-        c2.token_symbol AS underlying_symbol,
-        c2.token_decimals AS underlying_decimals,
-        l.protocol,
-        l.version,
-        l.modified_timestamp,
-        l._log_id
-    FROM
-        {{ this }} l
-        INNER JOIN contracts c1
-        ON c1.contract_address = l.underlying_asset_address
-        INNER JOIN contracts c2
-        ON c2.contract_address = l.token_address
-    WHERE
-        (
-            l.token_name IS NULL
-            AND c1.token_name IS NOT NULL
-        )
-        OR (
-            l.underlying_name IS NULL
-            AND c2.token_name IS NOT NULL
-        )
-    UNION ALL
-    SELECT
-        l.tx_hash,
-        l.block_number,
-        l.block_timestamp,
-        l.origin_from_address,
-        l.token_address,
-        tm.token_name,
-        tm.token_symbol,
-        tm.token_decimals,
-        underlying_asset_address,
-        tm.underlying_token_name AS underlying_name,
-        tm.underlying_token_symbol AS underlying_symbol,
-        tm.underlying_token_decimals AS underlying_decimals,
-        l.protocol,
-        l.version,
-        l.modified_timestamp,
-        l._log_id
-    FROM
-        {{ this }} l
-        INNER JOIN {{ ref('silver_lending__token_metadata') }} tm
-        ON tm.token_address = l.token_address
-    WHERE
-        (
-            (l.token_name IS NULL OR l.token_name = '')
-            AND tm.token_name IS NOT NULL
-        )
-        OR (
-            (l.underlying_symbol IS NULL OR l.underlying_symbol = '')
-            AND tm.underlying_token_symbol IS NOT NULL
-        )
-        OR (
-            (l.underlying_decimals IS NULL OR l.underlying_decimals = 0)
-            AND tm.underlying_token_decimals IS NOT NULL
-        )
-        AND tm.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
-),
-{% endif %}
 final AS (
     SELECT  
         l.tx_hash,
@@ -286,27 +214,3 @@ SELECT
     _log_id
 FROM
     final
-{% if is_incremental() %}
-UNION ALL
-SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    origin_from_address,
-    token_address,
-    token_name,
-    token_symbol,
-    token_decimals,
-    underlying_asset_address,
-    underlying_name,
-    underlying_symbol,
-    underlying_decimals,
-    protocol,
-    version,
-    modified_timestamp as _inserted_timestamp,
-    SYSDATE() as modified_timestamp,
-    SYSDATE() as inserted_timestamp,
-    _log_id
-FROM
-    contract_detail_heal
-{% endif %}

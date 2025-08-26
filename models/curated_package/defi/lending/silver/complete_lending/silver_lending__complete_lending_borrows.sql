@@ -586,7 +586,7 @@ FROM
 {% endif %}
 {% if is_incremental()%}
   UNION ALL
-    SELECT
+  SELECT
     tx_hash,
     block_number,
     block_timestamp,
