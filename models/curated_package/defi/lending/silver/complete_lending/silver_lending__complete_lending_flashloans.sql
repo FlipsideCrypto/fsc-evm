@@ -431,7 +431,6 @@ FROM
 )
 SELECT
   *,
-  '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
   {{ dbt_utils.generate_surrogate_key(
     ['_log_id']
   ) }} AS complete_lending_flashloans_id,

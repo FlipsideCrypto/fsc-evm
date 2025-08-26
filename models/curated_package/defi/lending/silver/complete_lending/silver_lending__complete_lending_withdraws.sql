@@ -355,7 +355,6 @@ withdraws AS (
   FROM
     euler
 ),
-{% endif %}
 complete_lending_withdraws AS (
     SELECT
         tx_hash,
@@ -553,7 +552,6 @@ FROM
 )
 SELECT
     *,
-    '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
     {{ dbt_utils.generate_surrogate_key(
         ['_log_id']
     ) }} AS complete_lending_withdraws_id,
