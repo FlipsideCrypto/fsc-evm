@@ -9,7 +9,7 @@
   incremental_strategy = 'delete+insert',
   unique_key = ['block_number','platform','version'],
   cluster_by = ['block_timestamp::DATE','platform'],
-  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, contract_address, pool_address, pool_name, tokens, symbols), SUBSTRING(pool_address, pool_name, tokens, symbols)",
+  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, contract_address, pool_address, pool_name, tokens, symbols)",
   tags = ['silver_dex','defi','dex','curated','heal','complete','lp']
 ) }}
 
@@ -1056,7 +1056,7 @@ WHERE
   )
 {% endif %}
 ),
-aerodrome_slipstream AS (
+superchain_slipstream AS (
   SELECT
     block_number,
     block_timestamp,
@@ -1082,9 +1082,9 @@ aerodrome_slipstream AS (
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
-    {{ ref('silver_dex__aerodrome_slipstream_pools') }}
+    {{ ref('silver_dex__superchain_slipstream_pools') }}
 
-{% if is_incremental() and 'aerodrome_slipstream' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'superchain_slipstream' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -1223,7 +1223,7 @@ all_pools AS (
   SELECT
     *
   FROM
-    aerodrome_slipstream
+    superchain_slipstream
   UNION ALL
   SELECT
     *

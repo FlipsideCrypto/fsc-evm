@@ -192,6 +192,7 @@ flatten_traces AS (
         f.index IS NULL
         AND f.key != 'calls'
         AND f.path != 'result' 
+        AND (trace_address_array :: VARIANT) :: STRING <> '[""]' 
         {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'

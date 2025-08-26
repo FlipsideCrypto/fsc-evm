@@ -10,6 +10,7 @@ models:
             - CONTRACT_ADDRESS
             - ADDRESS
       - fsc_evm.balances_diffs_erc20:
+          test_model: test_gold__fact_event_logs_full
           where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
 
     columns:

@@ -11,7 +11,7 @@
     unique_key = ['block_number','platform','version'],
     cluster_by = ['block_timestamp::DATE','platform'],
     incremental_predicates = [fsc_evm.standard_predicate()],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, bridge_address, sender, receiver, destination_chain_receiver, destination_chain_id, destination_chain, token_address, token_symbol), SUBSTRING(origin_function_signature, bridge_address, sender, receiver, destination_chain_receiver, destination_chain, token_address, token_symbol)",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, bridge_address, sender, receiver, destination_chain_receiver, destination_chain_id, destination_chain, token_address, token_symbol)",
     tags = ['silver_bridge','defi','bridge','curated','heal','complete']
 ) }}
 
@@ -1389,7 +1389,7 @@ AND tx_hash NOT IN (
     FROM
         {{ this }}
     WHERE
-        version <> 'v1_native'
+        type <> 'ethereum_native'
 )
 {% endif %}
 ),
@@ -1423,50 +1423,14 @@ complete_bridge_activity AS (
         receiver,
         destination_chain_receiver,
         CASE
-            WHEN platform IN (
-                'stargate-v1',
-                'wormhole-v1',
-                'meson-v1',
-                'allbridge-v2',
-                'chainlink_ccip-v1',
-                'layerzero-v2',
-                'stargate-v2',
-                'gaszip_lz-v2',
-                'everclear-v1',
-                'polygon_pos_bridge-v1',
-                'bob_l2_standard_bridge-v1',
-                'ink_l2_standard_bridge-v1',
-                'base_l2_standard_bridge-v1',
-                'optimism_l2_standard_bridge-v1',
-                'hyperliquid-v1',
-                'hyperliquid-v2'
-            ) THEN destination_chain_id :: STRING
-            WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
-            ELSE d.chain_id :: STRING
+            WHEN destination_chain_id :: STRING IS NULL 
+            THEN d.chain_id :: STRING
+            ELSE destination_chain_id :: STRING
         END AS destination_chain_id,
         CASE
-            WHEN platform IN (
-                'stargate-v1',
-                'wormhole-v1',
-                'meson-v1',
-                'allbridge-v2',
-                'chainlink_ccip-v1',
-                'layerzero-v2',
-                'stargate-v2',
-                'gaszip_lz-v2',
-                'everclear-v1',
-                'polygon_pos_bridge-v1',
-                'bob_l2_standard_bridge-v1',
-                'ink_l2_standard_bridge-v1',
-                'base_l2_standard_bridge-v1',
-                'optimism_l2_standard_bridge-v1',
-                'hyperliquid-v1',
-                'hyperliquid-v2'
-            ) THEN LOWER(destination_chain)
-            WHEN d.chain IS NULL THEN LOWER(destination_chain)
-            ELSE LOWER(
-                d.chain
-            )
+            WHEN destination_chain :: STRING IS NULL 
+            THEN LOWER(d.chain :: STRING)
+            ELSE LOWER(destination_chain :: STRING)
         END AS destination_chain,
         b.token_address,
         CASE

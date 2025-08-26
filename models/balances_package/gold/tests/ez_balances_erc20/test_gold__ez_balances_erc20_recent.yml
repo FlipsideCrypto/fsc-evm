@@ -9,7 +9,8 @@ models:
             - TX_POSITION
             - CONTRACT_ADDRESS
             - ADDRESS
-      - fsc_evm.balances_diffs_erc20
+      - fsc_evm.balances_diffs_erc20:
+          test_model: test_gold__fact_event_logs_recent
 
     columns:
       - name: BLOCK_NUMBER
