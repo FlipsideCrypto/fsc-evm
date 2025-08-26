@@ -263,6 +263,14 @@ complete_lending_flashloans AS (
 {% if is_incremental() and var(
   'HEAL_MODEL'
 ) %}
+token_metadata AS (
+select 
+    underlying_token_address,
+    underlying_token_symbol,
+    underlying_token_decimals
+ from 
+  {{ ref('silver_lending__token_metadata') }}
+),
 heal_model AS (
   SELECT 
     tx_hash,
@@ -277,14 +285,20 @@ heal_model AS (
     protocol_market,
     initiator,
     target,
-    token_address,
-    token_symbol,
+    t0.token_address,
+    COALESCE(NULLIF(t0.token_symbol, ''), tm.underlying_token_symbol, c.token_symbol) as token_symbol,
     flashloan_amount_unadj,
-    flashloan_amount,
-    ROUND(flashloan_amount * price, 2)  AS flashloan_amount_usd_heal,
+    COALESCE(t0.flashloan_amount, flashloan_amount_unadj / pow(10, tm.underlying_token_decimals), flashloan_amount_unadj / pow(10, c.token_decimals)) AS flashloan_amount,
+    ROUND(
+      COALESCE(t0.flashloan_amount, flashloan_amount_unadj / pow(10, tm.underlying_token_decimals), flashloan_amount_unadj / pow(10, c.token_decimals)) * p.price,
+      2
+    ) AS flashloan_amount_usd_heal,
     premium_amount_unadj,
-    premium_amount,
-    ROUND(premium_amount * price, 2) AS premium_amount_usd_heal,
+    COALESCE(t0.premium_amount, premium_amount_unadj / pow(10, tm.underlying_token_decimals), premium_amount_unadj / pow(10, c.token_decimals)) AS premium_amount,
+    ROUND(
+      COALESCE(t0.premium_amount, premium_amount_unadj / pow(10, tm.underlying_token_decimals), premium_amount_unadj / pow(10, c.token_decimals)) * p.price,
+      2
+    ) AS premium_amount_usd_heal,
     platform,
     protocol,
     version,
@@ -293,8 +307,11 @@ heal_model AS (
   FROM
     {{ this }}
     t0
-    LEFT JOIN prices
-    p
+    LEFT JOIN token_metadata tm
+    ON t0.token_address = tm.underlying_token_address
+    LEFT JOIN contracts c
+    ON t0.token_address = c.contract_address
+    LEFT JOIN prices p
     ON t0.token_address = p.token_address
     AND DATE_TRUNC(
       'hour',
@@ -385,6 +402,12 @@ heal_model AS (
       GROUP BY
         1
     )
+    OR (t0.token_symbol IS NULL OR t0.token_symbol = '' AND tm.underlying_token_symbol IS NOT NULL AND tm.underlying_token_symbol != '')
+    OR (t0.token_symbol IS NULL OR t0.token_symbol = '' AND c.token_symbol IS NOT NULL AND c.token_symbol != '')
+    OR (t0.flashloan_amount IS NULL AND tm.underlying_token_decimals IS NOT NULL)
+    OR (t0.flashloan_amount IS NULL AND c.token_decimals IS NOT NULL)
+    OR (t0.premium_amount IS NULL AND tm.underlying_token_decimals IS NOT NULL)
+    OR (t0.premium_amount IS NULL AND c.token_decimals IS NOT NULL)
 ),
 {% endif %}
 
@@ -450,50 +473,6 @@ SELECT
   modified_timestamp AS _inserted_timestamp
 FROM
   heal_model
-{% endif %}
-{% if is_incremental()%}
-  UNION ALL
-  SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    b.contract_address,
-    event_name,
-    protocol_market,
-    initiator,
-    target,
-    b.token_address,
-    b.token_symbol,
-    flashloan_amount_unadj,
-    flashloan_amount,
-    ROUND(
-      flashloan_amount * price,
-      2
-    ) AS flashloan_amount_usd,
-    premium_amount_unadj,
-    premium_amount,
-    ROUND(
-      premium_amount * price,
-      2
-    ) AS premium_amount_usd,
-    platform,
-    protocol,
-    version :: STRING AS version,
-    b._LOG_ID,
-    b.modified_timestamp
-  FROM
-    contract_metadata_heals b
-    LEFT JOIN prices
-    p
-    ON b.token_address = p.token_address
-    AND DATE_TRUNC(
-      'hour',
-      block_timestamp
-    ) = p.hour
 {% endif %}
 )
 SELECT

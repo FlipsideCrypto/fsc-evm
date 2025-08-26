@@ -377,56 +377,7 @@ liquidation_union AS (
   FROM
     euler
 ),
-{% if is_incremental()%}
-token_metadata AS (
-select 
-    underlying_token_address,
-    underlying_token_symbol,
-    underlying_token_decimals
- from 
-  {{ ref('silver_lending__token_metadata') }}
-),
-contract_metadata_heals AS (
-  SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
-    event_name,
-    liquidator,
-    borrower,
-    protocol_market,
-    t0.collateral_token,
-    tm1.underlying_token_symbol as collateral_token_symbol,
-    liquidated_amount_unadj,
-    liquidated_amount_unadj / pow(10, tm1.underlying_token_decimals) AS liquidated_amount,
-    t0.debt_token,
-    tm2.underlying_token_symbol as debt_token_symbol,
-    repaid_amount_unadj,
-    repaid_amount_unadj / pow(10, tm2.underlying_token_decimals) AS repaid_amount,
-    platform,
-    protocol,
-    version,
-    t0._LOG_ID,
-    t0.modified_timestamp
-  FROM
-    {{ this }}
-    t0
-    INNER JOIN token_metadata tm1
-    ON t0.collateral_token = tm1.underlying_token_address
-    INNER JOIN token_metadata tm2
-    ON t0.debt_token = tm2.underlying_token_address
-  WHERE
-    (t0.collateral_token_symbol is null or t0.collateral_token_symbol = '' and tm1.underlying_token_symbol is not null)
-    or (t0.debt_token_symbol is null or t0.debt_token_symbol = '' and tm2.underlying_token_symbol is not null)
-    or (t0.liquidated_amount is null and tm1.underlying_token_decimals is not null)
-    or (t0.repaid_amount is null and tm2.underlying_token_decimals is not null)
-),
-{% endif %}
+
 complete_lending_liquidations AS (
   SELECT
     tx_hash,
@@ -481,6 +432,14 @@ complete_lending_liquidations AS (
 {% if is_incremental() and var(
   'HEAL_MODEL'
 ) %}
+token_metadata AS (
+select 
+    underlying_token_address,
+    underlying_token_symbol,
+    underlying_token_decimals
+ from 
+  {{ ref('silver_lending__token_metadata') }}
+),
 heal_model AS (
   SELECT
     t0.tx_hash,
@@ -496,13 +455,21 @@ heal_model AS (
     t0.borrower,
     t0.protocol_market,
     t0.collateral_token,
-    t0.collateral_token_symbol,
+    COALESCE(NULLIF(t0.collateral_token_symbol, ''), tm1.underlying_token_symbol, c1.token_symbol) as collateral_token_symbol,
     t0.liquidated_amount_unadj,
-    t0.liquidated_amount,
-    ROUND(t0.liquidated_amount * p1.price, 2) AS liquidated_amount_usd_heal,
+    COALESCE(t0.liquidated_amount, t0.liquidated_amount_unadj / pow(10, tm1.underlying_token_decimals), t0.liquidated_amount_unadj / pow(10, c1.token_decimals)) AS liquidated_amount,
+    ROUND(
+      COALESCE(t0.liquidated_amount, t0.liquidated_amount_unadj / pow(10, tm1.underlying_token_decimals), t0.liquidated_amount_unadj / pow(10, c1.token_decimals)) * p1.price,
+      2
+    ) AS liquidated_amount_usd_heal,
     t0.debt_token,
-    t0.debt_token_symbol,
-    ROUND(t0.repaid_amount * p2.price, 2) AS repaid_amount_usd_heal,
+    COALESCE(NULLIF(t0.debt_token_symbol, ''), tm2.underlying_token_symbol, c2.token_symbol) as debt_token_symbol,
+    t0.repaid_amount_unadj,
+    COALESCE(t0.repaid_amount, t0.repaid_amount_unadj / pow(10, tm2.underlying_token_decimals), t0.repaid_amount_unadj / pow(10, c2.token_decimals)) AS repaid_amount,
+    ROUND(
+      COALESCE(t0.repaid_amount, t0.repaid_amount_unadj / pow(10, tm2.underlying_token_decimals), t0.repaid_amount_unadj / pow(10, c2.token_decimals)) * p2.price,
+      2
+    ) AS repaid_amount_usd_heal,
     t0.platform,
     t0.protocol,
     t0.version :: STRING AS version,
@@ -511,15 +478,21 @@ heal_model AS (
   FROM
     {{ this }}
     t0
-    LEFT JOIN prices
-    p1
+    LEFT JOIN token_metadata tm1
+    ON t0.collateral_token = tm1.underlying_token_address
+    LEFT JOIN token_metadata tm2
+    ON t0.debt_token = tm2.underlying_token_address
+    LEFT JOIN contracts c1
+    ON t0.collateral_token = c1.contract_address
+    LEFT JOIN contracts c2
+    ON t0.debt_token = c2.contract_address
+    LEFT JOIN prices p1
     ON t0.collateral_token = p1.token_address
     AND DATE_TRUNC(
       'hour',
       block_timestamp
     ) = p1.hour
-    LEFT JOIN prices
-    p2
+    LEFT JOIN prices p2
     ON t0.debt_token = p2.token_address
     AND DATE_TRUNC(
       'hour',
@@ -583,6 +556,14 @@ heal_model AS (
       GROUP BY
         1
     )
+    OR (t0.collateral_token_symbol IS NULL OR t0.collateral_token_symbol = '' AND tm1.underlying_token_symbol IS NOT NULL AND tm1.underlying_token_symbol != '')
+    OR (t0.collateral_token_symbol IS NULL OR t0.collateral_token_symbol = '' AND c1.token_symbol IS NOT NULL AND c1.token_symbol != '')
+    OR (t0.debt_token_symbol IS NULL OR t0.debt_token_symbol = '' AND tm2.underlying_token_symbol IS NOT NULL AND tm2.underlying_token_symbol != '')
+    OR (t0.debt_token_symbol IS NULL OR t0.debt_token_symbol = '' AND c2.token_symbol IS NOT NULL AND c2.token_symbol != '')
+    OR (t0.liquidated_amount IS NULL AND tm1.underlying_token_decimals IS NOT NULL)
+    OR (t0.liquidated_amount IS NULL AND c1.token_decimals IS NOT NULL)
+    OR (t0.repaid_amount IS NULL AND tm2.underlying_token_decimals IS NOT NULL)
+    OR (t0.repaid_amount IS NULL AND c2.token_decimals IS NOT NULL)
 ),
 {% endif %}
 
@@ -653,57 +634,7 @@ SELECT
 FROM
   heal_model
 {% endif %}
-{% if is_incremental()%}
-  UNION ALL
-    SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    b.contract_address,
-    event_name,
-    liquidator,
-    borrower,
-    protocol_market,
-    b.collateral_token,
-    b.collateral_token_symbol,
-    liquidated_amount_unadj,
-    liquidated_amount,
-    ROUND(
-      liquidated_amount * p1.price,
-      2
-    ) AS liquidated_amount_usd,
-    b.debt_token,
-    b.debt_token_symbol,
-    repaid_amount_unadj,
-    repaid_amount,
-    ROUND(
-      repaid_amount * p2.price,
-      2
-    ) AS repaid_amount_usd,
-    platform,
-    protocol,
-    version :: STRING AS version,
-    b._LOG_ID,
-    b.modified_timestamp
-  FROM
-    contract_metadata_heals b
-    LEFT JOIN prices p1
-    ON b.collateral_token = p1.token_address
-    AND DATE_TRUNC(
-      'hour',
-      block_timestamp
-    ) = p1.hour
-    LEFT JOIN prices p2
-    ON b.debt_token = p2.token_address
-    AND DATE_TRUNC(
-      'hour',
-      block_timestamp
-    ) = p2.hour
-{% endif %}
+
 )
 SELECT
   *,

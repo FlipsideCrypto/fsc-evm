@@ -362,48 +362,7 @@ borrows AS (
   FROM
     comp_v3
 ),
-{% if is_incremental()%}
-token_metadata AS (
-select 
-    underlying_token_address,
-    underlying_token_symbol,
-    underlying_token_decimals
- from 
-  {{ ref('silver_lending__token_metadata') }}
-),
-contract_metadata_heals AS (
-  SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
-    event_name,
-    protocol_market,
-    borrower,
-    t0.token_address,
-    tm.underlying_token_symbol as token_symbol,
-    amount_unadj,
-    amount_unadj / pow(10, tm.underlying_token_decimals) AS amount,
-    platform,
-    protocol,
-    version,
-    t0._LOG_ID,
-    t0.modified_timestamp
-  FROM
-    {{ this }}
-    t0
-    INNER JOIN token_metadata
-    tm
-    ON t0.token_address = tm.underlying_token_address
-  WHERE
-    (t0.token_symbol is null or t0.token_symbol = '' and tm.underlying_token_symbol is not null)
-    or (t0.amount is null and tm.underlying_token_decimals is not null)
-),
-{% endif %}
+
 complete_lending_borrows AS (
   SELECT
     tx_hash,
@@ -447,6 +406,14 @@ complete_lending_borrows AS (
 {% if is_incremental() and var(
   'HEAL_MODEL'
 ) %}
+token_metadata AS (
+select 
+    underlying_token_address,
+    underlying_token_symbol,
+    underlying_token_decimals
+ from 
+  {{ ref('silver_lending__token_metadata') }}
+),
 heal_model AS (
   SELECT
     tx_hash,
@@ -460,12 +427,12 @@ heal_model AS (
     event_name,
     protocol_market,
     borrower,
-    token_address,
-    token_symbol,
+    t0.token_address,
+    COALESCE(NULLIF(t0.token_symbol, ''), tm.underlying_token_symbol, c.token_symbol) as token_symbol,
     amount_unadj,
-    amount,
+    COALESCE(t0.amount, amount_unadj / pow(10, tm.underlying_token_decimals), amount_unadj / pow(10, c.token_decimals)) AS amount,
     ROUND(
-      amount * p.price,
+      COALESCE(t0.amount, amount_unadj / pow(10, tm.underlying_token_decimals), amount_unadj / pow(10, c.token_decimals)) * p.price,
       2
     ) AS amount_usd_heal,
     platform,
@@ -476,8 +443,11 @@ heal_model AS (
   FROM
     {{ this }}
     t0
-    LEFT JOIN prices
-    p
+    LEFT JOIN token_metadata tm
+    ON t0.token_address = tm.underlying_token_address
+    LEFT JOIN contracts c
+    ON t0.token_address = c.contract_address
+    LEFT JOIN prices p
     ON t0.token_address = p.token_address
     AND DATE_TRUNC(
       'hour',
@@ -526,6 +496,10 @@ heal_model AS (
       GROUP BY
         1
     )
+    OR (t0.token_symbol IS NULL OR t0.token_symbol = '' AND tm.underlying_token_symbol IS NOT NULL AND tm.underlying_token_symbol != '')
+    OR (t0.token_symbol IS NULL OR t0.token_symbol = '' AND c.token_symbol IS NOT NULL AND c.token_symbol != '')
+    OR (t0.amount IS NULL AND tm.underlying_token_decimals IS NOT NULL)
+    OR (t0.amount IS NULL AND c.token_decimals IS NOT NULL)
 ),
 {% endif %}
 
@@ -584,43 +558,7 @@ SELECT
 FROM
   heal_model
 {% endif %}
-{% if is_incremental()%}
-  UNION ALL
-  SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    b.contract_address,
-    event_name,
-    protocol_market,
-    borrower,
-    b.token_address,
-    b.token_symbol,
-    amount_unadj,
-    amount,
-    ROUND(
-      amount * price,
-      2
-    ) AS amount_usd,
-    platform,
-    protocol,
-    version :: STRING AS version,
-    b._LOG_ID,
-    b.modified_timestamp
-  FROM
-    contract_metadata_heals b
-    LEFT JOIN prices
-    p
-    ON b.token_address = p.token_address
-    AND DATE_TRUNC(
-      'hour',
-      block_timestamp
-    ) = p.hour
-{% endif %}
+
 )
 SELECT
   *,
