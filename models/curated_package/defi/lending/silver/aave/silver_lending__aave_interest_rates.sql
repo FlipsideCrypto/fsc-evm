@@ -61,21 +61,31 @@ reserve_data AS (
         contract_address as lending_pool_contract,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token_address,
-        utils.udf_hex_to_int(
-            segmented_data [0] :: STRING
-        ) :: INTEGER AS liquidity_rate,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS stable_borrow_rate,
-        utils.udf_hex_to_int(
-            segmented_data [2] :: STRING
-        ) :: INTEGER AS variable_borrow_rate,
-        utils.udf_hex_to_int(
-            segmented_data [3] :: STRING
-        ) :: INTEGER AS liquidity_index,
-        utils.udf_hex_to_int(
-            segmented_data [4] :: STRING
-        ) :: INTEGER AS variable_borrow_index,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [0] :: STRING
+            )
+        ) AS liquidity_rate,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [1] :: STRING
+            )
+        ) AS stable_borrow_rate,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [2] :: STRING
+            )
+        ) AS variable_borrow_rate,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [3] :: STRING
+            )
+        ) AS liquidity_index,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [4] :: STRING
+            )
+        ) AS variable_borrow_index,
         modified_timestamp,
         CONCAT(
             tx_hash :: STRING,
