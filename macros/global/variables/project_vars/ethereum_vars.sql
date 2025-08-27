@@ -26,7 +26,7 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
         'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1','near_rainbow_bridge-v1',
-        'ronin_axie_bridge-v1','multichain-v7','hop-v1','axie_infinity-v2','symbiosis-v1','maverick-v1'],
+        'ronin_axie_bridge-v1','multichain-v7','hop-v1','axie_infinity-v2','symbiosis-v1','maverick-v1','aave-v1','aave-v2.1','silo-v2','silo-v1','flux-v1','aave-v2','spark-v1','sturdy-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -271,7 +271,104 @@
         },
         'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'ethereum mainnet',
         'CURATED_DEFI_BRIDGE_HOP_L1_CONTRACTS': ['0xb8901acb165ed027e32754e0ffe830802919727f',
-        '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7']
+        '0x236fe0ffa7118505f2a1c35a039f6a219308b1a7'],
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'flux': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x690043fb6826f9d9381c56f43971f4f044bce3aa'
+                }
+            },
+            'strike': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x752dfb1c709eea4621c8e95f48f3d0b6dde5d126'
+                }
+            },
+            'compound': {
+                'v2': {
+                    'comp_v2_origin_from_address': ['0x54a37d93e57c5da659f508069cf65a381b61e189',
+                    '0x96fa6acfc5f683db191234c74d315e5d732b07c0',
+                    '0xa7ff0d561cd15ed525e31bbe0af3fe34ac2059f6',
+                    '0x2b384212edc04ae8bb41738d05ba20e33277bf33',
+                    '0x5f32db4e59165e2745496a456eaab10a03dd38be',
+                    '0x3cafceed09e25951c33046699d07d7761eb3ed4f',
+                    '0x18c8f1222083997405f2e482338a4650ac02e1d6',
+                    '0xfe83af639f769ead20bad76067abc120245a06a9',
+                    '0xa8f4514e4db0ce95e30142cc8baa5e6c921e16a5']
+                },
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x343715fa797b8e9fe48b9efab4b54f01ca860e78', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'fraxlend': {
+                'v1': {
+                    'fraxlend_origin_from_address': ['0xcbc616d595d38483e6adc45c7e426f44bf230928',
+                    '0x381e2495e683868f693aa5b1414f712f21d34b40',
+                    '0x05fb8ec3c41da95b26fcb85503daf8b89b89a935',
+                    '0xf4e1d185666a624099298fcc42c50ba662dc7e52',
+                    '0x31562ae726afebe25417df01bedc72ef489f45b3',
+                    '0xdb3388e770f49a604e11f1a2084b39279492a61f',
+                    '0x6e74053a3798e0fc9a9775f7995316b27f21c4d2']
+                }
+            },
+            'radiant': {
+                'v2': {
+                    'aave_treasury': '0x28e395a54a64284dba39652921cd99924f4e3797',
+                    'aave_version_address': '0xa950974f64aa33f27f6c5e017eee93bf7588ed07'
+                }
+            },
+            'spark': {
+                'v1': {
+                    'aave_treasury': '0xb137e7d16564c81ae2b0c8ee6b55de81dd46ece5',
+                    'aave_version_address': '0xc13e21b648a5ee794902342038ff3adab66be987'
+                }
+            },
+            'sturdy': {
+                'v1': {
+                    'aave_treasury': '0xfd1d36995d76c0f75bbe4637c84c06e4a68bbb3a',
+                    'aave_version_address': ['0xa422ca380bd70eef876292839222159e41aaee17','0x9f72dc67cec672bb99e3d02cbea0a21536a2b657']
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+                    'aave_version_address': '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'
+                },
+                'v2': {
+                    'aave_pool_addresses': ['0x311bb771e4f8952e6da169b425e7e92d6ac45756',
+                    '0x4e1c7865e7be78a7748724fa0409e88dc14e67aa']
+                },
+                'v2.1': {
+                    'aave_pool_addresses': '0x23a875ede3f1030138701683e42e9b16a7f87768'
+                },
+                'v1': {
+                    'aave_pool_addresses': [
+                        '0x1e70af20976b2c7e72fdc8016bcdffded12f3464',
+                        '0x4965f6fa20fe9728decf5165016fc338a5a85abf',
+                        '0xed2ebe33a237d2e2ba8bbea210616ee3d10b92db'
+                    ]
+                }
+            },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0x29a56a1b8214d9cf7c5561811750d5cbdb45cc8e'
+                }
+            },
+            'silo': {
+                'v1': {
+                    'silo_factory': '0xb7d391192080674281baab8b3083154a5f64cd0a',
+                    'silo_tokens_factory': '0x0e37df413f97fc198a84a21bc463c41b516ad622',
+                },
+                'v2': {
+                    'silo_factory': '0x4d919cecfd4793c0d47866c8d0a02a0950737589',
+                    'silo_tokens_factory': '0x7ed1160719ab280760faa0ba26cf13139904cba5',
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

@@ -1,0 +1,7 @@
+blockchain,underlying_token_name,underlying_token_symbol,underlying_token_address,underlying_token_decimals
+ethereum,Single Collateral DAI,SAI,0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359,18
+ethereum,Maker,MKR,0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2,18
+ethereum,usdc,USDC,0xcbfb9b444d9735c345df3a0f66cd89bd741692e9,6
+ethereum,erc20,ERC20,0x36b6c4dce5465721fbd6a10edd95c4cababd71d2,18
+ethereum,FakeToken,FAKE,0x292021b1e047fd0bd87f4d058a23f100d65153ec,18
+ethereum,erc20,ERC20,0xf1d2d880c5dde7cc912636c2b4d080b3fe5f7b50,18

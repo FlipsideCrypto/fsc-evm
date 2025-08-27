@@ -1,5 +1,6 @@
 {% test curated_recency_defi(
-    model
+    model,
+    threshold_days=30
 ) %}
 
 {# Get variables #}
@@ -10,7 +11,7 @@ WITH source AS (
         platform,
         MAX(block_timestamp) AS latest_timestamp,
         SYSDATE() AS sys_ts,
-        DATEADD('day', -30, SYSDATE()) AS threshold_ts,
+        DATEADD('day', -{{ threshold_days }}, SYSDATE()) AS threshold_ts,
         COUNT(
             CASE
                 WHEN block_timestamp >= threshold_ts THEN 1 
@@ -46,7 +47,7 @@ WITH source AS (
             source
         WHERE
             (latest_timestamp < threshold_ts 
-            OR percent_delta < 10)
+            OR (percent_delta < 10 AND percent_delta <> 0))
             AND platform NOT IN ('{{ vars.CURATED_DEFI_RECENCY_EXCLUSION_LIST | join("', '") }}')
 -- failure to meet threshold requires manual review to determine if
 -- the protocol has newly deployed contracts, stale contracts, etc.

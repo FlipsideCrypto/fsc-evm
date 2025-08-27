@@ -1,0 +1,52 @@
+version: 2
+models:
+  - name: defi__ez_ohlc_rates
+    description: '{{ doc("ez_lending_ohlc_rates_table_doc") }}'
+
+    columns:
+      - name: DAY
+        description: '{{ doc("ez_lending_ohlc_day") }}'
+      - name: PROTOCOL
+        description: '{{ doc("ez_lending_ohlc_protocol") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_lending_platform") }}'
+      - name: VERSION
+        description: '{{ doc("ez_lending_ohlc_version") }}'
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("ez_lending_token_address") }}'
+      - name: TOKEN_SYMBOL
+        description: '{{ doc("ez_lending_token_symbol") }}'
+      - name: SUPPLY_RATE_OPEN
+        description: '{{ doc("ez_lending_ohlc_supply_rate_open") }}'
+      - name: SUPPLY_RATE_HIGH
+        description: '{{ doc("ez_lending_ohlc_supply_rate_high") }}'
+      - name: SUPPLY_RATE_LOW
+        description: '{{ doc("ez_lending_ohlc_supply_rate_low") }}'
+      - name: SUPPLY_RATE_CLOSE
+        description: '{{ doc("ez_lending_ohlc_supply_rate_close") }}'
+      - name: STABLE_BORROW_RATE_OPEN
+        description: '{{ doc("ez_lending_ohlc_stable_borrow_rate_open") }}'
+      - name: STABLE_BORROW_RATE_HIGH
+        description: '{{ doc("ez_lending_ohlc_stable_borrow_rate_high") }}'
+      - name: STABLE_BORROW_RATE_LOW
+        description: '{{ doc("ez_lending_ohlc_stable_borrow_rate_low") }}'
+      - name: STABLE_BORROW_RATE_CLOSE
+        description: '{{ doc("ez_lending_ohlc_stable_borrow_rate_close") }}'
+      - name: VARIABLE_BORROW_RATE_OPEN
+        description: '{{ doc("ez_lending_ohlc_variable_borrow_rate_open") }}'
+      - name: VARIABLE_BORROW_RATE_HIGH
+        description: '{{ doc("ez_lending_ohlc_variable_borrow_rate_high") }}'
+      - name: VARIABLE_BORROW_RATE_LOW
+        description: '{{ doc("ez_lending_ohlc_variable_borrow_rate_low") }}'
+      - name: VARIABLE_BORROW_RATE_CLOSE
+        description: '{{ doc("ez_lending_ohlc_variable_borrow_rate_close") }}'
+      - name: RATE_UPDATES_COUNT
+        description: '{{ doc("ez_lending_ohlc_rate_updates_count") }}'
+      - name: BLOCKCHAIN
+        description: '{{ doc("ez_lending_ohlc_blockchain") }}'
+      - name: EZ_OHLC_RATES_ID
+        description: '{{ doc("general_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}'

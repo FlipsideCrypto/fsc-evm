@@ -1174,3 +1174,295 @@ The address that paid the loan or deposit.
 Example: '0x5555555555555555555555555555555555555555'
 
 {% enddocs %}
+
+{% docs ez_lending_ohlc_rates_table_doc %}
+
+## What
+
+This table provides OHLC (Open, High, Low, Close) interest rate data for lending protocols, aggregated by day. It tracks supply, stable borrow, and variable borrow rates with forward-filling for missing data points, enabling analysis of interest rate trends and volatility across lending markets.
+
+## Key Use Cases
+
+- Analyzing interest rate trends and volatility over time
+- Comparing rates across different lending protocols and assets
+- Monitoring rate changes during market events
+- Calculating average rates for yield analysis
+- Identifying rate arbitrage opportunities
+
+## Important Relationships
+
+- Links to individual protocol interest rate models (e.g., Aave)
+- Can be joined with `ez_lending_deposits` and `ez_lending_borrows` for yield analysis
+- References `price.ez_prices_hourly` for USD valuations
+- Connects to protocol-specific token contracts
+
+## Commonly-used Fields
+
+- `day`: Date for the OHLC data
+- `protocol`/`platform`: Lending protocol details
+- `token_address`/`token_symbol`: Asset being tracked
+- `supply_rate_*`: Supply interest rate OHLC values
+- `stable_borrow_rate_*`: Stable borrow rate OHLC values
+- `variable_borrow_rate_*`: Variable borrow rate OHLC values
+
+## Sample queries
+
+```sql
+-- Daily interest rate volatility analysis
+SELECT 
+    day,
+    protocol,
+    platform,
+    token_symbol,
+    -- Supply rate volatility
+    (supply_rate_high - supply_rate_low) / NULLIF(supply_rate_low, 0) * 100 AS supply_rate_volatility_pct,
+    -- Variable borrow rate volatility
+    (variable_borrow_rate_high - variable_borrow_rate_low) / NULLIF(variable_borrow_rate_low, 0) * 100 AS variable_borrow_volatility_pct,
+    -- Rate spread
+    variable_borrow_rate_close - supply_rate_close AS rate_spread,
+    rate_updates_count
+FROM <blockchain_name>.defi.ez_ohlc_rates
+WHERE day >= CURRENT_DATE - 30
+    AND token_symbol IS NOT NULL
+ORDER BY day DESC, supply_rate_volatility_pct DESC;
+
+-- Protocol comparison - average rates
+SELECT 
+    protocol,
+    platform,
+    token_symbol,
+    AVG(supply_rate_close) AS avg_supply_rate,
+    AVG(variable_borrow_rate_close) AS avg_variable_borrow_rate,
+    AVG(stable_borrow_rate_close) AS avg_stable_borrow_rate,
+    AVG(variable_borrow_rate_close - supply_rate_close) AS avg_rate_spread,
+    COUNT(*) AS days_with_data
+FROM <blockchain_name>.defi.ez_ohlc_rates
+WHERE day >= CURRENT_DATE - 90
+    AND token_symbol IS NOT NULL
+GROUP BY 1, 2, 3
+HAVING COUNT(*) > 30
+ORDER BY avg_rate_spread DESC;
+
+-- Interest rate trends over time
+WITH rate_trends AS (
+    SELECT 
+        day,
+        protocol,
+        token_symbol,
+        supply_rate_close,
+        variable_borrow_rate_close,
+        stable_borrow_rate_close,
+        LAG(supply_rate_close, 7) OVER (PARTITION BY protocol, token_symbol ORDER BY day) AS supply_rate_week_ago,
+        LAG(variable_borrow_rate_close, 7) OVER (PARTITION BY protocol, token_symbol ORDER BY day) AS variable_borrow_rate_week_ago
+    FROM <blockchain_name>.defi.ez_ohlc_rates
+    WHERE day >= CURRENT_DATE - 30
+        AND token_symbol IS NOT NULL
+)
+SELECT 
+    day,
+    protocol,
+    token_symbol,
+    supply_rate_close,
+    (supply_rate_close - supply_rate_week_ago) / NULLIF(supply_rate_week_ago, 0) * 100 AS supply_rate_change_7d_pct,
+    variable_borrow_rate_close,
+    (variable_borrow_rate_close - variable_borrow_rate_week_ago) / NULLIF(variable_borrow_rate_week_ago, 0) * 100 AS variable_borrow_rate_change_7d_pct
+FROM rate_trends
+WHERE supply_rate_week_ago IS NOT NULL
+ORDER BY day DESC, ABS(supply_rate_change_7d_pct) DESC;
+
+-- Most volatile interest rate assets
+SELECT 
+    protocol,
+    platform,
+    token_symbol,
+    STDDEV(supply_rate_close) AS supply_rate_stddev,
+    STDDEV(variable_borrow_rate_close) AS variable_borrow_rate_stddev,
+    AVG(supply_rate_close) AS avg_supply_rate,
+    AVG(variable_borrow_rate_close) AS avg_variable_borrow_rate,
+    COUNT(*) AS days_with_data
+FROM <blockchain_name>.defi.ez_ohlc_rates
+WHERE day >= CURRENT_DATE - 90
+    AND token_symbol IS NOT NULL
+GROUP BY 1, 2, 3
+HAVING COUNT(*) > 30
+ORDER BY supply_rate_stddev DESC
+LIMIT 20;
+
+-- Rate update frequency analysis
+SELECT 
+    protocol,
+    platform,
+    token_symbol,
+    AVG(rate_updates_count) AS avg_daily_updates,
+    MAX(rate_updates_count) AS max_daily_updates,
+    COUNT(*) AS days_with_data,
+    SUM(rate_updates_count) AS total_updates
+FROM <blockchain_name>.defi.ez_ohlc_rates
+WHERE day >= CURRENT_DATE - 30
+    AND token_symbol IS NOT NULL
+GROUP BY 1, 2, 3
+ORDER BY avg_daily_updates DESC;
+
+-- Asset-specific rate analysis
+SELECT 
+    day,
+    protocol,
+    platform,
+    token_symbol,
+    supply_rate_open,
+    supply_rate_high,
+    supply_rate_low,
+    supply_rate_close,
+    variable_borrow_rate_open,
+    variable_borrow_rate_high,
+    variable_borrow_rate_low,
+    variable_borrow_rate_close,
+    stable_borrow_rate_open,
+    stable_borrow_rate_high,
+    stable_borrow_rate_low,
+    stable_borrow_rate_close,
+    rate_updates_count
+FROM <blockchain_name>.defi.ez_ohlc_rates
+WHERE token_symbol = 'USDC'
+    AND protocol = 'aave'
+    AND day >= CURRENT_DATE - 7
+ORDER BY day DESC;
+```
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_day %}
+
+The date for which the OHLC interest rate data is calculated (truncated to day).
+
+Example: '2024-01-15'
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_protocol %}
+
+The lending protocol name (e.g., Aave, Compound).
+
+Example: 'aave'
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_version %}
+
+The version of the protocol (e.g., v2, v3).
+
+Example: 'v3'
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_supply_rate_open %}
+
+The opening supply interest rate for the day (first rate of the day).
+
+Example: 0.045
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_supply_rate_high %}
+
+The highest supply interest rate observed during the day.
+
+Example: 0.052
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_supply_rate_low %}
+
+The lowest supply interest rate observed during the day.
+
+Example: 0.041
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_supply_rate_close %}
+
+The closing supply interest rate for the day (last rate of the day).
+
+Example: 0.048
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_stable_borrow_rate_open %}
+
+The opening stable borrow interest rate for the day (first rate of the day).
+
+Example: 0.065
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_stable_borrow_rate_high %}
+
+The highest stable borrow interest rate observed during the day.
+
+Example: 0.072
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_stable_borrow_rate_low %}
+
+The lowest stable borrow interest rate observed during the day.
+
+Example: 0.061
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_stable_borrow_rate_close %}
+
+The closing stable borrow interest rate for the day (last rate of the day).
+
+Example: 0.068
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_variable_borrow_rate_open %}
+
+The opening variable borrow interest rate for the day (first rate of the day).
+
+Example: 0.085
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_variable_borrow_rate_high %}
+
+The highest variable borrow interest rate observed during the day.
+
+Example: 0.092
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_variable_borrow_rate_low %}
+
+The lowest variable borrow interest rate observed during the day.
+
+Example: 0.081
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_variable_borrow_rate_close %}
+
+The closing variable borrow interest rate for the day (last rate of the day).
+
+Example: 0.088
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_rate_updates_count %}
+
+The number of rate updates that occurred during the day.
+
+Example: 24
+
+{% enddocs %}
+
+{% docs ez_lending_ohlc_blockchain %}
+
+The blockchain network where the data was sourced from.
+
+Example: 'ethereum'
+
+{% enddocs %}
