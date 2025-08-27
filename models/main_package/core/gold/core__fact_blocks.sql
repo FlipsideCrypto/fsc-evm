@@ -73,7 +73,7 @@ SELECT
     )) AS total_difficulty,
     {% endif %}
     block_json :sha3Uncles :: STRING AS sha3_uncles,
-    block_json :uncles AS uncle_blocks,
+    COALESCE(block_json :uncles, []) AS uncle_blocks,
     utils.udf_hex_to_int(
         block_json :nonce :: STRING
     ) :: bigint AS nonce,

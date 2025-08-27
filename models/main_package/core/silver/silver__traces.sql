@@ -192,7 +192,7 @@ flatten_traces AS (
         f.index IS NULL
         AND f.key != 'calls'
         AND f.path != 'result' 
-        AND (trace_address_array :: VARIANT) :: STRING <> '[""]' 
+        AND (trace_address_array :: VARIANT) :: STRING <> '[""]'
         {% if vars.MAIN_CORE_TRACES_ARB_MODE %}
             AND f.path NOT LIKE 'afterEVMTransfers[%'
             AND f.path NOT LIKE 'beforeEVMTransfers[%'
@@ -233,6 +233,8 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    flatten_traces qualify(ROW_NUMBER() over(PARTITION BY traces_id
+    flatten_traces 
+WHERE trace_json :"type" :: STRING IS NOT NULL
+qualify(ROW_NUMBER() over(PARTITION BY traces_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
