@@ -306,11 +306,6 @@
                     ]
                 }
             },
-            'exactly': {
-                'v1': {
-                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
-                }
-            },
             'compound': {
                 'v3': {
                     'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
