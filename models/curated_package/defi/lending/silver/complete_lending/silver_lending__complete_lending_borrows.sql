@@ -407,12 +407,14 @@ complete_lending_borrows AS (
   'HEAL_MODEL'
 ) %}
 token_metadata AS (
-select 
-    underlying_token_address,
-    underlying_token_symbol,
-    underlying_token_decimals
- from 
-  {{ ref('silver_lending__token_metadata') }}
+  SELECT
+      underlying_token_address,
+      underlying_token_symbol,
+      underlying_token_decimals
+  FROM
+    {{ ref('silver_lending__token_metadata') }}
+  WHERE 
+    blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
 ),
 heal_model AS (
   SELECT

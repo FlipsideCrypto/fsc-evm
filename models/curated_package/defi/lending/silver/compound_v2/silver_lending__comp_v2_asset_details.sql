@@ -187,7 +187,7 @@ SELECT
     token_symbol,
     token_decimals,
     CASE 
-        WHEN token_symbol LIKE '%' || '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' || '%' AND underlying_asset_address IS NULL 
+        WHEN token_symbol LIKE '%' || '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' || '%' AND underlying_symbol IS NULL
             THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
         ELSE underlying_asset_address 
     END AS underlying_asset_address,
@@ -214,3 +214,5 @@ SELECT
     _log_id
 FROM
     final
+WHERE 
+    token_name is not null
