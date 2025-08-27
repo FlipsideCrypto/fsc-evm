@@ -1,6 +1,7 @@
 {% test curated_recency_defi(
     model,
-    threshold_days=30
+    threshold_days=30,
+    percent_delta_threshold=10
 ) %}
 
 {# Get variables #}
@@ -47,7 +48,7 @@ WITH source AS (
             source
         WHERE
             (latest_timestamp < threshold_ts 
-            OR (percent_delta < 10 AND percent_delta <> 0))
+            OR (percent_delta < {{ percent_delta_threshold }} AND percent_delta <> 0))
             AND platform NOT IN ('{{ vars.CURATED_DEFI_RECENCY_EXCLUSION_LIST | join("', '") }}')
 -- failure to meet threshold requires manual review to determine if
 -- the protocol has newly deployed contracts, stale contracts, etc.
