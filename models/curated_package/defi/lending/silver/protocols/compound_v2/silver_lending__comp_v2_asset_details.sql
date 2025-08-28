@@ -215,4 +215,6 @@ FROM
     final
         qualify(ROW_NUMBER() over(PARTITION BY token_address
     ORDER BY
-        CASE WHEN underlying_symbol IS NOT NULL THEN 0 ELSE 1 END ASC,block_number ASC)) = 1
+        CASE WHEN underlying_symbol IS NOT NULL THEN 1 ELSE 0 END DESC,
+        CASE WHEN underlying_decimals IS NOT NULL THEN 1 ELSE 0 END DESC,
+        block_number ASC)) = 1
