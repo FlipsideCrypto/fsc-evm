@@ -76,7 +76,25 @@
             }
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x6f03052743cd99ce1b29265e377e320cd24eb632',
-        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
+        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0xb50201558b00496a145fe76f7424749556e326d8'
+                },
+            },
+            'spark': {
+                'v1': {
+                    'aave_version_address': '0x2dae5307c5e3fd1cf5a72cb6f698f915860607e0'
+                },
+            },
+            'realt': {
+                'v3': {
+                    'aave_version_address': ['0x5b8d36de471880ee21936f328aab2383a280cb2a',
+                    '0xfb9b496519fca8473fba1af0850b6b8f476bfdb3']
+                },
+            }
+        }
     } %}
     
     {{ return(vars) }}

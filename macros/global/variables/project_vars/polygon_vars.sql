@@ -225,7 +225,29 @@
         },
         'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'polygon mainnet',
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x58c61aee5ed3d748a1467085ed2650b697a66234',
-        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
+        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'compound': {
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                },
+                'v2': {
+                    'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+                    'aave_version_address': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf'
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x1bf0c2541f820e775182832f06c0b7fc27a25f67'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

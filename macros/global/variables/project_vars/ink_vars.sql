@@ -76,6 +76,18 @@
                     'bridge': '0x45f1a95a4d3f3836523f5c83673c797f4d4d263b'
                 }
             }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'shroomy': {
+                'v1': {
+                    'aave_version_address': '0x70c88e98578bc521a799de0b1c65a2b12d6f99e4'
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x857f3eefe8cbda3bc49367c996cd664a880d3042'
+                }
+            }
         }
     } %}
     

@@ -20,7 +20,8 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
         'MAIN_CORE_TRACES_ARB_MODE': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3','gmx-v1','hyperliquid-v1','symbiosis-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3','gmx-v1','hyperliquid-v1','symbiosis-v1',
+        'radiant-v1','radiant-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -294,7 +295,52 @@
             }
         },
         'CURATED_DEFI_BRIDGE_HOP_BRIDGE_CONTRACT': '0x25fb92e505f752f730cad0bd4fa17ece4a384266',
-        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc'
+        'CURATED_DEFI_BRIDGE_HOP_TOKEN_CONTRACT': '0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'dforce': {
+                'v1': {
+                    'comp_v2_origin_from_address': [
+                        '0x70a0d319c76b0a99be5e8cd2685219aea9406845',
+                        '0x655284bebcc6e1dffd098ec538750d43b57bc743',
+                        '0xde6d6f23aabbdc9469c8907ece7c379f98e4cb75'
+                    ]
+                }
+            },
+            'compound': {
+                'v3': {
+                    'comp_v3_origin_from_address': ['0x6103db328d4864dc16bd2f0ee1b9a92e3f87f915', '0x2501713a67a3dedde090e42759088a7ef37d4eab']
+                }
+            },
+            'radiant': {
+                'v1': {
+                    'aave_version_address': '0x2032b9a8e9f7e76768ca9271003d3e43e1616b1f'
+                },
+                'v2': {
+                    'aave_version_address': '0xf4b1486dd74d07706052a33d31d7c0aafd0659e1'
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x6c247b1f6182318877311737bac0844baa518f5e'
+                }
+            },
+            'silo': {
+                'v2': {
+                    'silo_factory': '0x4166487056a922d784b073d4d928a516b074b719',
+                    'silo_tokens_factory': '0xe067b967a36a136084eb9df0149dde64f01ea7d1',
+                }
+            },
+            'lodestar': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

@@ -80,7 +80,7 @@ flattened_logs AS (
         utils.udf_hex_to_int(
             VALUE :logIndex :: STRING
         ) :: INT AS event_index,
-        VALUE :removed :: BOOLEAN AS event_removed,
+        COALESCE(VALUE :removed :: BOOLEAN, FALSE) AS event_removed,
         VALUE :topics AS topics,
         topics [0] :: STRING AS topic_0,
         topics [1] :: STRING AS topic_1,

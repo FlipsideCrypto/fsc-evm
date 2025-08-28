@@ -1,0 +1,108 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver','defi','lending','curated','silo']
+) }}
+
+WITH liquidations AS(
+
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS asset_address,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS depositor_address,
+        origin_from_address AS receiver_address,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS shareamountrepaid,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: INTEGER AS amount,
+        p.token_address AS silo_market,
+        p.protocol_collateral_token_address AS protocol_collateral_token,
+        p.protocol,
+        p.version,
+        p.platform,
+        CASE
+            WHEN shareamountrepaid > 0 THEN 'debt_token_event'
+            ELSE 'collateral_token_event'
+        END AS liquidation_event_type,
+        l.modified_timestamp,
+        CONCAT(
+            l.tx_hash :: STRING,
+            '-',
+            l.event_index :: STRING
+        ) AS _log_id
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+        INNER JOIN {{ ref('silver_lending__silo_pools') }}
+        p
+        ON l.contract_address = p.silo_address
+    WHERE
+        topics [0] :: STRING = '0xf3fa0eaee8f258c23b013654df25d1527f98a5c7ccd5e951dd77caca400ef972'
+        AND tx_succeeded
+
+{% if is_incremental() %}
+AND l.modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
+),
+debt_token_isolate AS (
+    SELECT
+        tx_hash,
+        asset_address,
+        liquidation_event_type
+    FROM
+        liquidations d
+    WHERE
+        liquidation_event_type = 'debt_token_event'
+)
+SELECT
+    d.tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    d.contract_address,
+    silo_market as protocol_market,
+    protocol_collateral_token,
+    depositor_address AS borrower,
+    receiver_address AS liquidator,
+    d.asset_address AS collateral_token,
+    amount AS liquidated_amount_unadj,
+    i.asset_address AS debt_token,
+    null as repaid_amount_unadj,
+    d.protocol,
+    d.version,
+    d.platform,
+    d._log_id,
+    d.modified_timestamp,
+    'Liquidate' AS event_name
+FROM
+    liquidations d
+    LEFT JOIN debt_token_isolate i
+    ON d.tx_hash = i.tx_hash
+WHERE
+    d.liquidation_event_type = 'collateral_token_event' qualify(ROW_NUMBER() over(PARTITION BY _log_id
+ORDER BY
+    d.modified_timestamp DESC)) = 1

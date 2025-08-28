@@ -77,8 +77,19 @@
                     'send_uln': '0x0bcac336466ef7f1e0b5c184aab2867c108331af'
                 }
             }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'colend': {
+                'v1': {
+                    'aave_v3_treasury': ['0x5a3e71b6d8e0ce3d568d3c9b089b6a31a3f43501','0xe88d2aebe73f15f2b7d5e4a77694a3fe74c7de74']
+                }
+            },
+            'summer_money': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x5c85a7ae2b6d29c38cdf360553f8acbc4e684c31'
+                }
+            }
         }
     } %}
-    
     {{ return(vars) }}
 {% endmacro %} 

@@ -269,6 +269,9 @@
   {# Curated DEX Variables #}
   {% set ns.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING = get_var('CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING', {}) %}
   {% set ns.CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID = get_var('CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID', 0) %}
+
+  {# Curated Lending Variables #}
+  {% set ns.CURATED_DEFI_LENDING_CONTRACT_MAPPING = get_var('CURATED_DEFI_LENDING_CONTRACT_MAPPING', {}) %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}

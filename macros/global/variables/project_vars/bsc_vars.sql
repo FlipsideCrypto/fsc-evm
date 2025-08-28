@@ -20,7 +20,7 @@
         'MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE': 4800,
         'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 600,
         'MAIN_SL_TRACES_REALTIME_ASYNC_CONCURRENT_REQUESTS': 50,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['level_finance-v1','woofi-v1','hashflow-v1','symbiosis-v1','trader_joe-v2'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['level_finance-v1','woofi-v1','hashflow-v1','symbiosis-v1','trader_joe-v2','symbiosis-v1','trader_joe-v2','radiant-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -221,7 +221,45 @@
                 }
             }
         },
-        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'bnb smart chain mainnet'
+        'CURATED_DEFI_BRIDGE_ALLBRIDGE_SOURCE_CHAIN': 'bnb smart chain mainnet',
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'venus': {
+                'v1': {
+                    'comp_v2_origin_from_address': ['0x1ca3ac3686071be692be7f1fbecd668641476d7e',
+                    '0x55a9f5374af30e3045fb491f1da3c2e8a74d168d']
+                }
+            },
+            'dforce': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x4375c89af5b4af46791b05810c4b795a0470207f'
+                }
+            },
+            'radiant': {
+                'v2': {
+                    'aave_version_address': '0xd50cf00b6e600dd036ba8ef475677d816d6c4281'
+                }
+            },
+            'aave': {
+                'v3': {
+                    'aave_version_address': '0x6807dc923806fe8fd134338eabca509979a7e0cb'
+                }
+            },
+            'kinza': {
+                'v1': {
+                    'aave_version_address': '0xcb0620b181140e57d1c0d8b724cde623ca963c8c'
+                }
+            },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0x7f53e2755eb3c43824e162f7f6f087832b9c9df6'
+                }
+            },
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0x01b0bd309aa75547f7a37ad7b1219a898e67a83a'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

@@ -16,23 +16,22 @@
     tags = ['gold','balances','phase_4','heal']
 ) }}
 
-WITH state_tracer_realtime AS (
+WITH state_storage_realtime AS (
 
     SELECT
         block_number,
         tx_position,
         tx_hash,
-        pre_state_json,
-        post_state_json,
-        address,
-        pre_storage,
-        post_storage
+        t.contract_address,
+        storage_key,
+        pre_storage_hex,
+        post_storage_hex
     FROM
-        {{ ref('silver__state_tracer') }}
+        {{ ref('silver__state_tracer_storage') }}
         t
         INNER JOIN {{ ref('silver__balance_slots') }}
         v --limits balances to verified assets only
-        ON t.address = v.contract_address
+        ON t.contract_address = v.contract_address
     WHERE
         slot_number IS NOT NULL
         AND num_slots = 1 --only include contracts with a single balanceOf slot
@@ -57,101 +56,32 @@ new_contracts AS (
     AND slot_number IS NOT NULL
     AND num_slots = 1
 ),
-state_tracer_history AS (
+state_storage_history AS (
 
     SELECT
         block_number,
         tx_position,
         tx_hash,
-        pre_state_json,
-        post_state_json,
-        address,
-        pre_storage,
-        post_storage
+        t.contract_address,
+        storage_key,
+        pre_storage_hex,
+        post_storage_hex
     FROM
-        {{ ref('silver__state_tracer') }}
+        {{ ref('silver__state_tracer_storage') }}
         t
         INNER JOIN new_contracts
         v --limits balances to verified assets only
-        ON t.address = v.contract_address
+        ON t.contract_address = v.contract_address
 ),
 {% endif %}
-state_tracer AS (
+state_storage AS (
     SELECT *
-    FROM state_tracer_realtime
+    FROM state_storage_realtime
 {% if is_incremental() and var('HEAL_MODEL',false) %}
     UNION
     SELECT *
-    FROM state_tracer_history
+    FROM state_storage_history
 {% endif %}
-),
-pre_state_storage AS (
-    SELECT
-        block_number,
-        tx_position,
-        tx_hash,
-        pre_state_json,
-        address,
-        pre_storage,
-        pre.key :: STRING AS storage_key,
-        pre.value :: STRING AS pre_storage_value_hex
-    FROM
-        state_tracer,
-        LATERAL FLATTEN(
-            input => pre_storage
-        ) pre
-),
-post_state_storage AS (
-    SELECT
-        block_number,
-        tx_position,
-        tx_hash,
-        post_state_json,
-        address,
-        post_storage,
-        post.key :: STRING AS storage_key,
-        post.value :: STRING AS post_storage_value_hex
-    FROM
-        state_tracer,
-        LATERAL FLATTEN(
-            input => post_storage
-        ) post
-),
-state_storage AS (
-    SELECT
-        block_number,
-        COALESCE(
-            pre.tx_position,
-            post.tx_position
-        ) AS tx_position,
-        COALESCE(
-            pre.tx_hash,
-            post.tx_hash
-        ) AS tx_hash,
-        COALESCE(
-            pre.address,
-            post.address
-        ) AS contract_address,
-        COALESCE(
-            pre.storage_key,
-            post.storage_key
-        ) AS storage_key,
-        COALESCE(
-            pre_storage_value_hex,
-            '0x0000000000000000000000000000000000000000000000000000000000000000'
-        ) AS pre_storage_hex,
-        COALESCE(
-            post_storage_value_hex,
-            '0x0000000000000000000000000000000000000000000000000000000000000000'
-        ) AS post_storage_hex
-    FROM
-        pre_state_storage pre full
-        OUTER JOIN post_state_storage post USING (
-            block_number,
-            tx_position,
-            address,
-            storage_key
-        )
 ),
 balances AS (
     SELECT
@@ -363,4 +293,6 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    FINAL
+    FINAL qualify(ROW_NUMBER() over (PARTITION BY block_number, tx_position, address, contract_address
+ORDER BY
+    modified_timestamp DESC)) = 1

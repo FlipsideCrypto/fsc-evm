@@ -1,0 +1,109 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['silver','defi','lending','curated','comp_v3']
+) }}
+
+WITH comp_assets AS (
+
+    SELECT
+        compound_market_address,
+        compound_market_name,
+        compound_market_symbol,
+        compound_market_decimals,
+        underlying_asset_address,
+        underlying_asset_name,
+        protocol,
+        version,
+        platform
+    FROM
+        {{ ref('silver_lending__comp_v3_asset_details') }}
+),
+repayments AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        l.contract_address,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
+        l.contract_address AS asset,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS repayer,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS borrower,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS amount,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: INTEGER AS usd_value,
+        origin_from_address AS depositor,
+        compound_market_name,
+        compound_market_symbol,
+        compound_market_decimals,
+        C.underlying_asset_address AS underlying_asset,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        l.modified_timestamp
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+        LEFT JOIN comp_assets C
+        ON contract_address = C.compound_market_address
+    WHERE
+        topics [0] = '0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e' --Supply
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
+        AND tx_succeeded
+
+{% if is_incremental() %}
+AND l.modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
+)
+SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    w.asset AS protocol_market,
+    repayer as payer,
+    borrower,
+    depositor,
+    underlying_asset AS token_address,
+    amount AS amount_unadj,
+    A.protocol,
+    A.version,
+    A.platform,
+    _log_id,
+    modified_timestamp,
+    'Supply' AS event_name
+FROM
+    repayments w
+    LEFT JOIN comp_assets A
+    ON w.asset = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY w._log_id
+ORDER BY
+    w.modified_timestamp DESC)) = 1
