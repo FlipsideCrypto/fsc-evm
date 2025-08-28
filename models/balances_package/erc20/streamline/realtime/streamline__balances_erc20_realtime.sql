@@ -10,7 +10,7 @@
     tags = ['streamline','balances','realtime','erc20','phase_4']
 ) }}
 
-WITH last_3_days AS (
+WITH last_2_days AS (
 
     SELECT
         block_number
@@ -19,7 +19,18 @@ WITH last_3_days AS (
         qualify ROW_NUMBER() over (
             ORDER BY
                 block_number DESC
-        ) = 3
+        ) = 2
+),
+last_1_day AS (
+
+    SELECT
+        block_number
+    FROM
+        {{ ref("_max_block_by_date") }}
+        qualify ROW_NUMBER() over (
+            ORDER BY
+                block_number DESC
+        ) = 1 --max block from yesterday
 ),
 verified_contracts AS (
     SELECT
@@ -51,11 +62,17 @@ logs AS (
                 AND l.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             )
         )
-        AND block_number >= (
+        AND block_number > (
             SELECT
                 block_number
             FROM
-                last_3_days
+                last_2_days
+        )
+        AND block_number <= (
+            SELECT
+                block_number
+            FROM
+                last_1_day
         )
         AND block_timestamp :: DATE >= DATEADD(
             'day',
@@ -71,7 +88,6 @@ logs AS (
 ),
 transfers AS (
     SELECT
-        DISTINCT block_number,
         contract_address,
         address1 AS address
     FROM
@@ -81,7 +97,6 @@ transfers AS (
         AND address1 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
-        DISTINCT block_number,
         contract_address,
         address2 AS address
     FROM
@@ -96,7 +111,8 @@ to_do AS (
         address,
         contract_address
     FROM
-        transfers
+        transfers t
+    CROSS JOIN last_1_day d 
     WHERE
         block_number IS NOT NULL
     EXCEPT
@@ -111,7 +127,7 @@ to_do AS (
             SELECT
                 block_number
             FROM
-                last_3_days
+                last_2_days
         )
         AND block_number IS NOT NULL
         AND _inserted_timestamp :: DATE >= DATEADD(
