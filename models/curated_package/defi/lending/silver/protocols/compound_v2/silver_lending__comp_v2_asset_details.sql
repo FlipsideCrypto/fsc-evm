@@ -148,9 +148,8 @@ underlying_details AS (
     FROM
         log_pull l
         LEFT JOIN traces_pull t
-        ON l.contract_address = t.token_address qualify(ROW_NUMBER() over(PARTITION BY l.contract_address
-    ORDER BY
-        t.modified_timestamp ASC)) = 1
+        ON l.contract_address = t.token_address
+        AND l.tx_hash = t.tx_hash 
 ),
 final AS (
     SELECT  
@@ -214,5 +213,6 @@ SELECT
     _log_id
 FROM
     final
-WHERE 
-    token_name is not null
+        qualify(ROW_NUMBER() over(PARTITION BY token_address
+    ORDER BY
+        CASE WHEN underlying_symbol IS NOT NULL THEN 0 ELSE 1 END ASC,block_number ASC)) = 1
