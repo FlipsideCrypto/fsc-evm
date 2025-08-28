@@ -5,7 +5,7 @@
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
--- depends_on: {{ ref('bronze__erc20_balances') }}
+-- depends_on: {{ ref('bronze__balances_erc20') }}
 
 {{ config (
     materialized = "incremental",
