@@ -19,7 +19,7 @@ WITH last_2_days AS (
         qualify ROW_NUMBER() over (
             ORDER BY
                 block_number DESC
-        ) = 2
+        ) = 2 --max block from 2 days ago
 ),
 last_1_day AS (
 
@@ -73,7 +73,8 @@ logs AS (
                 block_number
             FROM
                 last_1_day
-        )
+        ) 
+        --only include events from yesterday
         AND block_timestamp :: DATE >= DATEADD(
             'day',
             -5,
@@ -88,7 +89,7 @@ logs AS (
 ),
 transfers AS (
     SELECT
-        contract_address,
+        DISTINCT contract_address,
         address1 AS address
     FROM
         logs
@@ -97,7 +98,7 @@ transfers AS (
         AND address1 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
-        contract_address,
+        DISTINCT contract_address,
         address2 AS address
     FROM
         logs
@@ -113,6 +114,7 @@ to_do AS (
     FROM
         transfers t
     CROSS JOIN last_1_day d 
+    --max daily block_number, for each contract_address/address pair
     WHERE
         block_number IS NOT NULL
     EXCEPT
