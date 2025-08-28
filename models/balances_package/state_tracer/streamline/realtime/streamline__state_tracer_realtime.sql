@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','realtime','phase_4']
+    tags = ['streamline','balances','realtime','state_tracer','phase_4']
 ) }}
 
 {# Main query starts here #}
