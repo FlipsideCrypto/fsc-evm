@@ -19,8 +19,7 @@ WITH last_x_days AS (
         qualify ROW_NUMBER() over (
             ORDER BY
                 block_number DESC
-        ) BETWEEN 2
-        AND 90 --from 90 days ago to 2 days ago
+        ) BETWEEN 2 AND 91 --from 90 days ago to 2 days ago
 ),
 verified_contracts AS (
     SELECT
@@ -52,7 +51,7 @@ logs AS (
                 AND l.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             )
         )
-        AND block_number > (
+        AND block_number >= (
             SELECT MIN(block_number)
             FROM last_x_days
         )
@@ -61,11 +60,6 @@ logs AS (
             FROM last_x_days
         )
         --only include events between selected period
-        AND block_timestamp :: DATE >= DATEADD(
-            'day',
-            -5,
-            CURRENT_TIMESTAMP
-        )
         AND l.contract_address IN (
             SELECT
                 token_address

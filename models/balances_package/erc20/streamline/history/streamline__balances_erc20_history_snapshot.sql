@@ -19,7 +19,7 @@ WITH last_x_days AS (
         qualify ROW_NUMBER() over (
             ORDER BY
                 block_number DESC
-        ) = 91 --from 91 days ago
+        ) = 92 --from 92 days ago
 ),
 verified_contracts AS (
     SELECT
@@ -89,7 +89,8 @@ to_do AS (
         contract_address
     FROM
         transfers t
-    CROSS JOIN last_x_days d --max daily block_number during the selected period, for each contract_address/address pair
+    CROSS JOIN last_x_days d 
+    --max daily block_number during the selected period, for each contract_address/address pair
     WHERE
         block_number IS NOT NULL
     EXCEPT

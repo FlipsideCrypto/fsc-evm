@@ -19,8 +19,7 @@ WITH last_x_days AS (
         qualify ROW_NUMBER() over (
             ORDER BY
                 block_number DESC
-        ) BETWEEN 1
-        AND 2 --from 2 days ago to yesterday
+        ) = 1 --from 1 day ago
 ),
 verified_contracts AS (
     SELECT
@@ -52,15 +51,11 @@ logs AS (
                 AND l.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             )
         )
-        AND block_number > (
-            SELECT MIN(block_number)
-            FROM last_x_days
-        )
-        AND block_number <= (
-            SELECT MAX(block_number)
+        AND block_number = (
+            SELECT block_number
             FROM last_x_days
         ) 
-        --only include events from yesterday
+        --only include events from 1 day ago
         AND block_timestamp :: DATE >= DATEADD(
             'day',
             -5,
@@ -101,10 +96,11 @@ to_do AS (
         transfers t
         CROSS JOIN (
             SELECT
-                MAX(block_number) AS block_number
+                block_number
             FROM
                 last_x_days
-        ) d --max daily block_number from yesterday, for each contract_address/address pair
+        ) d 
+        --max daily block_number during the selected period, for each contract_address/address pair
     WHERE
         block_number IS NOT NULL
     EXCEPT
@@ -115,8 +111,8 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_erc20_complete") }}
     WHERE
-        block_number >= (
-            SELECT MIN(block_number)
+        block_number = (
+            SELECT block_number
             FROM last_x_days
         )
         AND block_number IS NOT NULL
