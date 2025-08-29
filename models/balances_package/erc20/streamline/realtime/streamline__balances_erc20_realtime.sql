@@ -183,12 +183,12 @@ LIMIT {{ vars.BALANCES_SL_ERC20_REALTIME_SQL_LIMIT }}
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
-        "external_table": 'erc20_balances_realtime',
+        "external_table": 'balances_erc20_realtime',
         "sql_limit": vars.BALANCES_SL_ERC20_REALTIME_SQL_LIMIT,
         "producer_batch_size": vars.BALANCES_SL_ERC20_REALTIME_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_ERC20_REALTIME_WORKER_BATCH_SIZE,
         "async_concurrent_requests": vars.BALANCES_SL_ERC20_REALTIME_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'erc20_balances_realtime'
+        "sql_source": 'balances_erc20_realtime'
     } %}
 
     {% set function_call_sql %}

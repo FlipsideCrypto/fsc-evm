@@ -4,10 +4,11 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze','balances','phase_4']
+    tags = ['bronze','balances','erc20','phase_4']
 ) }}
 
 {# Main query starts here #}
 {{ streamline_external_table_query_fr(
-    source_name = 'balances_erc20'
+    source_name = 'balances_erc20',
+    contract_address = true
 ) }}

@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','realtime','erc20','phase_4']
+    tags = ['streamline','balances','history','erc20','phase_4']
 ) }}
 
 WITH last_x_days AS (
@@ -171,12 +171,12 @@ LIMIT {{ vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT }}
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
-        "external_table": 'erc20_balances_history',
+        "external_table": 'balances_erc20_history',
         "sql_limit": vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT,
         "producer_batch_size": vars.BALANCES_SL_ERC20_HISTORY_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_ERC20_HISTORY_WORKER_BATCH_SIZE,
         "async_concurrent_requests": vars.BALANCES_SL_ERC20_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'erc20_balances_history'
+        "sql_source": 'balances_erc20_history'
     } %}
 
     {% set function_call_sql %}

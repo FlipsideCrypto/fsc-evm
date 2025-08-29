@@ -33,10 +33,6 @@ sources:
       - name: decoded_traces_v2
       - name: contract_abis
       - name: contract_abis_v2
-      - name: eth_balances
-      - name: eth_balances_v2
-      - name: token_balances
-      - name: token_balances_v2
       - name: beacon_blocks
       - name: beacon_blocks_v2
       - name: beacon_validators
@@ -45,6 +41,8 @@ sources:
       - name: reads_v2
       - name: state_tracer
       - name: token_reads
+      - name: balances_erc20
+      - name: balances_native
   - name: complete_streamline
     database: "{{ target.database }}"
     schema: streamline

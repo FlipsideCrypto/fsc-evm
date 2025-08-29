@@ -5,7 +5,7 @@
 {{ log_model_details() }}
 
 {# Set up dbt configuration #}
--- depends_on: {{ ref('bronze__balances_erc20') }}
+-- depends_on: {{ ref('bronze__balances_native') }}
 
 {{ config (
     materialized = "incremental",
@@ -13,23 +13,22 @@
     cluster_by = "ROUND(block_number, -3)",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(block_number)",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline','balances','complete','erc20','phase_4']
+    tags = ['streamline','balances','complete','native','phase_4']
 ) }}
 
 {# Main query starts here #}
 SELECT
     block_number,
     VALUE :"ADDRESS" :: STRING AS address,
-    VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
     file_name,
-    {{ dbt_utils.generate_surrogate_key(['block_number', 'address', 'contract_address']) }} AS complete_balances_erc20_id,
+    {{ dbt_utils.generate_surrogate_key(['block_number', 'address']) }} AS complete_balances_native_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     {% if is_incremental() %}
-        {{ ref('bronze__balances_erc20') }}
+        {{ ref('bronze__balances_native') }}
     WHERE
         _inserted_timestamp >= (
             SELECT
@@ -38,7 +37,7 @@ FROM
                 {{ this }}
         )
     {% else %}
-        {{ ref('bronze__balances_erc20_fr') }}
+        {{ ref('bronze__balances_native_fr') }}
     {% endif %}
 
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY complete_balances_erc20_id ORDER BY _inserted_timestamp DESC)) = 1
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY complete_balances_native_id ORDER BY _inserted_timestamp DESC)) = 1
