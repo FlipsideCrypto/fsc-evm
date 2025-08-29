@@ -18,9 +18,9 @@
 
 {# Main query starts here #}
 SELECT
-    block_number,
+    VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
+    VALUE :"BLOCK_TIMESTAMP" :: TIMESTAMP AS block_timestamp,
     VALUE :"ADDRESS" :: STRING AS address,
-    file_name,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'address']) }} AS complete_balances_native_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

@@ -13,7 +13,8 @@
 WITH last_x_days AS (
 
     SELECT
-        block_number
+        block_number,
+        block_timestamp
     FROM
         {{ ref("_max_block_by_date") }}
         qualify ROW_NUMBER() over (
@@ -94,13 +95,15 @@ transfers AS (
 to_do AS (
     SELECT
         block_number,
+        block_timestamp,
         address,
         contract_address
     FROM
         transfers t
         CROSS JOIN (
             SELECT
-                MAX(block_number) AS block_number
+                MAX(block_number) AS block_number,
+                MAX(block_timestamp) AS block_timestamp
             FROM
                 last_x_days
         ) d --max daily block_number from 1 day ago, for each contract_address/address pair
@@ -109,6 +112,7 @@ to_do AS (
     EXCEPT
     SELECT
         block_number,
+        block_timestamp,
         address,
         contract_address
     FROM
@@ -127,6 +131,7 @@ to_do AS (
 )
 SELECT
     block_number,
+    block_timestamp,
     address,
     contract_address,
     ROUND(

@@ -13,7 +13,8 @@
 WITH last_x_days AS (
 
     SELECT
-        block_number
+        block_number,
+        block_timestamp
     FROM
         {{ ref("_max_block_by_date") }}
         qualify ROW_NUMBER() over (
@@ -89,6 +90,7 @@ transfers AS (
 to_do AS (
     SELECT
         block_number,
+        block_timestamp,
         address,
         contract_address
     FROM
@@ -100,6 +102,7 @@ to_do AS (
     EXCEPT
     SELECT
         block_number,
+        block_timestamp,
         address,
         contract_address
     FROM
@@ -115,6 +118,7 @@ to_do AS (
 )
 SELECT
     block_number,
+    block_timestamp,
     address,
     contract_address,
     ROUND(

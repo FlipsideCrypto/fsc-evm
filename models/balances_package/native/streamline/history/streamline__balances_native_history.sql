@@ -13,7 +13,8 @@
 WITH last_x_days AS (
 
     SELECT
-        block_number
+        block_number,
+        block_timestamp
     FROM
         {{ ref("_max_block_by_date") }}
         qualify ROW_NUMBER() over (
@@ -86,6 +87,7 @@ native_transfers AS (
 to_do AS (
     SELECT
         block_number,
+        block_timestamp,
         address
     FROM
         native_transfers t
@@ -96,6 +98,7 @@ to_do AS (
     EXCEPT
     SELECT
         block_number,
+        block_timestamp,
         address
     FROM
         {{ ref("streamline__balances_native_complete") }}
@@ -110,6 +113,7 @@ to_do AS (
 )
 SELECT
     block_number,
+    block_timestamp,
     address,
     ROUND(
         block_number,
