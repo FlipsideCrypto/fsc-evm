@@ -114,8 +114,8 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_erc20_complete") }}
     WHERE
-        block_number >= (
-            SELECT MIN(block_number)
+        block_number = (
+            SELECT MAX(block_number)
             FROM last_x_days
         )
         AND block_number IS NOT NULL

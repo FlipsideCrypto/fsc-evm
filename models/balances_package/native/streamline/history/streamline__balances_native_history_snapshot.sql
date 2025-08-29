@@ -49,10 +49,6 @@ tx_fees AS (
     WHERE
         tx_fee > 0
         AND from_address <> '0x0000000000000000000000000000000000000000'
-        AND block_number >= (
-            SELECT MIN(block_number)
-            FROM last_x_days
-        )
         AND block_number <= (
             SELECT block_number
             FROM last_x_days
@@ -96,7 +92,7 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_native_complete") }}
     WHERE
-        block_number  <= (
+        block_number <= (
             SELECT block_number
             FROM last_x_days
         )
