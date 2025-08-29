@@ -65,24 +65,21 @@ tx_fees AS (
 ),
 native_transfers AS (
     SELECT
-        block_number,
-        address1 AS address
+        DISTINCT address1 AS address
     FROM
         traces
     WHERE
         address1 <> '0x0000000000000000000000000000000000000000'
-    UNION ALL
+    UNION
     SELECT
-        block_number,
-        address2 AS address
+        DISTINCT address2 AS address
     FROM
         traces
     WHERE
         address2 <> '0x0000000000000000000000000000000000000000'
     UNION ALL
     SELECT
-        block_number,
-        address
+        DISTINCT address
     FROM
         tx_fees
 ),
