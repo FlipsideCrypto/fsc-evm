@@ -176,8 +176,9 @@ SELECT
     ) AS request
 FROM
     to_do
-ORDER BY
-    partition_key DESC
+ORDER BY partition_key DESC, block_number DESC
+
+LIMIT {{ vars.BALANCES_SL_ERC20_REALTIME_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
