@@ -213,6 +213,8 @@ SELECT
     _log_id
 FROM
     final
+WHERE 
+    token_name is not null or protocol <> 'dforce'
         qualify(ROW_NUMBER() over(PARTITION BY token_address
     ORDER BY
         CASE WHEN underlying_symbol IS NOT NULL THEN 1 ELSE 0 END DESC,
