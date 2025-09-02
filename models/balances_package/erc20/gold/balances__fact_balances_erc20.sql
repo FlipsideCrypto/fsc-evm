@@ -48,7 +48,7 @@ WHERE
         FROM
             {{ this }}
     )
-    AND DATA :result :: STRING <> '0x' --double check this
+    AND DATA :result :: STRING <> '0x'
 {% else %}
     {{ ref('bronze__balances_erc20_fr') }}
 WHERE
