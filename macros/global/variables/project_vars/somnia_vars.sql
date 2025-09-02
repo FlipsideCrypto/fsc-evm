@@ -28,7 +28,7 @@
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': '',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'somnia',
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'somnia',
-        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': '',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://mainnet.somnia.w3us.site/api/v2/smart-contracts/',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *'
     } %}
