@@ -47,7 +47,7 @@ traces AS (
         AND block_timestamp :: DATE >= DATEADD(
             'day',
             -5,
-            CURRENT_TIMESTAMP
+            SYSDATE()
         )
 ),
 tx_fees AS (
@@ -71,7 +71,7 @@ tx_fees AS (
         AND block_timestamp :: DATE >= DATEADD(
             'day',
             -5,
-            CURRENT_TIMESTAMP
+            SYSDATE()
         )
 ),
 native_transfers AS (
@@ -126,7 +126,7 @@ to_do AS (
         AND _inserted_timestamp :: DATE >= DATEADD(
             'day',
             -7,
-            CURRENT_TIMESTAMP
+            SYSDATE()
         )
 )
 SELECT

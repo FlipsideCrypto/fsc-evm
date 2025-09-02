@@ -64,7 +64,7 @@ logs AS (
         AND block_timestamp :: DATE >= DATEADD(
             'day',
             -5,
-            CURRENT_TIMESTAMP
+            SYSDATE()
         )
         AND l.contract_address IN (
             SELECT
@@ -126,7 +126,7 @@ to_do AS (
         AND _inserted_timestamp :: DATE >= DATEADD(
             'day',
             -7,
-            CURRENT_TIMESTAMP
+            SYSDATE()
         )
 )
 SELECT
