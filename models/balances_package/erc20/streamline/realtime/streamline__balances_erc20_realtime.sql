@@ -188,7 +188,7 @@ LIMIT {{ vars.BALANCES_SL_ERC20_REALTIME_SQL_LIMIT }}
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
-        "external_table": 'balances_erc20_realtime',
+        "external_table": 'balances_erc20',
         "sql_limit": vars.BALANCES_SL_ERC20_REALTIME_SQL_LIMIT,
         "producer_batch_size": vars.BALANCES_SL_ERC20_REALTIME_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_ERC20_REALTIME_WORKER_BATCH_SIZE,

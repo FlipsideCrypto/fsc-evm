@@ -152,7 +152,7 @@ LIMIT {{ vars.BALANCES_SL_NATIVE_HISTORY_SQL_LIMIT }}
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
-        "external_table": 'native_balances_history',
+        "external_table": 'balances_native',
         "sql_limit": vars.BALANCES_SL_NATIVE_HISTORY_SQL_LIMIT,
         "producer_batch_size": vars.BALANCES_SL_NATIVE_HISTORY_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_NATIVE_HISTORY_WORKER_BATCH_SIZE,

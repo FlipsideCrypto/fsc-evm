@@ -175,7 +175,7 @@ LIMIT {{ vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT }}
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
-        "external_table": 'balances_erc20_history',
+        "external_table": 'balances_erc20',
         "sql_limit": vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT,
         "producer_batch_size": vars.BALANCES_SL_ERC20_HISTORY_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_ERC20_HISTORY_WORKER_BATCH_SIZE,
