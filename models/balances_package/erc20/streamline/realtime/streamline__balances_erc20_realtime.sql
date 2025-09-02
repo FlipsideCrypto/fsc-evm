@@ -142,23 +142,40 @@ SELECT
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
-            'Content-Type', 'application/json',
-            'fsc-quantum-state', 'streamline'
+            'Content-Type',
+            'application/json',
+            'fsc-quantum-state',
+            'streamline'
         ),
         OBJECT_CONSTRUCT(
-            'method', 'eth_call',
-            'jsonrpc', '2.0',
-            'params', [
-                {
-                    'to': contract_address,
-                    'data': CONCAT(
+            'id',
+            CONCAT(
+                contract_address,
+                '-',
+                address,
+                '-',
+                block_number
+            ),
+            'jsonrpc',
+            '2.0',
+            'method',
+            'eth_call',
+            'params',
+            ARRAY_CONSTRUCT(
+                OBJECT_CONSTRUCT(
+                    'to',
+                    contract_address,
+                    'data',
+                    CONCAT(
                         '0x70a08231000000000000000000000000',
-                        SUBSTR(address, 3)
+                        SUBSTR(
+                            address,
+                            3
+                        )
                     )
-                },
+                ),
                 utils.udf_int_to_hex(block_number)
-            ],
-            'id', concat_ws('-', contract_address, address, block_number)
+            )
         ),
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
