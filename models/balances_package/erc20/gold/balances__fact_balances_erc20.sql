@@ -1,3 +1,9 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
 -- depends on: {{ ref('bronze__balances_erc20') }}
 {{ config(
     materialized = 'incremental',
@@ -6,6 +12,7 @@
     incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     merge_exclude_columns = ["inserted_timestamp"],
+    full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold','balances','erc20','phase_4']
 ) }}
 
