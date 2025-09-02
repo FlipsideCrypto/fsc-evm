@@ -131,34 +131,25 @@ to_do AS (
 )
 SELECT
     block_number,
-    block_timestamp,
+    DATE_PART('EPOCH_SECONDS', block_timestamp) :: INT AS block_timestamp_unix,
     address,
     ROUND(
         block_number,
         -3
     ) AS partition_key,
-    {{ target.database }}.live.udf_api(
+    live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
-            'Content-Type',
-            'application/json',
-            'fsc-quantum-state',
-            'streamline'
+            'Content-Type', 'application/json',
+            'fsc-quantum-state', 'streamline'
         ),
         OBJECT_CONSTRUCT(
-            'id',
-            CONCAT(
-                address,
-                '-',
-                block_number
-            ),
-            'jsonrpc',
-            '2.0',
-            'method',
-            'eth_getBalance',
-            'params',
-            ARRAY_CONSTRUCT(address, utils.udf_int_to_hex(block_number))),
+            'method', 'eth_getBalance',
+            'jsonrpc', '2.0',
+            'params', [address, utils.udf_int_to_hex(block_number)],
+            'id', concat_ws('-', address, block_number)
+        ),
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
