@@ -18,7 +18,7 @@
 
 SELECT
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-    VALUE :"BLOCK_TIMESTAMP" :: TIMESTAMP AS block_timestamp,
+    VALUE :"BLOCK_TIMESTAMP_UNIX" :: TIMESTAMP AS block_timestamp,
     VALUE :"ADDRESS" :: STRING AS address,
     TRY_TO_NUMBER(
         utils.udf_hex_to_int(
