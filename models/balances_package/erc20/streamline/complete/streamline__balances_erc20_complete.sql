@@ -19,7 +19,7 @@
 {# Main query starts here #}
 SELECT
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-    VALUE :"BLOCK_TIMESTAMP" :: TIMESTAMP AS block_timestamp,
+    VALUE :"BLOCK_DATE_UNIX" :: DATE AS block_date,
     VALUE :"ADDRESS" :: STRING AS address,
     VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'address', 'contract_address']) }} AS complete_balances_erc20_id,

@@ -14,7 +14,7 @@ WITH last_x_days AS (
 
     SELECT
         block_number,
-        block_timestamp
+        block_date
     FROM
         {{ ref("_max_block_by_date") }}
     WHERE block_number = vars.BALANCES_SL_START_BLOCK
@@ -30,23 +30,24 @@ verified_contracts AS (
 ),
 logs AS (
     SELECT
-        l.block_number,
-        l.contract_address,
-        CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 42)) AS address1,
-        CONCAT('0x', SUBSTR(l.topics [2] :: STRING, 27, 42)) AS address2
+        block_number,
+        block_timestamp,
+        contract_address,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 42)) AS address1,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 42)) AS address2
     FROM
         {{ ref('core__fact_event_logs') }}
         l
     WHERE
         (
-            l.topics [0] :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+            topics [0] :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
             OR (
-                l.topics [0] :: STRING = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'
-                AND l.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+                topics [0] :: STRING = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'
+                AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             )
             OR (
-                l.topics [0] :: STRING = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c'
-                AND l.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+                topics [0] :: STRING = '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c'
+                AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             )
         )
         AND block_number <= (
@@ -54,7 +55,7 @@ logs AS (
             FROM last_x_days
         )
         --only include events before the selected period
-        AND l.contract_address IN (
+        AND contract_address IN (
             SELECT
                 token_address
             FROM
@@ -63,7 +64,10 @@ logs AS (
 ),
 transfers AS (
     SELECT
-        DISTINCT contract_address,
+        DISTINCT 
+        block_number,
+        block_timestamp,
+        contract_address,
         address1 AS address
     FROM
         logs
@@ -72,7 +76,10 @@ transfers AS (
         AND address1 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
-        DISTINCT contract_address,
+        DISTINCT 
+        block_number,
+        block_timestamp,
+        contract_address,
         address2 AS address
     FROM
         logs
@@ -82,20 +89,21 @@ transfers AS (
 ),
 to_do AS (
     SELECT
-        block_number,
-        block_timestamp,
-        address,
-        contract_address
+        DISTINCT
+        d.block_number,
+        d.block_date,
+        t.address,
+        t.contract_address
     FROM
         transfers t
     CROSS JOIN last_x_days d 
     --max daily block_number during the selected period, for each contract_address/address pair
     WHERE
-        block_number IS NOT NULL
+        t.block_number IS NOT NULL
     EXCEPT
     SELECT
         block_number,
-        block_timestamp,
+        block_date,
         address,
         contract_address
     FROM
@@ -109,14 +117,14 @@ to_do AS (
 )
 SELECT
     block_number,
-    block_timestamp,
+    DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
     address,
     contract_address,
     ROUND(
         block_number,
         -3
     ) AS partition_key,
-    {{ target.database }}.live.udf_api(
+    live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(

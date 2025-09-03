@@ -9,7 +9,6 @@
 WITH base AS (
     SELECT
         block_timestamp :: DATE AS block_date,
-        MAX(block_timestamp) AS block_timestamp,
         MAX(block_number) AS block_number
     FROM
         {{ ref("core__fact_blocks") }}
@@ -17,7 +16,6 @@ WITH base AS (
         block_timestamp :: DATE
 )
 SELECT
-    block_timestamp,
     block_date,
     block_number
 FROM

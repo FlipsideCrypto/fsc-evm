@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'fact_balances_erc20_daily_id',
-    cluster_by = ['block_timestamp::date','_inserted_timestamp::date'],
+    cluster_by = ['block_date','_inserted_timestamp::date'],
     incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     merge_exclude_columns = ["inserted_timestamp"],
@@ -18,7 +18,7 @@
 
 SELECT
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-    VALUE :"BLOCK_TIMESTAMP_UNIX" :: TIMESTAMP AS block_timestamp,
+    VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP AS block_date,
     VALUE :"ADDRESS" :: STRING AS address,
     VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
     TRY_TO_NUMBER(

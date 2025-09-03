@@ -14,7 +14,7 @@ WITH last_x_days AS (
 
     SELECT
         block_number,
-        block_timestamp
+        block_date
     FROM
         {{ ref("_max_block_by_date") }}
         qualify ROW_NUMBER() over (
@@ -25,6 +25,7 @@ WITH last_x_days AS (
 traces AS (
     SELECT
         block_number,
+        block_timestamp,
         from_address AS address1,
         to_address AS address2
     FROM
@@ -53,6 +54,7 @@ traces AS (
 tx_fees AS (
     SELECT
         block_number,
+        block_timestamp,
         from_address AS address
     FROM
         {{ ref('core__fact_transactions') }}
@@ -76,44 +78,54 @@ tx_fees AS (
 ),
 native_transfers AS (
     SELECT
-        DISTINCT address1 AS address
+        DISTINCT 
+        block_number,
+        block_timestamp,
+        address1 AS address
     FROM
         traces
     WHERE
         address1 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
-        DISTINCT address2 AS address
+        DISTINCT 
+        block_number,
+        block_timestamp,
+        address2 AS address
     FROM
         traces
     WHERE
         address2 <> '0x0000000000000000000000000000000000000000'
     UNION ALL
     SELECT
-        DISTINCT address
+        DISTINCT 
+        block_number,
+        block_timestamp,
+        address
     FROM
         tx_fees
 ),
 to_do AS (
     SELECT
-        block_number,
-        block_timestamp,
-        address
+        DISTINCT
+        d.block_number,
+        d.block_date,
+        t.address
     FROM
         native_transfers t
-        CROSS JOIN (
-            SELECT
-                MAX(block_number) AS block_number,
-                MAX(block_timestamp) AS block_timestamp
-            FROM
-                last_x_days
-        ) d --max daily block_number from 1 day ago, for each address
+        INNER JOIN last_x_days d 
+            ON t.block_timestamp :: DATE = d.block_date
+        --max daily block_number from 1 day ago, for each address
     WHERE
-        block_number IS NOT NULL
+        t.block_number IS NOT NULL
+        AND d.block_number = (
+            SELECT MAX(block_number)
+            FROM last_x_days
+        )
     EXCEPT
     SELECT
         block_number,
-        block_timestamp,
+        block_date,
         address
     FROM
         {{ ref("streamline__balances_native_complete") }}
@@ -131,7 +143,7 @@ to_do AS (
 )
 SELECT
     block_number,
-    DATE_PART('EPOCH_SECONDS', block_timestamp) :: INT AS block_timestamp_unix,
+    DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
     address,
     ROUND(
         block_number,
