@@ -17,10 +17,7 @@ WITH last_x_days AS (
         block_timestamp
     FROM
         {{ ref("_max_block_by_date") }}
-        qualify ROW_NUMBER() over (
-            ORDER BY
-                block_number DESC
-        ) = 92 --from 92 days ago
+    WHERE block_number = vars.BALANCES_SL_START_BLOCK
 ),
 verified_contracts AS (
     SELECT
