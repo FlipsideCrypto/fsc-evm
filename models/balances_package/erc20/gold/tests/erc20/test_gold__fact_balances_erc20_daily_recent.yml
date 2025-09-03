@@ -1,10 +1,10 @@
 version: 2
 models:
-  - name: test_gold__fact_balances_erc20_full
+  - name: test_gold__fact_balances_erc20_daily_recent
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - FACT_BALANCES_ERC20_ID
+            - FACT_BALANCES_ERC20_DAILY_ID
       
     columns:
       - name: BLOCK_TIMESTAMP
@@ -29,6 +29,6 @@ models:
               column_type_list:
                 - NUMBER
                 - FLOAT        
-      - name: FACT_BALANCES_ERC20_ID
+      - name: FACT_BALANCES_ERC20_DAILY_ID
         tests:
           - not_null

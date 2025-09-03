@@ -7,7 +7,7 @@
 -- depends on: {{ ref('bronze__balances_erc20') }}
 {{ config(
     materialized = 'incremental',
-    unique_key = 'fact_balances_erc20_id',
+    unique_key = 'fact_balances_erc20_daily_id',
     cluster_by = ['block_timestamp::date','_inserted_timestamp::date'],
     incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
@@ -33,7 +33,7 @@ SELECT
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number','address','contract_address']
-    ) }} AS fact_balances_erc20_id,
+    ) }} AS fact_balances_erc20_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
@@ -55,6 +55,6 @@ WHERE
     DATA :result :: STRING <> '0x'
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY fact_balances_erc20_id
+qualify(ROW_NUMBER() over (PARTITION BY fact_balances_erc20_daily_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
