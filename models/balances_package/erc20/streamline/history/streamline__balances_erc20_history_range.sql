@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','history','erc20','phase_4']
+    tags = ['streamline','balances','history_range','erc20','phase_4']
 ) }}
 
 WITH last_x_days AS (
@@ -17,7 +17,10 @@ WITH last_x_days AS (
         block_timestamp
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_number >= vars.BALANCES_SL_START_BLOCK
+        qualify ROW_NUMBER() over (
+            ORDER BY
+                block_number DESC
+        ) BETWEEN 2 AND 91 --from 90 days ago to 2 days ago
 ),
 verified_contracts AS (
     SELECT
@@ -49,12 +52,15 @@ logs AS (
                 AND l.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
             )
         )
-        AND block_number < (
+        AND block_number >= (
+            SELECT MIN(block_number)
+            FROM last_x_days
+        )
+        AND block_number <= (
             SELECT MAX(block_number)
             FROM last_x_days
-        ) 
-        AND block_number >= vars.BALANCES_SL_START_BLOCK 
-        --only include events prior to 1 day ago
+        )
+        --only include events between selected period
         AND l.contract_address IN (
             SELECT
                 token_address
@@ -89,17 +95,8 @@ to_do AS (
         contract_address
     FROM
         transfers t
-        CROSS JOIN (
-            SELECT
-                block_number,
-                block_timestamp
-            FROM
-                last_x_days
-            WHERE block_number < (
-                SELECT MAX(block_number)
-                FROM last_x_days
-            )
-        ) d --max daily block_number, for each contract_address/address pair
+    CROSS JOIN last_x_days d 
+    --max daily block_number during the selected period, for each contract_address/address pair
     WHERE
         block_number IS NOT NULL
     EXCEPT
@@ -111,22 +108,24 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_erc20_complete") }}
     WHERE
-        block_number < (
-            SELECT MAX(block_number)
-            FROM last_x_days
+        block_number <= (
+            SELECT
+                MAX(block_number)
+            FROM
+                last_x_days
         )
         AND block_number IS NOT NULL
 )
 SELECT
     block_number,
-    DATE_PART('EPOCH_SECONDS', block_timestamp) :: INT AS block_timestamp_unix,
+    block_timestamp,
     address,
     contract_address,
     ROUND(
         block_number,
         -3
     ) AS partition_key,
-    live.udf_api(
+    {{ target.database }}.live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
         OBJECT_CONSTRUCT(
@@ -171,17 +170,17 @@ FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT }}
+LIMIT {{ vars.BALANCES_SL_ERC20_HISTORY_RANGE_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
         "external_table": 'balances_erc20',
-        "sql_limit": vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_ERC20_HISTORY_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_ERC20_HISTORY_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_ERC20_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_erc20_history'
+        "sql_limit": vars.BALANCES_SL_ERC20_HISTORY_RANGE_SQL_LIMIT,
+        "producer_batch_size": vars.BALANCES_SL_ERC20_HISTORY_RANGE_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.BALANCES_SL_ERC20_HISTORY_RANGE_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.BALANCES_SL_ERC20_HISTORY_RANGE_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'balances_erc20_history_range'
     } %}
 
     {% set function_call_sql %}
