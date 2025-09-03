@@ -17,7 +17,7 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_number >= vars.BALANCES_SL_START_BLOCK
+    WHERE block_number >= {{ vars.BALANCES_SL_START_BLOCK }}
 ),
 traces AS (
     SELECT
@@ -37,7 +37,7 @@ traces AS (
             SELECT MAX(block_number)
             FROM last_x_days
         )
-        AND block_number >= vars.BALANCES_SL_START_BLOCK 
+        AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
         --only include traces prior to 1 day ago
 ),
 tx_fees AS (
@@ -54,7 +54,7 @@ tx_fees AS (
             SELECT MAX(block_number)
             FROM last_x_days
         ) 
-        AND block_number >= vars.BALANCES_SL_START_BLOCK 
+        AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
         --only include txns prior to 1 day ago
 ),
 native_transfers AS (
