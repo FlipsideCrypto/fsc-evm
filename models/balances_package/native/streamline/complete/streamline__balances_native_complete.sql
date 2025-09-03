@@ -19,7 +19,7 @@
 {# Main query starts here #}
 SELECT
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-    VALUE :"BLOCK_TIMESTAMP" :: TIMESTAMP AS block_timestamp,
+    VALUE :"BLOCK_DATE_UNIX" :: DATE AS block_date,
     VALUE :"ADDRESS" :: STRING AS address,
     {{ dbt_utils.generate_surrogate_key(['block_number', 'address']) }} AS complete_balances_native_id,
     SYSDATE() AS inserted_timestamp,
