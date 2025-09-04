@@ -6,13 +6,13 @@
 
 {{ config (
     materialized = "view",
-    tags = ['test_gold','balances','native','full_test','phase_4']
+    tags = ['test_gold','balances','erc20','daily','full_test','phase_4']
 ) }}
 
 SELECT
     *
 FROM
-    {{ ref('balances__fact_balances_native_daily') }}
+    {{ ref('balances__ez_balances_erc20_daily') }}
 {% if vars.MAIN_OBSERV_EXCLUSION_LIST_ENABLED %}
 WHERE
     block_number NOT IN (
