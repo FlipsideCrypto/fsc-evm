@@ -35,11 +35,11 @@ models:
       - name: COLLATERAL_TOKEN_SYMBOL
         description: '{{ doc("ez_lending_collateral_token_symbol") }}'
       - name: AMOUNT_UNADJ
-        description: '{{ doc("ez_lending_amount_unadj") }}'
+        description: The raw amount of tokens liquidated without decimal adjustment. This column will be deprecated October 13th, please update to liquidated_amount_unadj.
       - name: AMOUNT
-        description: '{{ doc("ez_lending_amount") }}'
+        description: The decimal-adjusted amount of tokens liquidated. This column will be deprecated October 13th, please update to liquidated_amount.
       - name: AMOUNT_USD
-        description: '{{ doc("ez_lending_amount_usd") }}'
+        description: The USD value of the tokens liquidated. This column will be deprecated October 13th, please update to liquidated_amount_usd.
       - name: DEBT_TOKEN
         description: '{{ doc("ez_lending_debt_token") }}'
       - name: DEBT_TOKEN_SYMBOL
