@@ -55,7 +55,7 @@ balances AS (
         18 AS decimals,
         utils.udf_decimal_adjust(
             balance_raw,
-            decimals
+            18
         ) AS balance_precise,
         balance_precise :: FLOAT AS balance,
         ROUND(balance * COALESCE(p0.price, p1.price), 2) AS balance_usd
@@ -85,7 +85,7 @@ missing_data AS (
         block_number,
         block_date,
         address,
-        decimals,
+        t.decimals,
         balance_hex,
         balance_raw,
         balance_precise,
