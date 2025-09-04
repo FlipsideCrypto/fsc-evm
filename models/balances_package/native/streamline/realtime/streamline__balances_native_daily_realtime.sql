@@ -174,16 +174,16 @@ FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT }}
+LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_REALTIME_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
         "external_table": 'balances_native',
-        "sql_limit": vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+        "sql_limit": vars.BALANCES_SL_NATIVE_DAILY_REALTIME_SQL_LIMIT,
+        "producer_batch_size": vars.BALANCES_SL_NATIVE_DAILY_REALTIME_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.BALANCES_SL_NATIVE_DAILY_REALTIME_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_DAILY_REALTIME_ASYNC_CONCURRENT_REQUESTS,
         "sql_source": 'balances_native_daily_realtime'
     } %}
 

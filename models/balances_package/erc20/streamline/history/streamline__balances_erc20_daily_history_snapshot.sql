@@ -167,16 +167,16 @@ FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.BALANCES_SL_ERC20_HISTORY_SNAPSHOT_SQL_LIMIT }}
+LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SNAPSHOT_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
         "external_table": 'balances_erc20',
-        "sql_limit": vars.BALANCES_SL_ERC20_HISTORY_SNAPSHOT_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_ERC20_HISTORY_SNAPSHOT_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_ERC20_HISTORY_SNAPSHOT_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_ERC20_HISTORY_SNAPSHOT_ASYNC_CONCURRENT_REQUESTS,
+        "sql_limit": vars.BALANCES_SL_ERC20_DAILY_HISTORY_SNAPSHOT_SQL_LIMIT,
+        "producer_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_SNAPSHOT_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_SNAPSHOT_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.BALANCES_SL_ERC20_DAILY_HISTORY_SNAPSHOT_ASYNC_CONCURRENT_REQUESTS,
         "sql_source": 'balances_erc20_daily_history_snapshot'
     } %}
 
