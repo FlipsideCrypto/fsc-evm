@@ -28,6 +28,8 @@ SELECT
     protocol_market,
     token_address,
     token_symbol,
+    token_address as flashloan_token_address,
+    token_symbol as flashloan_token_symbol,
     flashloan_amount_unadj,
     flashloan_amount,
     flashloan_amount_usd,
