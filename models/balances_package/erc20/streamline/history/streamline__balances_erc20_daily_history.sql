@@ -55,6 +55,11 @@ logs AS (
         ) 
         AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
         --only include events prior to 1 day ago
+        AND block_timestamp :: DATE >= DATEADD(
+            'day',
+            -180,
+            SYSDATE()
+        )
         AND contract_address IN (
             SELECT
                 token_address

@@ -39,6 +39,11 @@ traces AS (
         )
         AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
         --only include traces prior to 1 day ago
+        AND block_timestamp :: DATE >= DATEADD(
+            'day',
+            -180,
+            SYSDATE()
+        )
 ),
 tx_fees AS (
     SELECT
@@ -56,6 +61,11 @@ tx_fees AS (
         ) 
         AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
         --only include txns prior to 1 day ago
+        AND block_timestamp :: DATE >= DATEADD(
+            'day',
+            -180,
+            SYSDATE()
+        )
 ),
 native_transfers AS (
     SELECT
