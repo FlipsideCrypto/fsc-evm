@@ -69,7 +69,7 @@ WITH balances AS (
         AND DATEADD(
             'hour',
             23,
-            block_date
+            s.block_date
         ) = p0.hour
         AND p0.decimals IS NOT NULL
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
@@ -77,14 +77,14 @@ WITH balances AS (
         ON DATEADD(
             'hour',
             23,
-            block_date
+            s.block_date
         ) = p1.hour
         AND p1.is_native
     WHERE
         balance_raw IS NOT NULL
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND s.modified_timestamp >= (
     SELECT
         COALESCE(MAX(modified_timestamp), '1970-01-01')
     FROM
@@ -142,7 +142,7 @@ missing_data AS (
         AND DATEADD(
             'hour',
             23,
-            block_date
+            t.block_date
         ) = p0.hour
         AND p0.decimals IS NOT NULL
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
@@ -150,7 +150,7 @@ missing_data AS (
         ON DATEADD(
             'hour',
             23,
-            block_date
+            t.block_date
         ) = p1.hour
         AND p1.is_native
     WHERE

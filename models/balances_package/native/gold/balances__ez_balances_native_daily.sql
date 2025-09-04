@@ -34,13 +34,13 @@ WITH balances AS (
         balance_precise :: FLOAT AS balance,
         ROUND(balance * COALESCE(p0.price, p1.price), 2) AS balance_usd
     FROM
-        {{ ref('silver__balances_native_daily') }}
+        {{ ref('silver__balances_native_daily') }} s
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p0
         ON DATEADD(
             'hour',
             23,
-            block_date
+            s.block_date
         ) = p0.hour --last hourly price of the day
         AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
@@ -48,13 +48,13 @@ WITH balances AS (
         ON DATEADD(
             'hour',
             23,
-            block_date
+            s.block_date
         ) = p1.hour
         AND p1.is_native
 
 {% if is_incremental() %}
 WHERE
-    modified_timestamp >= (
+    s.modified_timestamp >= (
         SELECT
             COALESCE(MAX(modified_timestamp), '1970-01-01')
         FROM
@@ -83,7 +83,7 @@ missing_data AS (
         ON DATEADD(
             'hour',
             23,
-            block_date
+            t.block_date
         ) = p0.hour
         AND p0.token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
@@ -91,7 +91,7 @@ missing_data AS (
         ON DATEADD(
             'hour',
             23,
-            block_date
+            t.block_date
         ) = p1.hour
         AND p1.is_native
     WHERE
