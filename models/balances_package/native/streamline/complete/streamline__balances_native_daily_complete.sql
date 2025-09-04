@@ -9,7 +9,7 @@
 
 {{ config (
     materialized = "incremental",
-    unique_key = "complete_balances_native_daily_id",
+    unique_key = "balances_native_daily_complete_id",
     cluster_by = "ROUND(block_number, -3)",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(address)",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
@@ -21,7 +21,7 @@ SELECT
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
     VALUE :"BLOCK_DATE_UNIX" :: DATE AS block_date,
     VALUE :"ADDRESS" :: STRING AS address,
-    {{ dbt_utils.generate_surrogate_key(['block_date', 'address']) }} AS complete_balances_native_daily_id,
+    {{ dbt_utils.generate_surrogate_key(['block_date', 'address']) }} AS balances_native_daily_complete_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
@@ -40,4 +40,4 @@ FROM
         {{ ref('bronze__balances_native_fr') }}
     {% endif %}
 
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY complete_balances_native_daily_id ORDER BY _inserted_timestamp DESC)) = 1
+QUALIFY (ROW_NUMBER() OVER (PARTITION BY balances_native_daily_complete_id ORDER BY _inserted_timestamp DESC)) = 1

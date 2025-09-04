@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','realtime','native','phase_4']
+    tags = ['streamline','balances','history_snapshot','native','phase_4']
 ) }}
 
 WITH last_x_days AS (
@@ -17,10 +17,7 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-        qualify ROW_NUMBER() over (
-            ORDER BY
-                block_number DESC
-        ) BETWEEN 1 AND 2 --from 2 days ago and 1 day ago
+    WHERE block_number = {{ vars.BALANCES_SL_START_BLOCK }}
 ),
 traces AS (
     SELECT
@@ -36,20 +33,11 @@ traces AS (
             'DELEGATECALL',
             'STATICCALL'
         )
-        AND block_number > (
-            SELECT MIN(block_number)
-            FROM last_x_days
-        )
         AND block_number <= (
-            SELECT MAX(block_number)
+            SELECT block_number
             FROM last_x_days
-        ) 
-        --only include traces from 1 day ago
-        AND block_timestamp :: DATE >= DATEADD(
-            'day',
-            -3,
-            SYSDATE()
         )
+        --only include traces before the selected period
 ),
 tx_fees AS (
     SELECT
@@ -61,20 +49,11 @@ tx_fees AS (
     WHERE
         tx_fee > 0
         AND from_address <> '0x0000000000000000000000000000000000000000'
-        AND block_number > (
-            SELECT MIN(block_number)
-            FROM last_x_days
-        )
         AND block_number <= (
-            SELECT MAX(block_number)
+            SELECT block_number
             FROM last_x_days
-        ) 
-        --only include txns from 1 day ago
-        AND block_timestamp :: DATE >= DATEADD(
-            'day',
-            -3,
-            SYSDATE()
         )
+        --only include txns before the selected period
 ),
 native_transfers AS (
     SELECT
@@ -110,33 +89,23 @@ to_do AS (
         t.address
     FROM
         native_transfers t
-        INNER JOIN last_x_days d 
-            ON t.block_date = d.block_date
-        --max daily block_number from 1 day ago, for each address
+    CROSS JOIN last_x_days d 
+        --max daily block_number during the selected period, for each address
     WHERE
         t.block_date IS NOT NULL
-        AND d.block_number = (
-            SELECT MAX(block_number)
-            FROM last_x_days
-        )
     EXCEPT
     SELECT
         block_number,
         block_date,
         address
     FROM
-        {{ ref("streamline__balances_native_complete_daily") }}
+        {{ ref("streamline__balances_native_daily_complete") }}
     WHERE
-        block_number = (
-            SELECT MAX(block_number)
+        block_number <= (
+            SELECT block_number
             FROM last_x_days
         )
         AND block_number IS NOT NULL
-        AND _inserted_timestamp :: DATE >= DATEADD(
-            'day',
-            -7,
-            SYSDATE()
-        )
 )
 SELECT
     block_number,
@@ -174,17 +143,17 @@ FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT }}
+LIMIT {{ vars.BALANCES_SL_NATIVE_HISTORY_SNAPSHOT_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
         "external_table": 'balances_native',
-        "sql_limit": vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_REALTIME_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_native_realtime_daily'
+        "sql_limit": vars.BALANCES_SL_NATIVE_HISTORY_SNAPSHOT_SQL_LIMIT,
+        "producer_batch_size": vars.BALANCES_SL_NATIVE_HISTORY_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.BALANCES_SL_NATIVE_HISTORY_SNAPSHOT_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_HISTORY_SNAPSHOT_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'balances_native_daily_history_snapshot'
     } %}
 
     {% set function_call_sql %}

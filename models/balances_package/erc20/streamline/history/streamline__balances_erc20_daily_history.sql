@@ -110,7 +110,7 @@ to_do AS (
         address,
         contract_address
     FROM
-        {{ ref("streamline__balances_erc20_complete_daily") }}
+        {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE
         block_number < (
             SELECT MAX(block_number)
@@ -182,7 +182,7 @@ LIMIT {{ vars.BALANCES_SL_ERC20_HISTORY_SQL_LIMIT }}
         "producer_batch_size": vars.BALANCES_SL_ERC20_HISTORY_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_ERC20_HISTORY_WORKER_BATCH_SIZE,
         "async_concurrent_requests": vars.BALANCES_SL_ERC20_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_erc20_history_daily'
+        "sql_source": 'balances_erc20_daily_history'
     } %}
 
     {% set function_call_sql %}

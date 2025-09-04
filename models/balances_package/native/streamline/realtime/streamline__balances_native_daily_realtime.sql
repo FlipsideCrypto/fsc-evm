@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','history','native','phase_4']
+    tags = ['streamline','balances','realtime','native','phase_4']
 ) }}
 
 WITH last_x_days AS (
@@ -17,7 +17,10 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_number >= {{ vars.BALANCES_SL_START_BLOCK }}
+        qualify ROW_NUMBER() over (
+            ORDER BY
+                block_number DESC
+        ) BETWEEN 1 AND 2 --from 2 days ago and 1 day ago
 ),
 traces AS (
     SELECT
@@ -33,12 +36,20 @@ traces AS (
             'DELEGATECALL',
             'STATICCALL'
         )
-        AND block_number < (
-            SELECT MAX(block_number)
+        AND block_number > (
+            SELECT MIN(block_number)
             FROM last_x_days
         )
-        AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
-        --only include traces prior to 1 day ago
+        AND block_number <= (
+            SELECT MAX(block_number)
+            FROM last_x_days
+        ) 
+        --only include traces from 1 day ago
+        AND block_timestamp :: DATE >= DATEADD(
+            'day',
+            -3,
+            SYSDATE()
+        )
 ),
 tx_fees AS (
     SELECT
@@ -50,12 +61,20 @@ tx_fees AS (
     WHERE
         tx_fee > 0
         AND from_address <> '0x0000000000000000000000000000000000000000'
-        AND block_number < (
+        AND block_number > (
+            SELECT MIN(block_number)
+            FROM last_x_days
+        )
+        AND block_number <= (
             SELECT MAX(block_number)
             FROM last_x_days
         ) 
-        AND block_number >= {{ vars.BALANCES_SL_START_BLOCK }} 
-        --only include txns prior to 1 day ago
+        --only include txns from 1 day ago
+        AND block_timestamp :: DATE >= DATEADD(
+            'day',
+            -3,
+            SYSDATE()
+        )
 ),
 native_transfers AS (
     SELECT
@@ -93,10 +112,10 @@ to_do AS (
         native_transfers t
         INNER JOIN last_x_days d 
             ON t.block_date = d.block_date
-        --max daily block_number during the selected period, for each address
+        --max daily block_number from 1 day ago, for each address
     WHERE
         t.block_date IS NOT NULL
-        AND d.block_number < (
+        AND d.block_number = (
             SELECT MAX(block_number)
             FROM last_x_days
         )
@@ -106,13 +125,18 @@ to_do AS (
         block_date,
         address
     FROM
-        {{ ref("streamline__balances_native_complete_daily") }}
+        {{ ref("streamline__balances_native_daily_complete") }}
     WHERE
-        block_number < (
+        block_number = (
             SELECT MAX(block_number)
             FROM last_x_days
         )
         AND block_number IS NOT NULL
+        AND _inserted_timestamp :: DATE >= DATEADD(
+            'day',
+            -7,
+            SYSDATE()
+        )
 )
 SELECT
     block_number,
@@ -150,17 +174,17 @@ FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.BALANCES_SL_NATIVE_HISTORY_SQL_LIMIT }}
+LIMIT {{ vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
         "external_table": 'balances_native',
-        "sql_limit": vars.BALANCES_SL_NATIVE_HISTORY_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_NATIVE_HISTORY_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_NATIVE_HISTORY_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_native_history_daily'
+        "sql_limit": vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT,
+        "producer_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_REALTIME_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'balances_native_daily_realtime'
     } %}
 
     {% set function_call_sql %}
