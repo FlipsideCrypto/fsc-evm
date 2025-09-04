@@ -18,7 +18,7 @@
 
 SELECT
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-    VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP AS block_date,
+    (VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP) :: DATE AS block_date,
     VALUE :"ADDRESS" :: STRING AS address,
     VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
     TRY_TO_NUMBER(
