@@ -10,7 +10,7 @@
     unique_key = 'ez_balances_erc20_daily_id',
     cluster_by = ['block_date'],
     incremental_predicates = ["dynamic_range", "block_number"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, contract_address)",
+    post_hook = "{{ unverify_balances() }}; ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, contract_address)",
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
     tags = ['gold','balances','erc20','phase_4']
