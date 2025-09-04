@@ -86,7 +86,7 @@ WITH balances AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp)
+        COALESCE(MAX(modified_timestamp), '1970-01-01')
     FROM
         {{ this }}
 )

@@ -56,7 +56,7 @@ WITH balances AS (
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp)
+            COALESCE(MAX(modified_timestamp), '1970-01-01')
         FROM
             {{ this }}
     )
