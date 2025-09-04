@@ -7,7 +7,7 @@
 -- depends on: {{ ref('bronze__balances_native') }}
 {{ config(
     materialized = 'incremental',
-    unique_key = 'balances_native_id',
+    unique_key = 'balances_native_daily_id',
     cluster_by = ['block_date'],
     incremental_predicates = ["dynamic_range", "block_number"],
     merge_exclude_columns = ["inserted_timestamp"],
@@ -25,7 +25,7 @@ SELECT
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','address']
-    ) }} AS silver_balances_native_id,
+    ) }} AS balances_native_daily_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
@@ -47,6 +47,6 @@ WHERE
     DATA :result :: STRING <> '0x'
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY balances_native_id
+qualify(ROW_NUMBER() over (PARTITION BY balances_native_daily_id
 ORDER BY
     _inserted_timestamp DESC)) = 1

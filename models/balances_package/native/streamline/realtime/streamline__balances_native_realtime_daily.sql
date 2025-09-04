@@ -184,7 +184,7 @@ LIMIT {{ vars.BALANCES_SL_NATIVE_REALTIME_SQL_LIMIT }}
         "producer_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.BALANCES_SL_NATIVE_REALTIME_WORKER_BATCH_SIZE,
         "async_concurrent_requests": vars.BALANCES_SL_NATIVE_REALTIME_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_native_realtime'
+        "sql_source": 'balances_native_realtime_daily'
     } %}
 
     {% set function_call_sql %}
