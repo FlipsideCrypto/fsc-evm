@@ -58,8 +58,7 @@ tx_fees AS (
 native_transfers AS (
     SELECT
         DISTINCT 
-        block_number,
-        block_timestamp,
+        block_timestamp :: DATE AS block_date,
         address1 AS address
     FROM
         traces
@@ -68,8 +67,7 @@ native_transfers AS (
     UNION
     SELECT
         DISTINCT 
-        block_number,
-        block_timestamp,
+        block_timestamp :: DATE AS block_date,
         address2 AS address
     FROM
         traces
@@ -78,8 +76,7 @@ native_transfers AS (
     UNION ALL
     SELECT
         DISTINCT 
-        block_number,
-        block_timestamp,
+        block_timestamp :: DATE AS block_date,
         address
     FROM
         tx_fees
@@ -95,7 +92,7 @@ to_do AS (
     CROSS JOIN last_x_days d 
         --max daily block_number during the selected period, for each address
     WHERE
-        t.block_number IS NOT NULL
+        t.block_date IS NOT NULL
     EXCEPT
     SELECT
         block_number,

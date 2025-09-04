@@ -65,8 +65,7 @@ logs AS (
 transfers AS (
     SELECT
         DISTINCT 
-        block_number,
-        block_timestamp,
+        block_timestamp :: DATE AS block_date,
         contract_address,
         address1 AS address
     FROM
@@ -77,8 +76,7 @@ transfers AS (
     UNION
     SELECT
         DISTINCT 
-        block_number,
-        block_timestamp,
+        block_timestamp :: DATE AS block_date,
         contract_address,
         address2 AS address
     FROM
@@ -99,7 +97,7 @@ to_do AS (
     CROSS JOIN last_x_days d 
     --max daily block_number during the selected period, for each contract_address/address pair
     WHERE
-        t.block_number IS NOT NULL
+        t.block_date IS NOT NULL
     EXCEPT
     SELECT
         block_number,
