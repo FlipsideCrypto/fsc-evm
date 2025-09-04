@@ -61,7 +61,7 @@ WITH balances AS (
             )
         ) AS balance_usd
     FROM
-        {{ ref('silver__balances_erc20') }}
+        {{ ref('silver__balances_erc20_daily') }}
         s
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p0

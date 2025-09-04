@@ -34,7 +34,7 @@ WITH balances AS (
         balance_precise :: FLOAT AS balance,
         ROUND(balance * COALESCE(p0.price, p1.price), 2) AS balance_usd
     FROM
-        {{ ref('silver__balances_native') }}
+        {{ ref('silver__balances_native_daily') }}
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p0
         ON DATEADD(
