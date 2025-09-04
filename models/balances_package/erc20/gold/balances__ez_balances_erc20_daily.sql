@@ -156,7 +156,7 @@ missing_data AS (
         t
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p0
-        ON b.contract_address = p0.token_address
+        ON t.contract_address = p0.token_address
         AND DATEADD(
             'hour',
             23,
