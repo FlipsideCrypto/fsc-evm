@@ -16,42 +16,8 @@
     tags = ['gold','balances','erc20','phase_4']
 ) }}
 
+WITH balances AS (
 
-WITH bronze AS (
-
-    SELECT
-        VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-        (
-            VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
-        ) :: DATE AS block_date,
-        VALUE :"ADDRESS" :: STRING AS address,
-        VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
-        CASE
-            WHEN LENGTH(
-                DATA :result :: STRING
-            ) <= 4300
-            AND DATA :result IS NOT NULL THEN DATA :result :: STRING
-            ELSE NULL
-        END AS balance_hex
-    FROM
-
-{% if is_incremental() %}
-{{ ref('bronze__balances_erc20') }}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-    AND DATA :result :: STRING <> '0x'
-{% else %}
-    {{ ref('bronze__balances_erc20_fr') }}
-WHERE
-    DATA :result :: STRING <> '0x'
-{% endif %}
-),
-balances AS (
     SELECT
         block_number,
         block_date,
@@ -65,7 +31,11 @@ balances AS (
         ) AS decimals_adj,
         p0.symbol,
         balance_hex,
-        utils.udf_hex_to_int(balance_hex) AS balance_raw,
+        CASE
+            WHEN LENGTH(balance_hex) <= 4300
+            AND balance_hex IS NOT NULL THEN utils.udf_hex_to_int(balance_hex) :: bigint
+            ELSE NULL
+        END AS balance_raw,
         IFF(
             decimals_adj IS NULL,
             NULL,
@@ -91,10 +61,11 @@ balances AS (
             )
         ) AS balance_usd
     FROM
-        bronze b
+        {{ ref('silver__balances_erc20') }}
+        s
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p0
-        ON b.contract_address = p0.token_address
+        ON s.contract_address = p0.token_address
         AND DATEADD(
             'hour',
             23,
@@ -109,6 +80,17 @@ balances AS (
             block_date
         ) = p1.hour
         AND p1.is_native
+    WHERE
+        balance_raw IS NOT NULL
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
 )
 
 {% if is_incremental() %},
@@ -235,6 +217,10 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    FINAL qualify(ROW_NUMBER() over (PARTITION BY ez_balances_erc20_daily_id
+    FINAL 
+    
+{% if is_incremental() %}
+qualify(ROW_NUMBER() over (PARTITION BY ez_balances_erc20_daily_id
 ORDER BY
     modified_timestamp DESC)) = 1
+{% endif %}

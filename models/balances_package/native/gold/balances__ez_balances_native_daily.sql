@@ -16,34 +16,8 @@
     tags = ['gold','balances','native','phase_4']
 ) }}
 
-WITH bronze AS (
+WITH balances AS (
 
-    SELECT
-        VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
-        (
-            VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
-        ) :: DATE AS block_date,
-        VALUE :"ADDRESS" :: STRING AS address,
-        DATA :result :: STRING AS balance_hex
-    FROM
-
-{% if is_incremental() %}
-{{ ref('bronze__balances_native') }}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-    AND DATA :result :: STRING <> '0x'
-{% else %}
-    {{ ref('bronze__balances_native_fr') }}
-WHERE
-    DATA :result :: STRING <> '0x'
-{% endif %}
-),
-balances AS (
     SELECT
         block_number,
         block_date,
@@ -60,7 +34,7 @@ balances AS (
         balance_precise :: FLOAT AS balance,
         ROUND(balance * COALESCE(p0.price, p1.price), 2) AS balance_usd
     FROM
-        bronze
+        {{ ref('silver__balances_native') }}
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p0
         ON DATEADD(
@@ -77,6 +51,16 @@ balances AS (
             block_date
         ) = p1.hour
         AND p1.is_native
+
+{% if is_incremental() %}
+WHERE
+    modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
+{% endif %}
 )
 
 {% if is_incremental() %},
@@ -165,6 +149,10 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    FINAL qualify(ROW_NUMBER() over (PARTITION BY ez_balances_native_daily_id
+    FINAL 
+    
+{% if is_incremental() %}
+qualify(ROW_NUMBER() over (PARTITION BY ez_balances_native_daily_id
 ORDER BY
     modified_timestamp DESC)) = 1
+{% endif %}
