@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'fact_balances_erc20_daily_id',
-    cluster_by = ['block_date','_inserted_timestamp::date'],
+    cluster_by = ['block_date'],
     incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     merge_exclude_columns = ["inserted_timestamp"],
@@ -30,7 +30,6 @@ SELECT
             ELSE NULL
         END
     ) AS balance,
-    _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number','address','contract_address']
     ) }} AS fact_balances_erc20_daily_id,
@@ -42,9 +41,9 @@ FROM
 {% if is_incremental() %}
 {{ ref('bronze__balances_erc20') }}
 WHERE
-    _inserted_timestamp >= (
+    modified_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) _inserted_timestamp
+            MAX(modified_timestamp)
         FROM
             {{ this }}
     )
@@ -57,4 +56,4 @@ WHERE
 
 qualify(ROW_NUMBER() over (PARTITION BY fact_balances_erc20_daily_id
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    modified_timestamp DESC)) = 1
