@@ -1,15 +1,18 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {# Set up dbt configuration #}
 -- depends_on: {{ ref('bronze__balances_native') }}
+
 {{ config (
     materialized = "incremental",
     unique_key = "balances_native_daily_complete_id",
     cluster_by = "ROUND(block_number, -3)",
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(address)",
-    full_refresh = vars.global_streamline_fr_enabled,
+    full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline','balances','complete','native','phase_4']
 ) }}
 {# Main query starts here #}
