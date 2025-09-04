@@ -105,7 +105,7 @@ to_do AS (
         address,
         contract_address
     FROM
-        {{ ref("streamline__balances_erc20_complete") }}
+        {{ ref("streamline__balances_erc20_complete_daily") }}
     WHERE
         block_number <= (
             SELECT block_number

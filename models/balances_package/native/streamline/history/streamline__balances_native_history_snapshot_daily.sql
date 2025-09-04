@@ -99,7 +99,7 @@ to_do AS (
         block_date,
         address
     FROM
-        {{ ref("streamline__balances_native_complete") }}
+        {{ ref("streamline__balances_native_complete_daily") }}
     WHERE
         block_number <= (
             SELECT block_number
