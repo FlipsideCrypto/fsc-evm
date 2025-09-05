@@ -13,6 +13,7 @@
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline','balances','history_snapshot','erc20','heal','phase_4']
 ) }}
+--intended to run on an on-going basis, only for newly verified contracts
 
 WITH last_x_days AS (
 

@@ -12,6 +12,7 @@
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline','balances','history','native','phase_4']
 ) }}
+--intended to run on an on-going basis
 
 WITH last_x_days AS (
 
