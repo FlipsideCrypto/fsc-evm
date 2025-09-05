@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','history_snapshot','native','phase_4']
+    tags = ['streamline','balances','history','erc20','phase_4']
 ) }}
 
 WITH last_x_days AS (
@@ -17,31 +17,37 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_number = {{ vars.BALANCES_SL_START_BLOCK }}
+    WHERE block_number >= {{ vars.BALANCES_SL_START_BLOCK }}
 ),
 to_do AS (
     SELECT
         DISTINCT
         d.block_number,
         d.block_date,
-        t.address
+        t.address,
+        t.contract_address
     FROM
-        {{ ref("streamline__balances_native_daily_records") }} t
-    CROSS JOIN last_x_days d 
-        --max daily block_number during the selected period, for each address
+        {{ ref("streamline__balances_erc20_daily_records") }} t
+        INNER JOIN last_x_days d 
+            ON t.block_date = d.block_date
+    --max daily block_number during the selected period, for each contract_address/address pair
     WHERE
         t.block_date IS NOT NULL
-        AND t.block_date <= d.block_date
+        AND d.block_number < (
+            SELECT MAX(block_number)
+            FROM last_x_days
+        ) 
     EXCEPT
     SELECT
         block_number,
         block_date,
-        address
+        address,
+        contract_address
     FROM
-        {{ ref("streamline__balances_native_daily_complete") }}
+        {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE block_number IS NOT NULL
-    AND block_number <= (
-        SELECT block_number
+    AND block_number < (
+        SELECT MAX(block_number)
         FROM last_x_days
     )
 )
@@ -49,6 +55,7 @@ SELECT
     block_number,
     DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
     address,
+    contract_address,
     ROUND(
         block_number,
         -3
@@ -65,6 +72,8 @@ SELECT
         OBJECT_CONSTRUCT(
             'id',
             CONCAT(
+                contract_address,
+                '-',
                 address,
                 '-',
                 block_number
@@ -72,26 +81,41 @@ SELECT
             'jsonrpc',
             '2.0',
             'method',
-            'eth_getBalance',
+            'eth_call',
             'params',
-            ARRAY_CONSTRUCT(address, utils.udf_int_to_hex(block_number))),
+            ARRAY_CONSTRUCT(
+                OBJECT_CONSTRUCT(
+                    'to',
+                    contract_address,
+                    'data',
+                    CONCAT(
+                        '0x70a08231000000000000000000000000',
+                        SUBSTR(
+                            address,
+                            3
+                        )
+                    )
+                ),
+                utils.udf_int_to_hex(block_number)
+            )
+        ),
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SNAPSHOT_SQL_LIMIT }}
+LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = {
-        "external_table": 'balances_native',
-        "sql_limit": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SNAPSHOT_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SNAPSHOT_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SNAPSHOT_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SNAPSHOT_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_native_daily_history_snapshot'
+        "external_table": 'balances_erc20',
+        "sql_limit": vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT,
+        "producer_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.BALANCES_SL_ERC20_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'balances_erc20_daily_history'
     } %}
 
     {% set function_call_sql %}
