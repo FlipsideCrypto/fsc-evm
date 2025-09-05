@@ -17,7 +17,7 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_date >= {{ vars.BALANCES_SL_START_DATE }}
+    WHERE block_date >= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
 to_do AS (
     SELECT

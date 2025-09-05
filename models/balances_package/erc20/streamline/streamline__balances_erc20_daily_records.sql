@@ -120,7 +120,7 @@ all_logs AS (
 transfers_snapshot AS (
     SELECT
         DISTINCT 
-        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
         contract_address,
         address1 AS address
     FROM
@@ -128,11 +128,11 @@ transfers_snapshot AS (
     WHERE
         address1 IS NOT NULL
         AND address1 <> '0x0000000000000000000000000000000000000000'
-        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+        AND block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     UNION
     SELECT
         DISTINCT 
-        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
         contract_address,
         address2 AS address
     FROM
@@ -140,7 +140,7 @@ transfers_snapshot AS (
     WHERE
         address2 IS NOT NULL
         AND address2 <> '0x0000000000000000000000000000000000000000'
-        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+        AND block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
 transfers_history AS (
     SELECT
@@ -153,7 +153,7 @@ transfers_history AS (
     WHERE
         address1 IS NOT NULL
         AND address1 <> '0x0000000000000000000000000000000000000000'
-        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
+        AND block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     UNION
     SELECT
         DISTINCT 
@@ -165,7 +165,7 @@ transfers_history AS (
     WHERE
         address2 IS NOT NULL
         AND address2 <> '0x0000000000000000000000000000000000000000'
-        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
+        AND block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
 all_transfers AS (
     SELECT * FROM transfers_snapshot

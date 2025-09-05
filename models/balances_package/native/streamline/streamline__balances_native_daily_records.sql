@@ -54,32 +54,32 @@ tx_fees AS (
 native_transfers_snapshot AS (
     SELECT
         DISTINCT 
-        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
         address1 AS address
     FROM
         traces
     WHERE
         address1 <> '0x0000000000000000000000000000000000000000'
-        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+        AND block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     UNION
     SELECT
         DISTINCT 
-        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
         address2 AS address
     FROM
         traces
     WHERE
         address2 <> '0x0000000000000000000000000000000000000000'
-        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+        AND block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     UNION
     SELECT
         DISTINCT 
-        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
         address
     FROM
         tx_fees
     WHERE
-        block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+        block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
 native_transfers_history AS (
     SELECT
@@ -90,7 +90,7 @@ native_transfers_history AS (
         traces
     WHERE
         address1 <> '0x0000000000000000000000000000000000000000'
-        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
+        AND block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     UNION
     SELECT
         DISTINCT 
@@ -100,7 +100,7 @@ native_transfers_history AS (
         traces
     WHERE
         address2 <> '0x0000000000000000000000000000000000000000'
-        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
+        AND block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     UNION
     SELECT
         DISTINCT 
@@ -109,7 +109,7 @@ native_transfers_history AS (
     FROM
         tx_fees
     WHERE
-        block_date > {{ vars.BALANCES_SL_START_DATE }}
+        block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
 all_transfers AS (
     SELECT * FROM native_transfers_snapshot
