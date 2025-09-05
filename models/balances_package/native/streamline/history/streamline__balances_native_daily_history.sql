@@ -17,7 +17,7 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_date > {{ vars.BALANCES_SL_START_DATE }}
+    WHERE block_date >= {{ vars.BALANCES_SL_START_DATE }}
 ),
 to_do AS (
     SELECT
@@ -44,10 +44,6 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_native_daily_complete") }}
     WHERE block_date IS NOT NULL
-    AND block_date < (
-        SELECT MAX(block_date)
-        FROM last_x_days
-    )
 )
 SELECT
     block_number,
