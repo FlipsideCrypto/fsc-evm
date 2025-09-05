@@ -26,13 +26,24 @@ WITH verified_contracts AS (
 ),
 {% if is_incremental() and var('HEAL_MODEL',false) %}
 newly_verified_contracts AS (
-    SELECT DISTINCT token_address AS contract_address
-    FROM {{ ref('price__ez_asset_metadata') }}
-    WHERE token_address NOT IN (
-        SELECT DISTINCT contract_address 
-        FROM {{ this }})
-    AND is_verified
-    AND token_address IS NOT NULL
+    SELECT
+        DISTINCT token_address
+    FROM
+        {{ ref('price__ez_asset_metadata') }}
+    WHERE
+        IFNULL(
+            is_verified_modified_timestamp,
+            '1970-01-01' :: TIMESTAMP
+        ) > DATEADD(
+            'day',
+            -8,
+            (
+                SELECT
+                    MAX(modified_timestamp) :: DATE
+                FROM
+                    {{ this }}
+            )
+        )
 ),
 newly_verified_logs AS (
     SELECT
