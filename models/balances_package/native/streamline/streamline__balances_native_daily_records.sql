@@ -8,7 +8,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "balances_native_daily_records_id",
-    cluster_by = "ROUND(block_number, -3)",
+    cluster_by = "block_date",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['balances','records','native','phase_4']
 ) }}
@@ -122,7 +122,6 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['block_date', 'address']) }} AS balances_native_daily_records_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    _inserted_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     all_transfers qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id

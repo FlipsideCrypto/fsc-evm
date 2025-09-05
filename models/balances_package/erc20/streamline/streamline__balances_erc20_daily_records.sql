@@ -8,7 +8,7 @@
 {{ config (
     materialized = "incremental",
     unique_key = "balances_erc20_daily_records_id",
-    cluster_by = "ROUND(block_number, -3)",
+    cluster_by = "block_date",
     post_hook = '{{ unverify_balances() }}',
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['balances','records','erc20','heal','phase_4']
