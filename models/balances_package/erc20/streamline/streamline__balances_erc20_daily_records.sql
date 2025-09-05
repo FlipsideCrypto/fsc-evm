@@ -11,7 +11,7 @@
     cluster_by = "ROUND(block_number, -3)",
     post_hook = '{{ unverify_balances() }}',
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline','balances','history','erc20','heal','phase_4']
+    tags = ['balances','records','erc20','heal','phase_4']
 ) }}
 --intended to run on an on-going basis
 
