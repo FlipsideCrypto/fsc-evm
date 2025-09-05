@@ -11,6 +11,7 @@
     cluster_by = ['block_date'],
     incremental_predicates = ["dynamic_range", "block_number"],
     merge_exclude_columns = ["inserted_timestamp"],
+    post_hook = "{{ unverify_balances() }}",
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','balances','erc20','phase_4']
 ) }}

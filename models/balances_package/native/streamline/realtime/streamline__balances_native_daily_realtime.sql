@@ -17,90 +17,7 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-        qualify ROW_NUMBER() over (
-            ORDER BY
-                block_number DESC
-        ) BETWEEN 1 AND 2 --from 2 days ago and 1 day ago
-),
-traces AS (
-    SELECT
-        block_number,
-        block_timestamp,
-        from_address AS address1,
-        to_address AS address2
-    FROM
-        {{ ref('core__fact_traces') }}
-    WHERE
-        value > 0
-        AND type NOT IN (
-            'DELEGATECALL',
-            'STATICCALL'
-        )
-        AND block_number > (
-            SELECT MIN(block_number)
-            FROM last_x_days
-        )
-        AND block_number <= (
-            SELECT MAX(block_number)
-            FROM last_x_days
-        ) 
-        --only include traces from 1 day ago
-        AND block_timestamp :: DATE >= DATEADD(
-            'day',
-            -3,
-            SYSDATE()
-        )
-),
-tx_fees AS (
-    SELECT
-        block_number,
-        block_timestamp,
-        from_address AS address
-    FROM
-        {{ ref('core__fact_transactions') }}
-    WHERE
-        tx_fee > 0
-        AND from_address <> '0x0000000000000000000000000000000000000000'
-        AND block_number > (
-            SELECT MIN(block_number)
-            FROM last_x_days
-        )
-        AND block_number <= (
-            SELECT MAX(block_number)
-            FROM last_x_days
-        ) 
-        --only include txns from 1 day ago
-        AND block_timestamp :: DATE >= DATEADD(
-            'day',
-            -3,
-            SYSDATE()
-        )
-),
-native_transfers AS (
-    SELECT
-        DISTINCT 
-        block_timestamp :: DATE AS block_date,
-        address1 AS address
-    FROM
-        traces
-    WHERE
-        address1 <> '0x0000000000000000000000000000000000000000'
-    UNION
-    SELECT
-        DISTINCT 
-        block_timestamp :: DATE AS block_date,
-        address2 AS address
-    FROM
-        traces
-    WHERE
-        address2 <> '0x0000000000000000000000000000000000000000'
-    UNION ALL
-    SELECT
-        DISTINCT 
-        block_timestamp :: DATE AS block_date,
-        address
-    FROM
-        tx_fees
+    WHERE block_date >= DATEADD('day',-4,SYSDATE()) --last 3 max block_number by date
 ),
 to_do AS (
     SELECT
@@ -109,16 +26,12 @@ to_do AS (
         d.block_date,
         t.address
     FROM
-        native_transfers t
+        {{ ref("streamline__balances_native_daily_records") }} t
         INNER JOIN last_x_days d 
             ON t.block_date = d.block_date
         --max daily block_number from 1 day ago, for each address
     WHERE
         t.block_date IS NOT NULL
-        AND d.block_number = (
-            SELECT MAX(block_number)
-            FROM last_x_days
-        )
     EXCEPT
     SELECT
         block_number,
@@ -127,11 +40,11 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_native_daily_complete") }}
     WHERE
-        block_number = (
-            SELECT MAX(block_number)
+        block_date >= (
+            SELECT MIN(block_date)
             FROM last_x_days
         )
-        AND block_number IS NOT NULL
+        AND block_date IS NOT NULL
         AND _inserted_timestamp :: DATE >= DATEADD(
             'day',
             -7,

@@ -51,7 +51,37 @@ tx_fees AS (
         )
     {% endif %}
 ),
-native_transfers AS (
+native_transfers_snapshot AS (
+    SELECT
+        DISTINCT 
+        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        address1 AS address
+    FROM
+        traces
+    WHERE
+        address1 <> '0x0000000000000000000000000000000000000000'
+        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+    UNION
+    SELECT
+        DISTINCT 
+        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        address2 AS address
+    FROM
+        traces
+    WHERE
+        address2 <> '0x0000000000000000000000000000000000000000'
+        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+    UNION
+    SELECT
+        DISTINCT 
+        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        address
+    FROM
+        tx_fees
+    WHERE
+        block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+),
+native_transfers_history AS (
     SELECT
         DISTINCT 
         block_timestamp :: DATE AS block_date,
@@ -60,6 +90,7 @@ native_transfers AS (
         traces
     WHERE
         address1 <> '0x0000000000000000000000000000000000000000'
+        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
     UNION
     SELECT
         DISTINCT 
@@ -69,13 +100,21 @@ native_transfers AS (
         traces
     WHERE
         address2 <> '0x0000000000000000000000000000000000000000'
-    UNION ALL
+        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
+    UNION
     SELECT
         DISTINCT 
         block_timestamp :: DATE AS block_date,
         address
     FROM
         tx_fees
+    WHERE
+        block_date > {{ vars.BALANCES_SL_START_DATE }}
+),
+all_transfers AS (
+    SELECT * FROM native_transfers_snapshot
+    UNION
+    SELECT * FROM native_transfers_history
 )
 SELECT
     block_date,
@@ -86,6 +125,6 @@ SELECT
     _inserted_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    native_transfers qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id
+    all_transfers qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id
 ORDER BY
     modified_timestamp DESC)) = 1

@@ -117,7 +117,32 @@ all_logs AS (
     FROM newly_verified_logs
     {% endif %}
 ),
-transfers AS (
+transfers_snapshot AS (
+    SELECT
+        DISTINCT 
+        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        contract_address,
+        address1 AS address
+    FROM
+        all_logs
+    WHERE
+        address1 IS NOT NULL
+        AND address1 <> '0x0000000000000000000000000000000000000000'
+        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+    UNION
+    SELECT
+        DISTINCT 
+        {{ vars.BALANCES_SL_START_DATE }} AS block_date,
+        contract_address,
+        address2 AS address
+    FROM
+        all_logs
+    WHERE
+        address2 IS NOT NULL
+        AND address2 <> '0x0000000000000000000000000000000000000000'
+        AND block_timestamp :: DATE <= {{ vars.BALANCES_SL_START_DATE }}
+),
+transfers_history AS (
     SELECT
         DISTINCT 
         block_timestamp :: DATE AS block_date,
@@ -128,6 +153,7 @@ transfers AS (
     WHERE
         address1 IS NOT NULL
         AND address1 <> '0x0000000000000000000000000000000000000000'
+        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
     UNION
     SELECT
         DISTINCT 
@@ -139,6 +165,12 @@ transfers AS (
     WHERE
         address2 IS NOT NULL
         AND address2 <> '0x0000000000000000000000000000000000000000'
+        AND block_date > {{ vars.BALANCES_SL_START_DATE }}
+),
+all_transfers AS (
+    SELECT * FROM transfers_snapshot
+    UNION
+    SELECT * FROM transfers_history
 )
 SELECT
     block_date,
@@ -149,6 +181,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    transfers qualify (ROW_NUMBER() over (PARTITION BY balances_erc20_daily_records_id
+    all_transfers qualify (ROW_NUMBER() over (PARTITION BY balances_erc20_daily_records_id
 ORDER BY
     modified_timestamp DESC)) = 1
