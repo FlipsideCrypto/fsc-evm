@@ -1077,6 +1077,8 @@ The contract address of the token borrowed in the flash loan.
 
 Example: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
+This column will be deprecated October 13th, please update to token_address.
+
 {% enddocs %}
 
 {% docs ez_lending_flashloan_token_symbol %}
@@ -1084,6 +1086,8 @@ Example: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 The symbol of the token borrowed in the flash loan.
 
 Example: 'WETH'
+
+This column will be deprecated October 13th, please update to token_symbol.
 
 {% enddocs %}
 

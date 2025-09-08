@@ -3,7 +3,7 @@ name: dbt_run_master_keys
 on:
   push:
     branches:
-      - "pre-release/v4-beta"
+      - "main"
     paths:
       - 'macros/global/variables/return_vars.sql'
 
