@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: silver__balances_erc20_daily
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BALANCES_ERC20_DAILY_ID
+      
+    columns:
+      - name: BLOCK_DATE
+        tests:
+          - not_null
+      - name: ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: BALANCE_HEX
+        tests:
+          - not_null
+      - name: _INSERTED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: BALANCES_ERC20_DAILY_ID
+        tests:
+          - not_null
