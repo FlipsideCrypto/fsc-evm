@@ -10,7 +10,7 @@
     unique_key = "balances_native_daily_records_id",
     cluster_by = "block_date",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['balances','records','native','phase_4']
+    tags = ['streamline','balances','records','native','phase_4']
 ) }}
 
 WITH traces AS (
