@@ -17,7 +17,12 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_date >= DATEADD('day',-4,SYSDATE()) --last 3 max block_number by date
+    WHERE
+    {% if vars.BALANCES_SL_NEW_BUILD_ENABLED %}
+        block_date >= DATEADD('day',-2,SYSDATE()) --last 1 max block_number by date
+    {% else %}
+        block_date >= DATEADD('day',-4,SYSDATE()) --last 3 max block_number by date (intentional overlap with history)
+    {% endif %}
 ),
 to_do AS (
     SELECT
