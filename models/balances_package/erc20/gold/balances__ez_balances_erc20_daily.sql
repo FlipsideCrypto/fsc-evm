@@ -217,8 +217,7 @@ SELECT
         ['block_date','address','contract_address']
     ) }} AS ez_balances_erc20_daily_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp,
-    '{{ invocation_id }}' AS _invocation_id
+    SYSDATE() AS modified_timestamp
 FROM
     FINAL 
     

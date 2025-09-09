@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: balances__ez_balances_erc20_daily
+    description: '{{ doc("ez_balances_erc20_daily_table_doc") }}'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'
+      - name: BLOCK_DATE
+        description: '{{ doc("ez_balances_erc20_daily_block_date") }}'
+      - name: ADDRESS
+        description: '{{ doc("ez_balances_erc20_daily_address") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("ez_balances_erc20_daily_contract_address") }}'
+      - name: DECIMALS
+        description: '{{ doc("ez_balances_erc20_daily_decimals") }}'
+      - name: SYMBOL
+        description: '{{ doc("ez_balances_erc20_daily_symbol") }}'
+      - name: BALANCE_HEX
+        description: '{{ doc("ez_balances_erc20_daily_balance_hex") }}'
+      - name: BALANCE_RAW
+        description: '{{ doc("ez_balances_erc20_daily_balance_raw") }}'
+      - name: BALANCE_PRECISE
+        description: '{{ doc("ez_balances_erc20_daily_balance_precise") }}'
+      - name: BALANCE
+        description: '{{ doc("ez_balances_erc20_daily_balance") }}'
+      - name: BALANCE_USD
+        description: '{{ doc("ez_balances_erc20_daily_balance_usd") }}'
+      - name: EZ_BALANCES_ERC20_DAILY_ID
+        description: '{{ doc("general_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}'
