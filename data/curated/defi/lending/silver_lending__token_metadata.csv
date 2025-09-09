@@ -6,3 +6,4 @@ ethereum,erc20,ERC20,0x36b6c4dce5465721fbd6a10edd95c4cababd71d2,18
 ethereum,FakeToken,FAKE,0x292021b1e047fd0bd87f4d058a23f100d65153ec,18
 ethereum,erc20,ERC20,0xf1d2d880c5dde7cc912636c2b4d080b3fe5f7b50,18
 bob,MockERC20,MOCK,0x589f02cfaebf48f835ce43a8686f91857d7929cc,18
+polygon,erc20,ERC20,0xdac671baee0176012ea8e4b30ef824ac8a210c5e,6
