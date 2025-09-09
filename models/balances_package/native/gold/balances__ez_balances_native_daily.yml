@@ -1,30 +1,28 @@
 version: 2
 models:
   - name: balances__ez_balances_native_daily
-    description: 
+    description: '{{ doc("ez_balances_native_daily_table_doc") }}'
       
     columns:
       - name: BLOCK_NUMBER
-        description:
+        description: '{{ doc("general_block_number") }}'
       - name: BLOCK_DATE
-        description:
+        description: '{{ doc("ez_balances_native_daily_block_date") }}'
       - name: ADDRESS
-        description:
+        description: '{{ doc("ez_balances_native_daily_address") }}'
       - name: BALANCE_HEX
-        description:
+        description: '{{ doc("ez_balances_native_daily_balance_hex") }}'
       - name: BALANCE_RAW
-        description:
+        description: '{{ doc("ez_balances_native_daily_balance_raw") }}'
       - name: BALANCE_PRECISE
-        description:
+        description: '{{ doc("ez_balances_native_daily_balance_precise") }}'
       - name: BALANCE
-        description:
+        description: '{{ doc("ez_balances_native_daily_balance") }}'
       - name: BALANCE_USD
-        description:
+        description: '{{ doc("ez_balances_native_daily_balance_usd") }}'
       - name: EZ_BALANCES_NATIVE_DAILY_ID
-        description:
+        description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP
-        description:
+        description: '{{ doc("general_inserted_timestamp") }}'
       - name: MODIFIED_TIMESTAMP
-        description:
-      - name: _INVOCATION_ID
-        description:
+        description: '{{ doc("general_modified_timestamp") }}'
