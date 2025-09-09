@@ -1,0 +1,30 @@
+version: 2
+models:
+  - name: balances__ez_balances_native_daily
+    description: 
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description:
+      - name: BLOCK_DATE
+        description:
+      - name: ADDRESS
+        description:
+      - name: BALANCE_HEX
+        description:
+      - name: BALANCE_RAW
+        description:
+      - name: BALANCE_PRECISE
+        description:
+      - name: BALANCE
+        description:
+      - name: BALANCE_USD
+        description:
+      - name: EZ_BALANCES_NATIVE_DAILY_ID
+        description:
+      - name: INSERTED_TIMESTAMP
+        description:
+      - name: MODIFIED_TIMESTAMP
+        description:
+      - name: _INVOCATION_ID
+        description:
