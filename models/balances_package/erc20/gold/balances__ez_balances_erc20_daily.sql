@@ -22,17 +22,17 @@
 WITH balances AS (
 
     SELECT
-        block_number,
+        s.block_number,
         block_date,
-        address,
-        contract_address,
+        s.address,
+        s.contract_address,
         IFF(
-            p0.decimals IS NULL
-            AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
+            c.decimals IS NULL
+            AND s.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
             18,
-            p0.decimals
+            c.decimals
         ) AS decimals_adj,
-        p0.symbol,
+        c.symbol,
         balance_hex,
         CASE
             WHEN LENGTH(balance_hex) <= 4300
@@ -53,7 +53,7 @@ WITH balances AS (
             NULL,
             ROUND(
                 balance * IFF(
-                    contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
+                    s.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
                     COALESCE(
                         p0.price,
                         p1.price
@@ -83,6 +83,9 @@ WITH balances AS (
             s.block_date
         ) = p1.hour
         AND p1.is_native
+        LEFT JOIN {{ ref('core__dim_contracts')}}
+        c
+        ON s.contract_address = c.address
     WHERE
         balance_raw IS NOT NULL
 
@@ -99,17 +102,17 @@ AND s.modified_timestamp >= (
 {% if is_incremental() %},
 missing_data AS (
     SELECT
-        block_number,
+        t.block_number,
         block_date,
-        address,
-        contract_address,
+        t.address,
+        t.contract_address,
         IFF(
-            p0.decimals IS NULL
-            AND contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
+            c.decimals IS NULL
+            AND t.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
             18,
-            p0.decimals
+            c.decimals
         ) AS decimals_heal,
-        p0.symbol AS symbol_heal,
+        c.symbol AS symbol_heal,
         balance_hex,
         balance_raw,
         IFF(
@@ -126,7 +129,7 @@ missing_data AS (
             NULL,
             ROUND(
                 balance_heal * IFF(
-                    contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
+                    t.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
                     COALESCE(
                         p0.price,
                         p1.price
@@ -156,14 +159,23 @@ missing_data AS (
             t.block_date
         ) = p1.hour
         AND p1.is_native
+        LEFT JOIN {{ ref('core__dim_contracts')}}
+        c
+        ON t.contract_address = c.address
     WHERE
-        t.balance_usd IS NULL
+        (
+            t.balance_usd IS NULL
         AND (
             p0.price IS NOT NULL
             OR (
-                contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+                t.contract_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
                 AND p1.price IS NOT NULL
             )
+        )
+        )
+        OR (
+            t.decimals IS NULL
+            AND t.symbol IS NULL
         )
 )
 {% endif %},
