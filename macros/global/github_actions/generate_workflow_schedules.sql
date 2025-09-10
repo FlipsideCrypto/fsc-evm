@@ -43,6 +43,7 @@
     {'name': 'dbt_run_full_observability', 'cadence': 'monthly', 'root_offset': 25, 'hour': 2},
     {'name': 'dbt_run_dev_refresh', 'cadence': 'weekly', 'root_offset': 40, 'hour': 7, 'day': 1},
     {'name': 'dbt_run_streamline_decoder_history', 'cadence': 'weekly', 'root_offset': 30, 'hour': 3, 'day': 6},
+    {'name': 'dbt_run_streamline_balances_history', 'cadence': 'weekly', 'root_offset': 45, 'hour': 9, 'day': 0},
     {'name': 'dbt_run_streamline_dexalot_chainhead', 'cadence': 'custom'},
     {'name': 'dbt_run_scheduled_dexalot_main', 'cadence': 'custom'},
     {'name': 'dbt_test_beacon', 'cadence': 'custom'},
