@@ -134,6 +134,7 @@ select
     origin_function_signature,
     contract_address,
     to_address,
+    from_address,
     amount
 from
    {{ ref('core__ez_token_transfers') }}
@@ -143,24 +144,24 @@ where
 ),
 final_base_wd as (
 SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
+    w.tx_hash,
+    w.block_number,
+    w.block_timestamp,
+    w.event_index,
+    w.origin_from_address,
+    w.origin_to_address,
+    w.origin_function_signature,
+    w.contract_address,
     w.asset AS protocol_market,
-    borrower_address AS depositor,
-    w.underlying_asset_address AS token_address,
-    borrow_amount AS amount_unadj,
+    w.borrower_address AS depositor,
+    A.underlying_asset_address AS token_address,
+    w.borrow_amount AS amount_unadj,
     w.symbol AS itoken_symbol,
     A.protocol,
     A.version,
     A.platform,
-    _log_id,
-    modified_timestamp,
+    w._log_id,
+    w.modified_timestamp,
     'Withdraw' AS event_name
 FROM
     borrow w
@@ -173,54 +174,55 @@ FROM
     WHERE b.to_address IS NOT NULL
 ),
 withdraw_union as (
-SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
-    compound_market as protocol_market,
-    depositor_address as depositor,
-    w.token_address,
-    withdraw_amount AS amount_unadj,
-    A.protocol,
-    A.version,
-    A.platform,
-    _log_id,
-    modified_timestamp,
-    'WithdrawCollateral' AS event_name
-FROM
-    withdraw w
-    LEFT JOIN comp_assets A
-    ON w.compound_market = A.compound_market_address
-UNION ALL
-SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
-    protocol_market,
-    depositor,
-    w.underlying_asset_address AS token_address,
-    borrow_amount AS amount_unadj,
-    w.symbol AS itoken_symbol,
-    A.protocol,
-    A.version,
-    A.platform,
-    _log_id,
-    modified_timestamp,
-    'Withdraw' AS event_name
-FROM
-    final_base_wd w
-    LEFT JOIN comp_assets A
-    ON w.protocol_market = A.compound_market_address
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        compound_market as protocol_market,
+        depositor_address as depositor,
+        w.token_address,
+        withdraw_amount AS amount_unadj,
+        A.compound_market_symbol AS itoken_symbol,
+        A.protocol,
+        A.version,
+        A.platform,
+        _log_id,
+        modified_timestamp,
+        'WithdrawCollateral' AS event_name
+    FROM
+        withdraw w
+        LEFT JOIN comp_assets A
+        ON w.compound_market = A.compound_market_address
+    UNION ALL
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        protocol_market,
+        depositor,
+        A.underlying_asset_address AS token_address,
+        amount_unadj,
+        A.compound_market_symbol AS itoken_symbol,
+        A.protocol,
+        A.version,
+        A.platform,
+        _log_id,
+        modified_timestamp,
+        'Withdraw' AS event_name
+    FROM
+        final_base_wd w
+        LEFT JOIN comp_assets A
+        ON w.protocol_market = A.compound_market_address
 )
 SELECT
     *

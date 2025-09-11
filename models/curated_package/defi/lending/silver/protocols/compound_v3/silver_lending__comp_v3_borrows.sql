@@ -88,6 +88,7 @@ select
     origin_function_signature,
     contract_address,
     to_address,
+    from_address,
     amount
 from
    {{ ref('core__ez_token_transfers') }}
@@ -96,24 +97,24 @@ where
     and to_address = '0x0000000000000000000000000000000000000000'
 )
 SELECT
-    tx_hash,
-    block_number,
-    block_timestamp,
-    event_index,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    contract_address,
+    w.tx_hash,
+    w.block_number,
+    w.block_timestamp,
+    w.event_index,
+    w.origin_from_address,
+    w.origin_to_address,
+    w.origin_function_signature,
+    w.contract_address,
     w.asset AS protocol_market,
-    borrower_address AS borrower,
+    w.borrower_address AS borrower,
     w.underlying_asset_address AS token_address,
-    borrow_amount AS amount_unadj,
+    w.borrow_amount AS amount_unadj,
     w.symbol AS itoken_symbol,
     A.protocol,
     A.version,
     A.platform,
-    _log_id,
-    modified_timestamp,
+    w._log_id,
+    w.modified_timestamp,
     'Withdraw' AS event_name
 FROM
     borrow w
@@ -123,6 +124,6 @@ FROM
     ON w.tx_hash = B.tx_hash
     and w.borrower_address = b.from_address
     and w.asset=b.contract_address
-    WHERE b.to_address is null qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    WHERE b.to_address is null qualify(ROW_NUMBER() over(PARTITION BY w._log_id
 ORDER BY
-    modified_timestamp DESC)) = 1
+    w.modified_timestamp DESC)) = 1
