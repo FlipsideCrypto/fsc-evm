@@ -76,6 +76,24 @@ AND l.modified_timestamp >= (
 )
 AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
+),
+borrows_checks as (
+select
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    to_address,
+    amount
+from
+   {{ ref('core__ez_token_transfers') }}
+where 
+    tx_hash in (select distinct tx_hash from borrow)
+    and to_address = '0x0000000000000000000000000000000000000000'
 )
 SELECT
     tx_hash,
@@ -100,6 +118,11 @@ SELECT
 FROM
     borrow w
     LEFT JOIN comp_assets A
-    ON w.asset = A.compound_market_address qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    ON w.asset = A.compound_market_address
+    LEFT JOIN borrows_checks B
+    ON w.tx_hash = B.tx_hash
+    and w.borrower_address = b.from_address
+    and w.asset=b.contract_address
+    WHERE b.to_address is null qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
     modified_timestamp DESC)) = 1
