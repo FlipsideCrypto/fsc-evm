@@ -6,7 +6,7 @@
 
 {{ config (
     materialized = "view",
-    tags = ['test_gold','balances','native','full_test','phase_4']
+    tags = ['test_gold','balances','native','daily','full_test','phase_4']
 ) }}
 
 SELECT
