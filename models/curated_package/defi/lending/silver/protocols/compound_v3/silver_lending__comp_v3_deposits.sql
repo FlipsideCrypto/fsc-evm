@@ -69,6 +69,53 @@ AND l.modified_timestamp >= (
 )
 AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
+UNION ALL
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        l.contract_address,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
+        l.contract_address AS compound_market,
+        c.underlying_asset_address AS asset,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: INTEGER AS supply_amount,
+        origin_from_address AS depositor_address,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        l.modified_timestamp
+    FROM
+        {{ ref('core__fact_event_logs') }}
+        l
+    LEFT JOIN comp_assets c
+    ON l.contract_address = c.compound_market_address 
+    WHERE
+        topics [0] = '0 0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e' --Supply (base asset)
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
+        AND tx_succeeded
+
+{% if is_incremental() %}
+AND l.modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
 )
 SELECT
     tx_hash,
