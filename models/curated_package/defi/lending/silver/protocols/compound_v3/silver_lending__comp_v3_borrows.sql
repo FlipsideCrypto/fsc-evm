@@ -95,6 +95,15 @@ from
 where 
     tx_hash in (select distinct tx_hash from borrow)
     and to_address = '0x0000000000000000000000000000000000000000'
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
 )
 SELECT
     w.tx_hash,
