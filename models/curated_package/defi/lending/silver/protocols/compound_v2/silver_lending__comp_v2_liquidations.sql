@@ -125,7 +125,7 @@ SELECT
     'LiquidateBorrow' AS event_name
 FROM
     comp_v2_fork_liquidations l
-    LEFT JOIN exchange_rate e
+    INNER JOIN exchange_rate e
     ON e.to_address = l.tokenCollateral
     AND e.tx_hash = l.tx_hash qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
