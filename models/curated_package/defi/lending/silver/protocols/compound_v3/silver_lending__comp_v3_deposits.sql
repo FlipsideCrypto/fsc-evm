@@ -98,7 +98,7 @@ UNION ALL
     LEFT JOIN comp_assets c
     ON l.contract_address = c.compound_market_address 
     WHERE
-        topics [0] = '0 0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e' --Supply (base asset)
+        topics [0] = '0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e' --Supply (base asset)
         AND l.contract_address IN (
             SELECT
                 DISTINCT(compound_market_address)
