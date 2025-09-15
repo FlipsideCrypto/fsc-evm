@@ -226,7 +226,7 @@
             'venus': {
                 'v1': {
                     'comp_v2_origin_from_address': ['0x1ca3ac3686071be692be7f1fbecd668641476d7e',
-                    '0x55a9f5374af30e3045fb491f1da3c2e8a74d168d']
+                    '0x55a9f5374af30e3045fb491f1da3c2e8a74d168d','0x7bf1fe2c42e79dba813bf5026b7720935a55ec5f']
                 }
             },
             'dforce': {
