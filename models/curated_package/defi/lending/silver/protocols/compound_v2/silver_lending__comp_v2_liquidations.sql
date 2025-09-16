@@ -95,6 +95,19 @@ exchange_rate AS (
                 comp_v2_fork_liquidations
         )
         AND input = '0x182df0f5'
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY tx_hash, to_address
+        ORDER BY output DESC NULLS LAST
+    ) = 1
 )
 SELECT
     block_number,
