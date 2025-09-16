@@ -20,6 +20,7 @@ base,Piggy Pount,Piggy,0xf7465088c8bee9ed48e8c1efd39e3cafe0ca9547,18
 base,Verified Wrapped Ether,vWETH,0xd05b21a25c02d6634073e86b543e518ad9256d94,18
 base,Ghost Dollar,GHOST,0x1d198cf976a67cac09b3befeb7a8cb5a7c440272,6
 base,Verified Wrapped Ether,vWETH,0x7e0f7e9d8e75beab54fd0ee00b566306a171a337,18
+base,erc20,ERC20,0xcb35be279968f6c53ebf73c8d9d5d7aaf4d34956,6
 base,Euler Labubu,LABU,0x73756946591e41df84144d99f6298530633d4aa7,1
 base,Test Vault,stTEST,0xd1738949e693c498978ebb7807a78873edc13381,18
 bsc,MockERC20,MOCK,0xfb0d7a36998aae560e791c86a54c5c0036770258,18
