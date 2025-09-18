@@ -6,7 +6,7 @@
 
 {# Set up dbt configuration #}
 {{ config (
-    materialized = "view",
+    materialized = "table",
     tags = ['streamline','balances','history','native','phase_4']
 ) }}
 
@@ -45,7 +45,7 @@ to_do AS (
         {{ ref("streamline__balances_native_daily_complete") }}
     WHERE block_date IS NOT NULL
 
-    LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
+    LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }} --includes limit in to_do CTE for performance impact
 )
 SELECT
     block_number,
