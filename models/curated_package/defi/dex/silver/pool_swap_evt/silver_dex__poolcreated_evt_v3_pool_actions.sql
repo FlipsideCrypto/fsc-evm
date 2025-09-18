@@ -22,8 +22,12 @@ WITH evt AS (
         origin_from_address,
         origin_to_address,
         l.contract_address AS pool_address,
-        token0 AS token_0,
-        token1 AS token_1,
+        token0_address AS token_0,
+        token1_address AS token_1,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
         topic_0,
         topic_1,
         topic_2,
@@ -47,11 +51,11 @@ WITH evt AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN {{ref('silver_dex__paircreated_evt_v2_pools')}} p
+        INNER JOIN {{ref('silver_dex__poolcreated_evt_v3_pools')}} p
         ON l.contract_address = p.pool_address
     WHERE
-        topic_0 IN ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f' --mint
-        '0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496' --burn
+        topic_0 IN ('0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde' --mint
+        '0x0c396cd989a39f4459b5fa1aed6a9a8dcdbc45908acfd67e028cd568da98982c' --burn
         )
         AND tx_succeeded
 
@@ -78,15 +82,35 @@ mint AS (
         pool_address,
         token_0,
         token_1,
-        CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS sender_address,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
+        CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
-                segmented_data [0] :: STRING
+                topic_2
+            )
+        ) AS tick_lower,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                topic_3
+            )
+        ) AS tick_upper,
+        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS sender_address,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [1] :: STRING
+            )
+        ) AS amount,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [2] :: STRING
             )
         ) AS amount_0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
+                segmented_data [3] :: STRING
             )
         ) AS amount_1,
         protocol,
@@ -98,7 +122,7 @@ mint AS (
     FROM
         evt
     WHERE
-        topic_0 = '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f' --mint
+        topic_0 = '0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde' --mint
 ),
 burn AS (
     SELECT
@@ -113,16 +137,34 @@ burn AS (
         pool_address,
         token_0,
         token_1,
-        CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS sender_address,
-        CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS to_address,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
+        CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                topic_2
+            )
+        ) AS tick_lower,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                topic_3
+            )
+        ) AS tick_upper,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             )
-        ) AS amount_0,
+        ) AS amount,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
+            )
+        ) AS amount_0,
+        TRY_TO_NUMBER(
+            utils.udf_hex_to_int(
+                segmented_data [2] :: STRING
             )
         ) AS amount_1,
         protocol,
@@ -134,7 +176,7 @@ burn AS (
     FROM
         evt
     WHERE
-        topic_0 = '0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496' --burn
+        topic_0 = '0x0c396cd989a39f4459b5fa1aed6a9a8dcdbc45908acfd67e028cd568da98982c' --burn
 ),
 all_actions AS (
     SELECT
@@ -147,10 +189,18 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
+        tick_lower,
+        tick_upper,
         token_0,
         token_1,
+        owner_address,
         sender_address AS sender,
-        pool_address AS receiver,
+        owner_address AS receiver,
+        amount AS amount_unadj,
         amount_0 AS amount_0_unadj,
         amount_1 AS amount_1_unadj,
         protocol,
@@ -172,10 +222,18 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
+        tick_lower,
+        tick_upper,
         token_0,
         token_1,
-        sender_address AS sender,
-        to_address AS receiver,
+        owner_address,
+        owner_address AS sender,
+        origin_from_address AS receiver,
+        amount AS amount_unadj,
         amount_0 AS amount_0_unadj,
         amount_1 AS amount_1_unadj,
         protocol,
@@ -197,10 +255,18 @@ SELECT
     origin_to_address,
     event_name,
     pool_address,
+    fee,
+    fee_percent,
+    tick_spacing,
+    init_tick,
+    tick_lower,
+    tick_upper,
     token_0,
     token_1,
+    owner_address,
     sender,
     receiver,
+    amount_unadj,
     amount_0_unadj,
     amount_1_unadj,
     protocol,
