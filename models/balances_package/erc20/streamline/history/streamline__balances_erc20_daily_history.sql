@@ -46,6 +46,8 @@ to_do AS (
     FROM
         {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE block_date IS NOT NULL
+
+    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 )
 SELECT
     block_number,
@@ -99,9 +101,7 @@ SELECT
     ) AS request
 FROM
     to_do
-{# ORDER BY partition_key DESC, block_number DESC #}
-
-LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+ORDER BY partition_key DESC, block_number DESC
 
 {# Streamline Function Call #}
 {% if execute %}
