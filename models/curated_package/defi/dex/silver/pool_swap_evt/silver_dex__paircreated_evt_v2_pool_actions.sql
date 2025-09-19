@@ -199,6 +199,7 @@ SELECT
     pool_address,
     token_0,
     token_1,
+    origin_from_address AS liquidity_provider,
     sender,
     receiver,
     amount_0_unadj,

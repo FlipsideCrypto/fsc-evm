@@ -263,6 +263,7 @@ SELECT
     tick_upper,
     token_0,
     token_1,
+    origin_from_address AS liquidity_provider,
     owner_address,
     sender,
     receiver,
