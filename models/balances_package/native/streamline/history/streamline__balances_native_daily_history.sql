@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "table",
-    post_hook = "{{ streamline_balances_history_function_call() }}",
+    post_hook = "{{ streamline_balances_native_daily_history_function_call() }}",
     tags = ['streamline','balances','history','native','phase_4']
 ) }}
 --post_hook macro necessary for the streamline function call because model is materialized as a table, rather than a view
