@@ -7,6 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "table",
+    post_hook = "{{ streamline_balances_native_daily_history_function_call() }}",
     tags = ['streamline','balances','history','native','phase_4']
 ) }}
 
