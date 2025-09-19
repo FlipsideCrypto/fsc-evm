@@ -50,7 +50,7 @@ WITH evt AS (
         INNER JOIN {{ref('silver_dex__paircreated_evt_v2_pools')}} p
         ON l.contract_address = p.pool_address
     WHERE
-        topic_0 IN ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f' --mint
+        topic_0 IN ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f', --mint
         '0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496' --burn
         )
         AND tx_succeeded

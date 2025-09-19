@@ -54,7 +54,7 @@ WITH evt AS (
         INNER JOIN {{ref('silver_dex__poolcreated_evt_v3_pools')}} p
         ON l.contract_address = p.pool_address
     WHERE
-        topic_0 IN ('0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde' --mint
+        topic_0 IN ('0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde', --mint
         '0x0c396cd989a39f4459b5fa1aed6a9a8dcdbc45908acfd67e028cd568da98982c' --burn
         )
         AND tx_succeeded
