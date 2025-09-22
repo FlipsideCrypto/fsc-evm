@@ -134,7 +134,6 @@ ranked_data as (
         DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
         address,
         contract_address,
-        DATE_PART('EPOCH_SECONDS', SYSDATE()::DATE)::INT AS partition_key,
         OBJECT_CONSTRUCT(
             'id', CONCAT(
                 contract_address,
@@ -162,10 +161,10 @@ ranked_data as (
 )
 SELECT
     block_number,
+    block_date,
     block_date_unix,
     address,
     contract_address,
-    partition_key,
     api_request,
 FROM ranked_data
 WHERE rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
