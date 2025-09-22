@@ -964,7 +964,7 @@ SELECT
   version,
   type,
   _id,
-  _inserted_timestamp
+  _inserted_timestamp,
   {{ dbt_utils.generate_surrogate_key(
     ['_id']
   ) }} AS complete_dex_liquidity_pool_actions_id,
