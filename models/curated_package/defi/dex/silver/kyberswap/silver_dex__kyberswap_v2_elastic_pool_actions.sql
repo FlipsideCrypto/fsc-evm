@@ -22,8 +22,12 @@ WITH evt AS (
         origin_from_address,
         origin_to_address,
         l.contract_address AS pool_address,
-        token0 AS token_0,
-        token1 AS token_1,
+        token0_address AS token_0,
+        token1_address AS token_1,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
         topic_0,
         topic_1,
         topic_2,
@@ -78,33 +82,37 @@ mint AS (
         pool_address,
         token_0,
         token_1,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
-                topic_2 :: STRING
+                topic_2
             )
         ) AS tick_lower,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
-                topic_3 :: STRING
+                topic_3
             )
         ) AS tick_upper,
-        CONCAT('0x',SUBSTR(segmented_data [0] :: STRING, 27, 40)) AS sender_address,
+        CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS sender_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
-        ) AS qty,
+        ) AS amount,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [2] :: STRING
             )
-        ) AS qty_0,
+        ) AS amount_0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [3] :: STRING
             )
-        ) AS qty_1,
+        ) AS amount_1,
         protocol,
         version,
         type,
@@ -129,32 +137,36 @@ burn AS (
         pool_address,
         token_0,
         token_1,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
-                topic_2 :: STRING
+                topic_2
             )
         ) AS tick_lower,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
-                topic_3 :: STRING
+                topic_3
             )
         ) AS tick_upper,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             )
-        ) AS qty,
+        ) AS amount,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
-        ) AS qty_0,
+        ) AS amount_0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [2] :: STRING
             )
-        ) AS qty_1,
+        ) AS amount_1,
         protocol,
         version,
         type,
@@ -177,10 +189,18 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
+        tick_lower,
+        tick_upper,
         token_0,
         token_1,
-        owner_address AS sender,
-        pool_address AS receiver,
+        owner_address,
+        sender_address AS sender,
+        owner_address AS receiver,
+        amount AS amount_unadj,
         amount_0 AS amount_0_unadj,
         amount_1 AS amount_1_unadj,
         protocol,
@@ -202,10 +222,18 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
+        fee,
+        fee_percent,
+        tick_spacing,
+        init_tick,
+        tick_lower,
+        tick_upper,
         token_0,
         token_1,
-        sender_address AS sender,
+        owner_address,
+        owner_address AS sender,
         origin_from_address AS receiver,
+        amount AS amount_unadj,
         amount_0 AS amount_0_unadj,
         amount_1 AS amount_1_unadj,
         protocol,
@@ -227,11 +255,19 @@ SELECT
     origin_to_address,
     event_name,
     pool_address,
+    fee,
+    fee_percent,
+    tick_spacing,
+    init_tick,
+    tick_lower,
+    tick_upper,
     token_0,
     token_1,
     origin_from_address AS liquidity_provider,
+    owner_address,
     sender,
     receiver,
+    amount_unadj,
     amount_0_unadj,
     amount_1_unadj,
     protocol,
