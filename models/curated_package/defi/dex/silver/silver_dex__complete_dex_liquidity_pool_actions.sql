@@ -306,7 +306,7 @@ pancakeswap_v3 AS (
     pool_address,
     fee,
     fee_percent,
-    init_tick,
+    NULL AS init_tick,
     tick_spacing,
     tick_lower,
     tick_upper,

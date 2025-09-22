@@ -27,7 +27,6 @@ WITH evt AS (
         fee,
         fee_percent,
         tick_spacing,
-        init_tick,
         topic_0,
         topic_1,
         topic_2,
@@ -85,7 +84,6 @@ mint AS (
         fee,
         fee_percent,
         tick_spacing,
-        init_tick,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
@@ -140,7 +138,6 @@ burn AS (
         fee,
         fee_percent,
         tick_spacing,
-        init_tick,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
@@ -192,7 +189,6 @@ all_actions AS (
         fee,
         fee_percent,
         tick_spacing,
-        init_tick,
         tick_lower,
         tick_upper,
         token_0,
@@ -225,7 +221,6 @@ all_actions AS (
         fee,
         fee_percent,
         tick_spacing,
-        init_tick,
         tick_lower,
         tick_upper,
         token_0,
@@ -258,7 +253,6 @@ SELECT
     fee,
     fee_percent,
     tick_spacing,
-    init_tick,
     tick_lower,
     tick_upper,
     token_0,
