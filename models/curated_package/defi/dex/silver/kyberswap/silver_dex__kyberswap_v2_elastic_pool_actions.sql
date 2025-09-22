@@ -24,10 +24,12 @@ WITH evt AS (
         l.contract_address AS pool_address,
         token0 AS token_0,
         token1 AS token_1,
-        fee,
-        fee_percent,
-        tick_spacing,
-        init_tick,
+        swap_fee_units AS fee,
+        (
+            swap_fee_units / 10000
+        ) :: FLOAT AS fee_percent,
+        swap_distance AS tick_spacing,
+        NULL AS init_tick,
         topic_0,
         topic_1,
         topic_2,
