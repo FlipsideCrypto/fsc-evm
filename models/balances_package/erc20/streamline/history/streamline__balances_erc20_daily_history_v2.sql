@@ -95,10 +95,7 @@ SELECT
     DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
     address,
     contract_address,
-    ROUND(
-        block_number,
-        -3
-    ) AS partition_key,
+    DATE_PART('EPOCH_SECONDS', SYSDATE()::DATE) :: INT AS partition_key,
     live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
