@@ -1,6 +1,6 @@
 -- depends_on: {{ ref('streamline__balances_erc20_daily_records') }}
 -- depends_on: {{ ref('streamline__balances_erc20_daily_complete') }}
--- depends_on: {{ ref('_max_block_by_date') }}
+-- depends_on: {{ ref('core__fact_blocks') }}
 
 {# Get variables #}
 {% set vars = return_vars() %}
@@ -125,24 +125,15 @@ WITH to_do AS (
         address,
         contract_address
     FROM silver.erc20_balances_daily_backfill_rows__intermediate_tmp
-    
-    ORDER BY block_date DESC
-    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
-)
+),
+ranked_data as (
 
-SELECT
-    block_number,
-    DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
-    address,
-    contract_address,
-    DATE_PART('EPOCH_SECONDS', SYSDATE()::DATE)::INT AS partition_key,
-    live.udf_api(
-        'POST',
-        '{{ vars.GLOBAL_NODE_URL }}',
-        OBJECT_CONSTRUCT(
-            'Content-Type', 'application/json',
-            'fsc-quantum-state', 'streamline'
-        ),
+    SELECT
+        block_number,
+        DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
+        address,
+        contract_address,
+        DATE_PART('EPOCH_SECONDS', SYSDATE()::DATE)::INT AS partition_key,
         OBJECT_CONSTRUCT(
             'id', CONCAT(
                 contract_address,
@@ -163,13 +154,18 @@ SELECT
                 ),
                 utils.udf_int_to_hex(block_number)
             )
-        ),
-        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
-    ) AS request
-FROM to_do
-JOIN silver.erc20_balances_daily_block_numbers__intermediate_tmp 
-    USING (block_date)
-ORDER BY 
-    partition_key DESC, 
-    block_number DESC
-LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+        ) as request,
+        ROW_NUMBER() OVER (ORDER BY block_number DESC) as rn
+    FROM to_do
+    JOIN silver.erc20_balances_daily_block_numbers__intermediate_tmp USING (block_date)
+)
+SELECT
+    block_number,
+    block_date_unix,
+    address,
+    contract_address,
+    partition_key,
+    request
+FROM ranked_data
+WHERE rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+ORDER BY block_number DESC
