@@ -115,6 +115,7 @@
 WITH to_do AS (
     SELECT
         block_date,
+        'snapshot' as type,
         address,
         contract_address
     FROM silver.erc20_balances_snapshot_rows__intermediate_tmp
@@ -123,6 +124,7 @@ WITH to_do AS (
     
     SELECT
         block_date,
+        'backfill' as type,
         address,
         contract_address
     FROM silver.erc20_balances_daily_backfill_rows__intermediate_tmp
@@ -133,6 +135,7 @@ ranked_data as (
         block_number,
         block_date,
         DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
+        type,
         address,
         contract_address,
         OBJECT_CONSTRUCT(
@@ -164,6 +167,8 @@ SELECT
     block_number,
     block_date,
     block_date_unix,
+    type,
+    iff(type = 'snapshot', DATE_PART('EPOCH_SECONDS', sysdate()::date)::INT, round(block_number, -3)) as partition_key,
     address,
     contract_address,
     api_request,

@@ -15,7 +15,7 @@ SELECT
     block_date_unix,
     address,
     contract_address,
-    DATE_PART('EPOCH_SECONDS', SYSDATE()::DATE)::INT AS partition_key,
+    partition_key,
     live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
