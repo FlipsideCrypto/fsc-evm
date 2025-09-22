@@ -10,7 +10,7 @@
   unique_key = ['block_number','platform','version'],
   cluster_by = ['block_timestamp::DATE','platform'],
   post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, pool_address, pool_name)",
-  tags = ['silver_dex','defi','dex','curated','heal','complete','lp']
+  tags = ['silver_dex','defi','dex','curated','heal','complete','lp_actions']
 ) }}
 
 WITH contracts AS (
