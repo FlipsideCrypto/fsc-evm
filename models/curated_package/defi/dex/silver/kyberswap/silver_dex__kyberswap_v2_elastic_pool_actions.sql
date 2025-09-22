@@ -28,7 +28,7 @@ WITH evt AS (
         (
             swap_fee_units / 10000
         ) :: FLOAT AS fee_percent,
-        tickDistance AS tick_spacing,
+        tick_distance AS tick_spacing,
         NULL AS init_tick,
         topic_0,
         topic_1,
