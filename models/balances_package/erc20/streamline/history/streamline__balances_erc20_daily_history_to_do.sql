@@ -105,6 +105,7 @@
             contract_address
         FROM {{ ref("streamline__balances_erc20_daily_complete") }}
         WHERE block_date > '{{ snapshot_date }}'
+        ORDER BY block_date DESC
         LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
     {% endset %}
     {% do run_query(daily_backfill_rows_query) %}
@@ -154,7 +155,7 @@ ranked_data as (
                 ),
                 utils.udf_int_to_hex(block_number)
             )
-        ) as request,
+        ) as api_request,
         ROW_NUMBER() OVER (ORDER BY block_number DESC) as rn
     FROM to_do
     JOIN silver.erc20_balances_daily_block_numbers__intermediate_tmp USING (block_date)
@@ -165,7 +166,7 @@ SELECT
     address,
     contract_address,
     partition_key,
-    request
+    api_request,
 FROM ranked_data
 WHERE rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY block_number DESC
