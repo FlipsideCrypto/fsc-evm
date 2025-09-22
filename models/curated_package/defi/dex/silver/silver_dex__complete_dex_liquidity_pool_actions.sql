@@ -73,7 +73,7 @@ poolcreated_evt_v3 AS (
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
-    {{ ref('silver_dex__poolcreated_evt_v3_pools') }}
+    {{ ref('silver_dex__poolcreated_evt_v3_pool_actions') }}
 
 {% if is_incremental() and 'poolcreated_evt_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
@@ -125,9 +125,217 @@ paircreated_evt_v2 AS (
     _log_id AS _id,
     modified_timestamp AS _inserted_timestamp
   FROM
-    {{ ref('silver_dex__paircreated_evt_v2_pools') }}
+    {{ ref('silver_dex__paircreated_evt_v2_pool_actions') }}
 
 {% if is_incremental() and 'paircreated_evt_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+kyberswap_v1_dynamic AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    NULL AS fee,
+    NULL AS fee_percent,
+    NULL AS init_tick,
+    NULL AS tick_spacing,
+    NULL AS tick_lower,
+    NULL AS tick_upper,
+    token_0 AS token0,
+    token_1 AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount_0_unadj AS amount0_unadj,
+    amount_1_unadj AS amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__kyberswap_v1_dynamic_pool_actions') }}
+
+{% if is_incremental() and 'kyberswap_v1_dynamic' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+kyberswap_v2_elastic AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    fee,
+    fee_percent,
+    init_tick,
+    tick_spacing,
+    tick_lower,
+    tick_upper,
+    token_0 AS token0,
+    token_1 AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount_0_unadj AS amount0_unadj,
+    amount_1_unadj AS amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__kyberswap_v2_elastic_pool_actions') }}
+
+{% if is_incremental() and 'kyberswap_v2_elastic' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+dodo_v1 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    NULL AS fee,
+    NULL AS fee_percent,
+    NULL AS init_tick,
+    NULL AS tick_spacing,
+    NULL AS tick_lower,
+    NULL AS tick_upper,
+    token_0 AS token0,
+    token_1 AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount_0_unadj AS amount0_unadj,
+    amount_1_unadj AS amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__dodo_v1_pool_actions') }}
+
+{% if is_incremental() and 'dodo_v1' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+pancakeswap_v3 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    fee,
+    fee_percent,
+    init_tick,
+    tick_spacing,
+    tick_lower,
+    tick_upper,
+    token_0 AS token0,
+    token_1 AS token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount_0_unadj AS amount0_unadj,
+    amount_1_unadj AS amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__pancakeswap_v3_pool_actions') }}
+
+{% if is_incremental() and 'pancakeswap_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -147,6 +355,26 @@ all_pools AS (
     *
   FROM
     paircreated_evt_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    kyberswap_v1_dynamic
+  UNION ALL
+  SELECT
+    *
+  FROM
+    kyberswap_v2_elastic
+  UNION ALL
+  SELECT
+    *
+  FROM
+    dodo_v1
+  UNION ALL
+  SELECT
+    *
+  FROM
+    pancakeswap_v3
 ),
 complete_lps AS (
   SELECT
