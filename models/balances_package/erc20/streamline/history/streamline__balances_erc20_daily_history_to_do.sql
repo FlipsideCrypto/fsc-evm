@@ -131,6 +131,7 @@ ranked_data as (
 
     SELECT
         block_number,
+        block_date,
         DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
         address,
         contract_address,
