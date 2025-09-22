@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','balances','realtime','erc20','phase_4']
+    tags = ['streamline','balances','history','erc20','phase_4']
 ) }}
 
 SELECT
