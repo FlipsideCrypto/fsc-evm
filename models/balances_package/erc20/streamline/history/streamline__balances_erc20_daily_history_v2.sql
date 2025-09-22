@@ -1,3 +1,5 @@
+-- depends_on: {{ ref('streamline__balances_erc20_daily_records') }}
+-- depends_on: {{ ref('streamline__balances_erc20_daily_complete') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
@@ -12,9 +14,15 @@
 
 {% if execute %}
 
+{% set block_dates_query %}
+create or replace temporary table silver.erc20_balances_daily_block_dates__intermediate_tmp as
+select distinct block_date from {{ ref("streamline__balances_erc20_daily_records") }}
+{% endset %}
+{% do run_query(block_dates_query) %}
+
 {% set snapshot_date_query %}
 
-select min(block_date) as snapshot_date from {{ ref("streamline__balances_erc20_daily_records") }}
+select min(block_date) as snapshot_date from silver.erc20_balances_daily_block_dates__intermediate_tmp
 
 {% endset %}
 
@@ -23,10 +31,19 @@ select min(block_date) as snapshot_date from {{ ref("streamline__balances_erc20_
         {% set snapshot_date = '2099-01-01' %}
     {% endif %}
 
+{% set block_numbers_query %}
+create or replace temporary table silver.erc20_balances_daily_block_numbers__intermediate_tmp as
+select block_number, block_date
+from {{ ref("_max_block_by_date")}}
+where block_date in (select block_date from silver.erc20_balances_daily_block_dates__intermediate_tmp)
+{% endset %}
+{% do run_query(block_numbers_query) %}
+
+{% endset %}
+
 {% set snapshot_rows_query %}
 create or replace temporary table silver.erc20_balances_snapshot_rows__intermediate_tmp as
 select 
-    block_number,
     block_date,
     address,
     contract_address
@@ -34,7 +51,6 @@ from {{ ref("streamline__balances_erc20_daily_records") }}
 where block_date = '{{ snapshot_date }}'
 except
 select
-    block_number,
     block_date,
     address,
     contract_address
@@ -49,7 +65,6 @@ limit {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 {% set daily_backfill_rows_query %}
 create or replace temporary table silver.erc20_balances_daily_backfill_rows__intermediate_tmp as
 select 
-    block_number,
     block_date,
     address,
     contract_address
@@ -57,7 +72,6 @@ from {{ ref("streamline__balances_erc20_daily_records") }}
 where block_date > '{{ snapshot_date }}'
 except
 select
-    block_number,
     block_date,
     address,
     contract_address
@@ -73,15 +87,13 @@ limit {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 
 WITH to_do AS (
     select
-        block_number,
         block_date,
         address,
         contract_address
     from
-       silver.erc20_balances_snapshot_rows__intermediate_tmp    
-    union
+       silver.erc20_balances_snapshot_rows__intermediate_tmp
+    union all
     select
-        block_number,
         block_date,
         address,
         contract_address
@@ -139,6 +151,7 @@ SELECT
     ) AS request
 FROM
     to_do
+    join silver.erc20_balances_daily_block_numbers__intermediate_tmp using (block_date)
 ORDER BY partition_key DESC, block_number DESC
 
 LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
