@@ -33,6 +33,27 @@ WITH contracts AS (
   WHERE
     address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
+prices AS (
+  SELECT
+    token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+  WHERE
+    token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
 poolcreated_evt_v3 AS (
   SELECT
     block_number,
@@ -393,24 +414,24 @@ all_pools AS (
 ),
 complete_lps AS (
   SELECT
-    p.block_number,
-    p.block_timestamp,
-    p.tx_hash,
+    a.block_number,
+    a.block_timestamp,
+    a.tx_hash,
     event_index,
     event_name,
     liquidity_provider,
     sender,
     receiver,
-    p.pool_address,
+    a.pool_address,
     lp.pool_name,
-    p.token0,
-    p.token1,
-    p.token2,
-    p.token3,
-    p.token4,
-    p.token5,
-    p.token6,
-    p.token7,
+    a.token0,
+    a.token1,
+    a.token2,
+    a.token3,
+    a.token4,
+    a.token5,
+    a.token6,
+    a.token7,
     c0.token_symbol AS token0_symbol,
     c1.token_symbol AS token1_symbol,
     c2.token_symbol AS token2_symbol,
@@ -427,41 +448,128 @@ complete_lps AS (
     c5.token_decimals AS token5_decimals,
     c6.token_decimals AS token6_decimals,
     c7.token_decimals AS token7_decimals,
-    p.amount0_unadj,
-    p.amount1_unadj,
-    p.amount2_unadj,
-    p.amount3_unadj,
-    p.amount4_unadj,
-    p.amount5_unadj,
-    p.amount6_unadj,
-    p.amount7_unadj,
-    --potentially group all as array?
-    p.platform,
-    p.protocol,
-    p.version,
-    p.type,
-    p._id,
-    p._inserted_timestamp
+    a.amount0_unadj,
+    a.amount1_unadj,
+    a.amount2_unadj,
+    a.amount3_unadj,
+    a.amount4_unadj,
+    a.amount5_unadj,
+    a.amount6_unadj,
+    a.amount7_unadj,
+    CASE
+      WHEN token0_decimals IS NULL THEN amount0_unadj
+      ELSE (amount0_unadj / pow(10, token0_decimals))
+    END AS amount0,
+    CASE
+      WHEN token1_decimals IS NULL THEN amount1_unadj
+      ELSE (amount1_unadj / pow(10, token1_decimals))
+    END AS amount1,
+    CASE
+      WHEN token2_decimals IS NULL THEN amount2_unadj
+      ELSE (amount2_unadj / pow(10, token2_decimals))
+    END AS amount2,
+    CASE
+      WHEN token3_decimals IS NULL THEN amount3_unadj
+      ELSE (amount3_unadj / pow(10, token3_decimals))
+    END AS amount3,
+    CASE
+      WHEN token4_decimals IS NULL THEN amount4_unadj
+      ELSE (amount4_unadj / pow(10, token4_decimals))
+    END AS amount4,
+    CASE
+      WHEN token5_decimals IS NULL THEN amount5_unadj
+      ELSE (amount5_unadj / pow(10, token5_decimals))
+    END AS amount5,
+    CASE
+      WHEN token6_decimals IS NULL THEN amount6_unadj
+      ELSE (amount6_unadj / pow(10, token6_decimals))
+    END AS amount6,
+    CASE
+      WHEN token7_decimals IS NULL THEN amount7_unadj
+      ELSE (amount7_unadj / pow(10, token7_decimals))
+    END AS amount7,
+    CASE
+      WHEN token0_decimals IS NOT NULL THEN amount0 * p0.price
+      ELSE NULL
+    END AS amount0_usd,
+    CASE
+      WHEN token1_decimals IS NOT NULL THEN amount1 * p1.price
+      ELSE NULL
+    END AS amount1_usd,
+    CASE
+      WHEN token2_decimals IS NOT NULL THEN amount2 * p2.price
+      ELSE NULL
+    END AS amount2_usd,
+    CASE
+      WHEN token3_decimals IS NOT NULL THEN amount3 * p3.price
+      ELSE NULL
+    END AS amount3_usd,
+    CASE
+      WHEN token4_decimals IS NOT NULL THEN amount4 * p4.price
+      ELSE NULL
+    END AS amount4_usd,
+    CASE
+      WHEN token5_decimals IS NOT NULL THEN amount5 * p5.price
+      ELSE NULL
+    END AS amount5_usd,
+    CASE
+      WHEN token6_decimals IS NOT NULL THEN amount6 * p6.price
+      ELSE NULL
+    END AS amount6_usd,
+    CASE
+      WHEN token7_decimals IS NOT NULL THEN amount7 * p7.price
+      ELSE NULL
+    END AS amount7_usd,
+    p0.is_verified AS token0_is_verified,
+    p1.is_verified AS token1_is_verified,
+    p2.is_verified AS token2_is_verified,
+    p3.is_verified AS token3_is_verified,
+    p4.is_verified AS token4_is_verified,
+    p5.is_verified AS token5_is_verified,
+    p6.is_verified AS token6_is_verified,
+    p7.is_verified AS token7_is_verified,
+    a.platform,
+    a.protocol,
+    a.version,
+    a.type,
+    a._id,
+    a._inserted_timestamp
   FROM
-    all_pools p
+    all_pools a
     LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools')}} lp
-    ON lp.pool_address = p.pool_address
+    ON lp.pool_address = a.pool_address
     LEFT JOIN contracts c0
-    ON c0.contract_address = p.token0
+    ON c0.contract_address = a.token0
     LEFT JOIN contracts c1
-    ON c1.contract_address = p.token1
+    ON c1.contract_address = a.token1
     LEFT JOIN contracts c2
-    ON c2.contract_address = p.token2
+    ON c2.contract_address = a.token2
     LEFT JOIN contracts c3
-    ON c3.contract_address = p.token3
+    ON c3.contract_address = a.token3
     LEFT JOIN contracts c4
-    ON c4.contract_address = p.token4
+    ON c4.contract_address = a.token4
     LEFT JOIN contracts c5
-    ON c5.contract_address = p.token5
+    ON c5.contract_address = a.token5
     LEFT JOIN contracts c6
-    ON c6.contract_address = p.token6
+    ON c6.contract_address = a.token6
     LEFT JOIN contracts c7
-    ON c7.contract_address = p.token7
+    ON c7.contract_address = a.token7
+    LEFT JOIN prices p0
+    ON a.token0 = p0.token_address AND DATE_TRUNC('hour',block_timestamp) = p0.hour
+    LEFT JOIN prices p1
+    ON a.token1 = p1.token_address AND DATE_TRUNC('hour',block_timestamp) = p1.hour
+    LEFT JOIN prices p2
+    ON a.token2 = p2.token_address AND DATE_TRUNC('hour',block_timestamp) = p2.hour
+    LEFT JOIN prices p3
+    ON a.token3 = p3.token_address AND DATE_TRUNC('hour',block_timestamp) = p3.hour
+    LEFT JOIN prices p4
+    ON a.token4 = p4.token_address AND DATE_TRUNC('hour',block_timestamp) = p4.hour
+    LEFT JOIN prices p5
+    ON a.token5 = p5.token_address AND DATE_TRUNC('hour',block_timestamp) = p5.hour
+    LEFT JOIN prices p6
+    ON a.token6 = p6.token_address AND DATE_TRUNC('hour',block_timestamp) = p6.hour
+    LEFT JOIN prices p7
+    ON a.token7 = p7.token_address AND DATE_TRUNC('hour',block_timestamp) = p7.hour
 ),
 
 {% if is_incremental() and var(
@@ -511,6 +619,78 @@ heal_model AS (
     t0.amount5_unadj,
     t0.amount6_unadj,
     t0.amount7_unadj,
+    CASE
+      WHEN token0_decimals_heal IS NULL THEN amount0_unadj
+      ELSE (amount0_unadj / pow(10, token0_decimals_heal))
+    END AS amount0_heal,
+    CASE
+      WHEN token1_decimals_heal IS NULL THEN amount1_unadj
+      ELSE (amount1_unadj / pow(10, token1_decimals_heal))
+    END AS amount1_heal,
+    CASE
+      WHEN token2_decimals_heal IS NULL THEN amount2_unadj
+      ELSE (amount2_unadj / pow(10, token2_decimals_heal))
+    END AS amount2_heal,
+    CASE
+      WHEN token3_decimals_heal IS NULL THEN amount3_unadj
+      ELSE (amount3_unadj / pow(10, token3_decimals_heal))
+    END AS amount3_heal,
+    CASE
+      WHEN token4_decimals_heal IS NULL THEN amount4_unadj
+      ELSE (amount4_unadj / pow(10, token4_decimals_heal))
+    END AS amount4_heal,
+    CASE
+      WHEN token5_decimals_heal IS NULL THEN amount5_unadj
+      ELSE (amount5_unadj / pow(10, token5_decimals_heal))
+    END AS amount5_heal,
+    CASE
+      WHEN token6_decimals_heal IS NULL THEN amount6_unadj
+      ELSE (amount6_unadj / pow(10, token6_decimals_heal))
+    END AS amount6_heal,
+    CASE
+      WHEN token7_decimals_heal IS NULL THEN amount7_unadj
+      ELSE (amount7_unadj / pow(10, token7_decimals_heal))
+    END AS amount7_heal,
+    CASE
+      WHEN token0_decimals_heal IS NOT NULL THEN amount0_heal * p0.price
+      ELSE NULL
+    END AS amount0_usd_heal,
+    CASE
+      WHEN token1_decimals_heal IS NOT NULL THEN amount1_heal * p1.price
+      ELSE NULL
+    END AS amount1_usd_heal,
+    CASE
+      WHEN token2_decimals_heal IS NOT NULL THEN amount2_heal * p2.price
+      ELSE NULL
+    END AS amount2_usd_heal,
+    CASE
+      WHEN token3_decimals_heal IS NOT NULL THEN amount3_heal * p3.price
+      ELSE NULL
+    END AS amount3_usd_heal,
+    CASE
+      WHEN token4_decimals_heal IS NOT NULL THEN amount4_heal * p4.price
+      ELSE NULL
+    END AS amount4_usd_heal,
+    CASE
+      WHEN token5_decimals_heal IS NOT NULL THEN amount5_heal * p5.price
+      ELSE NULL
+    END AS amount5_usd_heal,
+    CASE
+      WHEN token6_decimals_heal IS NOT NULL THEN amount6_heal * p6.price
+      ELSE NULL
+    END AS amount6_usd_heal,
+    CASE
+      WHEN token7_decimals_heal IS NOT NULL THEN amount7_heal * p7.price
+      ELSE NULL
+    END AS amount7_usd_heal,
+    p0.is_verified AS token0_is_verified_heal,
+    p1.is_verified AS token1_is_verified_heal,
+    p2.is_verified AS token2_is_verified_heal,
+    p3.is_verified AS token3_is_verified_heal,
+    p4.is_verified AS token4_is_verified_heal,
+    p5.is_verified AS token5_is_verified_heal,
+    p6.is_verified AS token6_is_verified_heal,
+    p7.is_verified AS token7_is_verified_heal,
     t0.platform,
     t0.protocol,
     t0.version,
@@ -538,6 +718,22 @@ heal_model AS (
     ON c6.contract_address = t0.token6
     LEFT JOIN contracts c7
     ON c7.contract_address = t0.token7
+    LEFT JOIN prices p0
+    ON t0.token0 = p0.token_address AND DATE_TRUNC('hour',block_timestamp) = p0.hour
+    LEFT JOIN prices p1
+    ON t0.token1 = p1.token_address AND DATE_TRUNC('hour',block_timestamp) = p1.hour
+    LEFT JOIN prices p2
+    ON t0.token2 = p2.token_address AND DATE_TRUNC('hour',block_timestamp) = p2.hour
+    LEFT JOIN prices p3
+    ON t0.token3 = p3.token_address AND DATE_TRUNC('hour',block_timestamp) = p3.hour
+    LEFT JOIN prices p4
+    ON t0.token4 = p4.token_address AND DATE_TRUNC('hour',block_timestamp) = p4.hour
+    LEFT JOIN prices p5
+    ON t0.token5 = p5.token_address AND DATE_TRUNC('hour',block_timestamp) = p5.hour
+    LEFT JOIN prices p6
+    ON t0.token6 = p6.token_address AND DATE_TRUNC('hour',block_timestamp) = p6.hour
+    LEFT JOIN prices p7
+    ON t0.token7 = p7.token_address AND DATE_TRUNC('hour',block_timestamp) = p7.hour
   WHERE
     CONCAT(
       t0.block_number,
@@ -955,6 +1151,30 @@ SELECT
   amount5_unadj,
   amount6_unadj,
   amount7_unadj,
+  amount0_heal AS amount0,
+  amount1_heal AS amount1,
+  amount2_heal AS amount2,
+  amount3_heal AS amount3,
+  amount4_heal AS amount4,
+  amount5_heal AS amount5,
+  amount6_heal AS amount6,
+  amount7_heal AS amount7,
+  amount0_usd_heal AS amount0_usd,
+  amount1_usd_heal AS amount1_usd,
+  amount2_usd_heal AS amount2_usd,
+  amount3_usd_heal AS amount3_usd,
+  amount4_usd_heal AS amount4_usd,
+  amount5_usd_heal AS amount5_usd,
+  amount6_usd_heal AS amount6_usd,
+  amount7_usd_heal AS amount7_usd,
+  token0_is_verified_heal AS token0_is_verified,
+  token1_is_verified_heal AS token1_is_verified,
+  token2_is_verified_heal AS token2_is_verified,
+  token3_is_verified_heal AS token3_is_verified,
+  token4_is_verified_heal AS token4_is_verified,
+  token5_is_verified_heal AS token5_is_verified,
+  token6_is_verified_heal AS token6_is_verified,
+  token7_is_verified_heal AS token7_is_verified,
   platform,
   protocol,
   version,
@@ -1008,6 +1228,30 @@ SELECT
   amount5_unadj,
   amount6_unadj,
   amount7_unadj,
+  amount0,
+  amount1,
+  amount2,
+  amount3,
+  amount4,
+  amount5,
+  amount6,
+  amount7,
+  amount0_usd,
+  amount1_usd,
+  amount2_usd,
+  amount3_usd,
+  amount4_usd,
+  amount5_usd,
+  amount6_usd,
+  amount7_usd,
+  token0_is_verified,
+  token1_is_verified,
+  token2_is_verified,
+  token3_is_verified,
+  token4_is_verified,
+  token5_is_verified,
+  token6_is_verified,
+  token7_is_verified,
   platform,
   protocol,
   version,
