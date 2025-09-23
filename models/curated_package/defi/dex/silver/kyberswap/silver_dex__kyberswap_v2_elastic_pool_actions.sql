@@ -22,8 +22,8 @@ WITH evt AS (
         origin_from_address,
         origin_to_address,
         l.contract_address AS pool_address,
-        token0 AS token_0,
-        token1 AS token_1,
+        token0,
+        token1,
         swap_fee_units AS fee,
         (
             swap_fee_units / 10000
@@ -82,8 +82,8 @@ mint AS (
         origin_to_address,
         'Mint' AS event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         fee,
         fee_percent,
         tick_spacing,
@@ -109,12 +109,12 @@ mint AS (
             utils.udf_hex_to_int(
                 segmented_data [2] :: STRING
             )
-        ) AS amount_0,
+        ) AS amount0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [3] :: STRING
             )
-        ) AS amount_1,
+        ) AS amount1,
         protocol,
         version,
         type,
@@ -137,8 +137,8 @@ burn AS (
         origin_to_address,
         'Burn' AS event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         fee,
         fee_percent,
         tick_spacing,
@@ -163,12 +163,12 @@ burn AS (
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
-        ) AS amount_0,
+        ) AS amount0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [2] :: STRING
             )
-        ) AS amount_1,
+        ) AS amount1,
         protocol,
         version,
         type,
@@ -197,14 +197,14 @@ all_actions AS (
         init_tick,
         tick_lower,
         tick_upper,
-        token_0,
-        token_1,
+        token0,
+        token1,
         owner_address,
         sender_address AS sender,
         owner_address AS receiver,
         amount AS amount_unadj,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
         protocol,
         version,
         type,
@@ -230,14 +230,14 @@ all_actions AS (
         init_tick,
         tick_lower,
         tick_upper,
-        token_0,
-        token_1,
+        token0,
+        token1,
         owner_address,
         owner_address AS sender,
         origin_from_address AS receiver,
         amount AS amount_unadj,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
         protocol,
         version,
         type,
@@ -263,15 +263,15 @@ SELECT
     init_tick,
     tick_lower,
     tick_upper,
-    token_0,
-    token_1,
+    token0,
+    token1,
     origin_from_address AS liquidity_provider,
     owner_address,
     sender,
     receiver,
     amount_unadj,
-    amount_0_unadj,
-    amount_1_unadj,
+    amount0_unadj,
+    amount1_unadj,
     protocol,
     version,
     type,

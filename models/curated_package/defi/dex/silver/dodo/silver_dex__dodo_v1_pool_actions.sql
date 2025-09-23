@@ -22,8 +22,8 @@ WITH evt AS (
         origin_from_address,
         origin_to_address,
         l.contract_address AS pool_address,
-        base_token AS token_0,
-        quote_token AS token_1,
+        base_token AS token0,
+        quote_token AS token1,
         topic_0,
         topic_1,
         topic_2,
@@ -76,8 +76,8 @@ deposit AS (
         origin_to_address,
         'Deposit' AS event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS payer_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS receiver_address,
         TRY_TO_NUMBER(
@@ -97,11 +97,11 @@ deposit AS (
         CASE
             WHEN is_base_token THEN amount
             ELSE 0
-        END AS amount_0,
+        END AS amount0,
         CASE
             WHEN NOT is_base_token THEN amount
             ELSE 0
-        END AS amount_1,
+        END AS amount1,
         --deposits occur for each token separately
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
@@ -111,11 +111,11 @@ deposit AS (
         CASE
             WHEN is_base_token THEN lp_token_amount
             ELSE 0
-        END AS lp_token_amount_0,
+        END AS lp_token_amount0,
         CASE
             WHEN NOT is_base_token THEN lp_token_amount
             ELSE 0
-        END AS lp_token_amount_1,
+        END AS lp_token_amount1,
         protocol,
         version,
         type,
@@ -138,8 +138,8 @@ withdraw AS (
         origin_to_address,
         'Withdraw' AS event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS payer_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS receiver_address,
         TRY_TO_NUMBER(
@@ -159,11 +159,11 @@ withdraw AS (
         CASE
             WHEN is_base_token THEN amount
             ELSE 0
-        END AS amount_0,
+        END AS amount0,
         CASE
             WHEN NOT is_base_token THEN amount
             ELSE 0
-        END AS amount_1,
+        END AS amount1,
         --withdraws occur for each token separately
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
@@ -173,11 +173,11 @@ withdraw AS (
         CASE
             WHEN is_base_token THEN lp_token_amount
             ELSE 0
-        END AS lp_token_amount_0,
+        END AS lp_token_amount0,
         CASE
             WHEN NOT is_base_token THEN lp_token_amount
             ELSE 0
-        END AS lp_token_amount_1,
+        END AS lp_token_amount1,
         protocol,
         version,
         type,
@@ -200,12 +200,12 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         payer_address AS sender,
         receiver_address AS receiver,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
         protocol,
         version,
         type,
@@ -225,12 +225,12 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         payer_address AS sender,
         receiver_address AS receiver,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
         protocol,
         version,
         type,
@@ -250,13 +250,13 @@ SELECT
     origin_to_address,
     event_name,
     pool_address,
-    token_0,
-    token_1,
+    token0,
+    token1,
     origin_from_address AS liquidity_provider,
     sender,
     receiver,
-    amount_0_unadj,
-    amount_1_unadj,
+    amount0_unadj,
+    amount1_unadj,
     protocol,
     version,
     type,

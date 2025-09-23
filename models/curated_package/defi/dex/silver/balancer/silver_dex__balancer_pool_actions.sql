@@ -26,32 +26,32 @@ WITH evt AS (
         decoded_log :poolId :: STRING AS pool_id,
         decoded_log :liquidityProvider :: STRING AS liquidity_provider,
         decoded_log :tokens AS tokens,
-        tokens [0] :: STRING AS token_0,
-        tokens [1] :: STRING AS token_1,
-        tokens [2] :: STRING AS token_2,
-        tokens [3] :: STRING AS token_3,
-        tokens [4] :: STRING AS token_4,
-        tokens [5] :: STRING AS token_5,
-        tokens [6] :: STRING AS token_6,
-        tokens [7] :: STRING AS token_7,
+        tokens [0] :: STRING AS token0,
+        tokens [1] :: STRING AS token1,
+        tokens [2] :: STRING AS token2,
+        tokens [3] :: STRING AS token3,
+        tokens [4] :: STRING AS token4,
+        tokens [5] :: STRING AS token5,
+        tokens [6] :: STRING AS token6,
+        tokens [7] :: STRING AS token7,
         decoded_log :deltas AS deltas,
-        TRY_TO_NUMBER(deltas [0] :: STRING) AS amount_0,
-        TRY_TO_NUMBER(deltas [1] :: STRING) AS amount_1,
-        TRY_TO_NUMBER(deltas [2] :: STRING) AS amount_2,
-        TRY_TO_NUMBER(deltas [3] :: STRING) AS amount_3,
-        TRY_TO_NUMBER(deltas [4] :: STRING) AS amount_4,
-        TRY_TO_NUMBER(deltas [5] :: STRING) AS amount_5,
-        TRY_TO_NUMBER(deltas [6] :: STRING) AS amount_6,
-        TRY_TO_NUMBER(deltas [7] :: STRING) AS amount_7,
+        TRY_TO_NUMBER(deltas [0] :: STRING) AS amount0,
+        TRY_TO_NUMBER(deltas [1] :: STRING) AS amount1,
+        TRY_TO_NUMBER(deltas [2] :: STRING) AS amount2,
+        TRY_TO_NUMBER(deltas [3] :: STRING) AS amount3,
+        TRY_TO_NUMBER(deltas [4] :: STRING) AS amount4,
+        TRY_TO_NUMBER(deltas [5] :: STRING) AS amount5,
+        TRY_TO_NUMBER(deltas [6] :: STRING) AS amount6,
+        TRY_TO_NUMBER(deltas [7] :: STRING) AS amount7,
         decoded_log :protocolFeeAmounts AS protocol_fee_amounts,
-        TRY_TO_NUMBER(protocol_fee_amounts [0] :: STRING) AS protocol_fee_amount_0,
-        TRY_TO_NUMBER(protocol_fee_amounts [1] :: STRING) AS protocol_fee_amount_1,
-        TRY_TO_NUMBER(protocol_fee_amounts [2] :: STRING) AS protocol_fee_amount_2,
-        TRY_TO_NUMBER(protocol_fee_amounts [3] :: STRING) AS protocol_fee_amount_3,
-        TRY_TO_NUMBER(protocol_fee_amounts [4] :: STRING) AS protocol_fee_amount_4,
-        TRY_TO_NUMBER(protocol_fee_amounts [5] :: STRING) AS protocol_fee_amount_5,
-        TRY_TO_NUMBER(protocol_fee_amounts [6] :: STRING) AS protocol_fee_amount_6,
-        TRY_TO_NUMBER(protocol_fee_amounts [7] :: STRING) AS protocol_fee_amount_7,
+        TRY_TO_NUMBER(protocol_fee_amounts [0] :: STRING) AS protocol_fee_amount0,
+        TRY_TO_NUMBER(protocol_fee_amounts [1] :: STRING) AS protocol_fee_amount1,
+        TRY_TO_NUMBER(protocol_fee_amounts [2] :: STRING) AS protocol_fee_amount2,
+        TRY_TO_NUMBER(protocol_fee_amounts [3] :: STRING) AS protocol_fee_amount3,
+        TRY_TO_NUMBER(protocol_fee_amounts [4] :: STRING) AS protocol_fee_amount4,
+        TRY_TO_NUMBER(protocol_fee_amounts [5] :: STRING) AS protocol_fee_amount5,
+        TRY_TO_NUMBER(protocol_fee_amounts [6] :: STRING) AS protocol_fee_amount6,
+        TRY_TO_NUMBER(protocol_fee_amounts [7] :: STRING) AS protocol_fee_amount7,
         p.protocol,
         p.version,
         p.type,
@@ -98,25 +98,25 @@ deposit AS (
         contract_address,
         pool_address,
         pool_id,
-        token_0,
-        token_1,
-        token_2,
-        token_3,
-        token_4,
-        token_5,
-        token_6,
-        token_7,
+        token0,
+        token1,
+        token2,
+        token3,
+        token4,
+        token5,
+        token6,
+        token7,
         liquidity_provider,
         liquidity_provider AS sender,
         pool_address AS receiver,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
-        amount_2 AS amount_2_unadj,
-        amount_3 AS amount_3_unadj,
-        amount_4 AS amount_4_unadj,
-        amount_5 AS amount_5_unadj,
-        amount_6 AS amount_6_unadj,
-        amount_7 AS amount_7_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
+        amount2 AS amount2_unadj,
+        amount3 AS amount3_unadj,
+        amount4 AS amount4_unadj,
+        amount5 AS amount5_unadj,
+        amount6 AS amount6_unadj,
+        amount7 AS amount7_unadj,
         protocol,
         version,
         type,
@@ -126,14 +126,14 @@ deposit AS (
     FROM
         evt
     WHERE
-        amount_0 >= 0
-        OR amount_1 >= 0
-        OR amount_2 >= 0
-        OR amount_3 >= 0
-        OR amount_4 >= 0
-        OR amount_5 >= 0
-        OR amount_6 >= 0
-        OR amount_7 >= 0
+        amount0 >= 0
+        OR amount1 >= 0
+        OR amount2 >= 0
+        OR amount3 >= 0
+        OR amount4 >= 0
+        OR amount5 >= 0
+        OR amount6 >= 0
+        OR amount7 >= 0
 ),
 withdraw AS (
     SELECT
@@ -148,25 +148,25 @@ withdraw AS (
         contract_address,
         pool_address,
         pool_id,
-        token_0,
-        token_1,
-        token_2,
-        token_3,
-        token_4,
-        token_5,
-        token_6,
-        token_7,
+        token0,
+        token1,
+        token2,
+        token3,
+        token4,
+        token5,
+        token6,
+        token7,
         liquidity_provider,
         pool_address AS sender,
         liquidity_provider AS receiver,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
-        amount_2 AS amount_2_unadj,
-        amount_3 AS amount_3_unadj,
-        amount_4 AS amount_4_unadj,
-        amount_5 AS amount_5_unadj,
-        amount_6 AS amount_6_unadj,
-        amount_7 AS amount_7_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
+        amount2 AS amount2_unadj,
+        amount3 AS amount3_unadj,
+        amount4 AS amount4_unadj,
+        amount5 AS amount5_unadj,
+        amount6 AS amount6_unadj,
+        amount7 AS amount7_unadj,
         protocol,
         version,
         type,
@@ -176,14 +176,14 @@ withdraw AS (
     FROM
         evt
     WHERE
-        amount_0 < 0
-        OR amount_1 < 0
-        OR amount_2 < 0
-        OR amount_3 < 0
-        OR amount_4 < 0
-        OR amount_5 < 0
-        OR amount_6 < 0
-        OR amount_7 < 0
+        amount0 < 0
+        OR amount1 < 0
+        OR amount2 < 0
+        OR amount3 < 0
+        OR amount4 < 0
+        OR amount5 < 0
+        OR amount6 < 0
+        OR amount7 < 0
 ),
 all_actions AS (
     SELECT
@@ -208,25 +208,25 @@ SELECT
     contract_address,
     pool_address,
     pool_id,
-    token_0,
-    token_1,
-    token_2,
-    token_3,
-    token_4,
-    token_5,
-    token_6,
-    token_7,
+    token0,
+    token1,
+    token2,
+    token3,
+    token4,
+    token5,
+    token6,
+    token7,
     liquidity_provider,
     sender,
     receiver,
-    amount_0_unadj,
-    amount_1_unadj,
-    amount_2_unadj,
-    amount_3_unadj,
-    amount_4_unadj,
-    amount_5_unadj,
-    amount_6_unadj,
-    amount_7_unadj,
+    amount0_unadj,
+    amount1_unadj,
+    amount2_unadj,
+    amount3_unadj,
+    amount4_unadj,
+    amount5_unadj,
+    amount6_unadj,
+    amount7_unadj,
     protocol,
     version,
     type,

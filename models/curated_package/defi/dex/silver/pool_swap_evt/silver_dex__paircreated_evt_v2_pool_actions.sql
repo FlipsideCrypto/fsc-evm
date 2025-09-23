@@ -22,8 +22,8 @@ WITH evt AS (
         origin_from_address,
         origin_to_address,
         l.contract_address AS pool_address,
-        token0 AS token_0,
-        token1 AS token_1,
+        token0,
+        token1,
         topic_0,
         topic_1,
         topic_2,
@@ -76,19 +76,19 @@ mint AS (
         origin_to_address,
         'Mint' AS event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS sender_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             )
-        ) AS amount_0,
+        ) AS amount0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
-        ) AS amount_1,
+        ) AS amount1,
         protocol,
         version,
         type,
@@ -111,20 +111,20 @@ burn AS (
         origin_to_address,
         'Burn' AS event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS sender_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS to_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             )
-        ) AS amount_0,
+        ) AS amount0,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
-        ) AS amount_1,
+        ) AS amount1,
         protocol,
         version,
         type,
@@ -147,12 +147,12 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         sender_address AS sender,
         pool_address AS receiver,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
         protocol,
         version,
         type,
@@ -172,12 +172,12 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
-        token_0,
-        token_1,
+        token0,
+        token1,
         sender_address AS sender,
         to_address AS receiver,
-        amount_0 AS amount_0_unadj,
-        amount_1 AS amount_1_unadj,
+        amount0 AS amount0_unadj,
+        amount1 AS amount1_unadj,
         protocol,
         version,
         type,
@@ -197,13 +197,13 @@ SELECT
     origin_to_address,
     event_name,
     pool_address,
-    token_0,
-    token_1,
+    token0,
+    token1,
     origin_from_address AS liquidity_provider,
     sender,
     receiver,
-    amount_0_unadj,
-    amount_1_unadj,
+    amount0_unadj,
+    amount1_unadj,
     protocol,
     version,
     type,
