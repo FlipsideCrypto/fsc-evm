@@ -23,7 +23,7 @@
     {% endset %}
     {% do run_query(block_dates_query) %}
 
-    {% set snapshot_date = '{{ vars.BALANCES_SL_START_DATE }}' %}
+    {% set snapshot_date = vars.BALANCES_SL_START_DATE %}
     {% if not snapshot_date or snapshot_date == 'None' %}
         {% set snapshot_date = '2099-01-01' %}
     {% endif %}
