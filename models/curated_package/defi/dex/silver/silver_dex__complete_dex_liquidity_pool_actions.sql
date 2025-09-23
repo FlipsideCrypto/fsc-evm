@@ -555,21 +555,21 @@ complete_lps AS (
     LEFT JOIN contracts c7
     ON c7.contract_address = a.token7
     LEFT JOIN prices p0
-    ON a.token0 = p0.token_address AND DATE_TRUNC('hour',block_timestamp) = p0.hour
+    ON a.token0 = p0.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p0.hour
     LEFT JOIN prices p1
-    ON a.token1 = p1.token_address AND DATE_TRUNC('hour',block_timestamp) = p1.hour
+    ON a.token1 = p1.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p1.hour
     LEFT JOIN prices p2
-    ON a.token2 = p2.token_address AND DATE_TRUNC('hour',block_timestamp) = p2.hour
+    ON a.token2 = p2.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p2.hour
     LEFT JOIN prices p3
-    ON a.token3 = p3.token_address AND DATE_TRUNC('hour',block_timestamp) = p3.hour
+    ON a.token3 = p3.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p3.hour
     LEFT JOIN prices p4
-    ON a.token4 = p4.token_address AND DATE_TRUNC('hour',block_timestamp) = p4.hour
+    ON a.token4 = p4.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p4.hour
     LEFT JOIN prices p5
-    ON a.token5 = p5.token_address AND DATE_TRUNC('hour',block_timestamp) = p5.hour
+    ON a.token5 = p5.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p5.hour
     LEFT JOIN prices p6
-    ON a.token6 = p6.token_address AND DATE_TRUNC('hour',block_timestamp) = p6.hour
+    ON a.token6 = p6.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p6.hour
     LEFT JOIN prices p7
-    ON a.token7 = p7.token_address AND DATE_TRUNC('hour',block_timestamp) = p7.hour
+    ON a.token7 = p7.token_address AND DATE_TRUNC('hour',a.block_timestamp) = p7.hour
 ),
 
 {% if is_incremental() and var(
@@ -719,21 +719,21 @@ heal_model AS (
     LEFT JOIN contracts c7
     ON c7.contract_address = t0.token7
     LEFT JOIN prices p0
-    ON t0.token0 = p0.token_address AND DATE_TRUNC('hour',block_timestamp) = p0.hour
+    ON t0.token0 = p0.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p0.hour
     LEFT JOIN prices p1
-    ON t0.token1 = p1.token_address AND DATE_TRUNC('hour',block_timestamp) = p1.hour
+    ON t0.token1 = p1.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p1.hour
     LEFT JOIN prices p2
-    ON t0.token2 = p2.token_address AND DATE_TRUNC('hour',block_timestamp) = p2.hour
+    ON t0.token2 = p2.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p2.hour
     LEFT JOIN prices p3
-    ON t0.token3 = p3.token_address AND DATE_TRUNC('hour',block_timestamp) = p3.hour
+    ON t0.token3 = p3.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p3.hour
     LEFT JOIN prices p4
-    ON t0.token4 = p4.token_address AND DATE_TRUNC('hour',block_timestamp) = p4.hour
+    ON t0.token4 = p4.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p4.hour
     LEFT JOIN prices p5
-    ON t0.token5 = p5.token_address AND DATE_TRUNC('hour',block_timestamp) = p5.hour
+    ON t0.token5 = p5.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p5.hour
     LEFT JOIN prices p6
-    ON t0.token6 = p6.token_address AND DATE_TRUNC('hour',block_timestamp) = p6.hour
+    ON t0.token6 = p6.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p6.hour
     LEFT JOIN prices p7
-    ON t0.token7 = p7.token_address AND DATE_TRUNC('hour',block_timestamp) = p7.hour
+    ON t0.token7 = p7.token_address AND DATE_TRUNC('hour',t0.block_timestamp) = p7.hour
   WHERE
     CONCAT(
       t0.block_number,
