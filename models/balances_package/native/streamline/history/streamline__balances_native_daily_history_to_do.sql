@@ -1,5 +1,5 @@
--- depends_on: {{ ref('streamline__balances_erc20_daily_records') }}
--- depends_on: {{ ref('streamline__balances_erc20_daily_complete') }}
+-- depends_on: {{ ref('streamline__balances_native_daily_records') }}
+-- depends_on: {{ ref('streamline__balances_native_daily_complete') }}
 -- depends_on: {{ ref('core__fact_blocks') }}
 
 {# Get variables #}
@@ -11,15 +11,15 @@
 {# Set up dbt configuration #}
 {{ config(
     materialized = "table",
-    tags = ['streamline', 'balances', 'history', 'erc20', 'phase_4']
+    tags = ['streamline', 'balances', 'history', 'native', 'phase_4']
 ) }}
 
 {% if execute %}
 
     {% set block_dates_query %}
-        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_erc20_daily_block_dates__intermediate_tmp AS
+        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_native_daily_block_dates__intermediate_tmp AS
         SELECT DISTINCT block_date 
-        FROM {{ ref("streamline__balances_erc20_daily_records") }}
+        FROM {{ ref("streamline__balances_native_daily_records") }}
     {% endset %}
     {% do run_query(block_dates_query) %}
 
@@ -29,7 +29,7 @@
     {% endif %}
 
     {% set block_numbers_query %}
-        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_erc20_daily_block_numbers__intermediate_tmp AS
+        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_native_daily_block_numbers__intermediate_tmp AS
         WITH base AS (
             SELECT
                 block_timestamp :: DATE AS block_date,
@@ -56,41 +56,37 @@
     {% do run_query(block_numbers_query) %}
 
     {% set snapshot_rows_query %}
-        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_erc20_snapshot_rows__intermediate_tmp AS
+        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_native_snapshot_rows__intermediate_tmp AS
         SELECT 
             block_date,
-            address,
-            contract_address
-        FROM {{ ref("streamline__balances_erc20_daily_records") }} 
+            address
+        FROM {{ ref("streamline__balances_native_daily_records") }} 
         WHERE block_date = '{{ snapshot_date }}'
         EXCEPT
         SELECT
             block_date,
-            address,
-            contract_address
-        FROM {{ ref("streamline__balances_erc20_daily_complete") }}
+            address
+        FROM {{ ref("streamline__balances_native_daily_complete") }}
         WHERE block_date = '{{ snapshot_date }}'
-        LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+        LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
     {% endset %}
     {% do run_query(snapshot_rows_query) %}
 
     {% set daily_backfill_rows_query %}
-        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_erc20_daily_backfill_rows__intermediate_tmp AS
+        CREATE OR REPLACE TEMPORARY TABLE streamline.balances_native_daily_backfill_rows__intermediate_tmp AS
         SELECT 
             block_date,
-            address,
-            contract_address
-        FROM {{ ref("streamline__balances_erc20_daily_records") }} 
+            address
+        FROM {{ ref("streamline__balances_native_daily_records") }} 
         WHERE block_date > '{{ snapshot_date }}'
         EXCEPT
         SELECT
             block_date,
-            address,
-            contract_address
-        FROM {{ ref("streamline__balances_erc20_daily_complete") }}
+            address
+        FROM {{ ref("streamline__balances_native_daily_complete") }}
         WHERE block_date > '{{ snapshot_date }}'
         ORDER BY block_date DESC
-        LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+        LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
     {% endset %}
     {% do run_query(daily_backfill_rows_query) %}
 
@@ -100,18 +96,16 @@ WITH to_do AS (
     SELECT
         block_date,
         'snapshot' as type,
-        address,
-        contract_address
-    FROM streamline.balances_erc20_snapshot_rows__intermediate_tmp
+        address
+    FROM streamline.balances_native_snapshot_rows__intermediate_tmp
     
     UNION ALL
     
     SELECT
         block_date,
         'backfill' as type,
-        address,
-        contract_address
-    FROM streamline.balances_erc20_daily_backfill_rows__intermediate_tmp
+        address
+    FROM streamline.balances_native_daily_backfill_rows__intermediate_tmp
 ),
 ranked_data as (
 
@@ -121,31 +115,23 @@ ranked_data as (
         DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
         type,
         address,
-        contract_address,
         OBJECT_CONSTRUCT(
-            'id', CONCAT(
-                contract_address,
-                '-',
+            'id',
+            CONCAT(
                 address,
                 '-',
                 block_number
             ),
-            'jsonrpc', '2.0',
-            'method', 'eth_call',
-            'params', ARRAY_CONSTRUCT(
-                OBJECT_CONSTRUCT(
-                    'to', contract_address,
-                    'data', CONCAT(
-                        '0x70a08231000000000000000000000000',
-                        SUBSTR(address, 3)
-                    )
-                ),
-                utils.udf_int_to_hex(block_number)
-            )
+            'jsonrpc',
+            '2.0',
+            'method',
+            'eth_getBalance',
+            'params',
+            ARRAY_CONSTRUCT(address, utils.udf_int_to_hex(block_number))
         ) as api_request,
         ROW_NUMBER() OVER (ORDER BY block_number DESC) as rn
     FROM to_do
-    JOIN streamline.balances_erc20_daily_block_numbers__intermediate_tmp USING (block_date)
+    JOIN streamline.balances_native_daily_block_numbers__intermediate_tmp USING (block_date)
 )
 SELECT
     block_number,
@@ -154,8 +140,7 @@ SELECT
     type,
     iff(type = 'snapshot', DATE_PART('EPOCH_SECONDS', sysdate()::date)::INT, round(block_number, -3)) as partition_key,
     address,
-    contract_address,
     api_request
 FROM ranked_data
-WHERE rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+WHERE rn <= {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY block_number DESC
