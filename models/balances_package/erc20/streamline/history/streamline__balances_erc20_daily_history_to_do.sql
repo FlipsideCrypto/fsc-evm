@@ -75,46 +75,60 @@ to_do AS (
         contract_address
     FROM to_do_daily
 )
+to_do_ranked AS (
+    SELECT
+        block_number,
+        block_date,
+        DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
+        TYPE,
+        address,
+        contract_address,
+        IFF(
+            TYPE = 'snapshot',
+            DATE_PART('EPOCH_SECONDS', SYSDATE() :: DATE) :: INT,
+            ROUND(
+                block_number,
+                -3
+            )
+        ) AS partition_key,
+        OBJECT_CONSTRUCT(
+            'id', CONCAT(
+                contract_address,
+                '-',
+                address,
+                '-',
+                block_number
+            ),
+            'jsonrpc', '2.0',
+            'method', 'eth_call',
+            'params', ARRAY_CONSTRUCT(
+                OBJECT_CONSTRUCT(
+                    'to', contract_address,
+                    'data', CONCAT(
+                        '0x70a08231000000000000000000000000',
+                        SUBSTR(address, 3)
+                    )
+                ),
+                utils.udf_int_to_hex(block_number)
+            )
+        ) AS api_request,
+        ROW_NUMBER() OVER (ORDER BY block_number DESC) AS rn
+    FROM
+        to_do
+        JOIN last_x_days USING (block_date)
+)
 SELECT
     block_number,
     block_date,
-    DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
+    block_date_unix,
     TYPE,
     address,
     contract_address,
-    IFF(
-        TYPE = 'snapshot',
-        DATE_PART('EPOCH_SECONDS', SYSDATE() :: DATE) :: INT,
-        ROUND(
-            block_number,
-            -3
-        )
-    ) AS partition_key,
-    OBJECT_CONSTRUCT(
-        'id', CONCAT(
-            contract_address,
-            '-',
-            address,
-            '-',
-            block_number
-        ),
-        'jsonrpc', '2.0',
-        'method', 'eth_call',
-        'params', ARRAY_CONSTRUCT(
-            OBJECT_CONSTRUCT(
-                'to', contract_address,
-                'data', CONCAT(
-                    '0x70a08231000000000000000000000000',
-                    SUBSTR(address, 3)
-                )
-            ),
-            utils.udf_int_to_hex(block_number)
-        )
-    ) AS api_request,
-    ROW_NUMBER() OVER (ORDER BY block_number DESC) AS rn
+    partition_key,
+    api_request,
+    rn
 FROM
-    to_do
-    JOIN last_x_days USING (block_date)
+    to_do_ranked
 WHERE
     rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY
