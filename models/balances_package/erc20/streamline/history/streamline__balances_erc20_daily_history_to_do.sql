@@ -99,7 +99,7 @@
 WITH to_do AS (
     SELECT
         block_date,
-        'snapshot' as type,
+        'snapshot' AS TYPE,
         address,
         contract_address
     FROM streamline.balances_erc20_snapshot_rows__intermediate_tmp
@@ -108,18 +108,18 @@ WITH to_do AS (
     
     SELECT
         block_date,
-        'backfill' as type,
+        'backfill' AS TYPE,
         address,
         contract_address
     FROM streamline.balances_erc20_daily_backfill_rows__intermediate_tmp
 ),
-ranked_data as (
+ranked_data AS (
 
     SELECT
         block_number,
         block_date,
         DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
-        type,
+        TYPE,
         address,
         contract_address,
         OBJECT_CONSTRUCT(
@@ -142,8 +142,8 @@ ranked_data as (
                 ),
                 utils.udf_int_to_hex(block_number)
             )
-        ) as api_request,
-        ROW_NUMBER() OVER (ORDER BY block_number DESC) as rn
+        ) AS api_request,
+        ROW_NUMBER() OVER (ORDER BY block_number DESC) AS rn
     FROM to_do
     JOIN streamline.balances_erc20_daily_block_numbers__intermediate_tmp USING (block_date)
 )
@@ -151,11 +151,19 @@ SELECT
     block_number,
     block_date,
     block_date_unix,
-    type,
-    iff(type = 'snapshot', DATE_PART('EPOCH_SECONDS', sysdate()::date)::INT, round(block_number, -3)) as partition_key,
+    TYPE,
+    IFF(
+        TYPE = 'snapshot',
+        DATE_PART('EPOCH_SECONDS', SYSDATE() :: DATE) :: INT,
+        ROUND(
+            block_number,
+            -3
+        )
+    ) AS partition_key,
     address,
     contract_address,
     api_request
-FROM ranked_data
+FROM
+    ranked_data
 WHERE rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY block_number DESC
