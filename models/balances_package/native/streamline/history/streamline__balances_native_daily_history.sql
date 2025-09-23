@@ -29,7 +29,7 @@ SELECT
     ) AS request
 FROM
     {{ ref('streamline__balances_native_daily_history_to_do') }}
-ORDER BY partition_key DESC, block_number DESC
+{# ORDER BY partition_key DESC, block_number DESC #}
 
 LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
 
