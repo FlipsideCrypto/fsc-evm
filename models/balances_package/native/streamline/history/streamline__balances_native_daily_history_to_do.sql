@@ -68,7 +68,7 @@ to_do AS (
         'daily' AS TYPE,
         address
     FROM to_do_daily
-)
+),
 to_do_ranked AS (
     SELECT
         block_number,

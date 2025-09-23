@@ -74,7 +74,7 @@ to_do AS (
         address,
         contract_address
     FROM to_do_daily
-)
+),
 to_do_ranked AS (
     SELECT
         block_number,
