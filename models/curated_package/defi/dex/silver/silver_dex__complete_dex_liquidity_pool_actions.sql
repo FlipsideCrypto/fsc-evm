@@ -754,7 +754,7 @@ heal_model AS (
         {{ this }}
         t1
       WHERE
-        t1.decimals :token0 :: INT IS NULL
+        t1.token0_decimals IS NULL
         AND t1._inserted_timestamp < (
           SELECT
             MAX(
@@ -771,7 +771,7 @@ heal_model AS (
           WHERE
             C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
             AND C.token_decimals IS NOT NULL
-            AND C.contract_address = t1.tokens :token0 :: STRING)
+            AND C.contract_address = t1.token0)
           GROUP BY
             1
         )
@@ -794,7 +794,7 @@ heal_model AS (
             {{ this }}
             t2
           WHERE
-            t2.decimals :token1 :: INT IS NULL
+            t2.token1_decimals IS NULL
             AND t2._inserted_timestamp < (
               SELECT
                 MAX(
@@ -811,7 +811,7 @@ heal_model AS (
               WHERE
                 C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                 AND C.token_decimals IS NOT NULL
-                AND C.contract_address = t2.tokens :token1 :: STRING)
+                AND C.contract_address = t2.token1)
               GROUP BY
                 1
             )
@@ -834,7 +834,7 @@ heal_model AS (
                 {{ this }}
                 t3
               WHERE
-                t3.decimals :token2 :: INT IS NULL
+                t3.token2_decimals IS NULL
                 AND t3._inserted_timestamp < (
                   SELECT
                     MAX(
@@ -851,7 +851,7 @@ heal_model AS (
                   WHERE
                     C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                     AND C.token_decimals IS NOT NULL
-                    AND C.contract_address = t3.tokens :token2 :: STRING)
+                    AND C.contract_address = t3.token2)
                   GROUP BY
                     1
                 )
@@ -874,7 +874,7 @@ heal_model AS (
                     {{ this }}
                     t4
                   WHERE
-                    t4.decimals :token3 :: INT IS NULL
+                    t4.token3_decimals IS NULL
                     AND t4._inserted_timestamp < (
                       SELECT
                         MAX(
@@ -891,7 +891,7 @@ heal_model AS (
                       WHERE
                         C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                         AND C.token_decimals IS NOT NULL
-                        AND C.contract_address = t4.tokens :token3 :: STRING)
+                        AND C.contract_address = t4.token3)
                       GROUP BY
                         1
                     )
@@ -914,7 +914,7 @@ heal_model AS (
                         {{ this }}
                         t5
                       WHERE
-                        t5.decimals :token4 :: INT IS NULL
+                        t5.token4_decimals IS NULL
                         AND t5._inserted_timestamp < (
                           SELECT
                             MAX(
@@ -931,7 +931,7 @@ heal_model AS (
                           WHERE
                             C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                             AND C.token_decimals IS NOT NULL
-                            AND C.contract_address = t5.tokens :token4 :: STRING)
+                            AND C.contract_address = t5.token4)
                           GROUP BY
                             1
                         )
@@ -954,7 +954,7 @@ heal_model AS (
                             {{ this }}
                             t6
                           WHERE
-                            t6.decimals :token5 :: INT IS NULL
+                            t6.token5_decimals IS NULL
                             AND t6._inserted_timestamp < (
                               SELECT
                                 MAX(
@@ -971,7 +971,7 @@ heal_model AS (
                               WHERE
                                 C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                 AND C.token_decimals IS NOT NULL
-                                AND C.contract_address = t6.tokens :token5 :: STRING)
+                                AND C.contract_address = t6.token5)
                               GROUP BY
                                 1
                             )
@@ -994,7 +994,7 @@ heal_model AS (
                                 {{ this }}
                                 t7
                               WHERE
-                                t7.decimals :token6 :: INT IS NULL
+                                t7.token6_decimals IS NULL
                                 AND t7._inserted_timestamp < (
                                   SELECT
                                     MAX(
@@ -1011,7 +1011,7 @@ heal_model AS (
                                   WHERE
                                     C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                     AND C.token_decimals IS NOT NULL
-                                    AND C.contract_address = t7.tokens :token6 :: STRING)
+                                    AND C.contract_address = t7.token6)
                                   GROUP BY
                                     1
                                 )
@@ -1034,7 +1034,7 @@ heal_model AS (
                                     {{ this }}
                                     t8
                                   WHERE
-                                    t8.decimals :token7 :: INT IS NULL
+                                    t8.token7_decimals IS NULL
                                     AND t8._inserted_timestamp < (
                                       SELECT
                                         MAX(
@@ -1051,7 +1051,7 @@ heal_model AS (
                                       WHERE
                                         C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                         AND C.token_decimals IS NOT NULL
-                                        AND C.contract_address = t8.tokens :token7 :: STRING)
+                                        AND C.contract_address = t8.token7)
                                       GROUP BY
                                         1
                                     )
