@@ -754,8 +754,7 @@ heal_model AS (
         {{ this }}
         t1
       WHERE
-        t1.token0_decimals IS NULL
-        AND t1._inserted_timestamp < (
+        t1._inserted_timestamp < (
           SELECT
             MAX(
               _inserted_timestamp
@@ -763,17 +762,11 @@ heal_model AS (
           FROM
             {{ this }}
         )
-        AND EXISTS (
-          SELECT
-            1
-          FROM
-            contracts C
-          WHERE
-            C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-            AND C.token_decimals IS NOT NULL
-            AND C.contract_address = t1.token0)
-          GROUP BY
-            1
+        AND t1.token0 IN (
+          SELECT token_address
+          FROM {{ ref('price__ez_asset_metadata') }}
+          WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+        )
         )
         OR CONCAT(
           t0.block_number,
@@ -794,8 +787,7 @@ heal_model AS (
             {{ this }}
             t2
           WHERE
-            t2.token1_decimals IS NULL
-            AND t2._inserted_timestamp < (
+            t2._inserted_timestamp < (
               SELECT
                 MAX(
                   _inserted_timestamp
@@ -803,17 +795,11 @@ heal_model AS (
               FROM
                 {{ this }}
             )
-            AND EXISTS (
-              SELECT
-                1
-              FROM
-                contracts C
-              WHERE
-                C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                AND C.token_decimals IS NOT NULL
-                AND C.contract_address = t2.token1)
-              GROUP BY
-                1
+            AND t2.token1 IN (
+              SELECT token_address
+              FROM {{ ref('price__ez_asset_metadata') }}
+              WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+            )
             )
             OR CONCAT(
               t0.block_number,
@@ -834,8 +820,7 @@ heal_model AS (
                 {{ this }}
                 t3
               WHERE
-                t3.token2_decimals IS NULL
-                AND t3._inserted_timestamp < (
+                t3._inserted_timestamp < (
                   SELECT
                     MAX(
                       _inserted_timestamp
@@ -843,17 +828,11 @@ heal_model AS (
                   FROM
                     {{ this }}
                 )
-                AND EXISTS (
-                  SELECT
-                    1
-                  FROM
-                    contracts C
-                  WHERE
-                    C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                    AND C.token_decimals IS NOT NULL
-                    AND C.contract_address = t3.token2)
-                  GROUP BY
-                    1
+                AND t3.token2 IN (
+                  SELECT token_address
+                  FROM {{ ref('price__ez_asset_metadata') }}
+                  WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+                )
                 )
                 OR CONCAT(
                   t0.block_number,
@@ -874,8 +853,7 @@ heal_model AS (
                     {{ this }}
                     t4
                   WHERE
-                    t4.token3_decimals IS NULL
-                    AND t4._inserted_timestamp < (
+                    t4._inserted_timestamp < (
                       SELECT
                         MAX(
                           _inserted_timestamp
@@ -883,17 +861,11 @@ heal_model AS (
                       FROM
                         {{ this }}
                     )
-                    AND EXISTS (
-                      SELECT
-                        1
-                      FROM
-                        contracts C
-                      WHERE
-                        C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                        AND C.token_decimals IS NOT NULL
-                        AND C.contract_address = t4.token3)
-                      GROUP BY
-                        1
+                    AND t4.token3 IN (
+                      SELECT token_address
+                      FROM {{ ref('price__ez_asset_metadata') }}
+                      WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+                    )
                     )
                     OR CONCAT(
                       t0.block_number,
@@ -913,28 +885,21 @@ heal_model AS (
                       FROM
                         {{ this }}
                         t5
-                      WHERE
-                        t5.token4_decimals IS NULL
-                        AND t5._inserted_timestamp < (
-                          SELECT
-                            MAX(
-                              _inserted_timestamp
-                            ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-                          FROM
-                            {{ this }}
-                        )
-                        AND EXISTS (
-                          SELECT
-                            1
-                          FROM
-                            contracts C
-                          WHERE
-                            C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                            AND C.token_decimals IS NOT NULL
-                            AND C.contract_address = t5.token4)
-                          GROUP BY
-                            1
-                        )
+                        WHERE
+                          t5._inserted_timestamp < (
+                            SELECT
+                              MAX(
+                                _inserted_timestamp
+                              ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+                            FROM
+                              {{ this }}
+                          )
+                          AND t5.token4 IN (
+                            SELECT token_address
+                            FROM {{ ref('price__ez_asset_metadata') }}
+                            WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+                          )
+                          )
                         OR CONCAT(
                           t0.block_number,
                           '-',
@@ -954,8 +919,7 @@ heal_model AS (
                             {{ this }}
                             t6
                           WHERE
-                            t6.token5_decimals IS NULL
-                            AND t6._inserted_timestamp < (
+                            t6._inserted_timestamp < (
                               SELECT
                                 MAX(
                                   _inserted_timestamp
@@ -963,17 +927,11 @@ heal_model AS (
                               FROM
                                 {{ this }}
                             )
-                            AND EXISTS (
-                              SELECT
-                                1
-                              FROM
-                                contracts C
-                              WHERE
-                                C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                                AND C.token_decimals IS NOT NULL
-                                AND C.contract_address = t6.token5)
-                              GROUP BY
-                                1
+                            AND t6.token5 IN (
+                              SELECT token_address
+                              FROM {{ ref('price__ez_asset_metadata') }}
+                              WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+                            )
                             )
                             OR CONCAT(
                               t0.block_number,
@@ -993,28 +951,21 @@ heal_model AS (
                               FROM
                                 {{ this }}
                                 t7
-                              WHERE
-                                t7.token6_decimals IS NULL
-                                AND t7._inserted_timestamp < (
-                                  SELECT
-                                    MAX(
-                                      _inserted_timestamp
-                                    ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-                                  FROM
-                                    {{ this }}
-                                )
-                                AND EXISTS (
-                                  SELECT
-                                    1
-                                  FROM
-                                    contracts C
-                                  WHERE
-                                    C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                                    AND C.token_decimals IS NOT NULL
-                                    AND C.contract_address = t7.token6)
-                                  GROUP BY
-                                    1
-                                )
+                                WHERE
+                                  t7._inserted_timestamp < (
+                                    SELECT
+                                      MAX(
+                                        _inserted_timestamp
+                                      ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+                                    FROM
+                                      {{ this }}
+                                  )
+                                  AND t7.token6 IN (
+                                    SELECT token_address
+                                    FROM {{ ref('price__ez_asset_metadata') }}
+                                    WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+                                  )
+                                  )
                                 OR CONCAT(
                                   t0.block_number,
                                   '-',
@@ -1033,28 +984,21 @@ heal_model AS (
                                   FROM
                                     {{ this }}
                                     t8
-                                  WHERE
-                                    t8.token7_decimals IS NULL
-                                    AND t8._inserted_timestamp < (
-                                      SELECT
-                                        MAX(
-                                          _inserted_timestamp
-                                        ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-                                      FROM
-                                        {{ this }}
-                                    )
-                                    AND EXISTS (
-                                      SELECT
-                                        1
-                                      FROM
-                                        contracts C
-                                      WHERE
-                                        C._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
-                                        AND C.token_decimals IS NOT NULL
-                                        AND C.contract_address = t8.token7)
-                                      GROUP BY
-                                        1
-                                    )
+                                    WHERE
+                                      t8._inserted_timestamp < (
+                                        SELECT
+                                          MAX(
+                                            _inserted_timestamp
+                                          ) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+                                        FROM
+                                          {{ this }}
+                                      )
+                                      AND t8.token7 IN (
+                                        SELECT token_address
+                                        FROM {{ ref('price__ez_asset_metadata') }}
+                                        WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
+                                      )
+                                      )
                                     CONCAT(
                                     t0.block_number,
                                     '-',
