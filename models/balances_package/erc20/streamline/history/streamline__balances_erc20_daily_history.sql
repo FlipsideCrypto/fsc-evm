@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "table",
-    post_hook = "{{ streamline_balances_erc20_daily_history_function_call() }}",
+    post_hook = "{{ streamline_balances_erc20_daily_history_batch_function_call() }}",
     tags = ['streamline','balances','history','erc20','phase_4']
 ) }}
 
@@ -38,8 +38,7 @@ to_do_snapshot AS (
     FROM
         {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE block_date = ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
-    {# LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }} #}
-    LIMIT 40000 --remove/increase after testing
+    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 ),
 to_do_daily AS (
     SELECT
@@ -60,8 +59,7 @@ to_do_daily AS (
         {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     ORDER BY block_date DESC
-    {# LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }} #}
-    LIMIT 40000 --remove/increase after testing
+    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 ),
 to_do AS (
     SELECT
@@ -131,12 +129,11 @@ SELECT
     partition_key,
     api_request,
     rn,
-    FLOOR((rn - 1) / 20000) AS batch --increase/replace with variable after testing
+    FLOOR((rn - 1) / {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_BATCH_SIZE }}) AS batch
 FROM
     to_do_ranked
 WHERE
-    {# rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }} #}
-    rn <= 40000 --remove/increase after testing
+    rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY
     block_date DESC
 )
@@ -163,5 +160,4 @@ FROM
     to_do_batched
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT 40000 --remove/replace with variable after testing
---condense after testing
+LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}

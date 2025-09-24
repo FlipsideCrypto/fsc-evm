@@ -6,15 +6,128 @@
 
 {# Set up dbt configuration #}
 {{ config (
-    materialized = "view",
+    materialized = "table",
+    post_hook = "{{ streamline_balances_native_daily_history_batch_function_call() }}",
     tags = ['streamline','balances','history','native','phase_4']
 ) }}
 
+WITH last_x_days AS (
+
+    SELECT
+        block_number,
+        block_date
+    FROM
+        {{ ref("_max_block_by_date") }}
+    WHERE block_date >= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+),
+to_do_snapshot AS (
+    SELECT
+        DISTINCT
+        block_date,
+        address
+    FROM
+        {{ ref("streamline__balances_native_daily_records") }}
+    WHERE
+        block_date = ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    EXCEPT
+    SELECT
+        block_date,
+        address
+    FROM
+        {{ ref("streamline__balances_native_daily_complete") }}
+    WHERE block_date = ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
+),
+to_do_daily AS (
+    SELECT
+        DISTINCT
+        block_date,
+        address
+    FROM
+        {{ ref("streamline__balances_native_daily_records") }}
+    WHERE
+        block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    EXCEPT
+    SELECT
+        block_date,
+        address
+    FROM
+        {{ ref("streamline__balances_native_daily_complete") }}
+    WHERE block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    ORDER BY block_date DESC
+    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+),
+to_do AS (
+    SELECT
+        block_date,
+        'snapshot' AS TYPE,
+        address
+    FROM to_do_snapshot
+    UNION ALL
+    SELECT
+        block_date,
+        'daily' AS TYPE,
+        address
+    FROM to_do_daily
+),
+to_do_ranked AS (
+    SELECT
+        block_number,
+        block_date,
+        DATE_PART('EPOCH_SECONDS', block_date)::INT AS block_date_unix,
+        TYPE,
+        address,
+        IFF(
+            TYPE = 'snapshot',
+            DATE_PART('EPOCH_SECONDS', SYSDATE() :: DATE) :: INT,
+            ROUND(
+                block_number,
+                -3
+            )
+        ) AS partition_key,
+        OBJECT_CONSTRUCT(
+            'id',
+            CONCAT(
+                address,
+                '-',
+                block_number
+            ),
+            'jsonrpc',
+            '2.0',
+            'method',
+            'eth_getBalance',
+            'params',
+            ARRAY_CONSTRUCT(address, utils.udf_int_to_hex(block_number))
+        ) AS api_request,
+        ROW_NUMBER() OVER (ORDER BY block_number DESC) AS rn
+    FROM
+        to_do
+        JOIN last_x_days USING (block_date)
+),
+to_do_batched AS (
+SELECT
+    block_number,
+    block_date,
+    block_date_unix,
+    TYPE,
+    address,
+    partition_key,
+    api_request,
+    rn,
+    FLOOR((rn - 1) / {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_BATCH_SIZE }}) AS batch
+FROM
+    to_do_ranked
+WHERE
+    rn <= {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
+ORDER BY
+    block_date DESC
+)
 SELECT
     block_number,
     block_date_unix,
     address,
     partition_key,
+    batch,
     live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
@@ -28,30 +141,7 @@ SELECT
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
     ) AS request
 FROM
-    {{ ref('streamline__balances_native_daily_history_to_do') }}
-{# ORDER BY partition_key DESC, block_number DESC #}
+    to_do_batched
+ORDER BY partition_key DESC, block_number DESC
 
 LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
-
-{# Streamline Function Call #}
-{% if execute %}
-    {% set params = {
-        "external_table": 'balances_native',
-        "sql_limit": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT,
-        "producer_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_PRODUCER_BATCH_SIZE,
-        "worker_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_WORKER_BATCH_SIZE,
-        "async_concurrent_requests": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'balances_native_daily_history'
-    } %}
-
-    {% set function_call_sql %}
-    {{ fsc_utils.if_data_call_function_v2(
-        func = 'streamline.udf_bulk_rest_api_v2',
-        target = this.schema ~ "." ~ this.identifier,
-        params = params
-    ) }}
-    {% endset %}
-
-    {% do run_query(function_call_sql) %}
-    {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
-{% endif %}
