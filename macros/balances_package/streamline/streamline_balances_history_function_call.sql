@@ -33,7 +33,7 @@
                 "producer_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_PRODUCER_BATCH_SIZE,
                 "worker_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_WORKER_BATCH_SIZE,
                 "async_concurrent_requests": vars.BALANCES_SL_ERC20_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-                "sql_source": batch_view_name
+                "sql_source": 'balances_erc20_daily_history'
             } %}
 
             {% set function_call_sql %}
@@ -86,7 +86,7 @@
                 "producer_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_PRODUCER_BATCH_SIZE,
                 "worker_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_WORKER_BATCH_SIZE,
                 "async_concurrent_requests": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-                "sql_source": batch_view_name
+                "sql_source": 'balances_native_daily_history'
             } %}
 
             {% set function_call_sql %}
