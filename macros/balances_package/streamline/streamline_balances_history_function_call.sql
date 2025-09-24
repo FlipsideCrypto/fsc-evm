@@ -20,7 +20,7 @@
 
     {# Get the maximum batch number from the history table #}
     {% set max_batch_query %}
-        SELECT COALESCE(MAX(batch), -1) as max_batch 
+        SELECT COALESCE(MAX(batch), -1) AS max_batch 
         FROM {{ this.schema }}.{{ this.identifier }}
     {% endset %}
     
