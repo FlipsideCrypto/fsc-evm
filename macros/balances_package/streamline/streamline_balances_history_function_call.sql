@@ -20,16 +20,16 @@
             {# Create a temporary view for this batch #}
             {% set batch_view_name = this.identifier ~ '_batch_' ~ batch_num %}
             {% set create_batch_view %}
-                CREATE OR REPLACE VIEW {{ this.schema }}.{{ batch_view_name }} AS
+                CREATE OR REPLACE VIEW streamline.{{ batch_view_name }} AS
                 SELECT * FROM {{ this.schema }}.{{ this.identifier }}
                 WHERE batch = {{ batch_num }}
             {% endset %}
             {% do run_query(create_batch_view) %}
-            {{ log("Created view: " ~ this.schema ~ "." ~ batch_view_name, info=True) }}
+            {{ log("Created view: streamline." ~ batch_view_name, info=True) }}
             
             {% set params = {
                 "external_table": 'balances_erc20',
-                "sql_limit": vars.BALANCES_SL_ERC20_DAILY_HISTORY_BATCH_SIZE,
+                "sql_limit": vars.BALANCES_SL_DAILY_HISTORY_BATCH_SIZE,
                 "producer_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_PRODUCER_BATCH_SIZE,
                 "worker_batch_size": vars.BALANCES_SL_ERC20_DAILY_HISTORY_WORKER_BATCH_SIZE,
                 "async_concurrent_requests": vars.BALANCES_SL_ERC20_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
@@ -39,7 +39,7 @@
             {% set function_call_sql %}
             {{ fsc_utils.if_data_call_function_v2(
                 func = 'streamline.udf_bulk_rest_api_v2',
-                target = this.schema ~ "." ~ batch_view_name,
+                target = "streamline." ~ batch_view_name,
                 params = params
             ) }}
             {% endset %}
@@ -58,7 +58,7 @@
 
     {# Get the maximum batch number from the history table #}
     {% set max_batch_query %}
-        SELECT COALESCE(MAX(batch), -1) as max_batch 
+        SELECT COALESCE(MAX(batch), -1) AS max_batch 
         FROM {{ this.schema }}.{{ this.identifier }}
     {% endset %}
     
@@ -73,16 +73,16 @@
             {# Create a temporary view for this batch #}
             {% set batch_view_name = this.identifier ~ '_batch_' ~ batch_num %}
             {% set create_batch_view %}
-                CREATE OR REPLACE VIEW {{ this.schema }}.{{ batch_view_name }} AS
+                CREATE OR REPLACE VIEW streamline.{{ batch_view_name }} AS
                 SELECT * FROM {{ this.schema }}.{{ this.identifier }}
                 WHERE batch = {{ batch_num }}
             {% endset %}
             {% do run_query(create_batch_view) %}
-            {{ log("Created view: " ~ this.schema ~ "." ~ batch_view_name, info=True) }}
+            {{ log("Created view: streamline." ~ batch_view_name, info=True) }}
             
             {% set params = {
                 "external_table": 'balances_native',
-                "sql_limit": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_BATCH_SIZE,
+                "sql_limit": vars.BALANCES_SL_DAILY_HISTORY_BATCH_SIZE,
                 "producer_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_PRODUCER_BATCH_SIZE,
                 "worker_batch_size": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_WORKER_BATCH_SIZE,
                 "async_concurrent_requests": vars.BALANCES_SL_NATIVE_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
@@ -92,7 +92,7 @@
             {% set function_call_sql %}
             {{ fsc_utils.if_data_call_function_v2(
                 func = 'streamline.udf_bulk_rest_api_v2',
-                target = this.schema ~ "." ~ batch_view_name,
+                target = "streamline." ~ batch_view_name,
                 params = params
             ) }}
             {% endset %}

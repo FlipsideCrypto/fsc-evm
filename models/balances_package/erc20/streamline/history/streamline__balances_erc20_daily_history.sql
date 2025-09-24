@@ -129,7 +129,7 @@ SELECT
     partition_key,
     api_request,
     rn,
-    FLOOR((rn - 1) / {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_BATCH_SIZE }}) AS batch
+    FLOOR((rn - 1) / {{ vars.BALANCES_SL_DAILY_HISTORY_BATCH_SIZE }}) AS batch
 FROM
     to_do_ranked
 WHERE
