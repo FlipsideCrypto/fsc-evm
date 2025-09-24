@@ -149,7 +149,7 @@ SELECT
     address,
     api_request,
     rn,
-    ceil(rn / 1000000) AS batch_id
+    ceil(rn / {{ vars.BALANCES_SL_HISTORY_BATCH_SIZE }}) AS batch_id
 FROM ranked_data
 WHERE rn <= {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY block_number DESC
