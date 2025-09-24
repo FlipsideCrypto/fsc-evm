@@ -144,6 +144,7 @@ SELECT
     address,
     contract_address,
     partition_key,
+    batch,
     live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
