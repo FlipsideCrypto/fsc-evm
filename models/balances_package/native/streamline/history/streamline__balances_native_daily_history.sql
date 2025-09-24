@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "table",
-    post_hook = "{{ streamline_balances_native_daily_history_batch_function_call() }}",
+    post_hook = "{{ streamline_balances_history_batch_function_call() }}",
     tags = ['streamline','balances','history','native','phase_4']
 ) }}
 
@@ -120,7 +120,7 @@ FROM
 WHERE
     rn <= {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
 ORDER BY
-    block_date DESC
+    block_date DESC --included for performance reasons
 )
 SELECT
     block_number,
@@ -142,6 +142,5 @@ SELECT
     ) AS request
 FROM
     to_do_batched
-ORDER BY partition_key DESC, block_number DESC
 
 LIMIT {{ vars.BALANCES_SL_NATIVE_DAILY_HISTORY_SQL_LIMIT }}
