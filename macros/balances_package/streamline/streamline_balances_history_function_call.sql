@@ -51,27 +51,40 @@
                 WHERE batch = {{ batch_num }}
             {% endset %}
             {% do run_query(create_batch_view) %}
+            {{ log("Created view: " ~ this.schema ~ "." ~ batch_view_name, info=True) }}
             
-            {# Update params with vars after testing #}
-            {% set params = {
+            {# Check if rows exist first #}
+            {% set check_rows_query %}
+                SELECT EXISTS(SELECT 1 FROM {{ this.schema }}.{{ batch_view_name }} LIMIT 1)
+            {% endset %}
+            
+            {% set results = run_query(check_rows_query) %}
+            {% set has_rows = results.columns[0].values()[0] %}
+            
+            {% if has_rows %}
+                {# Update params with vars after testing #}
+                {% set params = {
                 "external_table": 'balances_erc20',
                 "sql_limit": 20000,
                 "producer_batch_size": 2000,
                 "worker_batch_size": 200,
                 "async_concurrent_requests": vars.BALANCES_SL_ERC20_DAILY_HISTORY_ASYNC_CONCURRENT_REQUESTS,
                 "sql_source": batch_view_name
-            } %}
+                } %}
 
-            {% set function_call_sql %}
-            {{ fsc_utils.if_data_call_function_v2(
-                func = 'streamline.udf_bulk_rest_api_v2',
-                target = this.schema ~ "." ~ batch_view_name,
-                params = params
-            ) }}
-            {% endset %}
+                {% set function_call_sql %}
+                {{ fsc_utils.if_data_call_function_v2(
+                    func = 'streamline.udf_bulk_rest_api_v2',
+                    target = this.schema ~ "." ~ batch_view_name,
+                    params = params
+                ) }}
+                {% endset %}
 
-            {% do run_query(function_call_sql) %}
-            {{ log("Completed batch " ~ batch_num, info=True) }}
+                {% do run_query(function_call_sql) %}
+                {{ log("Completed batch " ~ batch_num, info=True) }}
+            {% else %}
+                {{ log("No rows to process for batch " ~ batch_num, info=True) }}
+            {% endif %}
             
             {# Clean up the temporary view #}
             {% set drop_batch_view %}
