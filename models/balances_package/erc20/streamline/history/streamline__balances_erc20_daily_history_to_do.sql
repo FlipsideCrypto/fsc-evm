@@ -7,6 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "table",
+    post_hook = "{{ streamline_balances_erc20_daily_history_function_call() }}",
     tags = ['streamline','balances','history','erc20','phase_4']
 ) }}
 
@@ -116,7 +117,8 @@ to_do_ranked AS (
     FROM
         to_do
         JOIN last_x_days USING (block_date)
-)
+),
+to_do_batched AS (
 SELECT
     block_number,
     block_date,
@@ -126,10 +128,37 @@ SELECT
     contract_address,
     partition_key,
     api_request,
-    rn
+    rn,
+    FLOOR((rn - 1) / 20000) AS batch --increase/replace with variable after testing
 FROM
     to_do_ranked
 WHERE
-    rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+    {# rn <= {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }} #}
+    rn <= 40000 --remove/increase after testing
 ORDER BY
     block_date DESC
+)
+SELECT
+    block_number,
+    block_date_unix,
+    address,
+    contract_address,
+    partition_key,
+    live.udf_api(
+        'POST',
+        '{{ vars.GLOBAL_NODE_URL }}',
+        OBJECT_CONSTRUCT(
+            'Content-Type',
+            'application/json',
+            'fsc-quantum-state',
+            'streamline'
+        ),
+        api_request,
+        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
+    ) AS request
+FROM
+    to_do_batched
+ORDER BY partition_key DESC, block_number DESC
+
+LIMIT 40000 --remove/replace with variable after testing
+--condense after testing
