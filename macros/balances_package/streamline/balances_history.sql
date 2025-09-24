@@ -56,7 +56,7 @@
 
       {# Create the view #}
       {% do run_query(create_view_query) %}
-      {{ log("Created erc20 view for batch " ~ batch, info=True) }}
+      {{ log("Created view for batch " ~ batch ~ " of erc20 balances", info=True) }}
 
       {% if var("STREAMLINE_INVOKE_STREAMS", false) %}
         {# Use fsc_utils.if_data_call_function_v2 like the model approach #}
@@ -72,7 +72,7 @@
         {% endset %}
 
         {% do run_query(function_call_sql) %}
-        {{ log("Streamline function call for erc20 batch " ~ batch ~ ": " ~ function_call_sql, info=true) }}
+        {{ log("Streamline function call for batch " ~ batch ~ " of erc20 balances: " ~ function_call_sql, info=true) }}
       {% endif %}
       
     {% endfor %}
@@ -137,7 +137,7 @@
 
       {# Create the view #}
       {% do run_query(create_view_query) %}
-      {{ log("Created native view for batch " ~ batch, info=True) }}
+      {{ log("Created view for batch " ~ batch ~ " of native balances", info=True) }}
 
       {% if var("STREAMLINE_INVOKE_STREAMS", false) %}
         {# Use fsc_utils.if_data_call_function_v2 like the model approach #}
@@ -153,7 +153,7 @@
         {% endset %}
 
         {% do run_query(function_call_sql) %}
-        {{ log("Streamline function call for native batch " ~ batch ~ ": " ~ function_call_sql, info=true) }}
+        {{ log("Streamline function call for batch " ~ batch ~ " of native balances: " ~ function_call_sql, info=true) }}
       {% endif %}
       
     {% endfor %}
@@ -163,7 +163,7 @@
 
 {% macro run_balances_history() %}
 
-  {% do run_query(run_balances_erc20_history()) %}
-  {% do run_query(run_balances_native_history()) %}
+  {% do run_balances_erc20_history() %}
+  {% do run_balances_native_history() %}
 
 {% endmacro %}
