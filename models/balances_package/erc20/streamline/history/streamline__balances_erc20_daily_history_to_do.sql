@@ -38,7 +38,8 @@ to_do_snapshot AS (
     FROM
         {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE block_date = ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
-    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+    {# LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }} #}
+    LIMIT 40000 --remove/increase after testing
 ),
 to_do_daily AS (
     SELECT
@@ -59,7 +60,8 @@ to_do_daily AS (
         {{ ref("streamline__balances_erc20_daily_complete") }}
     WHERE block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     ORDER BY block_date DESC
-    LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+    {# LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }} #}
+    LIMIT 40000 --remove/increase after testing
 ),
 to_do AS (
     SELECT
