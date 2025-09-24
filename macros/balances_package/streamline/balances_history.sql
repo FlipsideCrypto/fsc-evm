@@ -1,4 +1,4 @@
-{% macro balances_erc20_history() %}
+{% macro run_balances_erc20_history() %}
 
   {% set vars = return_vars() %}
 
@@ -80,7 +80,7 @@
 
 {% endmacro %}
 
-{% macro balances_native_history() %}
+{% macro run_balances_native_history() %}
 
   {% set vars = return_vars() %}
 
@@ -160,3 +160,10 @@
   {% endif %}
 
 {% endmacro %} 
+
+{% macro run_balances_history() %}
+
+  {% do run_query(run_balances_erc20_history()) %}
+  {% do run_query(run_balances_native_history()) %}
+
+{% endmacro %}
