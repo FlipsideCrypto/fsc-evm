@@ -376,6 +376,52 @@ WHERE
   )
 {% endif %}
 ),
+curve AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    token0,
+    token1,
+    token2,
+    token3,
+    token4,
+    token5,
+    token6,
+    token7,
+    amount0_unadj,
+    amount1_unadj,
+    amount2_unadj,
+    amount3_unadj,
+    amount4_unadj,
+    amount5_unadj,
+    amount6_unadj,
+    amount7_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__curve_pool_actions') }}
+
+{% if is_incremental() and 'curve' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 all_pools AS (
   SELECT
     *
@@ -411,6 +457,11 @@ all_pools AS (
     *
   FROM
     balancer
+  UNION ALL
+  SELECT
+    *
+  FROM
+    curve
 ),
 complete_lps AS (
   SELECT
