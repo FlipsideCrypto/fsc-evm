@@ -22,8 +22,8 @@ WITH evt AS (
         origin_from_address,
         origin_to_address,
         l.contract_address AS pool_address,
-        token0,
-        token1,
+        tokenX AS token0,
+        tokenY AS token1,
         topic_0,
         topic_1,
         topic_2,
@@ -51,7 +51,7 @@ WITH evt AS (
         {{ ref('core__ez_decoded_event_logs') }}
         l
         INNER JOIN {{ref('silver_dex__trader_joe_v2_pools')}} p
-        ON l.contract_address = p.pool_address
+        ON l.contract_address = p.lb_pair
     WHERE
         topic_0 IN ('0x4216cc3bd0c40a90259d92f800c06ede5c47765f41a488072b7e7104a1f95841', --DepositedToBin
         '0xda5e7177dface55f5e0eff7dfc67420a1db4243ddfcf0ecc84ed93e034dd8cc2' --WithdrawnFromBin
