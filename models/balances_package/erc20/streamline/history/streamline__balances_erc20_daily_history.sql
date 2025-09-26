@@ -11,28 +11,9 @@
 ) }}
 
 SELECT
-    block_number,
-    block_date_unix,
-    address,
-    contract_address,
-    partition_key,
-    live.udf_api(
-        'POST',
-        '{{ vars.GLOBAL_NODE_URL }}',
-        OBJECT_CONSTRUCT(
-            'Content-Type',
-            'application/json',
-            'fsc-quantum-state',
-            'streamline'
-        ),
-        api_request,
-        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
-    ) AS request
+    *
 FROM
-    {{ ref('streamline__balances_erc20_daily_history_to_do') }}
-ORDER BY partition_key DESC, block_number DESC
-
-LIMIT {{ vars.BALANCES_SL_ERC20_DAILY_HISTORY_SQL_LIMIT }}
+    {{ ref('streamline__balances_erc20_daily_history_requests') }}
 
 {# Streamline Function Call #}
 {% if execute %}
