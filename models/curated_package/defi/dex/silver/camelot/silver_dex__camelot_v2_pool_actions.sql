@@ -24,10 +24,6 @@ WITH evt AS (
         l.contract_address AS pool_address,
         token0_address AS token0,
         token1_address AS token1,
-        fee,
-        fee_percent,
-        tick_spacing,
-        init_tick,
         topic_0,
         topic_1,
         topic_2,
@@ -51,7 +47,7 @@ WITH evt AS (
     FROM
         {{ ref('core__fact_event_logs') }}
         l
-        INNER JOIN {{ref('silver_dex__poolcreated_evt_v3_pools')}} p
+        INNER JOIN {{ref('silver_dex__camelot_v2_pools')}} p
         ON l.contract_address = p.pool_address
     WHERE
         topic_0 IN ('0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde', --mint
@@ -82,27 +78,23 @@ mint AS (
         pool_address,
         token0,
         token1,
-        fee,
-        fee_percent,
-        tick_spacing,
-        init_tick,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 topic_2
             )
-        ) AS tick_lower,
+        ) AS bottom_tick,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 topic_3
             )
-        ) AS tick_upper,
+        ) AS top_tick,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS sender_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
-        ) AS amount,
+        ) AS liquidity_amount,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [2] :: STRING
@@ -137,26 +129,22 @@ burn AS (
         pool_address,
         token0,
         token1,
-        fee,
-        fee_percent,
-        tick_spacing,
-        init_tick,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 topic_2
             )
-        ) AS tick_lower,
+        ) AS bottom_tick,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 topic_3
             )
-        ) AS tick_upper,
+        ) AS top_tick,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             )
-        ) AS amount,
+        ) AS liquidity_amount,
         TRY_TO_NUMBER(
             utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
@@ -189,18 +177,14 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
-        fee,
-        fee_percent,
-        tick_spacing,
-        init_tick,
-        tick_lower,
-        tick_upper,
+        bottom_tick AS tick_lower,
+        top_tick AS tick_upper,
         token0,
         token1,
         owner_address,
         sender_address AS sender,
         owner_address AS receiver,
-        amount AS liquidity_amount_unadj,
+        liquidity_amount AS liquidity_amount_unadj,
         amount0 AS amount0_unadj,
         amount1 AS amount1_unadj,
         protocol,
@@ -222,18 +206,14 @@ all_actions AS (
         origin_to_address,
         event_name,
         pool_address,
-        fee,
-        fee_percent,
-        tick_spacing,
-        init_tick,
-        tick_lower,
-        tick_upper,
+        bottom_tick AS tick_lower,
+        top_tick AS tick_upper,
         token0,
         token1,
         owner_address,
         owner_address AS sender,
         origin_from_address AS receiver,
-        amount AS liquidity_amount_unadj,
+        liquidity_amount AS liquidity_amount_unadj,
         amount0 AS amount0_unadj,
         amount1 AS amount1_unadj,
         protocol,
@@ -255,10 +235,6 @@ SELECT
     origin_to_address,
     event_name,
     pool_address,
-    fee,
-    fee_percent,
-    tick_spacing,
-    init_tick,
     tick_lower,
     tick_upper,
     token0,
