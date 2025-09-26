@@ -192,6 +192,52 @@ WHERE
   )
 {% endif %}
 ),
+pharaoh_v1 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount0_unadj,
+    amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    type,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__pharaoh_v1_pool_actions') }}
+
+{% if is_incremental() and 'pharaoh_v1' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 kyberswap_v1_dynamic AS (
   SELECT
     block_number,
@@ -615,6 +661,11 @@ all_pools AS (
     *
   FROM
     dackie
+  UNION ALL
+  SELECT
+    *
+  FROM
+    pharaoh_v1
 ),
 complete_lps AS (
   SELECT
