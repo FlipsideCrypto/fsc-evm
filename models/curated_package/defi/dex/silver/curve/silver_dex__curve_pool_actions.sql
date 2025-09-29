@@ -339,19 +339,34 @@ all_actions AS (
         *
     FROM
         remove_liquidity
-)
+),
+pool_tokens_pivoted AS (
+    SELECT 
+        pool_address,
+        MAX(CASE WHEN token_id::INT = 0 THEN token_address END) AS token_0_address,
+        MAX(CASE WHEN token_id::INT = 1 THEN token_address END) AS token_1_address,
+        MAX(CASE WHEN token_id::INT = 2 THEN token_address END) AS token_2_address,
+        MAX(CASE WHEN token_id::INT = 3 THEN token_address END) AS token_3_address,
+        MAX(CASE WHEN token_id::INT = 4 THEN token_address END) AS token_4_address,
+        MAX(CASE WHEN token_id::INT = 5 THEN token_address END) AS token_5_address,
+        MAX(CASE WHEN token_id::INT = 6 THEN token_address END) AS token_6_address,
+        MAX(CASE WHEN token_id::INT = 7 THEN token_address END) AS token_7_address
+    FROM {{ ref('silver_dex__curve_pools') }}
+    GROUP BY pool_address
+),
 SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    event_index,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
+    a.block_number,
+    a.block_timestamp,
+    a.tx_hash,
+    a.event_index,
+    a.origin_function_signature,
+    a.origin_from_address,
+    a.origin_to_address,
     event_name,
-    contract_address,
-    pool_address,
+    a.contract_address,
+    a.pool_address,
     token_amounts,
+    ARRAY_SIZE(token_amounts) AS num_tokens,
     fees,
     invariant,
     token_supply,
@@ -359,14 +374,14 @@ SELECT
     liquidity_provider,
     sender,
     receiver,
-    token0,
-    token1,
-    token2,
-    token3,
-    token4,
-    token5,
-    token6,
-    token7,
+    CASE WHEN num_tokens >= 1 THEN COALESCE(a.token0, s.token_0_address) ELSE NULL END AS token0,
+    CASE WHEN num_tokens >= 2 THEN COALESCE(a.token1, s.token_1_address) ELSE NULL END AS token1,
+    CASE WHEN num_tokens >= 3 THEN COALESCE(a.token2, s.token_2_address) ELSE NULL END AS token2,
+    CASE WHEN num_tokens >= 4 THEN COALESCE(a.token3, s.token_3_address) ELSE NULL END AS token3,
+    CASE WHEN num_tokens >= 5 THEN COALESCE(a.token4, s.token_4_address) ELSE NULL END AS token4,
+    CASE WHEN num_tokens >= 6 THEN COALESCE(a.token5, s.token_5_address) ELSE NULL END AS token5,
+    CASE WHEN num_tokens >= 7 THEN COALESCE(a.token6, s.token_6_address) ELSE NULL END AS token6,
+    CASE WHEN num_tokens >= 8 THEN COALESCE(a.token7, s.token_7_address) ELSE NULL END AS token7,
     amount0_unadj,
     amount1_unadj,
     amount2_unadj,
@@ -383,13 +398,15 @@ SELECT
     fee5,
     fee6,
     fee7,
-    protocol,
-    version,
-    type,
-    platform,
-    _log_id,
-    modified_timestamp
+    a.protocol,
+    a.version,
+    a.type,
+    a.platform,
+    a._log_id,
+    a.modified_timestamp
 FROM
-    all_actions qualify(ROW_NUMBER() over (PARTITION BY _log_id
+    all_actions a 
+    LEFT JOIN pool_tokens_pivoted s ON a.pool_address = s.pool_address
+    qualify(ROW_NUMBER() over (PARTITION BY a._log_id
 ORDER BY
-    modified_timestamp DESC)) = 1
+    a.modified_timestamp DESC)) = 1
