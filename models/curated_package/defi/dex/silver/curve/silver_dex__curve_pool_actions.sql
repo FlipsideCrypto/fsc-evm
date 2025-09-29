@@ -23,8 +23,9 @@ WITH evt AS (
         origin_to_address,
         l.contract_address,
         p.pool_address,
+        l.topic_0,
         decoded_log :provider :: STRING AS liquidity_provider,
-        COALESCE(decoded_log :token_amounts :: STRING, decoded_log :token_amount :: STRING) AS token_amounts,
+        COALESCE(decoded_log :token_amounts, decoded_log :token_amount) AS token_amounts,
         token_amounts [0] :: STRING AS amount0_unadj,
         token_amounts [1] :: STRING AS amount1_unadj,
         token_amounts [2] :: STRING AS amount2_unadj,
@@ -33,7 +34,7 @@ WITH evt AS (
         token_amounts [5] :: STRING AS amount5_unadj,
         token_amounts [6] :: STRING AS amount6_unadj,
         token_amounts [7] :: STRING AS amount7_unadj,
-        COALESCE(decoded_log :fees :: STRING, decoded_log :fee :: STRING) AS fees,
+        COALESCE(decoded_log :fees, decoded_log :fee) AS fees,
         fees [0] :: STRING AS fee0,
         fees [1] :: STRING AS fee1,
         fees [2] :: STRING AS fee2,
@@ -102,6 +103,8 @@ transfers AS (
         contract_address,
         from_address,
         to_address,
+        raw_amount_precise,
+        raw_amount,
         amount_precise,
         amount
     FROM 
@@ -125,14 +128,15 @@ AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}
 ),
 pool_tokens AS (
     SELECT
-        block_number,
-        block_timestamp,
-        tx_hash,
-        event_index,
-        origin_function_signature,
-        origin_from_address,
-        origin_to_address,
-        contract_address,
+        e.block_number,
+        e.block_timestamp,
+        e.tx_hash,
+        e.event_index,
+        e.origin_function_signature,
+        e.origin_from_address,
+        e.origin_to_address,
+        e.contract_address,
+        topic_0,
         pool_address,
         liquidity_provider,
         token_amounts,
@@ -174,35 +178,35 @@ pool_tokens AS (
     LEFT JOIN transfers t0
     ON e.block_number = t0.block_number
     AND e.tx_hash = t0.tx_hash
-    AND e.amount0_unadj = t0.amount
+    AND e.amount0_unadj = t0.raw_amount_precise
     LEFT JOIN transfers t1
     ON e.block_number = t1.block_number
     AND e.tx_hash = t1.tx_hash
-    AND e.amount1_unadj = t1.amount
+    AND e.amount1_unadj = t1.raw_amount_precise
     LEFT JOIN transfers t2
     ON e.block_number = t2.block_number
     AND e.tx_hash = t2.tx_hash
-    AND e.amount2_unadj = t2.amount
+    AND e.amount2_unadj = t2.raw_amount_precise
     LEFT JOIN transfers t3
     ON e.block_number = t3.block_number
     AND e.tx_hash = t3.tx_hash
-    AND e.amount3_unadj = t3.amount
+    AND e.amount3_unadj = t3.raw_amount_precise
     LEFT JOIN transfers t4
     ON e.block_number = t4.block_number
     AND e.tx_hash = t4.tx_hash
-    AND e.amount4_unadj = t4.amount
+    AND e.amount4_unadj = t4.raw_amount_precise
     LEFT JOIN transfers t5
     ON e.block_number = t5.block_number
     AND e.tx_hash = t5.tx_hash
-    AND e.amount5_unadj = t5.amount
+    AND e.amount5_unadj = t5.raw_amount_precise
     LEFT JOIN transfers t6
     ON e.block_number = t6.block_number
     AND e.tx_hash = t6.tx_hash
-    AND e.amount6_unadj = t6.amount
+    AND e.amount6_unadj = t6.raw_amount_precise
     LEFT JOIN transfers t7
     ON e.block_number = t7.block_number
     AND e.tx_hash = t7.tx_hash
-    AND e.amount7_unadj = t7.amount
+    AND e.amount7_unadj = t7.raw_amount_precise
 ),
 add_liquidity AS (
     SELECT
