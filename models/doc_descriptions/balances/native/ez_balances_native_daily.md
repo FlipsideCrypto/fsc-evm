@@ -2,7 +2,7 @@
 
 ## What
 
-This table provides daily native asset balance snapshots (ETH, AVAX, BNB, etc.) by making direct `eth_getBalance` RPC calls at the end of each day. It captures the current native asset balance for each address that has had native asset activity, providing a comprehensive view of native holdings with decimal adjustments and USD valuations where available.
+This table provides daily native asset balance snapshots (ETH, AVAX, BNB, etc.) by making direct `eth_getBalance` RPC calls at the end of each day. It captures the current native asset balance for each address that has had native asset activity, providing a comprehensive view of native holdings with decimal adjustments and USD valuations where available. Historical native balances data available, starting from `2025-06-10`.
 
 ## Key Use Cases
 
