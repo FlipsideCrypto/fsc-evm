@@ -16,6 +16,7 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
+        'BALANCES_SL_START_DATE': '2025-07-01',
         'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['inkswap-v1','morpho-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
