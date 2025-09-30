@@ -2,7 +2,7 @@
 
 ## What
 
-This table provides daily ERC20 token balance snapshots for verified token contracts by making direct `balanceOf` contract calls at the end of each day. It captures the current token balance for each address-token pair that has had transfer activity, providing a comprehensive view of token holdings across all verified ERC20 tokens with decimal adjustments and USD valuations where available.
+This table provides daily ERC20 token balance snapshots for verified token contracts by making direct `balanceOf` contract calls at the end of each day. It captures the current token balance for each address-token pair that has had transfer activity, providing a comprehensive view of token holdings across all verified ERC20 tokens with decimal adjustments and USD valuations where available. Historical ERC20 balances data available, starting from `2025-06-10`.
 
 ## Key Use Cases
 
