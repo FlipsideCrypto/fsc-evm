@@ -1,6 +1,6 @@
 {% macro remove_test_tokens() %}
   {% if var('HEAL_MODEL', false) %}
-      {% if 'liquidations' in this.identifier %}
+      {% if model.name == 'silver_lending__complete_lending_liquidations' %}
       DELETE FROM {{ this }}
       WHERE (collateral_token NOT IN (
           SELECT contract_address
