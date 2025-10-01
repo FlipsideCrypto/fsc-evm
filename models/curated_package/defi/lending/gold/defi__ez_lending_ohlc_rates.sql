@@ -18,6 +18,7 @@ SELECT
     platform,
     version,
     token_address,
+    token_symbol,
     supply_rate_open,
     supply_rate_high,
     supply_rate_low,

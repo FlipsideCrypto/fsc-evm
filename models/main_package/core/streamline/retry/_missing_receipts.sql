@@ -20,4 +20,9 @@
         {{ ref("test_gold__fact_transactions_recent") }}
     WHERE
         tx_succeeded IS NULL
+
+    {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
+        OR timeboosted IS NULL
+    {% endif %}
+
 {% endif %}
