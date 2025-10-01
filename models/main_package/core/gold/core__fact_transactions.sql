@@ -569,7 +569,7 @@ missing_data AS (
         OR t.tx_succeeded IS NULL
 
     {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
-        OR t.timeboosted IS NULL
+        OR (t.timeboosted IS NULL and t.block_number >= 330058686)
     {% endif %}
 )
 {% endif %},
