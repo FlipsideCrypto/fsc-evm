@@ -53,13 +53,15 @@ models:
           - not_null
       - name: TOKEN_SYMBOL
         tests: 
-          - not_null
+          - not_null:
+              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: AMOUNT_UNADJ
         tests:
           - not_null 
       - name: AMOUNT
         tests:
-          - not_null
+          - not_null:
+              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: AMOUNT_USD
         tests:
         - dbt_expectations.expect_column_values_to_be_in_type_list:

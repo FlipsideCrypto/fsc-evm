@@ -11,7 +11,10 @@
   incremental_strategy = 'delete+insert',
   unique_key = ['block_number','platform'],
   cluster_by = ['block_timestamp::DATE','platform'],
-  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, liquidator, borrower, collateral_token, collateral_token_symbol, debt_token, debt_token_symbol, protocol_market)",
+  post_hook = [
+    "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, liquidator, borrower, collateral_token, collateral_token_symbol, debt_token, debt_token_symbol, protocol_market)",
+    "{{ remove_test_tokens() }}"
+  ],
   tags = ['silver','defi','lending','curated','heal','liquidations','complete_lending']
 ) }}
 WITH contracts AS (
