@@ -16,7 +16,7 @@
     ],
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold','balances','erc20','phase_4']
+    tags = ['gold','balances','erc20','heal','phase_4']
 ) }}
 
 WITH balances AS (
