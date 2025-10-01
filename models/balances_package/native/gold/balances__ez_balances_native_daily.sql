@@ -23,9 +23,9 @@ WITH balances AS (
         block_date,
         address,
         balance_hex,
-        TRY_CAST(utils.udf_hex_to_int(
+        utils.udf_hex_to_int(
             balance_hex
-        ) AS bigint) AS balance_raw,
+        ) :: bigint AS balance_raw,
         18 AS decimals,
         utils.udf_decimal_adjust(
             balance_raw,
