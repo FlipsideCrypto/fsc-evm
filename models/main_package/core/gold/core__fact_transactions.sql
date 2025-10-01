@@ -567,6 +567,10 @@ missing_data AS (
     WHERE
         t.block_timestamp IS NULL
         OR t.tx_succeeded IS NULL
+
+    {% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
+        OR t.timeboosted IS NULL
+    {% endif %}
 )
 {% endif %},
 all_transactions AS (
