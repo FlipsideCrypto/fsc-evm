@@ -16,7 +16,7 @@
     ],
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold','balances','erc20','phase_4']
+    tags = ['gold','balances','erc20','heal','phase_4']
 ) }}
 
 WITH balances AS (
@@ -34,11 +34,14 @@ WITH balances AS (
         ) AS decimals_adj,
         c.symbol,
         balance_hex,
-        CASE
-            WHEN LENGTH(balance_hex) <= 4300
-            AND balance_hex IS NOT NULL THEN utils.udf_hex_to_int(balance_hex) :: bigint
-            ELSE NULL
-        END AS balance_raw,
+        IFNULL(
+            CASE WHEN LENGTH(balance_hex) <= 4300 AND balance_hex IS NOT NULL 
+                THEN TRY_CAST(utils.udf_hex_to_int(balance_hex) AS bigint) 
+            END,
+            CASE WHEN balance_hex IS NOT NULL 
+                THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(balance_hex,'0')) AS bigint) 
+            END
+        ) AS balance_raw,
         IFF(
             decimals_adj IS NULL,
             NULL,
