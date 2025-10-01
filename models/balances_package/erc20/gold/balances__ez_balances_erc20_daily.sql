@@ -36,7 +36,7 @@ WITH balances AS (
         balance_hex,
         CASE
             WHEN LENGTH(balance_hex) <= 4300
-            AND balance_hex IS NOT NULL THEN utils.udf_hex_to_int(balance_hex) :: bigint
+            AND balance_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(balance_hex) AS bigint)
             ELSE NULL
         END AS balance_raw,
         IFF(
