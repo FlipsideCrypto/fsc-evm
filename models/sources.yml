@@ -61,6 +61,7 @@ sources:
       - name: complete_token_asset_metadata
       - name: complete_token_prices
       - name: near_address_encoded
+      - name: tokens_stablecoins
   - name: crosschain_public
     database: crosschain
     schema: bronze_public

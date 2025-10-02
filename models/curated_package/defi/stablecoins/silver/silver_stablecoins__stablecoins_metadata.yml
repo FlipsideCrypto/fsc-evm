@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: silver_stablecoins__stablecoins_metadata
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TOKEN_ADDRESS
+
+    columns:
+      - name: TOKEN_ADDRESS
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          - not_null
+      - name: NAME
+        tests:
+          - not_null
+      - name: DECIMALS
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - not_null
