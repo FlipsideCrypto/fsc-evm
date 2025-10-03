@@ -42,3 +42,12 @@ FROM
     ON s.token_address = m.token_address
 WHERE
     m.is_verified --verified stablecoins only
+
+{% if is_incremental() %}
+AND s.modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
