@@ -1,7 +1,7 @@
 # version: 2
 # models:
-#   - name: core__ez_token_transfers
-#     description: '{{ doc("ez_token_transfers_table_doc") }}'
+#   - name: defi__fact_stablecoins_activity
+#     description: '{{ doc("fact_stablecoins_activity_table_doc") }}'
       
 #     columns:
 #       - name: BLOCK_NUMBER
@@ -10,8 +10,6 @@
 #         description: '{{ doc("general_block_timestamp") }}'
 #       - name: TX_HASH
 #         description: '{{ doc("general_tx_hash") }}'
-#       - name: TX_POSITION
-#         description: '{{ doc("general_tx_position") }}'
 #       - name: EVENT_INDEX
 #         description: '{{ doc("general_event_index") }}'
 #       - name: FROM_ADDRESS
@@ -20,19 +18,15 @@
 #         description: '{{ doc("ez_token_transfers_to_address") }}'
 #       - name: CONTRACT_ADDRESS
 #         description: '{{ doc("ez_token_transfers_contract_address") }}'
-#       - name: TOKEN_STANDARD
-#         description: '{{ doc("ez_token_transfers_token_standard") }}'
-#       - name: TOKEN_IS_VERIFIED
-#         description: '{{ doc("ez_token_transfers_token_is_verified") }}'
 #       - name: NAME
 #         description: '{{ doc("dim_contracts_name") }}'
 #       - name: SYMBOL
 #         description: '{{ doc("dim_contracts_symbol") }}'
 #       - name: DECIMALS
 #         description: '{{ doc("dim_contracts_decimals") }}'
-#       - name: RAW_AMOUNT_PRECISE
+#       - name: AMOUNT_RAW_PRECISE
 #         description: '{{ doc("ez_token_transfers_raw_amount_precise") }}'
-#       - name: RAW_AMOUNT
+#       - name: AMOUNT_RAW
 #         description: '{{ doc("ez_token_transfers_raw_amount") }}'
 #       - name: AMOUNT_PRECISE
 #         description: '{{ doc("ez_token_transfers_amount_precise") }}'
@@ -46,7 +40,9 @@
 #         description: '{{ doc("general_from_address") }}'
 #       - name: ORIGIN_TO_ADDRESS
 #         description: '{{ doc("general_to_address") }}'
-#       - name: EZ_TOKEN_TRANSFERS_ID
+#       - name: TX_SUCCEEDED
+#         description: '{{ doc("general_tx_succeeded") }}'
+#       - name: EZ_STABLECOINS_ACTIVITY_ID
 #         description: '{{ doc("general_pk") }}'
 #       - name: INSERTED_TIMESTAMP
 #         description: '{{ doc("general_inserted_timestamp") }}'

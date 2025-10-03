@@ -8,11 +8,12 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'token_address',
+    post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
     "columns": true },
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STABLECOINS',
     } } },
-    tags = ['gold','defi','stablecoins','curated']
+    tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
 
 SELECT
@@ -25,6 +26,8 @@ SELECT
     m.decimals,
     s.peg_type,
     s.peg_mechanism,
+    s.is_verified,
+    s.is_verified_modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['s.token_address']) }} AS dim_stablecoins_id
@@ -38,4 +41,4 @@ FROM
     m
     ON s.token_address = m.token_address
 WHERE
-    m.is_verified --verified tokens only
+    m.is_verified --verified stablecoins only
