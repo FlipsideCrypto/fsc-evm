@@ -40,6 +40,7 @@ FROM
     INNER JOIN {{ ref('price__ez_asset_metadata') }}
     m
     ON s.token_address = m.token_address
+    AND s.blockchain = m.blockchain
 WHERE
     m.is_verified --verified stablecoins only
 
