@@ -99,6 +99,7 @@ newly_verified_transfers AS (
         ON l.contract_address = s.token_address
     WHERE
         topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' --Transfer
+        AND amount_raw IS NOT NULL
 ),
 {% endif %}
 
@@ -142,6 +143,7 @@ transfers AS (
         ON l.contract_address = s.token_address
     WHERE
         topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' --Transfer
+        AND amount_raw IS NOT NULL
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
