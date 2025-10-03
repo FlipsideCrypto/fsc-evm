@@ -26,8 +26,8 @@ SELECT
     m.decimals,
     s.peg_type,
     s.peg_mechanism,
-    s.is_verified,
-    s.is_verified_modified_timestamp,
+    m.is_verified,
+    m.is_verified_modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['s.token_address']) }} AS dim_stablecoins_id
