@@ -237,10 +237,10 @@ FINAL AS (
         tx_hash,
         event_index,
         event_name,
-        contract_address,
-        symbol,
-        NAME,
-        decimals,
+        contract_address AS token_address,
+        e.symbol,
+        e.NAME,
+        e.decimals,
         from_address,
         to_address,
         amount_raw_precise,
@@ -248,7 +248,7 @@ FINAL AS (
         amount_precise,
         amount,
         IFF(
-            decimals IS NOT NULL,
+            e.decimals IS NOT NULL,
             ROUND(
                 amount_precise * p.price,
                 2
@@ -257,7 +257,7 @@ FINAL AS (
         ) AS amount_usd,
         tx_succeeded,
         _log_id,
-        modified_timestamp
+        e.modified_timestamp
     FROM
         mint_burn e
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
@@ -277,7 +277,7 @@ SELECT
     tx_hash,
     event_index,
     event_name,
-    contract_address AS token_address,
+    token_address,
     symbol,
     NAME,
     decimals,
