@@ -5,7 +5,9 @@
 {{ log_model_details() }}
 
 {{ config(
-    materialized = 'view',
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = 'token_address',
     persist_docs ={ "relation": true,
     "columns": true },
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STABLECOINS',
@@ -14,14 +16,26 @@
 ) }}
 
 SELECT
-    token_address,
-    symbol,
-    NAME,
-    decimals,
-    peg_type,
-    peg_mechanism,
-    inserted_timestamp,
-    modified_timestamp,
-    stablecoins_metadata_id AS dim_stablecoins_id
+    s.token_address,
+    UPPER(COALESCE(s.symbol, m.symbol)) AS symbol,
+    COALESCE(
+        s.name,
+        m.name
+    ) AS NAME,
+    m.decimals,
+    s.peg_type,
+    s.peg_mechanism,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['s.token_address']) }} AS dim_stablecoins_id
 FROM
-    {{ ref('silver_stablecoins__stablecoins_metadata') }}
+    {{ source(
+        'crosschain_silver',
+        'tokens_stablecoins'
+    ) }}
+    s
+    INNER JOIN {{ ref('price__ez_asset_metadata') }}
+    m
+    ON s.token_address = m.token_address
+WHERE
+    m.is_verified --verified tokens only
