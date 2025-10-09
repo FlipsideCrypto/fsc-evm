@@ -1772,7 +1772,7 @@ SELECT
   ) AS tokens,
   OBJECT_CONSTRUCT(
     'token0',
-    token0_symboll,
+    token0_symbol,
     'token1',
     token1_symbol,
     'token2',
