@@ -1822,7 +1822,7 @@ SELECT
     'token6',
     amount6_unadj,
     'token7',
-    amount7_unadj,
+    amount7_unadj
   ) AS amounts_unadj,
   OBJECT_CONSTRUCT(
     'token0',
@@ -1840,7 +1840,7 @@ SELECT
     'token6',
     amount6,
     'token7',
-    amount7,
+    amount7
   ) AS amounts,
   OBJECT_CONSTRUCT(
     'token0',
@@ -1858,7 +1858,7 @@ SELECT
     'token6',
     amount6_usd,
     'token7',
-    amount7_usd,
+    amount7_usd
   ) AS amounts_usd,
   OBJECT_CONSTRUCT(
     'token0',
@@ -1876,7 +1876,7 @@ SELECT
     'token6',
     token6_is_verified,
     'token7',
-    token7_is_verified,
+    token7_is_verified
   ) AS tokens_is_verified,
   platform,
   protocol,
