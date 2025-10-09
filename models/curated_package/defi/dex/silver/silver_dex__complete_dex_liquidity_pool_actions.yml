@@ -37,16 +37,25 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-      - name: AMOUNT0
+      - name: AMOUNTS_UNADJ
         tests:
           - not_null
-      - name: AMOUNT1
+      - name: AMOUNTS
         tests:
           - not_null
-      - name: TOKEN0
+      - name: AMOUNTS_USD
         tests:
           - not_null
-      - name: TOKEN1
+      - name: TOKENS
+        tests:
+          - not_null
+      - name: SYMBOLS
+        tests:
+          - not_null
+      - name: DECIMALS
+        tests:
+          - not_null
+      - name: TOKENS_IS_VERIFIED
         tests:
           - not_null
       - name: PLATFORM
