@@ -353,7 +353,7 @@ pool_tokens_pivoted AS (
         MAX(CASE WHEN token_id::INT = 7 THEN token_address END) AS token_7_address
     FROM {{ ref('silver_dex__curve_pools') }}
     GROUP BY pool_address
-),
+)
 SELECT
     a.block_number,
     a.block_timestamp,
