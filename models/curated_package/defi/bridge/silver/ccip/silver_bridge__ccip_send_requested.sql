@@ -123,19 +123,19 @@ ccip_decoded AS (
         utils.udf_hex_to_int(
             part [0] :: STRING
         ) :: STRING AS dest_chain_selector,
-        utils.udf_hex_to_int(
+        try_to_number(utils.udf_hex_to_int(
             part [2] :: STRING
-        ) :: INT AS fee_token_amount,
+        )) AS fee_token_amount,
         '0x' || SUBSTR(
             part [3] :: STRING,
             25
         ) AS original_sender,
-        utils.udf_hex_to_int(
+        try_to_number(utils.udf_hex_to_int(
             part [4] :: STRING
-        ) :: INT / 32 AS offset_receiver,
-        utils.udf_hex_to_int(
+        )) / 32 AS offset_receiver,
+        try_to_number(utils.udf_hex_to_int(
             part [offset_receiver + 4] :: STRING
-        ) :: INT * 2 AS receiver_length,
+        )) * 2 AS receiver_length,
         (
             offset_receiver + 5
         ) * 64 AS receiver_byteskip,
@@ -145,12 +145,12 @@ ccip_decoded AS (
             25,
             40
         ) AS receiver_evm,
-        utils.udf_hex_to_int(
+        try_to_number(utils.udf_hex_to_int(
             part [6] :: STRING
-        ) :: INT / 32 AS offset_token_amount,
-        utils.udf_hex_to_int(
+        )) / 32 AS offset_token_amount,
+        try_to_number(utils.udf_hex_to_int(
             part [offset_token_amount + 4] :: STRING
-        ) :: INT AS token_amount_array,
+        )) AS token_amount_array,
         chain_name,
         trace_index,
         from_address,
