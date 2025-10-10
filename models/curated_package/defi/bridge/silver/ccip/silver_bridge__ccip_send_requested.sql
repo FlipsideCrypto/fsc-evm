@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -168,7 +166,9 @@ ccip_decoded AS (
     FROM
         raw_traces t
         INNER JOIN {{ ref('silver_bridge__ccip_on_ramp_address') }}
+        r
         ON to_address = on_ramp_address
+        AND r.dest_chain_selector = dest_chain_selector
     WHERE
         function_sig = '0xdf0aa9e9'
 ),
