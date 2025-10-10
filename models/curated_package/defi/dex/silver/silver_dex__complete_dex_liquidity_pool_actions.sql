@@ -1060,14 +1060,14 @@ complete_lps AS (
     c5.token_decimals AS token5_decimals,
     c6.token_decimals AS token6_decimals,
     c7.token_decimals AS token7_decimals,
-    a.amount0_unadj,
-    a.amount1_unadj,
-    a.amount2_unadj,
-    a.amount3_unadj,
-    a.amount4_unadj,
-    a.amount5_unadj,
-    a.amount6_unadj,
-    a.amount7_unadj,
+    ABS(a.amount0_unadj) AS amount0_unadj,
+    ABS(a.amount1_unadj) AS amount1_unadj,
+    ABS(a.amount2_unadj) AS amount2_unadj,
+    ABS(a.amount3_unadj) AS amount3_unadj,
+    ABS(a.amount4_unadj) AS amount4_unadj,
+    ABS(a.amount5_unadj) AS amount5_unadj,
+    ABS(a.amount6_unadj) AS amount6_unadj,
+    ABS(a.amount7_unadj) AS amount7_unadj,
     CASE
       WHEN token0_decimals IS NULL THEN amount0_unadj
       ELSE (amount0_unadj / pow(10, token0_decimals))
