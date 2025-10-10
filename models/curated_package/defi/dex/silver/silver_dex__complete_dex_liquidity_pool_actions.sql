@@ -1752,7 +1752,7 @@ SELECT
   receiver,
   pool_address,
   pool_name,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     token0,
     'token1',
@@ -1770,7 +1770,7 @@ SELECT
     'token7',
     token7
   ) AS tokens,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     token0_symbol,
     'token1',
@@ -1788,7 +1788,7 @@ SELECT
     'token7',
     token7_symbol
   ) AS symbols,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     token0_decimals,
     'token1',
@@ -1806,7 +1806,7 @@ SELECT
     'token7',
     token7_decimals
   ) AS decimals,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     amount0_unadj :: STRING,
     'token1',
@@ -1824,7 +1824,7 @@ SELECT
     'token7',
     amount7_unadj :: STRING
   ) AS amounts_unadj,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     amount0 :: STRING,
     'token1',
@@ -1842,7 +1842,7 @@ SELECT
     'token7',
     amount7 :: STRING
   ) AS amounts,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     amount0_usd :: STRING,
     'token1',
@@ -1860,7 +1860,7 @@ SELECT
     'token7',
     amount7_usd :: STRING
   ) AS amounts_usd,
-  OBJECT_CONSTRUCT(
+  OBJECT_CONSTRUCT_KEEP_NULL(
     'token0',
     token0_is_verified,
     'token1',
