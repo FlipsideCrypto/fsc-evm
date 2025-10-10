@@ -1223,14 +1223,14 @@ heal_model AS (
     c5.token_decimals AS token5_decimals_heal,
     c6.token_decimals AS token6_decimals_heal,
     c7.token_decimals AS token7_decimals_heal,
-    t0.amount0_unadj,
-    t0.amount1_unadj,
-    t0.amount2_unadj,
-    t0.amount3_unadj,
-    t0.amount4_unadj,
-    t0.amount5_unadj,
-    t0.amount6_unadj,
-    t0.amount7_unadj,
+    ABS(t0.amount0_unadj) AS amount0_unadj,
+    ABS(t0.amount1_unadj) AS amount1_unadj,
+    ABS(t0.amount2_unadj) AS amount2_unadj,
+    ABS(t0.amount3_unadj) AS amount3_unadj,
+    ABS(t0.amount4_unadj) AS amount4_unadj,
+    ABS(t0.amount5_unadj) AS amount5_unadj,
+    ABS(t0.amount6_unadj) AS amount6_unadj,
+    ABS(t0.amount7_unadj) AS amount7_unadj,
     CASE
       WHEN token0_decimals_heal IS NULL THEN amount0_unadj
       ELSE (amount0_unadj / pow(10, token0_decimals_heal))
