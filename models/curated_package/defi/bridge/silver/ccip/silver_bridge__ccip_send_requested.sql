@@ -168,7 +168,9 @@ ccip_decoded AS (
         INNER JOIN {{ ref('silver_bridge__ccip_on_ramp_address') }}
         r
         ON to_address = on_ramp_address
-        AND r.dest_chain_selector = dest_chain_selector
+        AND r.dest_chain_selector = utils.udf_hex_to_int(
+            part [0] :: STRING
+        ) :: STRING
     WHERE
         function_sig = '0xdf0aa9e9'
 ),
