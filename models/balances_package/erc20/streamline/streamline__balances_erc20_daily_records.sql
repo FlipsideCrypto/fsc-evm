@@ -4,6 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
+
 {# Set up dbt configuration #}
 {{ config (
     materialized = "incremental",
