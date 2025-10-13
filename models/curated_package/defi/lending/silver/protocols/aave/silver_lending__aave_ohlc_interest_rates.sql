@@ -240,21 +240,22 @@ SELECT
     platform,
     version,
     token_address,
+    c.token_symbol AS token_symbol,
     -- Supply Rate OHLC
-    supply_rate_open,
-    supply_rate_high,
-    supply_rate_low,
-    supply_rate_close,
+    supply_rate_open / POW(10, 27) AS supply_rate_open,
+    supply_rate_high / POW(10, 27) AS supply_rate_high,
+    supply_rate_low / POW(10, 27) AS supply_rate_low,
+    supply_rate_close / POW(10, 27) AS supply_rate_close,
     -- Stable Borrow Rate OHLC
-    stable_borrow_rate_open,
-    stable_borrow_rate_high,
-    stable_borrow_rate_low,
-    stable_borrow_rate_close,
+    stable_borrow_rate_open / POW(10, 27) AS stable_borrow_rate_open,
+    stable_borrow_rate_high / POW(10, 27) AS stable_borrow_rate_high,
+    stable_borrow_rate_low / POW(10, 27) AS stable_borrow_rate_low,
+    stable_borrow_rate_close / POW(10, 27) AS stable_borrow_rate_close,
     -- Variable Borrow Rate OHLC
-    variable_borrow_rate_open,
-    variable_borrow_rate_high,
-    variable_borrow_rate_low,
-    variable_borrow_rate_close,
+    variable_borrow_rate_open / POW(10, 27) AS variable_borrow_rate_open,
+    variable_borrow_rate_high / POW(10, 27) AS variable_borrow_rate_high,
+    variable_borrow_rate_low / POW(10, 27) AS variable_borrow_rate_low,
+    variable_borrow_rate_close / POW(10, 27) AS variable_borrow_rate_close,
     rate_updates_count,
     '{{ vars.GLOBAL_PROJECT_NAME }}' AS blockchain,
     {{ dbt_utils.generate_surrogate_key(
@@ -264,4 +265,8 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    filled_rates 
+    filled_rates a
+LEFT JOIN 
+    {{ ref('silver__contracts') }} c
+ON 
+    a.token_address = c.contract_address

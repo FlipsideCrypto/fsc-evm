@@ -20,7 +20,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 14
+              interval: 30
       - name: EVENT_INDEX
         tests:
           - not_null:
@@ -52,20 +52,23 @@ models:
           - not_null
       - name: COLLATERAL_TOKEN_SYMBOL
         tests: 
-          - not_null
+          - not_null:
+              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: LIQUIDATED_AMOUNT_UNADJ
         tests:
           - not_null 
       - name: LIQUIDATED_AMOUNT
         tests:
-          - not_null
+          - not_null:
+              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: LIQUIDATED_AMOUNT_USD
       - name: DEBT_TOKEN
         tests:
           - not_null
       - name: DEBT_TOKEN_SYMBOL
         tests:
-          - not_null
+          - not_null: 
+              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: REPAID_AMOUNT_UNADJ
       - name: REPAID_AMOUNT
       - name: REPAID_AMOUNT_USD

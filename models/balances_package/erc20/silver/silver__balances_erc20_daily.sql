@@ -5,6 +5,7 @@
 {{ log_model_details() }}
 
 -- depends on: {{ ref('bronze__balances_erc20') }}
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
     unique_key = 'balances_erc20_daily_id',
@@ -13,7 +14,7 @@
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "{{ unverify_balances() }}",
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','balances','erc20','phase_4']
+    tags = ['silver','balances','erc20','heal','phase_4']
 ) }}
 
 SELECT
