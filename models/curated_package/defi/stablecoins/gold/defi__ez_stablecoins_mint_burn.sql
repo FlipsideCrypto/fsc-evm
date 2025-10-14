@@ -29,7 +29,7 @@ WITH mint_burn AS (
         tx_hash,
         event_index,
         event_name,
-        contract_address AS token_address,
+        token_address,
         s.symbol,
         s.name,
         s.decimals,
