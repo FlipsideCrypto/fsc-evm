@@ -48,7 +48,6 @@ WITH mint_burn AS (
             NULL
         ) AS amount_usd,
         tx_succeeded,
-        _log_id,
         s.modified_timestamp
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
@@ -103,7 +102,6 @@ heal_model AS (
             NULL
         ) AS amount_usd,
         tx_succeeded,
-        _log_id,
         t0.modified_timestamp
     FROM
         {{ this }}
