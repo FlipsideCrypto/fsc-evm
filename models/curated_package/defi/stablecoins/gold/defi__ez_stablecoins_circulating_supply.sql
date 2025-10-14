@@ -66,6 +66,7 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+GROUP BY contract_address, block_date
 )
 SELECT
     token_address,
