@@ -244,6 +244,6 @@ SELECT
     _log_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_transfers_id
+    {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_mint_burn_id
 FROM
     mint_burn
