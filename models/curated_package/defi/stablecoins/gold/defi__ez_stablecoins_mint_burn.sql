@@ -84,7 +84,7 @@ heal_model AS (
         tx_hash,
         event_index,
         event_name,
-        contract_address AS token_address,
+        token_address,
         t0.symbol,
         t0.name,
         t0.decimals,
