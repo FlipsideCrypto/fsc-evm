@@ -65,6 +65,10 @@ newly_verified_blacklist AS (
         origin_to_address,
         tx_hash,
         event_index,
+        CASE
+            WHEN topic_0 = '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc' THEN 'AddedBlacklist'
+            ELSE 'RemovedBlacklist'
+        END AS event_name,
         contract_address,
         CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING AS user_address,
         s.decimals,
@@ -97,6 +101,10 @@ blacklist AS (
         origin_to_address,
         tx_hash,
         event_index,
+        CASE
+            WHEN topic_0 = '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc' THEN 'AddedBlacklist'
+            ELSE 'RemovedBlacklist'
+        END AS event_name,
         contract_address,
         CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING AS user_address,
         s.decimals,
@@ -153,10 +161,7 @@ SELECT
     origin_to_address,
     tx_hash,
     event_index,
-    CASE
-        WHEN topic_0 :: STRING = '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc' THEN 'AddedBlacklist'
-        ELSE 'RemovedBlacklist'
-    END AS event_name,
+    event_name,
     contract_address AS token_address,
     symbol,
     NAME,
