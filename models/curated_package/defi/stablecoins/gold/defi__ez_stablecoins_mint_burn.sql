@@ -139,7 +139,7 @@ heal_model AS (
                     WHERE
                         p.modified_timestamp > DATEADD('DAY', -14, SYSDATE())
                         AND p.price IS NOT NULL
-                        AND p.token_address = t1.contract_address
+                        AND p.token_address = t1.token_address
                         AND p.hour = DATE_TRUNC(
                             'hour',
                             t1.block_timestamp
