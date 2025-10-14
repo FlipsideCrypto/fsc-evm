@@ -29,7 +29,7 @@ WITH mint_burn AS (
         tx_hash,
         event_index,
         event_name,
-        token_address,
+        s.token_address,
         s.symbol,
         s.name,
         s.decimals,
@@ -59,7 +59,7 @@ WITH mint_burn AS (
             'hour',
             block_timestamp
         ) = HOUR
-        AND s.contract_address = p.token_address
+        AND s.token_address = p.token_address
 
 {% if is_incremental() %}
 AND s.modified_timestamp > (
@@ -84,7 +84,7 @@ heal_model AS (
         tx_hash,
         event_index,
         event_name,
-        token_address,
+        t0.token_address,
         t0.symbol,
         t0.name,
         t0.decimals,
@@ -114,7 +114,7 @@ heal_model AS (
             'hour',
             block_timestamp
         ) = HOUR
-        AND t0.contract_address = p.token_address
+        AND t0.token_address = p.token_address
     WHERE
         t0.block_number IN (
             SELECT
