@@ -1,6 +1,6 @@
 # version: 2
 # models:
-#   - name: defi__fact_stablecoins_activity
+#   - name: defi__ez_stablecoins_mint_burn
 #     description: '{{ doc("fact_stablecoins_activity_table_doc") }}'
       
 #     columns:

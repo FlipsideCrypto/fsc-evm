@@ -4,16 +4,13 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     post_hook = '{{ unverify_stablecoins() }}',
-    persist_docs ={ "relation": true,
-    "columns": true },
-    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STABLECOINS',
-    } } },
     tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
 
@@ -226,47 +223,6 @@ mint_burn AS (
         all_transfers
     WHERE
         to_address = '0x0000000000000000000000000000000000000000'
-),
-FINAL AS (
-    SELECT
-        block_number,
-        block_timestamp,
-        origin_function_signature,
-        origin_from_address,
-        origin_to_address,
-        tx_hash,
-        event_index,
-        event_name,
-        contract_address AS token_address,
-        e.symbol,
-        e.NAME,
-        e.decimals,
-        from_address,
-        to_address,
-        amount_raw_precise,
-        amount_raw,
-        amount_precise,
-        amount,
-        IFF(
-            e.decimals IS NOT NULL,
-            ROUND(
-                amount_precise * p.price,
-                2
-            ),
-            NULL
-        ) AS amount_usd,
-        tx_succeeded,
-        _log_id,
-        e.modified_timestamp
-    FROM
-        mint_burn e
-        LEFT JOIN {{ ref('price__ez_prices_hourly') }}
-        p
-        ON DATE_TRUNC(
-            'hour',
-            block_timestamp
-        ) = HOUR
-        AND e.contract_address = p.token_address
 )
 SELECT
     block_number,
@@ -277,20 +233,17 @@ SELECT
     tx_hash,
     event_index,
     event_name,
-    token_address,
-    symbol,
-    NAME,
-    decimals,
+    contract_address AS token_address,
     from_address,
     to_address,
     amount_raw_precise,
     amount_raw,
     amount_precise,
     amount,
-    amount_usd,
     tx_succeeded,
+    _log_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS ez_stablecoins_activity_id
+    {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_transfers_id
 FROM
-    FINAL
+    mint_burn
