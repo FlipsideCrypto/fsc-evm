@@ -1,4 +1,4 @@
-{# Get variables #}
+{# Get variables
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
@@ -77,4 +77,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['token_address', 'block_date']) }} AS ez_stablecoins_circulating_supply_id,
 FROM
-    supply
+    supply #}
