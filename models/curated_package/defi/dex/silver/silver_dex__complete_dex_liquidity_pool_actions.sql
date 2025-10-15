@@ -2043,7 +2043,7 @@ SELECT
   tokens,
   symbols_heal AS symbols,
   decimals_heal AS decimals,
-  amounts_unadj_heal AS amounts_unadj,
+  amounts_unadj,
   amounts_heal AS amounts,
   amounts_usd_heal AS amounts_usd,
   tokens_is_verified_heal AS tokens_is_verified,
