@@ -23,7 +23,7 @@ This table provides a comprehensive view of liquidity pool actions across major 
 ## Commonly-used Fields
 
 - `platform`: DEX protocol (uniswap-v3, uniswap-v2 etc.)
-- `event_name`: Type of action (Mint, Burn, AddLiquidity, RemoveLiquidity etc.)
+- `event_name`: Type of action (Mint, Burn, AddLiquidity, RemoveLiquidity, Deposit, Withdraw etc.)
 - `liquidity_provider`: Address providing/removing liquidity
 - `pool_address`: Liquidity pool where action occurred
 - `amounts`: JSON object with decimal-adjusted token amounts
@@ -63,7 +63,7 @@ SELECT
     COALESCE(amounts_usd:token7::float, 0) AS total_usd_value
 FROM <blockchain_name>.defi.ez_dex_liquidity_pool_actions
 WHERE block_timestamp >= CURRENT_DATE - 7
-    AND event_name IN ('Mint', 'AddLiquidity')
+    AND event_name IN ('Mint', 'AddLiquidity', 'Deposit')
     AND (amounts_usd:token0::float IS NOT NULL OR amounts_usd:token1::float IS NOT NULL)
 ORDER BY total_usd_value DESC
 LIMIT 50;
@@ -75,8 +75,8 @@ WITH lp_stats AS (
         COUNT(DISTINCT pool_address) AS pools_used,
         COUNT(DISTINCT platform) AS platforms_used,
         COUNT(*) AS total_actions,
-        SUM(CASE WHEN event_name IN ('Mint', 'AddLiquidity') THEN 1 ELSE 0 END) AS add_actions,
-        SUM(CASE WHEN event_name IN ('Burn', 'RemoveLiquidity') THEN 1 ELSE 0 END) AS remove_actions
+        SUM(CASE WHEN event_name IN ('Mint', 'AddLiquidity', 'Deposit') THEN 1 ELSE 0 END) AS add_actions,
+        SUM(CASE WHEN event_name IN ('Burn', 'RemoveLiquidity', 'Withdraw') THEN 1 ELSE 0 END) AS remove_actions
     FROM <blockchain_name>.defi.ez_dex_liquidity_pool_actions
     WHERE block_timestamp >= CURRENT_DATE - 30
     GROUP BY 1
@@ -100,13 +100,13 @@ SELECT
     pool_address,
     pool_name,
     platform,
-    SUM(CASE WHEN event_name IN ('Mint', 'AddLiquidity') THEN 1 ELSE 0 END) AS additions,
-    SUM(CASE WHEN event_name IN ('Burn', 'RemoveLiquidity') THEN 1 ELSE 0 END) AS removals,
+    SUM(CASE WHEN event_name IN ('Mint', 'AddLiquidity', 'Deposit') THEN 1 ELSE 0 END) AS additions,
+    SUM(CASE WHEN event_name IN ('Burn', 'RemoveLiquidity', 'Withdraw') THEN 1 ELSE 0 END) AS removals,
     COUNT(DISTINCT liquidity_provider) AS unique_lps,
     COUNT(*) AS total_actions
 FROM <blockchain_name>.defi.ez_dex_liquidity_pool_actions
 WHERE block_timestamp >= CURRENT_DATE - 7
-GROUP BY 1, 2, 3, 4
+GROUP BY 1, 2, 3
 HAVING total_actions >= 10
 ORDER BY total_actions DESC
 LIMIT 100;
