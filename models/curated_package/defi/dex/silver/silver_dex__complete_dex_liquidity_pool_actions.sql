@@ -1316,42 +1316,42 @@ heal_model AS (
     OBJECT_CONSTRUCT_KEEP_NULL(
       'token0',
       CASE
-        WHEN c0.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token0) * p0.price) :: STRING
+        WHEN c0.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token0) * p0.price) :: STRING
         ELSE NULL
       END,
       'token1',
       CASE
-        WHEN c1.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token1) * p1.price) :: STRING
+        WHEN c1.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token1) * p1.price) :: STRING
         ELSE NULL
       END,
       'token2',
       CASE
-        WHEN c2.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token2) * p2.price) :: STRING
+        WHEN c2.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token2) * p2.price) :: STRING
         ELSE NULL
       END,
       'token3',
       CASE
-        WHEN c3.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token3) * p3.price) :: STRING
+        WHEN c3.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token3) * p3.price) :: STRING
         ELSE NULL
       END,
       'token4',
       CASE
-        WHEN c4.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token4) * p4.price) :: STRING
+        WHEN c4.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token4) * p4.price) :: STRING
         ELSE NULL
       END,
       'token5',
       CASE
-        WHEN c5.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token5) * p5.price) :: STRING
+        WHEN c5.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token5) * p5.price) :: STRING
         ELSE NULL
       END,
       'token6',
       CASE
-        WHEN c6.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token6) * p6.price) :: STRING
+        WHEN c6.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token6) * p6.price) :: STRING
         ELSE NULL
       END,
       'token7',
       CASE
-        WHEN c7.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(t0.amounts_heal :token7) * p7.price) :: STRING
+        WHEN c7.token_decimals IS NOT NULL THEN (TRY_TO_NUMBER(amounts_heal :token7) * p7.price) :: STRING
         ELSE NULL
       END
     ) AS amounts_usd_heal,
