@@ -82,8 +82,9 @@ exchange_rate AS (
     SELECT
         tx_hash,
         to_address,
+        regexp_substr_all(SUBSTR(output, 3, len(output)), '.{64}') AS segmented_output,
         TRY_CAST(utils.udf_hex_to_int(
-            output :: STRING
+            segmented_output[0] :: STRING
         ) AS FLOAT) AS output
     FROM
         {{ ref('core__fact_traces') }}
