@@ -10,7 +10,7 @@
     "columns": true },
     meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'DEX, LIQUIDITY, POOLS, LP, SWAPS',
     } } },
-    tags = ['gold','defi','dex','curated']
+    tags = ['gold','defi','dex','lp_actions','curated','ez']
 ) }}
 
 SELECT

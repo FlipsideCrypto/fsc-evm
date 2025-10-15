@@ -33,7 +33,7 @@ models:
       - name: PROTOCOL
         description: '{{ doc("ez_dex_liquidity_pool_actions_protocol") }}'
       - name: PROTOCOL_VERSION
-        description: '{{ doc("ez_dex_liquidity_pool_actions_protocol_protocol_version") }}'
+        description: '{{ doc("ez_dex_liquidity_pool_actions_protocol_version") }}'
       - name: POOL_ADDRESS
         description: '{{ doc("ez_dex_liquidity_pool_actions_pool_address") }}'
       - name: POOL_NAME

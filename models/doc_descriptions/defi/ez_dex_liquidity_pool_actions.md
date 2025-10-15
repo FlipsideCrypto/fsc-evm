@@ -53,12 +53,6 @@ SELECT
     pool_name,
     liquidity_provider,
     event_name,
-    CASE 
-        WHEN symbols:token2::string IS NOT NULL THEN 
-            symbols:token0::string || '/' || symbols:token1::string || '/' || symbols:token2::string || '...'
-        ELSE 
-            symbols:token0::string || '/' || symbols:token1::string 
-    END AS pair,
     COALESCE(amounts_usd:token0::float, 0) + 
     COALESCE(amounts_usd:token1::float, 0) + 
     COALESCE(amounts_usd:token2::float, 0) + 
@@ -106,7 +100,6 @@ SELECT
     pool_address,
     pool_name,
     platform,
-    symbols:token0::string || '/' || symbols:token1::string AS pair,
     SUM(CASE WHEN event_name IN ('Mint', 'AddLiquidity') THEN 1 ELSE 0 END) AS additions,
     SUM(CASE WHEN event_name IN ('Burn', 'RemoveLiquidity') THEN 1 ELSE 0 END) AS removals,
     COUNT(DISTINCT liquidity_provider) AS unique_lps,
