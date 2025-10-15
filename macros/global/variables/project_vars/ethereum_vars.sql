@@ -26,7 +26,8 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
         'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1','near_rainbow_bridge-v1',
-        'ronin_axie_bridge-v1','multichain-v7','hop-v1','axie_infinity-v2','symbiosis-v1','maverick-v1','aave-v1','aave-v2.1','silo-v2','silo-v1','flux-v1','aave-v2','spark-v1','sturdy-v1'],
+        'ronin_axie_bridge-v1','multichain-v7','hop-v1','axie_infinity-v2','symbiosis-v1','maverick-v1','aave-v1','aave-v2.1','silo-v2','silo-v1',
+        'flux-v1','aave-v2','spark-v1','sturdy-v1','kyberswap-v1','kyberswap-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
