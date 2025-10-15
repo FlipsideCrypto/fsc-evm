@@ -1612,7 +1612,7 @@ heal_model AS (
                                         WHERE IFNULL(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -8, (SELECT MAX(_inserted_timestamp) :: DATE FROM {{ this }})) -- newly verified token
                                       )
                                       )
-                                    CONCAT(
+                                  OR CONCAT(
                                     t0.block_number,
                                     '-',
                                     t0.platform,
