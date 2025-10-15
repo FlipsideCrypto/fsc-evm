@@ -4,6 +4,7 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
   materialized = 'incremental',
   incremental_strategy = 'delete+insert',
