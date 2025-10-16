@@ -1,8 +1,11 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
+
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -200,8 +203,7 @@ bridged_out_txs AS (
         {{ ref('defi__ez_bridge_activity') }}
     WHERE
         platform NOT IN (
-            '{{ vars.CURATED_DEFI_BRIDGE_LOCKED_CONTRACTS | join("',
-            '") }}'
+            '{{ vars.CURATED_DEFI_STABLECOINS_LOCKED_CONTRACTS | join("','") }}'
         )
 
 {% if is_incremental() %}
