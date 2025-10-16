@@ -114,7 +114,7 @@ SELECT
     protocol,
     protocol_version,
     {{ dbt_utils.generate_surrogate_key(
-        ['complete_dex_liquidity_pool_actions_id','token_key']
+        ['tx_hash','event_index','token_key']
     ) }} AS ez_dex_liquidity_pool_actions_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
