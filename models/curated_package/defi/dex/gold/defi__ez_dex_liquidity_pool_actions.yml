@@ -20,30 +20,30 @@ models:
         description: '{{ doc("ez_dex_liquidity_pool_actions_sender") }}'
       - name: RECEIVER
         description: '{{ doc("ez_dex_liquidity_pool_actions_receiver") }}'
-      - name: AMOUNTS_UNADJ
-        description: '{{ doc("ez_dex_liquidity_pool_actions_amounts_unadj") }}'
-      - name: AMOUNTS
-        description: '{{ doc("ez_dex_liquidity_pool_actions_amounts") }}'
-      - name: AMOUNTS_USD
-        description: '{{ doc("ez_dex_liquidity_pool_actions_amounts_usd") }}'
-      - name: TOKENS_IS_VERIFIED
-        description: '{{ doc("ez_dex_liquidity_pool_actions_tokens_is_verified") }}'
+      - name: POOL_ADDRESS
+        description: '{{ doc("ez_dex_liquidity_pool_actions_pool_address") }}'
+      - name: POOL_NAME
+        description: '{{ doc("ez_dex_liquidity_pool_actions_pool_name") }}'
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("ez_dex_liquidity_pool_actions_token_address") }}'
+      - name: SYMBOL
+        description: '{{ doc("ez_dex_liquidity_pool_actions_symbol") }}'
+      - name: DECIMALS
+        description: '{{ doc("ez_dex_liquidity_pool_actions_decimals") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("ez_dex_liquidity_pool_actions_amount_unadj") }}'
+      - name: AMOUNT
+        description: '{{ doc("ez_dex_liquidity_pool_actions_amount") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("ez_dex_liquidity_pool_actions_amount_usd") }}'
+      - name: TOKEN_IS_VERIFIED
+        description: '{{ doc("ez_dex_liquidity_pool_actions_token_is_verified") }}'
       - name: PLATFORM
         description: '{{ doc("ez_dex_liquidity_pool_actions_platform") }}'
       - name: PROTOCOL
         description: '{{ doc("ez_dex_liquidity_pool_actions_protocol") }}'
       - name: PROTOCOL_VERSION
         description: '{{ doc("ez_dex_liquidity_pool_actions_protocol_version") }}'
-      - name: POOL_ADDRESS
-        description: '{{ doc("ez_dex_liquidity_pool_actions_pool_address") }}'
-      - name: POOL_NAME
-        description: '{{ doc("ez_dex_liquidity_pool_actions_pool_name") }}'
-      - name: TOKENS
-        description: '{{ doc("ez_dex_liquidity_pool_actions_tokens") }}'
-      - name: SYMBOLS
-        description: '{{ doc("ez_dex_liquidity_pool_actions_symbols") }}'
-      - name: DECIMALS
-        description: '{{ doc("ez_dex_liquidity_pool_actions_decimals") }}'
       - name: EZ_DEX_LIQUIDITY_POOL_ACTIONS_ID
         description: '{{ doc("general_pk") }}'   
       - name: INSERTED_TIMESTAMP
