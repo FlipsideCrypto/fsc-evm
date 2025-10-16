@@ -80,20 +80,16 @@ deposit AS (
         token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS payer_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS receiver_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [0] :: STRING
-            )
-        ) AS is_base_token_raw,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: FLOAT AS is_base_token_raw,
         CASE 
             WHEN is_base_token_raw = 1 THEN TRUE 
             ELSE FALSE
         END AS is_base_token,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS amount,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS amount,
         CASE
             WHEN is_base_token THEN amount
             ELSE 0
@@ -103,11 +99,9 @@ deposit AS (
             ELSE 0
         END AS amount1,
         --deposits occur for each token separately
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [2] :: STRING
-            )
-        ) AS lp_token_amount,
+        utils.udf_hex_to_int(
+            segmented_data [2] :: STRING
+        ) :: FLOAT AS lp_token_amount,
         CASE
             WHEN is_base_token THEN lp_token_amount
             ELSE 0
@@ -142,20 +136,16 @@ withdraw AS (
         token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS payer_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS receiver_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [0] :: STRING
-            )
-        ) AS is_base_token_raw,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: FLOAT AS is_base_token_raw,
         CASE 
             WHEN is_base_token_raw = 1 THEN TRUE 
             ELSE FALSE
         END AS is_base_token,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS amount,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS amount,
         CASE
             WHEN is_base_token THEN amount
             ELSE 0
@@ -165,11 +155,9 @@ withdraw AS (
             ELSE 0
         END AS amount1,
         --withdraws occur for each token separately
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [2] :: STRING
-            )
-        ) AS lp_token_amount,
+        utils.udf_hex_to_int(
+            segmented_data [2] :: STRING
+        ) :: FLOAT AS lp_token_amount,
         CASE
             WHEN is_base_token THEN lp_token_amount
             ELSE 0

@@ -85,32 +85,22 @@ mint AS (
         fee_percent,
         tick_spacing,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                topic_2
-            )
-        ) AS tick_lower,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                topic_3
-            )
-        ) AS tick_upper,
+        utils.udf_hex_to_int(
+            topic_2
+        ) :: FLOAT AS tick_lower,
+        utils.udf_hex_to_int(
+            topic_3
+        ) :: FLOAT AS tick_upper,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS sender_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS amount,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [2] :: STRING
-            )
-        ) AS amount0,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [3] :: STRING
-            )
-        ) AS amount1,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS amount,
+        utils.udf_hex_to_int(
+            segmented_data [2] :: STRING
+        ) :: FLOAT AS amount0,
+        utils.udf_hex_to_int(
+            segmented_data [3] :: STRING
+        ) :: FLOAT AS amount1,
         protocol,
         version,
         type,
@@ -139,31 +129,21 @@ burn AS (
         fee_percent,
         tick_spacing,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS owner_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                topic_2
-            )
-        ) AS tick_lower,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                topic_3
-            )
-        ) AS tick_upper,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [0] :: STRING
-            )
-        ) AS amount,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS amount0,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [2] :: STRING
-            )
-        ) AS amount1,
+        utils.udf_hex_to_int(
+            topic_2
+        ) :: FLOAT AS tick_lower,
+        utils.udf_hex_to_int(
+            topic_3
+        ) :: FLOAT AS tick_upper,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: FLOAT AS amount,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS amount0,
+        utils.udf_hex_to_int(
+            segmented_data [2] :: STRING
+        ) :: FLOAT AS amount1,
         protocol,
         version,
         type,

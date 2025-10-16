@@ -79,16 +79,12 @@ mint AS (
         token0,
         token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS sender_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [0] :: STRING
-            )
-        ) AS amount0,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS amount1,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: FLOAT AS amount0,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS amount1,
         protocol,
         version,
         type,
@@ -115,16 +111,12 @@ burn AS (
         token1,
         CONCAT('0x', SUBSTR(topic_1, 27, 40)) AS from_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS target_address,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [0] :: STRING
-            )
-        ) AS value_amt,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                segmented_data [1] :: STRING
-            )
-        ) AS index_amt,
+        utils.udf_hex_to_int(
+            segmented_data [0] :: STRING
+        ) :: FLOAT AS value_amt,
+        utils.udf_hex_to_int(
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS index_amt,
         protocol,
         version,
         type,
