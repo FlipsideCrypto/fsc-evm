@@ -25,6 +25,7 @@
     'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
     'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
     'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1','near_rainbow_bridge-v1', 'ronin_axie_bridge-v1','multichain-v7','hop-v1','axie_infinity-v2','symbiosis-v1','maverick-v1','aave-v1','aave-v2.1','silo-v2','silo-v1','flux-v1','aave-v2','spark-v1','sturdy-v1'],
+    'CURATED_DEFI_BRIDGE_LOCKED_CONTRACTS': ['circle_cctp-v2','chainlink_ccip-v1','stargate-v1','circle_cctp-v1','allbridge-v2','starknet_starkgate_eth_bridge-v1','everclear-v1','multichain-v7','stargate-v2','zora_bridge-v1','arbitrum_nova_bridge-v1','layerzero-v2'],
     'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING':{ 'uniswap':{ 'v2':{ 'uni_v2_pair_created': '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f' },
     'v3':{ 'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984' },
     'v4':{ 'factory': '0x000000000004444c5dc75cb358380d2e3de08a90' }},
