@@ -101,10 +101,13 @@ SELECT
     decimals [token_key] :: INT AS decimals,
     amounts_unadj [token_key] :: FLOAT AS amount_unadj,
     amounts [token_key] :: FLOAT AS amount,
-    IFF(
-        amount = 0,
-        0,
-        amounts_usd [token_key] :: FLOAT
+    ROUND(
+        IFF(
+            amount = 0,
+            0,
+            amounts_usd [token_key] :: FLOAT
+        ),
+        2
     ) AS amount_usd,
     IFNULL(
         tokens_is_verified [token_key] :: BOOLEAN,

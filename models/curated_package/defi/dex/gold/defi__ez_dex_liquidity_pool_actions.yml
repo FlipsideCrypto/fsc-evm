@@ -2,6 +2,10 @@ version: 2
 models:
   - name: defi__ez_dex_liquidity_pool_actions
     description: '{{ doc("ez_dex_liquidity_pool_actions_table_doc") }}'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ez_dex_liquidity_pool_actions_id
 
     columns:
       - name: BLOCK_NUMBER
