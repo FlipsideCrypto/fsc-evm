@@ -40,7 +40,6 @@ WITH base AS (
         platform,
         protocol,
         version AS protocol_version,
-        complete_dex_liquidity_pool_actions_id,
         modified_timestamp
     FROM
         {{ ref('silver_dex__complete_dex_liquidity_pool_actions') }}
@@ -77,8 +76,6 @@ flattened_tokens AS (
         platform,
         protocol,
         protocol_version,
-        ez_dex_liquidity_pool_actions_id,
-        inserted_timestamp,
         modified_timestamp,
         f.key AS token_key,
         f.value :: STRING AS token_address
