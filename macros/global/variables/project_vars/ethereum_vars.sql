@@ -368,7 +368,7 @@
                     'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
                 }
             }
-        }
+        },
         'CURATED_DEFI_STABLECOINS_NATIVE_MINT_BURN_BRIDGE_LIST': ['circle_cctp-v2','chainlink_ccip-v1','circle_cctp-v1'],
         'CURATED_DEFI_STABLECOINS_BRIDGE_VAULT_MAPPING': {
             'allbridge': {
