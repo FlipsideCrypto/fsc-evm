@@ -19,7 +19,7 @@
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '20,50 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '10 5 * * *',
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','across-v1','multichain-v7','hop-v1','meson-v1','symbiosis-v1','sonne-v1','granary-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hashflow-v1','woofi-v1','across-v1','multichain-v7','hop-v1','meson-v1','symbiosis-v1','sonne-v1','granary-v1','kyberswap-v2','sushiswap-v1','uniswap-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
