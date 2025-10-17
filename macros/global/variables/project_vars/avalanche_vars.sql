@@ -24,7 +24,8 @@
         'BALANCES_SL_ERC20_DAILY_HISTORY_WORKER_BATCH_SIZE': 45000,
         'BALANCES_SL_NATIVE_DAILY_HISTORY_PRODUCER_BATCH_SIZE': 450000,
         'BALANCES_SL_NATIVE_DAILY_HISTORY_WORKER_BATCH_SIZE': 45000,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['allbridge-v1','multichain-v7','platypus-v1','gmx-v1','woofi-v1','hashflow-v1','symbiosis-v1','aave-v2'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['allbridge-v1','multichain-v7','platypus-v1','gmx-v1','woofi-v1','hashflow-v1','symbiosis-v1',
+        'aave-v2','curve-v1','kyberswap-v1','kyberswap-v2','fraxswap-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'arena_trade': {
                 'v1': {
