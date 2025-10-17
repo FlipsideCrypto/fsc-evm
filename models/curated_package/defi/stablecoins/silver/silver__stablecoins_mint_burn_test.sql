@@ -1,11 +1,8 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -15,8 +12,24 @@
     tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
 
-WITH verified_stablecoins AS (
-
+WITH contract_mapping AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_STABLECOINS_BRIDGE_VAULT_MAPPING
+    ) }}
+),
+bridge_vaults AS (
+    SELECT
+        contract_address AS vault_address,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
+        TYPE AS token_address
+    FROM
+        contract_mapping
+),
+verified_stablecoins AS (
     SELECT
         token_address,
         decimals,
@@ -183,27 +196,29 @@ FROM
     newly_verified_transfers
 {% endif %}
 ),
-bridged_out_txs AS (
+bridged_out_txs_raw AS (
     SELECT
         tx_hash,
-        bridge_address AS to_address,
+        event_index,
+        COALESCE(
+            vault_address,
+            bridge_address
+        ) AS to_address,
         platform,
         token_address AS contract_address,
         amount AS bridge_amount,
         amount_unadj AS bridge_amount_unadj,
         amount_usd AS bridge_amount_usd,
-        ROW_NUMBER() over (
-            PARTITION BY tx_hash,
-            bridge_address,
-            token_address
-            ORDER BY
-                event_index ASC
-        ) AS row_num
     FROM
         {{ ref('defi__ez_bridge_activity') }}
+        LEFT JOIN bridge_vaults USING (
+            platform,
+            token_address
+        )
     WHERE
         platform NOT IN (
-            '{{ vars.CURATED_DEFI_STABLECOINS_LOCKED_CONTRACTS | join("','") }}'
+            '{{ vars.CURATED_DEFI_STABLECOINS_NATIVE_MINT_BURN_BRIDGE_LIST | join("',
+            '") }}'
         )
 
 {% if is_incremental() %}
@@ -216,6 +231,25 @@ AND modified_timestamp >= (
 AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
+bridged_out_txs AS (
+    SELECT
+        tx_hash,
+        to_address,
+        platform,
+        contract_address,
+        bridge_amount,
+        bridge_amount_unadj,
+        bridge_amount_usd,
+        ROW_NUMBER() over (
+            PARTITION BY tx_hash,
+            to_address,
+            contract_address
+            ORDER BY
+                event_index ASC
+        ) AS row_num
+    FROM
+        bridged_out_txs_raw
+),
 locked_tokens AS (
     SELECT
         block_number,
@@ -225,7 +259,6 @@ locked_tokens AS (
         origin_to_address,
         tx_hash,
         event_index,
-        'Locked' AS event_name,
         contract_address,
         symbol,
         NAME,
@@ -253,7 +286,39 @@ locked_tokens AS (
         AND from_address != '0x0000000000000000000000000000000000000000'
         AND to_address != '0x0000000000000000000000000000000000000000'
 ),
-mint_burn_locked AS (
+unlock_tokens AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        tx_hash,
+        event_index,
+        contract_address,
+        symbol,
+        NAME,
+        decimals,
+        from_address,
+        to_address,
+        amount,
+        amount_raw,
+        tx_succeeded,
+        _log_id,
+        modified_timestamp
+    FROM
+        all_transfers
+    WHERE
+        from_address IN (
+            SELECT
+                to_address
+            FROM
+                bridged_out_txs
+        )
+        AND from_address != '0x0000000000000000000000000000000000000000'
+        AND to_address != '0x0000000000000000000000000000000000000000'
+),
+all_transfer_types AS (
     SELECT
         block_number,
         block_timestamp,
@@ -333,6 +398,30 @@ mint_burn_locked AS (
         modified_timestamp
     FROM
         locked_tokens
+    UNION ALL
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        tx_hash,
+        event_index,
+        'Unlock' AS event_name,
+        contract_address,
+        symbol,
+        NAME,
+        decimals,
+        from_address,
+        to_address,
+        amount_raw,
+        amount,
+        0 AS amount_diff_percent,
+        tx_succeeded,
+        _log_id,
+        modified_timestamp
+    FROM
+        unlock_tokens
 )
 SELECT
     block_number,
@@ -360,4 +449,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_mint_burn_locked_id
 FROM
-    mint_burn_locked
+    all_transfer_types

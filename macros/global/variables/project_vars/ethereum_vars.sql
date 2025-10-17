@@ -27,7 +27,6 @@
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
         'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['synthetix-v1','pancakeswap-v2','hashflow-v1','across-v1','zora_bridge-v1','near_rainbow_bridge-v1',
         'ronin_axie_bridge-v1','multichain-v7','hop-v1','axie_infinity-v2','symbiosis-v1','maverick-v1','aave-v1','aave-v2.1','silo-v2','silo-v1','flux-v1','aave-v2','spark-v1','sturdy-v1'],
-        'CURATED_DEFI_STABLECOINS_LOCKED_CONTRACTS': ['circle_cctp-v2','chainlink_ccip-v1','stargate-v1','circle_cctp-v1','allbridge-v2','starknet_starkgate_eth_bridge-v1','everclear-v1','multichain-v7','stargate-v2','zora_bridge-v1','arbitrum_nova_bridge-v1','layerzero-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -367,6 +366,26 @@
             'morpho': {
                 'v1': {
                     'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                }
+            }
+        }
+        'CURATED_DEFI_STABLECOINS_NATIVE_MINT_BURN_BRIDGE_LIST': ['circle_cctp-v2','chainlink_ccip-v1','circle_cctp-v1'],
+        'CURATED_DEFI_STABLECOINS_BRIDGE_VAULT_MAPPING': {
+            'allbridge': {
+                'v2': {
+                    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '0xa7062bba94c91d565ae33b893ab5dfaf1fc57c4d',
+                    '0xdac17f958d2ee523a2206206994597c13d831ec7': '0x7dbf07ad92ed4e26d5511b4f285508ebf174135d'
+                }
+            },
+            'stargate': {
+                'v1': {
+                    '0x0c10bf8fcb7bf5412187a595ab97a3609160b5c6': '0x692953e758c3669290cb1677180c64183cee374e',
+                    '0x853d955acef822db058eb8505911ed77f175b99e': '0xfa0f307783ac21c39e939acff795e27b650f6e68',
+                    '0x5f98805a4e8be255a32880fdec7f6728c6568ba0': '0xe8f55368c82d38bbbbdb5533e7f56afc2e978cc2',
+                    '0x6b175474e89094c44da98b954eedeac495271d0f': '0x0faf1d2d3ced330824de3b8200fc8dc6e397850d',
+                    '0x57ab1ec28d129707052df4df418d58a2d46d5f51': '0x590d4f8a68583639f215f675f3a259ed84790580',
+                    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '0xdf0770df86a8034b3efef0a1bb3c889b8332ff56',
+                    '0xdac17f958d2ee523a2206206994597c13d831ec7': '0x38ea452219524bb87e18de1c24d3bb59510bd783'
                 }
             }
         }
