@@ -1,0 +1,64 @@
+version: 2
+models:
+  - name: defi__ez_dex_liquidity_pool_actions
+    description: '{{ doc("ez_dex_liquidity_pool_actions_table_doc") }}'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ez_dex_liquidity_pool_actions_id
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("general_block_timestamp") }}'
+        tests:
+          - not_null
+      - name: TX_HASH
+        description: '{{ doc("general_tx_hash") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("general_event_index") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("general_event_name") }}'
+      - name: LIQUIDITY_PROVIDER
+        description: '{{ doc("ez_dex_liquidity_pool_actions_liquidity_provider") }}'
+        tests:
+          - not_null
+      - name: SENDER
+        description: '{{ doc("ez_dex_liquidity_pool_actions_sender") }}'
+      - name: RECEIVER
+        description: '{{ doc("ez_dex_liquidity_pool_actions_receiver") }}'
+      - name: POOL_ADDRESS
+        description: '{{ doc("ez_dex_liquidity_pool_actions_pool_address") }}'
+      - name: POOL_NAME
+        description: '{{ doc("ez_dex_liquidity_pool_actions_pool_name") }}'
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("ez_dex_liquidity_pool_actions_token_address") }}'
+        tests:
+          - not_null
+      - name: SYMBOL
+        description: '{{ doc("ez_dex_liquidity_pool_actions_symbol") }}'
+      - name: DECIMALS
+        description: '{{ doc("ez_dex_liquidity_pool_actions_decimals") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("ez_dex_liquidity_pool_actions_amount_unadj") }}'
+        tests:
+          - not_null
+      - name: AMOUNT
+        description: '{{ doc("ez_dex_liquidity_pool_actions_amount") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("ez_dex_liquidity_pool_actions_amount_usd") }}'
+      - name: TOKEN_IS_VERIFIED
+        description: '{{ doc("ez_dex_liquidity_pool_actions_token_is_verified") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_dex_liquidity_pool_actions_platform") }}'
+      - name: PROTOCOL
+        description: '{{ doc("ez_dex_liquidity_pool_actions_protocol") }}'
+      - name: PROTOCOL_VERSION
+        description: '{{ doc("ez_dex_liquidity_pool_actions_protocol_version") }}'
+      - name: EZ_DEX_LIQUIDITY_POOL_ACTIONS_ID
+        description: '{{ doc("general_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}'
