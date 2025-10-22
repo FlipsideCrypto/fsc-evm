@@ -20,7 +20,8 @@
         'MAIN_SL_TRACES_REALTIME_PRODUCER_BATCH_SIZE': 4800,
         'MAIN_SL_TRACES_REALTIME_WORKER_BATCH_SIZE': 600,
         'MAIN_SL_TRACES_REALTIME_ASYNC_CONCURRENT_REQUESTS': 50,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['level_finance-v1','woofi-v1','hashflow-v1','symbiosis-v1','trader_joe-v2','symbiosis-v1','trader_joe-v2','radiant-v2','kinza-v1'],
+        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['level_finance-v1','woofi-v1','hashflow-v1','symbiosis-v1','trader_joe-v2',
+        'kyberswap-v2','trader_joe-v1','kyberswap-v1','radiant-v2','kinza-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
