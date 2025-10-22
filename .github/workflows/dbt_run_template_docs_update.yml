@@ -28,10 +28,10 @@ on:
         required: true
       SLACK_WEBHOOK_URL:
         required: false
-      DDS_API_KEY_STG:
+      DDS_STG_API_KEY:
         description: 'The DDS API key for staging'
         required: true
-      DDS_API_KEY_PROD:
+      DDS_PROD_API_KEY:
         description: 'The DDS API key for production'
         required: true
           
@@ -120,16 +120,16 @@ jobs:
         environment:
           - name: staging
             url_input: api_url_stg
-            secret_key: DDS_API_KEY_STG
+            secret_key: DDS_STG_API_KEY
           - name: production
             url_input: api_url_prod
-            secret_key: DDS_API_KEY_PROD
+            secret_key: DDS_PROD_API_KEY
     steps:
     - name: Refresh cache (${{ matrix.environment.name }})
       shell: bash
       env:
         API_URL: ${{ matrix.environment.url_input == 'api_url_stg' && inputs.api_url_stg || inputs.api_url_prod }}
-        API_KEY: ${{ matrix.environment.secret_key == 'DDS_API_KEY_STG' && secrets.DDS_API_KEY_STG || secrets.DDS_API_KEY_PROD }}
+        API_KEY: ${{ matrix.environment.secret_key == 'DDS_STG_API_KEY' && secrets.DDS_STG_API_KEY || secrets.DDS_PROD_API_KEY }}
         ENV_NAME: ${{ matrix.environment.name }}
       run: |
         RESOURCE_ID="${{ inputs.resource_id || github.event.repository.name }}"
