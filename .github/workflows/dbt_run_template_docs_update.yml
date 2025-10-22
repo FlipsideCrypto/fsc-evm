@@ -8,11 +8,16 @@ on:
         required: false
         type: string
         default: ''
-      api_url:
-        description: 'The DDS API URL'
+      api_url_stg:
+        description: 'The DDS API URL for staging'
         required: false
         type: string
-        default: 'https://dds-api.fsc-data-platform.io/'
+        default: 'https://dds-api.fsc-data-platform-stg.io'
+      api_url_prod:
+        description: 'The DDS API URL for production'
+        required: false
+        type: string
+        default: 'https://dds-api.fsc-data-platform.io'
       force_refresh:
         description: 'Force refresh the cache'
         required: false
@@ -112,7 +117,7 @@ jobs:
       shell: bash
       run: |
         RESOURCE_ID="${{ inputs.resource_id || github.event.repository.name }}"
-        API_URL="https://dds-api.fsc-data-platform-stg.io"
+        API_URL="${{ inputs.api_url_stg }}"
         FORCE_PARAM="${{ inputs.force_refresh && '&force=true' || '' }}"
         
         echo "🔄 Refreshing STAGING cache for resource: $RESOURCE_ID"
@@ -176,7 +181,7 @@ jobs:
       shell: bash
       run: |
         RESOURCE_ID="${{ inputs.resource_id || github.event.repository.name }}"
-        API_URL="https://dds-api.fsc-data-platform.io"
+        API_URL="${{ inputs.api_url_prod }}"
         FORCE_PARAM="${{ inputs.force_refresh && '&force=true' || '' }}"
         
         echo "🔄 Refreshing PRODUCTION cache for resource: $RESOURCE_ID"
