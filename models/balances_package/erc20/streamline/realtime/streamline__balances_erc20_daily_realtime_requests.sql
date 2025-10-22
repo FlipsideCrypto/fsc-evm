@@ -62,46 +62,35 @@ SELECT
         block_number,
         -3
     ) AS partition_key,
-    live.udf_api(
-        'POST',
-        '{{ vars.GLOBAL_NODE_URL }}',
-        OBJECT_CONSTRUCT(
-            'Content-Type',
-            'application/json',
-            'fsc-quantum-state',
-            'streamline'
-        ),
-        OBJECT_CONSTRUCT(
-            'id',
-            CONCAT(
+    OBJECT_CONSTRUCT(
+        'data', OBJECT_CONSTRUCT(
+            'id', CONCAT(
                 contract_address,
                 '-',
                 address,
                 '-',
                 block_number
             ),
-            'jsonrpc',
-            '2.0',
-            'method',
-            'eth_call',
-            'params',
-            ARRAY_CONSTRUCT(
+            'jsonrpc', '2.0',
+            'method', 'eth_call',
+            'params', ARRAY_CONSTRUCT(
                 OBJECT_CONSTRUCT(
-                    'to',
-                    contract_address,
-                    'data',
-                    CONCAT(
+                    'to', contract_address,
+                    'data', CONCAT(
                         '0x70a08231000000000000000000000000',
-                        SUBSTR(
-                            address,
-                            3
-                        )
+                        SUBSTR(address, 3)
                     )
                 ),
                 utils.udf_int_to_hex(block_number)
             )
         ),
-        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
+        'headers', OBJECT_CONSTRUCT(
+            'Content-Type', 'application/json',
+            'x-fsc-livequery', 'true'
+        ),
+        'method', 'POST',
+        'secret_name', '{{ vars.GLOBAL_NODE_VAULT_PATH }}',
+        'url', '{{ vars.GLOBAL_NODE_URL }}'
     ) AS request
 FROM
     to_do
