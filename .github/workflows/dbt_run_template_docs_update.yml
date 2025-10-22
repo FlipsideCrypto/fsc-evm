@@ -103,19 +103,19 @@ jobs:
         run: |
           git push -f --set-upstream origin docs
 
-  refresh-cache:
+  refresh-cache-stg:
     needs: [run_dbt_jobs_refresh]
     runs-on: ubuntu-latest
     environment: workflow_secrets
     steps:
-    - name: Refresh cache
+    - name: Refresh cache (Staging)
       shell: bash
       run: |
         RESOURCE_ID="${{ inputs.resource_id || github.event.repository.name }}"
-        API_URL="${{ inputs.api_url }}"
+        API_URL="https://dds-api.fsc-data-platform-stg.io"
         FORCE_PARAM="${{ inputs.force_refresh && '&force=true' || '' }}"
         
-        echo "Refreshing cache for resource: $RESOURCE_ID"
+        echo "🔄 Refreshing STAGING cache for resource: $RESOURCE_ID"
         echo "API URL: $API_URL"
         
         # Make the API call and capture both response and HTTP status
@@ -135,7 +135,7 @@ jobs:
           # Check if response indicates success
           if echo "$RESPONSE_BODY" | grep -q '"success":true'; then
             echo ""
-            echo "✅ Cache refresh successful!"
+            echo "✅ STAGING cache refresh successful!"
             echo "📊 Resource: $RESOURCE_ID"
             
             # Extract and display key information from the response
@@ -158,17 +158,81 @@ jobs:
             
             echo ""
           else
-            echo "❌ API returned error: $RESPONSE_BODY"
+            echo "❌ STAGING API returned error: $RESPONSE_BODY"
             exit 1
           fi
         else
-          echo "❌ HTTP request failed with status $HTTP_STATUS"
+          echo "❌ STAGING HTTP request failed with status $HTTP_STATUS"
+          echo "Response: $RESPONSE_BODY"
+          exit 1
+        fi
+
+  refresh-cache-prod:
+    needs: [run_dbt_jobs_refresh]
+    runs-on: ubuntu-latest
+    environment: workflow_secrets
+    steps:
+    - name: Refresh cache (Production)
+      shell: bash
+      run: |
+        RESOURCE_ID="${{ inputs.resource_id || github.event.repository.name }}"
+        API_URL="https://dds-api.fsc-data-platform.io"
+        FORCE_PARAM="${{ inputs.force_refresh && '&force=true' || '' }}"
+        
+        echo "🔄 Refreshing PRODUCTION cache for resource: $RESOURCE_ID"
+        echo "API URL: $API_URL"
+        
+        # Make the API call and capture both response and HTTP status
+        RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API_URL/api/v1/cache/refresh?resource_id=$RESOURCE_ID$FORCE_PARAM" \
+          -H "X-API-Key: ${{ secrets.DDS_API_KEY }}" \
+          -H "Content-Type: application/json")
+        
+        # Split response and status code
+        HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+        RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
+        
+        echo "HTTP Status: $HTTP_STATUS"
+        echo "Response: $RESPONSE_BODY"
+        
+        # Check for success
+        if [ "$HTTP_STATUS" -eq 200 ]; then
+          # Check if response indicates success
+          if echo "$RESPONSE_BODY" | grep -q '"success":true'; then
+            echo ""
+            echo "✅ PRODUCTION cache refresh successful!"
+            echo "📊 Resource: $RESOURCE_ID"
+            
+            # Extract and display key information from the response
+            MESSAGE=$(echo "$RESPONSE_BODY" | grep -o '"message":"[^"]*"' | sed 's/"message":"//;s/"//')
+            if [ -n "$MESSAGE" ]; then
+              echo "📝 Status: $MESSAGE"
+            fi
+            
+            # Extract discovery summary if available
+            TOTAL_DISCOVERED=$(echo "$RESPONSE_BODY" | grep -o '"total_discovered":[0-9]*' | grep -o '[0-9]*')
+            PROJECTS_WITH_DOCS=$(echo "$RESPONSE_BODY" | grep -o '"projects_with_docs":[0-9]*' | grep -o '[0-9]*')
+            PROJECTS_WITHOUT_DOCS=$(echo "$RESPONSE_BODY" | grep -o '"projects_without_docs":[0-9]*' | grep -o '[0-9]*')
+            
+            if [ -n "$TOTAL_DISCOVERED" ]; then
+              echo "🔍 Discovery Summary:"
+              echo "   • Total repositories discovered: $TOTAL_DISCOVERED"
+              echo "   • Projects with docs: $PROJECTS_WITH_DOCS"
+              echo "   • Projects without docs: $PROJECTS_WITHOUT_DOCS"
+            fi
+            
+            echo ""
+          else
+            echo "❌ PRODUCTION API returned error: $RESPONSE_BODY"
+            exit 1
+          fi
+        else
+          echo "❌ PRODUCTION HTTP request failed with status $HTTP_STATUS"
           echo "Response: $RESPONSE_BODY"
           exit 1
         fi
 
   notify-failure:
-    needs: [run_dbt_jobs_refresh, refresh-cache]
+    needs: [run_dbt_jobs_refresh, refresh-cache-stg, refresh-cache-prod]
     if: failure()
     uses: ./.github/workflows/slack_notify.yml
     secrets:
