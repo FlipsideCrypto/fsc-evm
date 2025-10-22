@@ -12,7 +12,7 @@ on:
         description: 'The DDS API URL'
         required: false
         type: string
-        default: 'https://dds-api.fsc-data-platform-stg.io'
+        default: 'https://dds-api.fsc-data-platform.io/'
       force_refresh:
         description: 'Force refresh the cache'
         required: false
