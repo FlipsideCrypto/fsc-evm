@@ -164,14 +164,14 @@ jobs:
               echo "📝 Message: $MESSAGE"
             fi
             
-            # Check for async job response (new API format)
+            # Check for async job response
             JOB_ID=$(echo "$RESPONSE_BODY" | grep -o '"job_id":"[^"]*"' | sed 's/"job_id":"//;s/"//')
             JOB_STATUS=$(echo "$RESPONSE_BODY" | grep -o '"status":"[^"]*"' | sed 's/"status":"//;s/"//')
             
             if [ -n "$JOB_ID" ]; then
               echo "🔖 Job ID: $JOB_ID"
               echo "⏳ Status: $JOB_STATUS"
-              echo "💡 Check status at: $API_URL/api/v1/cache/status?job_id=$JOB_ID"
+              echo "💡 Check status at: $API_URL/api/v1/cache/jobs?job_id=$JOB_ID"
             fi
             
             # Extract discovery summary if available (legacy synchronous format)
