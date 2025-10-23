@@ -155,16 +155,26 @@ jobs:
           # Check if response indicates success
           if echo "$RESPONSE_BODY" | grep -q '"success":true'; then
             echo ""
-            echo "✅ ${ENV_NAME^^} cache refresh successful!"
+            echo "✅ ${ENV_NAME^^} cache refresh initiated successfully!"
             echo "📊 Resource: $RESOURCE_ID"
             
             # Extract and display key information from the response
             MESSAGE=$(echo "$RESPONSE_BODY" | grep -o '"message":"[^"]*"' | sed 's/"message":"//;s/"//')
             if [ -n "$MESSAGE" ]; then
-              echo "📝 Status: $MESSAGE"
+              echo "📝 Message: $MESSAGE"
             fi
             
-            # Extract discovery summary if available
+            # Check for async job response (new API format)
+            JOB_ID=$(echo "$RESPONSE_BODY" | grep -o '"job_id":"[^"]*"' | sed 's/"job_id":"//;s/"//')
+            JOB_STATUS=$(echo "$RESPONSE_BODY" | grep -o '"status":"[^"]*"' | sed 's/"status":"//;s/"//')
+            
+            if [ -n "$JOB_ID" ]; then
+              echo "🔖 Job ID: $JOB_ID"
+              echo "⏳ Status: $JOB_STATUS"
+              echo "💡 Check status at: $API_URL/api/v1/cache/status?job_id=$JOB_ID"
+            fi
+            
+            # Extract discovery summary if available (legacy synchronous format)
             TOTAL_DISCOVERED=$(echo "$RESPONSE_BODY" | grep -o '"total_discovered":[0-9]*' | grep -o '[0-9]*')
             PROJECTS_WITH_DOCS=$(echo "$RESPONSE_BODY" | grep -o '"projects_with_docs":[0-9]*' | grep -o '[0-9]*')
             PROJECTS_WITHOUT_DOCS=$(echo "$RESPONSE_BODY" | grep -o '"projects_without_docs":[0-9]*' | grep -o '[0-9]*')
