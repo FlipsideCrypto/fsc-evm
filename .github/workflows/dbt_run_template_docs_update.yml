@@ -2,6 +2,38 @@ name: dbt_run_template_docs_update
 
 on:
   workflow_call:
+    inputs:
+      resource_id:
+        description: 'The resource ID to refresh (defaults to repository name)'
+        required: false
+        type: string
+        default: ''
+      api_url_stg:
+        description: 'The DDS API URL for staging'
+        required: false
+        type: string
+        default: 'https://dds-api.fsc-data-platform-stg.io'
+      api_url_prod:
+        description: 'The DDS API URL for production'
+        required: false
+        type: string
+        default: 'https://dds-api.fsc-data-platform.io'
+      force_refresh:
+        description: 'Force refresh the cache'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      PASSWORD:
+        required: true
+      SLACK_WEBHOOK_URL:
+        required: false
+      DDS_STG_API_KEY:
+        description: 'The DDS API key for staging'
+        required: true
+      DDS_PROD_API_KEY:
+        description: 'The DDS API key for production'
+        required: true
           
 jobs:
   run_dbt_jobs_refresh:
@@ -79,8 +111,82 @@ jobs:
         run: |
           git push -f --set-upstream origin docs
 
-  notify-failure:
+  refresh-cache:
     needs: [run_dbt_jobs_refresh]
+    runs-on: ubuntu-latest
+    environment: workflow_secrets
+    strategy:
+      matrix:
+        environment:
+          - name: staging
+            url_input: api_url_stg
+            secret_key: DDS_STG_API_KEY
+          - name: production
+            url_input: api_url_prod
+            secret_key: DDS_PROD_API_KEY
+    steps:
+    - name: Refresh cache (${{ matrix.environment.name }})
+      shell: bash
+      env:
+        API_URL: ${{ matrix.environment.url_input == 'api_url_stg' && inputs.api_url_stg || inputs.api_url_prod }}
+        API_KEY: ${{ matrix.environment.secret_key == 'DDS_STG_API_KEY' && secrets.DDS_STG_API_KEY || secrets.DDS_PROD_API_KEY }}
+        ENV_NAME: ${{ matrix.environment.name }}
+      run: |
+        RESOURCE_ID="${{ inputs.resource_id || github.event.repository.name }}"
+        FORCE_PARAM="${{ inputs.force_refresh && '&force=true' || '' }}"
+        
+        echo "🔄 Refreshing ${ENV_NAME^^} cache for resource: $RESOURCE_ID"
+        echo "API URL: $API_URL"
+        
+        # Make the API call and capture both response and HTTP status
+        RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API_URL/api/v1/cache/refresh?resource_id=$RESOURCE_ID$FORCE_PARAM" \
+          -H "X-API-Key: $API_KEY" \
+          -H "Content-Type: application/json")
+        
+        # Split response and status code
+        HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+        RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
+        
+        echo "HTTP Status: $HTTP_STATUS"
+        echo "Response: $RESPONSE_BODY"
+        
+        # Check for success
+        if [ "$HTTP_STATUS" -eq 200 ]; then
+          # Check if response indicates success
+          if echo "$RESPONSE_BODY" | grep -q '"success":true'; then
+            echo ""
+            echo "✅ ${ENV_NAME^^} cache refresh initiated successfully!"
+            echo "📊 Resource: $RESOURCE_ID"
+            
+            # Extract and display key information from the response
+            MESSAGE=$(echo "$RESPONSE_BODY" | grep -o '"message":"[^"]*"' | sed 's/"message":"//;s/"//')
+            if [ -n "$MESSAGE" ]; then
+              echo "📝 Message: $MESSAGE"
+            fi
+            
+            # Check for async job response
+            JOB_ID=$(echo "$RESPONSE_BODY" | grep -o '"job_id":"[^"]*"' | sed 's/"job_id":"//;s/"//')
+            JOB_STATUS=$(echo "$RESPONSE_BODY" | grep -o '"status":"[^"]*"' | sed 's/"status":"//;s/"//')
+            
+            if [ -n "$JOB_ID" ]; then
+              echo "🔖 Job ID: $JOB_ID"
+              echo "⏳ Status: $JOB_STATUS"
+              echo "💡 Check status at: $API_URL/api/v1/cache/jobs?job_id=$JOB_ID"
+            fi
+            
+            echo ""
+          else
+            echo "❌ ${ENV_NAME^^} API returned error: $RESPONSE_BODY"
+            exit 1
+          fi
+        else
+          echo "❌ ${ENV_NAME^^} HTTP request failed with status $HTTP_STATUS"
+          echo "Response: $RESPONSE_BODY"
+          exit 1
+        fi
+
+  notify-failure:
+    needs: [run_dbt_jobs_refresh, refresh-cache]
     if: failure()
     uses: ./.github/workflows/slack_notify.yml
     secrets:
