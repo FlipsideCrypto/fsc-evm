@@ -174,18 +174,6 @@ jobs:
               echo "💡 Check status at: $API_URL/api/v1/cache/jobs?job_id=$JOB_ID"
             fi
             
-            # Extract discovery summary if available (legacy synchronous format)
-            TOTAL_DISCOVERED=$(echo "$RESPONSE_BODY" | grep -o '"total_discovered":[0-9]*' | grep -o '[0-9]*' || true)
-            PROJECTS_WITH_DOCS=$(echo "$RESPONSE_BODY" | grep -o '"projects_with_docs":[0-9]*' | grep -o '[0-9]*' || true)
-            PROJECTS_WITHOUT_DOCS=$(echo "$RESPONSE_BODY" | grep -o '"projects_without_docs":[0-9]*' | grep -o '[0-9]*' || true)
-            
-            if [ -n "$TOTAL_DISCOVERED" ]; then
-              echo "🔍 Discovery Summary:"
-              echo "   • Total repositories discovered: $TOTAL_DISCOVERED"
-              echo "   • Projects with docs: $PROJECTS_WITH_DOCS"
-              echo "   • Projects without docs: $PROJECTS_WITHOUT_DOCS"
-            fi
-            
             echo ""
           else
             echo "❌ ${ENV_NAME^^} API returned error: $RESPONSE_BODY"
