@@ -34,3 +34,4 @@ WHERE
         {{ vars.MAIN_LABELS_BLOCKCHAINS | replace('[', '') | replace(']', '') }}
     {% endif %})
     AND address LIKE '0x%'
+    AND _is_deleted = FALSE
