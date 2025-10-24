@@ -291,3 +291,4 @@ FROM
     FINAL
 WHERE
     TYPE = 'new'
+    AND balances IS NOT NULL
