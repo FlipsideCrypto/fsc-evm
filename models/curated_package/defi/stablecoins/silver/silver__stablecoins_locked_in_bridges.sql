@@ -49,23 +49,56 @@ raw_balances AS (
         INNER JOIN bridge_vault_list USING (address)
 
 {% if is_incremental() %}
-AND (
-    l.modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp) - INTERVAL '12 hours'
-        FROM
-            {{ this }}
-    )
-    OR block_date >= (
+WHERE
+    block_date >= (
         SELECT
             MAX(block_date)
         FROM
             {{ this }}
     )
-)
-AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
+
+{% if is_incremental() and var(
+    'HEAL_MODEL',
+    false
+) %}
+newly_verified_stablecoins AS (
+    SELECT
+        token_address AS contract_address
+    FROM
+        {{ ref('defi__dim_stablecoins') }}
+    WHERE
+        IFNULL(
+            is_verified_modified_timestamp,
+            '1970-01-01' :: TIMESTAMP
+        ) > DATEADD(
+            'day',
+            -8,
+            (
+                SELECT
+                    MAX(modified_timestamp) :: DATE
+                FROM
+                    {{ this }}
+            )
+        )
+),
+newly_verified_stablecoins_raw_balances AS (
+    SELECT
+        block_date :: TIMESTAMP AS days,
+        address,
+        contract_address,
+        symbol,
+        balance,
+        balance_precise,
+        balance_raw
+    FROM
+        {{ ref('balances__ez_balances_erc20_daily') }}
+        INNER JOIN newly_verified_stablecoins USING (contract_address)
+        INNER JOIN bridge_vault_list USING (address)
+),
+{% endif %}
+
 dates AS (
     SELECT
         date_day
@@ -77,7 +110,10 @@ dates AS (
     WHERE
         date_day BETWEEN
 
-{% if is_incremental() %}
+{% if is_incremental() and not var(
+    'HEAL_MODEL',
+    false
+) %}
 (
     SELECT
         MAX(block_date) + INTERVAL '1 day'
@@ -118,6 +154,22 @@ past_address_token_list AS (
 ),
 {% endif %}
 
+{% if is_incremental() and var(
+    'HEAL_MODEL',
+    false
+) %}
+newly_verified_address_token_list AS (
+    SELECT
+        address,
+        contract_address,
+        COUNT(1)
+    FROM
+        newly_verified_stablecoins_raw_balances
+    GROUP BY
+        ALL
+),
+{% endif %}
+
 complete_address_token_list AS (
     SELECT
         address,
@@ -132,6 +184,18 @@ SELECT
     contract_address
 FROM
     past_address_token_list
+{% endif %}
+
+{% if is_incremental() and var(
+    'HEAL_MODEL',
+    false
+) %}
+UNION
+SELECT
+    address,
+    contract_address
+FROM
+    newly_verified_address_token_list
 {% endif %}
 ),
 full_list AS (
