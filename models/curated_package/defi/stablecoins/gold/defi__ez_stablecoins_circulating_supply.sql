@@ -22,18 +22,18 @@ Get variables
 WITH blacklist AS (
 
     SELECT
-        token_address,
+        contract_address,
         user_address,
         event_name
     FROM
         {{ ref('silver__stablecoins_address_blacklist') }}
-        qualify(ROW_NUMBER() over (PARTITION BY token_address, user_address
+        qualify(ROW_NUMBER() over (PARTITION BY contract_address, user_address
     ORDER BY
         block_timestamp DESC)) = 1 --latest blacklist event per token and user
 ),
 supply AS (
     SELECT
-        contract_address AS token_address,
+        contract_address,
         block_date,
         SUM(balance) AS balance,
         SUM(balance_usd) AS balance_usd,
@@ -48,7 +48,7 @@ supply AS (
         ) NOT IN (
             SELECT
                 CONCAT(
-                    token_address,
+                    contract_address,
                     '-',
                     user_address
                 )
@@ -69,12 +69,12 @@ AND modified_timestamp > (
 GROUP BY contract_address, block_date
 )
 SELECT
-    token_address,
+    contract_address,
     block_date,
     balance,
     balance_usd,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['token_address', 'block_date']) }} AS ez_stablecoins_circulating_supply_id,
+    {{ dbt_utils.generate_surrogate_key(['contract_address', 'block_date']) }} AS ez_stablecoins_circulating_supply_id,
 FROM
     supply

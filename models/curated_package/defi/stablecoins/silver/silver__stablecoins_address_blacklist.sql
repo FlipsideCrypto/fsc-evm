@@ -11,14 +11,14 @@
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
     post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['gold','defi','stablecoins','heal','curated']
+    tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
 
 WITH verified_stablecoins AS (
 
     SELECT
-        token_address,
+        contract_address,
         decimals,
         symbol,
         NAME
@@ -26,7 +26,7 @@ WITH verified_stablecoins AS (
         {{ ref('defi__dim_stablecoins') }}
     WHERE
         is_verified
-        AND token_address IS NOT NULL
+        AND contract_address IS NOT NULL
 ),
 
 {% if is_incremental() and var(
@@ -35,7 +35,7 @@ WITH verified_stablecoins AS (
 ) %}
 newly_verified_stablecoins AS (
     SELECT
-        token_address,
+        contract_address,
         decimals,
         symbol,
         NAME
@@ -85,7 +85,7 @@ newly_verified_blacklist AS (
         {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN newly_verified_stablecoins s
-        ON l.contract_address = s.token_address
+        ON l.contract_address = s.contract_address
     WHERE
         topic_0 :: STRING IN ('0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', --AddedBlacklist
         '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c') --RemovedBlacklist
@@ -121,7 +121,7 @@ blacklist AS (
         {{ ref('core__fact_event_logs') }}
         l
         INNER JOIN verified_stablecoins s
-        ON l.contract_address = s.token_address
+        ON l.contract_address = s.contract_address
     WHERE
         topic_0 :: STRING IN ('0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', --AddedBlacklist
         '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c') --RemovedBlacklist
@@ -162,7 +162,7 @@ SELECT
     tx_hash,
     event_index,
     event_name,
-    contract_address AS token_address,
+    contract_address,
     symbol,
     NAME,
     decimals,

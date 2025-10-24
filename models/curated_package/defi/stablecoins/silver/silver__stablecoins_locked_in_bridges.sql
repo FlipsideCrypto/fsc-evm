@@ -1,25 +1,28 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_locked_in_bridges_id"],
     cluster_by = ['block_date'],
-    tags = ['gold','defi','stablecoins','heal','curated']
+    post_hook = '{{ unverify_stablecoins() }}',
+    tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
 WITH verified_stablecoins AS (
 
     SELECT
-        token_address AS contract_address
+        contract_address
     FROM
         {{ ref('defi__dim_stablecoins') }}
     WHERE
         is_verified
-        AND token_address IS NOT NULL
+        AND contract_address IS NOT NULL
 ),
 bridge_vault_list AS (
     SELECT
@@ -63,7 +66,7 @@ WHERE
 ) %}
 newly_verified_stablecoins AS (
     SELECT
-        token_address AS contract_address
+        contract_address
     FROM
         {{ ref('defi__dim_stablecoins') }}
     WHERE

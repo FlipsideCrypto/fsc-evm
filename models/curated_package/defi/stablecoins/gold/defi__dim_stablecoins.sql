@@ -17,9 +17,9 @@
     tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
 
---crosschain stablecoins
+WITH crosschain_stablecoins AS (
 SELECT
-    s.token_address,
+    s.token_address AS contract_address,
     UPPER(COALESCE(s.symbol, m.symbol)) AS symbol,
     COALESCE(
         s.name,
@@ -52,12 +52,11 @@ AND s.modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+),
 
-UNION
-
---manually mapped stablecoins
+manual_stablecoins AS (
 SELECT
-    s.token_address,
+    s.contract_address,
     UPPER(
         m.symbol
     ) AS symbol,
@@ -67,21 +66,39 @@ SELECT
     m.is_verified_modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['s.token_address']) }} AS dim_stablecoins_id
+    {{ dbt_utils.generate_surrogate_key(['s.contract_address']) }} AS dim_stablecoins_id
 FROM
     {{ ref('silver_stablecoins__manual_map_stablecoins_seed') }}
     s
     INNER JOIN {{ ref('price__ez_asset_metadata') }}
     m
-    ON s.token_address = m.token_address
+    ON s.contract_address = m.token_address
     AND s.blockchain = m.blockchain
 WHERE
     m.is_verified --verified stablecoins only
 {% if is_incremental() %}
-AND s.token_address NOT IN (
+AND s.contract_address NOT IN (
     SELECT
-        token_address
+        contract_address
     FROM
         {{ this }}
 )
 {% endif %}
+),
+all_stablecoins AS (
+    SELECT * FROM crosschain_stablecoins
+    UNION ALL
+    SELECT * FROM manual_stablecoins
+)
+SELECT 
+    contract_address,
+    symbol,
+    name,
+    decimals,
+    is_verified,
+    is_verified_modified_timestamp,
+    inserted_timestamp,
+    modified_timestamp,
+    dim_stablecoins_id
+FROM
+    all_stablecoins

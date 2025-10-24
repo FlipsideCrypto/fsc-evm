@@ -1,4 +1,4 @@
-{{ config(
+{# {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
@@ -96,4 +96,4 @@ FROM
     )
     INNER JOIN stablecoins USING (token_address)
 WHERE
-    amount > 0
+    amount > 0 #}
