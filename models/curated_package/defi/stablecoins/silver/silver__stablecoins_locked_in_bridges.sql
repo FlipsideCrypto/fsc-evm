@@ -8,6 +8,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_locked_in_bridges_id"],
     cluster_by = ['block_date'],
+    post_hook = '{{ unverify_stablecoins() }}',
     tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
 
@@ -40,9 +41,7 @@ raw_balances AS (
         address,
         contract_address,
         symbol,
-        balance,
-        balance_precise,
-        balance_raw
+        balance
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN verified_stablecoins USING (contract_address)
@@ -89,9 +88,7 @@ newly_verified_stablecoins_raw_balances AS (
         address,
         contract_address,
         symbol,
-        balance,
-        balance_precise,
-        balance_raw
+        balance
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN newly_verified_stablecoins USING (contract_address)
@@ -214,6 +211,7 @@ prev_balances AS (
         block_date,
         address,
         contract_address,
+        symbol,
         balances,
         'old' AS TYPE
     FROM
@@ -232,6 +230,7 @@ balances_dates AS (
         f.days AS block_date,
         f.address,
         f.contract_address,
+        symbol,
         balance,
         'new' AS TYPE
     FROM
@@ -247,6 +246,7 @@ all_balances AS (
         block_date,
         address,
         contract_address,
+        symbol,
         balance,
         TYPE
     FROM
@@ -258,6 +258,7 @@ SELECT
     block_date,
     address,
     contract_address,
+    symbol,
     balances AS balance,
     TYPE
 FROM
@@ -269,6 +270,7 @@ FINAL AS (
         block_date,
         address,
         contract_address,
+        symbol,
         TYPE,
         IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
     ORDER BY
@@ -280,6 +282,7 @@ SELECT
     block_date,
     address,
     contract_address,
+    symbol,
     balances,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
     SYSDATE() AS inserted_timestamp,
