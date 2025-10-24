@@ -150,7 +150,8 @@ prev_balances AS (
         block_date,
         address,
         contract_address,
-        balances
+        balances,
+        'old' AS TYPE
     FROM
         {{ this }}
         qualify ROW_NUMBER() over (
@@ -167,9 +168,8 @@ balances_dates AS (
         f.days AS block_date,
         f.address,
         f.contract_address,
-        balance IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
-    ORDER BY
-        f.days ASC), balance) AS balances
+        balance,
+        'new' AS TYPE
     FROM
         full_list f
         LEFT JOIN raw_balances b USING (
@@ -183,7 +183,8 @@ all_balances AS (
         block_date,
         address,
         contract_address,
-        balance
+        balance,
+        TYPE
     FROM
         balances_dates
 
@@ -193,20 +194,33 @@ SELECT
     block_date,
     address,
     contract_address,
-    balances
+    balances AS balance,
+    TYPE
 FROM
     prev_balances
 {% endif %}
+),
+FINAL AS (
+    SELECT
+        block_date,
+        address,
+        contract_address,
+        TYPE,
+        IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
+    ORDER BY
+        days ASC), balance) AS balances
+    FROM
+        all_balances
 )
 SELECT
     block_date,
     address,
     contract_address,
-    IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
-ORDER BY
-    days ASC), balance) AS balances,
+    balances,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    all_balances
+    FINAL
+WHERE
+    TYPE = 'new'
