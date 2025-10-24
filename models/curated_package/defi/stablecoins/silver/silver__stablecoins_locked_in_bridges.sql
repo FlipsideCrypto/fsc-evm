@@ -89,7 +89,7 @@ dates AS (
 {% endif %}
 AND (
     SELECT
-        MAX(block_Date)
+        MAX(days)
     FROM
         raw_balances
 )
@@ -208,7 +208,7 @@ FINAL AS (
         TYPE,
         IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
     ORDER BY
-        days ASC), balance) AS balances
+        block_date ASC), balance) AS balances
     FROM
         all_balances
 )
