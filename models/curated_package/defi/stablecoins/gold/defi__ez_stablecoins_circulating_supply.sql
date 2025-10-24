@@ -9,7 +9,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
-    cluster_by = ['block_timestamp::DATE'],
+    cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
     "columns": true },
