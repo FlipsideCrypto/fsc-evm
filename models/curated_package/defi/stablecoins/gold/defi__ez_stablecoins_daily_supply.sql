@@ -26,18 +26,18 @@ WITH mints AS (
         {{ ref('silver__stablecoins_mint_burn') }}
     WHERE
         tx_succeeded
-        AND event_name = 'Mint'
+        AND event_name = 'Mint' {# {% if is_incremental() %}
+        AND modified_timestamp > (
+            SELECT
+                MAX(modified_timestamp)
+            FROM
+                {{ this }}
+        )
+    {% endif %}
 
-{% if is_incremental() %}
-AND modified_timestamp > (
-    SELECT
-        MAX(modified_timestamp)
-    FROM
-        {{ this }}
-)
-{% endif %}
-GROUP BY
-    ALL
+    #}
+    GROUP BY
+        ALL
 ),
 burns AS (
     SELECT
@@ -48,18 +48,18 @@ burns AS (
         {{ ref('silver__stablecoins_mint_burn') }}
     WHERE
         tx_succeeded
-        AND event_name = 'Burn'
+        AND event_name = 'Burn' {# {% if is_incremental() %}
+        AND modified_timestamp > (
+            SELECT
+                MAX(modified_timestamp)
+            FROM
+                {{ this }}
+        )
+    {% endif %}
 
-{% if is_incremental() %}
-AND modified_timestamp > (
-    SELECT
-        MAX(modified_timestamp)
-    FROM
-        {{ this }}
-)
-{% endif %}
-GROUP BY
-    ALL
+    #}
+    GROUP BY
+        ALL
 ),
 stablecoins_locked_in_bridges AS (
     SELECT
@@ -69,18 +69,19 @@ stablecoins_locked_in_bridges AS (
         SUM(balances) AS amount_locked_in_bridges
     FROM
         {{ ref('silver__stablecoins_locked_in_bridges') }}
+        {# {% if is_incremental() %}
+    WHERE
+        modified_timestamp > (
+            SELECT
+                MAX(modified_timestamp)
+            FROM
+                {{ this }}
+        )
+    {% endif %}
 
-{% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-{% endif %}
-GROUP BY
-    ALL
+    #}
+    GROUP BY
+        ALL
 ),
 combined AS (
     SELECT
