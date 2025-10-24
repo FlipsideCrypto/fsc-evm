@@ -50,7 +50,7 @@ raw_balances AS (
 
 {% if is_incremental() %}
 WHERE
-    block_date >= (
+    block_date > (
         SELECT
             MAX(block_date)
         FROM
