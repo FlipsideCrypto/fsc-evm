@@ -131,6 +131,7 @@ new_address_token_list AS (
     SELECT
         address,
         contract_address,
+        symbol,
         COUNT(1)
     FROM
         raw_balances
@@ -143,6 +144,7 @@ past_address_token_list AS (
     SELECT
         address,
         contract_address,
+        symbol,
         COUNT(1)
     FROM
         {{ this }}
@@ -159,6 +161,7 @@ newly_verified_address_token_list AS (
     SELECT
         address,
         contract_address,
+        symbol,
         COUNT(1)
     FROM
         newly_verified_stablecoins_raw_balances
@@ -170,7 +173,8 @@ newly_verified_address_token_list AS (
 complete_address_token_list AS (
     SELECT
         address,
-        contract_address
+        contract_address,
+        symbol
     FROM
         new_address_token_list
 
@@ -178,7 +182,8 @@ complete_address_token_list AS (
 UNION
 SELECT
     address,
-    contract_address
+    contract_address,
+    symbol
 FROM
     past_address_token_list
 {% endif %}
@@ -190,7 +195,8 @@ FROM
 UNION
 SELECT
     address,
-    contract_address
+    contract_address,
+    symbol
 FROM
     newly_verified_address_token_list
 {% endif %}
@@ -199,7 +205,8 @@ full_list AS (
     SELECT
         date_day AS days,
         address,
-        contract_address
+        contract_address,
+        symbol
     FROM
         dates
         CROSS JOIN complete_address_token_list
