@@ -23,12 +23,12 @@ WITH verified_stablecoins AS (
 ),
 bridge_vault_list AS (
     SELECT
-        DISTINCT bridge_address
+        DISTINCT bridge_address AS address
     FROM
         {{ ref('defi__ez_bridge_activity') }}
     UNION
     SELECT
-        vault_address AS bridge_address
+        vault_address AS address
     FROM
         {{ ref('silver_stablecoins__bridge_vault_seed') }}
     WHERE
@@ -46,13 +46,7 @@ raw_balances AS (
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN verified_stablecoins USING (contract_address)
-    WHERE
-        address IN (
-            SELECT
-                bridge_address
-            FROM
-                bridge_vault_list
-        )
+        INNER JOIN bridge_vault_list USING (address)
 
 {% if is_incremental() %}
 AND (
@@ -210,7 +204,7 @@ SELECT
     contract_address,
     IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
 ORDER BY
-    f.days ASC), balance) AS balances {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
+    days ASC), balance) AS balances {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
