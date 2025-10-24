@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
+    unique_key = "ez_stablecoins_circulating_supply_id",
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
