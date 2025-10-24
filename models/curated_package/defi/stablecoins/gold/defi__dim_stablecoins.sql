@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'token_address',
+    unique_key = 'contract_address',
     post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
     "columns": true },
