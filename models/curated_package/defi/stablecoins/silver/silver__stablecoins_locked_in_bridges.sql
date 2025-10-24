@@ -10,7 +10,7 @@
     cluster_by = ['block_date'],
     tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
--- post_hook = '{{ unverify_stablecoins() }}',
+
 WITH verified_stablecoins AS (
 
     SELECT
@@ -36,7 +36,7 @@ bridge_vault_list AS (
 ),
 raw_balances AS (
     SELECT
-        block_date AS days,
+        block_date :: TIMESTAMP AS days,
         address,
         contract_address,
         symbol,
@@ -53,6 +53,24 @@ raw_balances AS (
             FROM
                 bridge_vault_list
         )
+
+{% if is_incremental() %}
+AND (
+    l.modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp) - INTERVAL '12 hours'
+        FROM
+            {{ this }}
+    )
+    OR block_date >= (
+        SELECT
+            MAX(block_date)
+        FROM
+            {{ this }}
+    )
+)
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
+{% endif %}
 ),
 dates AS (
     SELECT
@@ -63,10 +81,26 @@ dates AS (
             'dim_dates'
         ) }}
     WHERE
-        date_day BETWEEN '2025-06-10'
-        AND CURRENT_DATE()
+        date_day BETWEEN
+
+{% if is_incremental() %}
+(
+    SELECT
+        MAX(block_date) + INTERVAL '1 day'
+    FROM
+        {{ this }}
+)
+{% else %}
+    '2025-06-10'
+{% endif %}
+AND (
+    SELECT
+        MAX(block_Date)
+    FROM
+        raw_balances
+)
 ),
-address_token_list AS (
+new_address_token_list AS (
     SELECT
         address,
         contract_address,
@@ -76,6 +110,36 @@ address_token_list AS (
     GROUP BY
         ALL
 ),
+
+{% if is_incremental() %}
+past_address_token_list AS (
+    SELECT
+        address,
+        contract_address,
+        COUNT(1)
+    FROM
+        {{ this }}
+    GROUP BY
+        ALL
+),
+{% endif %}
+
+complete_address_token_list AS (
+    SELECT
+        address,
+        contract_address
+    FROM
+        new_address_token_list
+
+{% if is_incremental() %}
+UNION
+SELECT
+    address,
+    contract_address
+FROM
+    past_address_token_list
+{% endif %}
+),
 full_list AS (
     SELECT
         date_day AS days,
@@ -83,14 +147,33 @@ full_list AS (
         contract_address
     FROM
         dates
-        CROSS JOIN address_token_list
+        CROSS JOIN complete_address_token_list
 ),
+
+{% if is_incremental() %}
+prev_balances AS (
+    SELECT
+        block_date,
+        address,
+        contract_address,
+        balances
+    FROM
+        {{ this }}
+        qualify ROW_NUMBER() over (
+            PARTITION BY address,
+            contract_address
+            ORDER BY
+                block_date DESC
+        ) = 1
+),
+{% endif %}
+
 balances_dates AS (
     SELECT
         f.days AS block_date,
         f.address,
         f.contract_address,
-        IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
+        balance IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
     ORDER BY
         f.days ASC), balance) AS balances
     FROM
@@ -100,14 +183,35 @@ balances_dates AS (
             address,
             contract_address
         )
-)
+),
+all_balances AS (
+    SELECT
+        block_date,
+        address,
+        contract_address,
+        balance
+    FROM
+        balances_dates
+
+{% if is_incremental() %}
+UNION ALL
 SELECT
     block_date,
     address,
     contract_address,
-    balances,
-    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
+    balances
+FROM
+    prev_balances
+{% endif %}
+)
+SELECT
+    block_date AS block_date,
+    address,
+    contract_address,
+    IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
+ORDER BY
+    f.days ASC), balance) AS balances {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    balances_dates
+    all_balances
