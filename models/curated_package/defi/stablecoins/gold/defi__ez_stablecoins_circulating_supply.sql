@@ -1,4 +1,4 @@
-Get variables
+{# Get variables #}
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
@@ -13,8 +13,6 @@ Get variables
     post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
     "columns": true },
-    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'STABLECOINS',
-    } } },
     tags = ['gold','defi','stablecoins','heal','curated']
 ) }}
 
