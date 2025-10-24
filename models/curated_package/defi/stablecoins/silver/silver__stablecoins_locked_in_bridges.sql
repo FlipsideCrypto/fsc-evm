@@ -199,12 +199,13 @@ FROM
 {% endif %}
 )
 SELECT
-    block_date AS block_date,
+    block_date,
     address,
     contract_address,
     IFF(balance IS NULL, LAG(balance) ignore nulls over (PARTITION BY address, contract_address
 ORDER BY
-    days ASC), balance) AS balances {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
+    days ASC), balance) AS balances,
+    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_locked_in_bridges_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
