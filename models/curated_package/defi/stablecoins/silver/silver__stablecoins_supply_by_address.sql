@@ -24,17 +24,6 @@ WITH verified_stablecoins AS (
         is_verified
         AND contract_address IS NOT NULL
 ),
-blacklist AS (
-    SELECT
-        contract_address,
-        user_address,
-        event_name
-    FROM
-        {{ ref('silver__stablecoins_address_blacklist') }}
-        qualify(ROW_NUMBER() over (PARTITION BY contract_address, user_address
-    ORDER BY
-        block_timestamp DESC)) = 1 --latest blacklist event per token and user
-),
 
 {% if is_incremental() and var(
     'HEAL_MODEL',
@@ -70,23 +59,6 @@ newly_verified_supply AS (
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN newly_verified_stablecoins USING (contract_address)
-    WHERE
-        CONCAT(
-            contract_address,
-            '-',
-            address
-        ) NOT IN (
-            SELECT
-                CONCAT(
-                    contract_address,
-                    '-',
-                    user_address
-                )
-            FROM
-                blacklist
-            WHERE
-                event_name = 'AddedBlacklist'
-        ) --exclude blacklisted addresses
 ),
 {% endif %}
 
@@ -100,23 +72,6 @@ supply AS (
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN verified_stablecoins USING (contract_address)
-    WHERE
-        CONCAT(
-            contract_address,
-            '-',
-            address
-        ) NOT IN (
-            SELECT
-                CONCAT(
-                    contract_address,
-                    '-',
-                    user_address
-                )
-            FROM
-                blacklist
-            WHERE
-                event_name = 'AddedBlacklist'
-        ) --exclude blacklisted addresses
 
 {% if is_incremental() %}
 AND modified_timestamp > (
