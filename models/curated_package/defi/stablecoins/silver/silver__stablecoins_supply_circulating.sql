@@ -26,7 +26,7 @@ WITH base_supply AS (
             s.modified_timestamp
         ) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_all_address_imputed') }}
+        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
         s
 
 {% if is_incremental() %}

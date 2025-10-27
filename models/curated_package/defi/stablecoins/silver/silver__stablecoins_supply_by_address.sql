@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = ["stablecoins_circulating_supply_id"],
+    unique_key = ["stablecoins_supply_by_address_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
     tags = ['silver','defi','stablecoins','heal','curated']
@@ -151,6 +151,6 @@ SELECT
     balance,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_circulating_supply_id,
+    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_id,
 FROM
     all_circ_supply

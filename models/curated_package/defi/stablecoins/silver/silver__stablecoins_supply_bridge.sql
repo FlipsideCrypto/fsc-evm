@@ -35,7 +35,7 @@ locked_in_bridges AS (
         balance,
         modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_all_address_imputed') }} s 
+        {{ ref('silver__stablecoins_supply_by_address_imputed') }} s 
         INNER JOIN bridge_vault_list USING (address)
     {% if is_incremental() %}
     WHERE

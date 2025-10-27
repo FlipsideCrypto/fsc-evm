@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = ["stablecoins_supply_all_address_imputed_id"],
+    unique_key = ["stablecoins_supply_by_address_imputed_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
     tags = ['silver','defi','stablecoins','heal','curated']
@@ -22,7 +22,7 @@ WITH base_supply AS (
         balance,
         modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_all_address') }}
+        {{ ref('silver__stablecoins_supply_by_address') }}
     {% if is_incremental() %}
     WHERE
         modified_timestamp > (
@@ -127,6 +127,6 @@ SELECT
     balance,
     SYSDATE() AS modified_timestamp,
     SYSDATE() AS inserted_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_all_address_imputed_id
+    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_imputed_id
 FROM
     filled_balances
