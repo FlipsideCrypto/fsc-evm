@@ -111,34 +111,34 @@ burn AS (
 ),
 FINAL AS (
     SELECT
-        b.block_date,
-        b.contract_address,
-        b.balance AS total_supply,
+        s.block_date,
+        s.contract_address,
+        s.balance AS total_supply,
         l.balance AS locked_in_bridges,
         COALESCE(m.mint_amount, 0) AS mint_amount,
         COALESCE(b.burn_amount, 0) AS burn_amount,
-        b.balance - COALESCE(
+        s.balance - COALESCE(
             l.balance,
             0
         ) AS circulating_supply,
         GREATEST(
-            b.modified_timestamp,
+            s.modified_timestamp,
             COALESCE(
                 l.modified_timestamp,
-                b.modified_timestamp
+                s.modified_timestamp
             )
         ) AS modified_timestamp
     FROM
-        base_supply b
+        base_supply s
         LEFT JOIN locked_in_bridges l
-        ON b.block_date = l.block_date
-        AND b.contract_address = l.contract_address
+        ON s.block_date = l.block_date
+        AND s.contract_address = l.contract_address
         LEFT JOIN mint m
-        ON b.block_date = m.block_date
-        AND b.contract_address = m.contract_address
+        ON s.block_date = m.block_date
+        AND s.contract_address = m.contract_address
         LEFT JOIN burn b
-        ON b.block_date = b.block_date
-        AND b.contract_address = b.contract_address
+        ON s.block_date = b.block_date
+        AND s.contract_address = b.contract_address
 )
 SELECT
     block_date,
