@@ -74,7 +74,7 @@ supply AS (
         INNER JOIN verified_stablecoins USING (contract_address)
 
 {% if is_incremental() %}
-AND modified_timestamp > (
+WHERE modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
