@@ -114,7 +114,7 @@ FINAL AS (
         s.block_date,
         s.contract_address,
         s.balance AS total_supply,
-        l.balance AS locked_in_bridges,
+        COALESCE(l.balance, 0) AS locked_in_bridges,
         COALESCE(m.mint_amount, 0) AS mint_amount,
         COALESCE(b.burn_amount, 0) AS burn_amount,
         s.balance - COALESCE(
