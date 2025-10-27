@@ -77,6 +77,14 @@ mint AS (
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
     WHERE event_name IN ('Mint','AddLiquidity','Deposit')
+    {% if is_incremental() %}
+    AND modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
+    {% endif %}
     GROUP BY
         block_date,
         contract_address
@@ -89,6 +97,14 @@ burn AS (
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
     WHERE event_name IN ('Burn','RemoveLiquidity','Withdraw')
+    {% if is_incremental() %}
+    AND modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
+    {% endif %}
     GROUP BY
         block_date,
         contract_address
