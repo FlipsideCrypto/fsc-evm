@@ -47,8 +47,8 @@ blacklist AS (
 ),
 base_supply AS (
     SELECT
-        block_date,
-        contract_address,
+        s.block_date,
+        s.contract_address,
         SUM(
             s.balance
         ) AS balance,
@@ -79,8 +79,8 @@ base_supply AS (
         )
 {% endif %}
     GROUP BY
-        block_date,
-        contract_address
+        s.block_date,
+        s.contract_address
 ),
 locked_in_bridges AS (
     SELECT
