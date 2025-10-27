@@ -60,7 +60,7 @@ newly_verified_stablecoins AS (
             )
         )
 ),
-newly_verified_circ_supply AS (
+newly_verified_supply AS (
     SELECT
         block_date,
         address,
@@ -90,7 +90,7 @@ newly_verified_circ_supply AS (
 ),
 {% endif %}
 
-circ_supply AS (
+supply AS (
     SELECT
         block_date,
         address,
@@ -127,11 +127,11 @@ AND modified_timestamp > (
 )
 {% endif %}
 ),
-all_circ_supply AS (
+all_supply AS (
     SELECT
         *
     FROM
-        circ_supply
+        supply
 
 {% if is_incremental() and var(
     'HEAL_MODEL',
@@ -141,7 +141,7 @@ UNION
 SELECT
     *
 FROM
-    newly_verified_circ_supply
+    newly_verified_supply
 {% endif %}
 )
 SELECT
@@ -153,4 +153,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_id,
 FROM
-    all_circ_supply
+    all_supply
