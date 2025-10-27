@@ -69,12 +69,38 @@ GROUP BY
     block_date,
     contract_address
 ),
+mint AS (
+    SELECT 
+        block_timestamp :: DATE AS block_date,
+        contract_address,
+        SUM(amount) AS mint_amount
+    FROM
+        {{ ref('silver__stablecoins_mint_burn') }}
+    WHERE event_name IN ('Mint','AddLiquidity','Deposit')
+    GROUP BY
+        block_date,
+        contract_address
+),
+burn AS (
+    SELECT 
+        block_date,
+        contract_address,
+        -SUM(amount) AS burn_amount
+    FROM
+        {{ ref('silver__stablecoins_mint_burn') }}
+    WHERE event_name IN ('Burn','RemoveLiquidity','Withdraw')
+    GROUP BY
+        block_date,
+        contract_address
+),
 FINAL AS (
     SELECT
         b.block_date,
         b.contract_address,
         b.balance AS total_supply,
         l.balance AS locked_in_bridges,
+        COALESCE(m.mint_amount, 0) AS mint_amount,
+        COALESCE(b.burn_amount, 0) AS burn_amount,
         b.balance - COALESCE(
             l.balance,
             0
@@ -91,12 +117,20 @@ FINAL AS (
         LEFT JOIN locked_in_bridges l
         ON b.block_date = l.block_date
         AND b.contract_address = l.contract_address
+        LEFT JOIN mint m
+        ON b.block_date = m.block_date
+        AND b.contract_address = m.contract_address
+        LEFT JOIN burn b
+        ON b.block_date = b.block_date
+        AND b.contract_address = b.contract_address
 )
 SELECT
     block_date,
     contract_address,
     total_supply,
     locked_in_bridges,
+    mint_amount,
+    burn_amount,
     circulating_supply,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
