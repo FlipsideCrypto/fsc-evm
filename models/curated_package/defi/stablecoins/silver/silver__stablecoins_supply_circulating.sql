@@ -93,7 +93,7 @@ burn AS (
     SELECT 
         block_timestamp :: DATE AS block_date,
         contract_address,
-        -SUM(amount) AS burn_amount
+        SUM(amount) AS burn_amount
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
     WHERE event_name IN ('Burn','RemoveLiquidity','Withdraw')
