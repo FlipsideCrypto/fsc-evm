@@ -111,7 +111,7 @@ GROUP BY
 ),
 mint_burn AS (
     SELECT
-        block_date,
+        block_timestamp :: DATE AS block_date,
         contract_address,
         SUM(CASE WHEN event_name = 'Mint' THEN amount ELSE 0 END) AS mint_amount,
         SUM(CASE WHEN event_name = 'Burn' THEN amount ELSE 0 END) AS burn_amount,
