@@ -69,16 +69,16 @@ GROUP BY
     block_date,
     contract_address
 ),
-mint AS (
-    SELECT 
-        block_timestamp :: DATE AS block_date,
+mint_burn AS (
+    SELECT
+        block_date,
         contract_address,
-        SUM(amount) AS mint_amount
+        event_name,
+        SUM(amount) AS mint_burn_amount
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
-    WHERE event_name = 'Mint'
     {% if is_incremental() %}
-    AND modified_timestamp > (
+    WHERE modified_timestamp > (
         SELECT
             MAX(modified_timestamp)
         FROM
@@ -87,27 +87,8 @@ mint AS (
     {% endif %}
     GROUP BY
         block_date,
-        contract_address
-),
-burn AS (
-    SELECT 
-        block_timestamp :: DATE AS block_date,
         contract_address,
-        SUM(amount) AS burn_amount
-    FROM
-        {{ ref('silver__stablecoins_mint_burn') }}
-    WHERE event_name = 'Burn'
-    {% if is_incremental() %}
-    AND modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-    {% endif %}
-    GROUP BY
-        block_date,
-        contract_address
+        event_name
 ),
 FINAL AS (
     SELECT
@@ -115,30 +96,24 @@ FINAL AS (
         s.contract_address,
         s.balance AS total_supply,
         COALESCE(l.balance, 0) AS locked_in_bridges,
-        COALESCE(m.mint_amount, 0) AS mint_amount,
-        COALESCE(b.burn_amount, 0) AS burn_amount,
+        CASE WHEN mb.event_name = 'Mint' THEN COALESCE(mb.mint_burn_amount, 0) ELSE 0 END AS mint_amount,
+        CASE WHEN mb.event_name = 'Burn' THEN COALESCE(mb.mint_burn_amount, 0) ELSE 0 END AS burn_amount,
         s.balance - COALESCE(
             l.balance,
             0
         ) AS circulating_supply,
         GREATEST(
             s.modified_timestamp,
-            COALESCE(
-                l.modified_timestamp,
-                s.modified_timestamp
-            )
+            COALESCE(l.modified_timestamp, mb.modified_timestamp, s.modified_timestamp)
         ) AS modified_timestamp
     FROM
         base_supply s
         LEFT JOIN locked_in_bridges l
         ON s.block_date = l.block_date
         AND s.contract_address = l.contract_address
-        LEFT JOIN mint m
-        ON s.block_date = m.block_date
-        AND s.contract_address = m.contract_address
-        LEFT JOIN burn b
-        ON s.block_date = b.block_date
-        AND s.contract_address = b.contract_address
+        LEFT JOIN mint_burn mb
+        ON s.block_date = mb.block_date
+        AND s.contract_address = mb.contract_address
 )
 SELECT
     block_date,
