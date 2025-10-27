@@ -87,6 +87,11 @@
                     'aave_version_address': '0x70c88e98578bc521a799de0b1c65a2b12d6f99e4'
                 }
             },
+            'tydro': {
+                'v1': {
+                    'aave_version_address': '0x2816cf15f6d2a220e789aa011d5ee4eb6c47feba'
+                }
+            },
             'morpho': {
                 'v1': {
                     'morpho_blue_address': '0x857f3eefe8cbda3bc49367c996cd664a880d3042'
