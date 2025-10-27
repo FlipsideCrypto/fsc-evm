@@ -67,7 +67,8 @@ newly_verified_bridge_balances AS (
         block_date,
         address,
         contract_address,
-        balance
+        balance,
+        modified_timestamp
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN newly_verified_stablecoins USING (contract_address)
@@ -80,7 +81,8 @@ bridge_balances AS (
         block_date,
         address,
         contract_address,
-        balance
+        balance,
+        modified_timestamp
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN verified_stablecoins USING (contract_address)

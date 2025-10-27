@@ -42,7 +42,7 @@ blacklist AS (
 ) %}
 newly_verified_stablecoins AS (
     SELECT
-        contract_address,
+        contract_address
     FROM
         {{ ref('defi__dim_stablecoins') }}
     WHERE
@@ -62,11 +62,11 @@ newly_verified_stablecoins AS (
 ),
 newly_verified_circ_supply AS (
     SELECT
-        contract_address,
         block_date,
-        SUM(balance) AS balance,
-        SUM(balance_usd) AS balance_usd,
-        MAX(modified_timestamp) AS modified_timestamp
+        address,
+        contract_address,
+        balance,
+        modified_timestamp
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN newly_verified_stablecoins USING (contract_address)
@@ -92,11 +92,11 @@ newly_verified_circ_supply AS (
 
 circ_supply AS (
     SELECT
-        contract_address,
         block_date,
-        SUM(balance) AS balance,
-        SUM(balance_usd) AS balance_usd,
-        MAX(modified_timestamp) AS modified_timestamp
+        address,
+        contract_address,
+        balance,
+        modified_timestamp
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
         INNER JOIN verified_stablecoins USING (contract_address)
@@ -126,9 +126,6 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
-GROUP BY
-    contract_address,
-    block_date
 ),
 all_circ_supply AS (
     SELECT
@@ -149,11 +146,11 @@ FROM
 )
 SELECT
     block_date,
+    address,
     contract_address,
     balance,
-    balance_usd,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['contract_address', 'block_date']) }} AS stablecoins_circulating_supply_id,
+    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_circulating_supply_id,
 FROM
     all_circ_supply
