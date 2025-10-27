@@ -67,8 +67,6 @@ newly_verified_bridge_balances AS (
         block_date,
         address,
         contract_address,
-        decimals,
-        symbol,
         balance
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
@@ -82,8 +80,6 @@ bridge_balances AS (
         block_date,
         address,
         contract_address,
-        decimals,
-        symbol,
         balance
     FROM
         {{ ref('balances__ez_balances_erc20_daily') }}
@@ -121,8 +117,6 @@ SELECT
     block_date,
     address,
     contract_address,
-    decimals,
-    symbol,
     balance,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
