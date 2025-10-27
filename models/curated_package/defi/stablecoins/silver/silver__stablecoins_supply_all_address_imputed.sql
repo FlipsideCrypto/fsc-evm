@@ -22,7 +22,7 @@ WITH base_supply AS (
         balance,
         modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_all_address') }}
+        {{ ref('silver__stablecoins_supply_all_address') }}
     {% if is_incremental() %}
     WHERE
         modified_timestamp > (
