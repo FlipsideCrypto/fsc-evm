@@ -19,6 +19,7 @@ WITH blacklist_ordered_evt AS (
         block_timestamp :: DATE AS block_date,
         user_address,
         contract_address,
+        event_name,
         LEAD(event_name) OVER (
             PARTITION BY user_address, contract_address 
             ORDER BY block_timestamp
@@ -112,8 +113,9 @@ mint_burn AS (
     SELECT
         block_date,
         contract_address,
-        event_name,
-        SUM(amount) AS mint_burn_amount
+        SUM(CASE WHEN event_name = 'Mint' THEN amount ELSE 0 END) AS mint_amount,
+        SUM(CASE WHEN event_name = 'Burn' THEN amount ELSE 0 END) AS burn_amount,
+        MAX(modified_timestamp) AS modified_timestamp
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
     {% if is_incremental() %}
@@ -126,8 +128,7 @@ mint_burn AS (
     {% endif %}
     GROUP BY
         block_date,
-        contract_address,
-        event_name
+        contract_address
 ),
 FINAL AS (
     SELECT
@@ -136,9 +137,9 @@ FINAL AS (
         s.balance AS total_supply,
         s.balance_blacklist AS blacklist_supply,
         COALESCE(l.balance, 0) AS locked_in_bridges,
-                s.balance - COALESCE(l.balance, 0) - s.balance_blacklist AS circulating_supply,
-        CASE WHEN mb.event_name = 'Mint' THEN COALESCE(mb.mint_burn_amount, 0) ELSE 0 END AS mint_amount,
-        CASE WHEN mb.event_name = 'Burn' THEN COALESCE(mb.mint_burn_amount, 0) ELSE 0 END AS burn_amount,
+        COALESCE(mb.mint_amount, 0) AS mint_amount,
+        COALESCE(mb.burn_amount, 0) AS burn_amount,
+        s.balance - COALESCE(l.balance, 0) - s.balance_blacklist AS circulating_supply,
         GREATEST(
             s.modified_timestamp,
             COALESCE(l.modified_timestamp, mb.modified_timestamp, s.modified_timestamp)
@@ -156,7 +157,7 @@ SELECT
     block_date,
     contract_address,
     total_supply,
-    blacklisted_supply,
+    blacklist_supply,
     locked_in_bridges,
     mint_amount,
     burn_amount,
