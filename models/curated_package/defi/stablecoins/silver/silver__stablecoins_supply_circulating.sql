@@ -91,7 +91,7 @@ mint AS (
 ),
 burn AS (
     SELECT 
-        block_date,
+        block_timestamp :: DATE AS block_date,
         contract_address,
         -SUM(amount) AS burn_amount
     FROM
