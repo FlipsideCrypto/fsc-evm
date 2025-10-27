@@ -76,7 +76,7 @@ mint AS (
         SUM(amount) AS mint_amount
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
-    WHERE event_name IN ('Mint','AddLiquidity','Deposit')
+    WHERE event_name = 'Mint'
     {% if is_incremental() %}
     AND modified_timestamp > (
         SELECT
@@ -96,7 +96,7 @@ burn AS (
         SUM(amount) AS burn_amount
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
-    WHERE event_name IN ('Burn','RemoveLiquidity','Withdraw')
+    WHERE event_name = 'Burn'
     {% if is_incremental() %}
     AND modified_timestamp > (
         SELECT
