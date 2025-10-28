@@ -71,9 +71,10 @@ all_supply AS (
     {% endif %}
 ),
 address_contract_pairs AS (
-    SELECT DISTINCT
+    SELECT
         address,
-        contract_address
+        contract_address,
+        MIN(block_date) AS min_balance_date
     FROM
         all_supply
     GROUP BY
@@ -87,7 +88,7 @@ date_spine AS (
         {{ source('crosschain_gold', 'dim_dates') }}
     WHERE
         date_day < SYSDATE() :: DATE
-        AND date_day >= (SELECT MIN(block_date) FROM all_supply)
+        AND date_day >= (SELECT MIN(min_balance_date) FROM address_contract_pairs)
 ),
 date_address_contract_spine AS (
     SELECT
@@ -96,8 +97,9 @@ date_address_contract_spine AS (
         p.contract_address
     FROM
         date_spine d
-    CROSS JOIN
+    INNER JOIN
         address_contract_pairs p
+        ON d.date_day >= p.min_balance_date
 ),
 filled_balances AS (
     SELECT
