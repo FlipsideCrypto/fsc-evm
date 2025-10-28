@@ -34,7 +34,10 @@
         'BALANCES_SL_NATIVE_DAILY_REALTIME_PRODUCER_BATCH_SIZE': 450000,
         'BALANCES_SL_NATIVE_DAILY_REALTIME_WORKER_BATCH_SIZE': 45000,
         'BALANCES_SL_NATIVE_DAILY_REALTIME_ASYNC_CONCURRENT_REQUESTS': 5,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['voodoo-v1','woofi-v1','woofi-v3','across-v1','celer_cbridge-v1','hop-v1','symbiosis-v1','seamless-v1','granary-v1','balancer-v1'],
+        'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['seamless-v1'],
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v3','woofi-v1','voodoo-v1'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['balancer-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','hop-v1','across-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

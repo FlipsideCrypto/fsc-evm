@@ -34,8 +34,10 @@
         'BALANCES_SL_NATIVE_DAILY_REALTIME_PRODUCER_BATCH_SIZE': 240000,
         'BALANCES_SL_NATIVE_DAILY_REALTIME_WORKER_BATCH_SIZE': 60000,
         'BALANCES_SL_NATIVE_DAILY_REALTIME_ASYNC_CONCURRENT_REQUESTS': 10,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['level_finance-v1','woofi-v1','hashflow-v1','symbiosis-v1','trader_joe-v2',
-        'kyberswap-v2','trader_joe-v1','kyberswap-v1','radiant-v2','kinza-v1'],
+        'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['radiant-v2','kinza-v1'],
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['level_finance-v1','hashflow-v1','woofi-v1'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['trader_joe-v1','trader_joe-v2','kyberswap-v1','kyberswap-v2'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

@@ -8,6 +8,7 @@ models:
       - curated_recency_defi:
           threshold_days: 90
           percent_delta_threshold: 7.5
+          type: lending
     columns:
       - name: TX_HASH
         tests:

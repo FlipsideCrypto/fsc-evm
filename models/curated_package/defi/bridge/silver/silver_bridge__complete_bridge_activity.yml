@@ -5,7 +5,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - _ID
-      - curated_recency_defi
+      - curated_recency_defi:
+          type: bridge
 
     columns:
       - name: BLOCK_NUMBER

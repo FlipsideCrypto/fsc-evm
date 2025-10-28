@@ -89,3 +89,4 @@ FROM
     flashloan f
     LEFT JOIN morpho_blue_addresses m
     ON m.contract_address = f.contract_address
+where caller <> token

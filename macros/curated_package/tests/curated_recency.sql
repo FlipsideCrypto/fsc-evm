@@ -1,7 +1,8 @@
 {% test curated_recency_defi(
     model,
     threshold_days=30,
-    percent_delta_threshold=10
+    percent_delta_threshold=10,
+    type=''
 ) %}
 
 {# Get variables #}
@@ -30,7 +31,8 @@ WITH source AS (
         CASE
             WHEN rolling_avg_evt = 0 THEN 0
             ELSE ROUND((current_period_evt / rolling_avg_evt) * 100, 2)
-        END AS percent_delta
+        END AS percent_delta,
+        '{{ type }}' AS type
     FROM
         {{ model }}
     GROUP BY
@@ -43,13 +45,22 @@ WITH source AS (
             threshold_ts,
             current_period_evt,
             rolling_avg_evt,
-            percent_delta
+            percent_delta,
+            type
         FROM
             source
         WHERE
             (latest_timestamp < threshold_ts 
             OR (percent_delta < {{ percent_delta_threshold }} AND percent_delta <> 0))
-            AND platform NOT IN ('{{ vars.CURATED_DEFI_RECENCY_EXCLUSION_LIST | join("', '") }}')
+            {% if type == 'dex_swaps' %}
+            AND platform NOT IN ('{{ vars.CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST | join("', '") }}')
+            {% elif type == 'dex_lp_actions' %}
+            AND platform NOT IN ('{{ vars.CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST | join("', '") }}')
+            {% elif type == 'bridge' %}
+            AND platform NOT IN ('{{ vars.CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST | join("', '") }}')
+            {% elif type == 'lending' %}
+            AND platform NOT IN ('{{ vars.CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST | join("', '") }}')
+            {% endif %}
 -- failure to meet threshold requires manual review to determine if
 -- the protocol has newly deployed contracts, stale contracts, etc.
 -- if this is the case, the test should not apply to the relevant model(s)
