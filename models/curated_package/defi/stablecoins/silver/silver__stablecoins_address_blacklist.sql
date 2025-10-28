@@ -66,11 +66,21 @@ newly_verified_blacklist AS (
         tx_hash,
         event_index,
         CASE
-            WHEN topic_0 = '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc' THEN 'AddedBlacklist'
+            WHEN topic_0 IN (
+                '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', 
+                '0x406bbf2d8d145125adf1198d2cf8a67c66cc4bb0ab01c37dccd4f7c0aae1e7c7', 
+                '0xffa4e6181777692565cf28528fc88fd1516ea86b56da075235fa575af6a4b855'
+                ) THEN 'AddedBlacklist'
             ELSE 'RemovedBlacklist'
         END AS event_name,
         l.contract_address,
-        CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING AS user_address,
+        CASE 
+            WHEN topic_0 IN (
+                '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc',
+                '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c'
+                ) THEN CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING 
+            ELSE '0x' || SUBSTR(topic_1, 27) :: STRING
+        END AS blacklist_address,
         s.decimals,
         s.symbol,
         s.name,
@@ -87,8 +97,14 @@ newly_verified_blacklist AS (
         INNER JOIN newly_verified_stablecoins s
         ON l.contract_address = s.contract_address
     WHERE
-        topic_0 :: STRING IN ('0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', --AddedBlacklist
-        '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c') --RemovedBlacklist
+        topic_0 :: STRING IN (
+            '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', --USDT AddedBlacklist
+            '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c', --USDT RemovedBlacklist
+            '0x406bbf2d8d145125adf1198d2cf8a67c66cc4bb0ab01c37dccd4f7c0aae1e7c7', --USDT0 BlockPlaced
+            '0x665918c9e02eb2fd85acca3969cb054fc84c138e60ec4af22ab6ef2fd4c93c27', --USDT0 BlockReleased
+            '0xffa4e6181777692565cf28528fc88fd1516ea86b56da075235fa575af6a4b855', --USDC Blacklisted
+            '0x117e3210bb9aa7d9baff172026820255c6f6c30ba8999d1c2fd88e2848137c4e' --USDC Unblacklisted
+        )
 ),
 {% endif %}
 
@@ -102,11 +118,21 @@ blacklist AS (
         tx_hash,
         event_index,
         CASE
-            WHEN topic_0 = '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc' THEN 'AddedBlacklist'
+            WHEN topic_0 IN (
+                '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', 
+                '0x406bbf2d8d145125adf1198d2cf8a67c66cc4bb0ab01c37dccd4f7c0aae1e7c7', 
+                '0xffa4e6181777692565cf28528fc88fd1516ea86b56da075235fa575af6a4b855'
+                ) THEN 'AddedBlacklist'
             ELSE 'RemovedBlacklist'
         END AS event_name,
         l.contract_address,
-        CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING AS user_address,
+        CASE 
+            WHEN topic_0 IN (
+                '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc',
+                '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c'
+                ) THEN CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING 
+            ELSE '0x' || SUBSTR(topic_1, 27) :: STRING
+        END AS blacklist_address,
         s.decimals,
         s.symbol,
         s.name,
@@ -123,8 +149,14 @@ blacklist AS (
         INNER JOIN verified_stablecoins s
         ON l.contract_address = s.contract_address
     WHERE
-        topic_0 :: STRING IN ('0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', --AddedBlacklist
-        '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c') --RemovedBlacklist
+        topic_0 :: STRING IN (
+            '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc', --USDT AddedBlacklist
+            '0xd7e9ec6e6ecd65492dce6bf513cd6867560d49544421d0783ddf06e76c24470c', --USDT RemovedBlacklist
+            '0x406bbf2d8d145125adf1198d2cf8a67c66cc4bb0ab01c37dccd4f7c0aae1e7c7', --USDT0 BlockPlaced
+            '0x665918c9e02eb2fd85acca3969cb054fc84c138e60ec4af22ab6ef2fd4c93c27', --USDT0 BlockReleased
+            '0xffa4e6181777692565cf28528fc88fd1516ea86b56da075235fa575af6a4b855', --USDC Blacklisted
+            '0x117e3210bb9aa7d9baff172026820255c6f6c30ba8999d1c2fd88e2848137c4e' --USDC Unblacklisted
+        )
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
@@ -166,7 +198,7 @@ SELECT
     symbol,
     NAME,
     decimals,
-    user_address,
+    blacklist_address,
     tx_succeeded,
     _log_id,
     SYSDATE() AS inserted_timestamp,

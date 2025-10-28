@@ -17,15 +17,15 @@
 WITH blacklist_ordered_evt AS (
     SELECT 
         block_timestamp :: DATE AS block_date,
-        user_address,
+        blacklist_address,
         contract_address,
         event_name,
         LEAD(event_name) OVER (
-            PARTITION BY user_address, contract_address 
+            PARTITION BY blacklist_address, contract_address 
             ORDER BY block_timestamp
         ) AS next_event_name,
         LEAD(block_timestamp :: DATE) OVER (
-            PARTITION BY user_address, contract_address 
+            PARTITION BY blacklist_address, contract_address 
             ORDER BY block_timestamp
         ) AS next_event_date
     FROM 
@@ -33,7 +33,7 @@ WITH blacklist_ordered_evt AS (
 ),
 blacklist AS (
     SELECT 
-        user_address,
+        blacklist_address,
         contract_address,
         block_date AS start_block_date,
         CASE 
@@ -54,7 +54,7 @@ base_supply AS (
         ) AS balance,
         SUM(
             CASE 
-                WHEN bl.user_address IS NOT NULL THEN s.balance 
+                WHEN bl.blacklist_address IS NOT NULL THEN s.balance 
                 ELSE 0 
             END
         ) AS balance_blacklist,
@@ -65,7 +65,7 @@ base_supply AS (
         {{ ref('silver__stablecoins_supply_by_address_imputed') }}
         s
     LEFT JOIN blacklist bl
-        ON s.address = bl.user_address
+        ON s.address = bl.blacklist_address
         AND s.contract_address = bl.contract_address
         AND s.block_date >= bl.start_block_date
         AND (s.block_date < bl.end_block_date OR bl.end_block_date IS NULL)
