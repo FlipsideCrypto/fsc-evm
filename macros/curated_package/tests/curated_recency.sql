@@ -31,7 +31,8 @@ WITH source AS (
         CASE
             WHEN rolling_avg_evt = 0 THEN 0
             ELSE ROUND((current_period_evt / rolling_avg_evt) * 100, 2)
-        END AS percent_delta
+        END AS percent_delta,
+        type
     FROM
         {{ model }}
     GROUP BY
@@ -44,7 +45,8 @@ WITH source AS (
             threshold_ts,
             current_period_evt,
             rolling_avg_evt,
-            percent_delta
+            percent_delta,
+            type
         FROM
             source
         WHERE
