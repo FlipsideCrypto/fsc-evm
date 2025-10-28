@@ -32,7 +32,7 @@ WITH source AS (
             WHEN rolling_avg_evt = 0 THEN 0
             ELSE ROUND((current_period_evt / rolling_avg_evt) * 100, 2)
         END AS percent_delta,
-        {{ type }} AS type
+        '{{ type }}' AS type
     FROM
         {{ model }}
     GROUP BY
