@@ -148,7 +148,7 @@ usdt_blacklist AS (
             WHEN topic_0 = '0x42e160154868087d6bfdc0ca23d96a1c1cfa32f1b72ba9ba27b69b98a0d819dc' THEN 'AddedBlacklist'
             ELSE 'RemovedBlacklist'
         END AS event_name,
-        l.contract_address,
+        contract_address,
         CONCAT('0x', SUBSTR(SUBSTR(DATA, 3, 64), 25, 40)) :: STRING AS user_address,
         decimals,
         symbol,
