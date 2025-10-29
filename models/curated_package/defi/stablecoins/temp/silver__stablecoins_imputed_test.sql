@@ -64,9 +64,9 @@ min_base_supply AS (
 ),
 base_supply_reloads AS (
     SELECT
-        block_date,
-        address,
-        contract_address,
+        s.block_date,
+        s.address,
+        s.contract_address,
         balance,
         modified_timestamp
     FROM
