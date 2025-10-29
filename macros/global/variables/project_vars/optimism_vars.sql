@@ -21,7 +21,7 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['granary-v1','sonne-v1'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v1','hashflow-v1'],
-        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2','sushiswap-v1','uniswap-v2'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['fraxswap-v1','kyberswap-v2','sushiswap-v1','uniswap-v2'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['across-v1','meson-v1','symbiosis-v1','multichain-v7','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
