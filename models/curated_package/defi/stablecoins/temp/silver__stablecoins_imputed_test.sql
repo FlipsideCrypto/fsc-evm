@@ -40,8 +40,6 @@ base_supply AS (
         1 = 1
 
 {% if is_incremental() %}
--- find a min entry for each address, contract address, then pull through all
--- where it's still max
 AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
@@ -52,6 +50,7 @@ AND modified_timestamp > (
 ),
 
 {% if is_incremental() %}
+-- get the min date by contract and address for new modified timestamp entries. so new reg incremental runs + if any replays
 min_base_supply AS (
     SELECT
         MIN(block_date) AS min_base_supply_date,
@@ -62,6 +61,7 @@ min_base_supply AS (
     GROUP BY
         ALL
 ),
+-- get all possible dates & balance for new modified timestamp entries - both reg inc runs + replays if any
 base_supply_reloads AS (
     SELECT
         s.block_date,
@@ -116,19 +116,18 @@ existing_supply AS (
 {% endif %}
 
 all_supply AS (
-    SELECT
-        *
-    FROM
-        base_supply
 
 {% if is_incremental() %}
-UNION ALL
 SELECT
     *
 FROM
     base_supply_reloads
-{% endif %}
-),
+{% else %}
+SELECT
+    *
+FROM
+    base_supply
+{% endif %}),
 address_contract_pairs AS (
     SELECT
         address,
