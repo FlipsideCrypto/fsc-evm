@@ -40,6 +40,8 @@ base_supply AS (
         1 = 1
 
 {% if is_incremental() %}
+-- find a min entry for each address, contract address, then pull through all
+-- where it's still max
 AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
@@ -50,21 +52,47 @@ AND modified_timestamp > (
 ),
 
 {% if is_incremental() %}
-min_latest_date AS (
-    -- Find the minimum of the latest block_dates across all address/contract pairs
-    -- This is the earliest date we need to pull to ensure all pairs have recent history
+min_base_supply AS (
     SELECT
-        MIN(max_date) AS min_of_latest_dates
+        MIN(block_date) AS min_base_supply_date,
+        address,
+        contract_address
     FROM
-        (
-            SELECT
-                MAX(block_date) AS max_date
-            FROM
-                {{ this }}
-            GROUP BY
-                address,
-                contract_address
-        )
+        base_supply
+    GROUP BY
+        ALL
+),
+base_supply_reloads AS (
+    SELECT
+        block_date,
+        address,
+        contract_address,
+        balance,
+        modified_timestamp
+    FROM
+        {{ ref('silver__stablecoins_supply_by_address') }}
+        s
+        INNER JOIN bridge_vault_list USING (address)
+        INNER JOIN min_base_supply m
+        ON s.address = m.address
+        AND s.contract_address = m.contract_address
+        AND s.block_date >= m.min_base_supply_date
+),
+{# min_latest_date AS (
+-- Find the minimum of the latest block_dates across all address/contract pairs
+-- This is the earliest date we need to pull to ensure all pairs have recent history
+SELECT
+    MIN(max_date) AS min_of_latest_dates
+FROM
+    (
+        SELECT
+            MAX(block_date) AS max_date
+        FROM
+            {{ this }}
+        GROUP BY
+            address,
+            contract_address
+    )
 ),
 existing_supply AS (
     -- Pull all records >= min_of_latest_dates to provide seed balances for gap-filling
@@ -84,6 +112,7 @@ existing_supply AS (
                 min_latest_date
         )
 ),
+#}
 {% endif %}
 
 all_supply AS (
@@ -97,7 +126,7 @@ UNION ALL
 SELECT
     *
 FROM
-    existing_supply
+    base_supply_reloads
 {% endif %}
 ),
 address_contract_pairs AS (
