@@ -15,6 +15,7 @@
 ) }}
 
 WITH base_supply AS (
+
     SELECT
         block_date,
         address,
@@ -23,53 +24,62 @@ WITH base_supply AS (
         modified_timestamp
     FROM
         {{ ref('silver__stablecoins_supply_by_address') }}
-    {% if is_incremental() %}
-    WHERE
-        modified_timestamp > (
-            SELECT
-                MAX(modified_timestamp)
-            FROM
-                {{ this }}
-        )
-    {% endif %}
-),
+
 {% if is_incremental() %}
-min_latest_date AS (
-    -- Find the minimum of the latest block_dates across all address/contract pairs
-    -- This is the earliest date we need to pull to ensure all pairs have recent history
-    SELECT
-        MIN(max_date) AS min_of_latest_dates
-    FROM (
+WHERE
+    modified_timestamp > (
         SELECT
-            MAX(block_date) AS max_date
+            MAX(modified_timestamp)
         FROM
             {{ this }}
-        GROUP BY
-            address,
-            contract_address
     )
+{% endif %}
 ),
-existing_supply AS (
-    -- Pull all records >= min_of_latest_dates to provide seed balances for gap-filling
+
+{% if is_incremental() %}
+-- Get the min date by contract and address for new modified timestamp records, including historical replays
+min_base_supply AS (
     SELECT
-        block_date,
+        MIN(block_date) AS min_base_supply_date,
         address,
-        contract_address,
+        contract_address
+    FROM
+        base_supply
+    GROUP BY
+        address,
+        contract_address
+),
+-- Get all balances by contract and address for new modified timestamp records, including historical replays
+incremental_supply AS (
+    SELECT
+        s.block_date,
+        s.address,
+        s.contract_address,
         balance,
         modified_timestamp
     FROM
-        {{ this }}
-    WHERE
-        block_date >= (SELECT min_of_latest_dates FROM min_latest_date)
+        {{ ref('silver__stablecoins_supply_by_address') }}
+        s
+        INNER JOIN min_base_supply m
+        ON s.address = m.address
+        AND s.contract_address = m.contract_address
+        AND s.block_date >= m.min_base_supply_date
 ),
 {% endif %}
+
 all_supply AS (
-    SELECT * FROM base_supply
-    {% if is_incremental() %}
-    UNION ALL
-    SELECT * FROM existing_supply
-    {% endif %}
-),
+
+{% if is_incremental() %}
+SELECT
+    *
+FROM
+    incremental_supply
+{% else %}
+SELECT
+    *
+FROM
+    base_supply
+{% endif %}),
 address_contract_pairs AS (
     SELECT
         address,
@@ -85,10 +95,18 @@ date_spine AS (
     SELECT
         date_day
     FROM
-        {{ source('crosschain_gold', 'dim_dates') }}
+        {{ source(
+            'crosschain_gold',
+            'dim_dates'
+        ) }}
     WHERE
         date_day < SYSDATE() :: DATE
-        AND date_day >= (SELECT MIN(min_balance_date) FROM address_contract_pairs)
+        AND date_day >= (
+            SELECT
+                MIN(min_balance_date)
+            FROM
+                address_contract_pairs
+        )
 ),
 date_address_contract_spine AS (
     SELECT
@@ -97,8 +115,7 @@ date_address_contract_spine AS (
         p.contract_address
     FROM
         date_spine d
-    INNER JOIN
-        address_contract_pairs p
+        INNER JOIN address_contract_pairs p
         ON d.date_day >= p.min_balance_date
 ),
 filled_balances AS (
@@ -106,27 +123,36 @@ filled_balances AS (
         s.block_date,
         s.address,
         s.contract_address,
-        COALESCE(a.balance, 
-            LAST_VALUE(a.balance IGNORE NULLS) OVER (
-                PARTITION BY s.address, s.contract_address
-                ORDER BY s.block_date
-                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        COALESCE(
+            A.balance,
+            LAST_VALUE(
+                A.balance ignore nulls
+            ) over (
+                PARTITION BY s.address,
+                s.contract_address
+                ORDER BY
+                    s.block_date rows BETWEEN unbounded preceding
+                    AND CURRENT ROW
             )
         ) AS balance,
-        a.modified_timestamp
+        CASE
+            WHEN A.balance IS NULL THEN TRUE
+            ELSE FALSE
+        END AS is_imputed,
+        A.modified_timestamp
     FROM
         date_address_contract_spine s
-    LEFT JOIN
-        all_supply a
-        ON s.block_date = a.block_date
-        AND s.address = a.address
-        AND s.contract_address = a.contract_address
+        LEFT JOIN all_supply A
+        ON s.block_date = A.block_date
+        AND s.address = A.address
+        AND s.contract_address = A.contract_address
 )
 SELECT
     block_date,
     address,
     contract_address,
     balance,
+    is_imputed,
     SYSDATE() AS modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_imputed_id
