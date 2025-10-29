@@ -92,6 +92,8 @@ address_contract_pairs AS (
         contract_address
 ),
 date_spine AS (
+    -- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
+    -- Balances are recorded using the last block from the previous day
     SELECT
         date_day
     FROM
