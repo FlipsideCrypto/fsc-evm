@@ -118,7 +118,6 @@ existing_supply AS (
 #}
 {% endif %}
 
-{#
 all_supply AS (
 
 {% if is_incremental() %}
@@ -131,12 +130,12 @@ SELECT
     *
 FROM
     base_supply
-{% endif %}) #}
+{% endif %}),
 address_contract_pairs AS (
 
 {% if is_incremental() %}
 SELECT
-    address, contract_address, MAX(block_date) AS min_balance_date
+    address, contract_address, MIN(block_date) AS min_balance_date
 FROM
     {{ this }}
 GROUP BY
