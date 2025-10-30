@@ -25,6 +25,9 @@ WITH bridge_vault_list AS (
         {{ ref('silver_stablecoins__bridge_vault_seed') }}
     WHERE
         chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+    UNION
+    SELECT
+        '0xe7c60e30c135f132c18bef795c044e93922a6dea' AS address
 ),
 base_supply AS (
     SELECT
@@ -113,8 +116,7 @@ existing_supply AS (
         )
 ),
 #}
-{% endif %}
-
+{# {% endif %}
 all_supply AS (
 
 {% if is_incremental() %}
@@ -127,18 +129,24 @@ SELECT
     *
 FROM
     base_supply
-{% endif %}),
+{% endif %}) #}
 address_contract_pairs AS (
-    SELECT
-        address,
-        contract_address,
-        MIN(block_date) AS min_balance_date
-    FROM
-        all_supply
-    GROUP BY
-        address,
-        contract_address
-),
+
+{% if is_incremental() %}
+SELECT
+    address, contract_address, MAX(block_date) AS min_balance_date
+FROM
+    {{ this }}
+GROUP BY
+    address, contract_address
+{% else %}
+SELECT
+    address, contract_address, MIN(block_date) AS min_balance_date
+FROM
+    base_supply
+GROUP BY
+    address, contract_address
+{% endif %}),
 date_spine AS (
     SELECT
         date_day
