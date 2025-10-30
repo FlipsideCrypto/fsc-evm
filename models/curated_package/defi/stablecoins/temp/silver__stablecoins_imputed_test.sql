@@ -39,21 +39,20 @@ base_supply AS (
     FROM
         {{ ref('silver__stablecoins_supply_by_address') }}
         INNER JOIN bridge_vault_list USING (address)
-    WHERE
-        1 = 1
 
 {% if is_incremental() %}
-AND modified_timestamp > (
-    SELECT
-        MAX(modified_timestamp)
-    FROM
-        {{ this }}
-)
+WHERE
+    modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
 {% endif %}
 ),
 
 {% if is_incremental() %}
--- get the min date by contract and address for new modified timestamp entries. so new reg incremental runs + if any replays
+-- Get the min date by contract and address for new modified timestamp records, including historical replays
 min_base_supply AS (
     SELECT
         MIN(block_date) AS min_base_supply_date,
@@ -62,10 +61,11 @@ min_base_supply AS (
     FROM
         base_supply
     GROUP BY
-        ALL
+        address,
+        contract_address
 ),
--- get all possible dates & balance for new modified timestamp entries - both reg inc runs + replays if any
-base_supply_reloads AS (
+-- Get all balances by contract and address for new modified timestamp records, including historical replays
+incremental_supply AS (
     SELECT
         s.block_date,
         s.address,
@@ -75,30 +75,24 @@ base_supply_reloads AS (
     FROM
         {{ ref('silver__stablecoins_supply_by_address') }}
         s
-        INNER JOIN bridge_vault_list USING (address)
         INNER JOIN min_base_supply m
         ON s.address = m.address
         AND s.contract_address = m.contract_address
         AND s.block_date >= m.min_base_supply_date
 ),
-{# min_latest_date AS (
--- Find the minimum of the latest block_dates across all address/contract pairs
--- This is the earliest date we need to pull to ensure all pairs have recent history
-SELECT
-    MIN(max_date) AS min_of_latest_dates
-FROM
-    (
-        SELECT
-            MAX(block_date) AS max_date
-        FROM
-            {{ this }}
-        GROUP BY
-            address,
-            contract_address
-    )
+-- get a list of distinct address and CA. faster to do count
+base_supply_list AS (
+    SELECT
+        address,
+        contract_address,
+        COUNT(1)
+    FROM
+        base_supply
+    GROUP BY
+        ALL
 ),
+-- get the latest entry for address x token that is not in incremental supply
 existing_supply AS (
-    -- Pull all records >= min_of_latest_dates to provide seed balances for gap-filling
     SELECT
         block_date,
         address,
@@ -107,15 +101,19 @@ existing_supply AS (
         modified_timestamp
     FROM
         {{ this }}
-    WHERE
-        block_date >= (
-            SELECT
-                min_of_latest_dates
-            FROM
-                min_latest_date
+        t
+        LEFT JOIN base_supply_list b USING (
+            address,
+            contract_address
         )
+    WHERE
+        b.address IS NULL qualify ROW_NUMBER() over (
+            PARTITION BY address,
+            contract_address
+            ORDER BY
+                block_date DESC
+        ) = 1
 ),
-#}
 {% endif %}
 
 all_supply AS (
@@ -124,7 +122,12 @@ all_supply AS (
 SELECT
     *
 FROM
-    base_supply_reloads
+    incremental_supply
+UNION ALL
+SELECT
+    *
+FROM
+    existing_supply
 {% else %}
 SELECT
     *
@@ -132,23 +135,19 @@ FROM
     base_supply
 {% endif %}),
 address_contract_pairs AS (
-
-{% if is_incremental() %}
-SELECT
-    address, contract_address, MIN(block_date) AS min_balance_date
-FROM
-    {{ this }}
-GROUP BY
-    address, contract_address
-{% else %}
-SELECT
-    address, contract_address, MIN(block_date) AS min_balance_date
-FROM
-    base_supply
-GROUP BY
-    address, contract_address
-{% endif %}),
+    SELECT
+        address,
+        contract_address,
+        MIN(block_date) AS min_balance_date
+    FROM
+        all_supply
+    GROUP BY
+        address,
+        contract_address
+),
 date_spine AS (
+    -- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
+    -- Balances are recorded using the last block from the previous day
     SELECT
         date_day
     FROM
@@ -160,9 +159,9 @@ date_spine AS (
         date_day < SYSDATE() :: DATE
         AND date_day >= (
             SELECT
-                MIN(min_balance_date)
+                MIN(block_date)
             FROM
-                address_contract_pairs
+                all_supply
         )
 ),
 date_address_contract_spine AS (
