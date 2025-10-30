@@ -71,7 +71,8 @@ incremental_supply AS (
         s.address,
         s.contract_address,
         balance,
-        modified_timestamp
+        modified_timestamp,
+        FALSE AS is_imputed
     FROM
         {{ ref('silver__stablecoins_supply_by_address') }}
         s
@@ -98,7 +99,8 @@ existing_supply AS (
         address,
         contract_address,
         balance,
-        modified_timestamp
+        modified_timestamp,
+        FALSE AS is_imputed
     FROM
         {{ this }}
         t
@@ -191,17 +193,23 @@ filled_balances AS (
                     AND CURRENT ROW
             )
         ) AS balance,
-        CASE
-            WHEN A.balance IS NULL THEN TRUE
-            ELSE FALSE
-        END AS is_imputed,
-        A.modified_timestamp
-    FROM
-        date_address_contract_spine s
-        LEFT JOIN all_supply A
-        ON s.block_date = A.block_date
-        AND s.address = A.address
-        AND s.contract_address = A.contract_address
+
+{% if is_incremental() %}
+A.is_imputed,
+{% else %}
+    CASE
+        WHEN A.balance IS NULL THEN TRUE
+        ELSE FALSE
+    END AS is_imputed,
+{% endif %}
+
+A.modified_timestamp
+FROM
+    date_address_contract_spine s
+    LEFT JOIN all_supply A
+    ON s.block_date = A.block_date
+    AND s.address = A.address
+    AND s.contract_address = A.contract_address
 )
 SELECT
     block_date,
