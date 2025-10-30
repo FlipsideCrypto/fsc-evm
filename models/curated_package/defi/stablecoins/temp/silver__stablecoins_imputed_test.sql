@@ -100,7 +100,7 @@ existing_supply AS (
         contract_address,
         balance,
         modified_timestamp,
-        FALSE AS is_imputed
+        is_imputed
     FROM
         {{ this }}
         t
