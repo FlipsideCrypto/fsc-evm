@@ -37,7 +37,7 @@ WHERE
 ),
 
 {% if is_incremental() %}
--- Get the min date by contract and address for new modified timestamp records, including historical replays
+-- Find earliest date needing reprocessing per address+contract (handles historical corrections/replays)
 min_base_supply AS (
     SELECT
         MIN(block_date) AS min_base_supply_date,
@@ -76,7 +76,7 @@ base_supply_list AS (
     GROUP BY
         ALL
 ),
--- Get the latest balance by contract and address, excluding records in incremental_supply
+-- Get latest balance for unchanged address+contract pairs to preserve continuity
 existing_supply AS (
     SELECT
         block_date,
