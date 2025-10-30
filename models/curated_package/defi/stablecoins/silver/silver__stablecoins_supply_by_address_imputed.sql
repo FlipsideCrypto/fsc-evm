@@ -56,7 +56,8 @@ incremental_supply AS (
         s.address,
         s.contract_address,
         balance,
-        modified_timestamp
+        modified_timestamp,
+        FALSE AS is_imputed
     FROM
         {{ ref('silver__stablecoins_supply_by_address') }}
         s
