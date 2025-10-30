@@ -116,7 +116,9 @@ existing_supply AS (
         )
 ),
 #}
-{# {% endif %}
+{% endif %}
+
+{#
 all_supply AS (
 
 {% if is_incremental() %}
