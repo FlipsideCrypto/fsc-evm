@@ -195,7 +195,10 @@ filled_balances AS (
         ) AS balance,
 
 {% if is_incremental() %}
-A.is_imputed,
+COALESCE(
+    A.is_imputed,
+    TRUE
+) AS is_imputed,
 {% else %}
     CASE
         WHEN A.balance IS NULL THEN TRUE
