@@ -49,7 +49,7 @@ min_base_supply AS (
         address,
         contract_address
 ),
--- Get all balances by contract and address for new modified timestamp records, including historical replays
+-- Pull complete history from earliest affected date forward for impacted pairs (needed for re-imputation)
 incremental_supply AS (
     SELECT
         s.block_date,
@@ -65,6 +65,41 @@ incremental_supply AS (
         AND s.contract_address = m.contract_address
         AND s.block_date >= m.min_base_supply_date
 ),
+-- Lookup of address+contract pairs being updated this run (used to filter unchanged pairs)
+base_supply_list AS (
+    SELECT
+        address,
+        contract_address,
+        COUNT(1)
+    FROM
+        base_supply
+    GROUP BY
+        ALL
+),
+-- Get the latest balance by contract and address, excluding records in incremental_supply
+existing_supply AS (
+    SELECT
+        block_date,
+        address,
+        contract_address,
+        balance,
+        modified_timestamp,
+        is_imputed
+    FROM
+        {{ this }}
+        t
+        LEFT JOIN base_supply_list b USING (
+            address,
+            contract_address
+        )
+    WHERE
+        b.address IS NULL qualify ROW_NUMBER() over (
+            PARTITION BY address,
+            contract_address
+            ORDER BY
+                block_date DESC
+        ) = 1
+),
 {% endif %}
 
 all_supply AS (
@@ -74,12 +109,18 @@ SELECT
     *
 FROM
     incremental_supply
+UNION ALL
+SELECT
+    *
+FROM
+    existing_supply
 {% else %}
 SELECT
     *
 FROM
     base_supply
 {% endif %}),
+-- Identify unique address+contract pairs and their first balance date
 address_contract_pairs AS (
     SELECT
         address,
@@ -91,9 +132,9 @@ address_contract_pairs AS (
         address,
         contract_address
 ),
-date_spine AS (
     -- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
     -- Balances are recorded using the last block from the previous day
+date_spine AS (
     SELECT
         date_day
     FROM
@@ -105,11 +146,12 @@ date_spine AS (
         date_day < SYSDATE() :: DATE
         AND date_day >= (
             SELECT
-                MIN(min_balance_date)
+                MIN(block_date)
             FROM
-                address_contract_pairs
+                all_supply
         )
 ),
+-- Generate one row per date per address+contract pair (filtered by min_balance_date)
 date_address_contract_spine AS (
     SELECT
         d.date_day AS block_date,
@@ -120,6 +162,7 @@ date_address_contract_spine AS (
         INNER JOIN address_contract_pairs p
         ON d.date_day >= p.min_balance_date
 ),
+-- Forward-fill missing balances to create one row per date per address+contract pair, even in cases where no balance new balance is recorded
 filled_balances AS (
     SELECT
         s.block_date,
@@ -137,17 +180,27 @@ filled_balances AS (
                     AND CURRENT ROW
             )
         ) AS balance,
-        CASE
-            WHEN A.balance IS NULL THEN TRUE
-            ELSE FALSE
-        END AS is_imputed,
-        A.modified_timestamp
-    FROM
-        date_address_contract_spine s
-        LEFT JOIN all_supply A
-        ON s.block_date = A.block_date
-        AND s.address = A.address
-        AND s.contract_address = A.contract_address
+
+{% if is_incremental() %}
+-- If incremental, use the imputed flag from the existing record, otherwise use the balance to determine if it is imputed
+COALESCE(
+    A.is_imputed,
+    TRUE
+) AS is_imputed,
+{% else %}
+    CASE
+        WHEN A.balance IS NULL THEN TRUE
+        ELSE FALSE
+    END AS is_imputed,
+{% endif %}
+
+A.modified_timestamp
+FROM
+    date_address_contract_spine s
+    LEFT JOIN all_supply A
+    ON s.block_date = A.block_date
+    AND s.address = A.address
+    AND s.contract_address = A.contract_address
 )
 SELECT
     block_date,
