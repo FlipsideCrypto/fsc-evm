@@ -191,6 +191,10 @@ filled_balances AS (
                     AND CURRENT ROW
             )
         ) AS balance,
+        CASE
+            WHEN A.balance IS NULL THEN TRUE
+            ELSE FALSE
+        END AS is_imputed,
         A.modified_timestamp
     FROM
         date_address_contract_spine s
@@ -204,6 +208,7 @@ SELECT
     address,
     contract_address,
     balance,
+    is_imputed,
     SYSDATE() AS modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_imputed_id
