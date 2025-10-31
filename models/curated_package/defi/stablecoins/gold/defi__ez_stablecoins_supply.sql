@@ -7,16 +7,19 @@
 
 SELECT
     block_date,
-    address,
     contract_address,
     symbol,
     NAME,
     decimals,
-    balance,
-    is_imputed,
-    modified_timestamp,
+    total_supply,
+    blacklist_supply,
+    locked_in_bridges,
+    mint_amount,
+    burn_amount,
+    circulating_supply,
     inserted_timestamp,
-    stablecoins_supply_by_address_imputed_id AS ez_stablecoins_supply_id
+    modified_timestamp,
+    stablecoins_supply_circulating_id AS ez_stablecoins_supply_id
 FROM
-    {{ ref('silver__stablecoins_supply_by_address_imputed') }}
+    {{ ref('silver__stablecoins_supply_complete') }}
     INNER JOIN {{ ref('defi__dim_stablecoins') }} USING (contract_address)
