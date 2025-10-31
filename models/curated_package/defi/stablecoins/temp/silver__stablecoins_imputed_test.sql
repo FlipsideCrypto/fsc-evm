@@ -101,7 +101,7 @@ trailing_gaps AS (
     FROM
         {{ this }}
     WHERE
-        modified_timestamp >= SYSDATE() - 7 -- only look back 7 days for efficiency
+        modified_timestamp >= SYSDATE() :: DATE - 7 -- only look back 7 days for efficiency
     GROUP BY
         address,
         contract_address
