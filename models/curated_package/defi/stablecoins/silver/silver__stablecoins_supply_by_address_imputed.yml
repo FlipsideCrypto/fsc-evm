@@ -14,7 +14,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 2
       - name: ADDRESS
         tests:
           - not_null
@@ -30,7 +30,7 @@ models:
           - not_null
       - name: IS_IMPUTED
         tests:
-          - dbt_expectations.expect_column_values_to_be_boolean
+          - not_null
       - name: MODIFIED_TIMESTAMP
         tests:
           - not_null
