@@ -1,16 +1,14 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_supply_by_address_imputed_id"],
     cluster_by = ['block_date'],
-    post_hook = '{{ unverify_stablecoins() }}',
+    post_hook = [ "{{ unverify_stablecoins() }}", "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, contract_address)" ],
     tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
@@ -77,6 +75,43 @@ base_supply_list AS (
     GROUP BY
         ALL
 ),
+trailing_gaps AS (
+    SELECT
+        address,
+        contract_address,
+        MAX(block_date) AS gap_start_date
+    FROM
+        {{ this }}
+    WHERE
+        modified_timestamp >= SYSDATE() :: DATE - 7 -- only look back 7 days for efficiency
+    GROUP BY
+        address,
+        contract_address
+    HAVING
+        gap_start_date < SYSDATE() :: DATE - 1
+),
+-- Get all existing records for pairs with gaps (from gap start forward)
+existing_supply AS (
+    SELECT
+        t.block_date,
+        t.address,
+        t.contract_address,
+        t.balance,
+        t.modified_timestamp,
+        t.is_imputed
+    FROM
+        {{ this }}
+        t
+        INNER JOIN trailing_gaps g
+        ON t.address = g.address
+        AND t.contract_address = g.contract_address
+        AND t.block_date >= g.gap_start_date
+        LEFT JOIN base_supply_list b
+        ON t.address = b.address
+        AND t.contract_address = b.contract_address
+    WHERE
+        b.address IS NULL -- Exclude pairs already in base_supply
+),
 -- Get latest balance for unchanged address+contract pairs to preserve continuity
 existing_supply AS (
     SELECT
@@ -133,8 +168,8 @@ address_contract_pairs AS (
         address,
         contract_address
 ),
-    -- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
-    -- Balances are recorded using the last block from the previous day
+-- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
+-- Balances are recorded using the last block from the previous day
 date_spine AS (
     SELECT
         date_day
