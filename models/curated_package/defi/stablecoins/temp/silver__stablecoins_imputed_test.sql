@@ -92,7 +92,45 @@ base_supply_list AS (
     GROUP BY
         ALL
 ),
--- get the latest entry for address x token that is not in incremental supply
+-- Find pairs that are behind (max_date < yesterday)
+trailing_gaps AS (
+    SELECT
+        address,
+        contract_address,
+        MAX(block_date) AS gap_start_date
+    FROM
+        {{ this }}
+    WHERE
+        modified_timestamp >= SYSDATE() - 7 -- only look back 7 days for efficiency
+    GROUP BY
+        address,
+        contract_address
+    HAVING
+        gap_start_date < SYSDATE() :: DATE - 1
+),
+-- Get all existing records for pairs with gaps (from gap start forward)
+existing_supply AS (
+    SELECT
+        t.block_date,
+        t.address,
+        t.contract_address,
+        t.balance,
+        t.modified_timestamp,
+        t.is_imputed
+    FROM
+        {{ this }}
+        t
+        INNER JOIN trailing_gaps g
+        ON t.address = g.address
+        AND t.contract_address = g.contract_address
+        AND t.block_date >= g.gap_start_date
+        LEFT JOIN base_supply_list b
+        ON t.address = b.address
+        AND t.contract_address = b.contract_address
+    WHERE
+        b.address IS NULL -- Exclude pairs already in base_supply
+),
+{# -- get the latest entry for address x token that is not in incremental supply
 existing_supply AS (
     SELECT
         block_date,
@@ -116,6 +154,7 @@ existing_supply AS (
                 block_date DESC
         ) = 1
 ),
+#}
 {% endif %}
 
 all_supply AS (
