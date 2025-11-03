@@ -162,7 +162,7 @@ mint_burn AS (
         INNER JOIN mint_burn_dates d
         ON m.block_timestamp :: DATE = d.block_date
     GROUP BY
-        block_date,
+        block_timestamp :: DATE,
         contract_address
 ),
 transfers_dates AS (
