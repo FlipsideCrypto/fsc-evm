@@ -30,7 +30,7 @@ dex_pool_list AS (
     SELECT
         DISTINCT pool_address AS address
     FROM
-        {{ ref('defi__ez_dex_liquidity_pool_actions') }}
+        {{ ref('defi__dim_dex_liquidity_pools') }}
 ),
 lending_pool_list AS (
     SELECT
