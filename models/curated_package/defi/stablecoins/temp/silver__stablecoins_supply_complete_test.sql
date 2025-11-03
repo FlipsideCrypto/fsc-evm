@@ -224,10 +224,7 @@ FINAL AS (
             mb.burn_amount,
             0
         ) AS burn_amount,
-        s.balance - COALESCE(
-            l.balance,
-            0
-        ) - s.balance_blacklist AS circulating_supply,
+        s.balance - s.balance_blacklist AS circulating_supply,
         transfer_volume,
         GREATEST(
             s.modified_timestamp,
