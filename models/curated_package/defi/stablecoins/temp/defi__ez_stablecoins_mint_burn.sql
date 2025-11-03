@@ -12,9 +12,9 @@
     cluster_by = ['block_timestamp::DATE'],
     post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
-    "columns": true },
-    tags = ['gold','defi','stablecoins','heal','curated']
+    "columns": true }
 ) }}
+--    tags = ['gold','defi','stablecoins','heal','curated']
 
 WITH mint_burn AS (
 

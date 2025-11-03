@@ -8,9 +8,9 @@
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_supply_by_address_imputed_id"],
     cluster_by = ['block_date'],
-    post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','heal','curated']
+    post_hook = '{{ unverify_stablecoins() }}'
 ) }}
+--     tags = ['silver','defi','stablecoins','heal','curated']
 
 WITH bridge_vault_list AS (
 

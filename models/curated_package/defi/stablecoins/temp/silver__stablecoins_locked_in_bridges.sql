@@ -10,9 +10,9 @@
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_locked_in_bridges_id"],
     cluster_by = ['block_date'],
-    post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','heal','curated']
+    post_hook = '{{ unverify_stablecoins() }}'
 ) }}
+--    tags = ['silver','defi','stablecoins','heal','curated']
 
 WITH verified_stablecoins AS (
 

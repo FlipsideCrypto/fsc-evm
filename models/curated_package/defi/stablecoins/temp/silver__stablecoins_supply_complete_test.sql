@@ -8,9 +8,9 @@
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_supply_circulating_id"],
     cluster_by = ['block_date'],
-    post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','heal','curated']
+    post_hook = '{{ unverify_stablecoins() }}'
 ) }}
+--    tags = ['silver','defi','stablecoins','heal','curated']
 
 WITH blacklist_ordered_evt AS (
 

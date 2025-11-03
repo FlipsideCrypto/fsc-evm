@@ -1,7 +1,9 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
@@ -44,82 +46,27 @@ contract_list AS (
     FROM
         {{ ref('core__dim_contracts') }}
 ),
-bridges AS (
+all_balances AS (
     SELECT
         block_date,
-        address,
+        s.address,
         contract_address,
-        balance AS bridge_balance,
+        balance,
+        CASE WHEN b.address IS NOT NULL THEN balance ELSE 0 END AS bridge_balance,
+        CASE WHEN d.address IS NOT NULL THEN balance ELSE 0 END AS dex_balance,
+        CASE WHEN l.address IS NOT NULL THEN balance ELSE 0 END AS lending_pool_balance,
+        CASE WHEN c.address IS NOT NULL THEN balance ELSE 0 END AS contracts_balance,
         modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
-        INNER JOIN bridge_vault_list USING (address)
+        {{ ref('silver__stablecoins_supply_by_address_imputed') }} s
+        LEFT JOIN bridge_vault_list b ON b.address = s.address
+        LEFT JOIN dex_pool_list d ON d.address = s.address
+        LEFT JOIN lending_pool_list l ON l.address = s.address
+        LEFT JOIN contract_list c ON c.address = s.address
+    WHERE b.address IS NOT NULL OR d.address IS NOT NULL OR l.address IS NOT NULL OR c.address IS NOT NULL
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-{% endif %}
-),
-dexes AS (
-    SELECT
-        block_date,
-        address,
-        contract_address,
-        balance AS dex_balance,
-        modified_timestamp
-    FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
-        INNER JOIN dex_pool_list USING (address)
-
-{% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-{% endif %}
-),
-lending_markets AS (
-    SELECT
-        block_date,
-        address,
-        contract_address,
-        balance AS lending_pool_balance,
-        modified_timestamp
-    FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
-        INNER JOIN lending_pool_list USING (address)
-
-{% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
-{% endif %}
-),
-all_contracts AS (
-    SELECT
-        block_date,
-        address,
-        contract_address,
-        balance AS contracts_balance,
-        modified_timestamp
-    FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
-        INNER JOIN contract_list USING (address)
-
-{% if is_incremental() %}
-WHERE
+AND
     modified_timestamp > (
         SELECT
             MAX(modified_timestamp)
@@ -152,19 +99,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_contracts_id
 FROM
-    all_contracts
-    LEFT JOIN bridges USING (
-        block_date,
-        address,
-        contract_address
-    )
-    LEFT JOIN dexes USING (
-        block_date,
-        address,
-        contract_address
-    )
-    LEFT JOIN lending_markets USING (
-        block_date,
-        address,
-        contract_address
-    )
+    all_balances

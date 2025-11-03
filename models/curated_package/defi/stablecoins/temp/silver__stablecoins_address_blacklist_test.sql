@@ -8,9 +8,9 @@
     incremental_strategy = 'delete+insert',
     unique_key = "block_number",
     cluster_by = ['block_timestamp::DATE'],
-    post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','heal','curated']
+    post_hook = '{{ unverify_stablecoins() }}'
 ) }}
+--    tags = ['silver','defi','stablecoins','heal','curated']
 
 WITH verified_stablecoins AS (
 
