@@ -38,7 +38,7 @@ lending_pool_list AS (
     FROM
         {{ ref('defi__ez_lending_deposits') }}
 ),
-all_contracts AS (
+contract_list AS (
     SELECT
         DISTINCT address
     FROM
@@ -116,7 +116,7 @@ all_contracts AS (
         modified_timestamp
     FROM
         {{ ref('silver__stablecoins_supply_by_address_imputed') }}
-        INNER JOIN all_contracts USING (address)
+        INNER JOIN contract_list USING (address)
 
 {% if is_incremental() %}
 WHERE
