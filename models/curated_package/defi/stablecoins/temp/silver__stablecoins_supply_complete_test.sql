@@ -158,6 +158,7 @@ mint_burn AS (
         MAX(modified_timestamp) AS modified_timestamp
     FROM
         {{ ref('silver__stablecoins_mint_burn') }}
+        m
         INNER JOIN mint_burn_dates d
         ON m.block_timestamp :: DATE = d.block_date
     GROUP BY
