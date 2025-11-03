@@ -252,6 +252,9 @@ FINAL AS (
 SELECT
     block_date,
     contract_address,
+    symbol,
+    NAME,
+    stablecoin_label,
     total_supply,
     blacklist_supply,
     bridge_balance,
@@ -267,3 +270,4 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['block_date','contract_address']) }} AS stablecoins_supply_circulating_id
 FROM
     FINAL
+    LEFT JOIN {{ ref('defi__dim_stablecoins') }} USING (contract_address)
