@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
@@ -36,7 +34,7 @@ WITH blacklist_ordered_evt AS (
                 block_timestamp
         ) AS next_event_date
     FROM
-        {{ ref('silver__stablecoins_address_blacklist') }}
+        {{ ref('silver_stablecoins__address_blacklist') }}
 ),
 blacklist AS (
     SELECT
@@ -69,7 +67,7 @@ base_supply AS (
             s.modified_timestamp
         ) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
+        {{ ref('silver_stablecoins__supply_by_address_imputed') }}
         s
         LEFT JOIN blacklist bl
         ON s.address = bl.blacklist_address
@@ -103,24 +101,27 @@ locked_in_contracts AS (
         SUM(contracts_balance) AS contracts_balance,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_contracts') }}
-        {% if is_incremental() %}
-        WHERE block_date IN (
+        {{ ref('silver_stablecoins__supply_contracts') }}
+
+{% if is_incremental() %}
+WHERE
+    block_date IN (
+        SELECT
+            DISTINCT block_date
+        FROM
+            {{ ref('silver_stablecoins__supply_contracts') }}
+        WHERE
+            modified_timestamp > (
                 SELECT
-                    DISTINCT block_date
+                    MAX(modified_timestamp)
                 FROM
-                    {{ ref('silver__stablecoins_supply_contracts') }}
-                WHERE modified_timestamp > (
-                    SELECT
-                        MAX(modified_timestamp)
-                    FROM
-                        {{ this }}
-                )
-        )
-        {% endif %}
-    GROUP BY
-        block_date,
-        contract_address
+                    {{ this }}
+            )
+    )
+{% endif %}
+GROUP BY
+    block_date,
+    contract_address
 ),
 mint_burn AS (
     SELECT
@@ -140,25 +141,28 @@ mint_burn AS (
         ) AS burn_amount,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_mint_burn') }}
+        {{ ref('silver_stablecoins__mint_burn') }}
         m
-        {% if is_incremental() %}
-        WHERE block_timestamp :: DATE IN (
-            SELECT
-                DISTINCT block_date
-            FROM
-                {{ ref('silver__stablecoins_mint_burn') }}
-            WHERE modified_timestamp > (
+
+{% if is_incremental() %}
+WHERE
+    block_timestamp :: DATE IN (
+        SELECT
+            DISTINCT block_date
+        FROM
+            {{ ref('silver_stablecoins__mint_burn') }}
+        WHERE
+            modified_timestamp > (
                 SELECT
                     MAX(modified_timestamp)
                 FROM
                     {{ this }}
             )
-        )
-        {% endif %}
-    GROUP BY
-        block_timestamp :: DATE,
-        contract_address
+    )
+{% endif %}
+GROUP BY
+    block_timestamp :: DATE,
+    contract_address
 ),
 transfers AS (
     SELECT
@@ -167,24 +171,27 @@ transfers AS (
         SUM(amount) AS transfer_volume,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_transfer') }}
-        {% if is_incremental() %}
-        WHERE block_date IN (
-            SELECT
-                DISTINCT block_date
-            FROM
-                {{ ref('silver__stablecoins_transfer') }}
-            WHERE modified_timestamp > (
+        {{ ref('silver_stablecoins__transfers') }}
+
+{% if is_incremental() %}
+WHERE
+    block_date IN (
+        SELECT
+            DISTINCT block_date
+        FROM
+            {{ ref('silver_stablecoins__transfers') }}
+        WHERE
+            modified_timestamp > (
                 SELECT
                     MAX(modified_timestamp)
                 FROM
                     {{ this }}
             )
-        )
-        {% endif %}
-    GROUP BY
-        block_date,
-        contract_address
+    )
+{% endif %}
+GROUP BY
+    block_date,
+    contract_address
 ),
 FINAL AS (
     SELECT
@@ -235,7 +242,6 @@ SELECT
     contract_address,
     symbol,
     NAME,
-    stablecoin_label,
     total_supply,
     blacklist_supply,
     bridge_balance,

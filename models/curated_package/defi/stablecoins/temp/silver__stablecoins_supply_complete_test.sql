@@ -11,7 +11,6 @@
     post_hook = '{{ unverify_stablecoins() }}'
 ) }}
 --    tags = ['silver','defi','stablecoins','heal','curated']
-
 WITH blacklist_ordered_evt AS (
 
     SELECT
@@ -34,7 +33,7 @@ WITH blacklist_ordered_evt AS (
                 block_timestamp
         ) AS next_event_date
     FROM
-        {{ ref('silver__stablecoins_address_blacklist') }}
+        {{ ref('silver_stablecoins__address_blacklist') }}
 ),
 blacklist AS (
     SELECT
@@ -67,7 +66,7 @@ base_supply AS (
             s.modified_timestamp
         ) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }}
+        {{ ref('silver_stablecoins__supply_by_address_imputed') }}
         s
         LEFT JOIN blacklist bl
         ON s.address = bl.blacklist_address
@@ -95,7 +94,7 @@ locked_in_contracts_dates AS (
     SELECT
         DISTINCT block_date
     FROM
-        {{ ref('silver__stablecoins_supply_contracts') }}
+        {{ ref('silver_stablecoins__supply_contracts') }}
 
 {% if is_incremental() %}
 WHERE
@@ -117,7 +116,7 @@ locked_in_contracts AS (
         SUM(contracts_balance) AS contracts_balance,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_contracts') }}
+        {{ ref('silver_stablecoins__supply_contracts') }}
         INNER JOIN locked_in_contracts_dates USING (block_date)
     GROUP BY
         block_date,
@@ -127,7 +126,7 @@ mint_burn_dates AS (
     SELECT
         DISTINCT block_timestamp :: DATE AS block_date
     FROM
-        {{ ref('silver__stablecoins_mint_burn') }}
+        {{ ref('silver_stablecoins__mint_burn') }}
 
 {% if is_incremental() %}
 WHERE
@@ -157,7 +156,7 @@ mint_burn AS (
         ) AS burn_amount,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_mint_burn') }}
+        {{ ref('silver_stablecoins__mint_burn') }}
         m
         INNER JOIN mint_burn_dates d
         ON m.block_timestamp :: DATE = d.block_date
@@ -169,7 +168,7 @@ transfers_dates AS (
     SELECT
         DISTINCT block_date
     FROM
-        {{ ref('silver__stablecoins_transfer') }}
+        {{ ref('silver_stablecoins__transfers') }}
 
 {% if is_incremental() %}
 WHERE
@@ -188,7 +187,7 @@ transfers AS (
         SUM(amount) AS transfer_volume,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_transfer') }}
+        {{ ref('silver_stablecoins__transfers') }}
         INNER JOIN transfers_dates USING (block_date)
     GROUP BY
         block_date,
@@ -252,7 +251,6 @@ SELECT
     contract_address,
     symbol,
     NAME,
-    stablecoin_label,
     total_supply,
     blacklist_supply,
     bridge_balance,

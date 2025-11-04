@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'view',
     persist_docs ={ "relation": true,
@@ -31,5 +29,5 @@ SELECT
     modified_timestamp,
     stablecoins_supply_circulating_id AS ez_stablecoins_supply_id
 FROM
-    {{ ref('silver__stablecoins_supply_complete') }}
+    {{ ref('silver_stablecoins__supply_complete') }}
     INNER JOIN {{ ref('defi__dim_stablecoins') }} USING (contract_address)

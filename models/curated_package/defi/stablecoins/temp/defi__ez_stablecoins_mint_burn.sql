@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
@@ -15,7 +13,6 @@
     "columns": true }
 ) }}
 --    tags = ['gold','defi','stablecoins','heal','curated']
-
 WITH mint_burn AS (
 
     SELECT
@@ -48,7 +45,7 @@ WITH mint_burn AS (
         tx_succeeded,
         s.modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_mint_burn') }}
+        {{ ref('silver_stablecoins__mint_burn') }}
         s
         LEFT JOIN {{ ref('price__ez_prices_hourly') }}
         p

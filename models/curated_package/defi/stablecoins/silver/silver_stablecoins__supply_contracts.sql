@@ -58,7 +58,7 @@ all_balances AS (
         CASE WHEN c.address IS NOT NULL THEN balance ELSE 0 END AS contracts_balance,
         modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_by_address_imputed') }} s
+        {{ ref('silver_stablecoins__supply_by_address_imputed') }} s
         LEFT JOIN bridge_vault_list b ON b.address = s.address
         LEFT JOIN dex_pool_list d ON d.address = s.address
         LEFT JOIN lending_pool_list l ON l.address = s.address

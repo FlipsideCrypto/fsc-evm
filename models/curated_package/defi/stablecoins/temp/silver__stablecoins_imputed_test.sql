@@ -37,7 +37,7 @@ base_supply AS (
         balance,
         modified_timestamp
     FROM
-        {{ ref('silver__stablecoins_supply_by_address') }}
+        {{ ref('silver_stablecoins__supply_by_address') }}
         INNER JOIN bridge_vault_list USING (address)
 
 {% if is_incremental() %}
@@ -74,7 +74,7 @@ incremental_supply AS (
         modified_timestamp,
         FALSE AS is_imputed
     FROM
-        {{ ref('silver__stablecoins_supply_by_address') }}
+        {{ ref('silver_stablecoins__supply_by_address') }}
         s
         INNER JOIN min_base_supply m
         ON s.address = m.address

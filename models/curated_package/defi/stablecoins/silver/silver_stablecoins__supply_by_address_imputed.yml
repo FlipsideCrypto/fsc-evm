@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__stablecoins_supply_by_address_imputed
+  - name: silver_stablecoins__supply_by_address_imputed
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
