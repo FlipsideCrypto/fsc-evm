@@ -30,4 +30,3 @@ SELECT
     stablecoins_supply_circulating_id AS ez_stablecoins_supply_id
 FROM
     {{ ref('silver_stablecoins__supply_complete') }}
-    INNER JOIN {{ ref('defi__dim_stablecoins') }} USING (contract_address)

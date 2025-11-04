@@ -242,6 +242,7 @@ SELECT
     contract_address,
     symbol,
     NAME,
+    decimals,
     total_supply,
     blacklist_supply AS amount_blacklisted,
     bridge_balance AS amount_in_bridges,
