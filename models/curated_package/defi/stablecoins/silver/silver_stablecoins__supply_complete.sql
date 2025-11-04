@@ -148,7 +148,7 @@ mint_burn AS (
 WHERE
     block_timestamp :: DATE IN (
         SELECT
-            DISTINCT block_date
+            DISTINCT block_timestamp :: DATE
         FROM
             {{ ref('silver_stablecoins__mint_burn') }}
         WHERE
