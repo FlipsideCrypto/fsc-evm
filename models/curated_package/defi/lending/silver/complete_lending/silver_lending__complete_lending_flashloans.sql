@@ -442,6 +442,11 @@ SELECT
   SYSDATE() AS modified_timestamp,
   '{{ invocation_id }}' AS _invocation_id
 FROM
-  FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
+  FINAL 
+WHERE 
+    origin_function_signature <> '0x8cbf8566' 
+    AND TOKEN_ADDRESS IS NOT NULL 
+    AND platform <> 'morpho-v1' --excludes bad token morpho MEV flashloans
+    qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
       _inserted_timestamp DESC)) = 1
