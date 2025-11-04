@@ -9,5 +9,6 @@
 
 {# Main query starts here #}
 {{ streamline_external_table_query(
-    source_name = 'confirm_blocks'
+    source_name = 'confirm_blocks',
+    error_code = vars.MAIN_CORE_BRONZE_BLOCKS_ERROR_CODE_ENABLED
 ) }}
