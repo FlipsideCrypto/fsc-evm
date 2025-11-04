@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
@@ -13,7 +11,6 @@
     post_hook = '{{ unverify_stablecoins() }}',
     tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
-
 
 WITH verified_stablecoins AS (
 
@@ -97,6 +94,12 @@ newly_verified_transfers AS (
     WHERE
         topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' --Transfer
         AND amount_raw IS NOT NULL
+        AND block_timestamp :: DATE >= (
+            SELECT
+                MIN(block_date)
+            FROM
+                {{ ref('silver_stablecoins__supply_by_address') }}
+        )
 ),
 {% endif %}
 
@@ -141,6 +144,12 @@ transfers AS (
     WHERE
         topic_0 :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' --Transfer
         AND amount_raw IS NOT NULL
+        AND block_timestamp :: DATE >= (
+            SELECT
+                MIN(block_date)
+            FROM
+                {{ ref('silver_stablecoins__supply_by_address') }}
+        )
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
