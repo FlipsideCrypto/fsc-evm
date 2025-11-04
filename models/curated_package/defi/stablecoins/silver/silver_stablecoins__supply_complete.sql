@@ -80,11 +80,18 @@ base_supply AS (
 
 {% if is_incremental() %}
 WHERE
-    s.modified_timestamp > (
+    block_date IN (
         SELECT
-            MAX(modified_timestamp)
+            DISTINCT block_date
         FROM
-            {{ this }}
+            {{ ref('silver_stablecoins__supply_by_address_imputed') }}
+        WHERE
+            s.modified_timestamp > (
+                SELECT
+                    MAX(modified_timestamp)
+                FROM
+                    {{ this }}
+            )
     )
 {% endif %}
 GROUP BY
