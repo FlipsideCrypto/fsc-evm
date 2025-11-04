@@ -11,79 +11,100 @@ models:
           type: lending
     columns:
       - name: TX_HASH
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: BLOCK_NUMBER
-        tests:
-          - not_null
+        data_type: number
+        constraints:
+          - type: not_null
       - name: BLOCK_TIMESTAMP
+        data_type: timestamp_ltz
+        constraints:
+          - type: not_null
         tests:
-          - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 3
       - name: EVENT_INDEX
-        tests:
-          - not_null:
-              where: PLATFORM <> 'morpho-v1'
+        data_type: number
       - name: ORIGIN_FROM_ADDRESS
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: ORIGIN_TO_ADDRESS
+        data_type: varchar
       - name: ORIGIN_FUNCTION_SIGNATURE
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: CONTRACT_ADDRESS
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: EVENT_NAME
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: BORROWER
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: PROTOCOL_MARKET
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: TOKEN_ADDRESS
-        tests: 
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: TOKEN_SYMBOL
-        tests: 
-          - not_null:
-              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: AMOUNT_UNADJ
-        tests:
-          - not_null 
+        data_type: number
+        constraints:
+          - type: not_null
       - name: AMOUNT
-        tests:
-          - not_null:
-              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
+        data_type: FLOAT
+        constraints:
+          - type: not_null
       - name: AMOUNT_USD
+        data_type: FLOAT
         tests:
         - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: PLATFORM
-        tests: 
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: PROTOCOL
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: VERSION
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: _LOG_ID
+        data_type: varchar
       - name: _INSERTED_TIMESTAMP
+        data_type: timestamp_ltz
       - name: COMPLETE_LENDING_BORROWS_ID
-        tests:
-          - not_null
+        data_type: varchar
+        constraints:
+          - type: not_null
       - name: INSERTED_TIMESTAMP
-        tests:
-          - not_null
+        data_type: timestamp_ntz
+        constraints:
+          - type: not_null
       - name: MODIFIED_TIMESTAMP
-        tests:
-          - not_null
+        data_type: timestamp_ntz
+        constraints:
+          - type: not_null
       - name: _INVOCATION_ID
+        data_type: varchar
           

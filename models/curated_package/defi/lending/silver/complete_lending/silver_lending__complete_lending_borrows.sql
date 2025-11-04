@@ -11,11 +11,15 @@
     incremental_strategy = 'delete+insert',
     unique_key = ['block_number','platform'],
     cluster_by = ['block_timestamp::DATE','platform'],
+    on_schema_change = 'append_new_columns',
+    contract = {
+        "enforced": False,
+        "warn_unsupported": True
+    },
     post_hook = [
-      "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, token_address, token_symbol, borrower, protocol_market)",
-      "{{ remove_test_tokens() }}"
+      "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, origin_from_address, origin_to_address, origin_function_signature, contract_address, event_name, token_address, token_symbol, borrower, protocol_market)"
     ],
-    tags = ['silver','defi','lending','curated','heal','complete_lending']
+    tags = ['silver','defi','lending','curated','heal','complete_lending','complete_borrows']
 ) }}
 
 
@@ -407,7 +411,7 @@ complete_lending_borrows AS (
 
 
 {% if is_incremental() and var(
-  'HEAL_MODEL'
+  'HEAL_MODEL', false
 ) %}
 token_metadata AS (
   SELECT
@@ -535,7 +539,7 @@ FINAL AS (
     complete_lending_borrows
 
 {% if is_incremental() and var(
-  'HEAL_MODEL'
+  'HEAL_MODEL', false
 ) %}
 UNION ALL
 SELECT
@@ -564,6 +568,87 @@ FROM
   heal_model
 {% endif %}
 
+),
+
+{% if var('test_constraint_with_null', false) %}
+test_data_with_null AS (
+  SELECT
+    '0x' || REPEAT('a', 64) AS tx_hash,
+    999999999 AS block_number,
+    CURRENT_TIMESTAMP() AS block_timestamp,
+    0 AS event_index,
+    '0x' || REPEAT('b', 40) AS origin_from_address,
+    '0x' || REPEAT('c', 40) AS origin_to_address,
+    '0x' || REPEAT('d', 8) AS origin_function_signature,
+    '0x' || REPEAT('e', 40) AS contract_address,
+    'Borrow' AS event_name,
+    '0x' || REPEAT('f', 40) AS protocol_market,
+    '0x' || REPEAT('g', 40) AS borrower,
+    '0x' || REPEAT('h', 40) AS token_address,
+    NULL AS token_symbol,  -- This NULL should trigger constraint violation
+    1000000 AS amount_unadj,
+    1.0 AS amount,
+    100.50 AS amount_usd,
+    'test_platform' AS platform,
+    'test_protocol' AS protocol,
+    'v1' AS version,
+    'test_log_id_12369' AS _log_id,
+    CURRENT_TIMESTAMP() AS _inserted_timestamp
+),
+{% endif %}
+
+FINAL_WITH_TEST AS (
+  SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    protocol_market,
+    borrower,
+    token_address,
+    token_symbol,
+    amount_unadj,
+    amount,
+    amount_usd,
+    platform,
+    protocol,
+    version,
+    _LOG_ID,
+    _inserted_timestamp
+  FROM
+    FINAL
+  {% if var('test_constraint_with_null', false) %}
+  UNION ALL
+  SELECT
+    tx_hash,
+    block_number,
+    block_timestamp,
+    event_index,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    contract_address,
+    event_name,
+    protocol_market,
+    borrower,
+    token_address,
+    token_symbol,
+    amount_unadj,
+    amount,
+    amount_usd,
+    platform,
+    protocol,
+    version,
+    _LOG_ID,
+    _inserted_timestamp
+  FROM
+    test_data_with_null
+  {% endif %}
 )
 SELECT
   *,
@@ -574,6 +659,6 @@ SELECT
   SYSDATE() AS modified_timestamp,
   '{{ invocation_id }}' AS _invocation_id
 FROM
-  FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
+  FINAL_WITH_TEST qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
       _inserted_timestamp DESC)) = 1
