@@ -9,7 +9,6 @@
     unique_key = ["stablecoins_supply_by_address_imputed_id"],
     cluster_by = ['block_date'],
     post_hook = [ "{{ unverify_stablecoins() }}", "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, contract_address)" ],
-    tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
 WITH bridge_vault_list AS (
