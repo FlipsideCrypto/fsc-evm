@@ -22,6 +22,7 @@ WITH verified_stablecoins AS (
         is_verified
         AND contract_address IS NOT NULL
 ),
+
 {% if is_incremental() and var(
     'HEAL_MODEL',
     false
@@ -47,44 +48,58 @@ newly_verified_stablecoins AS (
         )
 ),
 newly_verified_transfers AS (
-SELECT
-    block_timestamp,
-    block_timestamp :: DATE AS block_date,
-    block_number,
-    tx_hash,
-    event_index,
-    from_address,
-    to_address,
-    contract_address,
-    amount
-FROM
-    {{ ref('core__ez_token_transfers') }}
-    INNER JOIN newly_verified_stablecoins USING (contract_address)
+    SELECT
+        block_timestamp,
+        block_timestamp :: DATE AS block_date,
+        block_number,
+        tx_hash,
+        event_index,
+        from_address,
+        to_address,
+        contract_address,
+        amount
+    FROM
+        {{ ref('core__ez_token_transfers') }}
+        INNER JOIN newly_verified_stablecoins USING (contract_address)
+    WHERE
+        block_date >= (
+            SELECT
+                MIN(block_date)
+            FROM
+                {{ ref('silver_stablecoins__supply_by_address') }}
+        )
 ),
 {% endif %}
+
 transfers AS (
-SELECT
-    block_timestamp,
-    block_timestamp :: DATE AS block_date,
-    block_number,
-    tx_hash,
-    event_index,
-    from_address,
-    to_address,
-    contract_address,
-    amount
-FROM
-    {{ ref('core__ez_token_transfers') }}
-    INNER JOIN verified_stablecoins USING (contract_address)
+    SELECT
+        block_timestamp,
+        block_timestamp :: DATE AS block_date,
+        block_number,
+        tx_hash,
+        event_index,
+        from_address,
+        to_address,
+        contract_address,
+        amount
+    FROM
+        {{ ref('core__ez_token_transfers') }}
+        INNER JOIN verified_stablecoins USING (contract_address)
+    WHERE
+        block_date >= (
+            SELECT
+                MIN(block_date)
+            FROM
+                {{ ref('silver_stablecoins__supply_by_address') }}
+        )
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
 {% endif %}
 ),
 all_transfers AS (
@@ -92,18 +107,18 @@ all_transfers AS (
         *
     FROM
         transfers
-    {% if is_incremental() and var(
-        'HEAL_MODEL',
-        false
-    ) %}
-    UNION
-    SELECT
-        *
-    FROM
-        newly_verified_transfers
-    {% endif %}
-)
 
+{% if is_incremental() and var(
+    'HEAL_MODEL',
+    false
+) %}
+UNION
+SELECT
+    *
+FROM
+    newly_verified_transfers
+{% endif %}
+)
 SELECT
     block_timestamp,
     block_date,
@@ -117,4 +132,5 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_transfer_id
-FROM all_transfers
+FROM
+    all_transfers
