@@ -8,9 +8,9 @@
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_supply_by_address_imputed_id"],
     cluster_by = ['block_date'],
-    post_hook = '{{ unverify_stablecoins() }}'
+    post_hook = [ "{{ unverify_stablecoins() }}", "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, contract_address)" ],
+    tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
---     tags = ['silver','defi','stablecoins','heal','curated']
 
 WITH bridge_vault_list AS (
 
@@ -52,7 +52,7 @@ WHERE
 ),
 
 {% if is_incremental() %}
--- Get the min date by contract and address for new modified timestamp records, including historical replays
+-- Find earliest date needing reprocessing per address+contract (handles historical corrections/replays)
 min_base_supply AS (
     SELECT
         MIN(block_date) AS min_base_supply_date,
@@ -64,7 +64,7 @@ min_base_supply AS (
         address,
         contract_address
 ),
--- Get all balances by contract and address for new modified timestamp records, including historical replays
+-- Pull complete history from earliest affected date forward for impacted pairs (needed for re-imputation)
 incremental_supply AS (
     SELECT
         s.block_date,
@@ -81,7 +81,7 @@ incremental_supply AS (
         AND s.contract_address = m.contract_address
         AND s.block_date >= m.min_base_supply_date
 ),
--- get a list of distinct address and CA. faster to do count
+-- Lookup of address+contract pairs being updated this run (used to filter unchanged pairs)
 base_supply_list AS (
     SELECT
         address,
@@ -92,7 +92,6 @@ base_supply_list AS (
     GROUP BY
         ALL
 ),
--- Find pairs that are behind (max_date < yesterday)
 trailing_gaps AS (
     SELECT
         address,
@@ -130,7 +129,7 @@ existing_supply AS (
     WHERE
         b.address IS NULL -- Exclude pairs already in base_supply
 ),
-{# -- get the latest entry for address x token that is not in incremental supply
+-- Get latest balance for unchanged address+contract pairs to preserve continuity
 existing_supply AS (
     SELECT
         block_date,
@@ -154,7 +153,6 @@ existing_supply AS (
                 block_date DESC
         ) = 1
 ),
-#}
 {% endif %}
 
 all_supply AS (
@@ -175,6 +173,7 @@ SELECT
 FROM
     base_supply
 {% endif %}),
+-- Identify unique address+contract pairs and their first balance date
 address_contract_pairs AS (
     SELECT
         address,
@@ -186,9 +185,9 @@ address_contract_pairs AS (
         address,
         contract_address
 ),
+-- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
+-- Balances are recorded using the last block from the previous day
 date_spine AS (
-    -- Create a date spine for all dates between the minimum balance date and the current date - 1 day,
-    -- Balances are recorded using the last block from the previous day
     SELECT
         date_day
     FROM
@@ -205,6 +204,7 @@ date_spine AS (
                 all_supply
         )
 ),
+-- Generate one row per date per address+contract pair (filtered by min_balance_date)
 date_address_contract_spine AS (
     SELECT
         d.date_day AS block_date,
@@ -215,6 +215,7 @@ date_address_contract_spine AS (
         INNER JOIN address_contract_pairs p
         ON d.date_day >= p.min_balance_date
 ),
+-- Forward-fill missing balances to create one row per date per address+contract pair, even in cases where no balance new balance is recorded
 filled_balances AS (
     SELECT
         s.block_date,
@@ -234,6 +235,7 @@ filled_balances AS (
         ) AS balance,
 
 {% if is_incremental() %}
+-- If incremental, use the imputed flag from the existing record, otherwise use the balance to determine if it is imputed
 COALESCE(
     A.is_imputed,
     TRUE
@@ -264,3 +266,10 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_imputed_id
 FROM
     filled_balances
+WHERE
+    NOT IFF(
+        balance = 0
+        AND is_imputed,
+        TRUE,
+        FALSE
+    )

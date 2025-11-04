@@ -98,7 +98,6 @@ SELECT
     symbol,
     NAME,
     decimals,
-    COALESCE(stablecoin_label, CONCAT(NAME, ': ', symbol)) AS stablecoin_label,
     is_verified,
     is_verified_modified_timestamp,
     inserted_timestamp,
@@ -106,6 +105,3 @@ SELECT
     dim_stablecoins_id
 FROM
     all_stablecoins
-    LEFT JOIN {{ ref('silver_stablecoins__stablecoins_identifier') }} USING (contract_address)
-WHERE
-    blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'

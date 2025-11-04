@@ -249,3 +249,10 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_imputed_id
 FROM
     filled_balances
+WHERE
+    NOT IFF(
+        balance = 0
+        AND is_imputed,
+        TRUE,
+        FALSE
+    )
