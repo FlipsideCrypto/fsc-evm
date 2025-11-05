@@ -86,7 +86,7 @@ WHERE
         FROM
             {{ ref('silver_stablecoins__supply_by_address_imputed') }}
         WHERE
-            s.modified_timestamp > (
+            modified_timestamp > (
                 SELECT
                     MAX(modified_timestamp)
                 FROM
