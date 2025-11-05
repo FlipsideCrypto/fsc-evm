@@ -1,4 +1,5 @@
 {% macro unverify_balances() %}
+{% set vars = return_vars() %}
   {% if var('HEAL_MODEL', false) and is_incremental() %}
     {% if model.name == 'balances__ez_balances_erc20' %}
         DELETE FROM {{ this }} 
@@ -17,6 +18,11 @@
                 is_verified
                 AND asset_id IS NOT NULL
                 AND token_address IS NOT NULL
+        )
+        OR contract_address IN (
+          SELECT contract_address
+          FROM {{ ref('silver__balances_erc20_override')}}
+          WHERE blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         );
     {% endif %}
   {% endif %}
