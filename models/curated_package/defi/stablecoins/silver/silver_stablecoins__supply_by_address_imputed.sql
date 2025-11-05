@@ -112,30 +112,6 @@ existing_supply AS (
     WHERE
         b.address IS NULL -- Exclude pairs already in base_supply
 ),
--- Get latest balance for unchanged address+contract pairs to preserve continuity
-existing_supply AS (
-    SELECT
-        block_date,
-        address,
-        contract_address,
-        balance,
-        modified_timestamp,
-        is_imputed
-    FROM
-        {{ this }}
-        t
-        LEFT JOIN base_supply_list b USING (
-            address,
-            contract_address
-        )
-    WHERE
-        b.address IS NULL qualify ROW_NUMBER() over (
-            PARTITION BY address,
-            contract_address
-            ORDER BY
-                block_date DESC
-        ) = 1
-),
 {% endif %}
 
 all_supply AS (

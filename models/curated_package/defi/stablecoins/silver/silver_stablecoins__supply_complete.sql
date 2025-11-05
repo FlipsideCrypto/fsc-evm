@@ -206,7 +206,10 @@ FINAL AS (
         s.block_date,
         s.contract_address,
         s.balance AS total_supply,
-        s.balance_blacklist AS blacklist_supply,
+        COALESCE(
+            s.balance_blacklist,
+            0
+        ) AS blacklist_supply,
         COALESCE(
             l.bridge_balance,
             0
@@ -235,7 +238,10 @@ FINAL AS (
             mb.burn_amount,
             0
         ) AS burn_amount,
-        transfer_volume
+        COALESCE(
+            transfer_volume,
+            0
+        ) AS transfer_volume
     FROM
         base_supply s
         LEFT JOIN locked_in_contracts l
