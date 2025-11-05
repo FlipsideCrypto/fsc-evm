@@ -231,4 +231,4 @@ WHERE
         AND is_imputed,
         TRUE,
         FALSE
-    )
+    ) -- Exclude pairs with zero balance AND imputed flag, to avoid imputing indefinitely

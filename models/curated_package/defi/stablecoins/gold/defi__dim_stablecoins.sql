@@ -64,7 +64,7 @@ manual_stablecoins AS (
         SYSDATE() AS modified_timestamp,
         {{ dbt_utils.generate_surrogate_key(['s.contract_address']) }} AS dim_stablecoins_id
     FROM
-        {{ ref('silver_stablecoins__manual_map_stablecoins_seed') }}
+        {{ ref('silver_stablecoins__stablecoins_mapping_seed') }}
         s
         INNER JOIN {{ ref('price__ez_asset_metadata') }}
         m
@@ -97,6 +97,7 @@ SELECT
     contract_address,
     symbol,
     NAME,
+    CONCAT(symbol,': ',name) AS label,
     decimals,
     is_verified,
     is_verified_modified_timestamp,
