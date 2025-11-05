@@ -46,6 +46,15 @@ contract_list AS (
     FROM
         {{ ref('core__dim_contracts') }}
 ),
+
+cex_list as (
+    SELECT 
+    DISTINCT address 
+    FROM
+        {{ ref('core__dim_labels') }}
+    WHERE label_type = 'cex'
+),
+
 all_balances AS (
     SELECT
         block_date,
@@ -56,6 +65,7 @@ all_balances AS (
         CASE WHEN d.address IS NOT NULL THEN balance ELSE 0 END AS dex_balance,
         CASE WHEN l.address IS NOT NULL THEN balance ELSE 0 END AS lending_pool_balance,
         CASE WHEN c.address IS NOT NULL THEN balance ELSE 0 END AS contracts_balance,
+        CASE WHEN cl.address IS NOT NULL THEN balance ELSE 0 END AS cex_balance,
         modified_timestamp
     FROM
         {{ ref('silver_stablecoins__supply_by_address_imputed') }} s
@@ -63,7 +73,8 @@ all_balances AS (
         LEFT JOIN dex_pool_list d ON d.address = s.address
         LEFT JOIN lending_pool_list l ON l.address = s.address
         LEFT JOIN contract_list c ON c.address = s.address
-    WHERE b.address IS NOT NULL OR d.address IS NOT NULL OR l.address IS NOT NULL OR c.address IS NOT NULL
+        LEFT JOIN cex_list cl ON cl.address = s.address
+    WHERE b.address IS NOT NULL OR d.address IS NOT NULL OR l.address IS NOT NULL OR c.address IS NOT NULL OR cl.address IS NOT NULL
 
 {% if is_incremental() %}
 AND
@@ -95,6 +106,10 @@ SELECT
         contracts_balance,
         0
     ) AS contracts_balance,
+    COALESCE(
+        cex_balance,
+        0
+    ) AS cex_balance,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_contracts_id
