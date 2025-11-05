@@ -6,6 +6,7 @@
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/evm/quicknode/monad/mainnet',
         'GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL': 'WMON',
         'GLOBAL_NATIVE_ASSET_SYMBOL': 'MON',
+        'MAIN_SL_BLOCKS_PER_HOUR': 10000,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'MON',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'monad',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'monad',
