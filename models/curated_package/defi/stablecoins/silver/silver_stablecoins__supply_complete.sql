@@ -6,7 +6,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = ["stablecoins_supply_circulating_id"],
+    unique_key = ["stablecoins_supply_complete_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
     tags = ['silver','defi','stablecoins','heal','curated']
@@ -223,6 +223,10 @@ FINAL AS (
             0
         ) AS contracts_balance,
         COALESCE(
+            l.cex_balance,
+            0
+        ) AS cex_balance,
+        COALESCE(
             mb.mint_amount,
             0
         ) AS mint_amount,
@@ -230,7 +234,6 @@ FINAL AS (
             mb.burn_amount,
             0
         ) AS burn_amount,
-        s.balance - s.balance_blacklist AS circulating_supply,
         transfer_volume
     FROM
         base_supply s
@@ -252,17 +255,17 @@ SELECT
     decimals,
     total_supply,
     blacklist_supply AS amount_blacklisted,
+    cex_balance AS amount_in_cex_wallets,
     bridge_balance AS amount_in_bridges,
-    dex_balance AS amount_in_dexes,
+    dex_balance AS amount_in_dex_pools,
     lending_pool_balance AS amount_in_lending_pools,
     contracts_balance AS amount_in_all_contracts,
     mint_amount AS amount_minted,
     burn_amount AS amount_burned,
-    circulating_supply,
     transfer_volume AS amount_transferred,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['block_date','contract_address']) }} AS stablecoins_supply_circulating_id
+    {{ dbt_utils.generate_surrogate_key(['block_date','contract_address']) }} AS stablecoins_supply_complete_id
 FROM
     FINAL
     LEFT JOIN {{ ref('defi__dim_stablecoins') }} USING (contract_address)
