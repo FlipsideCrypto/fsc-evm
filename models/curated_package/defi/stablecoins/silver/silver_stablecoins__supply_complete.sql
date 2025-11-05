@@ -105,6 +105,7 @@ locked_in_contracts AS (
         SUM(bridge_balance) AS bridge_balance,
         SUM(dex_balance) AS dex_balance,
         SUM(lending_pool_balance) AS lending_pool_balance,
+        SUM(cex_balance) AS cex_balance,
         SUM(contracts_balance) AS contracts_balance,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
