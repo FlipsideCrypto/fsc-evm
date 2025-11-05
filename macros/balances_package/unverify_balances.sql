@@ -10,19 +10,21 @@
             AND num_slots = 1
         );
     {% else %}
-        DELETE FROM {{ this }} 
-        WHERE contract_address NOT IN (
-            SELECT token_address AS contract_address
-            FROM {{ ref('price__ez_asset_metadata') }}
+        DELETE FROM {{ this }} t
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM {{ ref('price__ez_asset_metadata') }} m
             WHERE
-                is_verified
-                AND asset_id IS NOT NULL
-                AND token_address IS NOT NULL
+                m.token_address = t.contract_address
+                AND m.is_verified
+                AND m.asset_id IS NOT NULL
+                AND m.token_address IS NOT NULL
         )
-        OR contract_address IN (
-          SELECT contract_address
-          FROM {{ ref('silver__balances_erc20_override')}}
-          WHERE blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+        OR EXISTS (
+          SELECT 1
+          FROM {{ ref('silver__balances_erc20_override') }} o
+          WHERE o.contract_address = t.contract_address
+          AND o.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         );
     {% endif %}
   {% endif %}
