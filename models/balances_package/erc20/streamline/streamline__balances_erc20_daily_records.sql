@@ -4,6 +4,7 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('silver__balances_erc20_override') }}
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 
 {# Set up dbt configuration #}

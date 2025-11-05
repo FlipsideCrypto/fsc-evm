@@ -5,6 +5,7 @@
 {{ log_model_details() }}
 
 -- depends on: {{ ref('bronze__balances_erc20') }}
+-- depends on: {{ ref('silver__balances_erc20_override') }}
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
