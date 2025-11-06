@@ -9,26 +9,11 @@
     unique_key = ["stablecoins_supply_by_address_imputed_id"],
     cluster_by = ['block_date'],
     post_hook = [ "{{ unverify_stablecoins() }}", "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address, contract_address)" ],
+    tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
-WITH bridge_vault_list AS (
+WITH base_supply AS (
 
-    SELECT
-        DISTINCT bridge_address AS address
-    FROM
-        {{ ref('defi__ez_bridge_activity') }}
-    UNION
-    SELECT
-        vault_address AS address
-    FROM
-        {{ ref('silver_stablecoins__bridge_vault_seed') }}
-    WHERE
-        chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
-    UNION
-    SELECT
-        '0xe7c60e30c135f132c18bef795c044e93922a6dea' AS address
-),
-base_supply AS (
     SELECT
         block_date,
         address,
@@ -37,7 +22,6 @@ base_supply AS (
         modified_timestamp
     FROM
         {{ ref('silver_stablecoins__supply_by_address') }}
-        INNER JOIN bridge_vault_list USING (address)
 
 {% if is_incremental() %}
 WHERE
@@ -99,7 +83,7 @@ trailing_gaps AS (
     FROM
         {{ this }}
     WHERE
-        modified_timestamp >= SYSDATE() :: DATE - 7 -- only look back 7 days for efficiency
+        modified_timestamp >= SYSDATE() :: DATE - 2 -- only look back 2 days for efficiency
     GROUP BY
         address,
         contract_address
@@ -127,30 +111,6 @@ existing_supply AS (
         AND t.contract_address = b.contract_address
     WHERE
         b.address IS NULL -- Exclude pairs already in base_supply
-),
--- Get latest balance for unchanged address+contract pairs to preserve continuity
-existing_supply AS (
-    SELECT
-        block_date,
-        address,
-        contract_address,
-        balance,
-        modified_timestamp,
-        is_imputed
-    FROM
-        {{ this }}
-        t
-        LEFT JOIN base_supply_list b USING (
-            address,
-            contract_address
-        )
-    WHERE
-        b.address IS NULL qualify ROW_NUMBER() over (
-            PARTITION BY address,
-            contract_address
-            ORDER BY
-                block_date DESC
-        ) = 1
 ),
 {% endif %}
 
@@ -265,10 +225,3 @@ SELECT
     {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_by_address_imputed_id
 FROM
     filled_balances
-WHERE
-    NOT IFF(
-        balance = 0
-        AND is_imputed,
-        TRUE,
-        FALSE
-    )
