@@ -20,15 +20,6 @@ WITH contracts AS (
         contract_type
     FROM
         {{ ref('silver_stablecoins__supply_contracts_list') }}
-    {% if is_incremental() %}
-    WHERE
-        modified_timestamp > (
-            SELECT
-                MAX(modified_timestamp)
-            FROM
-                {{ this }}
-        )
-    {% endif %}
 ),
 balances AS (
     SELECT
