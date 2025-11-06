@@ -75,22 +75,6 @@ base_supply_list AS (
     GROUP BY
         ALL
 ),
-trailing_gaps AS (
-    SELECT
-        address,
-        contract_address,
-        MAX(block_date) AS gap_start_date
-    FROM
-        {{ this }}
-    WHERE
-        modified_timestamp >= SYSDATE() :: DATE - 2 -- only look back 2 days for efficiency
-    GROUP BY
-        address,
-        contract_address
-    HAVING
-        gap_start_date < SYSDATE() :: DATE - 1
-),
--- Get all existing records for pairs with gaps (from gap start forward)
 existing_supply AS (
     SELECT
         t.block_date,
@@ -102,15 +86,17 @@ existing_supply AS (
     FROM
         {{ this }}
         t
-        INNER JOIN trailing_gaps g
-        ON t.address = g.address
-        AND t.contract_address = g.contract_address
-        AND t.block_date >= g.gap_start_date
         LEFT JOIN base_supply_list b
         ON t.address = b.address
         AND t.contract_address = b.contract_address
     WHERE
-        b.address IS NULL -- Exclude pairs already in base_supply
+        block_date = (
+            SELECT
+                MAX(block_date)
+            FROM
+                {{ this }}
+        )
+        AND b.address IS NULL
 ),
 {% endif %}
 
