@@ -87,7 +87,7 @@ SELECT
     ) AS cex_balance,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_contract_id
+    {{ dbt_utils.generate_surrogate_key(['block_date','address','contract_address']) }} AS stablecoins_supply_contracts_id
 FROM
     balances
 
