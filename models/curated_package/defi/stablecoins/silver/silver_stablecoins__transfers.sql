@@ -6,7 +6,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = ["stablecoins_transfer_id"],
+    unique_key = ["stablecoins_transfers_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
     tags = ['silver','defi','stablecoins','heal','curated']
@@ -131,6 +131,6 @@ SELECT
     amount,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_transfer_id
+    {{ dbt_utils.generate_surrogate_key(['tx_hash','event_index']) }} AS stablecoins_transfers_id
 FROM
     all_transfers
