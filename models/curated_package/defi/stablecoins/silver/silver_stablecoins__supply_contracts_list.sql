@@ -8,7 +8,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = ["stablecoins_supply_contracts_id"],
+    unique_key = ["stablecoins_supply_contracts_list_id"],
     tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
@@ -149,6 +149,6 @@ SELECT
     contract_type,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
-    {{ dbt_utils.generate_surrogate_key(['address','contract_type']) }} AS stablecoins_supply_contracts_id
+    {{ dbt_utils.generate_surrogate_key(['address','contract_type']) }} AS stablecoins_supply_contracts_list_id
 FROM
     all_contracts
