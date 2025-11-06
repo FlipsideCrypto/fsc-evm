@@ -19,7 +19,7 @@ WITH contracts AS (
         address,
         contract_type
     FROM
-        {{ ref('silver_stablecoins__supply_contract_list') }}
+        {{ ref('silver_stablecoins__supply_contracts_list') }}
     {% if is_incremental() %}
     WHERE
         modified_timestamp > (
