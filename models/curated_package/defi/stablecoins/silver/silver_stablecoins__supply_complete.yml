@@ -1,0 +1,69 @@
+version: 2
+models:
+  - name: silver_stablecoins__supply_complete
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - stablecoins_supply_complete_id
+
+    columns:
+      - name: BLOCK_DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          - not_null
+      - name: NAME
+        tests:
+          - not_null
+      - name: DECIMALS
+        tests:
+          - not_null
+      - name: TOTAL_SUPPLY
+        tests:
+          - not_null
+      - name: AMOUNT_BLACKLISTED
+        tests:
+          - not_null
+      - name: AMOUNT_IN_CEX
+        tests:
+          - not_null
+      - name: AMOUNT_IN_BRIDGES
+        tests:
+          - not_null
+      - name: AMOUNT_IN_DEX_LIQUIDITY_POOLS
+        tests:
+          - not_null
+      - name: AMOUNT_IN_LENDING_POOLS
+        tests:
+          - not_null
+      - name: AMOUNT_IN_CONTRACTS
+        tests:
+          - not_null
+      - name: AMOUNT_MINTED
+        tests:
+          - not_null
+      - name: AMOUNT_BURNED
+        tests:
+          - not_null
+      - name: AMOUNT_TRANSFERRED
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: STABLECOINS_SUPPLY_COMPLETE_ID
+        tests:
+          - not_null

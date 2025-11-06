@@ -259,6 +259,7 @@ SELECT
     contract_address,
     symbol,
     NAME,
+    label,
     decimals,
     total_supply,
     blacklist_supply AS amount_blacklisted,

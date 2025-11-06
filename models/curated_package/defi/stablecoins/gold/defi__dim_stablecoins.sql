@@ -1,7 +1,9 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
@@ -23,11 +25,7 @@ WITH crosschain_stablecoins AS (
             m.name
         ) AS NAME,
         m.decimals,
-        m.is_verified,
-        m.is_verified_modified_timestamp,
-        SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp,
-        {{ dbt_utils.generate_surrogate_key(['s.token_address']) }} AS dim_stablecoins_id
+        m.is_verified
     FROM
         {{ source(
             'crosschain_silver',
@@ -58,11 +56,7 @@ manual_stablecoins AS (
         ) AS symbol,
         m.name,
         m.decimals,
-        m.is_verified,
-        m.is_verified_modified_timestamp,
-        SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp,
-        {{ dbt_utils.generate_surrogate_key(['s.contract_address']) }} AS dim_stablecoins_id
+        m.is_verified
     FROM
         {{ ref('silver_stablecoins__stablecoins_mapping_seed') }}
         s
@@ -100,9 +94,8 @@ SELECT
     CONCAT(symbol,': ',name) AS label,
     decimals,
     is_verified,
-    is_verified_modified_timestamp,
-    inserted_timestamp,
-    modified_timestamp,
-    dim_stablecoins_id
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS dim_stablecoins_id
 FROM
     all_stablecoins

@@ -1,7 +1,9 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {{ config(
     materialized = 'view',
     persist_docs ={ "relation": true,
@@ -14,6 +16,7 @@ SELECT
     contract_address,
     symbol,
     NAME,
+    label,
     decimals,
     total_supply,
     amount_minted,
