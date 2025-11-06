@@ -109,7 +109,7 @@ locked_in_contracts AS (
         SUM(contracts_balance) AS contracts_balance,
         MAX(modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver_stablecoins__supply_contracts') }}
+        {{ ref('silver_stablecoins__supply_contract_balances') }}
 
 {% if is_incremental() %}
 WHERE
@@ -117,7 +117,7 @@ WHERE
         SELECT
             DISTINCT block_date
         FROM
-            {{ ref('silver_stablecoins__supply_contracts') }}
+            {{ ref('silver_stablecoins__supply_contract_balances') }}
         WHERE
             modified_timestamp > (
                 SELECT
