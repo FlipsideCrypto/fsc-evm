@@ -43,18 +43,14 @@ events_swap AS (
         pool_address,
         CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS sender,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                's2c',
-                segmented_data [0] :: STRING
-            )
-        ) AS amount0,
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                's2c',
-                segmented_data [1] :: STRING
-            )
-        ) AS amount1,
+        utils.udf_hex_to_int(
+            's2c',
+            segmented_data [0] :: STRING
+        ) :: FLOAT AS amount0,
+        utils.udf_hex_to_int(
+            's2c',
+            segmented_data [1] :: STRING
+        ) :: FLOAT AS amount1,
         utils.udf_hex_to_int(
             's2c',
             segmented_data [2] :: STRING
@@ -156,13 +152,13 @@ traces_swap AS (
             3,
             32
         ) AS high_bits,
-        TRY_TO_NUMBER(utils.udf_hex_to_int('s2c', high_bits :: STRING)) AS amount0,
+        utils.udf_hex_to_int('s2c', high_bits :: STRING) :: FLOAT AS amount0,
         SUBSTR(
             output,
             32 + 3,
             32
         ) AS low_bits,
-        TRY_TO_NUMBER(utils.udf_hex_to_int('s2c', low_bits :: STRING)) AS amount1,
+        utils.udf_hex_to_int('s2c', low_bits :: STRING) :: FLOAT AS amount1,
         CONCAT(
             currency0,
             currency1,

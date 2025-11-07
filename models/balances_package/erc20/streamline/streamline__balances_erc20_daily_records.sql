@@ -4,6 +4,9 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('silver__balances_erc20_override') }}
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
+
 {# Set up dbt configuration #}
 {{ config (
     materialized = "incremental",
@@ -23,6 +26,11 @@ WITH verified_contracts AS (
     WHERE
         is_verified
         AND token_address IS NOT NULL
+        AND token_address NOT IN (
+            SELECT contract_address
+            FROM {{ ref('silver__balances_erc20_override') }}
+            WHERE blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+        )
 ),
 {% if is_incremental() and var('HEAL_MODEL',false) %}
 newly_verified_contracts AS (
@@ -43,6 +51,11 @@ newly_verified_contracts AS (
                 FROM
                     {{ this }}
             )
+        )
+        AND token_address NOT IN (
+            SELECT contract_address
+            FROM {{ ref('silver__balances_erc20_override') }}
+            WHERE blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
         )
 ),
 newly_verified_logs AS (

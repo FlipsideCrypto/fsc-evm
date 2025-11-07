@@ -16,11 +16,8 @@
         'DECODER_SL_CONTRACT_ABIS_BRONZE_TABLE_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
-        'BALANCES_SL_ERC20_DAILY_HISTORY_PRODUCER_BATCH_SIZE': 900000,
-        'BALANCES_SL_ERC20_DAILY_HISTORY_WORKER_BATCH_SIZE': 72000,
-        'BALANCES_SL_NATIVE_DAILY_HISTORY_PRODUCER_BATCH_SIZE': 900000,
-        'BALANCES_SL_NATIVE_DAILY_HISTORY_WORKER_BATCH_SIZE': 72000,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['inkswap-v1','morpho-v1'],
+        'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['morpho-v1'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['squidswap-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -85,6 +82,11 @@
             'shroomy': {
                 'v1': {
                     'aave_version_address': '0x70c88e98578bc521a799de0b1c65a2b12d6f99e4'
+                }
+            },
+            'tydro': {
+                'v1': {
+                    'aave_version_address': '0x2816cf15f6d2a220e789aa011d5ee4eb6c47feba'
                 }
             },
             'morpho': {

@@ -4,7 +4,9 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends on: {{ ref('bronze__balances_erc20') }}
+-- depends_on: {{ ref('bronze__balances_erc20') }}
+-- depends_on: {{ ref('silver__balances_erc20_override') }}
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 {{ config(
     materialized = 'incremental',
     unique_key = 'balances_erc20_daily_id',

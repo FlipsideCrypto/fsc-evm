@@ -190,7 +190,7 @@ fraxlend AS (
   )
 {% endif %}
 ),
-comp_v2_fork AS (
+comp_v2 AS (
     SELECT
         tx_hash,
         block_number,
@@ -213,7 +213,7 @@ comp_v2_fork AS (
     FROM
         {{ ref('silver_lending__comp_v2_deposits') }} A
 
-{% if is_incremental() and 'comp_v2_fork' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'comp_v2' not in vars.CURATED_FR_MODELS %}
   WHERE A.modified_timestamp >= (
     SELECT
       MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -332,7 +332,7 @@ deposits AS (
   SELECT
     *
   FROM
-    comp_v2_fork
+    comp_v2
   UNION ALL
   SELECT
     *

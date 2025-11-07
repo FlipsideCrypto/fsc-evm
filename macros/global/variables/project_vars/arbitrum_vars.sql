@@ -20,8 +20,10 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '5 5 * * *',
         'MAIN_CORE_TRACES_ARB_MODE': true,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','across-v1','zyberswap-v2','woofi-v1','hashflow-v1','woofi-v3','gmx-v1','hyperliquid-v1','symbiosis-v1',
-        'radiant-v1','radiant-v2','fraxswap-v1'],
+        'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['radiant-v2','radiant-v1'],
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','gmx-v1','woofi-v3','woofi-v1'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['trader_joe-v2','kyberswap-v1','kyberswap-v2','zyberswap-v2','fraxswap-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hyperliquid-v1','across-v1','multichain-v7','symbiosis-v1','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
