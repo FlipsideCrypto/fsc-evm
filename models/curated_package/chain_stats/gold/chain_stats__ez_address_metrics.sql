@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config(
     materialized = 'view',
-    tags = ['gold','stats','curated','phase_4']
+    tags = ['gold','chain_stats','curated','phase_4']
 ) }}
 
 SELECT
