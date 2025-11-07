@@ -129,7 +129,7 @@ Example: 1500000000
 
 {% docs ez_stablecoins_supply_amount_minted %}
 
-The cumulative amount of tokens minted since inception.
+The amount of tokens minted daily.
 
 Example: 2000000000
 
@@ -137,7 +137,7 @@ Example: 2000000000
 
 {% docs ez_stablecoins_supply_amount_burned %}
 
-The cumulative amount of tokens burned since inception.
+The amount of tokens burned daily.
 
 Example: 500000000
 
@@ -145,7 +145,7 @@ Example: 500000000
 
 {% docs ez_stablecoins_supply_amount_transferred %}
 
-The cumulative amount of tokens transferred.
+The amount of tokens transferred daily.
 
 Example: 10000000000
 
@@ -153,7 +153,7 @@ Example: 10000000000
 
 {% docs ez_stablecoins_supply_amount_blacklisted %}
 
-The amount of tokens held in blacklisted addresses.
+The total amount of tokens held in blacklisted addresses.
 
 Example: 1000000
 
