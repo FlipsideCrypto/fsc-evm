@@ -2,106 +2,72 @@ version: 2
 models:
   - name: chain_stats__ez_metrics_daily
     description: '{{ doc("ez_metrics_daily_table_doc") }}'
-    
     columns:
       - name: day_
         description: '{{ doc("ez_metrics_daily_day_") }}'
-        
       - name: active_users_count
         description: '{{ doc("ez_metrics_daily_active_users_count") }}'
-        
       - name: active_quality_users_count
         description: '{{ doc("ez_metrics_daily_active_quality_users_count") }}'
-        
       - name: transaction_count
         description: '{{ doc("ez_metrics_daily_transaction_count") }}'
-        
       - name: quality_transaction_count
         description: '{{ doc("ez_metrics_daily_quality_transaction_count") }}'
-        
       - name: total_fees
         description: '{{ doc("ez_metrics_daily_total_fees") }}'
-        
       - name: total_fees_usd
         description: '{{ doc("ez_metrics_daily_total_fees_usd") }}'
-        
       - name: quality_total_fees
         description: '{{ doc("ez_metrics_daily_quality_total_fees") }}'
-        
       - name: quality_total_fees_usd
         description: '{{ doc("ez_metrics_daily_quality_total_fees_usd") }}'
-        
       - name: stablecoin_transfer_volume_usd
         description: '{{ doc("ez_metrics_daily_stablecoin_transfer_volume_usd") }}'
-        
       - name: in_unit_total_transfer_volume
         description: '{{ doc("ez_metrics_daily_in_unit_total_transfer_volume") }}'
-        
       - name: total_transfer_volume_usd
         description: '{{ doc("ez_metrics_daily_total_transfer_volume_usd") }}'
-        
       - name: in_unit_quality_total_transfer_volume
         description: '{{ doc("ez_metrics_daily_in_unit_quality_total_transfer_volume") }}'
-        
       - name: quality_total_transfer_volume_usd
         description: '{{ doc("ez_metrics_daily_quality_total_transfer_volume_usd") }}'
-        
       - name: cex_withdrawal_volume_usd
         description: '{{ doc("ez_metrics_daily_cex_withdrawal_volume_usd") }}'
-        
       - name: cex_withdrawal_tx_count
         description: '{{ doc("ez_metrics_daily_cex_withdrawal_tx_count") }}'
-        
       - name: cex_unique_withdrawing_addresses
         description: '{{ doc("ez_metrics_daily_cex_unique_withdrawing_addresses") }}'
-        
       - name: cex_deposit_volume_usd
         description: '{{ doc("ez_metrics_daily_cex_deposit_volume_usd") }}'
-        
       - name: cex_deposit_tx_count
         description: '{{ doc("ez_metrics_daily_cex_deposit_tx_count") }}'
-        
       - name: cex_unique_depositing_addresses
         description: '{{ doc("ez_metrics_daily_cex_unique_depositing_addresses") }}'
-        
       - name: cex_net_flow_usd
         description: '{{ doc("ez_metrics_daily_cex_net_flow_usd") }}'
-        
       - name: chain_gross_dex_volume_usd
         description: '{{ doc("ez_metrics_daily_chain_gross_dex_volume_usd") }}'
-        
       - name: chain_swap_count
         description: '{{ doc("ez_metrics_daily_chain_swap_count") }}'
-        
       - name: chain_swapper_count
         description: '{{ doc("ez_metrics_daily_chain_swapper_count") }}'
-        
       - name: tvl_usd
         description: '{{ doc("ez_metrics_daily_tvl_usd") }}'
-        
       - name: in_unit_tvl
         description: '{{ doc("ez_metrics_daily_in_unit_tvl") }}'
-        
       - name: bridge_inbound_volume_usd
         description: '{{ doc("ez_metrics_daily_bridge_inbound_volume_usd") }}'
-        
       - name: bridge_inbound_addresses
         description: '{{ doc("ez_metrics_daily_bridge_inbound_addresses") }}'
-        
       - name: bridge_inbound_tx_count
         description: '{{ doc("ez_metrics_daily_bridge_inbound_tx_count") }}'
-        
       - name: bridge_outbound_volume_usd
         description: '{{ doc("ez_metrics_daily_bridge_outbound_volume_usd") }}'
-        
       - name: bridge_outbound_addresses
         description: '{{ doc("ez_metrics_daily_bridge_outbound_addresses") }}'
-        
       - name: bridge_outbound_tx_count
         description: '{{ doc("ez_metrics_daily_bridge_outbound_tx_count") }}'
-        
       - name: bridge_gross_volume_usd
         description: '{{ doc("ez_metrics_daily_bridge_gross_volume_usd") }}'
-        
       - name: bridge_net_inbound_usd
         description: '{{ doc("ez_metrics_daily_bridge_net_inbound_usd") }}'

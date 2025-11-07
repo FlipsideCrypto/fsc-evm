@@ -2,79 +2,54 @@ version: 2
 models:
   - name: chain_stats__ez_address_metrics
     description: '{{ doc("ez_address_metrics_table_doc") }}'
-    
     columns:
       - name: address
         description: '{{ doc("ez_address_metrics_address") }}'
-        
       - name: n_complex_txn
         description: '{{ doc("ez_address_metrics_n_complex_txn") }}'
-        
       - name: n_contracts
         description: '{{ doc("ez_address_metrics_n_contracts") }}'
-        
       - name: n_days_active
         description: '{{ doc("ez_address_metrics_n_days_active") }}'
-        
       - name: n_txn
         description: '{{ doc("ez_address_metrics_n_txn") }}'
-        
       - name: n_bridge_in
         description: '{{ doc("ez_address_metrics_n_bridge_in") }}'
-        
       - name: n_bridges
         description: '{{ doc("ez_address_metrics_n_bridges") }}'
-        
       - name: n_cex_withdrawals
         description: '{{ doc("ez_address_metrics_n_cex_withdrawals") }}'
-        
       - name: net_token_accumulate
         description: '{{ doc("ez_address_metrics_net_token_accumulate") }}'
-        
       - name: n_other_defi
         description: '{{ doc("ez_address_metrics_n_other_defi") }}'
-        
       - name: n_lp_adds
         description: '{{ doc("ez_address_metrics_n_lp_adds") }}'
-        
       - name: n_lp_pools
         description: '{{ doc("ez_address_metrics_n_lp_pools") }}'
-        
       - name: n_swap_tx
         description: '{{ doc("ez_address_metrics_n_swap_tx") }}'
-        
       - name: n_swaps
         description: '{{ doc("ez_address_metrics_n_swaps") }}'
-        
       - name: n_tokens_traded
         description: '{{ doc("ez_address_metrics_n_tokens_traded") }}'
-        
       - name: n_nft_collections
         description: '{{ doc("ez_address_metrics_n_nft_collections") }}'
-        
       - name: n_nft_mints
         description: '{{ doc("ez_address_metrics_n_nft_mints") }}'
-        
       - name: n_nft_buys
         description: '{{ doc("ez_address_metrics_n_nft_buys") }}'
-        
       - name: n_nft_ids
         description: '{{ doc("ez_address_metrics_n_nft_ids") }}'
-        
       - name: n_nft_lists
         description: '{{ doc("ez_address_metrics_n_nft_lists") }}'
-        
       - name: n_votes
         description: '{{ doc("ez_address_metrics_n_votes") }}'
-        
       - name: n_stake_tx
         description: '{{ doc("ez_address_metrics_n_stake_tx") }}'
-        
       - name: n_restakes
         description: '{{ doc("ez_address_metrics_n_restakes") }}'
-        
       - name: n_validators
         description: '{{ doc("ez_address_metrics_n_validators") }}'
-        
       - name: net_stake_accumulate
         description: '{{ doc("ez_address_metrics_net_stake_accumulate") }}'

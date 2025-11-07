@@ -13,7 +13,24 @@
 SELECT
     *
 FROM
-    {{ source(
-        'crosschain_chain_stats',
-        'ez_' ~ vars.GLOBAL_PROJECT_NAME ~ '_allowlist'
-    ) }}
+{% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
+    {{ source('crosschain_chain_stats', 'ez_arbitrum_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'avalanche' %}
+    {{ source('crosschain_chain_stats', 'ez_avalanche_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'base' %}
+    {{ source('crosschain_chain_stats', 'ez_base_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'bob' %}
+    {{ source('crosschain_chain_stats', 'ez_bob_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'boba' %}
+    {{ source('crosschain_chain_stats', 'ez_boba_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'bsc' %}
+    {{ source('crosschain_chain_stats', 'ez_bsc_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+    {{ source('crosschain_chain_stats', 'ez_ethereum_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'ink' %}
+    {{ source('crosschain_chain_stats', 'ez_ink_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'optimism' %}
+    {{ source('crosschain_chain_stats', 'ez_optimism_allowlist') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'polygon' %}
+    {{ source('crosschain_chain_stats', 'ez_polygon_allowlist') }}
+{% endif %}

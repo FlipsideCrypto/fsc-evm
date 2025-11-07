@@ -2,46 +2,32 @@ version: 2
 models:
   - name: chain_stats__ez_protocol_metrics
     description: '{{ doc("ez_protocol_metrics_table_doc") }}'
-    
     columns:
       - name: day_
         description: '{{ doc("ez_protocol_metrics_day_") }}'
-        
       - name: protocol
         description: '{{ doc("ez_protocol_metrics_protocol") }}'
-        
       - name: n_users
         description: '{{ doc("ez_protocol_metrics_n_users") }}'
-        
       - name: n_quality_users
         description: '{{ doc("ez_protocol_metrics_n_quality_users") }}'
-        
       - name: n_transactions
         description: '{{ doc("ez_protocol_metrics_n_transactions") }}'
-        
       - name: n_quality_transactions
         description: '{{ doc("ez_protocol_metrics_n_quality_transactions") }}'
-        
       - name: usd_inflows
         description: '{{ doc("ez_protocol_metrics_usd_inflows") }}'
-        
       - name: usd_outflows
         description: '{{ doc("ez_protocol_metrics_usd_outflows") }}'
-        
       - name: net_usd_inflow
         description: '{{ doc("ez_protocol_metrics_net_usd_inflow") }}'
-        
       - name: gross_usd_volume
         description: '{{ doc("ez_protocol_metrics_gross_usd_volume") }}'
-        
       - name: quality_usd_inflows
         description: '{{ doc("ez_protocol_metrics_quality_usd_inflows") }}'
-        
       - name: quality_usd_outflows
         description: '{{ doc("ez_protocol_metrics_quality_usd_outflows") }}'
-        
       - name: quality_net_usd
         description: '{{ doc("ez_protocol_metrics_quality_net_usd") }}'
-        
       - name: quality_gross_usd
         description: '{{ doc("ez_protocol_metrics_quality_gross_usd") }}'

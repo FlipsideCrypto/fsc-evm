@@ -13,7 +13,24 @@
 SELECT
     *
 FROM
-    {{ source(
-        'crosschain_chain_stats',
-        'ez_' ~ vars.GLOBAL_PROJECT_NAME ~ '_protocol_metrics'
-    ) }}
+{% if vars.GLOBAL_PROJECT_NAME == 'arbitrum' %}
+    {{ source('crosschain_chain_stats', 'ez_arbitrum_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'avalanche' %}
+    {{ source('crosschain_chain_stats', 'ez_avalanche_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'base' %}
+    {{ source('crosschain_chain_stats', 'ez_base_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'bob' %}
+    {{ source('crosschain_chain_stats', 'ez_bob_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'boba' %}
+    {{ source('crosschain_chain_stats', 'ez_boba_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'bsc' %}
+    {{ source('crosschain_chain_stats', 'ez_bsc_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+    {{ source('crosschain_chain_stats', 'ez_ethereum_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'ink' %}
+    {{ source('crosschain_chain_stats', 'ez_ink_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'optimism' %}
+    {{ source('crosschain_chain_stats', 'ez_optimism_protocol_metrics') }}
+{% elif vars.GLOBAL_PROJECT_NAME == 'polygon' %}
+    {{ source('crosschain_chain_stats', 'ez_polygon_protocol_metrics') }}
+{% endif %}
