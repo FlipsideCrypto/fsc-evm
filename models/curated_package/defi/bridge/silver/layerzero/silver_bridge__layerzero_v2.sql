@@ -34,6 +34,13 @@ layerzero AS (
         guid,
         message_type,
         '0x' || SUBSTR(SUBSTR(payload, 227, 64), 25) AS to_address,
+        executor_address,
+        executor_fee,
+        dvn_contract_address,
+        dvn_fees,
+        optional_dvns,
+        required_dvns,
+        total_dvn_fees,
         protocol,
         version,
         type,
@@ -90,6 +97,9 @@ oft_raw AS (
         utils.udf_hex_to_int(
             part [1] :: STRING
         ) :: INT AS amount_sent,
+        utils.udf_hex_to_int(
+            part [2] :: STRING
+        ) :: INT AS amount_received,
         origin_from_address,
         origin_to_address,
         origin_function_signature,
@@ -141,6 +151,13 @@ SELECT
     sender_contract_address,
     receiver_contract_address,
     message_type,
+    executor_address,
+    executor_fee,
+    dvn_contract_address,
+    dvn_fees,
+    optional_dvns,
+    required_dvns,
+    total_dvn_fees,
     l.protocol,
     l.version,
     l.type,
