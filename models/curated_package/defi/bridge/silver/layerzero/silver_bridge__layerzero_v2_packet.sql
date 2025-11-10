@@ -84,7 +84,53 @@ AND modified_timestamp >= (
         {{ this }}
 )
 {% endif %}
-)
+),
+dvn_fees as (
+
+    SELECT
+        tx_hash,
+        event_index,
+        contract_address as dvn_contract_address,
+        decoded_log:fees as dvn_fees,
+        decoded_log:optionalDVNs as optional_dvns,
+        decoded_log:requiredDVNs as required_dvns,
+        reduce(decoded_log:fees, 0, (acc, x) -> acc + x::number) as total_dvn_fees
+    FROM
+        {{ ref('core__ez_decoded_event_logs') }}
+    WHERE
+        event_name = 'DVNFeePaid'
+    and tx_hash in (select tx_hash from raw)
+    {% if is_incremental() %}
+    AND modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+    {% endif %}
+),
+executor_fees as (
+
+    SELECT
+        tx_hash,
+        event_index,
+        contract_address as executor_contract_address,
+        decoded_log:  "executor" :: STRING AS executor_address,
+        TRY_TO_NUMBER(decoded_log:  "fee" :: STRING) AS executor_fee
+    FROM
+        {{ ref('core__ez_decoded_event_logs') }}
+    WHERE
+        event_name = 'ExecutorFeePaid'
+        and tx_hash in (select tx_hash from raw)
+    {% if is_incremental() %}
+    AND modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+    {% endif %}
+),
 SELECT
     block_number,
     block_timestamp,
@@ -105,6 +151,13 @@ SELECT
     receiver_contract_address,
     guid,
     message_type,
+    executor_address,
+    executor_fee,
+    dvn_contract_address,
+    dvn_fees,
+    optional_dvns,
+    required_dvns,
+    total_dvn_fees,
     protocol,
     version,
     type,
@@ -119,3 +172,9 @@ FROM
     LEFT JOIN {{ ref('silver_bridge__layerzero_v2_bridge_seed') }}
     c2
     ON dst_chain_id = c2.eid
+    LEFT JOIN executor_fees ef
+    ON raw.tx_hash = ef.tx_hash
+    AND raw.event_index = ef.event_index + 2
+    LEFT JOIN dvn_fees df
+    ON raw.tx_hash = df.tx_hash
+    AND raw.event_index = df.event_index + 1
