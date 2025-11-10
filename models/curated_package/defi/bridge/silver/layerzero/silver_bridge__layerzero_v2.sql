@@ -143,6 +143,8 @@ SELECT
     dst_chain AS destination_chain,
     coalesce(token_address, contract_address) AS token_address,
     amount_sent AS amount_unadj,
+    amount_sent AS amount_sent,
+    amount_received AS amount_received,
     src_chain_id,
     src_chain,
     payload,
