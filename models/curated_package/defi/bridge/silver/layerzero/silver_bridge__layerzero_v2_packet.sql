@@ -134,8 +134,8 @@ executor_fees as (
 SELECT
     block_number,
     block_timestamp,
-    tx_hash,
-    event_index,
+    raw.tx_hash,
+    raw.event_index,
     payload,
     tx_type,
     nonce,
