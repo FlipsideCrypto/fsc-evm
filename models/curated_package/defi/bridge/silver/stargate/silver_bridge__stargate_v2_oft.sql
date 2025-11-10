@@ -40,6 +40,13 @@ layerzero AS (
             4
         ) AS message_type_2,
         '0x' || SUBSTR(SUBSTR(payload, 233, 64), 25) AS to_address,
+        executor_address,
+        executor_fee,
+        dvn_contract_address,
+        dvn_fees,
+        optional_dvns,
+        required_dvns,
+        total_dvn_fees,
         m.protocol,
         m.version,
         m.type,
@@ -90,6 +97,9 @@ oft_raw AS (
         utils.udf_hex_to_int(
             part [1] :: STRING
         ) :: INT AS amount_sent,
+        utils.udf_hex_to_int(
+            part [2] :: STRING
+        ) :: INT AS amount_received,
         origin_from_address,
         origin_to_address,
         origin_function_signature,
@@ -133,6 +143,7 @@ SELECT
     dst_chain,
     dst_chain_id_oft,
     amount_sent,
+    amount_received,
     payload,
     tx_type,
     nonce,
@@ -140,6 +151,13 @@ SELECT
     receiver_contract_address,
     message_type,
     message_type_2,
+    executor_address,
+    executor_fee,
+    dvn_contract_address,
+    dvn_fees,
+    optional_dvns,
+    required_dvns,
+    total_dvn_fees,
     origin_from_address,
     origin_to_address,
     origin_function_signature,
