@@ -130,7 +130,7 @@ executor_fees as (
             {{ this }}
     )
     {% endif %}
-),
+)
 SELECT
     block_number,
     block_timestamp,
