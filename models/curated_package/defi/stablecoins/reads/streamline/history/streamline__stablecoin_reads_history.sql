@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "view",
-    tags = ['streamline','stablecoin_reads','realtime','phase_4']
+    tags = ['streamline','stablecoin_reads','history','phase_4']
 ) }}
 
 WITH verified_stablecoins AS (
@@ -26,7 +26,7 @@ max_blocks AS (
     FROM
         {{ ref("_max_block_by_date") }}
     WHERE 
-        block_date >= DATEADD('day',-4,SYSDATE()) --last 3 max block_number by date
+        block_date >= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
 base AS (
     SELECT
@@ -41,6 +41,10 @@ base AS (
         AND m.block_number = c.block_number
     WHERE
         c.contract_address IS NULL
+        AND m.block_date < (
+            SELECT MAX(block_date)
+            FROM max_blocks
+        )
 ),
 function_sigs AS (
     SELECT
@@ -104,13 +108,13 @@ WHERE
 
 {# Streamline Function Call #}
 {% if execute %}
-    {% set params = { 
-        "external_table" :"stablecoin_reads",
-        "sql_limit" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_SQL_LIMIT,
-        "producer_batch_size" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_PRODUCER_BATCH_SIZE,
-        "worker_batch_size" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_WORKER_BATCH_SIZE,
-        "async_concurrent_requests" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source" : 'stablecoin_reads_realtime'
+    {% set params = {
+        "external_table": 'stablecoin_reads',
+        "sql_limit": vars.CURATED_SL_STABLECOIN_READS_HISTORY_SQL_LIMIT,
+        "producer_batch_size": vars.CURATED_SL_STABLECOIN_READS_HISTORY_PRODUCER_BATCH_SIZE,
+        "worker_batch_size": vars.CURATED_SL_STABLECOIN_READS_HISTORY_WORKER_BATCH_SIZE,
+        "async_concurrent_requests": vars.CURATED_SL_STABLECOIN_READS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
+        "sql_source": 'stablecoin_reads_history'
     } %}
 
     {% set function_call_sql %}
@@ -120,7 +124,7 @@ WHERE
         params = params
     ) }}
     {% endset %}
-    
+
     {% do run_query(function_call_sql) %}
     {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
 {% endif %}
