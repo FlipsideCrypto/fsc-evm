@@ -12,8 +12,33 @@
     tags = ['silver','defi','stablecoins','heal','curated']
 ) }}
 
-WITH blacklist_ordered_evt AS (
+WITH total_supply AS (
 
+    SELECT
+        block_date,
+        contract_address,
+        total_supply
+    FROM
+        {{ ref('silver_stablecoins__stablecoin_reads') }}
+
+{% if is_incremental() %}
+WHERE
+    block_date IN (
+        SELECT
+            DISTINCT block_date
+        FROM
+            {{ ref('silver_stablecoins__stablecoin_reads') }}
+        WHERE
+            _inserted_timestamp > (
+                SELECT
+                    MAX(_inserted_timestamp)
+                FROM
+                    {{ this }}
+            )
+    )
+{% endif %}
+),
+blacklist_ordered_evt AS (
     SELECT
         block_timestamp :: DATE AS block_date,
         blacklist_address,
@@ -50,18 +75,12 @@ blacklist AS (
     WHERE
         event_name = 'AddedBlacklist'
 ),
-base_supply AS (
+blacklist_supply AS (
     SELECT
         s.block_date,
         s.contract_address,
         SUM(
             s.balance
-        ) AS balance,
-        SUM(
-            CASE
-                WHEN bl.blacklist_address IS NOT NULL THEN s.balance
-                ELSE 0
-            END
         ) AS balance_blacklist,
         MAX(
             s.modified_timestamp
@@ -69,7 +88,7 @@ base_supply AS (
     FROM
         {{ ref('silver_stablecoins__supply_by_address_imputed') }}
         s
-        LEFT JOIN blacklist bl
+        INNER JOIN blacklist bl
         ON s.address = bl.blacklist_address
         AND s.contract_address = bl.contract_address
         AND s.block_date >= bl.start_block_date
@@ -205,9 +224,9 @@ FINAL AS (
     SELECT
         s.block_date,
         s.contract_address,
-        s.balance AS total_supply,
+        s.total_supply,
         COALESCE(
-            s.balance_blacklist,
+            b.balance_blacklist,
             0
         ) AS blacklist_supply,
         COALESCE(
@@ -243,7 +262,10 @@ FINAL AS (
             0
         ) AS transfer_volume
     FROM
-        base_supply s
+        total_supply s
+        LEFT JOIN blacklist_supply b
+        ON s.block_date = b.block_date
+        AND s.contract_address = b.contract_address
         LEFT JOIN locked_in_contracts l
         ON s.block_date = l.block_date
         AND s.contract_address = l.contract_address
