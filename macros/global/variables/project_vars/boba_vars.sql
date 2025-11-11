@@ -20,7 +20,9 @@
         'DECODER_SL_CONTRACT_ABIS_REALTIME_PRODUCER_BATCH_SIZE': 50,
         'DECODER_SL_CONTRACT_ABIS_REALTIME_WORKER_BATCH_SIZE': 50,
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['meson-v1','symbiosis-v1'],
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hyperliquid-v1','across-v1','multichain-v7','symbiosis-v1','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v3': {
@@ -33,6 +35,29 @@
                 },
                 'v2': {
                     'uni_v3_pool_created': '0x0be808376ecb75a5cf9bb6d237d16cd37893d904'
+                }
+            }
+        },
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'celer_cbridge': {
+                'v1': {
+                    'bridge': '0x841ce48f9446c8e281d3f1444cb859b4a6d0738c'
+                }
+            },
+            'l2_standard_bridge': {
+                'v1': {
+                    'bridge': '0x4200000000000000000000000000000000000010'
+                }
+            },
+            'symbiosis': {
+                'v1': {
+                    'bridge': '0xb8f275fbf7a959f4bce59999a2ef122a099e81a8'
+                }
+            },
+            'synapse': {
+                'v1': {
+                    'token_bridge': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b',
+                    'token_bridge_swap': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b'
                 }
             }
         }
