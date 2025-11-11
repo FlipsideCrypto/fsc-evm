@@ -29,9 +29,9 @@ WHERE
         FROM
             {{ ref('silver__stablecoin_reads') }}
         WHERE
-            _inserted_timestamp > (
+            modified_timestamp > (
                 SELECT
-                    MAX(_inserted_timestamp)
+                    MAX(modified_timestamp)
                 FROM
                     {{ this }}
             )
