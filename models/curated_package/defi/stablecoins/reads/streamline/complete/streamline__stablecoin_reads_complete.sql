@@ -9,7 +9,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'incremental',
-    unique_key = 'complete_stablecoin_reads_id',
+    unique_key = 'stablecoin_reads_complete_id',
     cluster_by = 'partition_key',
     incremental_predicates = ['dynamic_range', 'partition_key'],
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
@@ -23,7 +23,7 @@ SELECT
     file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address', 'block_number']
-    ) }} AS complete_stablecoin_reads_id,
+    ) }} AS stablecoin_reads_complete_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
@@ -42,6 +42,6 @@ WHERE
             {{ ref('bronze__stablecoin_reads_fr') }}
         {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY complete_stablecoin_reads_id
+qualify(ROW_NUMBER() over (PARTITION BY stablecoin_reads_complete_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
