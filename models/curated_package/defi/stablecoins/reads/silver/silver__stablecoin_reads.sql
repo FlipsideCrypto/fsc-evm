@@ -44,7 +44,7 @@ WHERE
             DATA :result :: STRING <> '0x'
         {% endif %}
 
-        qualify(ROW_NUMBER() over (PARTITION BY stablecoin_reads_id
+        qualify(ROW_NUMBER() over (PARTITION BY block_number, contract_address
         ORDER BY
             _inserted_timestamp DESC)) = 1
     ),
