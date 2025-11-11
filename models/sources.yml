@@ -43,6 +43,7 @@ sources:
       - name: token_reads
       - name: balances_erc20
       - name: balances_native
+      - name: stablecoin_reads
   - name: complete_streamline
     database: "{{ target.database }}"
     schema: streamline
