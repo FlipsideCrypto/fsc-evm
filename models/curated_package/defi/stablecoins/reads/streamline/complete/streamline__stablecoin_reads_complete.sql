@@ -19,6 +19,9 @@ SELECT
     partition_key,
     contract_address,
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
+    (
+        VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
+    ) :: DATE AS block_date,
     file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address', 'block_number']

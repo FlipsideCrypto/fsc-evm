@@ -31,7 +31,7 @@ max_blocks AS (
 base AS (
     SELECT
         s.contract_address,
-        m.block_number AS latest_block,
+        m.block_number,
         m.block_date
     FROM
         verified_stablecoins s
@@ -54,7 +54,7 @@ function_sigs AS (
 ready_reads AS (
     SELECT
         contract_address,
-        latest_block,
+        block_number,
         block_date,
         function_sig,
         RPAD(
@@ -69,9 +69,9 @@ ready_reads AS (
 )
 SELECT
     contract_address,
-    latest_block,
+    block_number,
     DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
-    ROUND(latest_block,-3) AS partition_key,
+    ROUND(block_number,-3) AS partition_key,
     function_sig,
     input,
     live.udf_api(
@@ -84,12 +84,12 @@ SELECT
         OBJECT_CONSTRUCT(
             'method', 'eth_call',
             'jsonrpc', '2.0',
-            'params', [{'to': contract_address, 'from': null, 'data': input}, utils.udf_int_to_hex(latest_block)],
+            'params', [{'to': contract_address, 'from': null, 'data': input}, utils.udf_int_to_hex(block_number)],
             'id', concat_ws(
                 '-',
                 contract_address,
                 input,
-                latest_block
+                block_number
             )
         ),
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
