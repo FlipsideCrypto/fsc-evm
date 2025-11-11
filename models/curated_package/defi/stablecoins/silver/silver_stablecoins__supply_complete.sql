@@ -88,7 +88,7 @@ blacklist_supply AS (
     FROM
         {{ ref('silver_stablecoins__supply_by_address_imputed') }}
         s
-        INNER JOIN blacklist bl
+        LEFT JOIN blacklist bl
         ON s.address = bl.blacklist_address
         AND s.contract_address = bl.contract_address
         AND s.block_date >= bl.start_block_date
@@ -96,9 +96,10 @@ blacklist_supply AS (
             s.block_date < bl.end_block_date
             OR bl.end_block_date IS NULL
         )
-
+    WHERE
+        bl.blacklist_address IS NOT NULL
 {% if is_incremental() %}
-WHERE
+AND
     block_date IN (
         SELECT
             DISTINCT block_date
