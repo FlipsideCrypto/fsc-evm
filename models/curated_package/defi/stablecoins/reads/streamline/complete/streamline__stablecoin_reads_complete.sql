@@ -10,7 +10,6 @@
 {{ config (
     materialized = 'incremental',
     unique_key = 'stablecoin_reads_complete_id',
-    cluster_by = 'partition_key',
     incremental_predicates = ['dynamic_range', 'partition_key'],
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline','stablecoin_reads','complete','phase_4']
