@@ -70,7 +70,7 @@ ready_reads AS (
 SELECT
     contract_address,
     latest_block,
-    block_date,
+    DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
     ROUND(latest_block,-3) AS partition_key,
     function_sig,
     input,
