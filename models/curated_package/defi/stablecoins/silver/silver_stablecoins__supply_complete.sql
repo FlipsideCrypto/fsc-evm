@@ -19,7 +19,7 @@ WITH total_supply AS (
         contract_address,
         total_supply
     FROM
-        {{ ref('silver_stablecoins__stablecoin_reads') }}
+        {{ ref('silver__stablecoin_reads') }}
 
 {% if is_incremental() %}
 WHERE
@@ -27,7 +27,7 @@ WHERE
         SELECT
             DISTINCT block_date
         FROM
-            {{ ref('silver_stablecoins__stablecoin_reads') }}
+            {{ ref('silver__stablecoin_reads') }}
         WHERE
             _inserted_timestamp > (
                 SELECT
