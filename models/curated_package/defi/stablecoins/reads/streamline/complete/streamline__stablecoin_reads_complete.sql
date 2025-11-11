@@ -19,7 +19,7 @@
 SELECT
     partition_key,
     contract_address,
-    block_number,
+    VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
     file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address', 'block_number']
