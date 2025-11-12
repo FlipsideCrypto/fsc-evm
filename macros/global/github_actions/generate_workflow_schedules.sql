@@ -32,6 +32,7 @@
 {% set workflow_definitions = [
     {'name': 'dbt_run_streamline_chainhead', 'cadence': 'root', 'root_schedule': chainhead_schedule},
     {'name': 'dbt_run_scheduled_main', 'cadence': 'hourly', 'root_offset': 15},
+    {'name': 'dbt_run_scheduled_main_daily', 'cadence': 'daily', 'root_offset': 45, 'hour': 1},
     {'name': 'dbt_run_scheduled_decoder', 'cadence': 'hourly', 'root_offset': 40},
     {'name': 'dbt_run_scheduled_curated', 'cadence': 'every_4_hours', 'root_offset': 30},
     {'name': 'dbt_run_scheduled_abis', 'cadence': 'daily', 'root_offset': 20, 'hour': 1},
@@ -44,6 +45,7 @@
     {'name': 'dbt_run_dev_refresh', 'cadence': 'weekly', 'root_offset': 40, 'hour': 7, 'day': 1},
     {'name': 'dbt_run_streamline_decoder_history', 'cadence': 'weekly', 'root_offset': 30, 'hour': 3, 'day': 6},
     {'name': 'dbt_run_streamline_balances_history', 'cadence': 'weekly', 'root_offset': 45, 'hour': 9, 'day': 0},
+    {'name': 'dbt_run_streamline_reads_history', 'cadence': 'weekly', 'root_offset': 45, 'hour': 7, 'day': 0},
     {'name': 'dbt_run_streamline_dexalot_chainhead', 'cadence': 'custom'},
     {'name': 'dbt_run_scheduled_dexalot_main', 'cadence': 'custom'},
     {'name': 'dbt_test_beacon', 'cadence': 'custom'},
