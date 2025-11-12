@@ -1,0 +1,11 @@
+version: 2
+models:
+  - name: chain_stats__ez_allowlist
+    description: '{{ doc("ez_allowlist_table_doc") }}'
+    columns:
+      - name: blockchain
+        description: '{{ doc("ez_allowlist_blockchain") }}'
+      - name: symbol
+        description: '{{ doc("ez_allowlist_symbol") }}'
+      - name: tracks_asset
+        description: '{{ doc("ez_allowlist_tracks_asset") }}'

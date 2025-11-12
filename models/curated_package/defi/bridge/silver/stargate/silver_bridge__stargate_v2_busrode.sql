@@ -117,6 +117,9 @@ bus_raw AS (
         utils.udf_hex_to_int(
             part [1] :: STRING
         ) :: INT AS ticket_id,
+        utils.udf_hex_to_int(
+            part [2] :: STRING
+        ) :: INT AS fare,
         regexp_substr_all(SUBSTR(DATA, 195), '.{64}') AS passenger_raw,
         utils.udf_hex_to_int(
             passenger_raw [1] :: STRING
@@ -162,6 +165,7 @@ SELECT
     amount_sent,
     bus_dst_id,
     ticket_id,
+    fare,
     asset_id,
     A.asset AS asset_name,
     A.address AS asset_address,

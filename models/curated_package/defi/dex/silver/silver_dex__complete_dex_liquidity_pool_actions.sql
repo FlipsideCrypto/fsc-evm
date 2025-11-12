@@ -514,6 +514,54 @@ WHERE
   )
 {% endif %}
 ),
+
+quickswap_v4 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount0_unadj,
+    amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    TYPE,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__quickswap_v4_pool_actions') }}
+
+{% if is_incremental() and 'quickswap_v4' not in vars.curated_fr_models %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+
 dackie AS (
   SELECT
     block_number,
@@ -993,6 +1041,11 @@ all_pools AS (
     *
   FROM
     quickswap_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    quickswap_v4
   UNION ALL
   SELECT
     *

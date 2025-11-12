@@ -38,7 +38,39 @@
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'somnia',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://mainnet.somnia.w3us.site/api/v2/smart-contracts/',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
-        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *'
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
+        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
+            'quickswap': {
+                'v4': {
+                    'pool': '0x0ccff3d02a3a200263ec4e0fdb5e60a56721b8ae'
+                }
+            },
+            'somnex': {
+                'v2': {
+                    'uni_v2_pair_created': '0xafd71143fb155058e96527b07695d93223747ed1'
+                },
+                'v3': {
+                    'uni_v3_pool_created': '0xdd594374a0fa18cd074ed61288f392ed1ccbaffd'
+                }
+            },
+            'somnia_exchange': {
+                'v2': {
+                    'uni_v2_pair_created': '0x6c4853c97b981aa848c2b56f160a73a46b5dccd4'
+                }
+            }
+        },
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'layerzero': {
+                'v2': {
+                    'bridge': '0x6f475642a6e85809b1c36fa62763669b1b48dd5b'
+                }
+            },
+            'stargate': {
+                'v2': {
+                    'bridge': '0x78add880a697070c1e765ac44d65323a0dcce913'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

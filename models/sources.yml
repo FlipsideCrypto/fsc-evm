@@ -73,6 +73,50 @@ sources:
     schema: core
     tables:
       - name: dim_dates
+  - name: crosschain_chain_stats
+    database: crosschain
+    schema: chain_stats
+    tables:
+      - name: ez_arbitrum_allowlist
+      - name: ez_avalanche_allowlist
+      - name: ez_base_allowlist
+      - name: ez_bob_allowlist
+      - name: ez_boba_allowlist
+      - name: ez_bsc_allowlist
+      - name: ez_ethereum_allowlist
+      - name: ez_ink_allowlist
+      - name: ez_optimism_allowlist
+      - name: ez_polygon_allowlist
+      - name: ez_arbitrum_address_metrics
+      - name: ez_avalanche_address_metrics
+      - name: ez_base_address_metrics
+      - name: ez_bob_address_metrics
+      - name: ez_boba_address_metrics
+      - name: ez_bsc_address_metrics
+      - name: ez_ethereum_address_metrics
+      - name: ez_ink_address_metrics
+      - name: ez_optimism_address_metrics
+      - name: ez_polygon_address_metrics
+      - name: ez_arbitrum_metrics_daily
+      - name: ez_avalanche_metrics_daily
+      - name: ez_base_metrics_daily
+      - name: ez_bob_metrics_daily
+      - name: ez_boba_metrics_daily
+      - name: ez_bsc_metrics_daily
+      - name: ez_ethereum_metrics_daily
+      - name: ez_ink_metrics_daily
+      - name: ez_optimism_metrics_daily
+      - name: ez_polygon_metrics_daily
+      - name: ez_arbitrum_protocol_metrics
+      - name: ez_avalanche_protocol_metrics
+      - name: ez_base_protocol_metrics
+      - name: ez_bob_protocol_metrics
+      - name: ez_boba_protocol_metrics
+      - name: ez_bsc_protocol_metrics
+      - name: ez_ethereum_protocol_metrics
+      - name: ez_ink_protocol_metrics
+      - name: ez_optimism_protocol_metrics
+      - name: ez_polygon_protocol_metrics
   - name: abis_silver
     database: "{{ target.database }}"
     schema: silver
