@@ -39,9 +39,9 @@
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://mainnet.somnia.w3us.site/api/v2/smart-contracts/',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
-        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
-        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['celer_cbridge-v1','symbiosis-v1','synapse-v1','l2_standard_bridge-v1'],
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['somnex-v2','somnex-v3','somnia_exchange-v2'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['somnex-v2','somnex-v3','somnia_exchange-v2'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['layerzero-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'quickswap': {
                 'v4': {
