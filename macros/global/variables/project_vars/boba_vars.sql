@@ -56,8 +56,8 @@
             },
             'synapse': {
                 'v1': {
-                    'token_bridge': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b',
-                    'token_bridge_swap': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b'
+                    'token_bridge': '0x432036208d2717394d2614d6697c46df3ed69540',
+                    'token_bridge_swap': '0x432036208d2717394d2614d6697c46df3ed69540'
                 }
             }
         }
