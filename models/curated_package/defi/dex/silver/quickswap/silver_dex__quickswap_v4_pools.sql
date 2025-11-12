@@ -11,7 +11,7 @@
 
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
-        vars.curated_defi_dex_swaps_contract_mapping
+        vars.CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING
     ) }}
     WHERE
         protocol = 'quickswap'
