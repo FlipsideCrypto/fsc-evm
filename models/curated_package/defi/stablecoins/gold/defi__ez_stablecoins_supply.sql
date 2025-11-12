@@ -8,7 +8,7 @@
     materialized = 'view',
     persist_docs ={ "relation": true,
     "columns": true },
-    tags = ['gold','defi','stablecoins','heal','curated']
+    tags = ['gold','defi','stablecoins','heal','curated_daily']
 ) }}
 
 SELECT

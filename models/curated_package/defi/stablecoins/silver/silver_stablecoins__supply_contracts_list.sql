@@ -9,7 +9,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = ["stablecoins_supply_contracts_list_id"],
-    tags = ['silver','defi','stablecoins','heal','curated']
+    tags = ['silver','defi','stablecoins','heal','curated_daily']
 ) }}
 
 WITH bridge_vault_list AS (

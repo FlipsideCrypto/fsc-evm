@@ -9,7 +9,7 @@
     unique_key = ["stablecoins_transfers_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','heal','curated']
+    tags = ['silver','defi','stablecoins','heal','curated_daily']
 ) }}
 
 WITH verified_stablecoins AS (

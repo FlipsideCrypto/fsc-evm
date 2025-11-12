@@ -14,7 +14,7 @@
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "{{ unverify_stablecoins() }}",
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','defi','stablecoins','curated']
+    tags = ['silver','defi','stablecoins','curated_daily']
 ) }}
 
 WITH stablecoin_reads AS (

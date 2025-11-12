@@ -12,7 +12,7 @@
     post_hook = '{{ unverify_stablecoins() }}',
     persist_docs ={ "relation": true,
     "columns": true },
-    tags = ['gold','defi','stablecoins','heal','curated']
+    tags = ['gold','defi','stablecoins','heal','curated_daily']
 ) }}
 
 WITH crosschain_stablecoins AS (
