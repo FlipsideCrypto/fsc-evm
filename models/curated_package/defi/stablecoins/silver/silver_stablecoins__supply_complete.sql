@@ -12,8 +12,38 @@
     tags = ['silver','defi','stablecoins','heal','curated_daily']
 ) }}
 
-WITH total_supply AS (
+WITH
 
+{% if is_incremental() %}
+max_ts AS (
+    SELECT MAX(modified_timestamp) AS max_modified_timestamp
+    FROM {{ this }}
+),
+incremental_dates AS (
+    -- Get all distinct dates that have been updated in any source table
+    SELECT DISTINCT block_date
+    FROM {{ ref('silver__stablecoin_reads') }}
+    WHERE modified_timestamp > (SELECT max_modified_timestamp FROM max_ts)
+    UNION
+    SELECT DISTINCT block_date
+    FROM {{ ref('silver_stablecoins__supply_by_address_imputed') }}
+    WHERE modified_timestamp > (SELECT max_modified_timestamp FROM max_ts)
+    UNION
+    SELECT DISTINCT block_date
+    FROM {{ ref('silver_stablecoins__supply_contracts') }}
+    WHERE modified_timestamp > (SELECT max_modified_timestamp FROM max_ts)
+    UNION
+    SELECT DISTINCT block_timestamp::DATE AS block_date
+    FROM {{ ref('silver_stablecoins__mint_burn') }}
+    WHERE modified_timestamp > (SELECT max_modified_timestamp FROM max_ts)
+    UNION
+    SELECT DISTINCT block_date
+    FROM {{ ref('silver_stablecoins__transfers') }}
+    WHERE modified_timestamp > (SELECT max_modified_timestamp FROM max_ts)
+),
+{% endif %}
+
+total_supply AS (
     SELECT
         block_date,
         contract_address,
@@ -25,16 +55,9 @@ WITH total_supply AS (
 WHERE
     block_date IN (
         SELECT
-            DISTINCT block_date
+            block_date
         FROM
-            {{ ref('silver__stablecoin_reads') }}
-        WHERE
-            modified_timestamp > (
-                SELECT
-                    MAX(modified_timestamp)
-                FROM
-                    {{ this }}
-            )
+            incremental_dates
     )
 {% endif %}
 ),
@@ -98,21 +121,14 @@ blacklist_supply AS (
         )
     WHERE
         bl.blacklist_address IS NOT NULL
+
 {% if is_incremental() %}
-AND
-    block_date IN (
-        SELECT
-            DISTINCT block_date
-        FROM
-            {{ ref('silver_stablecoins__supply_by_address_imputed') }}
-        WHERE
-            modified_timestamp > (
-                SELECT
-                    MAX(modified_timestamp)
-                FROM
-                    {{ this }}
-            )
-    )
+AND s.block_date IN (
+    SELECT
+        block_date
+    FROM
+        incremental_dates
+)
 {% endif %}
 GROUP BY
     s.block_date,
@@ -135,16 +151,9 @@ locked_in_contracts AS (
 WHERE
     block_date IN (
         SELECT
-            DISTINCT block_date
+            block_date
         FROM
-            {{ ref('silver_stablecoins__supply_contracts') }}
-        WHERE
-            modified_timestamp > (
-                SELECT
-                    MAX(modified_timestamp)
-                FROM
-                    {{ this }}
-            )
+            incremental_dates
     )
 {% endif %}
 GROUP BY
@@ -176,16 +185,9 @@ mint_burn AS (
 WHERE
     block_timestamp :: DATE IN (
         SELECT
-            DISTINCT block_timestamp :: DATE
+            block_date
         FROM
-            {{ ref('silver_stablecoins__mint_burn') }}
-        WHERE
-            modified_timestamp > (
-                SELECT
-                    MAX(modified_timestamp)
-                FROM
-                    {{ this }}
-            )
+            incremental_dates
     )
 {% endif %}
 GROUP BY
@@ -205,16 +207,9 @@ transfers AS (
 WHERE
     block_date IN (
         SELECT
-            DISTINCT block_date
+            block_date
         FROM
-            {{ ref('silver_stablecoins__transfers') }}
-        WHERE
-            modified_timestamp > (
-                SELECT
-                    MAX(modified_timestamp)
-                FROM
-                    {{ this }}
-            )
+            incremental_dates
     )
 {% endif %}
 GROUP BY
