@@ -1569,6 +1569,7 @@ all_dex AS (
     *
   FROM
     quickswap_v4
+  UNION ALL
   SELECT
     *
   FROM
