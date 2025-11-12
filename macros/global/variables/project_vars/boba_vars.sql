@@ -22,7 +22,7 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hyperliquid-v1','across-v1','multichain-v7','symbiosis-v1','hop-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['celer_cbridge-v1','symbiosis-v1','synapse-v1','l2_standard_bridge-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v3': {

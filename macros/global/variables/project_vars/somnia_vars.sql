@@ -38,7 +38,53 @@
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'somnia',
         'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://mainnet.somnia.w3us.site/api/v2/smart-contracts/',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '9,39 * * * *',
-        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *'
+        'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['uniswap-v3','sushiswap-v1','sushiswap-v2'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['celer_cbridge-v1','symbiosis-v1','synapse-v1','l2_standard_bridge-v1'],
+        'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
+            'uniswap': {
+                'v3': {
+                    'uni_v3_pool_created': ['0xdd594374a0fa18cd074ed61288f392ed1ccbaffd', '0xbc6646ea92e9142bc2a8fc2659032a92656686ac']
+                }
+            },
+            'quickswap': {
+                'v4': {
+                    'pool': '0x0ccff3d02a3a200263ec4e0fdb5e60a56721b8ae'
+                }
+            },
+            'somnex': {
+                'v1': {
+                    'uni_v2_pair_created': '0xafd71143fb155058e96527b07695d93223747ed1'
+                },
+                'v3': {
+                    'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+                }
+            },
+        },
+        'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'celer_cbridge': {
+                'v1': {
+                    'bridge': '0x841ce48f9446c8e281d3f1444cb859b4a6d0738c'
+                }
+            },
+            'l2_standard_bridge': {
+                'v1': {
+                    'bridge': '0x4200000000000000000000000000000000000010'
+                }
+            },
+            'symbiosis': {
+                'v1': {
+                    'bridge': '0xb8f275fbf7a959f4bce59999a2ef122a099e81a8'
+                }
+            },
+            'synapse': {
+                'v1': {
+                    'token_bridge': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b',
+                    'token_bridge_swap': '0xaf41a65f786339e7911f4acdad6bd49426f2dc6b'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}
