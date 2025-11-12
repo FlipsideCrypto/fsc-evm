@@ -20,7 +20,7 @@
                 github_actions.workflow_dispatches(
                     'FlipsideCrypto',
                     '{{ vars.GLOBAL_PROJECT_NAME.lower() }}' || '-models',
-                    'dbt_run_streamline_decoded_logs_history.yml',
+                    'dbt_run_streamline_decoder_history.yml',
                     NULL
                 )
         {% endset %}
