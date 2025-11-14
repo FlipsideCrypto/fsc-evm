@@ -47,7 +47,7 @@ total_supply AS (
     SELECT
         block_date,
         contract_address,
-        total_supply
+        amount AS total_supply
     FROM
         {{ ref('silver__stablecoin_reads') }}
 

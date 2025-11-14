@@ -25,7 +25,7 @@ WITH stablecoin_reads AS (
             VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
         ) :: DATE AS block_date,
         contract_address,
-        DATA :result :: STRING AS total_supply_hex,
+        DATA :result :: STRING AS amount_hex,
         _inserted_timestamp
     FROM
 
@@ -48,7 +48,7 @@ WHERE
         ORDER BY
             _inserted_timestamp DESC)) = 1
     ),
-total_supply AS (
+results AS (
     SELECT
         block_number,
         block_date,
@@ -58,41 +58,41 @@ total_supply AS (
             18,
             C.decimals
         ) AS decimals_adj,
-        total_supply_hex,
+        amount_hex,
         IFNULL(
             CASE
-                WHEN LENGTH(total_supply_hex) <= 4300
-                AND total_supply_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(total_supply_hex) AS bigint)END,
+                WHEN LENGTH(amount_hex) <= 4300
+                AND amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(amount_hex) AS bigint)END,
                 CASE
-                    WHEN total_supply_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(total_supply_hex, '0')) AS bigint)
+                    WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
-            ) AS total_supply_raw,
+            ) AS amount_raw,
             IFF(
                 decimals_adj IS NULL,
                 NULL,
                 utils.udf_decimal_adjust(
-                    total_supply_raw,
+                    amount_raw,
                     decimals_adj
                 )
-            ) AS total_supply_precise,
-            total_supply_precise :: FLOAT AS total_supply,
+            ) AS amount_precise,
+            amount_precise :: FLOAT AS amount,
             _inserted_timestamp
             FROM
                 stablecoin_reads s
                 LEFT JOIN {{ ref('core__dim_contracts') }} C
                 ON s.contract_address = C.address
             WHERE
-                total_supply_raw IS NOT NULL
+                amount_raw IS NOT NULL
         )
 SELECT
     block_number,
     block_date,
     contract_address,
     decimals_adj AS decimals,
-    total_supply_hex,
-    total_supply_raw,
-    total_supply_precise,
-    total_supply,
+    amount_hex,
+    amount_raw,
+    amount_precise,
+    amount,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','contract_address']
@@ -101,4 +101,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    total_supply
+    results
