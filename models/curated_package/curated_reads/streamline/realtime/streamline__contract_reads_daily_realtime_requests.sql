@@ -7,7 +7,7 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = "table",
-    tags = ['streamline','curated_reads','realtime','phase_4']
+    tags = ['streamline','contract_reads','realtime','phase_4']
 ) }}
 
 WITH last_x_days AS (
@@ -30,7 +30,7 @@ to_do AS (
         t.function_sig,
         t.input
     FROM
-        {{ ref("streamline__curated_reads_daily_records") }} t
+        {{ ref("streamline__contract_reads_daily_records") }} t
         INNER JOIN last_x_days d 
             ON t.block_date = d.block_date
         --max daily block_number from 1 day ago, for each contract_address/address pair
@@ -46,7 +46,7 @@ to_do AS (
         function_sig,
         input
     FROM
-        {{ ref("streamline__curated_reads_daily_complete") }}
+        {{ ref("streamline__contract_reads_daily_complete") }}
     WHERE
         block_date >= (
             SELECT MIN(block_date)
@@ -104,4 +104,4 @@ FROM
     to_do
 ORDER BY partition_key DESC, block_number DESC
 
-LIMIT {{ vars.CURATED_SL_READS_DAILY_REALTIME_SQL_LIMIT }}
+LIMIT {{ vars.CURATED_SL_CONTRACT_READS_DAILY_REALTIME_SQL_LIMIT }}

@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: silver__curated_reads
+  - name: silver__contract_reads
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - curated_reads_id
+            - contract_reads_id

@@ -4,15 +4,15 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends on: {{ ref('bronze__curated_reads') }}
+-- depends on: {{ ref('bronze__contract_reads') }}
 
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'incremental',
-    unique_key = 'curated_reads_complete_id',
+    unique_key = 'contract_reads_complete_id',
     incremental_predicates = ['dynamic_range', 'partition_key'],
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline','curated_reads','complete','phase_4']
+    tags = ['streamline','contract_reads','complete','phase_4']
 ) }}
 
 SELECT
@@ -29,7 +29,7 @@ SELECT
     file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address', 'address', 'block_number', 'function_name', 'function_sig', 'input']
-    ) }} AS curated_reads_complete_id,
+    ) }} AS contract_reads_complete_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     _inserted_timestamp,
@@ -37,7 +37,7 @@ SELECT
 FROM
 
 {% if is_incremental() %}
-{{ ref('bronze__curated_reads') }}
+{{ ref('bronze__contract_reads') }}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -45,9 +45,9 @@ WHERE
         FROM
             {{ this }})
         {% else %}
-            {{ ref('bronze__curated_reads_fr') }}
+            {{ ref('bronze__contract_reads_fr') }}
         {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY curated_reads_complete_id
+qualify(ROW_NUMBER() over (PARTITION BY contract_reads_complete_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
