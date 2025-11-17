@@ -12,6 +12,7 @@
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'monad',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'monad',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '24,54 * * * *',
+        'BALANCES_DAILY_REALTIME_LOOKBACK_DAYS': -2,
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -34,9 +35,11 @@
             },
             'curve': {
                 'v1': {
-                    'deployer': ['0x8271e06e5887fe5ba05234f5315c19f3ec90e8ad',
-                    '0x6e28493348446503db04a49621d8e6c9a40015fb',
-                    '0xe7fbd704b938cb8fe26313c3464d4b7b7348c88c']
+                    'deployer': [
+                        '0x8271e06e5887fe5ba05234f5315c19f3ec90e8ad',
+                        '0x6e28493348446503db04a49621d8e6c9a40015fb',
+                        '0xe7fbd704b938cb8fe26313c3464d4b7b7348c88c'
+                    ]
                 }
             },
             'octoswap': {
