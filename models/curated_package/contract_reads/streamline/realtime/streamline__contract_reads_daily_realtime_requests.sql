@@ -24,11 +24,13 @@ to_do AS (
         DISTINCT
         d.block_number,
         d.block_date,
-        t.address,
         t.contract_address,
+        t.address,
         t.function_name,
         t.function_sig,
-        t.input
+        t.input,
+        t.metadata,
+        t.platform
     FROM
         {{ ref("streamline__contract_reads_daily_records") }} t
         INNER JOIN last_x_days d 
@@ -40,11 +42,13 @@ to_do AS (
     SELECT
         block_number,
         block_date,
-        address,
         contract_address,
+        address,
         function_name,
         function_sig,
-        input
+        input,
+        metadata,
+        platform
     FROM
         {{ ref("streamline__contract_reads_daily_complete") }}
     WHERE
@@ -62,11 +66,13 @@ to_do AS (
 SELECT
     block_number,
     DATE_PART('EPOCH_SECONDS', block_date) :: INT AS block_date_unix,
-    address,
     contract_address,
+    address,
     function_name,
     function_sig,
     input,
+    metadata,
+    platform,
     ROUND(
         block_number,
         -3
@@ -74,13 +80,13 @@ SELECT
     OBJECT_CONSTRUCT(
         'data', OBJECT_CONSTRUCT(
             'id', CONCAT(
-                address,
-                '-',
                 contract_address,
+                '-',
+                address,
                 '-',
                 input,
                 '-',
-                block_number
+                block_number,
             ),
             'jsonrpc', '2.0',
             'method', 'eth_call',

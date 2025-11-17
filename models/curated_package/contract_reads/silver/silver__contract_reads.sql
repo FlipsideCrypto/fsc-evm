@@ -25,9 +25,11 @@ SELECT
         VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
     ) :: DATE AS block_date,
     DATA :result :: STRING AS result_hex,
+    (VALUE :"METADATA" :: STRING) :: VARIANT AS metadata,
+    VALUE :"PLATFORM" :: STRING AS platform,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_number','contract_address', 'address', 'function_name', 'function_sig', 'input']
+        ['block_number','contract_address', 'address', 'input', 'platform']
     ) }} AS contract_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

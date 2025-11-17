@@ -26,9 +26,13 @@ SELECT
     VALUE :"FUNCTION_NAME" :: STRING AS function_name,
     VALUE :"FUNCTION_SIG" :: STRING AS function_sig,
     VALUE :"INPUT" :: STRING AS input,
+    (
+        VALUE :"METADATA" :: STRING
+    ) :: variant AS metadata,
+    VALUE :"PLATFORM" :: STRING AS platform,
     file_name,
     {{ dbt_utils.generate_surrogate_key(
-        ['contract_address', 'address', 'block_number', 'function_name', 'function_sig', 'input']
+        ['contract_address', 'address', 'block_number', 'function_name', 'function_sig', 'input', 'platform']
     ) }} AS contract_reads_complete_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
@@ -48,6 +52,6 @@ WHERE
             {{ ref('bronze__contract_reads_fr') }}
         {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY contract_reads_complete_id
-ORDER BY
-    _inserted_timestamp DESC)) = 1
+        qualify(ROW_NUMBER() over (PARTITION BY contract_reads_complete_id
+        ORDER BY
+            _inserted_timestamp DESC)) = 1
