@@ -17,7 +17,7 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-        WHERE block_date >= DATEADD('day', {{ vars.BALANCES_DAILY_REALTIME_LOOKBACK_DAYS }}, SYSDATE())
+        WHERE block_date >= DATEADD('day', {{ vars.BALANCES_SL_DAILY_REALTIME_LOOKBACK_DAYS }}, SYSDATE())
 ),
 to_do AS (
     SELECT
