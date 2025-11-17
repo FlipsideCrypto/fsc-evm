@@ -57,6 +57,25 @@ uniswap_v2_tvl AS (
     )
     {% endif %}
 )
+uniswap_v3_tvl AS (
+    SELECT
+        contract_address,
+        address,
+        function_name,
+        function_sig,
+        input,
+        metadata,
+        protocol,
+        version,
+        platform
+    FROM {{ ref('silver_reads__uniswap_v3_tvl') }}
+    {% if is_incremental() %}
+    WHERE modified_timestamp > (
+        SELECT MAX(modified_timestamp)
+        FROM {{ this }}
+    )
+    {% endif %}
+)
 all_records AS (
     SELECT
         *
@@ -67,6 +86,11 @@ all_records AS (
         *
     FROM
         uniswap_v2_tvl
+    UNION ALL
+    SELECT
+        *
+    FROM
+        uniswap_v3_tvl
 )
 SELECT
     contract_address,
