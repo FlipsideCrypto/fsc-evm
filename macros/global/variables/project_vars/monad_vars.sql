@@ -12,7 +12,7 @@
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'monad',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'monad',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '24,54 * * * *',
-        'BALANCES_DAILY_REALTIME_LOOKBACK_DAYS': -2,
+        'BALANCES_SL_DAILY_REALTIME_LOOKBACK_DAYS': -2,
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
