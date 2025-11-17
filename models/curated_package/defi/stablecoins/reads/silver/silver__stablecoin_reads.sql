@@ -25,7 +25,7 @@ WITH stablecoin_reads AS (
             VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
         ) :: DATE AS block_date,
         contract_address,
-        DATA :result :: STRING AS amount_hex,
+        DATA :result :: STRING AS result_hex,
         _inserted_timestamp
     FROM
 
@@ -58,7 +58,7 @@ results AS (
             18,
             C.decimals
         ) AS decimals_adj,
-        amount_hex,
+        result_hex AS amount_hex,
         IFNULL(
             CASE
                 WHEN LENGTH(amount_hex) <= 4300
