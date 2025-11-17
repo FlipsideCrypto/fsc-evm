@@ -17,7 +17,13 @@ WITH last_x_days AS (
         block_date
     FROM
         {{ ref("_max_block_by_date") }}
-    WHERE block_date >= DATEADD('day',-4,SYSDATE()) --last 3 max block_number by date
+    WHERE block_date >= DATEADD('day',
+    {% if vars.GLOBAL_PROJECT_NAME == 'monad' %}
+        -2
+    {% else %}
+        -4
+    {% endif %}
+    , SYSDATE())
 ),
 to_do AS (
     SELECT
