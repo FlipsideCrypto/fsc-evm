@@ -18,13 +18,17 @@
 SELECT
     partition_key,
     contract_address,
+    VALUE :"ADDRESS" :: STRING AS address,
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
     (
         VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
     ) :: DATE AS block_date,
+    VALUE :"FUNCTION_NAME" :: STRING AS function_name,
+    VALUE :"FUNCTION_SIG" :: STRING AS function_sig,
+    VALUE :"INPUT" :: STRING AS input,
     file_name,
     {{ dbt_utils.generate_surrogate_key(
-        ['contract_address', 'block_number']
+        ['contract_address', 'address', 'block_number', 'function_name', 'function_sig', 'input']
     ) }} AS curated_reads_complete_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
