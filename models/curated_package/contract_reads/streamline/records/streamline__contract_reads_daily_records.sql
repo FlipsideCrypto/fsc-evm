@@ -4,7 +4,7 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
-{# Set up dbt configuration #}
+-- depends_on: {{ ref('silver_reads__lido_reads') }}
 {{ config (
     materialized = "incremental",
     unique_key = "contract_reads_daily_records_id",
@@ -34,7 +34,7 @@ WITH all_records AS (
             protocol,
             version,
             platform
-        FROM {{ models[0] }}
+        FROM {{ model }}
         {% if not loop.last %}
         {% if is_incremental() %}
         WHERE modified_timestamp > (
