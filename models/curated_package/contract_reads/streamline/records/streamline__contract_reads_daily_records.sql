@@ -12,158 +12,41 @@
     tags = ['streamline','contract_reads','records','phase_4']
 ) }}
 
-WITH lido AS (
-
-    SELECT
-        contract_address,
-        address,
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM
-        {{ ref('silver_reads__lido_reads') }}
-
-{% if is_incremental() %}
-WHERE
-    modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
+{% set models = [] %}
+{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
+    {% set _ = models.append(ref('silver_reads__lido_reads')) %}
 {% endif %}
-),
-uniswap_v2 AS (
-    SELECT
-        contract_address,
-        address,
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM {{ ref('silver_reads__uniswap_v2_reads') }}
-    {% if is_incremental() %}
-    WHERE modified_timestamp > (
-        SELECT MAX(modified_timestamp)
-        FROM {{ this }}
-    )
-    {% endif %}
-),
-uniswap_v3 AS (
-    SELECT
-        contract_address,
-        address,
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM {{ ref('silver_reads__uniswap_v3_reads') }}
-    {% if is_incremental() %}
-    WHERE modified_timestamp > (
-        SELECT MAX(modified_timestamp)
-        FROM {{ this }}
-    )
-    {% endif %}
-),
-aave_v1 AS (
-    SELECT
-        contract_address,
-        address,
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM {{ ref('silver_reads__aave_v1_reads') }}
-    {% if is_incremental() %}
-    WHERE modified_timestamp > (
-        SELECT MAX(modified_timestamp)
-        FROM {{ this }}
-    )
-    {% endif %}
-),
-aave_v2 AS (
-    SELECT
-        contract_address,
-        address,
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM {{ ref('silver_reads__aave_v2_reads') }}
-    {% if is_incremental() %}
-    WHERE modified_timestamp > (
-        SELECT MAX(modified_timestamp)
-        FROM {{ this }}
-    )
-    {% endif %}
-),
-aave_v3 AS (
-    SELECT
-        contract_address,
-        address,
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM {{ ref('silver_reads__aave_v3_reads') }}
-    {% if is_incremental() %}
-    WHERE modified_timestamp > (
-        SELECT MAX(modified_timestamp)
-        FROM {{ this }}
-    )
-    {% endif %}
-),
+{% set _ = models.append(ref('silver_reads__uniswap_v2_reads')) %}
+{% set _ = models.append(ref('silver_reads__uniswap_v3_reads')) %}
+{% set _ = models.append(ref('silver_reads__aave_v1_reads')) %}
+{% set _ = models.append(ref('silver_reads__aave_v2_reads')) %}
+{% set _ = models.append(ref('silver_reads__aave_v3_reads')) %}
 
-all_records AS (
-    SELECT
-        *
-    FROM
-        lido
-    UNION ALL
-    SELECT
-        *
-    FROM
-        uniswap_v2
-    UNION ALL
-    SELECT
-        *
-    FROM
-        uniswap_v3
-    UNION ALL
-    SELECT
-        *
-    FROM
-        aave_v1
-    UNION ALL
-    SELECT
-        *
-    FROM
-        aave_v2
-    UNION ALL
-    SELECT
-        *
-    FROM
-        aave_v3
+WITH all_records AS (
+    {% for model in models %}
+        SELECT
+            contract_address,
+            address,
+            function_name,
+            function_sig,
+            input,
+            metadata,
+            protocol,
+            version,
+            platform
+        FROM {{ models[0] }}
+        {% if not loop.last %}
+        {% if is_incremental() %}
+        WHERE modified_timestamp > (
+            SELECT MAX(modified_timestamp)
+            FROM {{ this }}
+        )
+        {% endif %}
+        UNION ALL
+        {% endif %}
+    {% endfor %}
 )
+
 SELECT
     contract_address,
     address,
