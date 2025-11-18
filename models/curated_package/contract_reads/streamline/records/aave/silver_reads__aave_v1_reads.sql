@@ -72,10 +72,6 @@ lending_pools AS (
             WHEN '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum' THEN '0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3'
         END AS address,
         --Aave: LendingPoolCore
-        function_name,
-        function_sig,
-        input,
-        metadata,
         protocol,
         version,
         platform
@@ -88,10 +84,6 @@ lending_pools AS (
             WHEN '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum' THEN '0x1012cff81a1582ddd0616517efb97d02c5c17e25'
         END AS address,
         --Uniswap: LendingPoolCore in Aave v1 holds Uniswap v1 LP tokens as collateral
-        function_name,
-        function_sig,
-        input,
-        metadata,
         protocol,
         version,
         platform
