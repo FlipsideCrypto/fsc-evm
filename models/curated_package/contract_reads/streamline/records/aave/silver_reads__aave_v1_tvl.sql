@@ -21,7 +21,7 @@ WITH all_tokens AS (
             version
         ) AS platform
     FROM
-        {{ ref('silver_lending__aave_ethereum_tokens') }} --relevant for ethereum only
+        {{ ref('silver_lending__aave_tokens') }}
     WHERE
         protocol = 'aave'
         AND version = 'v1'
@@ -34,6 +34,8 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+
+{% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
 UNION
 SELECT
     underlying_address AS contract_address,
@@ -45,7 +47,8 @@ SELECT
         version
     ) AS platform
 FROM
-    {{ ref('silver_lending__aave_tokens') }}
+    {{ ref('silver_lending__aave_ethereum_tokens') }}
+    --relevant for ethereum only
 WHERE
     protocol = 'aave'
     AND version = 'v1'
@@ -58,11 +61,14 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+{% endif %}
 ),
 lending_pools AS (
     SELECT
         contract_address,
-        '0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3' AS address,
+        CASE
+            WHEN '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum' THEN '0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3'
+        END AS address,
         --Aave: LendingPoolCore
         function_name,
         function_sig,
@@ -76,7 +82,9 @@ lending_pools AS (
     UNION ALL
     SELECT
         contract_address,
-        '0x1012cff81a1582ddd0616517efb97d02c5c17e25' AS address,
+        CASE
+            WHEN '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum' THEN '0x1012cff81a1582ddd0616517efb97d02c5c17e25'
+        END AS address,
         --Uniswap: LendingPoolCore in Aave v1 holds Uniswap v1 LP tokens as collateral
         function_name,
         function_sig,
