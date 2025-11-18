@@ -8,7 +8,6 @@
 {{ config (
     materialized = "incremental",
     unique_key = "contract_reads_daily_records_id",
-    cluster_by = "block_date",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline','contract_reads','records','phase_4']
 ) }}
