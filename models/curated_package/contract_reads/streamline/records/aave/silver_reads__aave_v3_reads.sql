@@ -44,7 +44,7 @@ SELECT
         function_sig,
         64,
         '0'
-    ) AS input
+    ) AS input,
     NULL AS metadata,
     protocol,
     version,

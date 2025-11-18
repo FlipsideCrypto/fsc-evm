@@ -2,6 +2,8 @@
 {% set vars = return_vars() %}
 {# Log configuration details #}
 {{ log_model_details() }}
+
+-- depends_on: {{ ref('silver_lending__aave_ethereum_tokens') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',

@@ -15,8 +15,8 @@ WITH liquidity_pools AS (
     SELECT
         DISTINCT 
         pool_address,
-        token0,
-        token1,
+        token0_address AS token0,
+        token1_address AS token1,
         protocol,
         version,
         platform
