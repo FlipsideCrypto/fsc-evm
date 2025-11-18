@@ -99,7 +99,7 @@ SELECT
         '0x70a08231',
         LPAD(SUBSTR(address, 3), 64, '0')
     ) AS input,
-    NULL AS metadata,
+    NULL :: VARIANT AS metadata,
     protocol,
     version,
     platform,

@@ -39,7 +39,7 @@ SELECT
     function_name,
     function_sig,
     input,
-    NULL AS metadata,
+    NULL :: VARIANT AS metadata,
     'lido' AS protocol,
     'v1' AS version,
     CONCAT(protocol, '-', version) AS platform,

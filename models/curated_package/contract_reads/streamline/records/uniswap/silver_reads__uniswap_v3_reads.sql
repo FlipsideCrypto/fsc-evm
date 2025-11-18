@@ -63,7 +63,7 @@ SELECT
     OBJECT_CONSTRUCT(
         'token0', token0,
         'token1', token1
-    ) AS metadata,
+    ) :: VARIANT AS metadata,
     protocol,
     version,
     platform,

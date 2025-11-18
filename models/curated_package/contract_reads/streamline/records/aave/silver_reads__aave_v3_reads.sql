@@ -45,7 +45,7 @@ SELECT
         64,
         '0'
     ) AS input,
-    NULL AS metadata,
+    NULL :: VARIANT AS metadata,
     protocol,
     version,
     platform,
