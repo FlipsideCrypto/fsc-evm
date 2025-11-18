@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'lido_tvl_id',
+    unique_key = 'lido_reads_id',
     tags = ['silver','contract_reads','curated_daily']
 ) }}
 
@@ -45,7 +45,7 @@ SELECT
     CONCAT(protocol, '-', version) AS platform,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','input','platform']
-    ) }} AS lido_tvl_id,
+    ) }} AS lido_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id

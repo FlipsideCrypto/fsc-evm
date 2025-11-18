@@ -5,7 +5,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'aave_v1_tvl_id',
+    unique_key = 'aave_v1_reads_id',
     tags = ['silver','contract_reads','curated_daily']
 ) }}
 
@@ -111,7 +111,7 @@ SELECT
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','address','input','platform']
-    ) }} AS aave_v1_tvl_id,
+    ) }} AS aave_v1_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id

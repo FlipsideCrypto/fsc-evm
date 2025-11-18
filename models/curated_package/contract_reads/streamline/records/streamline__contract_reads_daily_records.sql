@@ -13,7 +13,7 @@
     tags = ['streamline','contract_reads','records','phase_4']
 ) }}
 
-WITH lido_tvl AS (
+WITH lido AS (
 
     SELECT
         contract_address,
@@ -26,7 +26,7 @@ WITH lido_tvl AS (
         version,
         platform
     FROM
-        {{ ref('silver_reads__lido_tvl') }}
+        {{ ref('silver_reads__lido_reads') }}
 
 {% if is_incremental() %}
 WHERE
@@ -38,7 +38,7 @@ WHERE
     )
 {% endif %}
 ),
-uniswap_v2_tvl AS (
+uniswap_v2 AS (
     SELECT
         contract_address,
         address,
@@ -49,7 +49,7 @@ uniswap_v2_tvl AS (
         protocol,
         version,
         platform
-    FROM {{ ref('silver_reads__uniswap_v2_tvl') }}
+    FROM {{ ref('silver_reads__uniswap_v2_reads') }}
     {% if is_incremental() %}
     WHERE modified_timestamp > (
         SELECT MAX(modified_timestamp)
@@ -57,7 +57,7 @@ uniswap_v2_tvl AS (
     )
     {% endif %}
 )
-uniswap_v3_tvl AS (
+uniswap_v3 AS (
     SELECT
         contract_address,
         address,
@@ -68,29 +68,30 @@ uniswap_v3_tvl AS (
         protocol,
         version,
         platform
-    FROM {{ ref('silver_reads__uniswap_v3_tvl') }}
+    FROM {{ ref('silver_reads__uniswap_v3_reads') }}
     {% if is_incremental() %}
     WHERE modified_timestamp > (
         SELECT MAX(modified_timestamp)
         FROM {{ this }}
     )
     {% endif %}
-)
+),
+
 all_records AS (
     SELECT
         *
     FROM
-        lido_tvl
+        lido
     UNION ALL
     SELECT
         *
     FROM
-        uniswap_v2_tvl
+        uniswap_v2
     UNION ALL
     SELECT
         *
     FROM
-        uniswap_v3_tvl
+        uniswap_v3
 )
 SELECT
     contract_address,
