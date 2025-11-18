@@ -46,7 +46,7 @@ SELECT
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
-        ['contract_address','address','input','platform']
+        ['contract_address','input','platform']
     ) }} AS uniswap_v2_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

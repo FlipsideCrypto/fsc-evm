@@ -5,14 +5,14 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'aave_v1_tvl_id',
+    unique_key = 'aave_v2_tvl_id',
     tags = ['silver','contract_reads','curated_daily']
 ) }}
 
 WITH all_tokens AS (
 
     SELECT
-        underlying_address AS contract_address,
+        atoken_address AS contract_address,
         protocol,
         version,
         CONCAT(
@@ -24,7 +24,7 @@ WITH all_tokens AS (
         {{ ref('silver_lending__aave_tokens') }}
     WHERE
         protocol = 'aave'
-        AND version = 'v1'
+        AND version = 'v2'
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -38,7 +38,7 @@ AND modified_timestamp > (
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
 UNION
 SELECT
-    underlying_address AS contract_address,
+    atoken_address AS contract_address,
     protocol,
     version,
     CONCAT(
@@ -51,7 +51,7 @@ FROM
     --relevant for ethereum only
 WHERE
     protocol = 'aave'
-    AND version = 'v1'
+    AND version IN ('v2','v2.1')
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -62,56 +62,24 @@ AND modified_timestamp > (
 )
 {% endif %}
 {% endif %}
-),
-lending_pools AS (
-    SELECT
-        contract_address,
-        CASE
-            WHEN '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum' THEN '0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3'
-        END AS address,
-        --Aave: LendingPoolCore
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM
-        all_tokens
-    UNION ALL
-    SELECT
-        contract_address,
-        CASE
-            WHEN '{{ vars.GLOBAL_PROJECT_NAME }}' = 'ethereum' THEN '0x1012cff81a1582ddd0616517efb97d02c5c17e25'
-        END AS address,
-        --Uniswap: LendingPoolCore in Aave v1 holds Uniswap v1 LP tokens as collateral
-        function_name,
-        function_sig,
-        input,
-        metadata,
-        protocol,
-        version,
-        platform
-    FROM
-        all_tokens
 )
 SELECT
     contract_address,
-    address,
-    'balanceOf' AS function_name,
-    '0x70a08231' AS function_sig,
-    CONCAT(
-        '0x70a08231',
-        LPAD(SUBSTR(address, 3), 64, '0')
-    ) AS input,
+    NULL AS address,
+    'totalSupply' AS function_name,
+    '0x18160ddd' AS function_sig,
+    RPAD(
+        function_sig,
+        64,
+        '0'
+    ) AS input
     NULL AS metadata,
     protocol,
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
-        ['contract_address','address','input','platform']
-    ) }} AS aave_v1_tvl_id,
+        ['contract_address','input','platform']
+    ) }} AS aave_v2_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
