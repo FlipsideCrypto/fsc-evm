@@ -56,7 +56,7 @@ uniswap_v2 AS (
         FROM {{ this }}
     )
     {% endif %}
-)
+),
 uniswap_v3 AS (
     SELECT
         contract_address,
@@ -69,6 +69,63 @@ uniswap_v3 AS (
         version,
         platform
     FROM {{ ref('silver_reads__uniswap_v3_reads') }}
+    {% if is_incremental() %}
+    WHERE modified_timestamp > (
+        SELECT MAX(modified_timestamp)
+        FROM {{ this }}
+    )
+    {% endif %}
+),
+aave_v1 AS (
+    SELECT
+        contract_address,
+        address,
+        function_name,
+        function_sig,
+        input,
+        metadata,
+        protocol,
+        version,
+        platform
+    FROM {{ ref('silver_reads__aave_v1_reads') }}
+    {% if is_incremental() %}
+    WHERE modified_timestamp > (
+        SELECT MAX(modified_timestamp)
+        FROM {{ this }}
+    )
+    {% endif %}
+),
+aave_v2 AS (
+    SELECT
+        contract_address,
+        address,
+        function_name,
+        function_sig,
+        input,
+        metadata,
+        protocol,
+        version,
+        platform
+    FROM {{ ref('silver_reads__aave_v2_reads') }}
+    {% if is_incremental() %}
+    WHERE modified_timestamp > (
+        SELECT MAX(modified_timestamp)
+        FROM {{ this }}
+    )
+    {% endif %}
+),
+aave_v3 AS (
+    SELECT
+        contract_address,
+        address,
+        function_name,
+        function_sig,
+        input,
+        metadata,
+        protocol,
+        version,
+        platform
+    FROM {{ ref('silver_reads__aave_v3_reads') }}
     {% if is_incremental() %}
     WHERE modified_timestamp > (
         SELECT MAX(modified_timestamp)
@@ -92,6 +149,21 @@ all_records AS (
         *
     FROM
         uniswap_v3
+    UNION ALL
+    SELECT
+        *
+    FROM
+        aave_v1
+    UNION ALL
+    SELECT
+        *
+    FROM
+        aave_v2
+    UNION ALL
+    SELECT
+        *
+    FROM
+        aave_v3
 )
 SELECT
     contract_address,
