@@ -11,6 +11,7 @@
     unique_key = "contract_address",
     merge_update_columns = ["contract_address"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(contract_address)",
+    full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
     tags = ['silver','abis','phase_2']
 ) }}
 
