@@ -2,7 +2,7 @@
 
 ## What
 
-This table provides daily supply metrics for verified stablecoins across EVM-compatible blockchains. It tracks total supply, mint/burn activity, and distribution across various DeFi protocols and platforms.
+This table provides daily supply metrics for verified stablecoins across EVM-compatible blockchains. It tracks total supply, mint/burn activity, and distribution across various DeFi protocols and platforms. Historical data available, starting from `2025-06-10`.
 
 ## Key Use Cases
 
@@ -22,7 +22,7 @@ This table provides daily supply metrics for verified stablecoins across EVM-com
 - `block_date`: Date of the supply snapshot
 - `contract_address`: Stablecoin token contract address
 - `symbol`: Token symbol (e.g., USDC, USDT, DAI)
-- `total_supply`: Total supply of the stablecoin, based on daily balances
+- `total_supply`: Total supply of the stablecoin, based on direct `totalSupply` contract functions calls
 - `amount_minted`: Cumulative amount minted
 - `amount_burned`: Cumulative amount burned
 - `amount_in_bridges`: Amount held in Bridge vaults
@@ -121,7 +121,7 @@ Example: 6
 
 {% docs ez_stablecoins_supply_total_supply %}
 
-The total supply of the stablecoin on this blockchain as of the block_date, primarily derived from daily balances.
+The total supply of the stablecoin on this blockchain as of the block_date, directly derived from `totalSupply` contract function calls.
 
 Example: 1500000000
 
