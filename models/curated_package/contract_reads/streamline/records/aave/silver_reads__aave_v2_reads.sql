@@ -25,8 +25,7 @@ WITH all_tokens AS (
     FROM
         {{ ref('silver_lending__aave_tokens') }}
     WHERE
-        protocol = 'aave'
-        AND version = 'v2'
+        version = 'v2'
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -52,8 +51,7 @@ FROM
     {{ ref('silver_lending__aave_ethereum_tokens') }}
     --relevant for ethereum only
 WHERE
-    protocol = 'aave'
-    AND version IN ('v2','v2.1')
+    version IN ('v2','v2.1')
 
 {% if is_incremental() %}
 AND modified_timestamp > (

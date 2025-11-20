@@ -23,8 +23,7 @@ WITH all_tokens AS (
     FROM
         {{ ref('silver_lending__aave_tokens') }}
     WHERE
-        protocol = 'aave'
-        AND version = 'v3'
+        version = 'v3'
 
 {% if is_incremental() %}
 AND modified_timestamp > (
