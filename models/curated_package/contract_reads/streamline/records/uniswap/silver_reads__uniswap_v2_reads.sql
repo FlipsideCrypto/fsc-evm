@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'lido_reads_id',
+    unique_key = 'uniswap_v2_reads_id',
     tags = ['silver','contract_reads','curated_daily']
 ) }}
 
