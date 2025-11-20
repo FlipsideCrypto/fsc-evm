@@ -33,11 +33,7 @@ to_do AS (
         t.platform
     FROM
         {{ ref("streamline__contract_reads_daily_records") }} t
-        INNER JOIN last_x_days d 
-            ON t.block_date = d.block_date
-        --max daily block_number from 1 day ago, for each contract_address/address pair
-    WHERE
-        t.block_date IS NOT NULL
+        CROSS JOIN last_x_days d
     EXCEPT
     SELECT
         block_number,
@@ -86,7 +82,7 @@ SELECT
                 '-',
                 input,
                 '-',
-                block_number,
+                block_number
             ),
             'jsonrpc', '2.0',
             'method', 'eth_call',
