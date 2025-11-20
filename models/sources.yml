@@ -44,6 +44,7 @@ sources:
       - name: balances_erc20
       - name: balances_native
       - name: contract_reads
+      - name: stablecoin_reads
   - name: complete_streamline
     database: "{{ target.database }}"
     schema: streamline
@@ -62,11 +63,17 @@ sources:
       - name: complete_token_asset_metadata
       - name: complete_token_prices
       - name: near_address_encoded
+      - name: tokens_stablecoins
   - name: crosschain_public
     database: crosschain
     schema: bronze_public
     tables:
       - name: user_abis
+  - name: crosschain_gold
+    database: crosschain
+    schema: core
+    tables:
+      - name: dim_dates
   - name: crosschain_chain_stats
     database: crosschain
     schema: chain_stats
