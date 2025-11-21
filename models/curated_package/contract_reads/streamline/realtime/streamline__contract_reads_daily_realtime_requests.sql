@@ -78,7 +78,7 @@ SELECT
             'id', CONCAT(
                 contract_address,
                 '-',
-                address,
+                COALESCE(address,'null'),
                 '-',
                 input,
                 '-',
