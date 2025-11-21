@@ -24,7 +24,7 @@ WITH liquidity_pools AS (
 
 {% if is_incremental() %}
 WHERE
-    modified_timestamp > (
+    _inserted_timestamp > (
         SELECT
             MAX(modified_timestamp)
         FROM
