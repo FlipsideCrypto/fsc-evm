@@ -47,6 +47,9 @@ all_balances AS (
         platform
     FROM
         liquidity_pools
+    WHERE
+        token0 IS NOT NULL
+        AND token0 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
         token1 AS contract_address,
@@ -60,6 +63,9 @@ all_balances AS (
         platform
     FROM
         liquidity_pools
+    WHERE
+        token1 IS NOT NULL
+        AND token1 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
         token0 AS contract_address,
