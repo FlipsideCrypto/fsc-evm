@@ -39,7 +39,7 @@ AND CONCAT(COALESCE(contract_address, 'null'), '-', address) NOT IN (
 )
 SELECT
     contract_address,
-    NULL AS address,
+    address,
     function_name,
     function_sig,
     input,
