@@ -262,7 +262,13 @@ FROM
 qualify ROW_NUMBER() over (
         PARTITION BY fact_event_logs_id
         ORDER BY
-            block_number DESC,
-            block_timestamp DESC nulls last,
-            origin_function_signature DESC nulls last
+        {% if vars.GLOBAL_PROJECT_NAME == 'monad' %}
+        tx_succeeded DESC nulls last,
+        block_number DESC,
+        block_timestamp DESC nulls last
+        {% else %}
+        block_number DESC,
+        block_timestamp DESC nulls last,
+        origin_function_signature DESC nulls last
+        {% endif %}
     ) = 1

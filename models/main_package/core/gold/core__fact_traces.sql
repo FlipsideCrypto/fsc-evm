@@ -712,4 +712,10 @@ SELECT
 FROM
     all_traces qualify(ROW_NUMBER() over(PARTITION BY block_number,  {% if vars.MAIN_CORE_TRACES_SEI_MODE %}tx_hash, {% else %}tx_position, {% endif %} trace_index
 ORDER BY
-    modified_timestamp DESC, block_timestamp DESC nulls last)) = 1
+    {% if vars.GLOBAL_PROJECT_NAME == 'monad' %}
+    tx_succeeded DESC nulls last,
+    block_timestamp DESC nulls last
+    {% else %} -- this maybe should be updated everywhere but im not sure it matters since the block number is in the partition
+    modified_timestamp DESC, block_timestamp DESC nulls last
+    {% endif %}
+)) = 1
