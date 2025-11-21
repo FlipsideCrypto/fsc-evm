@@ -82,6 +82,8 @@ all_balances AS (
     WHERE
         hook_address IS NOT NULL
         AND hook_address <> '0x0000000000000000000000000000000000000000'
+        AND token0 IS NOT NULL
+        AND token0 <> '0x0000000000000000000000000000000000000000'
     UNION
     SELECT
         token1 AS contract_address,
@@ -98,6 +100,8 @@ all_balances AS (
     WHERE
         hook_address IS NOT NULL
         AND hook_address <> '0x0000000000000000000000000000000000000000'
+        AND token1 IS NOT NULL
+        AND token1 <> '0x0000000000000000000000000000000000000000'
 )
 SELECT
     contract_address,
