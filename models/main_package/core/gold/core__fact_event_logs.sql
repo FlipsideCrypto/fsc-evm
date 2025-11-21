@@ -269,6 +269,6 @@ qualify ROW_NUMBER() over (
         {% else %}
         block_number DESC,
         block_timestamp DESC nulls last,
-        tx_succeeded DESC nulls last
+        origin_function_signature DESC nulls last
         {% endif %}
     ) = 1
