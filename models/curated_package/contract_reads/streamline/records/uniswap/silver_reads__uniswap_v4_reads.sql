@@ -49,7 +49,7 @@ all_balances AS (
         liquidity_pools
     WHERE
         token0 IS NOT NULL
-        AND token0 <> '0x0000000000000000000000000000000000000000'
+        AND token0 <> '0x0000000000000000000000000000000000000000' -- Represents native asset. balanceOf calls only apply to erc20 tokens. eth_getBalance calls to be handled downstream for null/native assets.
     UNION
     SELECT
         token1 AS contract_address,
