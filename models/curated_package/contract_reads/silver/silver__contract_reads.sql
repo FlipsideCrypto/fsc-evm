@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 -- depends_on: {{ ref('bronze__contract_reads') }}
 {{ config(
     materialized = 'incremental',
@@ -16,17 +14,20 @@
 ) }}
 
 SELECT
-    VALUE :"ADDRESS" :: STRING AS address,
-    VALUE :"FUNCTION_NAME" :: STRING AS function_name,
-    VALUE :"FUNCTION_SIG" :: STRING AS function_sig,
-    VALUE :"INPUT" :: STRING AS input,
     VALUE :"BLOCK_NUMBER" :: NUMBER AS block_number,
     (
         VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
     ) :: DATE AS block_date,
-    DATA :result :: STRING AS result_hex,
-    (VALUE :"METADATA" :: STRING) :: VARIANT AS metadata,
+    VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
+    VALUE :"ADDRESS" :: STRING AS address,
     VALUE :"PLATFORM" :: STRING AS platform,
+    (
+        VALUE :"METADATA" :: STRING
+    ) :: variant AS metadata,
+    VALUE :"FUNCTION_NAME" :: STRING AS function_name,
+    VALUE :"FUNCTION_SIG" :: STRING AS function_sig,
+    VALUE :"INPUT" :: STRING AS input,
+    DATA :result :: STRING AS result_hex,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_number','contract_address', 'address', 'input', 'platform']
