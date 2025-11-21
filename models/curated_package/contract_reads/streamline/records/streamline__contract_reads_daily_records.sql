@@ -18,9 +18,12 @@
 {% endif %}
 {% set _ = models.append(ref('silver_reads__uniswap_v2_reads')) %}
 {% set _ = models.append(ref('silver_reads__uniswap_v3_reads')) %}
+{% set _ = models.append(ref('silver_reads__uniswap_v4_reads')) %}
 {% set _ = models.append(ref('silver_reads__aave_v1_reads')) %}
 {% set _ = models.append(ref('silver_reads__aave_v2_reads')) %}
 {% set _ = models.append(ref('silver_reads__aave_v3_reads')) %}
+{% set _ = models.append(ref('silver_reads__curve_reads')) %}
+{% set _ = models.append(ref('silver_reads__tornado_cash_reads')) %}
 
 WITH all_records AS (
     {% for model in models %}
