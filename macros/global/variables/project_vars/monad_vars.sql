@@ -78,13 +78,6 @@
                     'router': '0x33566fe5976aaa420f3d5c64996641fc3858cadb'
                 }
             },
-            'gaszip_lz': {
-                'v2': {
-                    'send_deposits': '0x26da582889f59eaae9da1f063be0140cd93e6a4f',
-                    'packet_sent': '0x1a44076050125825900e736c501f859c50fe728c',
-                    'send_uln': '0x0bcac336466ef7f1e0b5c184aab2867c108331af'
-                }
-            },
             'dln_debridge': {
                 'v1': {
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
