@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('silver__etherscan_chain_ids') }}
 {# Get variables #}
 {% set vars = return_vars() %}
 
