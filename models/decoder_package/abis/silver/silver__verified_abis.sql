@@ -19,7 +19,7 @@ WITH base AS (
 
     SELECT
         contract_address,
-        {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED or vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
+        {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
             PARSE_JSON(
                 VALUE :data :result
             ) AS DATA,
@@ -45,7 +45,7 @@ WHERE
         FROM
             {{ this }}
             )
-        AND {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED or vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
+        AND {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
                 VALUE :data :message :: STRING = 'OK' 
             {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
                 VALUE :data :result IS NOT NULL
@@ -55,7 +55,7 @@ WHERE
         {% else %}
             {{ ref('bronze__contract_abis_fr') }}
         WHERE
-            {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED or vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
+            {% if vars.DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED %}
                 VALUE :data :message :: STRING = 'OK' 
             {% elif vars.DECODER_SILVER_CONTRACT_ABIS_RESULT_ENABLED %}
                 VALUE :data :result IS NOT NULL
@@ -69,11 +69,7 @@ WHERE
             contract_address,
             DATA,
             _inserted_timestamp,
-            {% if vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
-                'etherscan' AS abi_source
-            {% else %}
-                LOWER('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}') AS abi_source
-            {% endif %}
+            LOWER('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}') AS abi_source
         FROM
             base
     ),
