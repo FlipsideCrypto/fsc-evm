@@ -83,7 +83,7 @@
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
                 }
             }
-        }
+        },
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
             'morpho': {
                 'v1': {
