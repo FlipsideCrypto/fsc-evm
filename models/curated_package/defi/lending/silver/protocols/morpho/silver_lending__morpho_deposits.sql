@@ -77,9 +77,7 @@ traces AS (
         AND function_sig = '0xa99aad89'
         AND trace_succeeded
         AND tx_succeeded
-        {% if vars.GLOBAL_PROJECT_NAME == 'monad' %}
-        AND block_timestamp >= '2025-11-24 00:00:00' --excludes test txs
-        {% endif %}
+        AND block_timestamp >= '{{ vars["CURATED_START_TIMESTAMP"] if "CURATED_START_TIMESTAMP" in vars else "2000-01-01" }}' --excludes test txs
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
