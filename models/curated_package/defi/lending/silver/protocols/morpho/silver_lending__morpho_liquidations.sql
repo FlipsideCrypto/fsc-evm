@@ -64,7 +64,7 @@ traces AS (
         AND function_sig = '0xd8eabcb8'
         AND trace_succeeded
         AND tx_succeeded
-        AND block_timestamp >= '{{ vars.CURATED_START_TIMESTAMP }}' --excludes test txs
+        AND block_timestamp >= '{{ vars.CURATED_START_TIMESTAMP }}' 
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
