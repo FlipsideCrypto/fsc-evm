@@ -1,0 +1,66 @@
+blockchain,network,chain_id,free_tier
+Ethereum,Mainnet,1,Available
+Sepolia,Testnet,11155111,Available
+Holesky,Testnet,17000,Available
+Hoodi,Testnet,560048,Available
+Abstract,Mainnet,2741,Available
+Abstract Sepolia,Testnet,11124,Available
+ApeChain Curtis,Testnet,33111,Available
+ApeChain,Mainnet,33139,Available
+Arbitrum Nova,Mainnet,42170,Available
+Arbitrum,Mainnet,42161,Available
+Arbitrum Sepolia,Testnet,421614,Available
+Avalanche,Mainnet,43114,Not Available
+Avalanche Fuji,Testnet,43113,Not Available
+Base,Mainnet,8453,Not Available
+Base Sepolia,Testnet,84532,Not Available
+Berachain Bepolia,Testnet,80069,Available
+Berachain,Mainnet,80094,Available
+BitTorrent Chain,Mainnet,199,Available
+BitTorrent Chain,Testnet,1029,Available
+Blast,Mainnet,81457,Available
+Blast Sepolia,Testnet,168587773,Available
+BSC,Mainnet,56,Not Available
+BNB Smart Chain,Testnet,97,Not Available
+Celo,Mainnet,42220,Available
+Celo Sepolia,Testnet,11142220,Available
+Fraxtal,Mainnet,252,Available
+Fraxtal Hoodi,Testnet,2523,Available
+Gnosis,,100,Available
+HyperEVM,Mainnet,999,Available
+Katana Bokuto,,737373,Available
+Katana,Mainnet,747474,Available
+Linea,Mainnet,59144,Available
+Linea Sepolia,Testnet,59141,Available
+Mantle,Mainnet,5000,Available
+Mantle Sepolia,Testnet,5003,Available
+Memecore,Testnet,43521,Available
+Monad,Mainnet,143,Available
+Monad,Testnet,10143,Available
+Moonbase Alpha,Testnet,1287,Available
+Moonbeam,Mainnet,1284,Available
+Moonriver,Mainnet,1285,Available
+Optimism,Mainnet,10,Not Available
+OP Sepolia,Testnet,11155420,Not Available
+opBNB,Mainnet,204,Available
+opBNB,Testnet,5611,Available
+Polygon Amoy,Testnet,80002,Available
+Polygon,Mainnet,137,Available
+Scroll,Mainnet,534352,Available
+Scroll Sepolia,Testnet,534351,Available
+Sei,Mainnet,1329,Available
+Sei,Testnet,1328,Available
+Sonic,Mainnet,146,Available
+Sonic,Testnet,14601,Available
+Swellchain,Mainnet,1923,Available
+Swellchain,Testnet,1924,Available
+Taiko Hoodi,,167013,Available
+Taiko,Mainnet,167000,Available
+Unichain,Mainnet,130,Available
+Unichain Sepolia,Testnet,1301,Available
+World,Mainnet,480,Available
+World Sepolia,Testnet,4801,Available
+XDC Apothem,Testnet,51,Available
+XDC,Mainnet,50,Available
+zkSync,Mainnet,324,Available
+zkSync Sepolia,Testnet,300,Available

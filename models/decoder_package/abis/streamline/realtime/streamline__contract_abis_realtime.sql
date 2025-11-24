@@ -49,9 +49,18 @@ FROM
 )
 SELECT
     contract_address,
-    DATE_PART('EPOCH_SECONDS', systimestamp()) :: INT AS partition_key,
+    DATE_PART('EPOCH_SECONDS', sysdate()::date) :: INT AS partition_key,
     live.udf_api(
         'GET',
+        {% if vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
+        CONCAT(
+            'https://api.etherscan.io/v2/api?apikey={KEY}&chainid=',
+            (select chain_id from {{ ref('silver__etherscan_chain_ids') }} where lower(blockchain) = lower('{{ vars.GLOBAL_PROJECT_NAME }}') and network = 'Mainnet'),
+            '&module=contract&action=getabi&address=',
+            contract_address,
+            '&tag=latest'
+        ),
+        {% else %}
         CONCAT(
             '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL }}',
             contract_address
@@ -61,13 +70,19 @@ SELECT
             {% if vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX != '' %}
             ,'{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX }}'
             {% endif %}
-        ),
+        )
+        {% endif %}
+        ,
         OBJECT_CONSTRUCT(
             'Content-Type', 'application/json',
             'fsc-quantum-state', 'streamline'
         ),
         {},
+        {% if vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
+        'Vault/prod/evm/etherscan/pro_plus'
+        {% else %}
         '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH }}'
+        {% endif %}
     ) AS request
 FROM
     all_contracts
