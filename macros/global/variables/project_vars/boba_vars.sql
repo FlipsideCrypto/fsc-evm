@@ -60,6 +60,13 @@
                     'token_bridge_swap': '0x432036208d2717394d2614d6697c46df3ed69540'
                 }
             }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'tokos': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x99a219f4c322993a101258b0a157eacf5b447d68'
+                }
+            }
         }
     } %}
     

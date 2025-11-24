@@ -84,6 +84,13 @@
                 }
             }
         }
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0xd5d960e8c380b724a48ac59e2dff1b2cb4a1eaee'
+                }
+            }
+        }
     } %}
     
     {{ return(vars) }}

@@ -70,6 +70,13 @@
                     'bridge': '0x78add880a697070c1e765ac44d65323a0dcce913'
                 }
             }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'tokos': {
+                'v1': {
+                    'aave_version_address': '0xec6758e6324c167db39b6908036240460a2b0168'
+                }
+            }
         }
     } %}
     
