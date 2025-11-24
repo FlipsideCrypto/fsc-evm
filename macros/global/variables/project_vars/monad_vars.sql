@@ -61,13 +61,13 @@
             'layerzero': {
                 'v2': {
                     'bridge': '0x6f475642a6e85809b1c36fa62763669b1b48dd5b'
-                }
+                } -- good
             },
             'axelar': {
                 'v1': {
                     'gateway': '0xe432150cce91c13a887f7d836923d5597add8e31',
-                    'gas_service': '0xbe406f0189a0b4cf3a05c286473d23791dd44cc6'
-                }
+                    'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712'
+                } -- good
             },
             'wormhole': {
                 'v1': {
@@ -77,12 +77,12 @@
             'circle_cctp': {
                 'v2': {
                     'deposit': '0x28b5a0e9c621a5badaa536219b3a228c8168cf5d'
-                }
+                } -- good
             },
             'chainlink_ccip': {
                 'v1': {
                     'router': '0x33566fe5976aaa420f3d5c64996641fc3858cadb'
-                }
+                } -- good
             },
             'dln_debridge': {
                 'v1': {
