@@ -24,11 +24,7 @@ WITH verified_abis AS (
     FROM
         {{ ref('silver__verified_abis') }}
     WHERE
-        {% if vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
-            abi_source = 'etherscan'
-        {% else %}
-            abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
-        {% endif %}
+        abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -42,11 +38,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-        {% if vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
-            abi_source = 'etherscan'
-        {% else %}
-            abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
-        {% endif %}
+         abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 )
 {% endif %}
 ),
