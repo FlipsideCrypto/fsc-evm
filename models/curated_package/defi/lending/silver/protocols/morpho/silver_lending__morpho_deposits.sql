@@ -77,7 +77,7 @@ traces AS (
         AND function_sig = '0xa99aad89'
         AND trace_succeeded
         AND tx_succeeded
-        AND block_timestamp >= '{{ vars["CURATED_START_TIMESTAMP"] if "CURATED_START_TIMESTAMP" in vars else "2000-01-01" }}' --excludes test txs
+        AND block_timestamp >= '{{ vars.CURATED_START_TIMESTAMP }}' --excludes test txs
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

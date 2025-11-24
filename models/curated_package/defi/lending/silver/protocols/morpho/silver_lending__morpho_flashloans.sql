@@ -53,7 +53,7 @@ flashloan AS(
             FROM
                 morpho_blue_addresses
         )
-        AND l.block_timestamp >= '{{ vars["CURATED_START_TIMESTAMP"] if "CURATED_START_TIMESTAMP" in vars else "2000-01-01" }}' --excludes test txs
+        AND l.block_timestamp >= '{{ vars.CURATED_START_TIMESTAMP }}' --excludes test txs
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
