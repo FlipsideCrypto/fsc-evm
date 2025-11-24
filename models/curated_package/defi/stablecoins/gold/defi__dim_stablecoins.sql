@@ -25,7 +25,8 @@ WITH crosschain_stablecoins AS (
             m.name
         ) AS NAME,
         m.decimals,
-        m.is_verified
+        m.is_verified,
+        m.is_verified_modified_timestamp
     FROM
         {{ source(
             'crosschain_silver',
@@ -56,7 +57,8 @@ manual_stablecoins AS (
         ) AS symbol,
         m.name,
         m.decimals,
-        m.is_verified
+        m.is_verified,
+        m.is_verified_modified_timestamp
     FROM
         {{ ref('silver_stablecoins__stablecoins_mapping_seed') }}
         s
@@ -94,6 +96,7 @@ SELECT
     CONCAT(symbol,': ',name) AS label,
     decimals,
     is_verified,
+    is_verified_modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS dim_stablecoins_id
