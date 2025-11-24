@@ -50,7 +50,7 @@ FROM
 )
 SELECT
     contract_address,
-    DATE_PART('EPOCH_SECONDS', sysdate()::date) :: INT AS partition_key,
+    DATE_PART('EPOCH_SECONDS', systimestamp()) :: INT as partition_key,
     live.udf_api(
         'GET',
         {% if vars.DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED %}
