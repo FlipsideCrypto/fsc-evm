@@ -90,7 +90,7 @@ FROM
         params = params
     ) }}
     {% endset %}
-
+    
     {% do run_query(function_call_sql) %}
     {{ log("Streamline function call: " ~ function_call_sql, info=true) }}
 {% endif %}

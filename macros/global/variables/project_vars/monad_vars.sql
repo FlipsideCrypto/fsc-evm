@@ -11,7 +11,10 @@
         'MAIN_PRICES_NATIVE_SYMBOLS': 'MON',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'monad',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'monad',
-        'DECODER_SL_CONTRACT_ABIS_ETHERSCAN_PRO_PLUS_ENABLED': true,
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'etherscan',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/evm/etherscan/pro_plus',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.etherscan.io/v2/api?apikey={KEY}&chainid=143&module=contract&action=getabi&address=',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX': '&tag=latest',
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '24,54 * * * *',
         'BALANCES_SL_DAILY_REALTIME_LOOKBACK_DAYS': -2,
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
