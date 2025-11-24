@@ -62,7 +62,7 @@
             }
         },
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
-            'tokos': {
+            'wefi': {
                 'v1': {
                     'comp_v2_origin_from_address': '0x99a219f4c322993a101258b0a157eacf5b447d68'
                 }
