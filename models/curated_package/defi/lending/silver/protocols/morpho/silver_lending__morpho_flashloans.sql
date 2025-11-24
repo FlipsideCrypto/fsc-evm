@@ -53,6 +53,9 @@ flashloan AS(
             FROM
                 morpho_blue_addresses
         )
+        {% if vars.GLOBAL_PROJECT_NAME == 'monad' %}
+        AND l.block_timestamp >= '2025-11-24 00:00:00' --excludes test txs
+        {% endif %}
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
