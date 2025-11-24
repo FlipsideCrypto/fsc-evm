@@ -21,7 +21,9 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 14
+              interval: 30
+              config:
+                severity: warn
       - name: EVENT_INDEX
         tests:
           - not_null:

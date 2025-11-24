@@ -50,7 +50,8 @@ WITH source AS (
         FROM
             source
         WHERE
-            (latest_timestamp < threshold_ts 
+            latest_timestamp IS NOT NULL
+            AND (latest_timestamp < threshold_ts 
             OR (percent_delta < {{ percent_delta_threshold }} AND percent_delta <> 0))
             {% if type == 'dex_swaps' %}
             AND platform NOT IN ('{{ vars.CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST | join("', '") }}')

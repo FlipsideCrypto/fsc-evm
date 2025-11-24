@@ -9,6 +9,7 @@
         'GLOBAL_NATIVE_ASSET_SYMBOL': 'MON',
         'MAIN_SL_BLOCKS_PER_HOUR': 10000,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'MON',
+        'CURATED_START_TIMESTAMP': '2025-11-18 00:00:00',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'monad',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'monad',
         'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'etherscan',
@@ -85,6 +86,18 @@
             'dln_debridge': {
                 'v1': {
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
+                }
+            }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0xd5d960e8c380b724a48ac59e2dff1b2cb4a1eaee'
+                }
+            },
+            'neverland': {
+                'v1': {
+                    'aave_version_address': '0x80f00661b13cc5f6ccd3885be7b4c9c67545d585'
                 }
             }
         }
