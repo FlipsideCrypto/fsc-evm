@@ -38,7 +38,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
     WHERE
-         abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
+        abi_source = lower('{{ vars.DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME }}')
 )
 {% endif %}
 ),
