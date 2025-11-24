@@ -60,7 +60,7 @@ SELECT
             '&module=contract&action=getabi&address=',
             contract_address,
             '&tag=latest'
-        ),
+        )
         {% else %}
         CONCAT(
             '{{ vars.DECODER_SL_CONTRACT_ABIS_EXPLORER_URL }}',
