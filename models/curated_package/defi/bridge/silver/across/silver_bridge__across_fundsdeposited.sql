@@ -18,7 +18,7 @@ WITH contract_mapping AS (
     ) }}
     WHERE
         protocol = 'across'
-        AND version = 'v1'
+        AND version = 'v2'
 ),
 base_evt AS (
 
@@ -74,7 +74,7 @@ base_evt AS (
         INNER JOIN contract_mapping m
         ON l.contract_address = m.contract_address
     WHERE
-        topics [0] :: STRING = '0xafc4df6845a4ab948b492800d3d8a25d538a102a2bc07cd01f1cfa097fddcff6'
+        topics [0] :: STRING IN  ('0xafc4df6845a4ab948b492800d3d8a25d538a102a2bc07cd01f1cfa097fddcff6','0x4a4fc49abd237bfd7f4ac82d6c7a284c69daaea5154430cff04ad7482c6c4254')
         AND tx_succeeded
 
 {% if is_incremental() %}
