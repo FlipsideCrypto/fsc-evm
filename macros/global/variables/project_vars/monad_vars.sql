@@ -58,6 +58,11 @@
             }
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'across': {
+                'v3': {
+                    'funds_deposited': '0xd2ecb3afe598b746f8123cae365a598da831a449'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x6f475642a6e85809b1c36fa62763669b1b48dd5b'
@@ -66,7 +71,7 @@
             'axelar': {
                 'v1': {
                     'gateway': '0xe432150cce91c13a887f7d836923d5597add8e31',
-                    'gas_service': '0xbe406f0189a0b4cf3a05c286473d23791dd44cc6'
+                    'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712'
                 }
             },
             'wormhole': {
