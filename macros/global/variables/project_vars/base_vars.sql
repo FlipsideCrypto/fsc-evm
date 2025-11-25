@@ -33,7 +33,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['seamless-v1'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v3','woofi-v1','voodoo-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['balancer-v1'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','hop-v1','across-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','hop-v1','across-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -139,7 +139,7 @@
         'CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID': 8453,
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
-                'v1': {
+                'v2': {
                     'funds_deposited': '0x09aea4b2242abc8bb4bb78d537a67a245a7bec64'
                 },
                 'v3': {

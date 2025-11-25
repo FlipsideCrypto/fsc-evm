@@ -24,7 +24,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['aave-v2'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2','curve-v1'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','symbiosis-v1','across-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','symbiosis-v1','across-v2'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -113,8 +113,8 @@
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
-                'v1': {
-                    'funds_deposited': '0x9295ee1d8c5b022be115a2ad3c30c72e34e7f096'
+                'v2': {
+                    'funds_deposited': ['0x9295ee1d8c5b022be115a2ad3c30c72e34e7f096','0x69b5c72837769ef1e7c164abc6515dcff217f920']
                 },
                 'v3': {
                     'funds_deposited': '0x9295ee1d8c5b022be115a2ad3c30c72e34e7f096'
