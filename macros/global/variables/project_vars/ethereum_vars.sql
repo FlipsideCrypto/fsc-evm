@@ -28,7 +28,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['silo-v1','aave-v1','flux-v1','aave-v2','aave-v2.1','sturdy-v1','silo-v2'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','pancakeswap-v2','synthetix-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['ronin_axie_bridge-v1','multichain-v7','symbiosis-v1','axie_infinity-v2','across-v1','near_rainbow_bridge-v1','hop-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['ronin_axie_bridge-v1','multichain-v7','symbiosis-v1','axie_infinity-v2','across-v2','near_rainbow_bridge-v1','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -163,8 +163,8 @@
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
-                'v1': {
-                    'funds_deposited': '0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5'
+                'v2': {
+                    'funds_deposited': ['0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5','0x4d9079bb4165aeb4084c526a32695dcfd2f77381']
                 },
                 'v3': {
                     'funds_deposited': '0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5'
