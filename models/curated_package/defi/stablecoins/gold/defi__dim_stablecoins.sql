@@ -89,49 +89,65 @@ all_stablecoins AS (
     FROM
         manual_stablecoins
 ),
-{% if is_incremental() and var(
-  'HEAL_MODEL'
-) %}
-heal_model AS (
-SELECT
-    t.contract_address,
-    m.symbol,
-    m.NAME,
-    CONCAT(m.symbol,': ',m.name) AS label,
-    m.decimals,
-    m.is_verified,
-    m.is_verified_modified_timestamp
-FROM {{ this }} t
-INNER JOIN {{ ref('price__ez_asset_metadata') }}
-m
-ON t.contract_address = m.token_address
-AND t.blockchain = m.blockchain
-WHERE t.symbol IS NULL OR t.name IS NULL OR t.decimals IS NULL
-),
-{% endif %}
-final AS (
-SELECT
-    contract_address,
-    symbol,
-    NAME,
-    CONCAT(symbol,': ',name) AS label,
-    decimals,
-    is_verified,
-    is_verified_modified_timestamp
-FROM all_stablecoins
 
 {% if is_incremental() and var(
-  'HEAL_MODEL'
+    'HEAL_MODEL'
+) %}
+heal_model AS (
+    SELECT
+        t.contract_address,
+        m.symbol AS symbol_heal,
+        m.name AS name_heal,
+        CONCAT(
+            m.symbol,
+            ': ',
+            m.name
+        ) AS label_heal,
+        m.decimals AS decimals_heal,
+        m.is_verified AS is_verified_heal,
+        m.is_verified_modified_timestamp AS is_verified_modified_timestamp_heal
+    FROM
+        {{ this }}
+        t
+        INNER JOIN {{ ref('price__ez_asset_metadata') }}
+        m
+        ON t.contract_address = m.token_address
+        AND t.blockchain = m.blockchain
+    WHERE
+        t.symbol IS NULL
+        OR t.name IS NULL
+        OR t.decimals IS NULL
+),
+{% endif %}
+
+FINAL AS (
+    SELECT
+        contract_address,
+        symbol,
+        NAME,
+        CONCAT(
+            symbol,
+            ': ',
+            NAME
+        ) AS label,
+        decimals,
+        is_verified,
+        is_verified_modified_timestamp
+    FROM
+        all_stablecoins
+
+{% if is_incremental() and var(
+    'HEAL_MODEL'
 ) %}
 UNION ALL
 SELECT
     contract_address,
-    symbol,
-    NAME,
-    CONCAT(symbol,': ',name) AS label,
-    decimals,
-    is_verified,
-    is_verified_modified_timestamp
+    symbol_heal AS symbol,
+    name_heal AS NAME,
+    label_heal AS label,
+    decimals_heal AS decimals,
+    is_verified_heal AS is_verified,
+    is_verified_modified_timestamp_heal AS is_verified_modified_timestamp
 FROM
     heal_model
 )
@@ -146,5 +162,7 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS dim_stablecoins_id
-FROM final
-QUALIFY(ROW_NUMBER() OVER (PARTITION BY dim_stablecoins_id ORDER BY modified_timestamp DESC)) = 1
+FROM
+    FINAL qualify(ROW_NUMBER() over (PARTITION BY dim_stablecoins_id
+ORDER BY
+    modified_timestamp DESC)) = 1
