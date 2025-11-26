@@ -358,6 +358,7 @@ SELECT
     amount_transferred
 FROM
     heal_model
+{% endif %}
 )
 SELECT
     block_date,
