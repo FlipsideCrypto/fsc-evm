@@ -32,7 +32,11 @@ SELECT
     receiver AS destination_chain_receiver,
     destination_chain_id :: STRING AS destination_chain_id,
     standardized_name AS destination_chain,
-    source_currency_address AS token_address,
+    IFF(
+        source_currency_address = '0x0000000000000000000000000000000000000000',
+        '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}',
+        source_currency_address
+    ) AS token_address,
     NULL AS token_symbol,
     source_amount_raw AS amount_unadj,
     'relay-v1' AS platform,
@@ -49,7 +53,10 @@ FROM
     r
     INNER JOIN contract_mapping C
     ON C.contract_address = r.chain_id_from_request
-    LEFT JOIN {{ source('external_bronze', 'relay_bridge_chainid_seed') }}
+    LEFT JOIN {{ source(
+        'external_bronze',
+        'relay_bridge_chainid_seed'
+    ) }}
     s
     ON destination_chain_id = s.chain_id
 WHERE
