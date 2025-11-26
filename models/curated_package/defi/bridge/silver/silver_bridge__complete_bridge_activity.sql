@@ -1197,7 +1197,7 @@ relay_v1 AS (
         version,
         TYPE,
         _id,
-        _inserted_timestamp
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__relay_v1') }}
 

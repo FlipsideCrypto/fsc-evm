@@ -68,7 +68,7 @@ SELECT
     'v1' AS version,
     TYPE,
     id AS _id,
-    modified_timestamp AS _inserted_timestamp
+    modified_timestamp
 FROM
     {{ source(
         'external_silver',
