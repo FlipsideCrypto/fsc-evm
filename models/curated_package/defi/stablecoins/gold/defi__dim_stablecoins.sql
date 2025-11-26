@@ -88,7 +88,28 @@ all_stablecoins AS (
         *
     FROM
         manual_stablecoins
-)
+),
+{% if is_incremental() and var(
+  'HEAL_MODEL'
+) %}
+heal_model AS (
+SELECT
+    t.contract_address,
+    m.symbol,
+    m.NAME,
+    CONCAT(m.symbol,': ',m.name) AS label,
+    m.decimals,
+    m.is_verified,
+    m.is_verified_modified_timestamp
+FROM {{ this }} t
+INNER JOIN {{ ref('price__ez_asset_metadata') }}
+m
+ON t.contract_address = m.token_address
+AND t.blockchain = m.blockchain
+WHERE t.symbol IS NULL OR t.name IS NULL OR t.decimals IS NULL
+),
+{% endif %}
+final AS (
 SELECT
     contract_address,
     symbol,
@@ -96,9 +117,34 @@ SELECT
     CONCAT(symbol,': ',name) AS label,
     decimals,
     is_verified,
+    is_verified_modified_timestamp
+FROM all_stablecoins
+
+{% if is_incremental() and var(
+  'HEAL_MODEL'
+) %}
+UNION ALL
+SELECT
+    contract_address,
+    symbol,
+    NAME,
+    CONCAT(symbol,': ',name) AS label,
+    decimals,
+    is_verified,
+    is_verified_modified_timestamp
+FROM
+    heal_model
+)
+SELECT
+    contract_address,
+    symbol,
+    NAME,
+    label,
+    decimals,
+    is_verified,
     is_verified_modified_timestamp,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['contract_address']) }} AS dim_stablecoins_id
-FROM
-    all_stablecoins
+FROM final
+QUALIFY(ROW_NUMBER() OVER (PARTITION BY dim_stablecoins_id ORDER BY modified_timestamp DESC)) = 1
