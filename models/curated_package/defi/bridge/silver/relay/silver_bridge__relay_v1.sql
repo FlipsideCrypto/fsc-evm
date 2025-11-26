@@ -21,8 +21,8 @@ transactions AS (
     SELECT
         block_number,
         block_timestamp,
-        origin_from_address,
-        origin_to_address,
+        from_address as origin_from_address,
+        to_address as origin_to_address,
         origin_function_signature,
         tx_hash
     FROM
