@@ -29,15 +29,7 @@ transactions AS (
         {{ ref('core__fact_transactions') }}
     WHERE
         block_timestamp :: DATE >= '2024-01-01' 
-{% if is_incremental() %}
-AND modified_timestamp >= (
-    SELECT
-        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
-    FROM
-        {{ this }}
-)
-AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
-{% endif %}
+-- no incremental here because we're loading old txs from relay v1
 )
 SELECT
     in_txs_block_number,
