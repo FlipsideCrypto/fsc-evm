@@ -150,6 +150,7 @@ SELECT
     is_verified_modified_timestamp_heal AS is_verified_modified_timestamp
 FROM
     heal_model
+{% endif %}
 )
 SELECT
     contract_address,
