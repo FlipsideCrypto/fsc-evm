@@ -16,13 +16,37 @@ WITH contract_mapping AS (
     WHERE
         protocol = 'relay'
         AND version = 'v1'
+),
+transactions AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash
+    FROM
+        {{ ref('core__fact_transactions') }}
+    WHERE
+        block_timestamp :: DATE >= '2024-01-01' 
+{% if is_incremental() %}
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
+    FROM
+        {{ this }}
+)
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
+{% endif %}
 )
 SELECT
-    in_txs_block_number AS block_number,
-    created_timestamp AS block_timestamp,
-    NULL AS origin_from_address,
-    NULL AS origin_to_address,
-    NULL AS origin_function_signature,
+    in_txs_block_number,
+    block_number,
+    created_timestamp,
+    block_timestamp,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
     in_txs_tx_hash AS tx_hash,
     NULL AS event_index,
     '0xf70da97812cb96acdf810712aa562db8dfa3dbef' AS bridge_address,
@@ -53,6 +77,8 @@ FROM
     r
     INNER JOIN contract_mapping C
     ON C.contract_address = r.chain_id_from_request
+    INNER JOIN transactions
+    ON tx_hash = in_txs_tx_hash
     LEFT JOIN {{ source(
         'external_bronze',
         'relay_bridge_chainid_seed'
@@ -69,4 +95,5 @@ AND modified_timestamp >= (
     FROM
         {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
