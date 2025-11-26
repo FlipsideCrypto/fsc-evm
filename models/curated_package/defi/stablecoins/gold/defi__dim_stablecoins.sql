@@ -112,11 +112,13 @@ heal_model AS (
         INNER JOIN {{ ref('price__ez_asset_metadata') }}
         m
         ON t.contract_address = m.token_address
-        AND t.blockchain = m.blockchain
     WHERE
+        m.blockchain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+        AND (
         t.symbol IS NULL
-        OR t.name IS NULL
-        OR t.decimals IS NULL
+            OR t.name IS NULL
+            OR t.decimals IS NULL
+        )
 ),
 {% endif %}
 
