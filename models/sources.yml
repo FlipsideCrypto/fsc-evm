@@ -140,4 +140,16 @@ sources:
     tables:
       - name: _master_keys
       - name: rpc_node_logs
+  - name: external_silver
+    database: >-
+      {{ 'EXTERNAL_DEV' if '_DEV' in target.database.upper() else 'EXTERNAL' }}
+    schema: silver
+    tables:
+      - name: relay_bridge
+  - name: external_bronze
+    database: >-
+      {{ 'EXTERNAL_DEV' if '_DEV' in target.database.upper() else 'EXTERNAL' }}
+    schema: bronze
+    tables:
+      - name: relay_bridge_chainid_seed
   

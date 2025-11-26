@@ -239,6 +239,11 @@
                     '0x93251f98acb0c83904320737aec091bce287f8f5']
                 }
             },
+            'relay': {
+                'v1': {
+                    'chain_id': '1'
+                }
+            },
             'stargate': {
                 'v1': {
                     'factory': '0x06d538690af257da524f25d0cd52fd85b1c2173e',
