@@ -11,7 +11,7 @@
 
 WITH contract_mapping AS (
     {{ curated_contract_mapping(
-        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING_RELAY_V1
+        vars.CURATED_DEFI_BRIDGE_CONTRACT_MAPPING
     ) }}
     WHERE
         protocol = 'relay'
