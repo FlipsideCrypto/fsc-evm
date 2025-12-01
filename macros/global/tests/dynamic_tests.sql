@@ -62,16 +62,18 @@
                 {% endfor %}
             {% endif %}
 
-            {% if ts_vars.timestamp_column is not none %}
+            {% if ts_vars.timestamp_column is not none and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
                 {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
                     interval_vars.interval_type ~ ", -" ~ 
                     interval_vars.interval_value ~ ", current_timestamp())" %}
                 {% set where = where | replace("__timestamp_filter__", ts_vars.filter_condition) %}
+            {% elif "__timestamp_filter__" in where %}
+                {% set where = where | replace("__timestamp_filter__", "1=1") %}
             {% endif %}
         {% endif %}
         
         {%- set filtered -%}
-            (select * from {{ relation }} where {{ where }}) dbt_subquery
+            (select * from {{ relation }} where {{ where }})
         {%- endset -%}
         {% do return(filtered) %}
     {%- else -%}
