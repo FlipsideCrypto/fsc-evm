@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'lido_tvl_id',
+    unique_key = 'tornado_cash_tvl_id',
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
@@ -34,7 +34,7 @@ WITH reads AS (
             FROM
                 {{ ref('silver__contract_reads') }}
             WHERE
-                platform = 'lido-v1'
+                platform = 'tornado_cash-v1'
                 AND amount_raw IS NOT NULL
         )
     SELECT
@@ -49,7 +49,7 @@ WITH reads AS (
         platform,
         {{ dbt_utils.generate_surrogate_key(
             ['block_date','contract_address','address','platform']
-        ) }} AS lido_tvl_id,
+        ) }} AS tornado_cash_tvl_id,
         SYSDATE() AS inserted_timestamp,
         SYSDATE() AS modified_timestamp,
         '{{ invocation_id }}' AS _invocation_id
