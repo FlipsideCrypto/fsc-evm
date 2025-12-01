@@ -216,11 +216,15 @@ GROUP BY
     block_date,
     contract_address
 ),
-FINAL AS (
+all_supply AS (
     SELECT
         s.block_date,
         s.contract_address,
         s.total_supply,
+        d.symbol,
+        d.name,
+        d.label,
+        d.decimals,
         COALESCE(
             b.balance_blacklist,
             0
@@ -271,6 +275,90 @@ FINAL AS (
         LEFT JOIN transfers t
         ON s.block_date = t.block_date
         AND s.contract_address = t.contract_address
+        LEFT JOIN {{ ref('defi__dim_stablecoins') }}
+        d
+        ON s.contract_address = d.contract_address
+),
+
+{% if is_incremental() and var(
+    'HEAL_MODEL'
+) %}
+heal_model AS (
+    SELECT
+        t.block_date,
+        t.contract_address,
+        d.symbol AS symbol_heal,
+        d.name AS name_heal,
+        d.label AS label_heal,
+        d.decimals AS decimals_heal,
+        t.total_supply,
+        t.amount_blacklisted,
+        t.amount_in_cex,
+        t.amount_in_bridges,
+        t.amount_in_dex_liquidity_pools,
+        t.amount_in_lending_pools,
+        t.amount_in_contracts,
+        t.amount_minted,
+        t.amount_burned,
+        t.amount_transferred
+    FROM
+        {{ this }}
+        t
+        INNER JOIN {{ ref('defi__dim_stablecoins') }}
+        d
+        ON t.contract_address = d.contract_address
+    WHERE
+        t.symbol IS NULL
+        OR t.name IS NULL
+        OR t.decimals IS NULL
+),
+{% endif %}
+
+FINAL AS (
+    SELECT
+        block_date,
+        contract_address,
+        symbol,
+        NAME,
+        label,
+        decimals,
+        total_supply,
+        blacklist_supply AS amount_blacklisted,
+        cex_balance AS amount_in_cex,
+        bridge_balance AS amount_in_bridges,
+        dex_balance AS amount_in_dex_liquidity_pools,
+        lending_pool_balance AS amount_in_lending_pools,
+        contracts_balance AS amount_in_contracts,
+        mint_amount AS amount_minted,
+        burn_amount AS amount_burned,
+        transfer_volume AS amount_transferred
+    FROM
+        all_supply
+
+{% if is_incremental() and var(
+    'HEAL_MODEL'
+) %}
+UNION ALL
+SELECT
+    block_date,
+    contract_address,
+    symbol_heal AS symbol,
+    name_heal AS NAME,
+    label_heal AS label,
+    decimals_heal AS decimals,
+    total_supply,
+    amount_blacklisted,
+    amount_in_cex,
+    amount_in_bridges,
+    amount_in_dex_liquidity_pools,
+    amount_in_lending_pools,
+    amount_in_contracts,
+    amount_minted,
+    amount_burned,
+    amount_transferred
+FROM
+    heal_model
+{% endif %}
 )
 SELECT
     block_date,
@@ -280,18 +368,25 @@ SELECT
     label,
     decimals,
     total_supply,
-    blacklist_supply AS amount_blacklisted,
-    cex_balance AS amount_in_cex,
-    bridge_balance AS amount_in_bridges,
-    dex_balance AS amount_in_dex_liquidity_pools,
-    lending_pool_balance AS amount_in_lending_pools,
-    contracts_balance AS amount_in_contracts,
-    mint_amount AS amount_minted,
-    burn_amount AS amount_burned,
-    transfer_volume AS amount_transferred,
+    amount_blacklisted,
+    amount_in_cex,
+    amount_in_bridges,
+    amount_in_dex_liquidity_pools,
+    amount_in_lending_pools,
+    amount_in_contracts,
+    amount_minted,
+    amount_burned,
+    amount_transferred,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     {{ dbt_utils.generate_surrogate_key(['block_date','contract_address']) }} AS stablecoins_supply_complete_id
 FROM
     FINAL
-    LEFT JOIN {{ ref('defi__dim_stablecoins') }} USING (contract_address)
+
+{% if is_incremental() and var(
+    'HEAL_MODEL'
+) %}
+qualify(ROW_NUMBER() over (PARTITION BY stablecoins_supply_complete_id
+ORDER BY
+    modified_timestamp DESC)) = 1
+{% endif %}
