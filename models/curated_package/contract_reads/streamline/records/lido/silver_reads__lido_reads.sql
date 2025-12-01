@@ -50,4 +50,3 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM pooled_assets
---need to add logic to bypass model / not read if not on ethereum
