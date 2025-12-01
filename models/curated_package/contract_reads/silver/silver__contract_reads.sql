@@ -20,6 +20,8 @@ SELECT
     ) :: DATE AS block_date,
     VALUE :"CONTRACT_ADDRESS" :: STRING AS contract_address,
     VALUE :"ADDRESS" :: STRING AS address,
+    VALUE :"PROTOCOL" :: STRING AS protocol,
+    VALUE :"VERSION" :: STRING AS version,
     VALUE :"PLATFORM" :: STRING AS platform,
     (
         VALUE :"METADATA" :: STRING
