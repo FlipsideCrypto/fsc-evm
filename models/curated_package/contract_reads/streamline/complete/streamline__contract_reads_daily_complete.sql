@@ -29,6 +29,8 @@ SELECT
     (
         VALUE :"METADATA" :: STRING
     ) :: variant AS metadata,
+    VALUE :"PROTOCOL" :: STRING AS protocol,
+    VALUE :"VERSION" :: STRING AS version,
     VALUE :"PLATFORM" :: STRING AS platform,
     file_name,
     {{ dbt_utils.generate_surrogate_key(

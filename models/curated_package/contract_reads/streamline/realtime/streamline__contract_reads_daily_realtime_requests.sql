@@ -30,6 +30,8 @@ to_do AS (
         t.function_sig,
         t.input,
         t.metadata,
+        t.protocol,
+        t.version,
         t.platform
     FROM
         {{ ref("streamline__contract_reads_daily_records") }} t
@@ -44,6 +46,8 @@ to_do AS (
         function_sig,
         input,
         metadata,
+        protocol,
+        version,
         platform
     FROM
         {{ ref("streamline__contract_reads_daily_complete") }}
@@ -68,6 +72,8 @@ SELECT
     function_sig,
     input,
     metadata,
+    protocol,
+    version,
     platform,
     ROUND(
         block_number,
