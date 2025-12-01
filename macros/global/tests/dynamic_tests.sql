@@ -1,26 +1,17 @@
-{% macro get_where_subquery(relation, where_override=none, where_clause=none) -%}
+{% macro get_where_subquery(relation, where_override=none) -%}
     {# 
         Get where clause from config or override parameter.
         This macro is namespace-agnostic and can be imported into any dbt project.
         
         Args:
             relation: The relation (model/table) to query
-            where_override: Optional override for the where clause (deprecated, use where_clause)
-            where_clause: Optional explicit where clause string (most reliable across namespaces)
-        
-        Note: If where_clause is not provided, attempts to get from config.get('where').
-              Config access may vary by namespace, so passing where_clause explicitly is recommended.
+            where_override: Optional override for the where clause (useful when config context may vary)
     #}
     
-    {# Get where clause - prioritize explicit parameter, then override (deprecated), then config #}
-    {# Access config robustly across different namespaces - config context varies by test/model context #}
-    {%- if where_clause is not none -%}
-        {%- set where = where_clause -%}
-    {%- elif where_override is not none -%}
+    {# Get where clause - prefer override, then config, then none #}
+    {%- if where_override is not none -%}
         {%- set where = where_override -%}
     {%- else -%}
-        {# Try to get config - works when called from test contexts, but may vary by namespace #}
-        {# Using get() with default ensures no errors if config doesn't exist or where isn't set #}
         {%- set where = config.get('where', none) -%}
     {%- endif -%}
     
@@ -67,9 +58,7 @@
     ) -%}
 
     {% if where %}
-        {# Ensure where is a string for reliable string operations across namespaces #}
-        {%- set where_str = where | string -%}
-        {%- if "__timestamp_filter__" in where_str -%}
+        {% if "__timestamp_filter__" in where %}
             {% set columns = adapter.get_columns_in_relation(relation) %}
 
             {# Search for common timestamp column names in priority order #}
@@ -102,15 +91,10 @@
                 {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
                     interval_vars.interval_type ~ ", -" ~ 
                     interval_vars.interval_value ~ ", SYSDATE())" %}
-                {% set where = where_str | replace("__timestamp_filter__", ts_vars.filter_condition) %}
-            {% elif "__timestamp_filter__" in where_str %}
-                {% set where = where_str | replace("__timestamp_filter__", "1=1") %}
-            {% else %}
-                {% set where = where_str %}
+                {% set where = where | replace("__timestamp_filter__", ts_vars.filter_condition) %}
+            {% elif "__timestamp_filter__" in where %}
+                {% set where = where | replace("__timestamp_filter__", "1=1") %}
             {% endif %}
-        {% else %}
-            {# No timestamp filter needed, but ensure where is a string #}
-            {% set where = where_str %}
         {% endif %}
         
         {%- set filtered -%}
