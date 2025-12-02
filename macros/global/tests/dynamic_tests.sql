@@ -139,13 +139,17 @@
         {% endif %}
     {% endif %}
 
-    {# Return filtered relation if we have a where clause, otherwise return relation as-is #}
+    {# Return filtered relation - always as a subquery for consistency #}
     {% if where %}
         {%- set filtered -%}
             (select * from {{ relation }} where {{ where }})
         {%- endset -%}
         {% do return(filtered) %}
     {%- else -%}
-        {% do return(relation) %}
+        {# Return relation as a subquery even when no where clause for consistent behavior #}
+        {%- set filtered -%}
+            (select * from {{ relation }})
+        {%- endset -%}
+        {% do return(filtered) %}
     {%- endif -%}
 {%- endmacro %}
