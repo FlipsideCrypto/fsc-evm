@@ -36,22 +36,31 @@ WITH reads AS (
             WHERE
                 platform = 'lido-v1'
                 AND amount_raw IS NOT NULL
-        )
+
+{% if is_incremental() %}
+AND modified_timestamp >= (
     SELECT
-        block_number,
-        block_date,
-        contract_address,
-        address,
-        amount_hex,
-        amount_raw,
-        protocol,
-        version,
-        platform,
-        {{ dbt_utils.generate_surrogate_key(
-            ['block_date','contract_address','address','platform']
-        ) }} AS lido_tvl_id,
-        SYSDATE() AS inserted_timestamp,
-        SYSDATE() AS modified_timestamp,
-        '{{ invocation_id }}' AS _invocation_id
+        MAX(modified_timestamp)
     FROM
-        reads
+        {{ this }}
+)
+{% endif %}
+)
+SELECT
+    block_number,
+    block_date,
+    contract_address,
+    address,
+    amount_hex,
+    amount_raw,
+    protocol,
+    version,
+    platform,
+    {{ dbt_utils.generate_surrogate_key(
+        ['block_date','contract_address','platform']
+    ) }} AS lido_tvl_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
+FROM
+    reads
