@@ -45,6 +45,68 @@ AND modified_timestamp >= (
         {{ this }}
 )
 {% endif %}
+),
+balances AS (
+    SELECT
+        b.block_number,
+        b.block_date,
+        b.address AS contract_address,
+        NULL AS address,
+        balance_hex AS amount_hex,
+        balance_raw AS amount_raw,
+        'tornado_cash' AS protocol,
+        'v1' AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
+        b.modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('balances__ez_balances_native_daily') }}
+        b
+        LEFT JOIN {{ ref('silver_reads__tornado_cash_mixer_seed') }}
+        t
+        ON b.address = t.mixer_address
+    WHERE
+        t.mixer_address IS NOT NULL
+        AND balance_raw IS NOT NULL
+
+{% if is_incremental() %}
+AND b.modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_date,
+        contract_address,
+        address,
+        amount_hex,
+        amount_raw,
+        protocol,
+        version,
+        platform
+    FROM
+        reads
+    UNION ALL
+    SELECT
+        block_number,
+        block_date,
+        contract_address,
+        address,
+        amount_hex,
+        amount_raw,
+        protocol,
+        version,
+        platform
+    FROM
+        balances
 )
 SELECT
     block_number,
@@ -63,5 +125,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    reads
-    --need to join balances
+    FINAL
