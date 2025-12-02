@@ -23,8 +23,8 @@ SELECT
     VALUE :"PROTOCOL" :: STRING AS protocol,
     VALUE :"VERSION" :: STRING AS version,
     VALUE :"PLATFORM" :: STRING AS platform,
-    (
-        VALUE :"METADATA" :: STRING
+    PARSE_JSON(
+        VALUE :"METADATA_STR" :: STRING
     ) :: variant AS metadata,
     VALUE :"FUNCTION_NAME" :: STRING AS function_name,
     VALUE :"FUNCTION_SIG" :: STRING AS function_sig,
