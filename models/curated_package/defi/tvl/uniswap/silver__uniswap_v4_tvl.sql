@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'tornado_cash_tvl_id',
+    unique_key = 'uniswap_v4_tvl_id',
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
@@ -27,6 +27,10 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw,
+            metadata :address_type :: STRING AS address_type,
+            metadata :hook_address :: STRING AS hook_address,
+            metadata :token0 :: STRING AS token_0_address,
+            metadata :token1 :: STRING AS token_1_address,
             protocol,
             version,
             platform,
@@ -34,7 +38,7 @@ WITH reads AS (
             FROM
                 {{ ref('silver__contract_reads') }}
             WHERE
-                platform = 'tornado_cash-v1'
+                platform = 'uniswap-v4'
                 AND amount_raw IS NOT NULL
 
 {% if is_incremental() %}
@@ -53,15 +57,18 @@ SELECT
     address,
     amount_hex,
     amount_raw,
+    address_type,
+    hook_address,
+    token_0_address,
+    token_1_address,
     protocol,
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','contract_address','address','platform']
-    ) }} AS tornado_cash_tvl_id,
+    ) }} AS uniswap_v4_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     reads
-    --need to join balances

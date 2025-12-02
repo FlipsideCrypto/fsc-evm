@@ -14,10 +14,10 @@
 WITH reads AS (
 
     SELECT
-        r.block_number,
-        r.block_date,
-        r.contract_address,
-        r.address,
+        C.block_number,
+        block_date,
+        C.contract_address,
+        C.address,
         regexp_substr_all(SUBSTR(result_hex, 3, len(result_hex)), '.{64}') AS segmented_data,
         segmented_data [0] :: STRING AS reserve_0_hex,
         segmented_data [1] :: STRING AS reserve_1_hex,
@@ -48,25 +48,25 @@ WITH reads AS (
                             )
                         END
                     ) AS block_timestamp_last_raw,
-                    p.token0 AS token_0_address,
-                    p.token1 AS token_1_address,
-                    r.protocol,
-                    r.version,
-                    r.platform,
-                    r._inserted_timestamp
+                    metadata :token0 :: STRING AS token_0_address,
+                    metadata :token1 :: STRING AS token_1_address,
+                    C.protocol,
+                    C.version,
+                    C.platform,
+                    C._inserted_timestamp
                     FROM
-                        {{ ref('silver__contract_reads') }}
+                        {{ ref('silver__contract_reads') }} C
+                        LEFT JOIN {{ ref('silver_reads__uniswap_v2_reads') }}
                         r
-                        INNER JOIN {{ ref('silver_dex__paircreated_evt_v2_pools') }}
-                        p
-                        ON r.contract_address = p.pool_address
+                        ON C.contract_address = r.contract_address
                     WHERE
-                        reserve_0_raw IS NOT NULL
+                        r.contract_address IS NOT NULL
+                        AND reserve_0_raw IS NOT NULL
                         AND reserve_1_raw IS NOT NULL
                         AND block_timestamp_last_raw IS NOT NULL
 
 {% if is_incremental() %}
-AND r.modified_timestamp >= (
+AND C.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp)
     FROM

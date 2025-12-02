@@ -7,17 +7,17 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'tornado_cash_tvl_id',
+    unique_key = 'uniswap_v3_tvl_id',
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
 WITH reads AS (
 
     SELECT
-        block_number,
+        C.block_number,
         block_date,
-        contract_address,
-        address,
+        C.contract_address,
+        C.address,
         result_hex AS amount_hex,
         IFNULL(
             CASE
@@ -27,18 +27,23 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw,
-            protocol,
-            version,
-            platform,
-            _inserted_timestamp
+            metadata :token0 :: STRING AS token_0_address,
+            metadata :token1 :: STRING AS token_1_address,
+            C.protocol,
+            C.version,
+            C.platform,
+            C._inserted_timestamp
             FROM
-                {{ ref('silver__contract_reads') }}
+                {{ ref('silver__contract_reads') }} C
+                LEFT JOIN {{ ref('silver_reads__uniswap_v3_reads') }}
+                r
+                ON C.contract_address = r.contract_address
             WHERE
-                platform = 'tornado_cash-v1'
+                r.contract_address IS NOT NULL
                 AND amount_raw IS NOT NULL
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND C.modified_timestamp >= (
     SELECT
         MAX(modified_timestamp)
     FROM
@@ -53,15 +58,16 @@ SELECT
     address,
     amount_hex,
     amount_raw,
+    token_0_address,
+    token_1_address,
     protocol,
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','contract_address','address','platform']
-    ) }} AS tornado_cash_tvl_id,
+    ) }} AS uniswap_v3_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     reads
-    --need to join balances
