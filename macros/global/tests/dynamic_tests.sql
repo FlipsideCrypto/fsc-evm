@@ -80,46 +80,67 @@
         filter_condition = none
     ) -%}
 
-    {% if where %}
-        {% if "__timestamp_filter__" in where %}
-            {% set columns = adapter.get_columns_in_relation(relation) %}
+    {# Build timestamp filter if interval vars are set #}
+    {% if interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
+        {% set columns = adapter.get_columns_in_relation(relation) %}
 
-            {# Search for common timestamp column names in priority order #}
+        {# Search for common timestamp column names in priority order #}
+        {% for column in columns %}
+            {% if column.name == 'MODIFIED_TIMESTAMP' %}
+                {% set ts_vars.timestamp_column = 'MODIFIED_TIMESTAMP' %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+
+        {% if not ts_vars.timestamp_column %}
             {% for column in columns %}
-                {% if column.name == 'MODIFIED_TIMESTAMP' %}
-                    {% set ts_vars.timestamp_column = 'MODIFIED_TIMESTAMP' %}
+                {% if column.name == '_INSERTED_TIMESTAMP' %}
+                    {% set ts_vars.timestamp_column = '_INSERTED_TIMESTAMP' %}
                     {% break %}
                 {% endif %}
             {% endfor %}
-
-            {% if not ts_vars.timestamp_column %}
-                {% for column in columns %}
-                    {% if column.name == '_INSERTED_TIMESTAMP' %}
-                        {% set ts_vars.timestamp_column = '_INSERTED_TIMESTAMP' %}
-                        {% break %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-
-            {% if not ts_vars.timestamp_column %}
-                {% for column in columns %}
-                    {% if column.name == 'BLOCK_TIMESTAMP' %}
-                        {% set ts_vars.timestamp_column = 'BLOCK_TIMESTAMP' %}
-                        {% break %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-
-            {% if ts_vars.timestamp_column is not none and interval_vars.interval_type is not none and interval_vars.interval_value is not none %}
-                {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
-                    interval_vars.interval_type ~ ", -" ~ 
-                    interval_vars.interval_value ~ ", SYSDATE())" %}
-                {% set where = where | replace("__timestamp_filter__", ts_vars.filter_condition) %}
-            {% elif "__timestamp_filter__" in where %}
-                {% set where = where | replace("__timestamp_filter__", "1=1") %}
-            {% endif %}
         {% endif %}
-        
+
+        {% if not ts_vars.timestamp_column %}
+            {% for column in columns %}
+                {% if column.name == 'BLOCK_TIMESTAMP' %}
+                    {% set ts_vars.timestamp_column = 'BLOCK_TIMESTAMP' %}
+                    {% break %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        {% if not ts_vars.timestamp_column %}
+            {% for column in columns %}
+                {% if column.name == 'BLOCK_DATE' %}
+                    {% set ts_vars.timestamp_column = 'BLOCK_DATE' %}
+                    {% break %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        {# Build timestamp filter condition if we found a timestamp column #}
+        {% if ts_vars.timestamp_column is not none %}
+            {% set ts_vars.filter_condition = ts_vars.timestamp_column ~ " >= dateadd(" ~ 
+                interval_vars.interval_type ~ ", -" ~ 
+                interval_vars.interval_value ~ ", SYSDATE())" %}
+        {% endif %}
+    {% endif %}
+
+    {# Handle where clause with timestamp filtering #}
+    {% if ts_vars.filter_condition is not none %}
+        {# We have a timestamp filter to apply #}
+        {% if where %}
+            {# Combine timestamp filter with existing where using AND #}
+            {% set where = ts_vars.filter_condition ~ " AND (" ~ where ~ ")" %}
+        {% else %}
+            {# No existing where clause, use just the timestamp filter #}
+            {% set where = ts_vars.filter_condition %}
+        {% endif %}
+    {% endif %}
+
+    {# Return filtered relation if we have a where clause, otherwise return relation as-is #}
+    {% if where %}
         {%- set filtered -%}
             (select * from {{ relation }} where {{ where }})
         {%- endset -%}
