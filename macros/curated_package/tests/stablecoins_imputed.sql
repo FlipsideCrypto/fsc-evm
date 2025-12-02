@@ -1,4 +1,4 @@
-{% test stablecoins_is_imputed_false(model, lookback_days=7) %}
+{% test stablecoins_is_imputed_false(model, lookback_days=3) %}
 
 WITH active_pairs AS (
     SELECT DISTINCT
