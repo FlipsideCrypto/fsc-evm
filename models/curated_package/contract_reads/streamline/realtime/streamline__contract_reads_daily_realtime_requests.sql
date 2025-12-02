@@ -71,7 +71,7 @@ SELECT
     function_name,
     function_sig,
     input,
-    metadata,
+    metadata :: STRING AS metadata_str,
     protocol,
     version,
     platform,
