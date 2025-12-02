@@ -27,8 +27,8 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw,
-            metadata :token0 :: STRING AS token_0_address,
-            metadata :token1 :: STRING AS token_1_address,
+            C.metadata :token0 :: STRING AS token_0_address,
+            C.metadata :token1 :: STRING AS token_1_address,
             C.protocol,
             C.version,
             C.platform,

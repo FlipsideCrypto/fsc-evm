@@ -48,8 +48,8 @@ WITH reads AS (
                             )
                         END
                     ) AS block_timestamp_last_raw,
-                    metadata :token0 :: STRING AS token_0_address,
-                    metadata :token1 :: STRING AS token_1_address,
+                    C.metadata :token0 :: STRING AS token_0_address,
+                    C.metadata :token1 :: STRING AS token_1_address,
                     C.protocol,
                     C.version,
                     C.platform,

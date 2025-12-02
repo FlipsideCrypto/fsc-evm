@@ -29,7 +29,7 @@ WITH balances AS (
         p
         ON b.address = p.pool_address
     WHERE
-        p.address IS NOT NULL
+        p.pool_address IS NOT NULL
         AND balance_raw IS NOT NULL
 
 {% if is_incremental() %}
