@@ -52,8 +52,7 @@ prices AS (
   WHERE
     token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
 ),
-aave_v1 AS (
-    
+aave_v1 AS ( 
 SELECT
     block_number,
     block_date,
@@ -140,10 +139,10 @@ all_tvl AS (
 ),
 final AS (
     SELECT
-        block_number,
-        block_date,
-        contract_address,
-        address,
+        a.block_number,
+        a.block_date,
+        a.contract_address,
+        a.address,
         c1.token_decimals AS decimals,
         c1.token_symbol AS symbol,
         amount_hex,
@@ -154,9 +153,9 @@ final AS (
         ) AS amount_precise,
         amount_precise :: FLOAT AS amount,
         ROUND(amount * p1.price, 2) AS amount_usd,
-        protocol,
-        version,
-        platform
+        a.protocol,
+        a.version,
+        a.platform
     FROM
         all_tvl a 
     LEFT JOIN contracts
