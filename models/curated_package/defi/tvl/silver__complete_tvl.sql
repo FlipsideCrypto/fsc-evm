@@ -18,6 +18,7 @@
 {% set _ = models.append(ref('silver__curve_v1_tvl')) %}
 {% set _ = models.append(ref('silver__lido_v1_tvl')) %}
 {% set _ = models.append(ref('silver__tornado_cash_v1_tvl')) %}
+{% set _ = models.append(ref('silver__uniswap_v1_tvl')) %}
 {% set _ = models.append(ref('silver__uniswap_v2_tvl')) %}
 {% set _ = models.append(ref('silver__uniswap_v3_tvl')) %}
 {% set _ = models.append(ref('silver__uniswap_v4_tvl')) %}
