@@ -37,36 +37,12 @@
             {% break %}
         {% endif %}
     {% endfor %}
-    
-    {# Skip timestamp filtering for specific test types - made namespace-agnostic #}
-    {# 'this' is a standard dbt context variable available in all namespaces when called from model/test context #}
+
+    {# Skip timestamp filtering for dbt_expectations type list tests #}
     {%- set skip_timestamp_filter = false -%}
     {%- if this is not none -%}
         {%- set this_string = this | string | lower -%}
-        
-        {# Skip dbt_expectations type list tests #}
         {%- if 'dbt_expectations_expect_column_values_to_be_in_type_list' in this_string -%}
-            {%- set skip_timestamp_filter = true -%}
-        {%- endif -%}
-        
-        {# Skip custom macro tests - these are defined with {% test %} and don't have package prefixes #}
-        {# Standard dbt tests: not_null, unique, relationships, accepted_values, etc. #}
-        {# Package tests have dots: dbt_utils.*, dbt_expectations.*, etc. #}
-        {# Custom macro tests: txs_have_traces, sequence_gaps, curated_recency_defi, etc. #}
-        {%- set standard_tests = ['not_null', 'unique', 'relationships', 'accepted_values', 'expression_is_true'] -%}
-        {%- set is_standard_test = false -%}
-        {%- set has_package_prefix = '.' in this_string -%}
-        
-        {# Check if it's a standard dbt test #}
-        {%- for test_pattern in standard_tests -%}
-            {%- if test_pattern in this_string -%}
-                {%- set is_standard_test = true -%}
-                {%- break -%}
-            {%- endif -%}
-        {%- endfor -%}
-        
-        {# If it's not a standard test and doesn't have a package prefix (dot), it's a custom macro test - skip filtering #}
-        {%- if not is_standard_test and not has_package_prefix -%}
             {%- set skip_timestamp_filter = true -%}
         {%- endif -%}
     {%- endif -%}
