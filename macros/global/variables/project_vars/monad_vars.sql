@@ -106,6 +106,11 @@
                     'comp_v2_origin_from_address': '0x5c85a7ae2b6d29c38cdf360553f8acbc4e684c31'
                 }
             },
+            'euler': {
+                'v1': {
+                    'euler_origin_to_address': '0xba4dd672062de8feedb665dd4410658864483f1e'
+                }
+            },
             'neverland': {
                 'v1': {
                     'aave_version_address': '0x80f00661b13cc5f6ccd3885be7b4c9c67545d585'
