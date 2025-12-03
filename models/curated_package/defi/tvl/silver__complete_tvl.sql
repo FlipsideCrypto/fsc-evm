@@ -13,7 +13,7 @@
 
 {% set models = [] %}
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
-    {% set _ = models.append(ref('silver__lido_tvl')) %}
+    {% set _ = models.append(ref('silver__lido_v1_tvl')) %}
 {% endif %}
 {% set _ = models.append(ref('silver__uniswap_v2_tvl')) %}
 {% set _ = models.append(ref('silver__uniswap_v3_tvl')) %}
@@ -21,8 +21,8 @@
 {% set _ = models.append(ref('silver__aave_v1_tvl')) %}
 {% set _ = models.append(ref('silver__aave_v2_tvl')) %}
 {% set _ = models.append(ref('silver__aave_v3_tvl')) %}
-{% set _ = models.append(ref('silver__curve_tvl')) %}
-{% set _ = models.append(ref('silver__tornado_cash_tvl')) %}
+{% set _ = models.append(ref('silver__curve_v1_tvl')) %}
+{% set _ = models.append(ref('silver__tornado_cash_v1_tvl')) %}
 
 WITH all_tvl AS (
     {% for model in models %}
