@@ -71,6 +71,7 @@ balances AS (
     WHERE
         t.mixer_address IS NOT NULL
         AND balance_raw IS NOT NULL
+        AND t.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
 
 {% if is_incremental() %}
 AND b.modified_timestamp > (
