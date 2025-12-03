@@ -4,7 +4,6 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends_on: {{ ref('silver__lido_v1_tvl') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
