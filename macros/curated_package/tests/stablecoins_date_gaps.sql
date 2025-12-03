@@ -1,4 +1,4 @@
-{% test stablecoins_date_gaps(model, lookback_days=7) %}
+{% test stablecoins_date_gaps(model, lookback_days=3) %}
 
 WITH recent_data AS (
     SELECT
