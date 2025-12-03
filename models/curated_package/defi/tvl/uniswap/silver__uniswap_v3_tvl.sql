@@ -38,8 +38,9 @@ WITH reads AS (
                 LEFT JOIN {{ ref('silver_reads__uniswap_v3_reads') }}
                 r
                 ON C.contract_address = r.contract_address
+                AND C.platform = r.platform
             WHERE
-                r.contract_address IS NOT NULL
+                r.platform IS NOT NULL
                 AND amount_raw IS NOT NULL
 
 {% if is_incremental() %}

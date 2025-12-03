@@ -59,8 +59,9 @@ WITH reads AS (
                         LEFT JOIN {{ ref('silver_reads__uniswap_v2_reads') }}
                         r
                         ON C.contract_address = r.contract_address
+                        AND C.platform = r.platform
                     WHERE
-                        r.contract_address IS NOT NULL
+                        r.platform IS NOT NULL
                         AND reserve_0_raw IS NOT NULL
                         AND reserve_1_raw IS NOT NULL
                         AND block_timestamp_last_raw IS NOT NULL
