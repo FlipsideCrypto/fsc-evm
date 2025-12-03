@@ -16,8 +16,8 @@ WITH reads AS (
     SELECT
         block_number,
         block_date,
-        contract_address,
-        address,
+        contract_address AS pool_address,
+        address, --NULL
         regexp_substr_all(SUBSTR(result_hex, 3, len(result_hex)), '.{64}') AS segmented_data,
         segmented_data [0] :: STRING AS reserve_0_hex,
         segmented_data [1] :: STRING AS reserve_1_hex,
@@ -73,20 +73,39 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+),
+all_reads AS (
+SELECT
+    block_number,
+    block_date,
+    token_0_address AS contract_address,
+    pool_address AS address,
+    reserve_0_hex AS amount_hex,
+    reserve_0_raw AS amount_raw,
+    protocol,
+    version,
+    platform
+FROM reads
+UNION ALL
+SELECT
+    block_number,
+    block_date,
+    token_1_address AS contract_address,
+    pool_address AS address,
+    reserve_1_hex AS amount_hex,
+    reserve_1_raw AS amount_raw,
+    protocol,
+    version,
+    platform
+FROM reads
 )
 SELECT
     block_number,
     block_date,
     contract_address,
     address,
-    reserve_0_hex,
-    reserve_1_hex,
-    block_timestamp_last_hex,
-    reserve_0_raw,
-    reserve_1_raw,
-    block_timestamp_last_raw,
-    token_0_address,
-    token_1_address,
+    amount_hex,
+    amount_raw,
     protocol,
     version,
     platform,
@@ -97,4 +116,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    reads
+    all_reads
