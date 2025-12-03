@@ -38,19 +38,10 @@
         {% endif %}
     {% endfor %}
 
-    {# Skip timestamp filtering for dbt_expectations type list tests #}
-    {%- set skip_timestamp_filter = false -%}
-    {%- if this is not none -%}
-        {%- set this_string = this | string | lower -%}
-        {%- if 'dbt_expectations_expect_column_values_to_be_in_type_list' in this_string -%}
-            {%- set skip_timestamp_filter = true -%}
-        {%- endif -%}
-    {%- endif -%}
-    
-    {%- if skip_timestamp_filter -%}
+   {% if 'dbt_expectations_expect_column_values_to_be_in_type_list' in this | string %}
         {% do return(relation) %}
-    {%- endif -%}
-
+    {% endif %}
+    
     {%- set ts_vars = namespace(
         timestamp_column = none,
         filter_condition = none
