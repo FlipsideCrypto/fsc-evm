@@ -69,7 +69,7 @@ final AS (
         all_tvl a 
     LEFT JOIN {{ ref('core__dim_contracts') }}
     c1
-    ON a.contract_address = c1.contract_address
+    ON a.contract_address = c1.address
     LEFT JOIN {{ ref('price__ez_prices_hourly') }}
     p1
     ON a.contract_address = p1.token_address
