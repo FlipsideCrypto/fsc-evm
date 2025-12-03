@@ -17,6 +17,7 @@ WITH balances AS (
         b.block_number,
         b.block_date,
         '0x0000000000000000000000000000000000000000' AS contract_address,
+        --every pool is token-ETH only, no token-token pairs so TVL = 2x ETH value (pools are always 50/50 and 0x000 represents native asset)
         b.address,
         balance_hex,
         balance_raw,
