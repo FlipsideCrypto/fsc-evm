@@ -46,19 +46,60 @@ WITH all_tvl AS (
         {% endif %}
     {% endfor %}
 ),
+contracts AS (
+  SELECT
+    address AS contract_address,
+    symbol AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS contract_address,
+    '{{ vars.GLOBAL_NATIVE_ASSET_SYMBOL }}' AS token_symbol,
+    decimals AS token_decimals,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('core__dim_contracts') }}
+  WHERE
+    address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
+prices AS (
+  SELECT
+    token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+  UNION ALL
+  SELECT
+    '0x0000000000000000000000000000000000000000' AS token_address,
+    price,
+    HOUR,
+    is_verified,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('price__ez_prices_hourly') }}
+  WHERE
+    token_address = '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+),
 final AS (
     SELECT
         a.block_number,
         a.block_date,
         a.contract_address,
         a.address,
-        c1.decimals,
-        c1.symbol,
+        c1.token_decimals AS decimals,
+        c1.token_symbol AS symbol,
+        p1.is_verified,
         a.amount_hex,
         a.amount_raw,
         utils.udf_decimal_adjust(
             a.amount_raw,
-            c1.decimals
+            c1.token_decimals
         ) AS amount_precise,
         amount_precise :: FLOAT AS amount,
         ROUND(amount * p1.price, 2) AS amount_usd,
@@ -67,10 +108,10 @@ final AS (
         a.platform
     FROM
         all_tvl a 
-    LEFT JOIN {{ ref('core__dim_contracts') }}
+    LEFT JOIN contracts
     c1
-    ON a.contract_address = c1.address
-    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
+    ON a.contract_address = c1.contract_address
+    LEFT JOIN prices
     p1
     ON a.contract_address = p1.token_address
     AND DATEADD(

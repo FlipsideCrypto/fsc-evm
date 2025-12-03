@@ -70,9 +70,9 @@ balances AS (
         ON b.address = t.mixer_address
     WHERE
         t.mixer_address IS NOT NULL
-        AND t.token_address IS NULL
-        AND balance_raw IS NOT NULL
+        AND t.token_address = '0x0000000000000000000000000000000000000000'
         AND t.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
+        AND balance_raw IS NOT NULL
 
 {% if is_incremental() %}
 AND b.modified_timestamp > (
