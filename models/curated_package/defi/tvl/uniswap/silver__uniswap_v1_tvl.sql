@@ -28,9 +28,8 @@ WITH balances AS (
         LEFT JOIN {{ ref('silver_dex__uniswap_v1_pools') }}
         p
         ON b.address = p.pool_address
-        AND b.platform = p.platform
     WHERE
-        p.platform IS NOT NULL
+        p.pool_address IS NOT NULL
         AND balance_raw IS NOT NULL
 
 {% if is_incremental() %}
