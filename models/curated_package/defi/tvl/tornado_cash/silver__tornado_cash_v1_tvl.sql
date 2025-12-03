@@ -50,7 +50,7 @@ balances AS (
     SELECT
         b.block_number,
         b.block_date,
-        t.contract_address,
+        t.token_address AS contract_address,
         b.address AS address,
         balance_hex AS amount_hex,
         balance_raw AS amount_raw,
