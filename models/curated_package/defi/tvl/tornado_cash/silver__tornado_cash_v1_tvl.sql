@@ -50,8 +50,8 @@ balances AS (
     SELECT
         b.block_number,
         b.block_date,
-        b.address AS contract_address,
-        NULL AS address,
+        t.contract_address,
+        b.address AS address,
         balance_hex AS amount_hex,
         balance_raw AS amount_raw,
         'tornado_cash' AS protocol,
