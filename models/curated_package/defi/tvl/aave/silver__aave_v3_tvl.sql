@@ -1,22 +1,21 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'aave_v3_tvl_id',
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
+
 WITH reads AS (
 
     SELECT
-        C.block_number,
-        C.block_date,
-        C.contract_address,
-        C.address,
+        block_number,
+        block_date,
+        contract_address,
+        address,
         result_hex AS amount_hex,
         IFNULL(
             CASE
@@ -26,22 +25,23 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw,
-            C.protocol,
-            C.version,
-            C.platform,
-            C._inserted_timestamp
+            protocol,
+            version,
+            platform,
+            _inserted_timestamp
             FROM
-                {{ ref('silver__contract_reads') }} C
-                LEFT JOIN {{ ref('silver_reads__aave_v3_reads') }}
-                r
-                ON C.contract_address = r.contract_address
-                AND C.platform = r.platform
+                {{ ref('silver__contract_reads') }}
             WHERE
-                r.platform IS NOT NULL
-                AND amount_raw IS NOT NULL
+                amount_raw IS NOT NULL
+                AND platform IN (
+                    SELECT
+                        DISTINCT platform
+                    FROM
+                        {{ ref('silver_reads__aave_v3_reads') }}
+                )
 
 {% if is_incremental() %}
-AND C.modified_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(modified_timestamp)
     FROM

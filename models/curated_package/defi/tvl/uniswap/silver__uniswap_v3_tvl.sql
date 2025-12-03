@@ -14,10 +14,10 @@
 WITH reads AS (
 
     SELECT
-        C.block_number,
+        block_number,
         block_date,
-        C.contract_address,
-        C.address,
+        contract_address,
+        address,
         result_hex AS amount_hex,
         IFNULL(
             CASE
@@ -27,24 +27,23 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw,
-            C.metadata :token0 :: STRING AS token_0_address,
-            C.metadata :token1 :: STRING AS token_1_address,
-            C.protocol,
-            C.version,
-            C.platform,
-            C._inserted_timestamp
+            metadata :token0 :: STRING AS token_0_address,
+            metadata :token1 :: STRING AS token_1_address,
+            protocol,
+            version,
+            platform,
+            _inserted_timestamp
             FROM
-                {{ ref('silver__contract_reads') }} C
-                LEFT JOIN {{ ref('silver_reads__uniswap_v3_reads') }}
-                r
-                ON C.contract_address = r.contract_address
-                AND C.platform = r.platform
+                {{ ref('silver__contract_reads') }}
             WHERE
-                r.platform IS NOT NULL
-                AND amount_raw IS NOT NULL
+                amount_raw IS NOT NULL
+                AND platform IN (
+                    SELECT DISTINCT platform
+                    FROM {{ ref('silver_reads__uniswap_v3_reads') }}
+                )
 
 {% if is_incremental() %}
-AND C.modified_timestamp >= (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM

@@ -33,7 +33,7 @@ WITH balances AS (
         AND balance_raw IS NOT NULL
 
 {% if is_incremental() %}
-AND b.modified_timestamp >= (
+AND b.modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM

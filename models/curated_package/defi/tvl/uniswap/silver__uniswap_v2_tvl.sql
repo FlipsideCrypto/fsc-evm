@@ -14,10 +14,10 @@
 WITH reads AS (
 
     SELECT
-        C.block_number,
+        block_number,
         block_date,
-        C.contract_address,
-        C.address,
+        contract_address,
+        address,
         regexp_substr_all(SUBSTR(result_hex, 3, len(result_hex)), '.{64}') AS segmented_data,
         segmented_data [0] :: STRING AS reserve_0_hex,
         segmented_data [1] :: STRING AS reserve_1_hex,
@@ -48,26 +48,25 @@ WITH reads AS (
                             )
                         END
                     ) AS block_timestamp_last_raw,
-                    C.metadata :token0 :: STRING AS token_0_address,
-                    C.metadata :token1 :: STRING AS token_1_address,
-                    C.protocol,
-                    C.version,
-                    C.platform,
-                    C._inserted_timestamp
+                    metadata :token0 :: STRING AS token_0_address,
+                    metadata :token1 :: STRING AS token_1_address,
+                    protocol,
+                    version,
+                    platform,
+                    _inserted_timestamp
                     FROM
-                        {{ ref('silver__contract_reads') }} C
-                        LEFT JOIN {{ ref('silver_reads__uniswap_v2_reads') }}
-                        r
-                        ON C.contract_address = r.contract_address
-                        AND C.platform = r.platform
+                        {{ ref('silver__contract_reads') }}
                     WHERE
-                        r.platform IS NOT NULL
-                        AND reserve_0_raw IS NOT NULL
+                        reserve_0_raw IS NOT NULL
                         AND reserve_1_raw IS NOT NULL
                         AND block_timestamp_last_raw IS NOT NULL
+                        AND platform IN (
+                            SELECT DISTINCT platform
+                            FROM {{ ref('silver_reads__uniswap_v2_reads') }}
+                        )
 
 {% if is_incremental() %}
-AND C.modified_timestamp >= (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM

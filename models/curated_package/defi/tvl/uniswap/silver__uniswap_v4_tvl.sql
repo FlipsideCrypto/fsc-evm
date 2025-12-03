@@ -42,7 +42,7 @@ WITH reads AS (
                 AND amount_raw IS NOT NULL
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
