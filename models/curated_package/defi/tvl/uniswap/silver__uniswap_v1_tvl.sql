@@ -16,8 +16,8 @@ WITH balances AS (
     SELECT
         b.block_number,
         b.block_date,
-        b.address AS contract_address,
-        p.pool_address AS address,
+        '0x0000000000000000000000000000000000000000' AS contract_address,
+        b.address,
         balance_hex,
         balance_raw,
         p.protocol,
