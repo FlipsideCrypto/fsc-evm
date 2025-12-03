@@ -70,6 +70,7 @@ balances AS (
         ON b.address = t.mixer_address
     WHERE
         t.mixer_address IS NOT NULL
+        AND t.token_address IS NULL
         AND balance_raw IS NOT NULL
         AND t.chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
 
