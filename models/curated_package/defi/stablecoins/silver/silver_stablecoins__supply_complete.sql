@@ -47,7 +47,11 @@ total_supply AS (
     SELECT
         block_date,
         contract_address,
-        amount AS total_supply
+        amount AS total_supply,
+        metadata :symbol :: STRING AS symbol,
+        metadata :name :: STRING AS name,
+        metadata :label :: STRING AS label,
+        metadata :decimals :: INTEGER AS decimals
     FROM
         {{ ref('silver__stablecoin_reads') }}
 
@@ -242,10 +246,10 @@ all_supply AS (
         s.block_date,
         s.contract_address,
         s.total_supply,
-        d.symbol,
-        d.name,
-        d.label,
-        d.decimals,
+        s.symbol,
+        s.name,
+        s.label,
+        s.decimals,
         COALESCE(
             b.balance_blacklist,
             0
@@ -300,9 +304,6 @@ all_supply AS (
         LEFT JOIN transfers t
         ON s.block_date = t.block_date
         AND s.contract_address = t.contract_address
-        LEFT JOIN {{ ref('defi__dim_stablecoins') }}
-        d
-        ON s.contract_address = d.contract_address
 ),
 
 {% if is_incremental() and var(

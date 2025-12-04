@@ -12,7 +12,14 @@
 
 WITH verified_stablecoins AS (
     SELECT
-        contract_address
+        contract_address,
+        OBJECT_CONSTRUCT(
+            'symbol', symbol,
+            'name', name,
+            'label', label,
+            'decimals', decimals,
+            'is_verified', is_verified
+        ) :: VARIANT AS metadata
     FROM
         {{ ref('defi__dim_stablecoins') }}
     WHERE
@@ -31,6 +38,7 @@ max_blocks AS (
 base AS (
     SELECT
         s.contract_address,
+        s.metadata,
         m.block_number,
         m.block_date
     FROM
@@ -57,7 +65,8 @@ ready_reads AS (
             function_sig,
             64,
             '0'
-        ) AS input
+        ) AS input,
+        metadata
     FROM
         base
         JOIN function_sigs
@@ -70,6 +79,7 @@ SELECT
     ROUND(block_number,-3) AS partition_key,
     function_sig,
     input,
+    metadata :: STRING AS metadata_str,
     live.udf_api(
         'POST',
         '{{ vars.GLOBAL_NODE_URL }}',
