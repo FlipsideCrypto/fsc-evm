@@ -24,8 +24,8 @@ WITH swaps AS (
         origin_to_address,
         l.contract_address,
         CASE
-            WHEN topics [0] :: STRING = '0xcd60aa75dea3072fbc07ae6d7d856b5dc5f4eee88854f5b4abf7b680ef8bc50f' THEN 'TokenPurchase'
-            ELSE 'EthPurchase'
+            WHEN topics [0] :: STRING = '0x7f4091b46c33e918a0f3aa42307641d17bb67029427a5369e54b353984238705' THEN 'EthPurchase'
+            ELSE 'TokenPurchase'
         END AS event_name,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS buyer_address,
         utils.udf_hex_to_int(
