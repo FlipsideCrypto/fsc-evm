@@ -35,11 +35,11 @@ WITH swaps AS (
             topics [3] :: STRING
         ) :: FLOAT AS bought_amount,
         CASE
-            WHEN event_name = 'EthPurchase' THEN p.token0
+            WHEN topics [0] :: STRING = '0x7f4091b46c33e918a0f3aa42307641d17bb67029427a5369e54b353984238705' THEN p.token0
             ELSE p.token1
         END AS token_in,
         CASE
-            WHEN event_name = 'EthPurchase' THEN p.token1
+            WHEN topics [0] :: STRING = '0x7f4091b46c33e918a0f3aa42307641d17bb67029427a5369e54b353984238705' THEN p.token1
             ELSE p.token0
         END AS token_out,
         p.platform,
