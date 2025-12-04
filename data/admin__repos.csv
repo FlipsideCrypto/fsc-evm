@@ -6,7 +6,7 @@ blast_vars,blast-models,blast,false
 bob_vars,bob-models,bob,true
 boba_vars,boba-models,boba,true
 bsc_vars,bsc-models,bsc,true
-core_vars,core-models,core,false
+core_vars,core-models,core,true
 ethereum_vars,ethereum-models,ethereum,true
 gnosis_vars,gnosis-models,gnosis,true
 ink_vars,ink-models,ink,true
