@@ -12,8 +12,10 @@ gnosis_vars,gnosis-models,gnosis,true
 ink_vars,ink-models,ink,true
 kaia_vars,kaia-models,kaia,false
 mantle_vars,mantle-models,mantle,false
+monad_vars,monad-models,monad,true
 optimism_vars,optimism-models,optimism,true
 polygon_vars,polygon-models,polygon,true
 ronin_vars,ronin-models,ronin,false
 scroll_vars,scroll-models,scroll,false
+somnia_vars,somnia-models,somnia,true
 swell_vars,swell-models,swell,false
