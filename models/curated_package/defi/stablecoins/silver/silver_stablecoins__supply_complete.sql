@@ -216,6 +216,27 @@ GROUP BY
     block_date,
     contract_address
 ),
+holders AS (
+    SELECT
+        block_date,
+        contract_address,
+        COUNT(DISTINCT address) AS num_holders,
+        MAX(modified_timestamp) AS modified_timestamp
+    FROM
+        {{ ref('silver_stablecoins__supply_by_address_imputed') }}
+WHERE balance > 0
+{% if is_incremental() %}
+AND block_date IN (
+    SELECT
+        block_date
+    FROM
+        incremental_dates
+)
+{% endif %}
+GROUP BY
+    block_date,
+    contract_address
+),
 all_supply AS (
     SELECT
         s.block_date,
@@ -260,7 +281,11 @@ all_supply AS (
         COALESCE(
             transfer_volume,
             0
-        ) AS transfer_volume
+        ) AS transfer_volume,
+        COALESCE(
+            num_holders,
+            0
+        ) AS num_holders
     FROM
         total_supply s
         LEFT JOIN blacklist_supply b
@@ -300,7 +325,8 @@ heal_model AS (
         t.amount_in_contracts,
         t.amount_minted,
         t.amount_burned,
-        t.amount_transferred
+        t.amount_transferred,
+        t.num_holders
     FROM
         {{ this }}
         t
@@ -331,7 +357,8 @@ FINAL AS (
         contracts_balance AS amount_in_contracts,
         mint_amount AS amount_minted,
         burn_amount AS amount_burned,
-        transfer_volume AS amount_transferred
+        transfer_volume AS amount_transferred,
+        num_holders AS total_holders
     FROM
         all_supply
 
@@ -355,7 +382,8 @@ SELECT
     amount_in_contracts,
     amount_minted,
     amount_burned,
-    amount_transferred
+    amount_transferred,
+    num_holders AS total_holders
 FROM
     heal_model
 {% endif %}
@@ -368,6 +396,7 @@ SELECT
     label,
     decimals,
     total_supply,
+    total_holders,
     amount_blacklisted,
     amount_in_cex,
     amount_in_bridges,
