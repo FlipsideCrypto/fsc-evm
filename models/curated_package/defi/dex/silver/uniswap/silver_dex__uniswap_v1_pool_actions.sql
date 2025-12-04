@@ -43,7 +43,7 @@ WITH evt AS (
         provider_address AS liquidity_provider,
         provider_address AS sender,
         CASE
-            WHEN event_name = 'AddLiquidity' THEN pool_address
+            WHEN topic_0 = '0x06239653922ac7bea6aa2b19dc486b9361821d37712eb796adfd38d81de278ca' THEN pool_address
             ELSE provider_address
         END AS receiver,
         p.protocol,
