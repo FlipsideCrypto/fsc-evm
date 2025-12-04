@@ -10,16 +10,16 @@
 ) }}
 
 {% set models = [] %}
-{% set _ = models.append(ref('silver__aave_v1_tvl')) %}
-{% set _ = models.append(ref('silver__aave_v2_tvl')) %}
-{% set _ = models.append(ref('silver__aave_v3_tvl')) %}
-{% set _ = models.append(ref('silver__curve_v1_tvl')) %}
-{% set _ = models.append(ref('silver__lido_v1_tvl')) %}
-{% set _ = models.append(ref('silver__tornado_cash_v1_tvl')) %}
-{% set _ = models.append(ref('silver__uniswap_v1_tvl')) %}
-{% set _ = models.append(ref('silver__uniswap_v2_tvl')) %}
-{% set _ = models.append(ref('silver__uniswap_v3_tvl')) %}
-{% set _ = models.append(ref('silver__uniswap_v4_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__aave_v1_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__aave_v2_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__aave_v3_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__curve_v1_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__lido_v1_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__tornado_cash_v1_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__uniswap_v1_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__uniswap_v2_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__uniswap_v3_tvl')) %}
+{% set _ = models.append(ref('silver_tvl__uniswap_v4_tvl')) %}
 
 WITH all_tvl AS (
     {% for model in models %}
