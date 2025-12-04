@@ -105,12 +105,12 @@ WHERE
 {# Streamline Function Call #}
 {% if execute %}
     {% set params = { 
-        "external_table" :"stablecoin_reads",
+        "external_table" :"contract_reads",
         "sql_limit" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_SQL_LIMIT,
         "producer_batch_size" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_PRODUCER_BATCH_SIZE,
         "worker_batch_size" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_WORKER_BATCH_SIZE,
         "async_concurrent_requests" : vars.CURATED_SL_STABLECOIN_READS_REALTIME_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source" : 'stablecoin_reads_realtime'
+        "sql_source" : 'contract_reads_realtime'
     } %}
 
     {% set function_call_sql %}
