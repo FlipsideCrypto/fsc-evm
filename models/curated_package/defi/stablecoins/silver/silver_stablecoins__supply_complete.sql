@@ -3,6 +3,7 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
+-- depends_on: {{ ref('defi__dim_stablecoins') }}
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
