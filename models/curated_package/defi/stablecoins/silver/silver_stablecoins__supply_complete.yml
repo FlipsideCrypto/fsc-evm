@@ -28,6 +28,9 @@ models:
       - name: TOTAL_SUPPLY
         tests:
           - not_null
+      - name: TOTAL_HOLDERS
+        tests:
+          - not_null
       - name: AMOUNT_BLACKLISTED
         tests:
           - not_null

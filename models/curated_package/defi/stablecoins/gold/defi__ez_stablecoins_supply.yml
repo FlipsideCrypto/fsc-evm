@@ -18,6 +18,8 @@ models:
         description: '{{ doc("ez_stablecoins_supply_decimals") }}'
       - name: TOTAL_SUPPLY
         description: '{{ doc("ez_stablecoins_supply_total_supply") }}'
+      - name: TOTAL_HOLDERS
+        description: '{{ doc("ez_stablecoins_supply_total_holders") }}'
       - name: AMOUNT_MINTED
         description: '{{ doc("ez_stablecoins_supply_amount_minted") }}'
       - name: AMOUNT_BURNED

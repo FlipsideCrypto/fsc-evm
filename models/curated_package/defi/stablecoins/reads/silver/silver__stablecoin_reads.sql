@@ -25,6 +25,9 @@ WITH stablecoin_reads AS (
             VALUE :"BLOCK_DATE_UNIX" :: TIMESTAMP
         ) :: DATE AS block_date,
         contract_address,
+        PARSE_JSON(
+            VALUE :"METADATA_STR" :: STRING
+        ) :: variant AS metadata,
         DATA :result :: STRING AS result_hex,
         _inserted_timestamp
     FROM
@@ -53,6 +56,7 @@ results AS (
         block_number,
         block_date,
         contract_address,
+        metadata,
         IFF(
             C.decimals IS NULL,
             18,
@@ -88,6 +92,7 @@ SELECT
     block_number,
     block_date,
     contract_address,
+    metadata,
     decimals_adj AS decimals,
     amount_hex,
     amount_raw,
