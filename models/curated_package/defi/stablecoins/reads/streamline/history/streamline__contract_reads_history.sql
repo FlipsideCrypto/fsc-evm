@@ -124,7 +124,7 @@ WHERE
         "producer_batch_size": vars.CURATED_SL_STABLECOIN_READS_HISTORY_PRODUCER_BATCH_SIZE,
         "worker_batch_size": vars.CURATED_SL_STABLECOIN_READS_HISTORY_WORKER_BATCH_SIZE,
         "async_concurrent_requests": vars.CURATED_SL_STABLECOIN_READS_HISTORY_ASYNC_CONCURRENT_REQUESTS,
-        "sql_source": 'contract_reads_history'
+        "sql_source": 'contract_reads_daily_history'
     } %}
 
     {% set function_call_sql %}
