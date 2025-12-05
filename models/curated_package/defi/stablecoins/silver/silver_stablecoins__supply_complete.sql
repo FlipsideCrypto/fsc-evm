@@ -304,6 +304,9 @@ all_supply AS (
         LEFT JOIN transfers t
         ON s.block_date = t.block_date
         AND s.contract_address = t.contract_address
+        LEFT JOIN holders h
+        ON s.block_date = h.block_date
+        AND s.contract_address = h.contract_address
 ),
 
 {% if is_incremental() and var(
@@ -327,7 +330,7 @@ heal_model AS (
         t.amount_minted,
         t.amount_burned,
         t.amount_transferred,
-        t.num_holders
+        t.total_holders
     FROM
         {{ this }}
         t
@@ -384,7 +387,7 @@ SELECT
     amount_minted,
     amount_burned,
     amount_transferred,
-    num_holders AS total_holders
+    total_holders
 FROM
     heal_model
 {% endif %}
