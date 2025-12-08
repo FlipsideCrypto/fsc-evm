@@ -9,7 +9,7 @@
 
 {# Main query starts here #}
 {{ streamline_external_table_query(
-    source_name = 'stablecoin_reads',
+    source_name = 'contract_reads',
     block_number = false,
     contract_address = true,
     data_not_null = false

@@ -127,6 +127,14 @@ Example: 1500000000
 
 {% enddocs %}
 
+{% docs ez_stablecoins_supply_total_holders %}
+
+The total number of unique addresses holding the stablecoin on this blockchain as of the block_date.
+
+Example: 750000
+
+{% enddocs %}
+
 {% docs ez_stablecoins_supply_amount_minted %}
 
 The amount of tokens minted daily.

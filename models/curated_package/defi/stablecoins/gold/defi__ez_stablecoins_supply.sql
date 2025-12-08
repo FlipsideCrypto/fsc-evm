@@ -19,6 +19,7 @@ SELECT
     label,
     decimals,
     total_supply,
+    total_holders,
     amount_minted,
     amount_burned,
     amount_transferred,
