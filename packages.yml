@@ -1,11 +1,9 @@
 packages:
-  - package: metaplane/dbt_expectations
-    version: [">=0.10.0", "<0.11.0"]
   - package: dbt-labs/dbt_external_tables
     version: 0.8.2
   - package: dbt-labs/dbt_utils
     version: 1.0.0
   - git: https://github.com/FlipsideCrypto/fsc-utils.git
-    revision: DAT2-192/upgrade-dbt-version-1.10
+    revision: v1.39.1
   - package: get-select/dbt_snowflake_query_tags
     version: [">=2.0.0", "<3.0.0"]
