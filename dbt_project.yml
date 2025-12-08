@@ -34,6 +34,8 @@ clean-targets: # directories to be removed by `dbt clean`
 models:
   fsc_evm:
     +enabled: false # Disable all models by default
+    +disallow-spaces-in-resource-names: true  # New default in 1.10
+    +source-freshness-run-project-hooks: true  # New default in 1.10
     main_package: # Only enable models that are required to run in the fsc_evm environment
       admin:
         +enabled: true
