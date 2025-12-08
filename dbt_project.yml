@@ -17,8 +17,6 @@ test-paths: ["tests"]
 seed-paths: ["data"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-
-target-path: "target" # directory which will store compiled SQL files
 clean-targets: # directories to be removed by `dbt clean`
   - "target"
   - "dbt_modules"
@@ -34,13 +32,16 @@ clean-targets: # directories to be removed by `dbt clean`
 models:
   fsc_evm:
     +enabled: false # Disable all models by default
-    +disallow-spaces-in-resource-names: true  # New default in 1.10
-    +source-freshness-run-project-hooks: true  # New default in 1.10
     main_package: # Only enable models that are required to run in the fsc_evm environment
       admin:
         +enabled: true
       github_actions:
         +enabled: true
 
+    +meta:
+      disallow-spaces-in-resource-names: true
+      source-freshness-run-project-hooks: true
 vars:
   "dbt_date:time_zone": GMT
+flags:
+  require_generic_test_arguments_property: true

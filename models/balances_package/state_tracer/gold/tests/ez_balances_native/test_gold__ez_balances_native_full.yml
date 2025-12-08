@@ -4,54 +4,63 @@ models:
     description: "This is a view used to test all of the gold fact balances native data."
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_NUMBER
-            - TX_POSITION
-            - ADDRESS
+          arguments:
+            combination_of_columns:
+              - BLOCK_NUMBER
+              - TX_POSITION
+              - ADDRESS
       - fsc_evm.balances_sequence_gaps:
-          partition_by:
-            - BLOCK_NUMBER
           column_name: TX_POSITION
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+          config:
+            partition_by:
+              - BLOCK_NUMBER
+            where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
       - fsc_evm.balances_diffs_native:
-          test_model: test_gold__fact_traces_full
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
-
+          config:
+            where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+          arguments:
+            test_model: test_gold__fact_traces_full
     columns:
       - name: BLOCK_NUMBER
         tests:
-          - not_null  
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER    
-                - FLOAT
+              arguments:
+                column_type_list:
+                  - NUMBER
+                  - FLOAT
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
       - name: TX_HASH
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: TX_POSITION
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER
-                - FLOAT
+              arguments:
+                column_type_list:
+                  - NUMBER
+                  - FLOAT
       - name: EZ_BALANCES_NATIVE_ID
         tests:
           - not_null
@@ -59,11 +68,13 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
       - name: MODIFIED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
