@@ -8,7 +8,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'tornado_cash_reads_id',
-    tags = ['silver','contract_reads','curated_daily']
+    tags = ['silver','contract_reads']
 ) }}
 
 WITH mixers AS (

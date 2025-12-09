@@ -10,7 +10,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'stablecoins_reads_id',
     post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','contract_reads','curated_daily']
+    tags = ['silver','contract_reads']
 ) }} 
 
 WITH verified_stablecoins AS (

@@ -8,7 +8,7 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'aave_v1_reads_id',
-    tags = ['silver','contract_reads','curated_daily']
+    tags = ['silver','contract_reads']
 ) }}
 
 WITH all_tokens AS (
