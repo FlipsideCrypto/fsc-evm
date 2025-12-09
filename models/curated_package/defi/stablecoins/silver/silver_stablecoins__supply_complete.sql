@@ -10,7 +10,7 @@
     unique_key = ["stablecoins_supply_complete_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','heal','curated_daily']
+    tags = ['silver','defi','stablecoins','curated_daily']
 ) }}
 
 WITH
@@ -23,7 +23,7 @@ max_ts AS (
 incremental_dates AS (
     -- Get all distinct dates that have been updated in any source table
     SELECT DISTINCT block_date
-    FROM {{ ref('silver__stablecoin_reads') }}
+    FROM {{ ref('silver_stablecoins__stablecoins_reads_totalsupply') }}
     WHERE modified_timestamp > (SELECT max_modified_timestamp FROM max_ts)
     UNION
     SELECT DISTINCT block_date
@@ -54,7 +54,7 @@ total_supply AS (
         metadata :label :: STRING AS label,
         metadata :decimals :: INTEGER AS decimals
     FROM
-        {{ ref('silver__stablecoin_reads') }}
+        {{ ref('silver_stablecoins__stablecoins_reads_totalsupply') }}
 
 {% if is_incremental() %}
 WHERE
@@ -310,9 +310,7 @@ all_supply AS (
         AND s.contract_address = h.contract_address
 ),
 
-{% if is_incremental() and var(
-    'HEAL_MODEL'
-) %}
+{% if is_incremental() %}
 heal_model AS (
     SELECT
         t.block_date,
@@ -367,9 +365,7 @@ FINAL AS (
     FROM
         all_supply
 
-{% if is_incremental() and var(
-    'HEAL_MODEL'
-) %}
+{% if is_incremental() %}
 UNION ALL
 SELECT
     block_date,
@@ -417,9 +413,7 @@ SELECT
 FROM
     FINAL
 
-{% if is_incremental() and var(
-    'HEAL_MODEL'
-) %}
+{% if is_incremental() %}
 qualify(ROW_NUMBER() over (PARTITION BY stablecoins_supply_complete_id
 ORDER BY
     modified_timestamp DESC)) = 1

@@ -10,14 +10,8 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'stablecoins_reads_id',
     post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','contract_reads','heal','curated_daily']
+    tags = ['silver','contract_reads','curated_daily']
 ) }} 
---make sure tags are accurate for workflows
---make sure complete model includes existing stablecoin records 
---rename external table to contract_reads (instead of stablecoin_reads) and when complete runs for the first time
---it should include existing stablecoin records
---refactor/remove stablecoins reads models, update downstream refs/logic, update workflows accordingly
---outline deployment steps for contract reads pipeline, tvl models, uniswap v1, stablecoins reads migration 
 
 WITH verified_stablecoins AS (
 
