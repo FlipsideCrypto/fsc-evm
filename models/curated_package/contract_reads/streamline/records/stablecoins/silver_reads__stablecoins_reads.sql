@@ -16,7 +16,14 @@
 WITH verified_stablecoins AS (
 
     SELECT
-        contract_address
+        contract_address,
+        OBJECT_CONSTRUCT(
+            'symbol', symbol,
+            'name', name,
+            'label', label,
+            'decimals', decimals,
+            'is_verified', is_verified
+        ) :: VARIANT AS metadata
     FROM
         {{ ref('defi__dim_stablecoins') }}
     WHERE
@@ -42,7 +49,7 @@ SELECT
         64,
         '0'
     ) AS input,
-    NULL :: VARIANT AS metadata,
+    metadata,
     'stablecoins' AS protocol,
     'v1' AS version,
     CONCAT('stablecoins','-','v1') AS platform,
