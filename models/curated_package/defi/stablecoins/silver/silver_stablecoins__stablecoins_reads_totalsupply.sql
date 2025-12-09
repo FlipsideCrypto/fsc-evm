@@ -28,15 +28,17 @@ WITH stablecoin_reads AS (
         _inserted_timestamp
     FROM
         {{ ref('silver__contract_reads') }}
+    WHERE
+        protocol = 'stablecoins'
+        AND function_name = 'totalSupply'
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
 {% endif %}
 ),
 results AS (
