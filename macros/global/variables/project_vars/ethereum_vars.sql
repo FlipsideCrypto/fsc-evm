@@ -166,8 +166,8 @@
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
-                'v1': {
-                    'funds_deposited': '0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5'
+                'v2': {
+                    'funds_deposited': ['0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5','0x4d9079bb4165aeb4084c526a32695dcfd2f77381']
                 },
                 'v3': {
                     'funds_deposited': '0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5'

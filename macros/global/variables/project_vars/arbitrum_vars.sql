@@ -23,7 +23,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['radiant-v2','radiant-v1'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','gmx-v1','woofi-v3','woofi-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['trader_joe-v2','kyberswap-v1','kyberswap-v2','zyberswap-v2','fraxswap-v1'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hyperliquid-v1','across-v1','multichain-v7','symbiosis-v1','hop-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hyperliquid-v1','across-v2','multichain-v7','symbiosis-v1','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -187,8 +187,8 @@
         'CURATED_DEFI_DEX_DEXALOT_DEST_CHAIN_ID': 42161,
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
-                'v1': {
-                    'funds_deposited': '0xe35e9842fceaca96570b734083f4a58e8f7c5f2a'
+                'v2': {
+                    'funds_deposited': ['0xe35e9842fceaca96570b734083f4a58e8f7c5f2a','0xb88690461ddbab6f04dfad7df66b7725942feb9c']
                 },
                 'v3': {
                     'funds_deposited': '0xe35e9842fceaca96570b734083f4a58e8f7c5f2a'

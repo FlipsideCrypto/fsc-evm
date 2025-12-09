@@ -54,6 +54,7 @@ log_pull AS (
         topics [0] :: STRING in(
         '0x7ac369dbd14fa5ea3f473ed67cc9d598964a77501540ba6751eb0b3decf5870d',
         '0x70aea8d848e8a90fb7661b227dc522eb6395c3dac71b63cb59edd5c9899b2364',
+        '0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f',--wefi topic
         '0x17d6db5ffe5a3d1c3d7a98194dca4f7d808d621e6ff9077ed574513d553a2a85'--joelend topic
         )
         AND origin_from_address IN (

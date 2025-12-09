@@ -65,6 +65,12 @@ to_do AS (
     SELECT block_number
     FROM to_do
 
+    {% if not vars.MAIN_SL_NEW_BUILD_ENABLED %}
+        UNION
+        SELECT block_number
+        FROM {{ ref("_unconfirmed_blocks") }}
+    {% endif %}
+
     {% if vars.MAIN_SL_TESTING_LIMIT is not none %}
         ORDER BY block_number DESC
         LIMIT {{ vars.MAIN_SL_TESTING_LIMIT }} 

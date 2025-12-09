@@ -4,13 +4,19 @@
         'GLOBAL_NODE_PROVIDER': 'quicknode',
         'GLOBAL_NODE_URL': "{URL}",
         'GLOBAL_NODE_VAULT_PATH': 'Vault/prod/evm/quicknode/monad/mainnet',
-        'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x3a704ad3e4784b935ae029171adcf57ee7988198',
+        'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x3bd359c1119da7da1d913d1c4d2b7c461115433a',
         'GLOBAL_WRAPPED_NATIVE_ASSET_SYMBOL': 'WMON',
         'GLOBAL_NATIVE_ASSET_SYMBOL': 'MON',
         'MAIN_SL_BLOCKS_PER_HOUR': 10000,
         'MAIN_PRICES_NATIVE_SYMBOLS': 'MON',
+        'CURATED_START_TIMESTAMP': '2025-11-18 00:00:00',
         'MAIN_PRICES_NATIVE_BLOCKCHAINS': 'monad',
         'MAIN_PRICES_PROVIDER_PLATFORMS': 'monad',
+        'DECODER_SILVER_CONTRACT_ABIS_EXPLORER_NAME': 'etherscan',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_VAULT_PATH': 'Vault/prod/evm/etherscan/pro_plus',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL': 'https://api.etherscan.io/v2/api?apikey={KEY}&chainid=143&module=contract&action=getabi&address=',
+        'DECODER_SL_CONTRACT_ABIS_EXPLORER_URL_SUFFIX': '&tag=latest',
+        'DECODER_SILVER_CONTRACT_ABIS_ETHERSCAN_ENABLED': true,
         'MAIN_GHA_STREAMLINE_CHAINHEAD_CRON': '24,54 * * * *',
         'BALANCES_SL_DAILY_REALTIME_LOOKBACK_DAYS': -2,
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
@@ -52,6 +58,11 @@
             }
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
+            'across': {
+                'v3': {
+                    'funds_deposited': '0xd2ecb3afe598b746f8123cae365a598da831a449'
+                }
+            },
             'layerzero': {
                 'v2': {
                     'bridge': '0x6f475642a6e85809b1c36fa62763669b1b48dd5b'
@@ -60,7 +71,7 @@
             'axelar': {
                 'v1': {
                     'gateway': '0xe432150cce91c13a887f7d836923d5597add8e31',
-                    'gas_service': '0xbe406f0189a0b4cf3a05c286473d23791dd44cc6'
+                    'gas_service': '0x2d5d7d31f671f86c782533cc367f14109a082712'
                 }
             },
             'wormhole': {
@@ -81,6 +92,18 @@
             'dln_debridge': {
                 'v1': {
                     'source': '0xef4fb24ad0916217251f553c0596f8edc630eb66'
+                }
+            }
+        },
+        'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
+            'morpho': {
+                'v1': {
+                    'morpho_blue_address': '0xd5d960e8c380b724a48ac59e2dff1b2cb4a1eaee'
+                }
+            },
+            'neverland': {
+                'v1': {
+                    'aave_version_address': '0x80f00661b13cc5f6ccd3885be7b4c9c67545d585'
                 }
             }
         }

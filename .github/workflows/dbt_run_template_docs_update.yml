@@ -2,6 +2,11 @@ name: dbt_run_template_docs_update
 
 on:
   workflow_call:
+    inputs:
+      resource_id:
+        description: 'DDS resource ID to refresh (defaults to repository name if not provided)'
+        required: false
+        type: string
           
 jobs:
   run_dbt_jobs_refresh:
@@ -79,8 +84,19 @@ jobs:
         run: |
           git push -f --set-upstream origin docs
 
-  notify-failure:
+  refresh-dds-cache:
     needs: [run_dbt_jobs_refresh]
+    if: success()
+    uses: FlipsideCrypto/analytics-workflow-templates/.github/workflows/refresh_dds.yml@main
+    with:
+      resource_id: ${{ inputs.resource_id }}
+      api_url: ${{ github.ref == 'refs/heads/main' && 'https://dds-api.fsc-data-platform.io' || 'https://dds-api.fsc-data-platform-stg.io' }}
+      force_refresh: true
+    secrets:
+      DDS_API_KEY: ${{ github.ref == 'refs/heads/main' && secrets.DDS_PROD_API_KEY || secrets.DDS_STG_API_KEY }}
+
+  notify-failure:
+    needs: [run_dbt_jobs_refresh, refresh-dds-cache]
     if: failure()
     uses: ./.github/workflows/slack_notify.yml
     secrets:

@@ -22,7 +22,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['granary-v1','sonne-v1'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['fraxswap-v1','kyberswap-v2','sushiswap-v1','uniswap-v2'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['eywa-v1','across-v1','meson-v1','symbiosis-v1','multichain-v7','hop-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['eywa-v1','across-v2','meson-v1','symbiosis-v1','multichain-v7','hop-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -111,8 +111,8 @@
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
             'across': {
-                'v1': {
-                    'funds_deposited': '0x6f26bf09b1c792e3228e5467807a900a503c0281'
+                'v2': {
+                    'funds_deposited': ['0x6f26bf09b1c792e3228e5467807a900a503c0281','0xa420b2d1c0841415a695b81e5b867bcd07dff8c9']
                 },
                 'v3': {
                     'funds_deposited': '0x6f26bf09b1c792e3228e5467807a900a503c0281'

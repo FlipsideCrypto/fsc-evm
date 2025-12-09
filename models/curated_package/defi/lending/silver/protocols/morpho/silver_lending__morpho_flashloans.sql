@@ -53,6 +53,7 @@ flashloan AS(
             FROM
                 morpho_blue_addresses
         )
+        AND l.block_timestamp >= '{{ vars.CURATED_START_TIMESTAMP }}' 
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
