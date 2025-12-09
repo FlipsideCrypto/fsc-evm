@@ -52,7 +52,7 @@ SELECT
     metadata,
     'stablecoins' AS protocol,
     'v1' AS version,
-    CONCAT('stablecoins','-','v1') AS platform,
+    CONCAT(protocol,'-',version) AS platform,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','input','platform']
     ) }} AS stablecoins_reads_id,
