@@ -10,7 +10,7 @@
     unique_key = ["stablecoins_supply_complete_id"],
     cluster_by = ['block_date'],
     post_hook = '{{ unverify_stablecoins() }}',
-    tags = ['silver','defi','stablecoins','curated_daily']
+    tags = ['silver','defi','stablecoins','heal','curated_daily']
 ) }}
 
 WITH
