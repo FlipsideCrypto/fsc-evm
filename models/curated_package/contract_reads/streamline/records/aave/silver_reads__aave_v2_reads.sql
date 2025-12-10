@@ -15,6 +15,7 @@ WITH all_tokens AS (
 
     SELECT
         atoken_address AS contract_address,
+        underlying_address,
         protocol,
         version,
         CONCAT(
@@ -40,6 +41,7 @@ AND modified_timestamp > (
 UNION
 SELECT
     atoken_address AS contract_address,
+    underlying_address,
     protocol,
     version,
     CONCAT(
@@ -73,7 +75,10 @@ SELECT
         64,
         '0'
     ) AS input,
-    NULL :: VARIANT AS metadata,
+    OBJECT_CONSTRUCT(
+        'underlying_address',
+        underlying_address
+    ) :: variant AS metadata,
     protocol,
     version,
     platform,
