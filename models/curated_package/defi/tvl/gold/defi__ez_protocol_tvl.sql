@@ -24,12 +24,15 @@ WITH complete_tvl AS (
         amount_raw,
         amount_precise,
         amount,
-        amount_usd,
+        CASE 
+            WHEN t.amount_usd < 1e12 THEN t.amount_usd
+            ELSE NULL
+        END AS amount_usd,
         protocol,
         version,
         platform
     FROM
-        {{ ref('silver_tvl__complete_tvl') }}
+        {{ ref('silver_tvl__complete_tvl') }} t
 
 {% if is_incremental() %}
 WHERE

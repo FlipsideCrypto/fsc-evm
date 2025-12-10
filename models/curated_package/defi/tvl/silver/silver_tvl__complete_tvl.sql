@@ -159,6 +159,7 @@ heal_model AS (
       23,
       A.block_date
     ) = p1.hour
+  WHERE t.decimals IS NULL
 ),
 {% endif %}
 
