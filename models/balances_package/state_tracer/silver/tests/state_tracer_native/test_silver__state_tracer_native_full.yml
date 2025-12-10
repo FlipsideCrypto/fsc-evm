@@ -4,17 +4,19 @@ models:
     description: "This is a view used to test all of the state tracer data."
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_NUMBER
-            - TX_POSITION
-            - ADDRESS
+          arguments:
+            combination_of_columns:
+              - BLOCK_NUMBER
+              - TX_POSITION
+              - ADDRESS
       - fsc_evm.balances_sequence_gaps:
           column_name: BLOCK_NUMBER
       - fsc_evm.balances_sequence_gaps:
-          partition_by:
-            - BLOCK_NUMBER
           column_name: TX_POSITION
 
+          config:
+            partition_by:
+              - BLOCK_NUMBER
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -26,29 +28,35 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
       - name: INSERTED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
       - name: MODIFIED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ

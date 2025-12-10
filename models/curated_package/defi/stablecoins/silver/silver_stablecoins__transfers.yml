@@ -3,5 +3,6 @@ models:
   - name: silver_stablecoins__transfers
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - stablecoins_transfers_id
+          arguments:
+            combination_of_columns:
+              - stablecoins_transfers_id

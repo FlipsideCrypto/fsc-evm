@@ -3,16 +3,18 @@ models:
   - name: silver_stablecoins__supply_complete
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - stablecoins_supply_complete_id
+          arguments:
+            combination_of_columns:
+              - stablecoins_supply_complete_id
 
     columns:
       - name: BLOCK_DATE
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 2
+              arguments:
+                datepart: day
+                interval: 2
       - name: CONTRACT_ADDRESS
         tests:
           - not_null
@@ -65,8 +67,9 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
+              arguments:
+                datepart: day
+                interval: 1
       - name: STABLECOINS_SUPPLY_COMPLETE_ID
         tests:
           - not_null

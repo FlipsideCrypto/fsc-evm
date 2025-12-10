@@ -3,13 +3,15 @@ models:
   - name: test_gold__ez_decoded_event_logs_full
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - EZ_DECODED_EVENT_LOGS_ID
+          arguments:
+            combination_of_columns:
+              - EZ_DECODED_EVENT_LOGS_ID
       - decoded_logs_exist:
-          fact_logs_model: ref('test_gold__fact_event_logs_full')
+          arguments:
+            fact_logs_model: ref('test_gold__fact_event_logs_full')
       - find_missing_decoded_logs:
-          fact_logs_model: ref('test_gold__fact_event_logs_full')
-
+          arguments:
+            fact_logs_model: ref('test_gold__fact_event_logs_full')
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -18,12 +20,14 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
       - name: TX_HASH
         tests:
           - not_null
@@ -78,19 +82,23 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
       - name: MODIFIED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
