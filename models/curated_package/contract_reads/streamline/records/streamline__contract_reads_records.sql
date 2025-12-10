@@ -7,7 +7,7 @@
 -- depends_on: {{ ref('silver_reads__lido_reads') }}
 {{ config (
     materialized = "incremental",
-    unique_key = "contract_reads_daily_records_id",
+    unique_key = "contract_reads_records_id",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
     tags = ['streamline','contract_reads','records','phase_4']
 ) }}
@@ -63,11 +63,11 @@ SELECT
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','address','input','platform']
-    ) }} AS contract_reads_daily_records_id,
+    ) }} AS contract_reads_records_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    all_records qualify (ROW_NUMBER() over (PARTITION BY contract_reads_daily_records_id
+    all_records qualify (ROW_NUMBER() over (PARTITION BY contract_reads_records_id
 ORDER BY
     modified_timestamp DESC)) = 1

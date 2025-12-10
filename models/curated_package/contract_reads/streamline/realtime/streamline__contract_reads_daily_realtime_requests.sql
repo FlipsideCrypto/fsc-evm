@@ -50,7 +50,7 @@ to_do AS (
         version,
         platform
     FROM
-        {{ ref("streamline__contract_reads_daily_complete") }}
+        {{ ref("streamline__contract_reads_complete") }}
     WHERE
         block_date >= (
             SELECT MIN(block_date)
