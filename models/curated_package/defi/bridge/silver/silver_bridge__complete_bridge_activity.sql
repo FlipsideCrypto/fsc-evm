@@ -1,10 +1,8 @@
 -- depends_on: {{ ref('price__ez_asset_metadata') }}
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -16,6 +14,7 @@
 ) }}
 
 WITH contracts AS (
+
     SELECT
         address AS contract_address,
         symbol AS token_symbol,
@@ -25,17 +24,16 @@ WITH contracts AS (
         {{ ref('core__dim_contracts') }}
 ),
 prices AS (
-  SELECT
-    token_address,
-    price,
-    HOUR,
-    is_verified,
-    modified_timestamp AS _inserted_timestamp
-  FROM
-    {{ ref('price__ez_prices_hourly') }}
+    SELECT
+        token_address,
+        price,
+        HOUR,
+        is_verified,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('price__ez_prices_hourly') }}
 ),
 across AS (
-
     SELECT
         block_number,
         block_timestamp,
@@ -57,13 +55,13 @@ across AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__across_fundsdeposited') }}
 
-{% if is_incremental() and 'across' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'across' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -95,13 +93,13 @@ across_v3 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__across_v3fundsdeposited') }}
 
-{% if is_incremental() and 'across_v3' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'across_v3' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -133,13 +131,13 @@ allbridge AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__allbridge_sent') }}
 
-{% if is_incremental() and 'allbridge' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'allbridge' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -150,7 +148,6 @@ WHERE
 {% endif %}
 ),
 allbridge_v2 AS (
-
     SELECT
         block_number,
         block_timestamp,
@@ -172,13 +169,13 @@ allbridge_v2 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__allbridge_tokens_sent') }}
 
-{% if is_incremental() and 'allbridge_v2' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'allbridge_v2' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -210,13 +207,13 @@ axelar AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__axelar_contractcallwithtoken') }}
 
-{% if is_incremental() and 'axelar' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'axelar' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -248,13 +245,13 @@ celer_cbridge AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__celer_cbridge_send') }}
 
-{% if is_incremental() and 'celer_cbridge' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'celer_cbridge' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -265,120 +262,119 @@ WHERE
 {% endif %}
 ),
 ccip AS (
-     SELECT
-         block_number,
-         block_timestamp,
-         origin_from_address,
-         origin_to_address,
-         origin_function_signature,
-         tx_hash,
-         event_index,
-         bridge_address,
-         event_name,
-         sender,
-         receiver,
-         destination_chain_receiver,
-         destination_chain_id :: STRING AS destination_chain_id,
-         destination_chain,
-         token_address,
-         NULL AS token_symbol,
-         amount_unadj,
-         platform,
-         protocol,
-         version,
-         type,
-         _log_id AS _id,
-         modified_timestamp AS _inserted_timestamp
-     FROM
-         {{ ref('silver_bridge__ccip_send_requested') }}
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        TYPE,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__ccip_send_requested') }}
 
- {% if is_incremental() and 'ccip' not in vars.CURATED_FR_MODELS %}
- WHERE
-     _inserted_timestamp >= (
-         SELECT
-             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-         FROM
-             {{ this }}
-     )
- {% endif %}
- ),
- 
- cctp AS (
-     SELECT
-         block_number,
-         block_timestamp,
-         origin_from_address,
-         origin_to_address,
-         origin_function_signature,
-         tx_hash,
-         event_index,
-         bridge_address,
-         event_name,
-         sender,
-         receiver,
-         destination_chain_receiver,
-         destination_chain_id :: STRING AS destination_chain_id,
-         destination_chain,
-         token_address,
-         NULL AS token_symbol,
-         amount_unadj,
-         platform,
-         protocol,
-         version,
-         type,
-         _log_id AS _id,
-         modified_timestamp AS _inserted_timestamp
-     FROM
-         {{ ref('silver_bridge__cctp_depositforburn') }}
+{% if is_incremental() and 'ccip' not in vars.curated_fr_models %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+cctp AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        TYPE,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__cctp_depositforburn') }}
 
- {% if is_incremental() and 'cctp' not in vars.CURATED_FR_MODELS %}
- WHERE
-     _inserted_timestamp >= (
-         SELECT
-             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-         FROM
-             {{ this }}
-     )
- {% endif %}
- ),
-  cctp_v2 AS (
-     SELECT
-         block_number,
-         block_timestamp,
-         origin_from_address,
-         origin_to_address,
-         origin_function_signature,
-         tx_hash,
-         event_index,
-         bridge_address,
-         event_name,
-         sender,
-         receiver,
-         destination_chain_receiver,
-         destination_chain_id :: STRING AS destination_chain_id,
-         destination_chain,
-         token_address,
-         NULL AS token_symbol,
-         amount_unadj,
-         platform,
-         protocol,
-         version,
-         type,
-         _log_id AS _id,
-         modified_timestamp AS _inserted_timestamp
-     FROM
-         {{ ref('silver_bridge__cctp_v2_depositforburn') }}
+{% if is_incremental() and 'cctp' not in vars.curated_fr_models %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+cctp_v2 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        TYPE,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__cctp_v2_depositforburn') }}
 
- {% if is_incremental() and 'cctp_v2' not in vars.CURATED_FR_MODELS %}
- WHERE
-     _inserted_timestamp >= (
-         SELECT
-             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-         FROM
-             {{ this }}
-     )
- {% endif %}
- ),
+{% if is_incremental() and 'cctp_v2' not in vars.curated_fr_models %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 dln_debridge AS (
     SELECT
         block_number,
@@ -401,13 +397,13 @@ dln_debridge AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__dln_debridge_createdorder') }}
 
-{% if is_incremental() and 'dln_debridge' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'dln_debridge' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -417,7 +413,6 @@ WHERE
     )
 {% endif %}
 ),
-
 everclear AS (
     SELECT
         block_number,
@@ -438,15 +433,15 @@ everclear AS (
         NULL AS token_symbol,
         amount_unadj,
         platform,
-        protocol, 
+        protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__everclear') }}
 
-{% if is_incremental() and 'everclear' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'everclear' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -456,7 +451,6 @@ WHERE
     )
 {% endif %}
 ),
-
 eywa AS (
     SELECT
         block_number,
@@ -479,13 +473,13 @@ eywa AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__eywa_requestsent') }}
 
-{% if is_incremental() and 'eywa' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'eywa' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -517,13 +511,13 @@ hop_l2 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__hop_transfersent') }}
 
-{% if is_incremental() and 'hop_l2' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'hop_l2' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -555,13 +549,13 @@ hop_l1 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__hop_transfersenttol2') }}
 
-{% if is_incremental() and 'hop_l1' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'hop_l1' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -571,7 +565,6 @@ WHERE
     )
 {% endif %}
 ),
-
 hyperliquid AS (
     SELECT
         block_number,
@@ -594,13 +587,13 @@ hyperliquid AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__hyperliquid') }}
 
-{% if is_incremental() and 'hyperliquid' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'hyperliquid' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -610,7 +603,6 @@ WHERE
     )
 {% endif %}
 ),
-
 layerzero_v2 AS (
     SELECT
         block_number,
@@ -633,13 +625,13 @@ layerzero_v2 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__layerzero_v2') }}
 
-{% if is_incremental() and 'layerzero_v2' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'layerzero_v2' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -649,7 +641,6 @@ WHERE
     )
 {% endif %}
 ),
-
 meson AS (
     SELECT
         block_number,
@@ -672,13 +663,13 @@ meson AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__meson_transfers') }}
 
-{% if is_incremental() and 'meson' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'meson' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -710,13 +701,13 @@ multichain AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__multichain_v7_loganyswapout') }}
 
-{% if is_incremental() and 'multichain' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'multichain' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -748,13 +739,13 @@ stargate AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__stargate_swap') }}
 
-{% if is_incremental() and 'stargate' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'stargate' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -764,7 +755,6 @@ WHERE
     )
 {% endif %}
 ),
-
 stargate_v2 AS (
     SELECT
         block_number,
@@ -787,23 +777,22 @@ stargate_v2 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__stargate_v2') }}
 
-{% if is_incremental() and 'stargate_v2' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'stargate_v2' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
 {% endif %}
 ),
-
 symbiosis AS (
     SELECT
         block_number,
@@ -826,13 +815,13 @@ symbiosis AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__symbiosis_synthesizerequest') }}
 
-{% if is_incremental() and 'symbiosis' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'symbiosis' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -864,16 +853,16 @@ synapse_tb AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__synapse_token_bridge') }}
 
-{% if is_incremental() and 'synapse_tb' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'synapse_tb' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
@@ -902,13 +891,13 @@ synapse_tbs AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__synapse_tokenbridgeandswap') }}
 
-{% if is_incremental() and 'synapse_tbs' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'synapse_tbs' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -940,16 +929,16 @@ wormhole AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__wormhole_transfers') }}
 
-{% if is_incremental() and 'wormhole' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'wormhole' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
@@ -978,16 +967,16 @@ avalanche_native_v2 AS (
         platform,
         protocol,
         version,
-        type,
-        _log_id AS_id,
+        TYPE,
+        _log_id as_id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__avalanche_native_v2') }}
 
-{% if is_incremental() and 'avalanche_native_v2' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'avalanche_native_v2' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
@@ -1016,23 +1005,22 @@ core_native_bridge AS (
         platform,
         protocol,
         version,
-        type,
-        _log_id AS_id,
+        TYPE,
+        _log_id as_id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__core_bridge_unwraptoken') }}
 
-{% if is_incremental() and 'core_native_bridge' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'core_native_bridge' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
 {% endif %}
 ),
-
 polygon_pos_bridge AS (
     SELECT
         block_number,
@@ -1055,23 +1043,22 @@ polygon_pos_bridge AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__polygon_pos_bridge') }}
 
-{% if is_incremental() and 'polygon_pos_bridge' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'polygon_pos_bridge' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
 {% endif %}
 ),
-
 superchain_l2_standard_bridge AS (
     SELECT
         block_number,
@@ -1094,23 +1081,22 @@ superchain_l2_standard_bridge AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__superchain_l2_standard_bridge') }}
 
-{% if is_incremental() and 'superchain_l2_standard_bridge' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'superchain_l2_standard_bridge' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
 {% endif %}
 ),
-
 axie_infinity_v2 AS (
     SELECT
         block_number,
@@ -1133,13 +1119,13 @@ axie_infinity_v2 AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__axie_infinity_depositrequested') }}
 
-{% if is_incremental() and 'axie_infinity_v2' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'axie_infinity_v2' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -1171,16 +1157,54 @@ gaszip_lz AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _log_id AS _id,
         modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver_bridge__gaszip_lz_sentdeposits') }}
 
-{% if is_incremental() and 'gaszip_lz' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'gaszip_lz' not in vars.curated_fr_models %}
 WHERE
     _inserted_timestamp >= (
-        SELECT 
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+relay_v1 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        platform,
+        protocol,
+        version,
+        TYPE,
+        _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__relay_v1') }}
+
+{% if is_incremental() and 'relay_v1' not in vars.curated_fr_models %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
             MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
@@ -1203,7 +1227,7 @@ all_protocols AS (
     FROM
         allbridge
     UNION ALL
-    SELECT 
+    SELECT
         *
     FROM
         allbridge_v2
@@ -1217,10 +1241,10 @@ all_protocols AS (
         *
     FROM
         celer_cbridge
-    UNION ALL 
-    SELECT 
+    UNION ALL
+    SELECT
         *
-    FROM 
+    FROM
         ccip
     UNION ALL
     SELECT
@@ -1337,8 +1361,14 @@ all_protocols AS (
         *
     FROM
         gaszip_lz
+    UNION ALL
+    SELECT
+        *
+    FROM
+        relay_v1
 ),
-eth_native_bridges AS ( --ethereum specific transfers out only, contracts sourced via seed file
+eth_native_bridges AS (
+    --ethereum specific transfers out only, contracts sourced via seed file
     SELECT
         block_number,
         block_timestamp,
@@ -1360,7 +1390,7 @@ eth_native_bridges AS ( --ethereum specific transfers out only, contracts source
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         _id,
         modified_timestamp AS _inserted_timestamp
     FROM
@@ -1373,7 +1403,7 @@ eth_native_bridges AS ( --ethereum specific transfers out only, contracts source
                 all_protocols
         )
 
-{% if is_incremental() and 'eth_native_bridges' not in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'eth_native_bridges' not in vars.curated_fr_models %}
 AND _inserted_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
@@ -1382,14 +1412,14 @@ AND _inserted_timestamp >= (
 )
 {% endif %}
 
-{% if is_incremental() and 'eth_native_bridges' in vars.CURATED_FR_MODELS %}
+{% if is_incremental() and 'eth_native_bridges' in vars.curated_fr_models %}
 AND tx_hash NOT IN (
     SELECT
         DISTINCT tx_hash
     FROM
         {{ this }}
     WHERE
-        type <> 'ethereum_native'
+        TYPE <> 'ethereum_native'
 )
 {% endif %}
 ),
@@ -1418,19 +1448,21 @@ complete_bridge_activity AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         sender,
         receiver,
         destination_chain_receiver,
         CASE
-            WHEN destination_chain_id :: STRING IS NULL 
-            THEN d.chain_id :: STRING
+            WHEN destination_chain_id :: STRING IS NULL THEN d.chain_id :: STRING
             ELSE destination_chain_id :: STRING
         END AS destination_chain_id,
         CASE
-            WHEN destination_chain :: STRING IS NULL 
-            THEN LOWER(d.chain :: STRING)
-            ELSE LOWER(destination_chain :: STRING)
+            WHEN destination_chain :: STRING IS NULL THEN LOWER(
+                d.chain :: STRING
+            )
+            ELSE LOWER(
+                destination_chain :: STRING
+            )
         END AS destination_chain,
         b.token_address,
         CASE
@@ -1453,15 +1485,14 @@ complete_bridge_activity AS (
             )
             ELSE NULL
         END AS amount_usd,
-        p.is_verified as token_is_verified,
+        p.is_verified AS token_is_verified,
         _id,
         b._inserted_timestamp
     FROM
         all_bridges b
         LEFT JOIN contracts C
         ON b.token_address = C.contract_address
-        LEFT JOIN prices
-        p
+        LEFT JOIN prices p
         ON b.token_address = p.token_address
         AND DATE_TRUNC(
             'hour',
@@ -1497,7 +1528,7 @@ heal_model AS (
         platform,
         protocol,
         version,
-        type,
+        TYPE,
         sender,
         receiver,
         destination_chain_receiver,
@@ -1515,7 +1546,7 @@ heal_model AS (
             WHEN C.token_decimals IS NOT NULL THEN amount_heal * p.price
             ELSE NULL
         END AS amount_usd_heal,
-        p.is_verified as token_is_verified,
+        p.is_verified AS token_is_verified,
         _id,
         t0._inserted_timestamp
     FROM
@@ -1523,8 +1554,7 @@ heal_model AS (
         t0
         LEFT JOIN contracts C
         ON t0.token_address = C.contract_address
-        LEFT JOIN prices
-        p
+        LEFT JOIN prices p
         ON t0.token_address = p.token_address
         AND DATE_TRUNC(
             'hour',
@@ -1603,8 +1633,7 @@ heal_model AS (
                             SELECT
                                 1
                             FROM
-                                prices
-                                p
+                                prices p
                             WHERE
                                 p._inserted_timestamp > DATEADD('DAY', -14, SYSDATE())
                                 AND p.price IS NOT NULL
@@ -1617,35 +1646,44 @@ heal_model AS (
                     GROUP BY
                         1
                 )
-                OR concat(
-                  t0.block_number,
-                  '-',
-                  t0.platform,
-                  '-',
-                  t0.version
-                ) IN (  
-                    select concat(
-                      t3.block_number,
-                      '-',
-                      t3.platform,
-                      '-',
-                      t3.version
-                    )
-                    from {{ this }} t3
-                    where t3.token_address in (
-                      select token_address
-                      from {{ ref('price__ez_asset_metadata') }}
-                      where ifnull(is_verified_modified_timestamp, '1970-01-01' :: TIMESTAMP) > dateadd('day', -10, SYSDATE())
-                    )
-                )
-        ),
-    {% endif %}
+                OR CONCAT(
+                    t0.block_number,
+                    '-',
+                    t0.platform,
+                    '-',
+                    t0.version
+                ) IN (
+                    SELECT
+                        CONCAT(
+                            t3.block_number,
+                            '-',
+                            t3.platform,
+                            '-',
+                            t3.version
+                        )
+                    FROM
+                        {{ this }}
+                        t3
+                    WHERE
+                        t3.token_address IN (
+                            SELECT
+                                token_address
+                            FROM
+                                {{ ref('price__ez_asset_metadata') }}
+                            WHERE
+                                IFNULL(
+                                    is_verified_modified_timestamp,
+                                    '1970-01-01' :: TIMESTAMP
+                                ) > DATEADD('day', -10, SYSDATE()))
+                        )
+                ),
+            {% endif %}
 
-    FINAL AS (
-        SELECT
-            *
-        FROM
-            complete_bridge_activity
+            FINAL AS (
+                SELECT
+                    *
+                FROM
+                    complete_bridge_activity
 
 {% if is_incremental() and var(
     'HEAL_MODEL'
@@ -1664,7 +1702,7 @@ SELECT
     platform,
     protocol,
     version,
-    type,
+    TYPE,
     sender,
     receiver,
     destination_chain_receiver,
@@ -1696,7 +1734,7 @@ SELECT
     platform,
     protocol,
     version,
-    type,
+    TYPE,
     sender,
     receiver,
     destination_chain_receiver,
@@ -1708,7 +1746,10 @@ SELECT
     amount_unadj,
     amount,
     amount_usd,
-    ifnull(token_is_verified, false) AS token_is_verified,
+    IFNULL(
+        token_is_verified,
+        FALSE
+    ) AS token_is_verified,
     _id,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
