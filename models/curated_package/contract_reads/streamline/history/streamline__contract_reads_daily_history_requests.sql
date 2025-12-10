@@ -34,7 +34,7 @@ to_do AS (
         t.version,
         t.platform
     FROM
-        {{ ref("streamline__contract_reads_daily_records") }} t
+        {{ ref("streamline__contract_reads_records") }} t
         CROSS JOIN last_x_days d
     EXCEPT
     SELECT
