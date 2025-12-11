@@ -14,7 +14,7 @@ WITH reads AS (
     SELECT
         block_number,
         block_date,
-        contract_address AS atoken_address,
+        contract_address,
         address,
         result_hex AS amount_hex,
         IFNULL(
@@ -25,7 +25,6 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw,
-            metadata :underlying_address :: STRING AS underlying_address,
             protocol,
             version,
             platform,
@@ -53,8 +52,8 @@ AND modified_timestamp > (
 SELECT
     block_number,
     block_date,
-    underlying_address AS contract_address,
-    atoken_address AS address,
+    contract_address,
+    address,
     amount_hex,
     amount_raw,
     protocol,
