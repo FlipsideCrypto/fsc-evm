@@ -42,7 +42,7 @@ WITH reads AS (
                 )
 
 {% if is_incremental() %}
-AND modified_timestamp >= (
+AND modified_timestamp > (
     SELECT
         MAX(modified_timestamp)
     FROM
