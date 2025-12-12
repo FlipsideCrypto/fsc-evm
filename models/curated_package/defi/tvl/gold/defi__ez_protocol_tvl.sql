@@ -20,12 +20,14 @@ WITH complete_tvl AS (
         address,
         decimals,
         symbol,
+        is_verified,
+        max_usd_exponent,
         amount_hex,
         amount_raw,
         amount_precise,
         amount,
         CASE 
-            WHEN t.amount_usd < POWER(10, t.usd_threshold) THEN t.amount_usd
+            WHEN t.amount_usd < POWER(10, t.max_usd_exponent) THEN t.amount_usd
             ELSE NULL
         END AS amount_usd,
         protocol,
