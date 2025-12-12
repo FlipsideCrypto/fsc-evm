@@ -49,7 +49,7 @@ SELECT
     contract_address,
     address,
     balance_hex AS amount_hex,
-    balance_raw AS amount_raw,
+    balance_raw * 2 AS amount_raw, -- 2x ETH value since all pools are 50/50 ETH-token pairs
     protocol,
     version,
     platform,
