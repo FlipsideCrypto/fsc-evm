@@ -38,11 +38,12 @@ AND modified_timestamp > (
 SELECT
     contract_address,
     address,
-    'balanceOf' AS function_name,
-    '0x70a08231' AS function_sig,
-    CONCAT(
-        '0x70a08231',
-        LPAD(SUBSTR(address, 3), 64, '0')
+    'totalSupply' AS function_name,
+    '0x18160ddd' AS function_sig,
+    RPAD(
+        function_sig,
+        64,
+        '0'
     ) AS input,
     NULL :: variant AS metadata,
     protocol,

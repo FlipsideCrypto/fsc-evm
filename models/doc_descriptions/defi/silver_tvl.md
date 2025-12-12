@@ -15,7 +15,7 @@ Sums all underlying token balances held by each aToken contract (+ stkAAVE staki
 {% docs aave_v3_tvl_table_doc %}
 
 Methodology:
-Sums all underlying token balances held by each aToken contract
+Sums totalSupply of each aToken contract
 
 {% enddocs %}
 
