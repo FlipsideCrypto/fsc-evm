@@ -200,6 +200,7 @@ SELECT
   address,
   decimals,
   symbol,
+  is_verified,
   amount_hex,
   amount_raw,
   amount_precise,
