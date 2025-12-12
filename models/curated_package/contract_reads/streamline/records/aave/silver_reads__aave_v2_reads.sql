@@ -63,6 +63,17 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+UNION
+SELECT
+    '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9' AS contract_address, --AAVE
+    '0x4da27a545c0c5b758a6ba100e3a049001de870f5' AS address, --stkAAVE (Staking)
+    'aave' AS protocol,
+    'v2' AS version,
+    CONCAT(
+        protocol,
+        '-',
+        version
+    ) AS platform
 {% endif %}
 )
 SELECT
@@ -79,7 +90,7 @@ SELECT
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
-        ['contract_address','input','platform']
+        ['contract_address','address','input','platform']
     ) }} AS aave_v2_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

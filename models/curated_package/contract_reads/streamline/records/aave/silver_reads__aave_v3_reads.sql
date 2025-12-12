@@ -12,8 +12,8 @@
 WITH all_tokens AS (
 
     SELECT
-        atoken_address AS contract_address,
-        underlying_address,
+        underlying_address AS contract_address,
+        atoken_address AS address,
         protocol,
         version,
         CONCAT(
@@ -37,23 +37,19 @@ AND modified_timestamp > (
 )
 SELECT
     contract_address,
-    NULL AS address,
-    'totalSupply' AS function_name,
-    '0x18160ddd' AS function_sig,
-    RPAD(
-        function_sig,
-        64,
-        '0'
+    address,
+    'balanceOf' AS function_name,
+    '0x70a08231' AS function_sig,
+    CONCAT(
+        '0x70a08231',
+        LPAD(SUBSTR(address, 3), 64, '0')
     ) AS input,
-    OBJECT_CONSTRUCT(
-        'underlying_address',
-        underlying_address
-    ) :: variant AS metadata,
+    NULL :: variant AS metadata,
     protocol,
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
-        ['contract_address','input','platform']
+        ['contract_address','address','input','platform']
     ) }} AS aave_v3_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
