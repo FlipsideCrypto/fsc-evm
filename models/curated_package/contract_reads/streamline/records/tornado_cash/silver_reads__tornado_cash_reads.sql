@@ -15,13 +15,7 @@ WITH mixers AS (
 
     SELECT
         token_address AS contract_address,
-        mixer_address AS address,
-        'balanceOf' AS function_name,
-        '0x70a08231' AS function_sig,
-        CONCAT(
-            '0x70a08231',
-            LPAD(SUBSTR(address, 3), 64, '0')
-        ) AS input,
+        mixer_address AS address
     FROM
         {{ ref('silver_reads__tornado_cash_mixer_seed') }}
     WHERE
@@ -40,9 +34,12 @@ AND CONCAT(COALESCE(contract_address, 'null'), '-', address) NOT IN (
 SELECT
     contract_address,
     address,
-    function_name,
-    function_sig,
-    input,
+    'balanceOf' AS function_name,
+    '0x70a08231' AS function_sig,
+    CONCAT(
+        '0x70a08231',
+        LPAD(SUBSTR(address, 3), 64, '0')
+    ) AS input,
     NULL :: variant AS metadata,
     'tornado_cash' AS protocol,
     'v1' AS version,

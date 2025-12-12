@@ -48,6 +48,48 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+),
+balances AS (
+    SELECT
+        block_number,
+        block_date,
+        '0x0000000000000000000000000000000000000000' AS contract_address, -- Represents native asset, for pricing purposes
+        address,
+        balance_hex AS amount_hex,
+        balance_raw AS amount_raw,
+        'aave' AS protocol,
+        'v1' AS version,
+        CONCAT(
+            protocol,
+            '-',
+            version
+        ) AS platform,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('balances__ez_balances_native_daily') }}
+    WHERE
+        address = '0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3'
+        AND balance_raw IS NOT NULL
+
+{% if is_incremental() %}
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
+),
+FINAL AS (
+    SELECT
+        *
+    FROM
+        reads
+    UNION ALL
+    SELECT
+        *
+    FROM
+        balances
 )
 SELECT
     block_number,
@@ -66,4 +108,4 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    reads
+    FINAL

@@ -85,28 +85,12 @@ AND b.modified_timestamp > (
 ),
 FINAL AS (
     SELECT
-        block_number,
-        block_date,
-        contract_address,
-        address,
-        amount_hex,
-        amount_raw,
-        protocol,
-        version,
-        platform
+        *
     FROM
         reads
     UNION ALL
     SELECT
-        block_number,
-        block_date,
-        contract_address,
-        address,
-        amount_hex,
-        amount_raw,
-        protocol,
-        version,
-        platform
+        *
     FROM
         balances
 )
