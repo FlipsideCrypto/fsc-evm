@@ -62,10 +62,12 @@ SELECT
     platform,
     12 AS usd_threshold,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_date','contract_address','platform']
+        ['block_date','contract_address','address','platform']
     ) }} AS aave_v3_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    reads
+    reads qualify(ROW_NUMBER() over(PARTITION BY aave_v3_tvl_id
+ORDER BY
+    modified_timestamp DESC)) = 1

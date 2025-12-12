@@ -108,4 +108,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    FINAL
+    FINAL qualify(ROW_NUMBER() over(PARTITION BY aave_v1_tvl_id
+ORDER BY
+    modified_timestamp DESC)) = 1

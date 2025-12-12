@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'tornado_cash_tvl_id',
+    unique_key = 'tornado_cash_v1_tvl_id',
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
@@ -106,9 +106,11 @@ SELECT
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','contract_address','address','platform']
-    ) }} AS tornado_cash_tvl_id,
+    ) }} AS tornado_cash_v1_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    FINAL
+    FINAL qualify(ROW_NUMBER() over(PARTITION BY tornado_cash_v1_tvl_id
+ORDER BY
+    modified_timestamp DESC)) = 1

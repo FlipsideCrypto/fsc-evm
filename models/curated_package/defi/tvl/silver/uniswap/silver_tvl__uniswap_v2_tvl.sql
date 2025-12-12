@@ -116,4 +116,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    all_reads
+    all_reads qualify(ROW_NUMBER() over(PARTITION BY uniswap_v2_tvl_id
+ORDER BY
+    modified_timestamp DESC)) = 1
