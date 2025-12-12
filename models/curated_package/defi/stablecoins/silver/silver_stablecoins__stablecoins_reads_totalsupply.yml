@@ -1,0 +1,7 @@
+version: 2
+models:
+  - name: silver_stablecoins__stablecoins_reads_totalsupply
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - stablecoins_reads_totalsupply_id
