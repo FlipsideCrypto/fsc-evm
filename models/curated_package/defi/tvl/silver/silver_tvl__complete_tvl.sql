@@ -9,20 +9,21 @@
   tags = ['silver','defi','tvl','complete','heal','curated_daily']
 ) }}
 
-{% set models = [] %}
-{% set _ = models.append(ref('silver_tvl__aave_v1_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__aave_v2_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__aave_v3_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__curve_v1_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__lido_v1_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__tornado_cash_v1_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__uniswap_v1_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__uniswap_v2_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__uniswap_v3_tvl')) %}
-{% set _ = models.append(ref('silver_tvl__uniswap_v4_tvl')) %}
+{% set models = [
+    (ref('silver_tvl__aave_v1_tvl'), 12, 'aave-v1'),
+    (ref('silver_tvl__aave_v2_tvl'), 12, 'aave-v2'),
+    (ref('silver_tvl__aave_v3_tvl'), 12, 'aave-v3'),
+    (ref('silver_tvl__curve_v1_tvl'), 10, 'curve-v1'),
+    (ref('silver_tvl__lido_v1_tvl'), 12, 'lido-v1'),
+    (ref('silver_tvl__tornado_cash_v1_tvl'), 9, 'tornado_cash-v1'),
+    (ref('silver_tvl__uniswap_v1_tvl'), 9, 'uniswap-v1'),
+    (ref('silver_tvl__uniswap_v2_tvl'), 9, 'uniswap-v2'),
+    (ref('silver_tvl__uniswap_v3_tvl'), 9, 'uniswap-v3'),
+    (ref('silver_tvl__uniswap_v4_tvl'), 9, 'uniswap-v4')
+] %}
 
 WITH all_tvl AS (
-    {% for model in models %}
+    {% for model, max_usd_exponent, platform in models %}
         SELECT
             block_number,
             block_date,
@@ -32,10 +33,11 @@ WITH all_tvl AS (
             amount_raw,
             protocol,
             version,
-            platform
+            platform,
+            {{ max_usd_exponent }} AS max_usd_exponent
         FROM {{ model }}
         {% if not loop.last %}
-        {% if is_incremental() %}
+        {% if is_incremental() and platform not in vars.CURATED_FR_MODELS %}
         WHERE modified_timestamp > (
             SELECT MAX(modified_timestamp)
             FROM {{ this }}
@@ -107,7 +109,8 @@ complete_tvl AS (
     ) AS amount_usd,
     A.protocol,
     A.version,
-    A.platform
+    A.platform,
+    A.max_usd_exponent
   FROM
     all_tvl A
     LEFT JOIN contracts c1
@@ -146,7 +149,8 @@ heal_model AS (
     ) AS amount_usd_heal,
     t.protocol,
     t.version,
-    t.platform
+    t.platform,
+    t.max_usd_exponent
   FROM
     {{ this }}
     t
@@ -188,7 +192,8 @@ SELECT
   amount_usd_heal AS amount_usd,
   protocol,
   version,
-  platform
+  platform,
+  max_usd_exponent
 FROM
   heal_model
 {% endif %}
@@ -209,6 +214,7 @@ SELECT
   protocol,
   version,
   platform,
+  max_usd_exponent,
   {{ dbt_utils.generate_surrogate_key(
     ['block_date','contract_address','address','platform']
   ) }} AS complete_tvl_id,

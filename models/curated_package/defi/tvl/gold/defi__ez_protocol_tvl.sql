@@ -25,7 +25,7 @@ WITH complete_tvl AS (
         amount_precise,
         amount,
         CASE 
-            WHEN t.amount_usd < 1e9 THEN t.amount_usd
+            WHEN t.amount_usd < POWER(10, t.usd_threshold) THEN t.amount_usd
             ELSE NULL
         END AS amount_usd,
         protocol,
