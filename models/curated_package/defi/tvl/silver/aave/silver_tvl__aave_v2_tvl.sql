@@ -60,7 +60,7 @@ SELECT
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_date','contract_address','platform']
+        ['block_date','contract_address','address','platform']
     ) }} AS aave_v2_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
