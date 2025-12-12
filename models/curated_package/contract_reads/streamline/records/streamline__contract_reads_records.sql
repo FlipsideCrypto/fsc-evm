@@ -16,6 +16,9 @@
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
     {% set _ = models.append(ref('silver_reads__lido_reads')) %}
 {% endif %}
+{% if vars.GLOBAL_PROJECT_NAME == 'polygon' %}
+    {% set _ = models.append(ref('silver_reads__polymarket_v1_reads')) %}
+{% endif %}
 {% set _ = models.append(ref('silver_reads__stablecoins_reads')) %}
 {% set _ = models.append(ref('silver_reads__uniswap_v2_reads')) %}
 {% set _ = models.append(ref('silver_reads__uniswap_v3_reads')) %}
