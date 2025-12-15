@@ -32,11 +32,12 @@ to_do AS (
         t.metadata,
         t.protocol,
         t.version,
-        t.platform
+        t.platform,
+        t.type
     FROM
         {{ ref("streamline__contract_reads_records") }} t
         CROSS JOIN last_x_days d
-    WHERE granularity = 'daily'
+    WHERE type = 'daily'
     EXCEPT
     SELECT
         block_number,
@@ -49,7 +50,8 @@ to_do AS (
         metadata,
         protocol,
         version,
-        platform
+        platform,
+        type
     FROM
         {{ ref("streamline__contract_reads_complete") }}
     WHERE
@@ -76,6 +78,7 @@ SELECT
     protocol,
     version,
     platform,
+    type,
     ROUND(
         block_number,
         -3

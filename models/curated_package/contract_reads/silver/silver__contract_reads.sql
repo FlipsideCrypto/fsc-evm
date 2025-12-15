@@ -23,6 +23,7 @@ SELECT
     VALUE :"PROTOCOL" :: STRING AS protocol,
     VALUE :"VERSION" :: STRING AS version,
     VALUE :"PLATFORM" :: STRING AS platform,
+    VALUE :"TYPE" :: STRING AS type,
     PARSE_JSON(
         VALUE :"METADATA_STR" :: STRING
     ) :: variant AS metadata,
@@ -32,7 +33,7 @@ SELECT
     DATA :result :: STRING AS result_hex,
     _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_number','contract_address', 'address', 'input', 'platform']
+        ['block_number','contract_address', 'address', 'input', 'platform', 'type']
     ) }} AS contract_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,

@@ -30,7 +30,7 @@
 {% set _ = models.append((ref('silver_reads__tornado_cash_reads'), 'daily')) %}
 
 WITH all_records AS (
-    {% for model, granularity in models %}
+    {% for model, type in models %}
         SELECT
             contract_address,
             address,
@@ -41,7 +41,7 @@ WITH all_records AS (
             protocol,
             version,
             platform,
-            '{{ granularity }}' AS granularity
+            '{{ type }}' AS type
         FROM {{ model }}
         {% if not loop.last %}
         {% if is_incremental() %}
@@ -65,7 +65,7 @@ SELECT
     protocol,
     version,
     platform,
-    granularity,
+    type,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','address','input','platform']
     ) }} AS contract_reads_records_id,

@@ -32,6 +32,7 @@ SELECT
     VALUE :"PROTOCOL" :: STRING AS protocol,
     VALUE :"VERSION" :: STRING AS version,
     VALUE :"PLATFORM" :: STRING AS platform,
+    VALUE :"TYPE" :: STRING AS type,
     file_name,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address', 'address', 'block_number', 'function_name', 'function_sig', 'input', 'platform']
