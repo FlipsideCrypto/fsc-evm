@@ -14,23 +14,23 @@
 
 {% set models = [] %}
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
-    {% set _ = models.append(ref('silver_reads__lido_reads')) %}
+    {% set _ = models.append((ref('silver_reads__lido_reads'), 'daily')) %}
 {% endif %}
 {% if vars.GLOBAL_PROJECT_NAME == 'polygon' %}
-    {% set _ = models.append(ref('silver_reads__polymarket_v1_reads')) %}
+    {% set _ = models.append((ref('silver_reads__polymarket_v1_reads'), 'daily')) %}
 {% endif %}
-{% set _ = models.append(ref('silver_reads__stablecoins_reads')) %}
-{% set _ = models.append(ref('silver_reads__uniswap_v2_reads')) %}
-{% set _ = models.append(ref('silver_reads__uniswap_v3_reads')) %}
-{% set _ = models.append(ref('silver_reads__uniswap_v4_reads')) %}
-{% set _ = models.append(ref('silver_reads__aave_v1_reads')) %}
-{% set _ = models.append(ref('silver_reads__aave_v2_reads')) %}
-{% set _ = models.append(ref('silver_reads__aave_v3_reads')) %}
-{% set _ = models.append(ref('silver_reads__curve_reads')) %}
-{% set _ = models.append(ref('silver_reads__tornado_cash_reads')) %}
+{% set _ = models.append((ref('silver_reads__stablecoins_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__uniswap_v2_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__uniswap_v3_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__uniswap_v4_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__aave_v1_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__aave_v2_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__aave_v3_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__curve_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__tornado_cash_reads'), 'daily')) %}
 
 WITH all_records AS (
-    {% for model in models %}
+    {% for model, granularity in models %}
         SELECT
             contract_address,
             address,
@@ -40,7 +40,8 @@ WITH all_records AS (
             metadata,
             protocol,
             version,
-            platform
+            platform,
+            '{{ granularity }}' AS granularity
         FROM {{ model }}
         {% if not loop.last %}
         {% if is_incremental() %}
@@ -64,6 +65,7 @@ SELECT
     protocol,
     version,
     platform,
+    granularity,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','address','input','platform']
     ) }} AS contract_reads_records_id,

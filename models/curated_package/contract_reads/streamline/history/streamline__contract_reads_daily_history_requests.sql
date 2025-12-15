@@ -36,6 +36,7 @@ to_do AS (
     FROM
         {{ ref("streamline__contract_reads_records") }} t
         CROSS JOIN last_x_days d
+    WHERE granularity = 'daily'
     EXCEPT
     SELECT
         block_number,
