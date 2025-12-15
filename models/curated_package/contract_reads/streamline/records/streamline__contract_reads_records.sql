@@ -14,7 +14,8 @@
 
 {% set models = [] %}
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
-    {% set _ = models.append((ref('silver_reads__lido_reads'), 'daily')) %}
+    {% set _ = models.append((ref('silver_reads__lido_v1_reads'), 'daily')) %}
+    {% set _ = models.append((ref('silver_reads__binance_v1_reads'), 'daily')) %}
 {% endif %}
 {% if vars.GLOBAL_PROJECT_NAME == 'polygon' %}
     {% set _ = models.append((ref('silver_reads__polymarket_v1_reads'), 'daily')) %}
@@ -26,8 +27,8 @@
 {% set _ = models.append((ref('silver_reads__aave_v1_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__aave_v2_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__aave_v3_reads'), 'daily')) %}
-{% set _ = models.append((ref('silver_reads__curve_reads'), 'daily')) %}
-{% set _ = models.append((ref('silver_reads__tornado_cash_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__curve_v1_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__tornado_cash_v1_reads'), 'daily')) %}
 
 WITH all_records AS (
     {% for model, type in models %}
