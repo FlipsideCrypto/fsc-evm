@@ -141,17 +141,17 @@ sources:
       - name: _master_keys
       - name: rpc_node_logs
   - name: silver_tvl_optimism
-    database: silver_tvl_optimism
-    schema: silver
+    database: optimism
+    schema: silver_tvl
     tables:
-      - name: silver_tvl__etherfi_v1_tvl
+      - name: etherfi_v1_tvl
   - name: silver_tvl_arbitrum
-    database: silver_tvl_arbitrum
-    schema: silver
+    database: arbitrum
+    schema: silver_tvl
     tables:
-      - name: silver_tvl__etherfi_v1_tvl
+      - name: etherfi_v1_tvl
   - name: silver_tvl_base
-    database: silver_tvl_base
-    schema: silver
+    database: base
+    schema: silver_tvl
     tables:
-      - name: silver_tvl__etherfi_v1_tvl
+      - name: etherfi_v1_tvl

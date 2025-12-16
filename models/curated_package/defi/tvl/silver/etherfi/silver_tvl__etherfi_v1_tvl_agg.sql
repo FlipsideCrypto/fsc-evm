@@ -56,7 +56,7 @@ AND modified_timestamp > (
         FROM
             {{ source(
                 'silver_tvl_optimism',
-                'silver_tvl__etherfi_v1_tvl'
+                'etherfi_v1_tvl'
             ) }}
         WHERE
             attribution = 'ethereum'
@@ -85,7 +85,7 @@ SELECT
 FROM
     {{ source(
         'silver_tvl_arbitrum',
-        'silver_tvl__etherfi_v1_tvl'
+        'etherfi_v1_tvl'
     ) }}
 WHERE
     attribution = 'ethereum'
@@ -114,7 +114,7 @@ SELECT
 FROM
     {{ source(
         'silver_tvl_base',
-        'silver_tvl__etherfi_v1_tvl'
+        'etherfi_v1_tvl'
     ) }}
 WHERE
     attribution = 'ethereum'
