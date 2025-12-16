@@ -4,7 +4,8 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
--- depends_on: {{ ref('silver_reads__lido_reads') }}
+-- depends_on: {{ ref('silver_reads__lido_v1_reads') }}
+-- depends_on: {{ ref('silver_reads__binance_v1_reads') }}
 {{ config (
     materialized = "incremental",
     unique_key = "contract_reads_records_id",
