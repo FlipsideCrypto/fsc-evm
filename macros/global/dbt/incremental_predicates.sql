@@ -1,16 +1,19 @@
 {% macro standard_predicate(
         input_column = 'block_number'
     ) -%}
-    {%- set tmp_table_name = generate_alias_name(node = model) ~ '__dbt_tmp' -%}
-    {%- set database_name = target.database -%}
-    {%- set schema_name = generate_schema_name(node = model) -%}
-    {%- set full_tmp_table_name = database_name ~ '.' ~ schema_name ~ '.' ~ tmp_table_name -%}
-    DBT_INTERNAL_DEST.{{ input_column }} >= (
-        SELECT
-            MIN(
-                {{ input_column }}
-            )
-        FROM
-            {{ full_tmp_table_name }}
-    )
+    {#
+        NOTE: This macro returns a signal value that get_merge_sql will process.
+
+        In dbt-snowflake 1.10+, subqueries referencing the tmp table don't work because:
+        1. The tmp view doesn't exist at compile time (run_query fails)
+        2. Subqueries at execution time trigger SYSTEM_TABLE_SCAN constant errors
+
+        The fix is handled in get_merge_sql which:
+        1. Detects the 'standard_predicate' signal
+        2. Wraps the source in a subquery with window functions for min/max
+        3. Adds predicates using those computed columns
+
+        See: https://github.com/dbt-labs/dbt-snowflake/pull/93
+    #}
+    standard_predicate:{{ input_column }}
 {%- endmacro %}
