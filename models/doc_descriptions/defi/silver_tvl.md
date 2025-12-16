@@ -19,10 +19,24 @@ Sums totalSupply of each aToken contract
 
 {% enddocs %}
 
+{% docs binance_staked_eth_v1_tvl_table_doc %}
+
+Methodology:
+Total supply of wBETH
+
+{% enddocs %}
+
 {% docs curve_v1_tvl_table_doc %}
 
 Methodology:
 Sums all token balances held across pool contracts
+
+{% enddocs %}
+
+{% docs etherfi_v1_tvl_table_doc %}
+
+Methodology:
+Sums values from protocol oracle (minus looped positions), eUSD supply, BTC product balances (WBTC, LBTC, cbBTC) and ETHFI staking where applicable.
 
 {% enddocs %}
 
