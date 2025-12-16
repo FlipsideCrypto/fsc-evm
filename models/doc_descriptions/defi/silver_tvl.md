@@ -19,7 +19,7 @@ Sums totalSupply of each aToken contract
 
 {% enddocs %}
 
-{% docs binance_staked_eth_v1_tvl_table_doc %}
+{% docs binance_v1_tvl_table_doc %}
 
 Methodology:
 Total supply of wBETH
