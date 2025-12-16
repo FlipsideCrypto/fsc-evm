@@ -2,16 +2,13 @@
         input_column = 'block_number'
     ) -%}
     {#
-        NOTE: This macro returns a signal value that get_merge_sql will process.
+        NOTE: This macro returns a signal value that get_merge_sql will detect and strip.
 
-        In dbt-snowflake 1.10+, subqueries referencing the tmp table don't work because:
-        1. The tmp view doesn't exist at compile time (run_query fails)
-        2. Subqueries at execution time trigger SYSTEM_TABLE_SCAN constant errors
+        In dbt-snowflake 1.10+, the old fsc_utils.dynamic_range_predicate() approach
+        doesn't work because run_query() can't access the tmp view at compile time.
 
-        The fix is handled in get_merge_sql which:
-        1. Detects the 'standard_predicate' signal
-        2. Wraps the source in a subquery with window functions for min/max
-        3. Adds predicates using those computed columns
+        The get_merge_sql override detects this signal and strips the predicate,
+        allowing the merge to proceed without partition pruning.
 
         See: https://github.com/dbt-labs/dbt-snowflake/pull/93
     #}
