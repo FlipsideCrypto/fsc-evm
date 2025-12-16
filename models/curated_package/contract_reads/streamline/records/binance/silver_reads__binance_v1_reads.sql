@@ -36,3 +36,11 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM
     contracts
+{% if is_incremental() %}
+WHERE contract_address NOT IN (
+    SELECT
+        contract_address
+    FROM
+        {{ this }}
+)
+{% endif %}

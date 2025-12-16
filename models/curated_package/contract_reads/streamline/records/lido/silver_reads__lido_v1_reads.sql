@@ -50,3 +50,11 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM pooled_assets
+{% if is_incremental() %}
+WHERE contract_address NOT IN (
+    SELECT
+        contract_address
+    FROM
+        {{ this }}
+)
+{% endif %}

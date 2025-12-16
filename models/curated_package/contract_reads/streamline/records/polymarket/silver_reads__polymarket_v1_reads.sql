@@ -40,3 +40,11 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM
     contracts
+{% if is_incremental() %}
+WHERE CONCAT(contract_address, '-', address) NOT IN (
+    SELECT
+        CONCAT(contract_address, '-', address)
+    FROM
+        {{ this }}
+)
+{% endif %}
