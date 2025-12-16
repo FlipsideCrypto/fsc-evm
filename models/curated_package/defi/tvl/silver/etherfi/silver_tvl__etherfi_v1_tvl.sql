@@ -38,7 +38,7 @@ WITH reads AS (
             WHERE
                 platform = 'etherfi-v1'
                 AND chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
-                AND amount_raw IS NOT NULL
+                AND amount_raw_unadj IS NOT NULL
 
 {% if is_incremental() %}
 AND modified_timestamp > (
