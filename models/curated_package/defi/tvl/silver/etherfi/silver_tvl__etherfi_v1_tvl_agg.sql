@@ -39,7 +39,7 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
-) {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %},
+), {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
     eth_attributed_tvl AS (
         SELECT
             block_number,
@@ -127,7 +127,7 @@ AND modified_timestamp > (
         {{ this }}
 )
 {% endif %}
-)
+),
 {% endif %}
 
 FINAL AS (
