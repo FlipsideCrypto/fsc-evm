@@ -26,7 +26,7 @@ WITH contracts AS (
         chain = '{{ vars.GLOBAL_PROJECT_NAME }}'
 
 {% if is_incremental() %}
-WHERE
+AND
     CONCAT(contract_address, '-', COALESCE(address, 'null')) NOT IN (
         SELECT
             CONCAT(contract_address, '-', COALESCE(address, 'null'))
