@@ -15,6 +15,7 @@ WITH contracts AS (
     SELECT
         contract_address,
         address,
+        token_address,
         function_name,
         function_sig,
         chain,
@@ -51,6 +52,7 @@ SELECT
         )
     END AS input,
     OBJECT_CONSTRUCT(
+        'token_address', token_address,
         'attribution', attribution,
         'chain', chain
     ) :: variant AS metadata,

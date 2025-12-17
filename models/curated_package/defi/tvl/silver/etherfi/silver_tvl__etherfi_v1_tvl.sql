@@ -27,6 +27,7 @@ WITH reads AS (
                     WHEN amount_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(amount_hex, '0')) AS bigint)
                 END
             ) AS amount_raw_unadj,
+            metadata :token_address :: STRING AS token_address,
             metadata :attribution :: STRING AS attribution,
             metadata :chain :: STRING AS chain,
             protocol,
@@ -52,7 +53,10 @@ AND modified_timestamp > (
 SELECT
     block_number,
     block_date,
-    contract_address,
+    CASE 
+        WHEN r.token_address IS NOT NULL 
+        THEN r.token_address ELSE r.contract_address 
+    END AS contract_address,
     address,
     amount_hex,
     CASE
@@ -72,6 +76,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    reads qualify(ROW_NUMBER() over(PARTITION BY etherfi_v1_tvl_id
+    reads r qualify(ROW_NUMBER() over(PARTITION BY etherfi_v1_tvl_id
 ORDER BY
     modified_timestamp DESC)) = 1
