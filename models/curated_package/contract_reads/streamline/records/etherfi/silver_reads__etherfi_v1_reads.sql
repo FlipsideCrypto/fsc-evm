@@ -42,7 +42,7 @@ SELECT
     function_sig,
     CASE
         WHEN function_name = 'balanceOf' THEN CONCAT(
-            '0x70a08231',
+            function_sig,
             LPAD(SUBSTR(address, 3), 64, '0')
         )
         ELSE RPAD(
