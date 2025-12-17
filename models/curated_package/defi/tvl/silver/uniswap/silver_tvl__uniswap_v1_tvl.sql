@@ -16,8 +16,8 @@ WITH balances AS (
     SELECT
         b.block_number,
         b.block_date,
-        token1 AS contract_address,
-        --every pool is token-ETH only, no token-token pairs so TVL = 2x ETH value (pools are always 50/50 and 0x000 e.g. token1, represents native asset)
+        p.token0,
+        p.token1,
         b.address,
         balance_hex,
         balance_raw,
@@ -42,24 +42,60 @@ AND b.modified_timestamp > (
         {{ this }}
 )
 {% endif %}
+),
+
+expanded AS (
+    -- Row for token0 as contract_address
+    SELECT
+        block_number,
+        block_date,
+        token0 AS contract_address,
+        token1 AS token_address,
+        address,
+        balance_hex,
+        balance_raw,
+        protocol,
+        version,
+        platform
+    FROM
+        balances
+
+    UNION ALL
+
+    -- Row for token1 as contract_address
+    SELECT
+        block_number,
+        block_date,
+        token1 AS contract_address,
+        token1 AS token_address,
+        address,
+        balance_hex,
+        balance_raw,
+        protocol,
+        version,
+        platform
+    FROM
+        balances
 )
+
 SELECT
     block_number,
     block_date,
     contract_address,
     address,
+    token_address,
     balance_hex AS amount_hex,
-    balance_raw * 2 AS amount_raw, -- 2x ETH value since all pools are 50/50 ETH-token pairs
+    balance_raw AS amount_raw,
     protocol,
     version,
     platform,
     {{ dbt_utils.generate_surrogate_key(
-        ['block_date','contract_address','platform']
+        ['block_date','contract_address','token_address','platform']
     ) }} AS uniswap_v1_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    balances qualify(ROW_NUMBER() over(PARTITION BY uniswap_v1_tvl_id
+    expanded qualify(ROW_NUMBER() over(PARTITION BY uniswap_v1_tvl_id
 ORDER BY
-    modified_timestamp DESC)) = 1
+    block_number DESC)) = 1

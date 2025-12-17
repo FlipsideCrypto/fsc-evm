@@ -18,6 +18,7 @@ WITH complete_tvl AS (
         block_date,
         contract_address,
         address,
+        token_address,
         decimals,
         symbol,
         is_verified,

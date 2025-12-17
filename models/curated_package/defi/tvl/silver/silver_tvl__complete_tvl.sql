@@ -31,6 +31,7 @@ WITH all_tvl AS (
             block_date,
             contract_address,
             address,
+            token_address,
             amount_hex,
             amount_raw,
             protocol,
@@ -95,6 +96,7 @@ complete_tvl AS (
     A.block_date,
     A.contract_address,
     A.address,
+    A.token_address,
     c1.token_decimals AS decimals,
     c1.token_symbol AS symbol,
     p1.is_verified,
@@ -116,9 +118,9 @@ complete_tvl AS (
   FROM
     all_tvl A
     LEFT JOIN contracts c1
-    ON A.contract_address = c1.contract_address
+    ON A.token_address = c1.contract_address
     LEFT JOIN prices p1
-    ON A.contract_address = p1.token_address
+    ON A.token_address = p1.token_address
     AND DATEADD(
       'hour',
       23,
@@ -135,6 +137,7 @@ heal_model AS (
     t.block_date,
     t.contract_address,
     t.address,
+    t.token_address,
     c1.token_decimals AS decimals_heal,
     c1.token_symbol AS symbol_heal,
     p1.is_verified AS is_verified_heal,
@@ -157,13 +160,13 @@ heal_model AS (
     {{ this }}
     t
     LEFT JOIN contracts c1
-    ON A.contract_address = c1.contract_address
+    ON t.token_address = c1.contract_address
     LEFT JOIN prices p1
-    ON A.contract_address = p1.token_address
+    ON t.token_address = p1.token_address
     AND DATEADD(
       'hour',
       23,
-      A.block_date
+      t.block_date
     ) = p1.hour
   WHERE t.decimals IS NULL
 ),
@@ -184,6 +187,7 @@ SELECT
   block_date,
   contract_address,
   address,
+  token_address,
   decimals_heal AS decimals,
   symbol_heal AS symbol,
   is_verified_heal AS is_verified,
@@ -205,6 +209,7 @@ SELECT
   block_date,
   contract_address,
   address,
+  token_address,
   decimals,
   symbol,
   is_verified,

@@ -53,14 +53,12 @@ AND modified_timestamp > (
 SELECT
     block_number,
     block_date,
+    contract_address,
+    address,
     CASE 
-        WHEN r.token_address IS NOT NULL 
-        THEN r.token_address ELSE r.contract_address 
-    END AS contract_address,
-    CASE 
-        WHEN r.token_address IS NOT NULL AND r.address IS NULL
-        THEN r.contract_address ELSE r.address 
-    END AS address,
+        WHEN r.token_address IS NOT NULL THEN r.token_address 
+        ELSE contract_address 
+    END AS token_address,
     amount_hex,
     CASE
         WHEN r.contract_address = '0xab7590cee3ef1a863e9a5877fbb82d9be11504da' THEN -1 * amount_raw_unadj 

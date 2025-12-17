@@ -55,6 +55,7 @@ SELECT
     block_date,
     contract_address,
     address,
+    contract_address AS token_address,
     amount_hex,
     amount_raw,
     address_type,

@@ -14,7 +14,7 @@ WITH reads AS (
     SELECT
         block_number,
         block_date,
-        contract_address AS atoken_address,
+        contract_address,
         address,
         result_hex AS amount_hex,
         IFNULL(
@@ -53,8 +53,9 @@ AND modified_timestamp > (
 SELECT
     block_number,
     block_date,
-    underlying_address AS contract_address,
-    atoken_address AS address,
+    contract_address,
+    address,
+    underlying_address AS token_address,
     amount_hex,
     amount_raw,
     protocol,
