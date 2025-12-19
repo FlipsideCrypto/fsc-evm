@@ -3,5 +3,6 @@ models:
   - name: silver_stablecoins__supply_by_address
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - stablecoins_supply_by_address_id
+          arguments:
+            combination_of_columns:
+              - stablecoins_supply_by_address_id
