@@ -58,7 +58,7 @@ jobs:
           git checkout -B docs origin/main
 
       - name: generate dbt docs
-        run: dbt docs generate -t prod --exclude "fsc_evm,tag:streamline" "fsc_evm,tag:scores"
+        run: dbt docs generate -t prod --select "$PROJECT_NAME.*" "fsc_evm,tag:core" "fsc_evm,tag:prices" "fsc_evm,tag:labels" "fsc_evm,tag:balances" "fsc_evm,tag:decoded_logs" "fsc_evm,tag:abis" "fsc_evm,tag:defi" "fsc_evm,tag:stats"
 
       - name: move files to docs directory
         run: |
