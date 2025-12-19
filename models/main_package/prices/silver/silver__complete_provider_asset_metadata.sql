@@ -33,9 +33,9 @@ FROM
 WHERE
     modified_timestamp >= (
         SELECT
-            MAX(
+            coalesce(MAX(
                 modified_timestamp
-            )
+            ), '1970-01-01')
         FROM
             {{ this }}
     )
