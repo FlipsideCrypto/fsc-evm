@@ -285,6 +285,11 @@
                     'comp_v2_origin_from_address': '0x752dfb1c709eea4621c8e95f48f3d0b6dde5d126'
                 }
             },
+            'ironbank': {
+                'v1': {
+                    'comp_v2_origin_from_address': '0x197939c1ca20c2b506d6811d8b6cdb3394471074'
+                }
+            },
             'compound': {
                 'v2': {
                     'comp_v2_origin_from_address': ['0x54a37d93e57c5da659f508069cf65a381b61e189',
@@ -368,6 +373,13 @@
             'morpho': {
                 'v1': {
                     'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                }
+            },
+            'fluid': {
+                'v1': {
+                    'fluid_liquidity_layer': '0x52aa899454998be5b000ad077a46bbe360f4e497',
+                    'fluid_ftoken_factory': '0x324c5dc1fc42c7a4d43d92df1eba58a54d13bf2d',
+                    'fluid_vault_factory': '0x54b91a0d94cb471f37f949c60f7fa7935b551d03'
                 }
             }
         },

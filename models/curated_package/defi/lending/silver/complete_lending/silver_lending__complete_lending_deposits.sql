@@ -318,6 +318,38 @@ morpho AS (
   )
 {% endif %}
 ),
+fluid AS (
+    SELECT
+        tx_hash,
+        block_number,
+        block_timestamp,
+        event_index,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        contract_address,
+        depositor,
+        protocol_market,
+        token_address,
+        amount_unadj,
+        platform,
+        protocol,
+        version :: STRING AS version,
+        A._LOG_ID,
+        A.modified_timestamp,
+        A.event_name
+    FROM
+        {{ ref('silver_lending__fluid_deposits') }} A
+
+{% if is_incremental() and 'fluid' not in vars.CURATED_FR_MODELS %}
+  WHERE A.modified_timestamp >= (
+    SELECT
+      MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
 deposits AS (
   SELECT
     *
@@ -358,6 +390,11 @@ deposits AS (
     *
   FROM
     euler
+  UNION ALL
+  SELECT
+    *
+  FROM
+    fluid
 ),
 complete_lending_deposits AS (
   SELECT
