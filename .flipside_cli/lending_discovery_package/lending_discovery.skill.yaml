@@ -1,0 +1,379 @@
+name: Lending Protocol Discovery
+slug: lending_discovery
+description: Analyze event log topic IDs to discover lending protocols with significant volume that are missing from curated models
+
+tools:
+  - run_sql_query
+  - find_tables
+  - get_table_schema
+
+knowledge: |
+  # Lending Protocol Discovery Skill
+
+  This skill helps identify lending protocols that have significant on-chain activity but are not yet included in Flipside's curated lending models. It works by analyzing event log topic IDs (event signatures) and comparing them against known protocol signatures.
+
+  **Primary Use Cases:**
+  - Find lending protocols with high volume that we're not tracking
+  - Reverse engineer event signatures to identify protocol types
+  - Analyze the ez_lending tables to understand current coverage
+  - Compare raw event logs against curated data to find gaps
+
+  ---
+
+  ## Key Tables
+
+  ### Curated Lending Tables
+  The `{chain}.defi.ez_lending_*` tables contain curated lending data:
+  ```sql
+  -- Available ez_lending tables on Ethereum
+  SELECT * FROM ethereum.defi.ez_lending_deposits LIMIT 10;
+  SELECT * FROM ethereum.defi.ez_lending_borrows LIMIT 10;
+  SELECT * FROM ethereum.defi.ez_lending_repayments LIMIT 10;
+  SELECT * FROM ethereum.defi.ez_lending_withdraws LIMIT 10;
+  SELECT * FROM ethereum.defi.ez_lending_liquidations LIMIT 10;
+  SELECT * FROM ethereum.defi.ez_lending_flashloans LIMIT 10;
+  ```
+
+  ### Raw Event Logs
+  The `{chain}.core.fact_event_logs` table contains all event logs:
+  ```sql
+  -- Query raw event logs
+  SELECT
+    block_timestamp,
+    tx_hash,
+    contract_address,
+    topics[0]::STRING as topic_0,  -- Event signature hash
+    topics[1]::STRING as topic_1,
+    topics[2]::STRING as topic_2,
+    data
+  FROM ethereum.core.fact_event_logs
+  WHERE block_timestamp >= CURRENT_DATE - 30
+  LIMIT 100;
+  ```
+
+  ---
+
+  ## Known Lending Event Signatures (topic_0 values)
+
+  These are the event signatures currently used in our curated models. Events with these topic_0 values are ALREADY being tracked:
+
+  ### Aave Events (ALREADY TRACKED)
+  ```
+  -- Deposits
+  0xde6857219544bb5b7746f48ed30be6386fefc61b2f864cacf559893bf50fd951  -- Deposit (v1/v2.5)
+  0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61  -- Supply (v3)
+  0xc12c57b1c73a2c3a2ea4613e9476abb3d8d146857aab7329e24243fb59710c82  -- Supply (v3 variant)
+
+  -- Borrows
+  0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b  -- Borrow v1
+  0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553  -- Borrow v2
+  0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0  -- Borrow v3
+
+  -- Repayments
+  0x4cdde6e09bb755c9a5589ebaec640bbfedff1362d4b255ebf8339782b9942faa  -- Repay v1/v2
+  0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5571e0ff6ac39bb2  -- Repay v3
+
+  -- Withdraws
+  0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7  -- Withdraw v1/v2
+  0xa3b6b2b7c5c3f8e57f8b7b3c6d8e9f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0  -- Withdraw v3
+
+  -- Liquidations
+  0xe413a321e8681d831f4dbccbca790d2952b56f977908e45be37335533e005286  -- LiquidationCall
+  0x56864757fd5b1fc9f38f5f3a981cd8ae512ce41b902cf73fc506ee369c6bc237  -- LiquidationCall variant
+  ```
+
+  ### Compound V2 Events (ALREADY TRACKED)
+  ```
+  -- Deposits (Mint)
+  0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f  -- Mint
+  0xb4c03061fb5b7fed76389d5af8f2e0ddb09f8c70d1333abbb62582835e10accb  -- Mint variant
+  0x2f00e3cdd69a77be7ed215ec7b2a36784dd158f921fca79ac29deffa353fe6ee  -- Mint fork
+
+  -- Borrows
+  0x13ed6866d4e1ee6da46f845c46d7e54120883d75c5ea9a2dacc1c4ca8984ab80  -- Borrow
+  0x2dd79f4fccfd18c360ce7f9132f3621bf05eee18f995224badb32d17f172df73  -- Borrow variant
+
+  -- Repayments
+  0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1  -- RepayBorrow
+
+  -- Withdraws (Redeem)
+  0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929  -- Redeem
+
+  -- Liquidations
+  0x298637f684da70674f26509b10f07ec2fbc77a335ab1e7d6215a4b2484d8bb52  -- LiquidateBorrow
+  ```
+
+  ### Compound V3 Events (ALREADY TRACKED)
+  ```
+  -- Deposits
+  0xfa56f7b24f17183d81894d3ac2ee654e3c26388d17a28dbd9549b8114304e1f4  -- SupplyCollateral
+  0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e  -- Supply (base)
+
+  -- Borrows
+  0xe1979fe4c35e0cef342fef5668e2c8e7a7e9f5d5d1f8b9e6c5e3d2a4b6c8e0f2  -- Withdraw (borrow)
+
+  -- Repayments
+  0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e  -- Supply (repay base)
+
+  -- Withdraws
+  0xd6d480d5b3068db003533b170d67561494d72e3bf9b56f6c023c81a24226c53e  -- WithdrawCollateral
+  ```
+
+  ### Euler Events (ALREADY TRACKED)
+  ```
+  0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7  -- Deposit
+  0x2e2e1f64a1f8f6d7a1f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3  -- Withdraw
+  0x9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8  -- Borrow
+  0x0cd345140b9008a43f99a999a328ece572a0193e8c8bf5f5755585e6f293b85e  -- NewMarket (token creation)
+  ```
+
+  ### Fraxlend Events (ALREADY TRACKED)
+  ```
+  0xa32435755c235de2976ed44a75a2f85cb01faf0c894f639fe0c32bb9455fea8f  -- AddCollateral (deposit)
+  0x7ac369dbd14fa5ea3f473ed67cc9d598964a77501540ba6751eb0b3decf5870d  -- Deploy
+  0x70aea8d848e8a90fb7661b227dc522eb6395c3dac71b63cb59edd5c9899b2364  -- Deploy variant
+  ```
+
+  ### Silo Events (ALREADY TRACKED)
+  ```
+  0xdd160bb401ec5b5e5ca443d41e8e7182f3fe72d70a04b9c0ba844483d212bcb5  -- Deposit
+  0x312a5e5e1079f5dda4e95dbbd0b908b291fd5b992ef22073643ab691572c5b52  -- Borrow
+  ```
+
+  ### Morpho (TRACE-BASED, NOT EVENT LOGS)
+  Morpho uses function traces, not event logs:
+  ```
+  function_sig = '0xa99aad89'  -- supply
+  function_sig = '0x50d8cd4b'  -- borrow
+  ```
+
+  ---
+
+  ## Common Lending Event Signatures to Search For
+
+  These are standard ERC-4626 and common lending event signatures that might indicate NEW protocols:
+
+  ```sql
+  -- Standard ERC-4626 Vault Events (potential lending protocols)
+  '0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7'  -- Deposit(address,address,uint256,uint256)
+  '0xfbde797d201c681b91056529119e0b02407c7bb96a4a2c75c01fc9667232c8db'  -- Withdraw(address,address,address,uint256,uint256)
+
+  -- Transfer events (often associated with lending)
+  '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'  -- Transfer
+
+  -- Approval events
+  '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925'  -- Approval
+  ```
+
+  ---
+
+  ## Discovery Queries
+
+  ### 1. Find High-Volume Event Signatures Not in Our Models
+
+  ```sql
+  -- Find topic_0 values with high transaction counts that we might be missing
+  WITH known_signatures AS (
+    SELECT topic_0 FROM (VALUES
+      -- Aave
+      ('0xde6857219544bb5b7746f48ed30be6386fefc61b2f864cacf559893bf50fd951'),
+      ('0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61'),
+      ('0xc12c57b1c73a2c3a2ea4613e9476abb3d8d146857aab7329e24243fb59710c82'),
+      ('0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b'),
+      ('0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553'),
+      ('0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0'),
+      -- Compound V2
+      ('0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f'),
+      ('0x13ed6866d4e1ee6da46f845c46d7e54120883d75c5ea9a2dacc1c4ca8984ab80'),
+      ('0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929'),
+      ('0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1'),
+      -- Compound V3
+      ('0xfa56f7b24f17183d81894d3ac2ee654e3c26388d17a28dbd9549b8114304e1f4'),
+      ('0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e'),
+      -- Euler
+      ('0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7'),
+      -- Fraxlend
+      ('0xa32435755c235de2976ed44a75a2f85cb01faf0c894f639fe0c32bb9455fea8f'),
+      -- Silo
+      ('0xdd160bb401ec5b5e5ca443d41e8e7182f3fe72d70a04b9c0ba844483d212bcb5'),
+      ('0x312a5e5e1079f5dda4e95dbbd0b908b291fd5b992ef22073643ab691572c5b52')
+    ) AS t(topic_0)
+  ),
+  -- Find contracts that emit lending-like events
+  potential_lending AS (
+    SELECT
+      topics[0]::STRING as topic_0,
+      contract_address,
+      COUNT(*) as event_count,
+      MIN(block_timestamp) as first_seen,
+      MAX(block_timestamp) as last_seen
+    FROM ethereum.core.fact_event_logs
+    WHERE block_timestamp >= CURRENT_DATE - 90
+      AND topics[0]::STRING NOT IN (SELECT topic_0 FROM known_signatures)
+      -- Filter for potential lending events (has multiple indexed params like lending protocols)
+      AND ARRAY_SIZE(topics) >= 3
+    GROUP BY 1, 2
+    HAVING COUNT(*) >= 1000  -- At least 1000 events
+  )
+  SELECT
+    topic_0,
+    contract_address,
+    event_count,
+    first_seen,
+    last_seen,
+    DATEDIFF('day', first_seen, last_seen) as days_active
+  FROM potential_lending
+  ORDER BY event_count DESC
+  LIMIT 50;
+  ```
+
+  ### 2. Analyze Current ez_lending Coverage by Platform
+
+  ```sql
+  -- See what platforms are currently covered and their volumes
+  SELECT
+    platform,
+    protocol,
+    COUNT(*) as deposit_count,
+    SUM(amount_usd) as total_usd_volume,
+    MIN(block_timestamp) as first_deposit,
+    MAX(block_timestamp) as last_deposit
+  FROM ethereum.defi.ez_lending_deposits
+  WHERE block_timestamp >= CURRENT_DATE - 90
+  GROUP BY 1, 2
+  ORDER BY total_usd_volume DESC;
+  ```
+
+  ### 3. Find Contracts with Lending-Like Behavior
+
+  ```sql
+  -- Find contracts that have deposit/borrow-like event patterns
+  WITH event_patterns AS (
+    SELECT
+      contract_address,
+      topics[0]::STRING as topic_0,
+      COUNT(*) as events
+    FROM ethereum.core.fact_event_logs
+    WHERE block_timestamp >= CURRENT_DATE - 30
+    GROUP BY 1, 2
+  ),
+  contracts_with_multiple_events AS (
+    SELECT
+      contract_address,
+      COUNT(DISTINCT topic_0) as unique_event_types,
+      SUM(events) as total_events,
+      ARRAY_AGG(DISTINCT topic_0) as event_signatures
+    FROM event_patterns
+    GROUP BY 1
+    HAVING unique_event_types >= 3  -- Lending protocols typically have multiple event types
+       AND total_events >= 500
+  )
+  SELECT
+    c.*,
+    d.name as contract_name,
+    d.symbol
+  FROM contracts_with_multiple_events c
+  LEFT JOIN ethereum.core.dim_contracts d ON c.contract_address = d.address
+  ORDER BY total_events DESC
+  LIMIT 100;
+  ```
+
+  ### 4. Cross-Reference with Known DeFi Labels
+
+  ```sql
+  -- Find labeled DeFi contracts that might be lending protocols
+  SELECT
+    l.address,
+    l.label_type,
+    l.label_subtype,
+    l.label,
+    l.project_name,
+    COUNT(e.tx_hash) as event_count
+  FROM ethereum.core.dim_labels l
+  LEFT JOIN ethereum.core.fact_event_logs e
+    ON l.address = e.contract_address
+    AND e.block_timestamp >= CURRENT_DATE - 30
+  WHERE l.label_type = 'defi'
+    AND (
+      l.label_subtype ILIKE '%lend%'
+      OR l.label_subtype ILIKE '%borrow%'
+      OR l.label_subtype ILIKE '%pool%'
+      OR l.label ILIKE '%lend%'
+      OR l.label ILIKE '%borrow%'
+    )
+    AND l.address NOT IN (
+      SELECT DISTINCT contract_address
+      FROM ethereum.defi.ez_lending_deposits
+      WHERE block_timestamp >= CURRENT_DATE - 30
+    )
+  GROUP BY 1, 2, 3, 4, 5
+  HAVING event_count > 0
+  ORDER BY event_count DESC;
+  ```
+
+  ### 5. Decode Unknown Event Signatures
+
+  To identify what an unknown topic_0 represents, you can:
+
+  ```sql
+  -- Look up a specific event signature in the ABI database
+  SELECT
+    event_signature,
+    event_name,
+    abi
+  FROM ethereum.silver.flat_event_abis
+  WHERE event_signature = '0x...'  -- Replace with topic_0 to look up
+  LIMIT 10;
+
+  -- Or search by partial event name
+  SELECT DISTINCT
+    event_signature,
+    event_name
+  FROM ethereum.silver.flat_event_abis
+  WHERE event_name ILIKE '%deposit%'
+     OR event_name ILIKE '%supply%'
+     OR event_name ILIKE '%borrow%'
+  LIMIT 100;
+  ```
+
+  ---
+
+  ## Workflow for Discovering New Protocols
+
+  1. **Start with ez_lending analysis**: Query `ethereum.defi.ez_lending_deposits` to see current coverage
+
+  2. **Find high-volume unknown events**: Use the discovery queries above to find topic_0 values with significant activity
+
+  3. **Cross-reference with labels**: Check `ethereum.core.dim_labels` for DeFi-tagged contracts
+
+  4. **Decode event signatures**: Use `ethereum.silver.flat_event_abis` to understand what events mean
+
+  5. **Analyze contract patterns**: Look for contracts with multiple lending-like events (deposit, borrow, repay, withdraw patterns)
+
+  6. **Verify against our models**: Compare findings against the known signatures listed above
+
+  ---
+
+  ## Output Format for New Protocol Discoveries
+
+  When you find a potential new protocol, provide:
+
+  1. **Contract Address(es)**: The main contract addresses
+  2. **Event Signatures**: The topic_0 values used
+  3. **Event Volume**: Transaction/event counts
+  4. **Protocol Name**: If identifiable from labels or contract name
+  5. **Event Types**: Map which signatures correspond to deposits, borrows, etc.
+  6. **Recommendation**: Whether this warrants adding to curated models
+
+  Example output:
+  ```
+  ## New Protocol Found: [Protocol Name]
+
+  **Contract**: 0x...
+  **Event Signatures**:
+  - Deposit: 0x... (X events in last 30 days)
+  - Borrow: 0x... (Y events in last 30 days)
+
+  **Volume**: $X million in deposits over 30 days
+  **Recommendation**: High priority - significant volume not currently tracked
+  ```
