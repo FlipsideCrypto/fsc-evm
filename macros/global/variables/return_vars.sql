@@ -305,6 +305,9 @@
 
   {# Curated Lending Variables #}
   {% set ns.CURATED_DEFI_LENDING_CONTRACT_MAPPING = get_var('CURATED_DEFI_LENDING_CONTRACT_MAPPING', {}) %}
+
+  {# Curated ERC4626 Vaults Variables #}
+  {% set ns.CURATED_DEFI_ERC4626_VAULTS_MAPPING = get_var('CURATED_DEFI_ERC4626_VAULTS_MAPPING', {}) %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}
