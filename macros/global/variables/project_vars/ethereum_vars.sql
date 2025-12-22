@@ -370,6 +370,20 @@
                     'morpho_blue_address': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
                 }
             }
+        },
+        'CURATED_DEFI_ERC4626_VAULTS_MAPPING': {
+            'maple': {
+                'v2': {
+                    'erc4626_factory': '0xe463cd473ecc1d1a4ecf20b62624d84dd20a8339',
+                    'erc4626_pool_managers': [
+                        '0x7ad5ffa5fdf509e30186f4609c2f6269f4b6158f',
+                        '0x0cda32e08b48bfddbc7ee96b44b09cf286f9e21a',
+                        '0x9cef7d1d390a4811bba1bc40a53b40a506c33b19',
+                        '0x5ee9587bf5f4ccceeed87b0216a31ebb513fac25',
+                        '0xa9c908ee077ee26b52137fff714150c7eb69e160'
+                    ]
+                }
+            }
         }
     } %}
     
