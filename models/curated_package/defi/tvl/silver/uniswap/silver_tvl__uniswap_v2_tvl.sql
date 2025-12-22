@@ -25,17 +25,17 @@ WITH reads AS (
         IFNULL(
             CASE
                 WHEN LENGTH(reserve_0_hex) <= 4300
-                AND reserve_0_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(reserve_0_hex) AS FLOAT)END,
+                AND reserve_0_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(reserve_0_hex) AS bigint)END,
                 CASE
-                    WHEN reserve_0_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(reserve_0_hex, '0')) AS FLOAT)
+                    WHEN reserve_0_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(reserve_0_hex, '0')) AS bigint)
                 END
             ) AS reserve_0_raw,
             IFNULL(
                 CASE
                     WHEN LENGTH(reserve_1_hex) <= 4300
-                    AND reserve_1_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(reserve_1_hex) AS FLOAT)END,
+                    AND reserve_1_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(reserve_1_hex) AS bigint)END,
                     CASE
-                        WHEN reserve_1_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(reserve_1_hex, '0')) AS FLOAT)
+                        WHEN reserve_1_hex IS NOT NULL THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(reserve_1_hex, '0')) AS bigint)
                     END
                 ) AS reserve_1_raw,
                 IFNULL(
