@@ -102,7 +102,11 @@ SELECT
                 block_number
             )
         ),
+        {% if vars.GLOBAL_ALT_NODE_ENABLED %}
+        '{{ vars.GLOBAL_ALT_NODE_VAULT_PATH }}'
+        {% else %}
         '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
+        {% endif %}
     ) AS request
 FROM
     ready_reads
