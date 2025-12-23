@@ -19,6 +19,8 @@
   {% set ns.GLOBAL_NODE_VAULT_PATH = get_var('GLOBAL_NODE_VAULT_PATH', '') %}
   {% set ns.GLOBAL_NETWORK = get_var('GLOBAL_NETWORK', 'mainnet') %}
   {% set ns.GLOBAL_START_BLOCK = get_var('GLOBAL_START_BLOCK', 0) %}
+  {% set ns.GLOBAL_ALT_NODE_ENABLED = get_var('GLOBAL_ALT_NODE_ENABLED', false) %}
+  {% set ns.GLOBAL_ALT_NODE_VAULT_PATH = get_var('GLOBAL_ALT_NODE_VAULT_PATH', '') %}
 
   {% set ns.GLOBAL_BRONZE_FR_ENABLED = none if get_var('GLOBAL_BRONZE_FR_ENABLED', false) else false %} {# Sets to none if true, still requires --full-refresh, otherwise will use incremental #}
   {% set ns.GLOBAL_SILVER_FR_ENABLED = none if get_var('GLOBAL_SILVER_FR_ENABLED', false) else false %} 
