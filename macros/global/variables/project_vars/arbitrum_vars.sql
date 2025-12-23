@@ -341,6 +341,11 @@
                 'v1': {
                     'comp_v2_origin_from_address': '0x0f01756bc6183994d90773c8f22e3f44355ffa0e'
                 }
+            },
+            'fluid': {
+                'v1': {
+                    'fluid_liquidity_layer': '0x52aa899454998be5b000ad077a46bbe360f4e497'
+                }
             }
         }
     } %}

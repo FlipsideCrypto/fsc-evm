@@ -45,7 +45,11 @@ log_operate_events AS (
         l.origin_function_signature,
         l.contract_address,
         CONCAT('0x', SUBSTR(l.topics[1]::STRING, 27, 40)) AS user_address,
-        CONCAT('0x', SUBSTR(l.topics[2]::STRING, 27, 40)) AS token_address,
+        CASE
+            WHEN CONCAT('0x', SUBSTR(l.topics[2]::STRING, 27, 40)) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+            THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+            ELSE CONCAT('0x', SUBSTR(l.topics[2]::STRING, 27, 40))
+        END AS token_address,
         regexp_substr_all(SUBSTR(l.DATA, 3, len(l.DATA)), '.{64}') AS segmented_data,
         segmented_data[0]::STRING AS supply_hex,
         l.modified_timestamp,

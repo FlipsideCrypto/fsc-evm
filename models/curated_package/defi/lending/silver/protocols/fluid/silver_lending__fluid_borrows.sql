@@ -45,7 +45,11 @@ log_operate_events AS (
         l.origin_function_signature,
         l.contract_address,
         CONCAT('0x', SUBSTR(l.topics[1]::STRING, 27, 40)) AS user_address,
-        CONCAT('0x', SUBSTR(l.topics[2]::STRING, 27, 40)) AS token_address,
+        CASE
+            WHEN CONCAT('0x', SUBSTR(l.topics[2]::STRING, 27, 40)) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+            THEN '{{ vars.GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS }}'
+            ELSE CONCAT('0x', SUBSTR(l.topics[2]::STRING, 27, 40))
+        END AS token_address,
         regexp_substr_all(SUBSTR(l.DATA, 3, len(l.DATA)), '.{64}') AS segmented_data,
         segmented_data[1]::STRING AS borrow_hex,
         CONCAT('0x', SUBSTR(segmented_data[3]::STRING, 25, 40)) AS borrow_to,
@@ -74,22 +78,11 @@ log_operate_events AS (
 borrows_only AS (
     SELECT
         e.*,
-        {# For negative values, we need the absolute value.
-           Two's complement: negate by inverting bits and adding 1.
-           We approximate by using a large constant minus the value. #}
-        TRY_TO_NUMBER(
-            utils.udf_hex_to_int(
-                LPAD(
-                    TRIM(TO_VARCHAR(
-                        BITXOR(
-                            TRY_TO_NUMBER(utils.udf_hex_to_int(borrow_hex)),
-                            TRY_TO_NUMBER(utils.udf_hex_to_int('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'))
-                        ) + 1
-                    )),
-                    64, '0'
-                )
-            )
-        ) AS borrow_amount_abs
+        {# For negative int256 values, compute absolute value using two's complement.
+           For practical DeFi amounts (< 2^120), we use the last 30 hex chars (120 bits).
+           Formula: absolute_value = 2^120 - value_of_last_30_hex_chars
+           2^120 fits in Snowflake's 38-digit numeric precision. #}
+        POW(2, 120)::NUMBER(38,0) - TRY_TO_NUMBER(utils.udf_hex_to_int(RIGHT(borrow_hex, 30)), 38, 0) AS borrow_amount_abs
     FROM log_operate_events e
     WHERE
         {# Negative int256 values have first hex digit 8-f #}

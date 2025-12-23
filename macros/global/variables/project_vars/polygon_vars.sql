@@ -249,6 +249,11 @@
                 'v1': {
                     'morpho_blue_address': '0x1bf0c2541f820e775182832f06c0b7fc27a25f67'
                 }
+            },
+            'fluid': {
+                'v1': {
+                    'fluid_liquidity_layer': '0x52aa899454998be5b000ad077a46bbe360f4e497'
+                }
             }
         }
     } %}

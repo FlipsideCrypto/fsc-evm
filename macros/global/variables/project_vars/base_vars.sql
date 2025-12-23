@@ -282,6 +282,11 @@
                     '0x10b83c88e88910cd5293324800d1a6e751004be5',
                     '0x3073fcad986fbe9f94cc6caa44f76c12e34516d4']
                 }
+            },
+            'fluid': {
+                'v1': {
+                    'fluid_liquidity_layer': '0x52aa899454998be5b000ad077a46bbe360f4e497'
+                }
             }
         }
 
