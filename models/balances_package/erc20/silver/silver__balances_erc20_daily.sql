@@ -15,7 +15,7 @@
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "{{ unverify_balances() }}",
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','balances','erc20','heal','phase_4']
+    tags = ['silver','balances','erc20','heal','curated_daily','phase_4']
 ) }}
 
 SELECT

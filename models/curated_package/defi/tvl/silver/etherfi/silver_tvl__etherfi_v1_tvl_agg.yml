@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: silver_tvl__etherfi_v1_tvl_agg
+    description: '{{ doc("etherfi_v1_tvl_table_doc") }}'

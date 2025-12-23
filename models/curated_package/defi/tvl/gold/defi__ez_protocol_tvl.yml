@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: defi__ez_protocol_tvl
+    description: '{{ doc("ez_protocol_tvl_table_doc") }}'
+
+    columns:
+      - name: BLOCK_DATE
+        description: '{{ doc("ez_protocol_tvl_block_date") }}'
+      - name: TVL_USD
+        description: '{{ doc("ez_protocol_tvl_tvl_usd") }}'
+      - name: PROTOCOL
+        description: '{{ doc("ez_protocol_tvl_protocol") }}'
+      - name: VERSION
+        description: '{{ doc("ez_protocol_tvl_version") }}'
+      - name: PLATFORM
+        description: '{{ doc("ez_protocol_tvl_platform") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}'
+      - name: EZ_PROTOCOL_TVL_ID
+        description: '{{ doc("general_pk") }}'

@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: silver_tvl__uniswap_v2_tvl
+    description: '{{ doc("uniswap_v2_tvl_table_doc") }}'

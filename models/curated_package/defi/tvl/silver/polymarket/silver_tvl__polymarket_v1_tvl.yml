@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: silver_tvl__polymarket_v1_tvl
+    description: '{{ doc("polymarket_v1_tvl_table_doc") }}'
