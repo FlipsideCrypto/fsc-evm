@@ -22,7 +22,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['granary-v1','sonne-v1'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['fraxswap-v1','kyberswap-v2','sushiswap-v1','uniswap-v2'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['eywa-v1','across-v2','meson-v1','symbiosis-v1','multichain-v7','hop-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['eywa-v1','across-v2','meson-v1','symbiosis-v1','multichain-v7','hop-v1','everclear-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
