@@ -51,7 +51,7 @@ tx_fees AS (
         )
     {% endif %}
 ),
-native_transfers_snapshot AS (
+native_records_snapshot AS (
     SELECT
         DISTINCT 
         ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
@@ -80,8 +80,15 @@ native_transfers_snapshot AS (
         tx_fees
     WHERE
         block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    UNION
+    SELECT
+        DISTINCT 
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
+        address
+    FROM
+        {{ ref('silver__balances_validator_addresses_daily')}}
 ),
-native_transfers_history AS (
+native_records_history AS (
     SELECT
         DISTINCT 
         block_timestamp :: DATE AS block_date,
@@ -110,8 +117,7 @@ native_transfers_history AS (
         tx_fees
     WHERE
         block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
-),
-validator_addresses AS (
+    UNION
     SELECT
         DISTINCT
         block_date,
@@ -119,14 +125,12 @@ validator_addresses AS (
     FROM
         {{ ref('silver__balances_validator_addresses_daily')}}
     WHERE 
-        block_date >= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+        block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 )
 all_records AS (
-    SELECT * FROM native_transfers_snapshot
+    SELECT * FROM native_records_snapshot
     UNION
-    SELECT * FROM native_transfers_history
-    UNION
-    SELECT * FROM validator_addresses
+    SELECT * FROM native_records_history
 )
 SELECT
     block_date,
