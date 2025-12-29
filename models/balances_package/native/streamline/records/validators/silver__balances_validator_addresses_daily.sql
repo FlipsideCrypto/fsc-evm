@@ -16,8 +16,9 @@ WITH miner_addresses AS (
             miner AS address
         FROM
             {{ ref('core__fact_blocks') }}
+        WHERE miner <> '0x0000000000000000000000000000000000000000'
         {% if is_incremental() %}
-        WHERE 
+        AND 
             modified_timestamp > (
                 SELECT
                     MAX(modified_timestamp)
