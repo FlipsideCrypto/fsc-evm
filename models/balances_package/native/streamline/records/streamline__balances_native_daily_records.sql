@@ -111,10 +111,22 @@ native_transfers_history AS (
     WHERE
         block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
-all_transfers AS (
+validator_addresses AS (
+    SELECT
+        DISTINCT
+        block_date,
+        address
+    FROM
+        {{ ref('silver__balances_validator_addresses_daily')}}
+    WHERE 
+        block_date >= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+)
+all_records AS (
     SELECT * FROM native_transfers_snapshot
     UNION
     SELECT * FROM native_transfers_history
+    UNION
+    SELECT * FROM validator_addresses
 )
 SELECT
     block_date,
@@ -124,6 +136,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    all_transfers qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id
+    all_records qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id
 ORDER BY
     modified_timestamp DESC)) = 1
