@@ -111,10 +111,19 @@ native_transfers_history AS (
     WHERE
         block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
 ),
+{% if vars.GLOBAL_PROJECT_NAME.lower() == 'monad' %}
+validators_daily AS (
+   <ADD LOGIC HERE THAT RETURNS BLOCK DATE AND ADDRESS FOR VALIDATORS TO BE ADDED TO THE BALANCES NATIVE DAILY RECORDS, HISTORY AND REALTIME REQUESTS>
+),
+{% endif %}
 all_transfers AS (
     SELECT * FROM native_transfers_snapshot
     UNION
     SELECT * FROM native_transfers_history
+    {% if vars.GLOBAL_PROJECT_NAME.lower() == 'monad' %}
+    UNION
+    SELECT * FROM validators_daily
+    {% endif %}
 )
 SELECT
     block_date,
