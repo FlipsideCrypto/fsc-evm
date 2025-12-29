@@ -16,6 +16,15 @@ WITH miner_addresses AS (
             miner AS address
         FROM
             {{ ref('core__fact_blocks') }}
+        {% if is_incremental() %}
+        WHERE 
+            modified_timestamp > (
+                SELECT
+                    MAX(modified_timestamp)
+                FROM
+                    {{ this }}
+            )
+        {% endif %}
     )
 SELECT
     block_date,
@@ -26,3 +35,6 @@ SELECT
     '{{ invocation_id }}' AS _invocation_id
 FROM
     miner_addresses
+QUALIFY(ROW_NUMBER() over (PARTITION BY balances_validator_addresses_daily_id
+ORDER BY
+    modified_timestamp DESC)) = 1
