@@ -287,7 +287,7 @@
             },
             'ironbank': {
                 'v1': {
-                    'comp_v2_origin_from_address': '0x197939c1ca20c2b506d6811d8b6cdb3394471074'
+                    'comp_v2_origin_from_address': '0x1ba608d6a354fbeb41fd7cc799e7f09b2612ab26'
                 }
             },
             'compound': {
