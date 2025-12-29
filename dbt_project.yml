@@ -37,11 +37,5 @@ models:
         +enabled: true
       github_actions:
         +enabled: true
-
-    +meta:
-      disallow-spaces-in-resource-names: true
-      source-freshness-run-project-hooks: true
 vars:
   "dbt_date:time_zone": GMT
-flags:
-  require_generic_test_arguments_property: true
