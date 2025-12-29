@@ -87,6 +87,15 @@ native_records_snapshot AS (
         address
     FROM
         {{ ref('silver__balances_validator_addresses_daily')}}
+    {% if is_incremental() %}
+    WHERE 
+        modified_timestamp > (
+            SELECT
+                MAX(modified_timestamp)
+            FROM
+                {{ this }}
+        )
+    {% endif %}
 ),
 native_records_history AS (
     SELECT
@@ -126,6 +135,14 @@ native_records_history AS (
         {{ ref('silver__balances_validator_addresses_daily')}}
     WHERE 
         block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    {% if is_incremental() %}
+    AND modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
+    {% endif %}
 )
 all_records AS (
     SELECT * FROM native_records_snapshot
