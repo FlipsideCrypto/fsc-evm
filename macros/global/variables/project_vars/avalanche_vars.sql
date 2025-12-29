@@ -22,8 +22,8 @@
         'CUSTOM_GHA_SCHEDULED_DEXALOT_MAIN_CRON': '5 * * * *',
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['aave-v2'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['gmx-v1','hashflow-v1','woofi-v1'],
-        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['pharaoh-v1','kyberswap-v2','curve-v1','uniswap-v2','kyberswap-v1','fraxswap-v1'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','multichain-v7','allbridge-v1'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['pharaoh-v1','kyberswap-v2','curve-v1','uniswap-v2','kyberswap-v1','fraxswap-v1','pharaoh-v2'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','multichain-v7','allbridge-v1','everclear-v1','eywa-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'arena_trade': {
                 'v1': {

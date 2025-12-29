@@ -18,6 +18,7 @@
         'MAIN_GHA_SCHEDULED_SCORES_CRON': '50 5 * * *',
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['morpho-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['squidswap-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['everclear-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
