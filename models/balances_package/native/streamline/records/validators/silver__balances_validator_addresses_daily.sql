@@ -7,7 +7,7 @@
     materialized = "incremental",
     unique_key = "balances_validator_addresses_daily_id",
     cluster_by = "block_date",
-    tags = ['silver','balances','records','native','phase_4']
+    tags = ['silver','streamline','balances','records','native','phase_4']
 ) }}
 
 WITH miner_addresses AS (
