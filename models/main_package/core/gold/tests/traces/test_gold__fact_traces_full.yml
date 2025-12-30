@@ -10,9 +10,9 @@ models:
               - TRACE_INDEX
       - fsc_evm.sequence_gaps:
           column_name: TRACE_INDEX
+          partition_by:
+            - TX_HASH
           config:
-            partition_by:
-              - TX_HASH
             where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
       - txs_have_traces:
           arguments:

@@ -10,9 +10,9 @@ models:
               - EVENT_INDEX
       - fsc_evm.sequence_gaps:
           column_name: EVENT_INDEX
+          partition_by:
+            - BLOCK_NUMBER
           config:
-            partition_by:
-              - BLOCK_NUMBER
             where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
       - events_match_txs:
           arguments:

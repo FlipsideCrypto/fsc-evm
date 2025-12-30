@@ -9,9 +9,8 @@ models:
               - TX_HASH
       - fsc_evm.sequence_gaps:
           column_name: TX_POSITION
-          config:
-            partition_by:
-              - BLOCK_NUMBER
+          partition_by:
+            - BLOCK_NUMBER
       - txs_match_blocks:
           arguments:
             blocks_model: ref('test_gold__fact_blocks_recent')

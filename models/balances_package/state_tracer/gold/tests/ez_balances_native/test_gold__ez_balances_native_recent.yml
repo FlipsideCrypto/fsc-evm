@@ -11,9 +11,8 @@ models:
               - ADDRESS
       - fsc_evm.balances_sequence_gaps:
           column_name: TX_POSITION
-          config:
-            partition_by:
-              - BLOCK_NUMBER
+          partition_by:
+            - BLOCK_NUMBER
       - fsc_evm.balances_diffs_native:
           arguments:
             test_model: test_gold__fact_traces_recent

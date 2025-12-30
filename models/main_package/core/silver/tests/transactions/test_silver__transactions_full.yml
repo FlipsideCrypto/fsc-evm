@@ -9,10 +9,8 @@ models:
               - TRANSACTIONS_ID
       - fsc_evm.sequence_gaps:
           column_name: TX_POSITION
-
-          config:
-            partition_by:
-              - BLOCK_NUMBER
+          partition_by:
+            - BLOCK_NUMBER
     columns:
       - name: BLOCK_NUMBER
         tests:
