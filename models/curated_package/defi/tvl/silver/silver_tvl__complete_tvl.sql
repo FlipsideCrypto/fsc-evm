@@ -14,6 +14,7 @@
     (ref('silver_tvl__aave_v2_tvl'), 12, 'aave-v2'),
     (ref('silver_tvl__aave_v3_tvl'), 12, 'aave-v3'),
     (ref('silver_tvl__aerodrome_v1_tvl'), 9, 'aerodrome-v1'),
+    (ref('silver_tvl__aerodrome_v2_tvl'), 9, 'aerodrome-v2'),
     (ref('silver_tvl__binance_v1_tvl'), 12, 'binance-v1'),
     (ref('silver_tvl__curve_v1_tvl'), 10, 'curve-v1'),
     (ref('silver_tvl__etherfi_v1_tvl_agg'), 12, 'etherfi-v1'),

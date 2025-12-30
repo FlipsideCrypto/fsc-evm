@@ -25,6 +25,7 @@
     {% set _ = models.append((ref('silver_reads__polymarket_v1_reads'), 'daily')) %}
 {% endif %}
 {% set _ = models.append((ref('silver_reads__aerodrome_v1_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__aerodrome_v2_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__stablecoins_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__uniswap_v2_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__uniswap_v3_reads'), 'daily')) %}
