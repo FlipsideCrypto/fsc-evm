@@ -6,6 +6,7 @@
 
 -- depends_on: {{ ref('silver_reads__lido_v1_reads') }}
 -- depends_on: {{ ref('silver_reads__binance_v1_reads') }}
+-- depends_on: {{ ref('silver_reads__polymarket_v1_reads') }}
 {{ config (
     materialized = "incremental",
     unique_key = "contract_reads_records_id",
@@ -13,7 +14,9 @@
     tags = ['streamline','contract_reads','records','phase_4']
 ) }}
 
-{% set models = [] %}
+-- only specify chains for _reads models with hardcoded or seed driven address data
+-- for dynamic models, the underlying upstream data will already be filtered or made relevant for that chain
+{% set models = [] %} 
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}
     {% set _ = models.append((ref('silver_reads__lido_v1_reads'), 'daily')) %}
     {% set _ = models.append((ref('silver_reads__binance_v1_reads'), 'daily')) %}
@@ -21,6 +24,7 @@
 {% if vars.GLOBAL_PROJECT_NAME == 'polygon' %}
     {% set _ = models.append((ref('silver_reads__polymarket_v1_reads'), 'daily')) %}
 {% endif %}
+{% set _ = models.append((ref('silver_reads__aerodrome_v1_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__stablecoins_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__uniswap_v2_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__uniswap_v3_reads'), 'daily')) %}

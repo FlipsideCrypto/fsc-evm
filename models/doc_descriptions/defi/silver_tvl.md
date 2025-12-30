@@ -88,3 +88,10 @@ Methodology:
 Sums USDC balances held by the Conditional Tokens and Collateral Tokens contracts
 
 {% enddocs %}
+
+{% docs aerodrome_v1_tvl_table_doc %}
+
+Methodology:
+Sums getReserves() values for token0 and token1 across all AMM pools
+
+{% enddocs %}
