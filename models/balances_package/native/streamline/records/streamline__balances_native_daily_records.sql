@@ -137,7 +137,7 @@ native_records_history AS (
             {{ this }}
     )
     {% endif %}
-)
+),
 all_records AS (
     SELECT * FROM native_records_snapshot
     UNION
