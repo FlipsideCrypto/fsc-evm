@@ -86,12 +86,13 @@ native_records_snapshot AS (
         ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
         address
     FROM
-        {{ ref('silver__balances_validator_addresses_daily')}}
+        {{ ref('silver__balances_validator_addresses_daily')}} b
+    WHERE MIN(b.block_date) <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     {% if is_incremental() %}
-    WHERE 
-        modified_timestamp > (
+    AND 
+        CONCAT((('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE) :: STRING,'-',address) NOT IN (
             SELECT
-                MAX(modified_timestamp)
+                CONCAT(block_date :: STRING,'-',address)
             FROM
                 {{ this }}
         )
