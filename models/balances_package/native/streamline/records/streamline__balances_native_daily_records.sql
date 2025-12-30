@@ -80,6 +80,7 @@ native_records_snapshot AS (
         tx_fees
     WHERE
         block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    {% if not is_incremental() %}
     UNION
     SELECT
         DISTINCT 
@@ -88,14 +89,6 @@ native_records_snapshot AS (
     FROM
         {{ ref('silver__balances_validator_addresses_daily')}} b
     WHERE MIN(b.block_date) <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
-    {% if is_incremental() %}
-    AND 
-        CONCAT((('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE) :: STRING,'-',address) NOT IN (
-            SELECT
-                CONCAT(block_date :: STRING,'-',address)
-            FROM
-                {{ this }}
-        )
     {% endif %}
 ),
 native_records_history AS (
