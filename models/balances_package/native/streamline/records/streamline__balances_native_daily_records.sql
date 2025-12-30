@@ -51,7 +51,7 @@ tx_fees AS (
         )
     {% endif %}
 ),
-native_transfers_snapshot AS (
+native_records_snapshot AS (
     SELECT
         DISTINCT 
         ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
@@ -80,8 +80,20 @@ native_transfers_snapshot AS (
         tx_fees
     WHERE
         block_timestamp :: DATE <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    {% if not is_incremental() %}
+    UNION
+    SELECT
+        DISTINCT 
+        ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE AS block_date,
+        address
+    FROM
+        {{ ref('silver__balances_validator_addresses_daily')}} b
+    GROUP BY
+        address
+    HAVING MIN(b.block_date) <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    {% endif %}
 ),
-native_transfers_history AS (
+native_records_history AS (
     SELECT
         DISTINCT 
         block_timestamp :: DATE AS block_date,
@@ -110,11 +122,28 @@ native_transfers_history AS (
         tx_fees
     WHERE
         block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
-),
-all_transfers AS (
-    SELECT * FROM native_transfers_snapshot
     UNION
-    SELECT * FROM native_transfers_history
+    SELECT
+        DISTINCT
+        block_date,
+        address
+    FROM
+        {{ ref('silver__balances_validator_addresses_daily')}}
+    WHERE 
+        block_date > ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    {% if is_incremental() %}
+    AND modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    )
+    {% endif %}
+),
+all_records AS (
+    SELECT * FROM native_records_snapshot
+    UNION
+    SELECT * FROM native_records_history
 )
 SELECT
     block_date,
@@ -124,6 +153,6 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    all_transfers qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id
+    all_records qualify (ROW_NUMBER() over (PARTITION BY balances_native_daily_records_id
 ORDER BY
     modified_timestamp DESC)) = 1
