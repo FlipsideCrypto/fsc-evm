@@ -88,7 +88,9 @@ native_records_snapshot AS (
         address
     FROM
         {{ ref('silver__balances_validator_addresses_daily')}} b
-    WHERE MIN(b.block_date) <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
+    GROUP BY
+        address
+    HAVING MIN(b.block_date) <= ('{{ vars.BALANCES_SL_START_DATE }}' :: TIMESTAMP) :: DATE
     {% endif %}
 ),
 native_records_history AS (
