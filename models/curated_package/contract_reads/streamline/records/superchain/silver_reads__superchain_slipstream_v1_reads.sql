@@ -11,18 +11,8 @@
     tags = ['silver','contract_reads']
 ) }}
 
-WITH verified_contracts AS (
-    SELECT
-        DISTINCT token_address
-    FROM
-        {{ ref('price__ez_asset_metadata') }}
-    WHERE
-        is_verified
-        AND token_address IS NOT NULL
-),
--- Blacklisted tokens from DefiLlama adapter
-blacklisted_tokens AS (
-    SELECT LOWER('0xdbfefd2e8460a6ee4955a68582f85708baea60a3') AS token_address -- superOETHb: excluded to avoid double-counting with Origin Protocol TVL (their Aerodrome AMO position)
+WITH blacklisted_tokens AS (
+    SELECT LOWER('0xdbfefd2e8460a6ee4955a68582f85708baea60a3') AS token_address -- superOETHb: excluded to avoid double-counting with Origin Protocol TVL (Aerodrome AMO position)
 ),
 liquidity_pools AS (
     SELECT
@@ -34,10 +24,7 @@ liquidity_pools AS (
         version,
         platform
     FROM {{ ref('silver_dex__superchain_slipstream_pools') }}
-    WHERE protocol = 'aerodrome'
-    AND token0 IN (SELECT token_address FROM verified_contracts)
-    AND token1 IN (SELECT token_address FROM verified_contracts)
-    AND token0 NOT IN (SELECT token_address FROM blacklisted_tokens)
+    WHERE token0 NOT IN (SELECT token_address FROM blacklisted_tokens)
     AND token1 NOT IN (SELECT token_address FROM blacklisted_tokens)
     {% if is_incremental() %}
     AND modified_timestamp > (

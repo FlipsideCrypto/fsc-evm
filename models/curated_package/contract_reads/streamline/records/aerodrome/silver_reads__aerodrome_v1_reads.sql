@@ -11,16 +11,7 @@
     tags = ['silver','contract_reads']
 ) }}
 
-WITH verified_contracts AS (
-    SELECT
-        DISTINCT token_address
-    FROM
-        {{ ref('price__ez_asset_metadata') }}
-    WHERE
-        is_verified
-        AND token_address IS NOT NULL
-),
-liquidity_pools AS (
+WITH liquidity_pools AS (
     SELECT
         DISTINCT
         pool_address AS contract_address,
@@ -30,10 +21,8 @@ liquidity_pools AS (
         version,
         platform
     FROM {{ ref('silver_dex__aerodrome_pools') }}
-    WHERE token0 IN (SELECT token_address FROM verified_contracts)
-    AND token1 IN (SELECT token_address FROM verified_contracts)
     {% if is_incremental() %}
-    AND modified_timestamp > (
+    WHERE modified_timestamp > (
         SELECT MAX(modified_timestamp)
         FROM {{ this }}
     )
