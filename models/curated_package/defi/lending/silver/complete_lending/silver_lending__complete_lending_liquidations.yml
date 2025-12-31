@@ -3,12 +3,14 @@ models:
   - name: silver_lending__complete_lending_liquidations
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - _LOG_ID
+          arguments:
+            combination_of_columns:
+              - _LOG_ID
       - curated_recency_defi:
-          threshold_days: 90
-          percent_delta_threshold: 7.5
-          type: lending
+          arguments:
+            threshold_days: 90
+            percent_delta_threshold: 7.5
+            type: lending
     columns:
       - name: TX_HASH
         tests:
@@ -20,14 +22,16 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 30
               config:
                 severity: warn
+              arguments:
+                datepart: day
+                interval: 30
       - name: EVENT_INDEX
         tests:
           - not_null:
-              where: PLATFORM <> 'morpho-v1'
+              config:
+                where: PLATFORM <> 'morpho-v1'
       - name: ORIGIN_FROM_ADDRESS
         tests:
           - not_null
@@ -48,35 +52,38 @@ models:
         tests:
           - not_null
       - name: PROTOCOL_MARKET
-        tests: 
+        tests:
           - not_null
       - name: COLLATERAL_TOKEN
-        tests: 
+        tests:
           - not_null
       - name: COLLATERAL_TOKEN_SYMBOL
-        tests: 
+        tests:
           - not_null:
-              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
+              config:
+                where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: LIQUIDATED_AMOUNT_UNADJ
         tests:
-          - not_null 
+          - not_null
       - name: LIQUIDATED_AMOUNT
         tests:
           - not_null:
-              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
+              config:
+                where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: LIQUIDATED_AMOUNT_USD
       - name: DEBT_TOKEN
         tests:
           - not_null
       - name: DEBT_TOKEN_SYMBOL
         tests:
-          - not_null: 
-              where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
+          - not_null:
+              config:
+                where: _inserted_timestamp < SYSDATE() - INTERVAL '7 days'
       - name: REPAID_AMOUNT_UNADJ
       - name: REPAID_AMOUNT
       - name: REPAID_AMOUNT_USD
       - name: PLATFORM
-        tests: 
+        tests:
           - not_null
       - name: PROTOCOL
         tests:
@@ -96,4 +103,3 @@ models:
         tests:
           - not_null
       - name: _INVOCATION_ID
-          

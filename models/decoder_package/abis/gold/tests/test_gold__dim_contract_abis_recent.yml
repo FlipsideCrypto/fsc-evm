@@ -3,5 +3,6 @@ models:
   - name: test_gold__dim_contract_abis_recent
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - CONTRACT_ADDRESS
+          arguments:
+            combination_of_columns:
+              - CONTRACT_ADDRESS

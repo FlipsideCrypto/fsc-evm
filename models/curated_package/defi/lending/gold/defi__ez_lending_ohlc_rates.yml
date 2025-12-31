@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: defi__ez_ohlc_rates
+  - name: defi__ez_lending_ohlc_rates
     description: '{{ doc("ez_lending_ohlc_rates_table_doc") }}'
 
     columns:

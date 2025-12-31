@@ -15,7 +15,7 @@
     unique_key = "score_date",
     incremental_strategy = "delete+insert",
     cluster_by = "score_date",
-    version = 1,
+    meta = {'version': 1},
     full_refresh = false,
     tags = ['silver','scores','phase_4']
 ) }}

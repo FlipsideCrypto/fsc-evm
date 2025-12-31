@@ -11,7 +11,7 @@
     {%- set tmp_table_name = table_name ~ '__dbt_tmp' -%}
     {%- set full_table_name = database_name ~ '.' ~ schema_name ~ '.' ~ table_name -%}
     {%- set full_tmp_table_name = database_name ~ '.' ~ schema_name ~ '.' ~ tmp_table_name -%}
-    {{ full_table_name }}.{{ input_column }} >= (
+    DBT_INTERNAL_DEST.{{ input_column }} >= (
         SELECT
             MIN(
                 {{ input_column }}

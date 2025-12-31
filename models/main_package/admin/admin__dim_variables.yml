@@ -3,8 +3,9 @@ models:
   - name: admin__dim_variables
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - DIM_VARIABLES_ID
+          arguments:
+            combination_of_columns:
+              - DIM_VARIABLES_ID
     columns:
       - name: KEY
         tests:

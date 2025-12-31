@@ -4,49 +4,58 @@ models:
     description: "This is a view used to test all of the gold fact transactions model."
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - TX_HASH
+          arguments:
+            combination_of_columns:
+              - TX_HASH
       - fsc_evm.sequence_gaps:
+          column_name: TX_POSITION
           partition_by:
             - BLOCK_NUMBER
-          column_name: TX_POSITION
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+          config:
+            where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
       - txs_match_blocks:
-          blocks_model: ref('test_gold__fact_blocks_full')
-
+          arguments:
+            blocks_model: ref('test_gold__fact_blocks_full')
     columns:
       - name: BLOCK_NUMBER
         tests:
-          - not_null  
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER    
-                - FLOAT
+              arguments:
+                column_type_list:
+                  - NUMBER
+                  - FLOAT
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
       - name: TX_HASH
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: FROM_ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: TO_ADDRESS
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-              where: TO_ADDRESS IS NOT NULL
+              config:
+                where: TO_ADDRESS IS NOT NULL
+              arguments:
+                regex: 0[xX][0-9a-fA-F]+
       - name: ORIGIN_FUNCTION_SIGNATURE
         tests:
           - not_null
@@ -78,9 +87,10 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER
-                - FLOAT
+              arguments:
+                column_type_list:
+                  - NUMBER
+                  - FLOAT
       - name: INPUT_DATA
         tests:
           - not_null
@@ -107,11 +117,13 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
       - name: MODIFIED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
