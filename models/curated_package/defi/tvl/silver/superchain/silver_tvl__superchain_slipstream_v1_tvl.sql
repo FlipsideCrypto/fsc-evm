@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'aerodrome_v2_tvl_id',
+    unique_key = 'superchain_slipstream_v1_tvl_id',
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
@@ -39,7 +39,7 @@ WITH reads AS (
         amount_raw IS NOT NULL
         AND platform IN (
             SELECT DISTINCT platform
-            FROM {{ ref('silver_reads__aerodrome_v2_reads') }}
+            FROM {{ ref('silver_reads__superchain_slipstream_v1_reads') }}
         )
 
 {% if is_incremental() %}
@@ -64,11 +64,11 @@ SELECT
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','contract_address','address','platform']
-    ) }} AS aerodrome_v2_tvl_id,
+    ) }} AS superchain_slipstream_v1_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    reads qualify(ROW_NUMBER() over(PARTITION BY aerodrome_v2_tvl_id
+    reads qualify(ROW_NUMBER() over(PARTITION BY superchain_slipstream_v1_tvl_id
 ORDER BY
     modified_timestamp DESC)) = 1

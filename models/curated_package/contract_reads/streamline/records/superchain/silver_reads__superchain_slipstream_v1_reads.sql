@@ -7,7 +7,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'aerodrome_v2_reads_id',
+    unique_key = 'superchain_slipstream_v1_reads_id',
     tags = ['silver','contract_reads']
 ) }}
 
@@ -73,7 +73,7 @@ SELECT
     platform,
     {{ dbt_utils.generate_surrogate_key(
         ['contract_address','input','platform']
-    ) }} AS aerodrome_v2_reads_id,
+    ) }} AS superchain_slipstream_v1_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id

@@ -96,7 +96,7 @@ Sums getReserves() values for token0 and token1 across all AMM pools
 
 {% enddocs %}
 
-{% docs aerodrome_v2_tvl_table_doc %}
+{% docs superchain_slipstream_v1_tvl_table_doc %}
 
 Methodology:
 Sums token0 and token1 balances held by each Slipstream (CL) pool contract via balanceOf()
