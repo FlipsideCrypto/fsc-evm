@@ -8,7 +8,8 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'uniswap_v3_tvl_id',
-    tags = ['silver','defi','tvl','curated_daily']
+    post_hook = '{{ unverify_tvl() }}',
+    tags = ['silver','defi','tvl','heal','curated_daily']
 ) }}
 
 WITH reads AS (

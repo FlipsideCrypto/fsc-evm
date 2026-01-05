@@ -38,7 +38,10 @@ liquidity_pools AS (
     {% if is_incremental() %}
     AND (
         modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
-        OR pool_address NOT IN (SELECT contract_address FROM {{ this }})
+        OR CONCAT(token0,'-',token1) NOT IN (
+            SELECT CONCAT(metadata:token0::STRING,'-',metadata:token1::STRING) 
+            FROM {{ this }}
+            )
         -- pull in pools with newly verified tokens
     )
     {% endif %}
@@ -129,7 +132,8 @@ SELECT
         'hook_address',
         hook_address,
         'address_type',
-        address_type
+        address_type,
+        'verified_check_enabled','true'
     ) :: variant AS metadata,
     protocol,
     version,

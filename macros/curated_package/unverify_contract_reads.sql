@@ -1,7 +1,7 @@
 {% macro unverify_contract_reads() %}
   {% if var('HEAL_MODEL', false) and is_incremental() %}
         DELETE FROM {{ this }} 
-        WHERE protocol = 'uniswap'
+        WHERE metadata:verified_check_enabled::STRING = 'true'
         AND (
             metadata:token0::STRING NOT IN (
                 SELECT token_address
@@ -16,4 +16,3 @@
         );
   {% endif %}
 {% endmacro %}
-

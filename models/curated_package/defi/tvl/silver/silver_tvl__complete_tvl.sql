@@ -6,6 +6,7 @@
   materialized = 'incremental',
   incremental_strategy = 'delete+insert',
   unique_key = 'complete_tvl_id',
+  post_hook = '{{ unverify_tvl() }}',
   tags = ['silver','defi','tvl','complete','heal','curated_daily']
 ) }}
 
