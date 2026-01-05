@@ -51,6 +51,7 @@ WHERE
             COALESCE (MAX(_inserted_timestamp), '1970-01-01' :: TIMESTAMP)
         FROM
             {{ this }})
+            AND platform IS NOT NULL
         {% else %}
             {{ ref('bronze__contract_reads_fr') }}
             WHERE platform IS NOT NULL

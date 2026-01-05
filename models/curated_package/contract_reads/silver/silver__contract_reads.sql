@@ -49,6 +49,7 @@ WHERE
         FROM
             {{ this }})
             AND DATA :result :: STRING <> '0x'
+            AND platform IS NOT NULL
         {% else %}
             {{ ref('bronze__contract_reads_fr') }}
         WHERE
