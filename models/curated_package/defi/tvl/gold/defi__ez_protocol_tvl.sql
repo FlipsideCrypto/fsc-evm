@@ -28,7 +28,4 @@ SELECT
 FROM
     {{ ref('silver_tvl__complete_tvl') }}
 GROUP BY
-    block_date,
-    protocol,
-    version,
-    platform
+    ALL
