@@ -53,6 +53,7 @@ WHERE
             {{ ref('bronze__contract_reads_fr') }}
         WHERE
             DATA :result :: STRING <> '0x'
+            AND platform IS NOT NULL
         {% endif %}
 
         qualify(ROW_NUMBER() over (PARTITION BY contract_reads_id
