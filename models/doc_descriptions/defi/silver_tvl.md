@@ -64,21 +64,21 @@ Sums native ETH balance across all pool contracts, doubled to represent total po
 {% docs uniswap_v2_tvl_table_doc %}
 
 Methodology:
-Sums getReserves() values for token0 and token1 across all pools
+Sums getReserves() values for token0 and token1 across all pools where both tokens are verified. This filtering removes spam/low-liquidity pools to provide a more accurate TVL value.
 
 {% enddocs %}
 
 {% docs uniswap_v3_tvl_table_doc %}
 
 Methodology:
-Sums token0 and token1 balances held by each pool contract
+Sums token0 and token1 balances held by each pool contract where both tokens are verified. This filtering removes spam/low-liquidity pools to provide a more accurate TVL value.
 
 {% enddocs %}
 
 {% docs uniswap_v4_tvl_table_doc %}
 
 Methodology:
-Sums token0 and token1 balances held by the PoolManager singleton + any associated hook contracts
+Sums token0 and token1 balances held by the PoolManager singleton + any associated hook contracts where both tokens are verified. This filtering removes spam/low-liquidity pools to provide a more accurate TVL value.
 
 {% enddocs %}
 

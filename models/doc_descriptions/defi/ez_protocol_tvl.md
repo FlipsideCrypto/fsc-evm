@@ -4,6 +4,10 @@
 
 This table provides daily Total Value Locked (TVL) metrics for DeFi protocols across EVM-compatible blockchains. It aggregates values by platform to track liquidity and value deposited in various DeFi applications. Methods may vary by protocol and blockchain.
 
+## Methodology Note
+
+For certain protocols (e.g., Uniswap v2/v3/v4 and forks), TVL is calculated only for pools where both tokens are verified. This filtering removes low-quality or spam pools, providing a more accurate representation of "real" TVL rather than values inflated by low-liquidity tokens.
+
 ## Key Use Cases
 
 - Tracking protocol TVL growth and trends over time
