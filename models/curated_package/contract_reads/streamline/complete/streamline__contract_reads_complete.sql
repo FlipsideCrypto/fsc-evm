@@ -53,6 +53,7 @@ WHERE
             {{ this }})
         {% else %}
             {{ ref('bronze__contract_reads_fr') }}
+            WHERE platform IS NOT NULL
         {% endif %}
 
         qualify(ROW_NUMBER() over (PARTITION BY contract_reads_complete_id
