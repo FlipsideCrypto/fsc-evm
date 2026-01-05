@@ -11,10 +11,11 @@
     materialized = "incremental",
     unique_key = "contract_reads_records_id",
     full_refresh = vars.GLOBAL_STREAMLINE_FR_ENABLED,
-    tags = ['streamline','contract_reads','records','phase_4']
+    post_hook = '{{ unverify_contract_reads() }}',
+    tags = ['streamline','contract_reads','records','heal','phase_4']
 ) }}
 
--- only specify chains for _reads models with hardcoded or seed driven address data
+-- only specify chains/exclusions for _reads models with hardcoded or seed driven address data
 -- for dynamic models, the underlying upstream data will already be filtered or made relevant for that chain
 {% set models = [] %} 
 {% if vars.GLOBAL_PROJECT_NAME == 'ethereum' %}

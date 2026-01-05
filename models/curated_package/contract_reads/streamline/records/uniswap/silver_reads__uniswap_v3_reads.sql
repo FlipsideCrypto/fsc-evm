@@ -8,7 +8,8 @@
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
     unique_key = 'uniswap_v3_reads_id',
-    tags = ['silver','contract_reads']
+    post_hook = '{{ unverify_contract_reads() }}',
+    tags = ['silver','contract_reads','heal']
 ) }}
 
 WITH verified_contracts AS (
@@ -33,9 +34,10 @@ liquidity_pools AS (
     WHERE token0 IN (SELECT token_address FROM verified_contracts)
     AND token1 IN (SELECT token_address FROM verified_contracts)
     {% if is_incremental() %}
-    AND modified_timestamp > (
-        SELECT MAX(modified_timestamp)
-        FROM {{ this }}
+    AND (
+        modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
+        OR pool_address NOT IN (SELECT contract_address FROM {{ this }})
+        -- pull in pools with newly verified tokens
     )
     {% endif %}
 ),
