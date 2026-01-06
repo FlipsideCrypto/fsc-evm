@@ -4,6 +4,7 @@
 {# Log configuration details #}
 {{ log_model_details() }}
 
+-- depends_on: {{ ref('price__ez_asset_metadata') }}
 -- depends_on: {{ ref('silver_reads__lido_v1_reads') }}
 -- depends_on: {{ ref('silver_reads__binance_v1_reads') }}
 -- depends_on: {{ ref('silver_reads__polymarket_v1_reads') }}
