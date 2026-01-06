@@ -1,17 +1,27 @@
 {% macro unverify_contract_reads() %}
   {% if var('HEAL_MODEL', false) and is_incremental() %}
-        DELETE FROM {{ this }} 
-        WHERE metadata:verified_check_enabled::STRING = 'true'
+        DELETE FROM {{ this }} t
+        WHERE t.metadata:verified_check_enabled::STRING = 'true'
         AND (
-            metadata:token0::STRING NOT IN (
-                SELECT token_address
-                FROM {{ ref('price__ez_asset_metadata') }}
-                WHERE is_verified AND token_address IS NOT NULL
+            (
+                t.metadata:token0::STRING IS NOT NULL
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM {{ ref('price__ez_asset_metadata') }} v
+                    WHERE v.is_verified 
+                    AND v.token_address IS NOT NULL
+                    AND v.token_address = t.metadata:token0::STRING
+                )
             )
-            OR metadata:token1::STRING NOT IN (
-                SELECT token_address
-                FROM {{ ref('price__ez_asset_metadata') }}
-                WHERE is_verified AND token_address IS NOT NULL
+            OR (
+                t.metadata:token1::STRING IS NOT NULL
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM {{ ref('price__ez_asset_metadata') }} v
+                    WHERE v.is_verified 
+                    AND v.token_address IS NOT NULL
+                    AND v.token_address = t.metadata:token1::STRING
+                )
             )
         );
   {% endif %}
