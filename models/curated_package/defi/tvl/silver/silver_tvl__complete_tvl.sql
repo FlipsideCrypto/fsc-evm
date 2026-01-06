@@ -1,7 +1,10 @@
 {# Get variables #}
 {% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
+
+-- depends_on: {{ ref('streamline__contract_reads_records') }}
 {{ config(
   materialized = 'incremental',
   incremental_strategy = 'delete+insert',
