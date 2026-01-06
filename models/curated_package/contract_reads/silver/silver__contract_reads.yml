@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver__contract_reads
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - contract_reads_id
+    columns:
+      - name: BLOCK_DATE
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: PLATFORM
+        tests:
+          - not_null
+      - name: RESULT_HEX
+        tests:
+          - not_null
