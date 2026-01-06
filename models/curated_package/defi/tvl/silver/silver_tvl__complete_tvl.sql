@@ -45,13 +45,13 @@ WITH all_tvl AS (
             platform,
             {{ max_usd_exponent }} AS max_usd_exponent
         FROM {{ model }}
-        {% if not loop.last %}
         {% if is_incremental() and platform not in vars.CURATED_FR_MODELS %}
         WHERE modified_timestamp > (
             SELECT MAX(modified_timestamp)
             FROM {{ this }}
         )
         {% endif %}
+        {% if not loop.last %}
         UNION ALL
         {% endif %}
     {% endfor %}
@@ -175,6 +175,7 @@ heal_model AS (
       t.block_date
     ) = p1.hour
   WHERE t.decimals IS NULL
+    AND c1.token_decimals IS NOT NULL  -- only heal if contract data now exists
 ),
 {% endif %}
 
