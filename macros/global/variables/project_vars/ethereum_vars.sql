@@ -26,11 +26,14 @@
         'MAIN_OBSERV_EXCLUSION_LIST_ENABLED': true,
         'MAIN_SL_TOKEN_READS_BRONZE_TABLE_ENABLED': true,
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['silo-v1','aave-v1','flux-v1','aave-v2','aave-v2.1','sturdy-v1','silo-v2'],
-        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','pancakeswap-v2','synthetix-v1'],
-        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2'],
-        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['ronin_axie_bridge-v1','multichain-v7','symbiosis-v1','axie_infinity-v2','across-v2','near_rainbow_bridge-v1','hop-v1','everclear-v1'],
+        'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','pancakeswap-v2','synthetix-v1','uniswap-v1'],
+        'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2','uniswap-v1'],
+        'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['ronin_axie_bridge-v1','multichain-v7','symbiosis-v1','axie_infinity-v2','across-v1','near_rainbow_bridge-v1','hop-v1','everclear-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
+                'v1': {
+                    'factory': '0xc0a47dfe034b400b47bdad5fecda2621de6c4d95'
+                },
                 'v2': {
                     'uni_v2_pair_created': '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
                 },
