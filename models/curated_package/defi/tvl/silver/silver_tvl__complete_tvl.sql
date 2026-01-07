@@ -230,7 +230,7 @@ SELECT
   platform,
   max_usd_exponent,
   {{ dbt_utils.generate_surrogate_key(
-    ['block_date','contract_address','address','platform']
+    ['block_number','block_date','contract_address','address','platform']
   ) }} AS complete_tvl_id,
   SYSDATE() AS inserted_timestamp,
   SYSDATE() AS modified_timestamp,
