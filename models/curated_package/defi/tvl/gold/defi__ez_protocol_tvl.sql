@@ -20,7 +20,9 @@ SELECT
     ) AS tvl_usd,
     protocol,
     version,
-    platform
+    platform,
+    MAX(modified_timestamp) AS modified_timestamp,
+    MAX(inserted_timestamp) AS inserted_timestamp
 FROM
     {{ ref('silver_tvl__complete_tvl') }}
 GROUP BY
@@ -35,8 +37,8 @@ SELECT
     protocol,
     version,
     platform,
-    SYSDATE() AS modified_timestamp,
-    SYSDATE() AS inserted_timestamp,
+    modified_timestamp,
+    inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['block_date','platform']
     ) }} AS ez_protocol_tvl_id
