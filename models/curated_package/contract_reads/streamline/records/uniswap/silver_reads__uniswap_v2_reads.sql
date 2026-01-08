@@ -21,6 +21,25 @@ WITH verified_contracts AS (
         is_verified
         AND token_address IS NOT NULL
 ),
+dex_pools AS (
+    SELECT
+        contract_address,
+        COUNT(*) AS num_swaps,
+        COUNT(
+            DISTINCT origin_from_address
+        ) AS num_traders
+    FROM
+        {{ ref('silver_dex__swap_evt_v2_swaps') }}
+    {% if is_incremental() %}
+    WHERE
+        contract_address NOT IN (SELECT contract_address FROM {{ this }})
+    {% endif %}
+    GROUP BY
+        1
+    HAVING
+        num_swaps >= 500
+        AND num_traders >= 500
+),
 liquidity_pools AS (
     SELECT
         DISTINCT 
@@ -29,9 +48,18 @@ liquidity_pools AS (
         token1,
         protocol,
         version,
-        platform
+        platform,
+        CASE 
+            WHEN pool_address IN (SELECT contract_address FROM dex_pools) THEN FALSE
+            ELSE TRUE
+        END AS verified_check_enabled --prevents dex activity driven pools from being deleted via post_hook heal
     FROM {{ ref('silver_dex__paircreated_evt_v2_pools') }}
-    WHERE token0 IN (SELECT token_address FROM verified_contracts)
+    WHERE (
+        pool_address IN (SELECT contract_address FROM dex_pools)
+    )
+    OR
+    (
+    token0 IN (SELECT token_address FROM verified_contracts)
     AND token1 IN (SELECT token_address FROM verified_contracts)
     {% if is_incremental() %}
     AND (
@@ -40,6 +68,7 @@ liquidity_pools AS (
         -- pull in pools with newly verified tokens
     )
     {% endif %}
+    )
 )
 SELECT
     contract_address,
@@ -54,7 +83,7 @@ SELECT
     OBJECT_CONSTRUCT(
         'token0', token0,
         'token1', token1,
-        'verified_check_enabled','true'
+        'verified_check_enabled', verified_check_enabled::STRING
     ) :: VARIANT AS metadata,
     protocol,
     version,
