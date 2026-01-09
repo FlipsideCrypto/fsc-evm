@@ -11,17 +11,7 @@
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
-WITH eigenpods AS (
-    -- Native ETH Restaking via Beacon Chain Validators
-    SELECT DISTINCT
-        LOWER(decoded_log:eigenPod::STRING) AS eigenpod_address
-    FROM {{ ref('core__ez_decoded_event_logs') }}
-    WHERE contract_address = LOWER('0x91e677b07f7af907ec9a428aafa9fc14a0d3a338')
-        AND event_name = 'PodDeployed'
-        AND block_number >= 17445564 -- Contract deployment block
-),
-
-beacon_blocks AS (
+WITH beacon_blocks AS (
     SELECT
         slot_number,
         slot_timestamp::DATE AS block_date,
@@ -52,6 +42,7 @@ eigenpod_validators AS (
 ),
 
 eigenpod_tvl AS (
+    -- Native ETH Restaking via Beacon Chain Validators
     SELECT
         b.block_date,
         b.block_number,
@@ -62,7 +53,7 @@ eigenpod_tvl AS (
         SUM(ev.balance) * POW(10, 18) AS amount_raw,
         'eigenpod' AS component,
         MAX(b.modified_timestamp) AS _modified_timestamp
-    FROM eigenpods ep
+    FROM {{ ref('silver__eigenlayer_v1_eigenpods') }} ep
     INNER JOIN eigenpod_validators ev
         ON ep.eigenpod_address = ev.eigenpod_address
     INNER JOIN beacon_blocks b
