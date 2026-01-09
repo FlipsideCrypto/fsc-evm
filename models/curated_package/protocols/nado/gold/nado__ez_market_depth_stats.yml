@@ -27,8 +27,8 @@ models:
       - name: ROUND_PRICE_100
         description: '{{ doc("nado_orderbook_round_price_100") }}'
       - name: EZ_MARKET_DEPTH_STATS_ID
-        description: '{{ doc("evm_pk") }}'
+        description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'   
+        description: '{{ doc("general_inserted_timestamp") }}'   
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}' 
+        description: '{{ doc("general_modified_timestamp") }}' 

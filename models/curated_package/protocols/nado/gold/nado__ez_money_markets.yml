@@ -19,8 +19,8 @@ models:
       - name: TVL
         description: '{{ doc("nado_tvl") }}'
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("evm_inserted_timestamp") }}'
+        description: '{{ doc("general_inserted_timestamp") }}'
       - name: MODIFIED_TIMESTAMP
-        description: '{{ doc("evm_modified_timestamp") }}'
+        description: '{{ doc("general_modified_timestamp") }}'
       - name: NADO_MONEY_MARKETS_ID
-        description: '{{ doc("evm_pk") }}'
+        description: '{{ doc("general_pk") }}'
