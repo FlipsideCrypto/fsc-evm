@@ -53,7 +53,7 @@ eigenpod_tvl AS (
         SUM(ev.balance) * POW(10, 18) AS amount_raw,
         'eigenpod' AS component,
         MAX(b.modified_timestamp) AS _modified_timestamp
-    FROM {{ ref('silver__eigenlayer_v1_eigenpods') }} ep
+    FROM {{ ref('silver_tvl__eigenlayer_v1_eigenpods') }} ep
     INNER JOIN eigenpod_validators ev
         ON ep.eigenpod_address = ev.eigenpod_address
     INNER JOIN beacon_blocks b
