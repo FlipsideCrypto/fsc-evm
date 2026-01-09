@@ -30,8 +30,9 @@ beacon_blocks AS (
     FROM {{ source('ethereum_beacon_chain', 'fact_blocks') }}
     WHERE block_included = TRUE
     AND block_date >= ('{{ vars.CURATED_SL_CONTRACT_READS_START_DATE }}' :: TIMESTAMP) :: DATE
+    AND block_number IS NOT NULL
 {% if is_incremental() %}
-        AND modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }} WHERE component = 'eigenpod')
+        AND modified_timestamp >= (SELECT MAX(modified_timestamp) - INTERVAL '24 hours' FROM {{ this }} WHERE component = 'eigenpod')
 {% endif %}
 ),
 
@@ -44,8 +45,9 @@ eigenpod_validators AS (
     WHERE LEFT(withdrawal_credentials, 4) = '0x01' -- Execution layer withdrawal credentials (funds go to an Ethereum address)
         AND validator_status IN ('active_ongoing', 'pending_queued', 'pending_initialized', 'withdrawal_possible')
         AND slot_number >= (SELECT MIN(slot_number) FROM beacon_blocks)
+        AND slot_number IS NOT NULL
 {% if is_incremental() %}
-        AND modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }} WHERE component = 'eigenpod')
+        AND modified_timestamp >= (SELECT MAX(modified_timestamp) - INTERVAL '24 hours' FROM {{ this }} WHERE component = 'eigenpod')
 {% endif %}
 ),
 
@@ -55,7 +57,7 @@ eigenpod_tvl AS (
         b.block_number,
         ep.eigenpod_address AS contract_address,
         NULL AS address,
-        '0x0000000000000000000000000000000000000000' AS token_address,
+        '0x0000000000000000000000000000000000000000' AS token_address, -- represents native ETH, for pricing purposes
         NULL AS amount_hex,
         SUM(ev.balance) * POW(10, 18) AS amount_raw,
         'eigenpod' AS component,
@@ -78,7 +80,7 @@ strategy_tvl AS (
         s.contract_address,
         NULL AS address,
         LOWER('0x' || RIGHT(LTRIM(t.result_hex, '0x'), 40)) AS token_address,
-        NULL AS amount_hex,
+        s.result_hex AS amount_hex,
         IFNULL(
             CASE WHEN LENGTH(s.result_hex) <= 4300 AND s.result_hex IS NOT NULL
                  THEN TRY_CAST(utils.udf_hex_to_int(s.result_hex) AS BIGINT) END,
