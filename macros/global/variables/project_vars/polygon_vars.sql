@@ -25,6 +25,7 @@
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2','curve-v1'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','symbiosis-v1','across-v2'],
+        'CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS': '0x1bf0c2541f820e775182832f06c0b7fc27a25f67',
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

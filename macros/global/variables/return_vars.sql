@@ -309,6 +309,9 @@
 
   {# Curated Lending Variables #}
   {% set ns.CURATED_DEFI_LENDING_CONTRACT_MAPPING = get_var('CURATED_DEFI_LENDING_CONTRACT_MAPPING', {}) %}
+
+  {# Curated TVL Variables #}
+  {% set ns.CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS = get_var('CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS', '') %}
   
   {# Return the entire namespace as a dictionary #}
   {{ return(ns) }}

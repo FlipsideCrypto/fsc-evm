@@ -29,7 +29,8 @@
     (ref('silver_tvl__uniswap_v1_tvl'), 9, 'uniswap-v1'),
     (ref('silver_tvl__uniswap_v2_tvl'), 9, 'uniswap-v2'),
     (ref('silver_tvl__uniswap_v3_tvl'), 9, 'uniswap-v3'),
-    (ref('silver_tvl__uniswap_v4_tvl'), 9, 'uniswap-v4')
+    (ref('silver_tvl__uniswap_v4_tvl'), 9, 'uniswap-v4'),
+    (ref('silver_tvl__morpho_blue_v1_tvl'), 12, 'morpho-v1')
 ] %}
 
 WITH all_tvl AS (

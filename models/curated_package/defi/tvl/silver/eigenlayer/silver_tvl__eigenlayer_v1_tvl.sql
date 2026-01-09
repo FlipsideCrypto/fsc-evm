@@ -78,7 +78,8 @@ strategy_tvl AS (
             CASE WHEN s.result_hex IS NOT NULL
                  THEN TRY_CAST(utils.udf_hex_to_int(RTRIM(s.result_hex, '0')) AS BIGINT) END
         ) AS amount_raw,
-        'strategy' AS component
+        'strategy' AS component,
+        s._inserted_timestamp
     FROM {{ ref('silver__contract_reads') }} s
     LEFT JOIN {{ ref('silver__contract_reads') }} t
         ON s.contract_address = t.contract_address

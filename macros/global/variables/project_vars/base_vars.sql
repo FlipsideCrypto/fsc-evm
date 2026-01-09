@@ -34,6 +34,7 @@
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v3','woofi-v1','voodoo-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['balancer-v1'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','hop-v1','across-v2'],
+        'CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb',
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

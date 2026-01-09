@@ -24,6 +24,7 @@
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','gmx-v1','woofi-v3','woofi-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['trader_joe-v2','kyberswap-v1','kyberswap-v2','zyberswap-v2','fraxswap-v1'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hyperliquid-v1','across-v2','multichain-v7','symbiosis-v1','hop-v1','everclear-v1'],
+        'CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS': '0x6c247b1f6182318877311737bac0844baa518f5e',
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

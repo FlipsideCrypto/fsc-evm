@@ -113,6 +113,13 @@ Sums (1) native ETH restaked via EigenPods by matching PodDeployed events with b
 {% docs ethena_v1_tvl_table_doc %}
 
 Methodology:
-totalSupply of USDe (synthetic dollar)
+Total supply of USDe (synthetic dollar)
+
+{% enddocs %}
+
+{% docs morpho_blue_v1_tvl_table_doc %}
+
+Methodology:
+Sums balanceOf each unique token (collateralToken + loanToken from CreateMarket events) held by the MorphoBlue singleton contract
 
 {% enddocs %}
