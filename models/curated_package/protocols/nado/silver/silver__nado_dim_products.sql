@@ -27,7 +27,7 @@ WITH logs_pull AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topics [0] :: STRING = '0x279d9574824ed25ba9ed8153d42b20c641a3e46ec9eb3dcd7b51ab6db673956d'
+        topic_0 :: STRING = '0x279d9574824ed25ba9ed8153d42b20c641a3e46ec9eb3dcd7b51ab6db673956d'
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
@@ -54,8 +54,6 @@ new_prod AS (
         fact_event_logs_id
     FROM
         logs_pull
-    WHERE
-        topics [0] :: STRING = '0x3286b0394bf1350245290b7226c92ed186bd716f28938e62dbb895298f018172'
 ),
 api_pull AS (
     SELECT
