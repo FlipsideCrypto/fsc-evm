@@ -1,0 +1,54 @@
+version: 2
+models:
+  - name: nado__ez_liquidations
+    description: '{{ doc("nado_liquidations") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("evm_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("evm_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("evm_logs_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("evm_logs_contract_address") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("evm_event_name") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("evm_event_index") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("evm_origin_sig") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("evm_origin_from") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("evm_origin_to") }}'
+      - name: DIGEST
+        description: '{{ doc("nado_digest") }}'
+      - name: TRADER
+        description: '{{ doc("nado_trader") }}'
+      - name: SUBACCOUNT
+        description: '{{ doc("nado_subaccount") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("nado_product_id_liq") }}'
+      - name: HEALTH_GROUP  
+        description: '{{ doc("nado_health_group") }}'
+      - name: HEALTH_GROUP_SYMBOL
+        description: '{{ doc("nado_health_group_symbol") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("nado_amount_unadj") }}'
+      - name: AMOUNT
+        description: '{{ doc("nado_amount") }}'
+      - name: AMOUNT_QUOTE_UNADJ
+        description: '{{ doc("nado_amount_quote_unadj") }}'
+      - name: AMOUNT_QUOTE
+        description: '{{ doc("nado_amount_quote") }}'
+      - name: IS_ENCODE_SPREAD
+        description: '{{ doc("nado_is_encode_spread") }}'
+      - name: SPREAD_PRODUCT_IDS
+        description: '{{ doc("nado_decoded_spread_product_ids") }}'
+      - name: EZ_LIQUIDATIONS_ID
+        description: '{{ doc("evm_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("evm_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("evm_modified_timestamp") }}' 

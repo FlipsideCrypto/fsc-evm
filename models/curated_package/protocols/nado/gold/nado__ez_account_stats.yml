@@ -1,0 +1,60 @@
+version: 2
+models:
+  - name: nado__ez_account_stats
+    description: '{{ doc("nado_account_stats") }}'
+
+    columns:
+      - name: SUBACCOUNT
+        description: '{{ doc("nado_subaccount") }}'
+      - name: TRADER
+        description: '{{ doc("nado_trader") }}'
+      - name: FIRST_TRADE_TIMESTAMP
+        description: '{{ doc("nado_first_trade_timestamp") }}'
+      - name: LAST_TRADE_TIMESTAMP
+        description: '{{ doc("nado_last_trade_timestamp") }}'
+      - name: ACCOUNT_AGE
+        description: '{{ doc("nado_account_age") }}'
+      - name: TRADE_COUNT
+        description: '{{ doc("nado_trade_count") }}'
+      - name: TRADE_COUNT_RANK
+        description: '{{ doc("nado_trade_count_rank") }}'
+      - name: TRADE_COUNT_24H 
+        description: '{{ doc("nado_trade_count_24h") }}'
+      - name: TRADE_COUNT_RANK_24H
+        description: '{{ doc("nado_trade_count_rank_24h") }}'
+      - name: PERP_TRADE_COUNT
+        description: '{{ doc("nado_perp_trade_count") }}'
+      - name: SPOT_TRADE_COUNT
+        description: '{{ doc("nado_spot_trade_count") }}'
+      - name: LONG_COUNT
+        description: '{{ doc("nado_long_count") }}'
+      - name: SHORT_COUNT
+        description: '{{ doc("nado_short_count") }}'
+      - name: TOTAL_USD_VOLUME
+        description: '{{ doc("nado_total_usd_volume") }}'
+      - name: TOTAL_USD_VOLUME_RANK
+        description: '{{ doc("nado_total_usd_volume_rank") }}'
+      - name: TOTAL_USD_VOLUME_24H
+        description: '{{ doc("nado_total_usd_volume_24h") }}'
+      - name: TOTAL_USD_VOLUME_RANK_24H
+        description: '{{ doc("nado_total_usd_volume_rank_24h") }}'
+      - name: AVG_USD_TRADE_SIZE
+        description: '{{ doc("nado_avg_usd_trade_size") }}'
+      - name: TOTAL_FEE_AMOUNT
+        description: '{{ doc("nado_total_fee_amount") }}'
+      - name: TOTAL_BASE_DELTA_AMOUNT
+        description: '{{ doc("nado_total_base_delta_amount") }}'
+      - name: TOTAL_QUOTE_DELTA_AMOUNT
+        description: '{{ doc("nado_total_quote_delta_amount") }}'
+      - name: TOTAL_LIQUIDATION_AMOUNT
+        description: '{{ doc("nado_total_liquidation_amount") }}'
+      - name: TOTAL_LIQUIDATION_AMOUNT_QUOTE
+        description: '{{ doc("nado_amount_quote_unadj") }}'
+      - name: TOTAL_LIQUIDATION_COUNT
+        description: '{{ doc("nado_total_liquidation_count") }}'
+      - name: EZ_ACCOUNT_STATS_ID
+        description: '{{ doc("evm_pk") }}' 
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("evm_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("evm_modified_timestamp") }}' 

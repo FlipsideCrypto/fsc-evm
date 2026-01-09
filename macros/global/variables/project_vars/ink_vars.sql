@@ -19,6 +19,14 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['morpho-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['squidswap-v1'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['everclear-v1'],
+        'CURATED_NADO_OFFCHAIN_EXCHANGE_CONTRACT': '0x8373c3aa04153abc0cfd28901c3c971a946994ab',
+        'CURATED_NADO_CLEARINGHOUSE_CONTRACT': '0xd218103918c19d0a10cf35300e4cfafbd444c5fe',
+        'CURATED_NADO_TOKEN_MAPPING': {
+            'USDC': '0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
+            'wMNT': '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8',
+            'METH': '0xcda86a272531e8640cd7f1a92c01839911b90bb0',
+            'WETH': '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111'
+        },
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {

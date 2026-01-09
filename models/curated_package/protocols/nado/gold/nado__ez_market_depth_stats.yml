@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: nado__ez_market_depth_stats
+    description: '{{ doc("nado_market_depth") }}'
+
+    columns:
+      - name: HOUR
+        description: '{{ doc("nado_hour") }}'
+      - name: TICKER_ID
+        description: '{{ doc("nado_ticker_id") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("nado_product_id") }}'
+      - name: ORDERBOOK_SIDE
+        description: '{{ doc("nado_orderbook_side") }}'
+      - name: VOLUME
+        description: '{{ doc("nado_orderbook_volume") }}'
+      - name: PRICE
+        description: '{{ doc("nado_orderbook_price") }}'
+      - name: ROUND_PRICE_0_01
+        description: '{{ doc("nado_orderbook_round_price_0_01") }}'
+      - name: ROUND_PRICE_0_1
+        description: '{{ doc("nado_orderbook_round_price_0_1") }}'
+      - name: ROUND_PRICE_1
+        description: '{{ doc("nado_orderbook_round_price_1") }}'
+      - name: ROUND_PRICE_10
+        description: '{{ doc("nado_orderbook_round_price_10") }}'
+      - name: ROUND_PRICE_100
+        description: '{{ doc("nado_orderbook_round_price_100") }}'
+      - name: EZ_MARKET_DEPTH_STATS_ID
+        description: '{{ doc("evm_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("evm_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("evm_modified_timestamp") }}' 

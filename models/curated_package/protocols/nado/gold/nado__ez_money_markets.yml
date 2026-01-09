@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: nado__ez_money_markets
+    description: '{{ doc("nado_money_markets") }}'
+
+    columns:
+      - name: HOUR
+        description: '{{ doc("nado_hour") }}'
+      - name: TICKER_ID
+        description: '{{ doc("nado_ticker_id") }}'
+      - name: SYMBOL
+        description: '{{ doc("nado_symbol") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("nado_product_id") }}'
+      - name: DEPOSIT_APR
+        description: '{{ doc("nado_deposit_apr") }}'
+      - name: BORROW_APR
+        description: '{{ doc("nado_borrow_apr") }}'
+      - name: TVL
+        description: '{{ doc("nado_tvl") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("evm_inserted_timestamp") }}'
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("evm_modified_timestamp") }}'
+      - name: NADO_MONEY_MARKETS_ID
+        description: '{{ doc("evm_pk") }}'
