@@ -21,6 +21,7 @@
     (ref('silver_tvl__superchain_slipstream_v1_tvl'), 12, 'superchain-slipstream-v1'),
     (ref('silver_tvl__binance_v1_tvl'), 12, 'binance-v1'),
     (ref('silver_tvl__curve_v1_tvl'), 10, 'curve-v1'),
+    (ref('silver_tvl__eigenlayer_v1_tvl'), 12, 'eigenlayer-v1'),
     (ref('silver_tvl__etherfi_v1_tvl_agg'), 12, 'etherfi-v1'),
     (ref('silver_tvl__lido_v1_tvl'), 12, 'lido-v1'),
     (ref('silver_tvl__tornado_cash_v1_tvl'), 9, 'tornado_cash-v1'),

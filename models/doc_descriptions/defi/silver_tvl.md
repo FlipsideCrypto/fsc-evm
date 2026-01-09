@@ -102,3 +102,10 @@ Methodology:
 Sums token0 and token1 balances held by each Slipstream (CL) pool contract via balanceOf()
 
 {% enddocs %}
+
+{% docs eigenlayer_v1_tvl_table_doc %}
+
+Methodology:
+Sums (1) native ETH restaked via EigenPods by matching PodDeployed events with beacon chain validator balances and (2) LST/ERC20 tokens deposited in strategy contracts via totalShares()
+
+{% enddocs %}

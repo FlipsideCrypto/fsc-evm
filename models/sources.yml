@@ -155,3 +155,10 @@ sources:
     schema: silver_tvl
     tables:
       - name: etherfi_v1_tvl
+  - name: ethereum_beacon_chain
+    database: >-
+      {{ 'ETHEREUM_DEV' if '_DEV' in target.database.upper() else 'ETHEREUM' }}
+    schema: beacon_chain
+    tables:
+      - name: fact_validators
+      - name: fact_blocks
