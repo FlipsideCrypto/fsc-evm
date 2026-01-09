@@ -11,19 +11,14 @@
     tags = ['silver','defi','tvl','curated_daily']
 ) }}
 
--- EigenLayer TVL: EigenPod (native ETH via beacon chain) + Strategy (LST/ERC20) TVL
-
--- =====================================================================
--- EIGENPOD TVL: Native ETH Restaking via Beacon Chain Validators
--- =====================================================================
-
 WITH eigenpods AS (
+    -- Native ETH Restaking via Beacon Chain Validators
     SELECT DISTINCT
         LOWER(decoded_log:eigenPod::STRING) AS eigenpod_address
     FROM {{ ref('core__ez_decoded_event_logs') }}
     WHERE contract_address = LOWER('0x91e677b07f7af907ec9a428aafa9fc14a0d3a338')
         AND event_name = 'PodDeployed'
-        AND block_number >= 17445564
+        AND block_number >= 17445564 -- Contract deployment block
 ),
 
 beacon_blocks AS (
@@ -34,6 +29,7 @@ beacon_blocks AS (
         modified_timestamp
     FROM {{ source('ethereum_beacon_chain', 'fact_blocks') }}
     WHERE block_included = TRUE
+    AND block_date >= ('{{ vars.CURATED_SL_CONTRACT_READS_START_DATE }}' :: TIMESTAMP) :: DATE
 {% if is_incremental() %}
         AND modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }} WHERE component = 'eigenpod')
 {% endif %}
@@ -41,14 +37,15 @@ beacon_blocks AS (
 
 eigenpod_validators AS (
     SELECT
-        v.slot_number,
-        LOWER('0x' || RIGHT(v.withdrawal_credentials, 40)) AS eigenpod_address,
-        v.balance
-    FROM {{ source('ethereum_beacon_chain', 'fact_validators') }} v
-    WHERE LEFT(v.withdrawal_credentials, 4) = '0x01'
-        AND v.validator_status IN ('active_ongoing', 'pending_queued', 'pending_initialized', 'withdrawal_possible')
+        slot_number,
+        LOWER('0x' || RIGHT(withdrawal_credentials, 40)) AS eigenpod_address,
+        balance
+    FROM {{ source('ethereum_beacon_chain', 'fact_validators') }}
+    WHERE LEFT(withdrawal_credentials, 4) = '0x01' -- Execution layer withdrawal credentials (funds go to an Ethereum address)
+        AND validator_status IN ('active_ongoing', 'pending_queued', 'pending_initialized', 'withdrawal_possible')
+        AND slot_number >= (SELECT MIN(slot_number) FROM beacon_blocks)
 {% if is_incremental() %}
-        AND v.modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }} WHERE component = 'eigenpod')
+        AND modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }} WHERE component = 'eigenpod')
 {% endif %}
 ),
 
@@ -73,11 +70,8 @@ eigenpod_tvl AS (
     QUALIFY ROW_NUMBER() OVER (PARTITION BY block_date, contract_address ORDER BY _modified_timestamp DESC) = 1
 ),
 
--- =====================================================================
--- STRATEGY TVL: LST/ERC20 Token Restaking
--- =====================================================================
-
 strategy_tvl AS (
+    -- LST/ERC20 Token Restaking
     SELECT
         s.block_date,
         s.block_number,
@@ -107,10 +101,6 @@ strategy_tvl AS (
         AND s.modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }} WHERE component = 'strategy')
 {% endif %}
 ),
-
--- =====================================================================
--- COMBINE ALL TVL COMPONENTS
--- =====================================================================
 
 combined_tvl AS (
     SELECT block_date, block_number, contract_address, address, token_address, amount_hex, amount_raw, component
