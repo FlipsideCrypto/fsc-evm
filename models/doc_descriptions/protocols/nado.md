@@ -61,12 +61,6 @@ All staking actions taken with the VRTX staking contract.
 
 {% enddocs %}
 
-{% docs nado_edge_trades  %}
-
-All edge trades paired with the associated trader/subaccount.
-
-{% enddocs %}
-
 {% docs nado_symbol %}
 
 The specific Nado product symbol, if it is a futures product it will have a -PERP suffix.

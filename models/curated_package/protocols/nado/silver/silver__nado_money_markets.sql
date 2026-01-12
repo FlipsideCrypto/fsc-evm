@@ -26,11 +26,7 @@ SELECT
     DATE_TRUNC('hour', SYSDATE()) AS HOUR,
     CONCAT(
         f.value:symbol::string,
-        {% if vars.GLOBAL_PROJECT_NAME == 'blast' %}
-            '_USDB'
-        {% else %}
-            '_USDC'
-        {% endif %}
+        '_USDT0'
     ) AS ticker_id,
     f.value:symbol::string AS symbol,
     f.value:product_id::string AS product_id,
