@@ -123,3 +123,12 @@ Methodology:
 Sums balanceOf each unique token (collateralToken + loanToken from CreateMarket events) held by the MorphoBlue singleton contract
 
 {% enddocs %}
+
+{% docs rocketpool_v1_tvl_table_doc %}
+
+Methodology:
+Total supply of rETH (Rocket Pool's liquid staking token representing staked ETH)
+
+Note: This represents the liquid staking portion only. Other methodologies may report additional TVL (operator-staked funds) by including node operator collateral (nodeEthProvided), matched ETH from the deposit pool, and pending deposits.
+
+{% enddocs %}

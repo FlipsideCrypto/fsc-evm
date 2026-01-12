@@ -25,6 +25,7 @@
     (ref('silver_tvl__ethena_v1_tvl'), 12, 'ethena-v1'),
     (ref('silver_tvl__etherfi_v1_tvl_agg'), 12, 'etherfi-v1'),
     (ref('silver_tvl__lido_v1_tvl'), 12, 'lido-v1'),
+    (ref('silver_tvl__rocketpool_v1_tvl'), 12, 'rocketpool-v1'),
     (ref('silver_tvl__tornado_cash_v1_tvl'), 9, 'tornado_cash-v1'),
     (ref('silver_tvl__uniswap_v1_tvl'), 9, 'uniswap-v1'),
     (ref('silver_tvl__uniswap_v2_tvl'), 9, 'uniswap-v2'),
