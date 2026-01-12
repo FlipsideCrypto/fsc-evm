@@ -11,8 +11,7 @@ models:
       - fsc_evm.sequence_gaps:
           column_name: EVENT_INDEX
           partition_by:
-            partition_by:
-              - BLOCK_NUMBER
+            - BLOCK_NUMBER
       - events_match_txs:
           arguments:
             transactions_model: ref('test_gold__fact_transactions_recent')
