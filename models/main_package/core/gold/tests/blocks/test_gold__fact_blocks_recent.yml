@@ -9,9 +9,8 @@ models:
               - BLOCK_NUMBER
       - fsc_evm.sequence_gaps:
           column_name: BLOCK_NUMBER
-          partition_by:
-            severity: error
-            error_if: ">10"
+          severity: error
+          error_if: ">10"
 
     columns:
       - name: BLOCK_NUMBER

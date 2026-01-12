@@ -63,25 +63,21 @@ models:
       - name: FROM_ADDRESS
         tests:
           - not_null:
-              partition_by:
-                where: TYPE <> 'SELFDESTRUCT'
+              where: TYPE <> 'SELFDESTRUCT'
           - dbt_expectations.expect_column_values_to_match_regex:
-              partition_by:
-                where: FROM_ADDRESS IS NOT NULL AND TRACE_ADDRESS <> 'ORIGIN'
+              where: FROM_ADDRESS IS NOT NULL AND TRACE_ADDRESS <> 'ORIGIN'
               arguments:
                 regex: 0[xX][0-9a-fA-F]+
       - name: TO_ADDRESS
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              partition_by:
-                where: TO_ADDRESS IS NOT NULL
+              where: TO_ADDRESS IS NOT NULL
               arguments:
                 regex: 0[xX][0-9a-fA-F]+
       - name: INPUT
         tests:
           - not_null:
-              partition_by:
-                where: TYPE <> 'SELFDESTRUCT'
+              where: TYPE <> 'SELFDESTRUCT'
       - name: TYPE
         tests:
           - not_null
