@@ -10,10 +10,9 @@ models:
               - TRACE_INDEX
       - fsc_evm.sequence_gaps:
           column_name: TRACE_INDEX
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
           partition_by:
-            where: BLOCK_TIMESTAMP < CURRENT_DATE - 1 AND TX_HASH IS NOT NULL
-            partition_by:
-              - TX_HASH
+            - TX_HASH
       - txs_have_traces:
           arguments:
             transactions_model: ref('test_gold__fact_transactions_full')

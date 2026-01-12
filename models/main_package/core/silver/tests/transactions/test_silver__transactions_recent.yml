@@ -10,8 +10,7 @@ models:
       - fsc_evm.sequence_gaps:
           column_name: TX_POSITION
           partition_by:
-            partition_by:
-              - BLOCK_NUMBER
+            - BLOCK_NUMBER
     columns:
       - name: BLOCK_NUMBER
         tests:

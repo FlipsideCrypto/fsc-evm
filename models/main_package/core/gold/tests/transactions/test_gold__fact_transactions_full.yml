@@ -9,10 +9,9 @@ models:
               - TX_HASH
       - fsc_evm.sequence_gaps:
           column_name: TX_POSITION
+          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
           partition_by:
-            where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
-            partition_by:
-              - BLOCK_NUMBER
+            - BLOCK_NUMBER
       - txs_match_blocks:
           arguments:
             blocks_model: ref('test_gold__fact_blocks_full')
