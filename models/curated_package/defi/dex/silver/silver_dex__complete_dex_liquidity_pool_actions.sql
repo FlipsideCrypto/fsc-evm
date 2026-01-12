@@ -90,7 +90,7 @@ poolcreated_evt_v3 AS (
   FROM
     {{ ref('silver_dex__poolcreated_evt_v3_pool_actions') }}
 
-{% if is_incremental() and 'poolcreated_evt_v3' not in vars.curated_fr_models %}
+{% if is_incremental() and 'poolcreated_evt_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -136,7 +136,7 @@ paircreated_evt_v2 AS (
   FROM
     {{ ref('silver_dex__paircreated_evt_v2_pool_actions') }}
 
-{% if is_incremental() and 'paircreated_evt_v2' not in vars.curated_fr_models %}
+{% if is_incremental() and 'paircreated_evt_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -182,7 +182,7 @@ aerodrome AS (
   FROM
     {{ ref('silver_dex__aerodrome_pool_actions') }}
 
-{% if is_incremental() and 'aerodrome' not in vars.curated_fr_models %}
+{% if is_incremental() and 'aerodrome' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -228,7 +228,7 @@ pharaoh_v1 AS (
   FROM
     {{ ref('silver_dex__pharaoh_v1_pool_actions') }}
 
-{% if is_incremental() and 'pharaoh_v1' not in vars.curated_fr_models %}
+{% if is_incremental() and 'pharaoh_v1' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -274,7 +274,7 @@ kyberswap_v1_dynamic AS (
   FROM
     {{ ref('silver_dex__kyberswap_v1_dynamic_pool_actions') }}
 
-{% if is_incremental() and 'kyberswap_v1_dynamic' not in vars.curated_fr_models %}
+{% if is_incremental() and 'kyberswap_v1_dynamic' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -320,7 +320,7 @@ kyberswap_v2_elastic AS (
   FROM
     {{ ref('silver_dex__kyberswap_v2_elastic_pool_actions') }}
 
-{% if is_incremental() and 'kyberswap_v2_elastic' not in vars.curated_fr_models %}
+{% if is_incremental() and 'kyberswap_v2_elastic' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -366,7 +366,7 @@ dodo_v1 AS (
   FROM
     {{ ref('silver_dex__dodo_v1_pool_actions') }}
 
-{% if is_incremental() and 'dodo_v1' not in vars.curated_fr_models %}
+{% if is_incremental() and 'dodo_v1' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -412,7 +412,7 @@ pancakeswap_v3 AS (
   FROM
     {{ ref('silver_dex__pancakeswap_v3_pool_actions') }}
 
-{% if is_incremental() and 'pancakeswap_v3' not in vars.curated_fr_models %}
+{% if is_incremental() and 'pancakeswap_v3' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -458,7 +458,7 @@ camelot_v2 AS (
   FROM
     {{ ref('silver_dex__camelot_v2_pool_actions') }}
 
-{% if is_incremental() and 'camelot_v2' not in vars.curated_fr_models %}
+{% if is_incremental() and 'camelot_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -504,7 +504,7 @@ quickswap_v2 AS (
   FROM
     {{ ref('silver_dex__quickswap_v2_pool_actions') }}
 
-{% if is_incremental() and 'quickswap_v2' not in vars.curated_fr_models %}
+{% if is_incremental() and 'quickswap_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -551,7 +551,7 @@ quickswap_v4 AS (
   FROM
     {{ ref('silver_dex__quickswap_v4_pool_actions') }}
 
-{% if is_incremental() and 'quickswap_v4' not in vars.curated_fr_models %}
+{% if is_incremental() and 'quickswap_v4' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -598,7 +598,7 @@ dackie AS (
   FROM
     {{ ref('silver_dex__dackie_pool_actions') }}
 
-{% if is_incremental() and 'dackie' not in vars.curated_fr_models %}
+{% if is_incremental() and 'dackie' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -644,7 +644,7 @@ superchain_slipstream AS (
   FROM
     {{ ref('silver_dex__superchain_slipstream_pool_actions') }}
 
-{% if is_incremental() and 'superchain_slipstream' not in vars.curated_fr_models %}
+{% if is_incremental() and 'superchain_slipstream' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -690,7 +690,7 @@ sushiswap AS (
   FROM
     {{ ref('silver_dex__sushiswap_pool_actions') }}
 
-{% if is_incremental() and 'sushiswap' not in vars.curated_fr_models %}
+{% if is_incremental() and 'sushiswap' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -736,7 +736,7 @@ trader_joe_v2 AS (
   FROM
     {{ ref('silver_dex__trader_joe_v2_pool_actions') }}
 
-{% if is_incremental() and 'trader_joe_v2' not in vars.curated_fr_models %}
+{% if is_incremental() and 'trader_joe_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -782,7 +782,53 @@ zyberswap_v2 AS (
   FROM
     {{ ref('silver_dex__zyberswap_v2_pool_actions') }}
 
-{% if is_incremental() and 'zyberswap_v2' not in vars.curated_fr_models %}
+{% if is_incremental() and 'zyberswap_v2' not in vars.CURATED_FR_MODELS %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+uniswap_v1 AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    event_name,
+    liquidity_provider,
+    sender,
+    receiver,
+    pool_address,
+    token0,
+    token1,
+    NULL AS token2,
+    NULL AS token3,
+    NULL AS token4,
+    NULL AS token5,
+    NULL AS token6,
+    NULL AS token7,
+    amount0_unadj,
+    amount1_unadj,
+    NULL AS amount2_unadj,
+    NULL AS amount3_unadj,
+    NULL AS amount4_unadj,
+    NULL AS amount5_unadj,
+    NULL AS amount6_unadj,
+    NULL AS amount7_unadj,
+    platform,
+    protocol,
+    version,
+    TYPE,
+    _log_id AS _id,
+    modified_timestamp AS _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__uniswap_v1_pool_actions') }}
+
+{% if is_incremental() and 'uniswap_v1' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -828,7 +874,7 @@ velodrome_v1 AS (
   FROM
     {{ ref('silver_dex__velodrome_v1_pool_actions') }}
 
-{% if is_incremental() and 'velodrome_v1' not in vars.curated_fr_models %}
+{% if is_incremental() and 'velodrome_v1' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -874,7 +920,7 @@ velodrome_v2 AS (
   FROM
     {{ ref('silver_dex__velodrome_v2_pool_actions') }}
 
-{% if is_incremental() and 'velodrome_v2' not in vars.curated_fr_models %}
+{% if is_incremental() and 'velodrome_v2' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -920,7 +966,7 @@ balancer AS (
   FROM
     {{ ref('silver_dex__balancer_pool_actions') }}
 
-{% if is_incremental() and 'balancer' not in vars.curated_fr_models %}
+{% if is_incremental() and 'balancer' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -966,7 +1012,7 @@ curve AS (
   FROM
     {{ ref('silver_dex__curve_pool_actions') }}
 
-{% if is_incremental() and 'curve' not in vars.curated_fr_models %}
+{% if is_incremental() and 'curve' not in vars.CURATED_FR_MODELS %}
 WHERE
   _inserted_timestamp >= (
     SELECT
@@ -1066,6 +1112,11 @@ all_pools AS (
     *
   FROM
     zyberswap_v2
+  UNION ALL
+  SELECT
+    *
+  FROM
+    uniswap_v1
   UNION ALL
   SELECT
     *

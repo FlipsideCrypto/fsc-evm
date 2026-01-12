@@ -12,7 +12,7 @@
     incremental_predicates = ["dynamic_range", "block_number"],
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = vars.GLOBAL_SILVER_FR_ENABLED,
-    tags = ['silver','balances','native','phase_4']
+    tags = ['silver','balances','native','curated_daily','phase_4']
 ) }}
 
 SELECT

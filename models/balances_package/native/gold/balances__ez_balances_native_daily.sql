@@ -13,7 +13,7 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(address)",
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = vars.GLOBAL_GOLD_FR_ENABLED,
-    tags = ['gold','balances','native','phase_4']
+    tags = ['gold','balances','native','curated_daily','phase_4']
 ) }}
 
 WITH balances AS (
