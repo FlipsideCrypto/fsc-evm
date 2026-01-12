@@ -241,12 +241,14 @@
             },
             'granary': {
                 'v1': {
-                    'aave_version_address': '0x8fd4af47e4e63d1d2d45582c3286b4bd9bb95dfe'
+                    'aave_version_address': '0x8fd4af47e4e63d1d2d45582c3286b4bd9bb95dfe',
+                    'fork_version': 'v2'
                 }
             },
             'aave': {
                 'v3': {
-                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+                    'fork_version': 'v3'
                 }
             },
             'morpho': {

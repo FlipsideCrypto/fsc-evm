@@ -26,7 +26,7 @@ WITH all_tokens AS (
     FROM
         {{ ref('silver_lending__aave_tokens') }}
     WHERE
-        version = 'v2'
+        fork_version = 'v2'
 
 {% if is_incremental() %}
 AND modified_timestamp > (

@@ -316,15 +316,18 @@
             },
             'radiant': {
                 'v1': {
-                    'aave_version_address': '0x2032b9a8e9f7e76768ca9271003d3e43e1616b1f'
+                    'aave_version_address': '0x2032b9a8e9f7e76768ca9271003d3e43e1616b1f',
+                    'fork_version': 'v2'
                 },
                 'v2': {
-                    'aave_version_address': '0xf4b1486dd74d07706052a33d31d7c0aafd0659e1'
+                    'aave_version_address': '0xf4b1486dd74d07706052a33d31d7c0aafd0659e1',
+                    'fork_version': 'v2'
                 }
             },
             'aave': {
                 'v3': {
-                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+                    'fork_version': 'v3'
                 }
             },
             'morpho': {

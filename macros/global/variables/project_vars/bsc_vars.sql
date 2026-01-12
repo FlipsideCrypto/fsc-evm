@@ -239,17 +239,20 @@
             },
             'radiant': {
                 'v2': {
-                    'aave_version_address': '0xd50cf00b6e600dd036ba8ef475677d816d6c4281'
+                    'aave_version_address': '0xd50cf00b6e600dd036ba8ef475677d816d6c4281',
+                    'fork_version': 'v2'
                 }
             },
             'aave': {
                 'v3': {
-                    'aave_version_address': '0x6807dc923806fe8fd134338eabca509979a7e0cb'
+                    'aave_version_address': '0x6807dc923806fe8fd134338eabca509979a7e0cb',
+                    'fork_version': 'v3'
                 }
             },
             'kinza': {
                 'v1': {
-                    'aave_version_address': '0xcb0620b181140e57d1c0d8b724cde623ca963c8c'
+                    'aave_version_address': '0xcb0620b181140e57d1c0d8b724cde623ca963c8c',
+                    'fork_version': 'v3'
                 }
             },
             'euler': {

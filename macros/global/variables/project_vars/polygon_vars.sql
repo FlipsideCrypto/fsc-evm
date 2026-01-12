@@ -239,11 +239,13 @@
             'aave': {
                 'v3': {
                     'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
-                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+                    'fork_version': 'v3'
                 },
                 'v2': {
                     'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
-                    'aave_version_address': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf'
+                    'aave_version_address': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf',
+                    'fork_version': 'v2'
                 }
             },
             'morpho': {
