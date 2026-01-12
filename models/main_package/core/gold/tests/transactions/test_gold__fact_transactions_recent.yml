@@ -50,7 +50,8 @@ models:
       - name: TO_ADDRESS
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              where: TO_ADDRESS IS NOT NULL
+              config:
+                where: TO_ADDRESS IS NOT NULL
               arguments:
                 regex: 0[xX][0-9a-fA-F]+
       - name: ORIGIN_FUNCTION_SIGNATURE
