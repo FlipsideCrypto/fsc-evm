@@ -44,9 +44,8 @@ models:
               arguments:
                 regex: 0[xX][0-9a-fA-F]+
           - fsc_utils.tx_block_count:
-              partition_by:
-                severity: error
-                error_if: "!=0"
+              severity: error
+              error_if: "!=0"
       - name: TX_POSITION
         tests:
           - not_null
