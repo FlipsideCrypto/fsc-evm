@@ -10,7 +10,8 @@ models:
       - fsc_evm.sequence_gaps:
           column_name: TX_POSITION
           partition_by:
-            - BLOCK_NUMBER
+            partition_by:
+              - BLOCK_NUMBER
       - txs_match_blocks:
           arguments:
             blocks_model: ref('test_gold__fact_blocks_recent')
@@ -50,7 +51,7 @@ models:
       - name: TO_ADDRESS
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              config:
+              partition_by:
                 where: TO_ADDRESS IS NOT NULL
               arguments:
                 regex: 0[xX][0-9a-fA-F]+

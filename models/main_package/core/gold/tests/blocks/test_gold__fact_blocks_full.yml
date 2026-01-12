@@ -9,7 +9,7 @@ models:
               - BLOCK_NUMBER
       - fsc_evm.sequence_gaps:
           column_name: BLOCK_NUMBER
-          config:
+          partition_by:
             where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
     columns:
       - name: BLOCK_NUMBER

@@ -12,11 +12,11 @@ models:
       - fsc_evm.balances_sequence_gaps:
           column_name: TX_POSITION
           partition_by:
-            - BLOCK_NUMBER
-          config:
             where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+            partition_by:
+              - BLOCK_NUMBER
       - fsc_evm.balances_diffs_native:
-          config:
+          partition_by:
             where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
           arguments:
             test_model: test_gold__fact_traces_full
