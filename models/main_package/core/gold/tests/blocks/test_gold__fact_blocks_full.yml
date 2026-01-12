@@ -9,7 +9,8 @@ models:
               - BLOCK_NUMBER
       - fsc_evm.sequence_gaps:
           column_name: BLOCK_NUMBER
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+          config:
+            where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
     columns:
       - name: BLOCK_NUMBER
         tests:
