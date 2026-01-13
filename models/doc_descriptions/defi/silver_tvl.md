@@ -133,6 +133,13 @@ Note: This represents the liquid staking portion only. Other methodologies may r
 
 {% enddocs %}
 
+{% docs compound_v1_tvl_table_doc %}
+
+Methodology:
+Sums all token balances held by the MoneyMarket contract (0x3FDA67f7583380E67ef93072294a7fAc882FD7E7) via balanceOf(). Collateral markets are discovered dynamically via collateralMarkets() calls.
+
+{% enddocs %}
+
 {% docs compound_v2_tvl_table_doc %}
 
 Methodology:

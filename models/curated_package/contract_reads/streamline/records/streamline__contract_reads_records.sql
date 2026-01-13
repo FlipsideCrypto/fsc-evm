@@ -43,6 +43,7 @@
 {% set _ = models.append((ref('silver_reads__tornado_cash_v1_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__etherfi_v1_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__morpho_blue_v1_reads'), 'daily')) %}
+{% set _ = models.append((ref('silver_reads__compound_v1_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__compound_v2_reads'), 'daily')) %}
 {% set _ = models.append((ref('silver_reads__compound_v3_reads'), 'daily')) %}
 
