@@ -5,4 +5,4 @@ models:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns:
-              - stablecoin_reads_id
+              - stablecoins_reads_totalsupply_id
