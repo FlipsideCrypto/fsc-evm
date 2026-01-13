@@ -3,10 +3,11 @@ models:
   - name: silver__complete_token_prices
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - HOUR
-            - TOKEN_ADDRESS
-            - BLOCKCHAIN
+          arguments:
+            combination_of_columns:
+              - HOUR
+              - TOKEN_ADDRESS
+              - BLOCKCHAIN
 
     columns:
       - name: HOUR
@@ -25,10 +26,10 @@ models:
         tests:
           - not_null
       - name: PRICE
-        tests: 
+        tests:
           - not_null
       - name: IS_IMPUTED
-        tests: 
+        tests:
           - not_null
       - name: _INSERTED_TIMESTAMP
         tests:

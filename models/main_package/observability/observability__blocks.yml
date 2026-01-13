@@ -7,6 +7,7 @@ models:
       - name: BLOCKS_IMPACTED_COUNT
         tests:
           - accepted_values_recent_row:
-              value: 0
-              timestamp_column: 'TEST_TIMESTAMP'
-              context_column: 'MISSING_LIST'
+              arguments:
+                value: 0
+                timestamp_column: 'TEST_TIMESTAMP'
+                context_column: 'MISSING_LIST'

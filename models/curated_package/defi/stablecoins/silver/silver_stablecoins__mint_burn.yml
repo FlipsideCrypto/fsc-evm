@@ -3,5 +3,6 @@ models:
   - name: silver_stablecoins__mint_burn
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - stablecoins_mint_burn_id
+          arguments:
+            combination_of_columns:
+              - stablecoins_mint_burn_id
