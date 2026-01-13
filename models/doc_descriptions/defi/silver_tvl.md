@@ -132,3 +132,17 @@ Total supply of rETH (Rocket Pool's liquid staking token representing staked ETH
 Note: This represents the liquid staking portion only. Other methodologies may report additional TVL (operator-staked funds) by including node operator collateral (nodeEthProvided), matched ETH from the deposit pool, and pending deposits.
 
 {% enddocs %}
+
+{% docs compound_v2_tvl_table_doc %}
+
+Methodology:
+Sums all underlying token balances held by each cToken contract via balanceOf()
+
+{% enddocs %}
+
+{% docs compound_v3_tvl_table_doc %}
+
+Methodology:
+Sums balanceOf() for base tokens + all collateral assets held by each Comet market contract. Collateral assets are discovered dynamically via getAssetInfo() calls.
+
+{% enddocs %}
