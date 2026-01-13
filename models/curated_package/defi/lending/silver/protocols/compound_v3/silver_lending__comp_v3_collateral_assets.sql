@@ -57,7 +57,7 @@ asset_info_calls AS (
                     {
                         'to': compound_market_address,
                         'from': null,
-                        'data': CONCAT('0xc8c7fe6b', LPAD(utils.udf_int_to_hex(idx), 64, '0'))
+                        'data': CONCAT('0xc8c7fe6b', LPAD(REPLACE(utils.udf_int_to_hex(idx), '0x', ''), 64, '0'))
                     },
                     'latest'
                 ],
@@ -82,7 +82,7 @@ parsed_assets AS (
             WHEN result_hex IS NOT NULL
             AND LENGTH(result_hex) >= 130
             AND result_hex != '0x'
-            THEN LOWER(CONCAT('0x', SUBSTR(result_hex, 27, 40)))
+            THEN LOWER(CONCAT('0x', SUBSTR(result_hex, 91, 40)))
             ELSE NULL
         END AS collateral_asset_address
     FROM

@@ -30,7 +30,6 @@ market_indices AS (
 ),
 
 -- Call collateralMarkets(i) for each index
--- Function selector: collateralMarkets(uint256) = 0x5e9a523c
 collateral_market_calls AS (
     SELECT
         '0x3fda67f7583380e67ef93072294a7fac882fd7e7' AS money_market_address,
@@ -48,7 +47,7 @@ collateral_market_calls AS (
                     {
                         'to': money_market_address,
                         'from': null,
-                        'data': CONCAT('0x5e9a523c', LPAD(utils.udf_int_to_hex(idx), 64, '0'))
+                        'data': CONCAT('0xbeb54615', LPAD(REPLACE(utils.udf_int_to_hex(idx), '0x', ''), 64, '0'))
                     },
                     'latest'
                 ],
