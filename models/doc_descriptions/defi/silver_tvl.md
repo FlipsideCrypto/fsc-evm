@@ -153,3 +153,10 @@ Methodology:
 Sums balanceOf() for base tokens + all collateral assets held by each Comet market contract. Collateral assets are discovered dynamically via getAssetInfo() calls.
 
 {% enddocs %}
+
+{% docs sky_v1_tvl_table_doc %}
+
+Methodology:
+Sums balanceOf() for collateral tokens held by each collateral join contract (discovered via MCD_VAT rely events and gem() calls) plus USDC held by the PSM wallet.
+
+{% enddocs %}
