@@ -66,7 +66,7 @@ SELECT
     'balanceOf' AS function_name,
     '0x70a08231' AS function_sig,
     CONCAT(
-        '0x70a08231',
+        function_sig,
         LPAD(
             SUBSTR(
                 '{{ vars.CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS }}',

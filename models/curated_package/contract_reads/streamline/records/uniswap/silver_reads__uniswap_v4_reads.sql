@@ -121,7 +121,7 @@ SELECT
     'balanceOf' AS function_name,
     '0x70a08231' AS function_sig,
     CONCAT(
-        '0x70a08231',
+        function_sig,
         LPAD(SUBSTR(address, 3), 64, '0')
     ) AS input,
     object_construct_keep_null(
