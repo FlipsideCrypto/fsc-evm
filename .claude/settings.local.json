@@ -7,7 +7,10 @@
       "Bash(snow sql:*)",
       "Bash(snow connection list:*)",
       "Bash(xargs:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(make cleanup_time:*)"
     ]
   }
 }
