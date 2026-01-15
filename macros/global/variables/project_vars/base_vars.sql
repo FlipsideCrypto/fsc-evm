@@ -41,6 +41,17 @@
                 },
                 'v3': {
                     'uni_v3_pool_created': '0x33128a8fc17869897dce68ed026d694621f6fdfd'
+                },
+                'v4': {
+                    'factory': '0x498581ff718922c3f8e6a244956af099b2652b2b'
+                }
+            },
+            'quickswap': {
+                'v1': {
+                    'uni_v2_pair_created': '0xec6540261aaae13f236a032d454dc9287e52e56a'
+                },
+                'v4': {
+                    'pool': '0xc5396866754799b9720125b104ae01d935ab9c7b'
                 }
             },
             'sushiswap': {

@@ -31,6 +31,9 @@
                 },
                 'v3': {
                     'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+                },
+                'v4': {
+                    'factory': '0x360e68faccca8ca495c1b759fd9eee466db9fb32'
                 }
             },
             'sushiswap': {
