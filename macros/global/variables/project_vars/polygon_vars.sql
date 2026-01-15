@@ -75,6 +75,11 @@
                     '0x79887f65f83bdf15bcc8736b5e5bcdb48fb8fe13']
                 }
             },
+            'fluid': {
+                'v1': {
+                    'factory': '0x91716c4eda1fb55e84bf8b4c7085f84285c19085'
+                }
+            },
             'hashflow': {
                 'v1': {
                     'create': ['0x63ae536fec0b57bdeb1fd6a893191b4239f61bff',
