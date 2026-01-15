@@ -1,0 +1,159 @@
+{% macro protocol_vars() %}
+    {% set vars = {
+        {# =================================================================
+           AAVE PROTOCOL VARIABLES
+           Aave is a decentralized lending protocol
+           ================================================================= #}
+        'PROTOCOL_AAVE_TOKEN_ADDRESS': '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+        'PROTOCOL_AAVE_ECOSYSTEM_RESERVE': '0x25f2226b597e8f9514b3f68f00f494cf4f286491',
+        'PROTOCOL_AAVE_SAFETY_MODULE_STKAAVE': '0x4da27a545c0c5b758a6ba100e3a049001de870f5',
+        'PROTOCOL_AAVE_SAFETY_MODULE_STKABPT': '0xa1116930326d21fb917d5a27f1e9943a9595fb47',
+        'PROTOCOL_AAVE_SAFETY_MODULE_STKGHO': '0x1a88df1cfe15af22b3c4c783d4e6f7f9e0c1885d',
+        'PROTOCOL_AAVE_COLLECTOR_V2': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+        'PROTOCOL_AAVE_AAVURA_TREASURY': '0x89c51828427f70d77875c6747759fb17ba10ceb0',
+        'PROTOCOL_AAVE_V3_POOL_ETHEREUM': '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2',
+        'PROTOCOL_AAVE_V3_POOL_POLYGON': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+        'PROTOCOL_AAVE_V3_POOL_ARBITRUM': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+        'PROTOCOL_AAVE_V3_POOL_OPTIMISM': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+        'PROTOCOL_AAVE_V3_POOL_AVALANCHE': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+        'PROTOCOL_AAVE_V3_POOL_BASE': '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
+        'PROTOCOL_AAVE_V3_POOL_GNOSIS': '0xb50201558b00496a145fe76f7424749556e326d8',
+        'PROTOCOL_AAVE_V3_POOL_BSC': '0x6807dc923806fe8fd134338eabca509979a7e0cb',
+        'PROTOCOL_AAVE_V2_POOL_ETHEREUM': '0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9',
+        'PROTOCOL_AAVE_V2_POOL_POLYGON': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf',
+        'PROTOCOL_AAVE_V2_POOL_AVALANCHE': '0x4f01aed16d97e3ab5ab2b501154dc9bb0f1a5a2c',
+        'PROTOCOL_AAVE_GHO_TOKEN': '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f',
+        'PROTOCOL_AAVE_GHO_TREASURY': '0x00907f9921424583e7ffbfedf84f92b7b2be4977',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_POLYGON': '0x929ec64c34a17401f460460d4b9390518e5b473e',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_ETHEREUM': '0x8145edddf43f50276641b55bd3ad95944510021e',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_V3_ETHEREUM': '0x8164cc65827dcfe994ab23944cbc90e0aa80bfcb',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_ARBITRUM': '0x8145edddf43f50276641b55bd3ad95944510021e',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_OPTIMISM': '0x929ec64c34a17401f460460d4b9390518e5b473e',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_AVALANCHE': '0x01d83fe6a10d2f2b7af17034343746188272cac9',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_V2_AVALANCHE': '0x01d83fe6a10d2f2b7af17034343746188272cac9',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_BASE': '0xf9cc4f0d883f1a1eb2c253bdb46c254ca51e1f44',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_BSC': '0xc206c2764a9dbf27d599613b8f9a63acd1160ab4',
+        'PROTOCOL_AAVE_INCENTIVES_CONTROLLER_GNOSIS': '0xad4f91d26254b6b0c6346b390dda2991fde2f20d',
+        'PROTOCOL_AAVE_COLLECTOR_V3_ETHEREUM': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+        'PROTOCOL_AAVE_COLLECTOR_V2_ETHEREUM': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+        'PROTOCOL_AAVE_COLLECTOR_POLYGON': '0xe8599f3cc5d38a9ad6f3684cd5cea72f10dbc383',
+        'PROTOCOL_AAVE_COLLECTOR_ARBITRUM': '0x053d55f9b5af8694c503eb288a1b7e552f590710',
+        'PROTOCOL_AAVE_COLLECTOR_OPTIMISM': '0xb2289e329d2f85f1ed31addc5972bc78ce08e0e7',
+        'PROTOCOL_AAVE_COLLECTOR_AVALANCHE': '0x5ba7fd868c40c16f7adfae6cf87121e13fc2f7a0',
+        'PROTOCOL_AAVE_COLLECTOR_BASE': '0xba9424d650a4f5c80a0da641254d1acce2a37057',
+        'PROTOCOL_AAVE_COLLECTOR_BSC': '0x25ef20c8c1d6ff5b02c9e08e6bde6c9b5d8d35b9',
+        'PROTOCOL_AAVE_COLLECTOR_GNOSIS': '0xb9e6dba8f56d5c7dc2579cb1cd4c5d170f25df76',
+        'PROTOCOL_AAVE_BALANCER_POOL': '0xc697051d1c6296c24ae3bcef39aca743861d9a81',
+
+        {# =================================================================
+           LIDO PROTOCOL VARIABLES
+           Lido is a liquid staking protocol
+           ================================================================= #}
+        'PROTOCOL_LIDO_STETH_ADDRESS': '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+        'PROTOCOL_LIDO_LDO_TOKEN': '0x5a98fcbea516cf06857215779fd812ca3bef1b32',
+        'PROTOCOL_LIDO_TREASURY': '0x3e40d73eb977dc6a537af587d48316fee66e9c8c',
+        'PROTOCOL_LIDO_NODE_OPERATORS_REGISTRY': '0x55032650b14df07b85bf18a3a3ec8e0af2e028d5',
+
+        {# =================================================================
+           EIGENLAYER PROTOCOL VARIABLES
+           EigenLayer is a restaking protocol
+           ================================================================= #}
+        'PROTOCOL_EIGENLAYER_POD_MANAGER': '0x91e677b07f7af907ec9a428aafa9fc14a0d3a338',
+        'PROTOCOL_EIGENLAYER_DELEGATION_MANAGER': '0x39053d51b77dc0d36036fc1fcc8cb819df8ef37a',
+        'PROTOCOL_EIGENLAYER_STRATEGY_MANAGER': '0x858646372cc42e1a627fce94aa7a7033e7cf075a',
+        'PROTOCOL_EIGENLAYER_REWARDS_COORDINATOR': '0x7750d328b314effa365a0402ccfd489b80b0add7',
+
+        {# =================================================================
+           UNISWAP PROTOCOL VARIABLES
+           Uniswap is a decentralized exchange
+           ================================================================= #}
+        'PROTOCOL_UNISWAP_UNI_TOKEN': '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+        'PROTOCOL_UNISWAP_TREASURY': '0x1a9c8182c09f50c8318d769245bea52c32be35bc',
+        'PROTOCOL_UNISWAP_GOVERNANCE_TIMELOCK': '0x1a9c8182c09f50c8318d769245bea52c32be35bc',
+
+        {# =================================================================
+           MAKER PROTOCOL VARIABLES
+           Maker is the DAI stablecoin protocol
+           ================================================================= #}
+        'PROTOCOL_MAKER_DAI_TOKEN': '0x6b175474e89094c44da98b954eedeac495271d0f',
+        'PROTOCOL_MAKER_MKR_TOKEN': '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+        'PROTOCOL_MAKER_VOW': '0xa950524441892a31ebddf91d3ceefa04bf454466',
+        'PROTOCOL_MAKER_VAT': '0x35d1b3f3d7966a1dfe207aa4514c12a259a0492b',
+        'PROTOCOL_MAKER_JUG': '0x19c0976f590d67707e62397c87829d896dc0f1f1',
+        'PROTOCOL_MAKER_POT': '0x197e90f9fad81970ba7976f33cbd77088e5d7cf7',
+        'PROTOCOL_MAKER_PAUSE_PROXY': '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb',
+        'PROTOCOL_MAKER_D3M_AAVE_V2': '0xa13c0c8eb109f5a13c6c90fc26afb23beb3fb04a',
+        'PROTOCOL_MAKER_D3M_COMPOUND_V2': '0x621fe4fde2617ea8ffade08d0ff5a862ad287ec2',
+        'PROTOCOL_MAKER_SURPLUS_BUFFER': '0x6d635c8d08a1ea2f1687a5e46b666949c977b7dd',
+        'PROTOCOL_MAKER_FLAPPER': '0x517f9dd285e75b599234f7221227339478d0fcc8',
+
+        {# =================================================================
+           BALANCER PROTOCOL VARIABLES
+           Balancer is a decentralized exchange and liquidity protocol
+           ================================================================= #}
+        'PROTOCOL_BALANCER_BAL_TOKEN': '0xba100000625a3754423978a60c9317c58a424e3d',
+        'PROTOCOL_BALANCER_VAULT_V2': '0xba12222222228d8ba445958a75a0704d566bf2c8',
+        'PROTOCOL_BALANCER_TREASURY': '0x10a19e7ee7d7f8a52822f6817de8ea18204f2e4f',
+
+        {# =================================================================
+           CHAINLINK PROTOCOL VARIABLES
+           Chainlink is a decentralized oracle network
+           ================================================================= #}
+        'PROTOCOL_CHAINLINK_LINK_TOKEN_ETHEREUM': '0x514910771af9ca656af840dff83e8264ecf986ca',
+        'PROTOCOL_CHAINLINK_STAKING_V02': '0xbc10f2e862ed4502f71ef8c2e5f94fbe0c699a5d',
+
+        {# =================================================================
+           CONVEX PROTOCOL VARIABLES
+           Convex is a Curve yield optimizer
+           ================================================================= #}
+        'PROTOCOL_CONVEX_CVX_TOKEN': '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+        'PROTOCOL_CONVEX_BOOSTER': '0xf403c135812408bfbe8713b5a23a04b3d48aae31',
+        'PROTOCOL_CONVEX_CVX_REWARD_POOL': '0xcf50b810e57ac33b91dcf525c6ddd9881b139332',
+
+        {# =================================================================
+           LIQUITY PROTOCOL VARIABLES
+           Liquity is a decentralized borrowing protocol
+           ================================================================= #}
+        'PROTOCOL_LIQUITY_LUSD_TOKEN': '0x5f98805a4e8be255a32880fdec7f6728c6568ba0',
+        'PROTOCOL_LIQUITY_LQTY_TOKEN': '0x6dea81c8171d0ba574754ef6f8b412f2ed88c54d',
+        'PROTOCOL_LIQUITY_STABILITY_POOL': '0x66017d22b0f8556afdd19fc67041899eb65a21bb',
+        'PROTOCOL_LIQUITY_TROVE_MANAGER': '0xa39739ef8b0231dbfa0dcda07d7e29faabcf4bb2',
+
+        {# =================================================================
+           GOLDFINCH PROTOCOL VARIABLES
+           Goldfinch is a decentralized credit protocol
+           ================================================================= #}
+        'PROTOCOL_GOLDFINCH_GFI_TOKEN': '0xdab396ccf3d84cf2d07c4454e10c8a6f5b008d2b',
+        'PROTOCOL_GOLDFINCH_SENIOR_POOL': '0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822',
+        'PROTOCOL_GOLDFINCH_CREDIT_DESK': '0x3249508e4c5c22c0f2ea3d23b33122c11268ef76',
+
+        {# =================================================================
+           RENZO PROTOCOL VARIABLES
+           Renzo is a liquid restaking protocol
+           ================================================================= #}
+        'PROTOCOL_RENZO_EZETH_TOKEN': '0xbf5495efe5db9ce00f80364c8b423567e58d2110',
+        'PROTOCOL_RENZO_RESTAKE_MANAGER': '0x74a09653a083691711cf8215a6ab074bb4e99ef5',
+
+        {# =================================================================
+           AERODROME PROTOCOL VARIABLES (Base)
+           Aerodrome is the main DEX on Base
+           ================================================================= #}
+        'PROTOCOL_AERODROME_AERO_TOKEN': '0x940181a94a35a4569e4529a3cdfb74e38fd98631',
+        'PROTOCOL_AERODROME_ROUTER_V2': '0xcf77a3ba9a5ca399b7c97c74d54e5b1beb874e43',
+        'PROTOCOL_AERODROME_VOTER': '0x16613524e02ad97edfef371bc883f2f5d6c480a5',
+
+        {# =================================================================
+           COMMON TOKEN ADDRESSES (Cross-protocol)
+           ================================================================= #}
+        'TOKEN_WETH_ETHEREUM': '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        'TOKEN_WBTC_ETHEREUM': '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        'TOKEN_USDC_ETHEREUM': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        'TOKEN_USDT_ETHEREUM': '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        'TOKEN_DAI_ETHEREUM': '0x6b175474e89094c44da98b954eedeac495271d0f',
+        'TOKEN_WSTETH_ETHEREUM': '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+        'TOKEN_RETH_ETHEREUM': '0xae78736cd615f374d3085123a210448e74fc6393',
+        'TOKEN_CBETH_ETHEREUM': '0xbe9895146f7af43049ca1c1ae358b0541ea49704'
+    } %}
+
+    {{ return(vars) }}
+{% endmacro %}

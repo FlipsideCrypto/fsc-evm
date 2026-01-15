@@ -1,0 +1,19 @@
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
+
+SELECT 
+    block_number,
+    block_timestamp,
+    tx_hash,
+    decoded_input_data:_lptoken::string as lptoken,
+    decoded_input_data:_gauge::string as gauge,
+    decoded_input_data:_stashVersion::number as stash_version,
+    ROW_NUMBER() OVER (ORDER BY block_number) - 1 as pid
+  FROM {{ ref('core__ez_decoded_traces') }}
+  WHERE to_address = lower('0xF403C135812408BFbE8713b5A23a04b3D48AAE31')
+    AND function_name = 'addPool'
+    -- Will be replaced by trace_succeeded = TRUE on 2025-05-05
+    AND trace_succeeded = TRUE

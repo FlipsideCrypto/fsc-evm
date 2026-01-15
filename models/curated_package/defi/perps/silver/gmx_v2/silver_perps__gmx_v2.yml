@@ -1,0 +1,103 @@
+version: 2
+
+models:
+  - name: silver_perps__gmx_v2_position_changes
+    description: >
+      GMX v2 perpetual position changes (increases and decreases).
+      Captures all PositionIncrease and PositionDecrease events from the GMX v2 EventEmitter contract.
+      Includes opens, closes, and liquidations.
+    columns:
+      - name: block_number
+        description: Block number of the event
+      - name: block_timestamp
+        description: Timestamp of the block
+      - name: tx_hash
+        description: Transaction hash
+      - name: trader
+        description: Address of the trader
+      - name: market
+        description: GMX market address
+      - name: collateral_token
+        description: Collateral token address
+      - name: trade_direction
+        description: "long or short"
+      - name: trade_type
+        description: "open, close, or liquidation"
+      - name: volume_usd
+        description: Size delta in USD (the actual trade volume)
+      - name: size_usd
+        description: Total position size in USD after the change
+      - name: execution_price
+        description: Price at which the trade was executed
+      - name: is_long
+        description: Boolean indicating if this is a long position
+      - name: order_key
+        description: Unique key for the order
+      - name: position_key
+        description: Unique key for the position
+      - name: platform
+        description: Platform identifier (gmx-v2)
+      - name: _log_id
+        description: Unique log identifier
+
+  - name: silver_perps__gmx_v2_position_fees
+    description: >
+      GMX v2 position fees collected.
+      Captures PositionFeesCollected events including trading fees, borrowing fees, and liquidation fees.
+    columns:
+      - name: block_number
+        description: Block number of the event
+      - name: block_timestamp
+        description: Timestamp of the block
+      - name: tx_hash
+        description: Transaction hash
+      - name: trader
+        description: Address of the trader paying fees
+      - name: market
+        description: GMX market address
+      - name: collateral_token
+        description: Collateral token address
+      - name: collateral_symbol
+        description: Symbol of the collateral token
+      - name: trade_size_usd
+        description: Size of the trade in USD
+      - name: position_fee_usd
+        description: Position/trading fee in USD
+      - name: borrowing_fee_usd
+        description: Borrowing fee in USD
+      - name: liquidation_fee_usd
+        description: Liquidation fee in USD (0 if not a liquidation)
+      - name: trader_discount_usd
+        description: Discount given to trader in USD
+      - name: total_fees_usd
+        description: Total fees before discount
+      - name: total_fees_net_usd
+        description: Total fees after discount
+      - name: order_key
+        description: Unique key for the order (for joining with position_changes)
+      - name: platform
+        description: Platform identifier (gmx-v2)
+      - name: _log_id
+        description: Unique log identifier
+
+  - name: silver_perps__gmx_v2_markets
+    description: >
+      GMX v2 perpetual markets dimension table.
+      Derives market information from position events and enriches with token metadata.
+    columns:
+      - name: market_address
+        description: Address of the market contract (GM token address)
+      - name: market_name
+        description: Human readable market name (e.g., ETH/USD)
+      - name: index_token_symbol
+        description: Symbol of the index token being traded
+      - name: gm_token_symbol
+        description: Symbol of the GM market token
+      - name: gm_token_name
+        description: Name of the GM market token
+      - name: first_seen_timestamp
+        description: When the market was first seen in position events
+      - name: first_seen_tx_hash
+        description: First transaction that used this market
+      - name: platform
+        description: Platform identifier (gmx-v2)

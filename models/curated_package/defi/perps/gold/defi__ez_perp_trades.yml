@@ -1,0 +1,138 @@
+version: 2
+
+models:
+  - name: defi__ez_perp_trades
+    description: >
+      Easy-to-use perpetual futures trades table.
+      Combines position changes, fees, and market metadata for a complete view of all perpetual trades.
+      Currently includes GMX v2 perpetuals on Arbitrum and Avalanche.
+
+    columns:
+      - name: block_number
+        description: Block number of the trade
+        tests:
+          - not_null
+
+      - name: block_timestamp
+        description: Timestamp of the trade
+        tests:
+          - not_null
+
+      - name: tx_hash
+        description: Transaction hash
+        tests:
+          - not_null
+
+      - name: origin_function_signature
+        description: Function signature of the originating transaction
+
+      - name: origin_from_address
+        description: Address that initiated the transaction
+
+      - name: origin_to_address
+        description: Destination address of the transaction
+
+      - name: contract_address
+        description: Contract address that emitted the event
+
+      - name: event_index
+        description: Index of the event within the transaction
+
+      - name: trader
+        description: Address of the trader
+        tests:
+          - not_null
+
+      - name: market_address
+        description: GMX market contract address
+
+      - name: market
+        description: Human readable market name (e.g., ETH/USD, BTC/USD)
+
+      - name: index_token_symbol
+        description: Symbol of the index token being traded
+
+      - name: collateral_token
+        description: Address of the collateral token used
+
+      - name: collateral_symbol
+        description: Symbol of the collateral token
+
+      - name: trade_type
+        description: Type of trade - open, close, or liquidation
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['open', 'close', 'liquidation']
+
+      - name: trade_direction
+        description: Direction of the trade - long or short
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['long', 'short']
+
+      - name: is_long
+        description: Boolean indicating if this is a long position
+
+      - name: event_name
+        description: Original event name (PositionIncrease or PositionDecrease)
+
+      - name: volume_usd
+        description: Trade volume in USD (the size delta)
+
+      - name: position_size_usd
+        description: Total position size after the trade
+
+      - name: execution_price
+        description: Price at which the trade was executed
+
+      - name: price_impact_usd
+        description: Price impact of the trade in USD
+
+      - name: trading_fee_usd
+        description: Trading/position fee in USD
+
+      - name: borrowing_fee_usd
+        description: Borrowing fee in USD
+
+      - name: liquidation_fee_usd
+        description: Liquidation fee in USD (0 if not a liquidation)
+
+      - name: fee_discount_usd
+        description: Fee discount given to trader
+
+      - name: total_fees_usd
+        description: Total fees paid (net of discounts)
+
+      - name: order_type
+        description: Numeric order type (7 = liquidation)
+
+      - name: order_key
+        description: Unique order identifier
+
+      - name: position_key
+        description: Unique position identifier
+
+      - name: platform
+        description: Platform identifier (e.g., gmx-v2)
+        tests:
+          - not_null
+
+      - name: protocol
+        description: Protocol name (gmx)
+
+      - name: protocol_version
+        description: Protocol version (v2)
+
+      - name: _log_id
+        description: Unique log identifier
+
+      - name: ez_perp_trades_id
+        description: Surrogate key for this table
+        tests:
+          - not_null
+          - unique
+
+      - name: modified_timestamp
+        description: Timestamp when the record was last modified
