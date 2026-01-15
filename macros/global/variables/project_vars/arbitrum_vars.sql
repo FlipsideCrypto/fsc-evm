@@ -31,6 +31,9 @@
                 },
                 'v3': {
                     'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+                },
+                'v4': {
+                    'factory': '0x360e68faccca8ca495c1b759fd9eee466db9fb32'
                 }
             },
             'sushiswap': {
@@ -120,6 +123,11 @@
             'dexalot': {
                 'v1': {
                     'swap_executed': '0x010224949cca211fb5ddfedd28dc8bf9d2990368'
+                }
+            },
+            'fluid': {
+                'v1': {
+                    'factory': '0x91716c4eda1fb55e84bf8b4c7085f84285c19085'
                 }
             },
             'gmx': {

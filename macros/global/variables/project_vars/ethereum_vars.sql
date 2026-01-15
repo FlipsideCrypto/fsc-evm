@@ -162,6 +162,12 @@
                 'v1': {
                     'uni_v2_pair_created': '0xee3e9e46e34a27dc755a63e2849c9913ee1a06e2'
                 }
+            },
+            'fluid': {
+                'v1': {
+                    'factory': ['0x91716c4eda1fb55e84bf8b4c7085f84285c19085',
+                    '0xf9b539cd37fc81bbea1f078240d16b988bbae073']
+                }
             }
         },
         'CURATED_DEFI_BRIDGE_CONTRACT_MAPPING': {
