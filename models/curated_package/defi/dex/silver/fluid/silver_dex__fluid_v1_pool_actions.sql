@@ -9,17 +9,6 @@
     tags = ['silver_dex','defi','dex','lp_actions','curated']
 ) }}
 
-{#
-Fluid DEX Liquidity Events:
-- LogDepositColLiquidity: 0xbfea92097a2487d6a5ccf7b7adc36b6002238f3106568ba4359770f4b67365a4
-- LogDepositPerfectColLiquidity: 0x255672effa3d8ba46e409fc964ae332b84d3107ba3a5096b22734606519528a3
-- LogWithdrawColLiquidity: 0xb61c7f3b23fe9335cc6c6a6e7036457758470877e61a19a5b4924e1ff8289624
-- LogWithdrawPerfectColLiquidity: 0x6f837572c1ef6e010a841ff938d593ec054984fefe29df2a0634bbf01f4db35b
-- LogWithdrawColInOneToken: 0xc98f37914e06db36c18654484db85c4bb864575a1b9f8181133ff33dea2d34f3
-
-Data layout varies by event type.
-#}
-
 WITH evt AS (
     SELECT
         l.block_number,
