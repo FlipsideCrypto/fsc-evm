@@ -99,6 +99,11 @@
                     'swap_executed': '0x1fd108cf42a59c635bd4703b8dbc8a741ff834be'
                 }
             },
+            'fluid': {
+                'v1': {
+                    'factory': '0x91716c4eda1fb55e84bf8b4c7085f84285c19085'
+                }
+            },
             'swapbased': {
                 'v1': {
                     'uni_v2_pair_created': '0x04c9f118d21e8b767d2e50c946f0cc9f6c367300'

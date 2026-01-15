@@ -122,6 +122,11 @@
                     'swap_executed': '0x010224949cca211fb5ddfedd28dc8bf9d2990368'
                 }
             },
+            'fluid': {
+                'v1': {
+                    'factory': '0x91716c4eda1fb55e84bf8b4c7085f84285c19085'
+                }
+            },
             'gmx': {
                 'v1': {
                     'swap': '0x489ee077994b6658eafa855c308275ead8097c4a'
