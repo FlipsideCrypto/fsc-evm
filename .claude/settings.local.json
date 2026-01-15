@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(snow --version:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(snow sql:*)",
+      "Bash(snow connection list:*)",
+      "Bash(xargs:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
