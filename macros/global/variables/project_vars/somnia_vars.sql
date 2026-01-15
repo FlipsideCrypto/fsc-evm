@@ -3,7 +3,7 @@
         'GLOBAL_PROJECT_NAME': 'somnia',
         'GLOBAL_NODE_PROVIDER': 'flipside',
         'GLOBAL_NODE_URL': "{URL}",
-        'GLOBAL_NODE_VAULT_PATH': 'vault/prod/evm/flipside/somnia/mainnet',
+        'GLOBAL_NODE_VAULT_PATH': 'vault/prod/evm/flipside/somnia/mainnet2',
         'GLOBAL_ALT_NODE_ENABLED': true,
         'GLOBAL_ALT_NODE_VAULT_PATH': 'vault/prod/evm/ankr/somnia/mainnet',
         'GLOBAL_WRAPPED_NATIVE_ASSET_ADDRESS': '0x046ede9564a72571df6f5e44d0405360c0f4dcab',

@@ -81,7 +81,7 @@
                 {% else %}
                 AND (DATA :error IS NULL OR DATA :error :: STRING IS NULL)
                 {% endif %}
-            AND DATA IS NOT NULL
+            AND DATA IS NOT NULL AND DATA :: STRING <> 'null'
             {% endif %}
 {% endmacro %}
 
@@ -170,6 +170,6 @@ WHERE
         {% else %}
         AND (DATA :error IS NULL OR DATA :error :: STRING IS NULL)
         {% endif %}
-    AND DATA IS NOT NULL
+    AND DATA IS NOT NULL AND DATA :: STRING <> 'null'
     {% endif %}
 {% endmacro %}
