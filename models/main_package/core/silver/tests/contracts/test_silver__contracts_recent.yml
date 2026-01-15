@@ -3,8 +3,9 @@ models:
   - name: test_silver__contracts_recent
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - CONTRACT_ADDRESS
+          arguments:
+            combination_of_columns:
+              - CONTRACT_ADDRESS
     columns:
       - name: CONTRACT_ADDRESS
         tests:

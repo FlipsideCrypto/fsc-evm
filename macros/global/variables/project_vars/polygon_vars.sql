@@ -32,6 +32,9 @@
                 },
                 'v3': {
                     'uni_v3_pool_created': '0x1f98431c8ad98523631ae4a59f267346ea31f984'
+                },
+                'v4': {
+                    'factory': '0x67366782805870060151383f4bbff9dab53e5cd6'
                 }
             },
             'sushiswap': {
@@ -73,6 +76,11 @@
                     '0xd24153244066f0afa9415563bfc7ba248bfb7a51',
                     '0x43c49f8dd240e1545f147211ec9f917376ac1e87',
                     '0x79887f65f83bdf15bcc8736b5e5bcdb48fb8fe13']
+                }
+            },
+            'fluid': {
+                'v1': {
+                    'factory': '0x91716c4eda1fb55e84bf8b4c7085f84285c19085'
                 }
             },
             'hashflow': {

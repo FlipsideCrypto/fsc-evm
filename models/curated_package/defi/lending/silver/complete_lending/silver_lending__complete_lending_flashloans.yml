@@ -3,12 +3,14 @@ models:
   - name: silver_lending__complete_lending_flashloans
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - _LOG_ID
+          arguments:
+            combination_of_columns:
+              - _LOG_ID
       - curated_recency_defi:
-          threshold_days: 60
-          percent_delta_threshold: 7.5
-          type: lending
+          arguments:
+            threshold_days: 60
+            percent_delta_threshold: 7.5
+            type: lending
     columns:
       - name: TX_HASH
         tests:
@@ -20,14 +22,16 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 30
               config:
                 severity: warn
+              arguments:
+                datepart: day
+                interval: 30
       - name: EVENT_INDEX
         tests:
           - not_null:
-              where: PLATFORM <> 'morpho-v1'
+              config:
+                where: PLATFORM <> 'morpho-v1'
       - name: ORIGIN_FROM_ADDRESS
         tests:
           - not_null
@@ -43,14 +47,15 @@ models:
           - not_null
       - name: PROTOCOL_MARKET
         tests:
-          - not_null 
+          - not_null
       - name: INITIATOR
         tests:
           - not_null
       - name: TARGET
         tests:
           - not_null:
-              where: PLATFORM <> 'morpho-v1'
+              config:
+                where: PLATFORM <> 'morpho-v1'
       - name: TOKEN_ADDRESS
         tests:
           - not_null
@@ -58,23 +63,25 @@ models:
         tests:
           - not_null
       - name: FLASHLOAN_AMOUNT_UNADJ
-        tests: 
+        tests:
           - not_null
       - name: FLASHLOAN_AMOUNT
-        tests: 
+        tests:
           - not_null
       - name: FLASHLOAN_AMOUNT_USD
       - name: PREMIUM_AMOUNT_UNADJ
-        tests: 
+        tests:
           - not_null:
-              where: PLATFORM <> 'morpho-v1'
+              config:
+                where: PLATFORM <> 'morpho-v1'
       - name: PREMIUM_AMOUNT
-        tests: 
+        tests:
           - not_null:
-              where: PLATFORM <> 'morpho-v1'
+              config:
+                where: PLATFORM <> 'morpho-v1'
       - name: PREMIUM_AMOUNT_USD
       - name: PLATFORM
-        tests: 
+        tests:
           - not_null
       - name: PROTOCOL
         tests:

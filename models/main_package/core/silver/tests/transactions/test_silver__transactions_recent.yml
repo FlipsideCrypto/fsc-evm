@@ -4,13 +4,13 @@ models:
     description: "This is a view used to test the last three days of transactions."
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - TRANSACTIONS_ID
+          arguments:
+            combination_of_columns:
+              - TRANSACTIONS_ID
       - fsc_evm.sequence_gaps:
+          column_name: TX_POSITION
           partition_by:
             - BLOCK_NUMBER
-          column_name: TX_POSITION
-
     columns:
       - name: BLOCK_NUMBER
         tests:
@@ -25,29 +25,35 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
       - name: INSERTED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ
       - name: MODIFIED_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: hour
-              interval: 2
+              arguments:
+                datepart: hour
+                interval: 2
           - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_LTZ
-                - TIMESTAMP_NTZ
+              arguments:
+                column_type_list:
+                  - TIMESTAMP_LTZ
+                  - TIMESTAMP_NTZ

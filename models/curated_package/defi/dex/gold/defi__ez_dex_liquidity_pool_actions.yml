@@ -4,8 +4,9 @@ models:
     description: '{{ doc("ez_dex_liquidity_pool_actions_table_doc") }}'
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ez_dex_liquidity_pool_actions_id
+          arguments:
+            combination_of_columns:
+              - ez_dex_liquidity_pool_actions_id
 
     columns:
       - name: BLOCK_NUMBER
@@ -57,8 +58,8 @@ models:
       - name: PROTOCOL_VERSION
         description: '{{ doc("ez_dex_liquidity_pool_actions_protocol_version") }}'
       - name: EZ_DEX_LIQUIDITY_POOL_ACTIONS_ID
-        description: '{{ doc("general_pk") }}'   
+        description: '{{ doc("general_pk") }}'
       - name: INSERTED_TIMESTAMP
-        description: '{{ doc("general_inserted_timestamp") }}'   
+        description: '{{ doc("general_inserted_timestamp") }}'
       - name: MODIFIED_TIMESTAMP
         description: '{{ doc("general_modified_timestamp") }}'

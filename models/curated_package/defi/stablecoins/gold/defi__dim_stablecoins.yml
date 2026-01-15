@@ -4,8 +4,9 @@ models:
     description: '{{ doc("dim_stablecoins_table_doc") }}'
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dim_stablecoins_id
+          arguments:
+            combination_of_columns:
+              - dim_stablecoins_id
 
     columns:
       - name: CONTRACT_ADDRESS

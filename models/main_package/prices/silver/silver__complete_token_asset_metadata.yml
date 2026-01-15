@@ -3,10 +3,11 @@ models:
   - name: silver__complete_token_asset_metadata
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - TOKEN_ADDRESS
-            - BLOCKCHAIN
-          
+          arguments:
+            combination_of_columns:
+              - TOKEN_ADDRESS
+              - BLOCKCHAIN
+
     columns:
       - name: PROVIDER
         tests:

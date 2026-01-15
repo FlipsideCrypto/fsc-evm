@@ -79,12 +79,7 @@ SELECT
             'x-fsc-livequery', 'true'
         ),
         'method', 'POST',
-        'secret_name', 
-        {% if vars.GLOBAL_ALT_NODE_ENABLED %}
-        '{{ vars.GLOBAL_ALT_NODE_VAULT_PATH }}'
-        {% else %}
-        '{{ vars.GLOBAL_NODE_VAULT_PATH }}'
-        {% endif %},
+        'secret_name', '{{ vars.GLOBAL_NODE_VAULT_PATH }}',
         'url', '{{ vars.GLOBAL_NODE_URL }}'
     ) AS request
 FROM
