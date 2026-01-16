@@ -1,8 +1,24 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'strategy_address', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'eigenlayer', 'restaked_tokens', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
+
+{#
+    Eigenlayer Restaked Tokens
+
+    Tracks daily token balances for Eigenlayer strategies. Creates a time series
+    of token balances across all strategy-token combinations, forward-filling
+    missing data points with the last known balance.
+#}
 
 WITH DepositsIntoStrategy AS (
     SELECT
@@ -14,22 +30,30 @@ WITH DepositsIntoStrategy AS (
     FROM {{ ref('core__ez_decoded_traces') }}
     WHERE TO_ADDRESS = LOWER('0x858646372CC42E1A627fcE94aa7A7033e7CF075A')
     AND FUNCTION_NAME = 'depositIntoStrategy'
-    --AND decoded_input_data:strategy::STRING = LOWER('0x57ba429517c3473B6d34CA9aCd56c0e735b94c02') -- Strategy filter for testing
+    {% if is_incremental() %}
+    AND block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
     GROUP BY 1, 2, 3, 4
-), BalanceEntries AS (
-    SELECT 
+),
+
+BalanceEntries AS (
+    SELECT
         block_timestamp,
         DATE(block_timestamp) AS day,
         address AS strategy_address,
         contract_address AS token_address,
         balance_token,
-        ROW_NUMBER() over (
+        ROW_NUMBER() OVER (
             PARTITION BY DATE(block_timestamp), address, contract_address
             ORDER BY block_timestamp DESC
         ) AS latest_balance_rank
-    FROM {{ ref('fact_ethereum_address_balances_by_token') }}  
-    --WHERE address = LOWER('0x57ba429517c3473B6d34CA9aCd56c0e735b94c02') -- Strategy filter for testing
-), LatestDailyBalances AS (
+    FROM {{ ref('fact_ethereum_address_balances_by_token') }}
+    {% if is_incremental() %}
+    WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
+),
+
+LatestDailyBalances AS (
     SELECT
         day,
         strategy_address,
@@ -37,24 +61,35 @@ WITH DepositsIntoStrategy AS (
         balance_token
     FROM BalanceEntries
     WHERE latest_balance_rank = 1
-), Dates AS (
+),
+
+Dates AS (
     SELECT
-        date,
-    FROM {{ ref('dim_date_spine') }}  --{{ ref('utils__date_spine') }}
+        date
+    FROM {{ ref('dim_date_spine') }}
     WHERE date BETWEEN '2023-12-01' AND TO_DATE(SYSDATE())
-), StrategyTokenCombinations AS (
+    {% if is_incremental() %}
+    AND date >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
+),
+
+StrategyTokenCombinations AS (
     SELECT DISTINCT
         strategy_address,
         token_address
     FROM DepositsIntoStrategy
-), DateStrategyTokenCombinations AS (
+),
+
+DateStrategyTokenCombinations AS (
     SELECT
         d.date,
         stc.strategy_address,
         stc.token_address
     FROM Dates d
     CROSS JOIN StrategyTokenCombinations stc
-), FinalResult AS (
+),
+
+FinalResult AS (
     SELECT
         dst.date,
         dst.strategy_address,
@@ -65,7 +100,9 @@ WITH DepositsIntoStrategy AS (
         ON dst.date = ldb.day
         AND dst.strategy_address = ldb.strategy_address
         AND dst.token_address = ldb.token_address
-), FrontFilledBalances AS (
+),
+
+FrontFilledBalances AS (
     SELECT
         date,
         strategy_address,
@@ -73,7 +110,7 @@ WITH DepositsIntoStrategy AS (
         COALESCE(
             balance_token,
             LAST_VALUE(balance_token) IGNORE NULLS OVER (
-                PARTITION BY strategy_address, token_address 
+                PARTITION BY strategy_address, token_address
                 ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
             ),
             0 -- If no historic record exists, set balance_token to 0
@@ -81,10 +118,13 @@ WITH DepositsIntoStrategy AS (
     FROM FinalResult
 )
 
-SELECT 
+SELECT
     date,
     strategy_address,
     token_address,
-    balance_token_filled AS balance_token
+    balance_token_filled AS balance_token,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM FrontFilledBalances
 ORDER BY date ASC

@@ -1,20 +1,39 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_symbol'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'eigenlayer', 'restaked_assets', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
 
+{#
+    Eigenlayer Restaked Assets
+
+    Aggregates all restaked assets on Eigenlayer including:
+    - Liquid Token Restaking (ERC-20 tokens in strategies)
+    - Native ETH Restaking (via Eigenpods)
+
+    Provides USD valuations and ETH equivalents for all restaked assets.
+    Calculates daily net changes for tokens, USD, and ETH amounts.
+#}
+
 WITH price_data AS (
-    SELECT 
+    SELECT
         hourly.token_address, symbol, name, decimals, price,
         trunc(hour, 'hour') AS truncated_hour
     FROM {{ ref('price__ez_prices_hourly') }} hourly
-    WHERE hour >= (SELECT MIN(date) FROM {{ref('fact_restaked_tokens')}})
-), 
+    WHERE hour >= (SELECT MIN(date) FROM {{ ref('silver_protocols__eigenlayer_restaked_tokens') }})
+),
 
 -- Process normal tokens (excluding special case bEIGEN)
 normal_tokens AS (
-    SELECT 
+    SELECT
         restaked_tokens.date,
         restaked_tokens.token_address,
         t2.symbol AS token_symbol,
@@ -22,40 +41,46 @@ normal_tokens AS (
         SUM(restaked_tokens.balance_token / pow(10, t2.decimals)) AS restaked_tokens_adjusted,
         SUM(restaked_tokens.balance_token / pow(10, t2.decimals) * t2.price) as amount_restaked_usd,
         'Liquid Token Restaking' AS restaking_type
-    FROM 
-        {{ref('fact_restaked_tokens')}} restaked_tokens
+    FROM
+        {{ ref('silver_protocols__eigenlayer_restaked_tokens') }} restaked_tokens
     LEFT JOIN
         {{ ref('price__ez_prices_hourly') }} t2
-        ON lower(restaked_tokens.token_address) = lower(t2.token_address) 
+        ON lower(restaked_tokens.token_address) = lower(t2.token_address)
         AND t2.hour = trunc(restaked_tokens.date, 'hour')
-    WHERE 
-        (restaked_tokens.strategy_address != lower('0xaCB55C530Acdb2849e6d4f36992Cd8c9D50ED8F7') 
+    WHERE
+        (restaked_tokens.strategy_address != lower('0xaCB55C530Acdb2849e6d4f36992Cd8c9D50ED8F7')
         AND restaked_tokens.token_address != lower('0x83E9115d334D248Ce39a6f36144aEaB5b3456e75'))
-    GROUP BY 
+        {% if is_incremental() %}
+        AND restaked_tokens.date >= (SELECT MAX(date) FROM {{ this }})
+        {% endif %}
+    GROUP BY
         restaked_tokens.date, restaked_tokens.token_address, token_symbol, t2.price
-), 
+),
 
 -- Process special case bEIGEN token
 special_case AS (
-    SELECT 
+    SELECT
         restaked_tokens.date,
         restaked_tokens.token_address,
         'bEIGEN' AS token_symbol,
         t2.price,
         SUM(restaked_tokens.balance_token / pow(10, t2.decimals)) AS restaked_tokens_adjusted,
         SUM(restaked_tokens.balance_token / pow(10, t2.decimals) * t2.price) AS amount_restaked_usd,
-        'Liquid Token Restaking' AS restaking_type 
-    FROM 
-        {{ref('fact_restaked_tokens')}} restaked_tokens
+        'Liquid Token Restaking' AS restaking_type
+    FROM
+        {{ ref('silver_protocols__eigenlayer_restaked_tokens') }} restaked_tokens
     LEFT JOIN price_data t2
         ON t2.symbol = 'EIGEN'
         AND t2.truncated_hour = trunc(restaked_tokens.date, 'hour')
-    WHERE 
+    WHERE
         restaked_tokens.strategy_address = lower('0xaCB55C530Acdb2849e6d4f36992Cd8c9D50ED8F7')
         AND restaked_tokens.token_address = lower('0x83E9115d334D248Ce39a6f36144aEaB5b3456e75')
-    GROUP BY 
+        {% if is_incremental() %}
+        AND restaked_tokens.date >= (SELECT MAX(date) FROM {{ this }})
+        {% endif %}
+    GROUP BY
         restaked_tokens.date, restaked_tokens.token_address, t2.price
-), 
+),
 
 -- Process restaked native ETH
 restaked_eth_aggregated AS (
@@ -67,22 +92,25 @@ restaked_eth_aggregated AS (
         SUM(restaked_native_eth) AS restaked_tokens_adjusted,
         SUM(restaked_native_eth * t3.price) AS amount_restaked_usd,
         'Native ETH' AS restaking_type
-    FROM 
-        {{ref('fact_restaked_native_eth')}} restaked_eth
+    FROM
+        {{ ref('silver_protocols__eigenlayer_restaked_native_eth') }} restaked_eth
     LEFT JOIN
         {{ ref('price__ez_prices_hourly') }} t3
-        ON 'ethereum' = t3.name 
+        ON 'ethereum' = t3.name
         AND t3.hour = trunc(restaked_eth.date, 'hour')
-    GROUP BY 
+    {% if is_incremental() %}
+    WHERE restaked_eth.date >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
+    GROUP BY
         restaked_eth.date, t3.price
-), 
+),
 
 -- Create a date spine for continuous dates
 dates AS (
     SELECT
         date
     FROM {{ ref('dim_date_spine') }}
-    WHERE date BETWEEN (SELECT MIN(date) FROM restaked_eth_aggregated) 
+    WHERE date BETWEEN (SELECT MIN(date) FROM restaked_eth_aggregated)
                     AND (SELECT MAX(date) FROM restaked_eth_aggregated)
 ),
 
@@ -134,37 +162,37 @@ restaked_eth_forward_filled AS (
 -- Combine all token types
 all_aggregated AS (
     SELECT * FROM normal_tokens
-    UNION ALL 
+    UNION ALL
     SELECT * FROM special_case
-    UNION ALL 
+    UNION ALL
     SELECT * FROM restaked_eth_forward_filled
-), 
+),
 
 -- Get ETH price data for conversion calculations
 eth_price_data AS (
-    SELECT 
-        price AS eth_price_in_usd, 
+    SELECT
+        price AS eth_price_in_usd,
         trunc(hour, 'hour') AS truncated_hour
     FROM {{ ref('price__ez_prices_hourly') }}
     WHERE name = 'ethereum'
-), 
+),
 
 -- Add ETH equivalent values
 all_aggregated_with_eth AS (
-    SELECT 
+    SELECT
         a.*,
         p.eth_price_in_usd,
         -- Convert num_restaked_tokens to ETH equivalent
-        CASE 
-            WHEN a.token_symbol != 'ETH' 
-            THEN a.restaked_tokens_adjusted * a.price / p.eth_price_in_usd 
+        CASE
+            WHEN a.token_symbol != 'ETH'
+            THEN a.restaked_tokens_adjusted * a.price / p.eth_price_in_usd
             ELSE a.restaked_tokens_adjusted
         END AS num_restaked_eth,
         'eigenlayer' AS protocol,
         'DeFi' AS category,
         'ethereum' AS chain
     FROM all_aggregated a
-    LEFT JOIN eth_price_data p 
+    LEFT JOIN eth_price_data p
         ON a.date = p.truncated_hour
 )
 
@@ -182,14 +210,17 @@ SELECT
     num_restaked_eth,
     eth_price_in_usd,
     -- Calculate net daily change for tokens
-    restaked_tokens_adjusted - LAG(restaked_tokens_adjusted) 
+    restaked_tokens_adjusted - LAG(restaked_tokens_adjusted)
         OVER (PARTITION BY token_symbol ORDER BY date) AS num_restaked_tokens_net_change,
     -- Calculate net daily change for USD
-    amount_restaked_usd - LAG(amount_restaked_usd) 
+    amount_restaked_usd - LAG(amount_restaked_usd)
         OVER (PARTITION BY token_symbol ORDER BY date) AS amount_restaked_usd_net_change,
     -- Calculate net daily change for ETH
-    num_restaked_eth - LAG(num_restaked_eth) 
-        OVER (PARTITION BY token_symbol ORDER BY date) AS num_restaked_eth_net_change
+    num_restaked_eth - LAG(num_restaked_eth)
+        OVER (PARTITION BY token_symbol ORDER BY date) AS num_restaked_eth_net_change,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM all_aggregated_with_eth
 WHERE token_symbol IS NOT NULL AND token_symbol != 'EIGEN'
 ORDER BY date, token_symbol

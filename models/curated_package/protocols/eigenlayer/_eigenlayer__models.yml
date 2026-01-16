@@ -1,0 +1,199 @@
+version: 2
+
+models:
+  - name: silver_protocols__eigenlayer_avs_and_operator_counts
+    description: >
+      Tracks daily counts of active AVS (Actively Validated Services) and operators
+      registered on Eigenlayer protocol. Uses OperatorAVSRegistrationStatusUpdated
+      events from the AVS Directory contract (0x135dda560e946695d6f155dacafc6f1f25c1f5af).
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: active_operators
+        tests:
+          - not_null
+      - name: active_avs
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__eigenlayer_avs_rewards_claimed
+    description: >
+      Tracks rewards claimed through the Eigenlayer Rewards Coordinator contract
+      (0x7750d328b314EfFa365A0402CcfD489B80B0adda). Includes USD valuations based
+      on token prices at the time of claim. Excludes EIGEN token claims.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - token_address
+            - claimer
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: claimer
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__eigenlayer_avs_rewards_submitted
+    description: >
+      Tracks rewards submissions to the Eigenlayer Rewards Coordinator contract
+      (0x7750d328b314EfFa365A0402CcfD489B80B0adda). Captures both
+      RewardsSubmissionForAllEarnersCreated and AVSRewardsSubmissionCreated events.
+      Includes USD valuations based on token prices at the time of submission.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__eigenlayer_restaked_assets
+    description: >
+      Aggregates all restaked assets on Eigenlayer including Liquid Token Restaking
+      (ERC-20 tokens in strategies) and Native ETH Restaking (via Eigenpods).
+      Provides USD valuations and ETH equivalents for all restaked assets.
+      Calculates daily net changes for tokens, USD, and ETH amounts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token_symbol
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token_symbol
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__eigenlayer_restaked_native_eth
+    description: >
+      Tracks daily native ETH restaked via Eigenlayer pods. Calculates the sum of
+      effective balances for validators whose withdrawal addresses point to
+      Eigenlayer pod addresses. Only includes active validators (active_ongoing status).
+      Pod Manager contract: 0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - validator_index
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: validator_index
+        tests:
+          - not_null
+      - name: restaked_native_eth
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__eigenlayer_restaked_tokens
+    description: >
+      Tracks daily token balances for Eigenlayer strategies. Creates a time series
+      of token balances across all strategy-token combinations, forward-filling
+      missing data points with the last known balance. Strategy Manager contract:
+      0x858646372CC42E1A627fcE94aa7A7033e7CF075A.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - strategy_address
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: strategy_address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: balance_token
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null

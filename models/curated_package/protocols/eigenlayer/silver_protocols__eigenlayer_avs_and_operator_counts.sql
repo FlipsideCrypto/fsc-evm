@@ -1,8 +1,24 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'eigenlayer', 'avs_operator_counts', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
 {# Log configuration details #}
 {{ log_model_details() }}
+
+{#
+    Eigenlayer AVS and Operator Counts
+
+    Tracks daily counts of active AVS (Actively Validated Services) and operators
+    registered on Eigenlayer protocol. Uses OperatorAVSRegistrationStatusUpdated
+    events from the AVS Directory contract.
+#}
 
 WITH AVSEvents AS (
     SELECT
@@ -14,6 +30,9 @@ WITH AVSEvents AS (
     FROM {{ ref('core__ez_decoded_event_logs') }}
     WHERE contract_address = '0x135dda560e946695d6f155dacafc6f1f25c1f5af'
     AND event_name = 'OperatorAVSRegistrationStatusUpdated'
+    {% if is_incremental() %}
+    AND block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 ),
 
 -- Create a complete date spine
@@ -28,13 +47,13 @@ DateSpine AS (
 
 -- Get all operator-AVS pairs
 OperatorAVSPairs AS (
-    SELECT DISTINCT operator, avs 
+    SELECT DISTINCT operator, avs
     FROM AVSEvents
 ),
 
 -- Create all combinations of dates and operator-AVS pairs
 DatePairCombinations AS (
-    SELECT 
+    SELECT
         d.date,
         p.operator,
         p.avs
@@ -85,7 +104,10 @@ DeduplicatedStatus AS (
 SELECT
     date,
     COUNT(DISTINCT CASE WHEN current_status = '1' THEN operator END) AS active_operators,
-    COUNT(DISTINCT CASE WHEN current_status = '1' THEN avs END) AS active_avs
+    COUNT(DISTINCT CASE WHEN current_status = '1' THEN avs END) AS active_avs,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM DeduplicatedStatus
 GROUP BY date
 ORDER BY date
