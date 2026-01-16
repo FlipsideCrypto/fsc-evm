@@ -947,43 +947,6 @@ WHERE
   )
 {% endif %}
 ),
-velodrome_v3 AS (
-  SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    contract_address,
-    '0x' AS pool_id,
-    event_name,
-    amount_in_unadj,
-    amount_out_unadj,
-    token_in,
-    token_out,
-    sender,
-    tx_to,
-    event_index,
-    platform,
-    protocol,
-    version,
-    type,
-    _log_id,
-    modified_timestamp AS _inserted_timestamp
-  FROM
-    {{ ref('silver_dex__velodrome_v3_swaps') }}
-
-{% if is_incremental() and 'velodrome_v3' not in vars.CURATED_FR_MODELS %}
-WHERE
-  _inserted_timestamp >= (
-    SELECT
-      MAX(_inserted_timestamp) - INTERVAL '{{ vars.CURATED_COMPLETE_LOOKBACK_HOURS }}'
-    FROM
-      {{ this }}
-  )
-{% endif %}
-),
 synthetix AS (
   SELECT
     block_number,
@@ -1770,11 +1733,6 @@ all_dex AS (
     *
   FROM
     velodrome_v2
-  UNION ALL
-  SELECT
-    *
-  FROM
-    velodrome_v3
   UNION ALL
   SELECT
     *
