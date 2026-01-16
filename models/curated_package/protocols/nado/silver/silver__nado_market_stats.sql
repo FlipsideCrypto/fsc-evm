@@ -51,6 +51,7 @@ market_stats AS (
         ) AS f
 ),
 trade_snapshot AS (
+    -- Filter to is_taker = TRUE to avoid double-counting (each trade emits 2 events: maker + taker)
     SELECT
         DATE_TRUNC(
             'hour',
@@ -65,7 +66,7 @@ trade_snapshot AS (
         COUNT(DISTINCT(tx_hash)) AS distinct_sequencer_batches,
         COUNT(DISTINCT(trader)) AS distinct_trader_count,
         COUNT(DISTINCT(subaccount)) AS distinct_subaccount_count,
-        COUNT(DISTINCT(digest)) AS trade_count,
+        COUNT(*) AS trade_count,
         SUM(amount_usd) AS amount_usd,
         SUM(fee_amount) AS fee_amount,
         SUM(base_delta_amount) AS base_delta_amount,
@@ -73,7 +74,8 @@ trade_snapshot AS (
         MAX(modified_timestamp) AS modified_timestamp
     FROM
         {{ ref('silver__nado_perps') }}
-        p
+    WHERE
+        is_taker = TRUE
     GROUP BY
         1,
         2,
