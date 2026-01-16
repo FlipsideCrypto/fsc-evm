@@ -109,15 +109,15 @@ order_fill_decode_v2 AS (
         ) :: INT AS isTaker,
         utils.udf_hex_to_int(
             's2c',
-            segmented_data [5] :: STRING
+            segmented_data [7] :: STRING
         ) :: INT AS feeAmount,
         utils.udf_hex_to_int(
             's2c',
-            segmented_data [6] :: STRING
+            segmented_data [8] :: STRING
         ) :: INT AS baseDelta,
         utils.udf_hex_to_int(
             's2c',
-            segmented_data [7] :: STRING
+            segmented_data [9] :: STRING
         ) :: INT AS quoteDelta,
         l.fact_event_logs_id,
         l.modified_timestamp
