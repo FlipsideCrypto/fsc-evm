@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: silver_protocols__uniswap_token_incentives
+    description: "Uniswap Protocol token incentives combining V1 and V4 rewards with UNI token pricing"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - DATE
+              - TOKEN
+    columns:
+      - name: DATE
+        description: "Date of the incentive distribution"
+        tests:
+          - not_null
+      - name: TOKEN
+        description: "Token symbol (UNI)"
+        tests:
+          - not_null
+      - name: TOKEN_INCENTIVES_NATIVE
+        description: "Total token incentives in native units"
+        tests:
+          - not_null
+      - name: TOKEN_INCENTIVES_USD
+        description: "Total token incentives in USD"
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        description: "Timestamp when the record was inserted"
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "Timestamp when the record was last modified"
+        tests:
+          - not_null
+      - name: _INVOCATION_ID
+        description: "dbt invocation ID for tracking model runs"
+        tests:
+          - not_null
+
+  - name: silver_protocols__uniswap_treasury_by_token
+    description: "Uniswap Protocol treasury balances by token across multiple treasury addresses"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - DATE
+              - TOKEN
+    columns:
+      - name: DATE
+        description: "Date of the treasury snapshot"
+        tests:
+          - not_null
+      - name: TOKEN
+        description: "Token symbol"
+        tests:
+          - not_null
+      - name: TREASURY_NATIVE
+        description: "Total treasury balance in native token units"
+        tests:
+          - not_null
+      - name: USD_BALANCE
+        description: "Total treasury balance in USD"
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        description: "Timestamp when the record was inserted"
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "Timestamp when the record was last modified"
+        tests:
+          - not_null
+      - name: _INVOCATION_ID
+        description: "dbt invocation ID for tracking model runs"
+        tests:
+          - not_null
