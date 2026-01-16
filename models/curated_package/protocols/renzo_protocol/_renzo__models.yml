@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: silver_protocols__renzo_fees
+    description: "Renzo Protocol fees and revenue from native transfers"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - DATE
+    columns:
+      - name: DATE
+        tests:
+          - not_null
+      - name: FEES
+        tests:
+          - not_null
+      - name: REVENUE
+        tests:
+          - not_null
+      - name: APP
+        tests:
+          - not_null
+      - name: CATEGORY
+        tests:
+          - not_null
+      - name: INSERTED_TIMESTAMP
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        tests:
+          - not_null
+      - name: _INVOCATION_ID
+        tests:
+          - not_null
