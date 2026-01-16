@@ -49,7 +49,7 @@ logs AS (
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE
-        topic_0 :: STRING = '0x279d9574824ed25ba9ed8153d42b20c641a3e46ec9eb3dcd7b51ab6db673956d'
+        topic_0 :: STRING = '0xb563bd3722620e7af6c3dae109897ca2f45fbbc5975fb6553bb2d53b77e54bf3'
         AND contract_address = '{{ vars.CURATED_NADO_OFFCHAIN_EXCHANGE_CONTRACT }}'
 
 {% if is_incremental() %}
