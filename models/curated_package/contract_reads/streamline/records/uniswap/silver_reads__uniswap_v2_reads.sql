@@ -1,9 +1,7 @@
 {# Get variables #}
 {% set vars = return_vars() %}
-
 {# Log configuration details #}
 {{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -13,6 +11,7 @@
 ) }}
 
 WITH verified_contracts AS (
+
     SELECT
         DISTINCT token_address
     FROM
@@ -23,24 +22,69 @@ WITH verified_contracts AS (
 ),
 liquidity_pools AS (
     SELECT
-        DISTINCT 
-        pool_address AS contract_address,
+        DISTINCT pool_address AS contract_address,
         token0,
         token1,
         protocol,
         version,
         platform
-    FROM {{ ref('silver_dex__paircreated_evt_v2_pools') }}
-    WHERE token0 IN (SELECT token_address FROM verified_contracts)
-    AND token1 IN (SELECT token_address FROM verified_contracts)
-    {% if is_incremental() %}
-    AND (
-        modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
-        OR pool_address NOT IN (SELECT contract_address FROM {{ this }})
-        -- pull in pools with newly verified tokens
+    FROM
+        {{ ref('silver_dex__paircreated_evt_v2_pools') }}
+    WHERE
+        (
+            pool_address IN (
+                SELECT
+                    DISTINCT pool_address
+                FROM
+                    ref('defi__ez_dex_liquidity_pool_actions')
+                WHERE
+                    block_timestamp :: DATE >= (
+                        '{{ vars.CURATED_SL_CONTRACT_READS_START_DATE }}' :: TIMESTAMP
+                    ) :: DATE
+                    AND platform IN (
+                        SELECT
+                            platform
+                        FROM
+                            ref(
+                                'silver_dex__paircreated_evt_v2_pools'
+                            )
+                    )
+            )
+                    OR (
+                        (
+                            token0 IN (
+                                SELECT
+                                    token_address
+                                FROM
+                                    verified_contracts
+                            )
+                            AND token1 IN (
+                                SELECT
+                                    token_address
+                                FROM
+                                    verified_contracts
+                            )
+
+{% if is_incremental() %}
+AND (
+    modified_timestamp > (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
     )
-    {% endif %}
+    OR pool_address NOT IN (
+        SELECT
+            contract_address
+        FROM
+            {{ this }}
+    ) -- pull in pools with newly verified tokens
 )
+{% endif %}
+)
+)
+)
+),
 SELECT
     contract_address,
     NULL AS address,
@@ -52,10 +96,13 @@ SELECT
         '0'
     ) AS input,
     OBJECT_CONSTRUCT(
-        'token0', token0,
-        'token1', token1,
-        'verified_check_enabled','true'
-    ) :: VARIANT AS metadata,
+        'token0',
+        token0,
+        'token1',
+        token1,
+        'verified_check_enabled',
+        'true'
+    ) :: variant AS metadata,
     protocol,
     version,
     platform,
@@ -65,4 +112,5 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
-FROM liquidity_pools
+FROM
+    liquidity_pools
