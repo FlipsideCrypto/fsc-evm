@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'dao_safety_incentives', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
@@ -7,14 +15,6 @@
 {# Protocol-specific addresses #}
 {% set stkaave = vars.PROTOCOL_AAVE_SAFETY_MODULE_STKAAVE %}
 {% set aave_token = vars.PROTOCOL_AAVE_TOKEN_ADDRESS %}
-
-{{ config(
-    materialized = 'incremental',
-    incremental_strategy = 'delete+insert',
-    unique_key = ['date', 'token_address'],
-    cluster_by = ['date'],
-    tags = ['silver_protocols', 'aave', 'dao_safety_incentives', 'curated']
-) }}
 
 WITH
 logs AS (

@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'gho_treasury_revenue', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
@@ -6,14 +14,6 @@
 
 {# Protocol-specific addresses #}
 {% set gho_treasury = vars.PROTOCOL_AAVE_GHO_TREASURY %}
-
-{{ config(
-    materialized = 'incremental',
-    incremental_strategy = 'delete+insert',
-    unique_key = ['date', 'token_address'],
-    cluster_by = ['date'],
-    tags = ['silver_protocols', 'aave', 'gho_treasury_revenue', 'curated']
-) }}
 
 WITH
 event_logs AS (

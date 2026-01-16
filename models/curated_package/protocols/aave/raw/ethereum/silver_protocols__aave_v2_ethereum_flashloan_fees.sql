@@ -1,9 +1,3 @@
-{# Get Variables #}
-{% set vars = return_vars() %}
-
-{# Log configuration details #}
-{{ log_model_details() }}
-
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
@@ -11,6 +5,12 @@
     cluster_by = ['date'],
     tags = ['silver_protocols', 'aave', 'flashloan_fees', 'curated']
 ) }}
+
+{# Get Variables #}
+{% set vars = return_vars() %}
+
+{# Log configuration details #}
+{{ log_model_details() }}
 
 {{ flipside_lending_flashloan_fees(
     'ethereum',

@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'safety_module', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
@@ -13,14 +21,6 @@
 {% set end_date = modules.datetime.date.today().isoformat() %}
 {% set days_between = (modules.datetime.datetime.strptime(end_date, '%Y-%m-%d') - modules.datetime.datetime.strptime(start_date, '%Y-%m-%d')).days %}
 {% set rowcount = days_between + 1 %}
-
-{{ config(
-    materialized = 'incremental',
-    incremental_strategy = 'delete+insert',
-    unique_key = ['date', 'token_address'],
-    cluster_by = ['date'],
-    tags = ['silver_protocols', 'aave', 'safety_module', 'curated']
-) }}
 
 WITH
 stkAAVE AS (

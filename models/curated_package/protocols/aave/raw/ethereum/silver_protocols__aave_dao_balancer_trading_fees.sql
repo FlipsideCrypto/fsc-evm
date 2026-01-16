@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'dao_balancer_trading_fees', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
@@ -6,14 +14,6 @@
 
 {# Protocol-specific addresses #}
 {% set balancer_pool = vars.PROTOCOL_AAVE_BALANCER_POOL %}
-
-{{ config(
-    materialized = 'incremental',
-    incremental_strategy = 'delete+insert',
-    unique_key = ['date', 'token_address'],
-    cluster_by = ['date'],
-    tags = ['silver_protocols', 'aave', 'dao_balancer_trading_fees', 'curated']
-) }}
 
 WITH
 swaps AS (

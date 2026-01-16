@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'reserve_factor_revenue', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
@@ -6,14 +14,6 @@
 
 {# Protocol-specific addresses #}
 {% set pool_address = vars.PROTOCOL_AAVE_V2_POOL_ETHEREUM %}
-
-{{ config(
-    materialized = 'incremental',
-    incremental_strategy = 'delete+insert',
-    unique_key = ['date', 'token_address'],
-    cluster_by = ['date'],
-    tags = ['silver_protocols', 'aave', 'reserve_factor_revenue', 'curated']
-) }}
 
 {{ aave_v2_reserve_factor_revenue(
     'ethereum',

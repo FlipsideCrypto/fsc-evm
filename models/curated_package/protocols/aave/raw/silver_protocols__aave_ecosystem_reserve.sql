@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'ecosystem_reserve', 'curated']
+) }}
+
 {# Get Variables #}
 {% set vars = return_vars() %}
 
@@ -7,14 +15,6 @@
 {# Protocol-specific addresses #}
 {% set aave_token = vars.PROTOCOL_AAVE_TOKEN_ADDRESS %}
 {% set ecosystem_reserve = vars.PROTOCOL_AAVE_ECOSYSTEM_RESERVE %}
-
-{{ config(
-    materialized = 'incremental',
-    incremental_strategy = 'delete+insert',
-    unique_key = ['date', 'token_address'],
-    cluster_by = ['date'],
-    tags = ['silver_protocols', 'aave', 'ecosystem_reserve', 'curated']
-) }}
 
 WITH
 base AS (
