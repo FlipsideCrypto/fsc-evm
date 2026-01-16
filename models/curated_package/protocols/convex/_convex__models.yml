@@ -1,0 +1,217 @@
+version: 2
+
+models:
+  - name: silver_protocols__convex_cvx_tokens_tvl
+    description: >
+      Aggregates cvxCRV and cvxFXS token balances with USD valuations.
+      Combines data from fact_convex_cvxcrv_balance and fact_convex_cvxfxs_balance
+      to track Convex wrapped token TVL.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - contract_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: contract_address
+        tests:
+          - not_null
+      - name: symbol
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__convex_gauge_tokens_tvl
+    description: >
+      Aggregates TVL by gauge token address with USD valuations.
+      Uses Curve LP token prices for valuation where available.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - contract_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: contract_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__convex_pools
+    description: >
+      Tracks Convex pool additions via addPool function calls to the Booster contract.
+      Booster address: 0xF403C135812408BFbE8713b5A23a04b3D48AAE31.
+      Each pool maps an LP token to a gauge contract.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - lptoken
+    columns:
+      - name: block_number
+        tests:
+          - not_null
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: lptoken
+        tests:
+          - not_null
+      - name: gauge
+        tests:
+          - not_null
+      - name: pid
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__convex_revenue
+    description: >
+      Tracks daily Convex revenue from CRV and 3CRV token transfers.
+      CRV mints to Voter Proxy (0x989aeb4d175e16225e39e87d0d97a3360524ad80).
+      3CRV transfers to Fee Distributor (0x7091dbb7fcbA54569eF1387Ac89Eb2a5C9F6d2EA).
+      Revenue split: 17% protocol revenue, 83% supply side fees.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__convex_staked_tvl_by_token
+    description: >
+      Tracks daily staked token balances in Convex via the Voter Proxy.
+      Voter Proxy Address: 0x989aeb4d175e16225e39e87d0d97a3360524ad80.
+      Maps gauge tokens to LP tokens via Convex pools and includes Curve pool metadata.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - address
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__convex_token_incentives
+    description: >
+      Tracks CVX token mints (incentives) distributed since May 17, 2021.
+      CVX Token Address: 0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b.
+      Captures both native and USD-denominated incentive values.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - contract_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: contract_address
+        tests:
+          - not_null
+      - name: symbol
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__convex_treasury_balance
+    description: >
+      Tracks token balances in Convex treasury addresses:
+      0x1389388d01708118b497f59521f6943Be2541bb7 and
+      0xe98984aD858075813AdA4261aF47e68A64E28fCC.
+      Active since May 12, 2021.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
