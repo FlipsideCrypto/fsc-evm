@@ -72,6 +72,8 @@ SELECT
     , SUM(COALESCE(t.raw_amount_precise::number / 1e18 * p.price, 0)) AS amount_usd
     , MAX(t.block_number) AS block_number
     , MAX(t.modified_timestamp) AS modified_timestamp
+    , SYSDATE() AS inserted_timestamp
+    , '{{ invocation_id }}' AS _invocation_id
 FROM ldo_prices p
 LEFT JOIN token_transfers t
     ON p.hour = DATE_TRUNC('hour', t.block_timestamp)

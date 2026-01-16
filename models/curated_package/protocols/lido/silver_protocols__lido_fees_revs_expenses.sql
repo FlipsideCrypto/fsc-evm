@@ -54,7 +54,7 @@ fees_revs_expenses AS (
         , MAX(t.modified_timestamp) AS modified_timestamp
     FROM {{ ref('core__ez_token_transfers') }} t
     LEFT JOIN steth_prices p ON DATE_TRUNC('hour', t.block_timestamp) = p.hour
-    LEFT JOIN {{ ref('fact_lido_fee_split') }} f ON t.block_timestamp::date = f.date
+    LEFT JOIN {{ ref('silver_protocols__lido_fee_split') }} f ON t.block_timestamp::date = f.date
     WHERE contract_address = LOWER('{{ steth_address }}')
         AND from_address = LOWER('0x0000000000000000000000000000000000000000')
         AND to_address = LOWER('{{ treasury_address }}')
@@ -117,5 +117,7 @@ SELECT
     , COALESCE(f.total_staking_yield_usd, 0) * 0.90 AS total_supply_side_revenue
     , GREATEST(COALESCE(f.block_number, 0), COALESCE(m.block_number, 0)) AS block_number
     , GREATEST(COALESCE(f.modified_timestamp, SYSDATE()), COALESCE(m.modified_timestamp, SYSDATE())) AS modified_timestamp
+    , SYSDATE() AS inserted_timestamp
+    , '{{ invocation_id }}' AS _invocation_id
 FROM fees_revs_expenses f
 LEFT JOIN mev m ON m.date = f.date

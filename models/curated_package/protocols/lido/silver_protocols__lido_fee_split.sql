@@ -41,6 +41,9 @@ SELECT
     , fp.insurance_fee_pct
     , fp.operators_fee_pct
     , fp.treasury_fee_pct + fp.insurance_fee_pct + fp.operators_fee_pct AS total_fee_pct
+    , SYSDATE() AS inserted_timestamp
+    , SYSDATE() AS modified_timestamp
+    , '{{ invocation_id }}' AS _invocation_id
 FROM date_spine d
 CROSS JOIN fee_periods fp
 WHERE d.date >= fp.start_date

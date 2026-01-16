@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: silver_protocols__lido_dao_treasury
+    description: >
+      Tracks token balances in the Lido DAO Treasury address.
+      Treasury address: 0x3e40d73eb977dc6a537af587d48316fee66e9c8c
+      Active since: December 17, 2020
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__lido_fee_split
+    description: >
+      Lido Fee Split History. Lido takes a 10% fee on staking rewards, distributed as follows:
+      Treasury/Insurance: 5%, Node Operators: 5%, Stakers receive: 90%.
+      Fee structure has remained constant since launch (Dec 2020).
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: treasury_fee_pct
+        tests:
+          - not_null
+      - name: operators_fee_pct
+        tests:
+          - not_null
+      - name: total_fee_pct
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__lido_fees_revs_expenses
+    description: >
+      Lido Fees, Revenues, and Expenses. Calculates daily total staking yield (block rewards + MEV),
+      fee allocations (treasury, node operators), and supply side revenue (staker earnings).
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__lido_token_incentives
+    description: >
+      Tracks LDO and stETH token incentives distributed from Lido incentive addresses:
+      0x87d93d9b2c672bf9c9642d853a8682546a5012b5 (Liquidity Mining) and
+      0x753D5167C31fBEB5b49624314d74A957Eb271709 (Rewards Distribution).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null

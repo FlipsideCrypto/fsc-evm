@@ -23,11 +23,19 @@
     Active since: December 17, 2020
 #}
 
-{{ get_treasury_balance(
-    'ethereum',
-    treasury_address,
-    '2020-12-17',
-    is_incremental(),
-    vars.CURATED_LOOKBACK_HOURS,
-    vars.CURATED_LOOKBACK_DAYS
-) }}
+WITH base AS (
+    {{ get_treasury_balance(
+        'ethereum',
+        treasury_address,
+        '2020-12-17',
+        is_incremental(),
+        vars.CURATED_LOOKBACK_HOURS,
+        vars.CURATED_LOOKBACK_DAYS
+    ) }}
+)
+
+SELECT
+    *,
+    SYSDATE() AS inserted_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
+FROM base
