@@ -10,7 +10,10 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git pull:*)",
-      "Bash(make cleanup_time:*)"
+      "Bash(make cleanup_time:*)",
+      "Bash(dbt run-operation:*)",
+      "Bash(dbt ls:*)",
+      "Bash(dbt run:*)"
     ]
   }
 }
