@@ -1,0 +1,58 @@
+version: 2
+models:
+  - name: nado__ez_market_stats
+    description: '{{ doc("nado_market_stats") }}'
+
+    columns:
+      - name: HOUR
+        description: '{{ doc("nado_hour") }}'
+      - name: TICKER_ID
+        description: '{{ doc("nado_ticker_id") }}'
+      - name: PRODUCT_ID
+        description: '{{ doc("nado_product_id") }}'
+      - name: SYMBOL
+        description: '{{ doc("nado_symbol") }}'
+      - name: DISTINCT_SEQUENCER_BATCHES
+        description: '{{ doc("nado_distinct_sequencer_batches") }}'
+      - name: DISTINCT_TRADER_COUNT
+        description: '{{ doc("nado_trader_count") }}'
+      - name: DISTINCT_SUBACCOUNT_COUNT
+        description: '{{ doc("nado_subaccount_count") }}'
+      - name: TRADE_COUNT
+        description: '{{ doc("nado_total_trade_count") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("nado_amount_usd") }}'
+      - name: FEE_AMOUNT
+        description: '{{ doc("nado_fee_amount") }}'
+      - name: BASE_DELTA_AMOUNT
+        description: '{{ doc("nado_base_delta_amount") }}'
+      - name: QUOTE_DELTA_AMOUNT
+        description: '{{ doc("nado_quote_delta_amount") }}'
+      - name: BASE_VOLUME_24H
+        description: '{{ doc("nado_base_volume_24h") }}'
+      - name: QUOTE_VOLUME_24H
+        description: '{{ doc("nado_quote_volume_24h") }}'
+      - name: FUNDING_RATE
+        description: '{{ doc("nado_funding_rate") }}'
+      - name: INDEX_PRICE
+        description: '{{ doc("nado_index_price") }}'
+      - name: LAST_PRICE
+        description: '{{ doc("nado_last_price") }}'
+      - name: MARK_PRICE
+        description: '{{ doc("nado_mark_price") }}'
+      - name: NEXT_FUNDING_RATE_TIMESTAMP
+        description: '{{ doc("nado_next_funding_rate") }}'
+      - name: OPEN_INTEREST
+        description: '{{ doc("nado_open_interest") }}'
+      - name: OPEN_INTEREST_USD
+        description: '{{ doc("nado_open_interest_usd") }}'
+      - name: PRODUCT_TYPE
+        description: '{{ doc("nado_product_type") }}'
+      - name: QUOTE_CURRENCY
+        description: '{{ doc("nado_quote_currency") }}'
+      - name: EZ_MARKET_STATS_ID
+        description: '{{ doc("general_pk") }}'
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}' 

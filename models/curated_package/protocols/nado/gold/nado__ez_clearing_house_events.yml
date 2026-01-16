@@ -1,0 +1,46 @@
+version: 2
+models:
+  - name: nado__ez_clearing_house_events
+    description: '{{ doc("nado_clearing_house_events") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("general_block_number") }}'
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("general_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("general_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("general_contract_address") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("general_event_name") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("general_event_index") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("general_origin_function_signature") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("general_from_address") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("general_to_address") }}'
+      - name: SYMBOL
+        description: '{{ doc("nado_symbol") }}'
+      - name: DIGEST
+        description: '{{ doc("nado_digest") }}'
+      - name: TRADER
+        description: '{{ doc("nado_trader") }}'
+      - name: SUBACCOUNT
+        description: '{{ doc("nado_subaccount") }}'
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("nado_token_address") }}'
+      - name: AMOUNT_UNADJ
+        description: '{{ doc("nado_amount_unadj") }}'
+      - name: AMOUNT
+        description: '{{ doc("nado_amount") }}'
+      - name: AMOUNT_USD
+        description: '{{ doc("nado_amount_usd_ch") }}'
+      - name: EZ_CLEARING_HOUSE_EVENTS_ID
+        description: '{{ doc("general_pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("general_inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("general_modified_timestamp") }}' 
