@@ -74,8 +74,6 @@ trade_snapshot AS (
     FROM
         {{ ref('silver__nado_perps') }}
         p
-    WHERE
-        block_timestamp > '2024-11-01 00:00:00.000' --start of api pulls
     GROUP BY
         1,
         2,
