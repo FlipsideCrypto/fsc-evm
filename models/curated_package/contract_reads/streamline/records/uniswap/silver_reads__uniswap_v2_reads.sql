@@ -61,7 +61,13 @@ liquidity_pools AS (
         token1,
         protocol,
         version,
-        platform
+        platform,
+        -- Track qualification path for unverify logic
+        CASE
+            WHEN pool_address IN (SELECT pool_address FROM high_value_pools)
+            THEN 'false'
+            ELSE 'true'
+        END AS verified_check_enabled
     FROM
         {{ ref('silver_dex__paircreated_evt_v2_pools') }}
     WHERE
@@ -123,7 +129,7 @@ SELECT
         'token1',
         token1,
         'verified_check_enabled',
-        'true'
+        verified_check_enabled
     ) :: variant AS metadata,
     protocol,
     version,
