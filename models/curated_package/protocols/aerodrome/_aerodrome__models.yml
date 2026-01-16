@@ -1,0 +1,273 @@
+version: 2
+
+models:
+  - name: silver_protocols__aerodrome_supply_data
+    description: >
+      Tracks daily Aerodrome token supply metrics including pre-mine unlocks, emissions,
+      locked supply (veAERO balance), total and circulating supply, and buybacks.
+      Data starts from August 28, 2023 (Aerodrome launch date on Base).
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: pre_mine_unlocks
+        tests:
+          - not_null
+      - name: emissions_native
+        tests:
+          - not_null
+      - name: locked_supply
+        tests:
+          - not_null
+      - name: total_supply
+        tests:
+          - not_null
+      - name: circulating_supply_native
+        tests:
+          - not_null
+      - name: buybacks_native
+        tests:
+          - not_null
+      - name: buybacks
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__aerodrome_third_party_incentives
+    description: >
+      Tracks third party incentives (bribes) paid to veAERO holders to incentivize them
+      to vote to allocate emissions to third party protocol token pools and drive liquidity.
+      ClaimRewards events with Claim Bribes function signature.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: hour
+        tests:
+          - not_null
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: block_number
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+      - name: amount
+        tests:
+          - not_null
+      - name: reward_token
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__aerodrome_v1_swaps
+    description: >
+      Tracks swap events on Aerodrome V1 pools (AMM pools) including swap details,
+      fee calculations (swap fee, protocol revenue, supply side revenue), and USD values.
+      Fee split: 16.67% protocol revenue, 83.33% supply side revenue.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - pool_address
+            - block_timestamp
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: block_number
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: pool_address
+        tests:
+          - not_null
+      - name: token_in_address
+        tests:
+          - not_null
+      - name: token_out_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__aerodrome_v1_tvl
+    description: >
+      Tracks daily TVL for Aerodrome V1 pools (AMM pools) including pool token balances
+      and USD values for each token. Data is unpivoted to show one row per token per pool per day.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_address
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: pool_address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__aerodrome_v2_pools
+    description: >
+      Reference table for Aerodrome V2 concentrated liquidity pools (Slipstream) including
+      pool address, token pair, and tick spacing configuration.
+      Factory address: 0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A
+    columns:
+      - name: pool_address
+        tests:
+          - not_null
+          - unique
+      - name: token0_address
+        tests:
+          - not_null
+      - name: token1_address
+        tests:
+          - not_null
+      - name: tick_spacing
+        tests:
+          - not_null
+      - name: block_number
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__aerodrome_v2_swaps
+    description: >
+      Tracks swap events on Aerodrome V2 concentrated liquidity pools (Slipstream) including
+      swap details, dynamic fee calculations based on tick spacing, and USD values.
+      Fee split: 16.67% protocol revenue, 83.33% supply side revenue.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - pool_address
+            - block_timestamp
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: block_number
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: pool_address
+        tests:
+          - not_null
+      - name: token_in_address
+        tests:
+          - not_null
+      - name: token_out_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__aerodrome_v2_tvl
+    description: >
+      Tracks daily TVL for Aerodrome V2 concentrated liquidity pools (Slipstream) including
+      pool token balances and USD values. Data aggregated by date, pool, and token.
+      Filters out positions with USD balance below $100 or above $10B.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_address
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: pool_address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
