@@ -20,6 +20,29 @@ WITH verified_contracts AS (
         is_verified
         AND token_address IS NOT NULL
 ),
+active_pools AS (
+    SELECT
+        DISTINCT pool_address
+    FROM
+        {{ ref('defi__ez_dex_liquidity_pool_actions') }}
+    WHERE
+        block_timestamp :: DATE >= '{{ vars.CURATED_SL_CONTRACT_READS_START_DATE }}' :: DATE
+        AND platform IN (
+            SELECT
+                DISTINCT platform
+            FROM
+                {{ ref('silver_dex__paircreated_evt_v2_pools') }}
+        )
+
+{% if is_incremental() %}
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
+{% endif %}
+),
 liquidity_pools AS (
     SELECT
         DISTINCT pool_address AS contract_address,
@@ -32,38 +55,29 @@ liquidity_pools AS (
         {{ ref('silver_dex__paircreated_evt_v2_pools') }}
     WHERE
         (
+            -- Active pools (have recent liquidity activity)
             pool_address IN (
                 SELECT
-                    DISTINCT pool_address
+                    pool_address
                 FROM
-                    ref('defi__ez_dex_liquidity_pool_actions')
-                WHERE
-                    block_timestamp :: DATE >= (
-                        '{{ vars.CURATED_SL_CONTRACT_READS_START_DATE }}' :: TIMESTAMP
-                    ) :: DATE
-                    AND platform IN (
-                        SELECT
-                            platform
-                        FROM
-                            ref(
-                                'silver_dex__paircreated_evt_v2_pools'
-                            )
-                    )
+                    active_pools
             )
-                    OR (
-                        (
-                            token0 IN (
-                                SELECT
-                                    token_address
-                                FROM
-                                    verified_contracts
-                            )
-                            AND token1 IN (
-                                SELECT
-                                    token_address
-                                FROM
-                                    verified_contracts
-                            )
+            OR (
+                -- Both tokens verified
+                token0 IN (
+                    SELECT
+                        token_address
+                    FROM
+                        verified_contracts
+                )
+                AND token1 IN (
+                    SELECT
+                        token_address
+                    FROM
+                        verified_contracts
+                )
+            )
+        )
 
 {% if is_incremental() %}
 AND (
@@ -78,13 +92,10 @@ AND (
             contract_address
         FROM
             {{ this }}
-    ) -- pull in pools with newly verified tokens
+    )
 )
 {% endif %}
 )
-)
-)
-),
 SELECT
     contract_address,
     NULL AS address,
@@ -106,9 +117,7 @@ SELECT
     protocol,
     version,
     platform,
-    {{ dbt_utils.generate_surrogate_key(
-        ['contract_address','input','platform']
-    ) }} AS uniswap_v2_reads_id,
+    {{ dbt_utils.generate_surrogate_key(['contract_address', 'input', 'platform']) }} AS uniswap_v2_reads_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
