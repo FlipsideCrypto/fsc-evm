@@ -7,9 +7,16 @@
 {# Protocol-specific addresses #}
 {% set collector_v2 = vars.PROTOCOL_AAVE_COLLECTOR_V2 %}
 
-WITH
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'v2_collector', 'curated']
+) }}
 
-tokens as (
+WITH
+tokens AS (
     SELECT LOWER(a_token) AS a_token, LOWER(priced_token) AS priced_token
     FROM (
         VALUES
@@ -65,55 +72,67 @@ tokens as (
     ) AS t(a_token, priced_token)
 )
 , base AS (
-    select
-        to_address,
-        from_address,
-        contract_address,
-        priced_token,
-        block_timestamp::date as date,
-        amount,
-        min(block_timestamp::date) OVER() as min_date
+    SELECT
+        block_number
+        , to_address
+        , from_address
+        , contract_address
+        , priced_token
+        , block_timestamp::date AS date
+        , amount
+        , MIN(block_timestamp::date) OVER() AS min_date
+        , modified_timestamp
     FROM {{ ref('core__ez_token_transfers') }}
-    inner join tokens on lower(contract_address) = lower(a_token)
+    INNER JOIN tokens ON LOWER(contract_address) = LOWER(a_token)
 )
-,  date_range AS (
+, date_range AS (
     SELECT *
-        FROM (
-            SELECT
-                min_date + SEQ4() AS date
-            FROM base
-        )
+    FROM (
+        SELECT
+            min_date + SEQ4() AS date
+        FROM base
+    )
     WHERE date <= TO_DATE(SYSDATE())
 )
-, flows as (
+, flows AS (
     SELECT
-        date,
-        contract_address,
-        priced_token,
-        SUM(CASE WHEN to_address = lower('{{ collector_v2 }}') THEN amount ELSE 0 END) AS amount_in,
-        SUM(CASE WHEN from_address = lower('{{ collector_v2 }}') THEN amount ELSE 0 END) AS amount_out
+        date
+        , contract_address
+        , priced_token
+        , SUM(CASE WHEN to_address = LOWER('{{ collector_v2 }}') THEN amount ELSE 0 END) AS amount_in
+        , SUM(CASE WHEN from_address = LOWER('{{ collector_v2 }}') THEN amount ELSE 0 END) AS amount_out
+        , MAX(block_number) AS block_number
+        , MAX(modified_timestamp) AS modified_timestamp
     FROM base
     GROUP BY 1, 2, 3
 )
-, prices as (
-    select
-        hour::date as date
+, prices AS (
+    SELECT
+        hour::date AS date
         , token_address
-        , avg(price) as price
-    from {{ ref('price__ez_prices_hourly') }}
-    where token_address in (select distinct priced_token from tokens)
-    group by 1, 2
+        , AVG(price) AS price
+    FROM {{ ref('price__ez_prices_hourly') }}
+    WHERE token_address IN (SELECT DISTINCT priced_token FROM tokens)
+    GROUP BY 1, 2
 )
 
 SELECT
     dr.date AS date
-    , 'ethereum' as chain
-    , contract_address as token_address
-    , SUM(COALESCE(f.amount_in, 0) - COALESCE(f.amount_out, 0)) OVER (partition by contract_address ORDER BY dr.date) as amount_nominal
-    , amount_nominal * p.price as amount_usd
+    , 'ethereum' AS chain
+    , contract_address AS token_address
+    , SUM(COALESCE(f.amount_in, 0) - COALESCE(f.amount_out, 0)) OVER (PARTITION BY contract_address ORDER BY dr.date) AS amount_nominal
+    , amount_nominal * p.price AS amount_usd
+    , f.block_number
+    , COALESCE(f.modified_timestamp, SYSDATE()) AS modified_timestamp
 FROM date_range dr
 LEFT JOIN flows f
     ON f.date = dr.date
-LEFT JOIN prices p 
-    on p.date = dr.date 
-    and lower(p.token_address) = lower(f.priced_token)
+LEFT JOIN prices p
+    ON p.date = dr.date
+    AND LOWER(p.token_address) = LOWER(f.priced_token)
+{% if is_incremental() %}
+WHERE dr.date >= (
+    SELECT MAX(date) - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }} days'
+    FROM {{ this }}
+)
+{% endif %}

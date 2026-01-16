@@ -3,10 +3,23 @@
 
 {# Log configuration details #}
 {{ log_model_details() }}
+
 {# Protocol-specific addresses #}
 {% set pool_address = vars.PROTOCOL_AAVE_V2_POOL_ETHEREUM %}
-{% set incentives_controller = vars.PROTOCOL_AAVE_INCENTIVES_CONTROLLER_ETHEREUM %}{% set collector_address = vars.PROTOCOL_AAVE_COLLECTOR_V2_ETHEREUM %}
 
+{{ config(
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = ['date', 'token_address'],
+    cluster_by = ['date'],
+    tags = ['silver_protocols', 'aave', 'reserve_factor_revenue', 'curated']
+) }}
 
-
-{{ aave_v2_reserve_factor_revenue('ethereum', pool_address, 'AAVE V2')}}
+{{ aave_v2_reserve_factor_revenue(
+    'ethereum',
+    pool_address,
+    'AAVE V2',
+    is_incremental(),
+    vars.CURATED_LOOKBACK_HOURS,
+    vars.CURATED_LOOKBACK_DAYS
+) }}
