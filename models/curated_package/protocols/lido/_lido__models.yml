@@ -18,6 +18,9 @@ models:
       - name: token_address
         tests:
           - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
       - name: inserted_timestamp
         tests:
           - not_null
