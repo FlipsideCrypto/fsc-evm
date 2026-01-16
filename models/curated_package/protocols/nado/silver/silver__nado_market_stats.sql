@@ -55,27 +55,27 @@ trade_snapshot AS (
     SELECT
         DATE_TRUNC(
             'hour',
-            block_timestamp
+            p.block_timestamp
         ) AS HOUR,
-        CONCAT(
-            symbol,
-            '_USDC'
-        ) AS ticker_id,
-        symbol,
-        product_id,
-        COUNT(DISTINCT(tx_hash)) AS distinct_sequencer_batches,
-        COUNT(DISTINCT(trader)) AS distinct_trader_count,
-        COUNT(DISTINCT(subaccount)) AS distinct_subaccount_count,
+        d.ticker_id,
+        p.symbol,
+        p.product_id,
+        COUNT(DISTINCT(p.tx_hash)) AS distinct_sequencer_batches,
+        COUNT(DISTINCT(p.trader)) AS distinct_trader_count,
+        COUNT(DISTINCT(p.subaccount)) AS distinct_subaccount_count,
         COUNT(*) AS trade_count,
-        SUM(amount_usd) AS amount_usd,
-        SUM(fee_amount) AS fee_amount,
-        SUM(base_delta_amount) AS base_delta_amount,
-        SUM(quote_delta_amount) AS quote_delta_amount,
-        MAX(modified_timestamp) AS modified_timestamp
+        SUM(p.amount_usd) AS amount_usd,
+        SUM(p.fee_amount) AS fee_amount,
+        SUM(p.base_delta_amount) AS base_delta_amount,
+        SUM(p.quote_delta_amount) AS quote_delta_amount,
+        MAX(p.modified_timestamp) AS modified_timestamp
     FROM
-        {{ ref('silver__nado_perps') }}
+        {{ ref('silver__nado_perps') }} p
+    INNER JOIN
+        {{ ref('silver__nado_dim_products') }} d
+    ON p.symbol = d.symbol AND d.product_type = 'perp'
     WHERE
-        is_taker = TRUE
+        p.is_taker = TRUE
     GROUP BY
         1,
         2,
