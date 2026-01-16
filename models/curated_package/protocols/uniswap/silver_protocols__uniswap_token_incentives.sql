@@ -3,8 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = ['date', 'token'],
     cluster_by = ['date'],
-    tags = ['silver_protocols', 'uniswap', 'token_incentives', 'curated'],
-    enabled = true
+    tags = ['silver_protocols', 'uniswap', 'token_incentives', 'curated']
 ) }}
 
 {# Get Variables #}
@@ -55,9 +54,10 @@ incentives_v4 AS (
     FROM {{ ref('fact_uniswap_v4_token_incentives') }}
     {% if is_incremental() %}
     WHERE date >= (
-        SELECT MAX(date) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }} hours'
+        SELECT MAX(date) - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }} days'
         FROM {{ this }}
     )
+    AND date >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }} days'
     {% endif %}
     GROUP BY 1, 2
 ),
@@ -81,13 +81,13 @@ total_incentives AS (
 )
 
 SELECT
-    p.date,
+    l.date,
     l.token,
     SUM(COALESCE(l.reward_native_historic, 0) + COALESCE(l.reward_native_2025, 0)) AS token_incentives_native,
     SUM(COALESCE((l.reward_native_historic + l.reward_native_2025) * p.price, 0)) AS token_incentives_usd,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
-FROM prices p
-LEFT JOIN total_incentives l ON p.date = l.date
+FROM total_incentives l
+INNER JOIN prices p ON l.date = p.date
 GROUP BY 1, 2

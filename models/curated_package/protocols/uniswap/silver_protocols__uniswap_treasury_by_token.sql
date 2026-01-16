@@ -3,8 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = ['date', 'token'],
     cluster_by = ['date'],
-    tags = ['silver_protocols', 'uniswap', 'treasury', 'curated'],
-    enabled = true
+    tags = ['silver_protocols', 'uniswap', 'treasury', 'curated']
 ) }}
 
 {# Get Variables #}
@@ -33,19 +32,14 @@ treasury_addresses AS (
 ),
 
 tokens AS (
+    -- No incremental filter here: we need ALL tokens ever transferred to treasury
+    -- The incremental filter is applied only to sparse_balances for balance lookups
     SELECT DISTINCT LOWER(contract_address) AS token_address
     FROM {{ ref('core__ez_token_transfers') }}
     WHERE LOWER(to_address) IN (
         SELECT addresses
         FROM treasury_addresses
     )
-    {% if is_incremental() %}
-    AND modified_timestamp >= (
-        SELECT MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }} hours'
-        FROM {{ this }}
-    )
-    AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }} days'
-    {% endif %}
 ),
 
 sparse_balances AS (
