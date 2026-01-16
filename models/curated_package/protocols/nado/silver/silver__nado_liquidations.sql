@@ -50,10 +50,11 @@ logs AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(modified_timestamp) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 logs_pull_v2 AS (

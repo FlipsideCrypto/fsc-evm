@@ -55,12 +55,11 @@ logs AS (
 {% if is_incremental() %}
 AND modified_timestamp >= (
     SELECT
-        MAX(
-            modified_timestamp
-        ) - INTERVAL '12 hours'
+        MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
     FROM
         {{ this }}
 )
+AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
 ),
 order_fill_decode_v2 AS (
@@ -99,8 +98,13 @@ order_fill_decode_v2 AS (
             segmented_data [3] :: STRING
         ) :: INT AS nonce,
         utils.udf_hex_to_int(
-            's2c',
             segmented_data [4] :: STRING
+        ) :: INT AS appendix,
+        utils.udf_hex_to_int(
+            segmented_data [5] :: STRING
+        ) :: INT AS isolated,
+        utils.udf_hex_to_int(
+            segmented_data [6] :: STRING
         ) :: INT AS isTaker,
         utils.udf_hex_to_int(
             's2c',
@@ -146,6 +150,8 @@ order_fill_format AS (
             )
         END AS expiration,
         nonce,
+        appendix,
+        isolated,
         isTaker,
         feeAmount AS fee_amount_unadj,
         feeAmount / pow(
@@ -211,6 +217,11 @@ FINAL AS (
         market_reduce_flag,
         expiration,
         nonce,
+        appendix,
+        CASE
+            WHEN isolated = 1 THEN TRUE
+            WHEN isolated = 0 THEN FALSE
+        END AS is_isolated,
         CASE
             WHEN isTaker = 1 THEN TRUE
             WHEN isTaker = 0 THEN FALSE

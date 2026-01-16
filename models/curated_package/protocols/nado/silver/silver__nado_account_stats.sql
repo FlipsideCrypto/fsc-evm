@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -22,7 +25,7 @@ new_subaccount_actions AS (
             SELECT
                 MAX(
                     modified_timestamp
-                ) - INTERVAL '12 hours'
+                ) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
             FROM
                 {{ this }}
         )
@@ -36,7 +39,7 @@ new_subaccount_actions AS (
             SELECT
                 MAX(
                     modified_timestamp
-                ) - INTERVAL '12 hours'
+                ) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
             FROM
                 {{ this }}
         )

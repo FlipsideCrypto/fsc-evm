@@ -1,3 +1,6 @@
+{# Get variables #}
+{% set vars = return_vars() %}
+
 {# Log configuration details #}
 {{ log_model_details() }}
 
@@ -28,6 +31,8 @@ SELECT
     market_reduce_flag,
     expiration,
     nonce,
+    appendix,
+    is_isolated,
     is_taker,
     price_amount_unadj,
     price_amount,
@@ -47,10 +52,11 @@ FROM
     {{ ref('silver__nado_spot') }}
 {% if is_incremental() %}
 WHERE
-    modified_timestamp > (
+    modified_timestamp >= (
         SELECT
-            MAX(modified_timestamp)
+            MAX(modified_timestamp) - INTERVAL '{{ vars.CURATED_LOOKBACK_HOURS }}'
         FROM
             {{ this }}
     )
+    AND modified_timestamp >= SYSDATE() - INTERVAL '{{ vars.CURATED_LOOKBACK_DAYS }}'
 {% endif %}
