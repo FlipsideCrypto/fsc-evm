@@ -52,7 +52,7 @@ AND pool_address NOT IN (
 GROUP BY
     pool_address
 HAVING
-    SUM(amount_usd) >= 50000
+    SUM(amount_usd) >= 20000 --update depending on chain, potentially use a var
 ),
 liquidity_pools AS (
     SELECT
