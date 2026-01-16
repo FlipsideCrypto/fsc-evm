@@ -11,38 +11,30 @@
 ) }}
 
 WITH verified_contracts AS (
-
-    SELECT
-        DISTINCT token_address
-    FROM
-        {{ ref('price__ez_asset_metadata') }}
-    WHERE
-        is_verified
-        AND token_address IS NOT NULL
+    SELECT DISTINCT token_address
+    FROM {{ ref('price__ez_asset_metadata') }}
+    WHERE is_verified
+      AND token_address IS NOT NULL
 ),
-active_pools AS (
-    SELECT
-        DISTINCT pool_address
-    FROM
-        {{ ref('defi__ez_dex_liquidity_pool_actions') }}
-    WHERE
-        block_timestamp :: DATE >= '{{ vars.CURATED_SL_CONTRACT_READS_START_DATE }}' :: DATE
-        AND platform IN (
-            SELECT
-                DISTINCT platform
-            FROM
-                {{ ref('silver_dex__paircreated_evt_v2_pools') }}
-        )
 
-{% if is_incremental() %}
-AND modified_timestamp > (
-    SELECT
-        MAX(modified_timestamp)
-    FROM
-        {{ this }}
-)
-{% endif %}
+high_value_pools AS (
+    SELECT DISTINCT pool_address
+    FROM {{ ref('defi__ez_dex_liquidity_pool_actions') }}
+    WHERE event_name IN ('Mint','AddLiquidity','Deposit')
+      AND amount_usd IS NOT NULL
+      AND amount_usd > 0
+      AND amount_usd < 1e12  -- filter bad pricing
+      AND platform IN (
+          SELECT DISTINCT platform
+          FROM {{ ref('silver_dex__paircreated_evt_v2_pools') }}
+      )
+      {% if is_incremental %}
+      AND pool_address NOT IN (SELECT contract_address FROM {{this}})
+      {% endif %}
+    GROUP BY pool_address
+    HAVING SUM(amount_usd) >= 10000
 ),
+
 liquidity_pools AS (
     SELECT
         DISTINCT pool_address AS contract_address,
@@ -55,12 +47,12 @@ liquidity_pools AS (
         {{ ref('silver_dex__paircreated_evt_v2_pools') }}
     WHERE
         (
-            -- Active pools (have recent liquidity activity)
+            -- High value pools
             pool_address IN (
                 SELECT
                     pool_address
                 FROM
-                    active_pools
+                    high_value_pools
             )
             OR (
                 -- Both tokens verified
@@ -96,24 +88,18 @@ AND (
 )
 {% endif %}
 )
+
 SELECT
     contract_address,
     NULL AS address,
     'getReserves' AS function_name,
     '0x0902f1ac' AS function_sig,
-    RPAD(
-        function_sig,
-        64,
-        '0'
-    ) AS input,
+    RPAD(function_sig, 64, '0') AS input,
     OBJECT_CONSTRUCT(
-        'token0',
-        token0,
-        'token1',
-        token1,
-        'verified_check_enabled',
-        'true'
-    ) :: variant AS metadata,
+        'token0', token0,
+        'token1', token1,
+        'verified_check_enabled', 'true'
+    )::VARIANT AS metadata,
     protocol,
     version,
     platform,
@@ -121,5 +107,4 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
-FROM
-    liquidity_pools
+FROM liquidity_pools
