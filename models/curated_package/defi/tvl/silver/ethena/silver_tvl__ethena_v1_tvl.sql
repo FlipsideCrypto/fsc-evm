@@ -58,7 +58,7 @@ SELECT
         '-',
         version
     ) AS platform,
-    {{ dbt_utils.generate_surrogate_key(['block_date','contract_address','platform']) }} AS ethena_v1_tvl_id,
+    {{ dbt_utils.generate_surrogate_key(['block_date','contract_address','address','platform']) }} AS ethena_v1_tvl_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
