@@ -63,10 +63,12 @@ liquidity_pools AS (
         version,
         platform,
         -- Track qualification path for unverify logic
+        -- If both tokens are verified, subject to unverify. Otherwise protected (high-value pool with unverified tokens)
         CASE
-            WHEN pool_address IN (SELECT pool_address FROM high_value_pools)
-            THEN 'false'
-            ELSE 'true'
+            WHEN token0 IN (SELECT token_address FROM verified_contracts)
+                 AND token1 IN (SELECT token_address FROM verified_contracts)
+            THEN 'true'
+            ELSE 'false'
         END AS verified_check_enabled
     FROM
         {{ ref('silver_dex__paircreated_evt_v2_pools') }}
