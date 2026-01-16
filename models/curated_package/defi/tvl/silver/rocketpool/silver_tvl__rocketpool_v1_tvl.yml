@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: silver_tvl__rocketpool_v1_tvl
+    description: '{{ doc("rocketpool_v1_tvl_table_doc") }}'

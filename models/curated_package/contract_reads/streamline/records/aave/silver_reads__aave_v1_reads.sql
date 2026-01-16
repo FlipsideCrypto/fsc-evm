@@ -25,7 +25,7 @@ WITH all_tokens AS (
     FROM
         {{ ref('silver_lending__aave_tokens') }}
     WHERE
-        version = 'v1'
+        fork_version = 'v1'
 
 {% if is_incremental() %}
 AND modified_timestamp > (
@@ -94,7 +94,7 @@ SELECT
     'balanceOf' AS function_name,
     '0x70a08231' AS function_sig,
     CONCAT(
-        '0x70a08231',
+        function_sig,
         LPAD(SUBSTR(address, 3), 64, '0')
     ) AS input,
     NULL :: VARIANT AS metadata,

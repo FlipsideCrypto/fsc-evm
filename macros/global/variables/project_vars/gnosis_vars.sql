@@ -81,18 +81,21 @@
         'CURATED_DEFI_LENDING_CONTRACT_MAPPING': {
             'aave': {
                 'v3': {
-                    'aave_version_address': '0xb50201558b00496a145fe76f7424749556e326d8'
+                    'aave_version_address': '0xb50201558b00496a145fe76f7424749556e326d8',
+                    'fork_version': 'v3'
                 },
             },
             'spark': {
                 'v1': {
-                    'aave_version_address': '0x2dae5307c5e3fd1cf5a72cb6f698f915860607e0'
+                    'aave_version_address': '0x2dae5307c5e3fd1cf5a72cb6f698f915860607e0',
+                    'fork_version': 'v3'
                 },
             },
             'realt': {
                 'v3': {
                     'aave_version_address': ['0x5b8d36de471880ee21936f328aab2383a280cb2a',
-                    '0xfb9b496519fca8473fba1af0850b6b8f476bfdb3']
+                    '0xfb9b496519fca8473fba1af0850b6b8f476bfdb3'],
+                    'fork_version': 'v3'
                 },
             }
         }

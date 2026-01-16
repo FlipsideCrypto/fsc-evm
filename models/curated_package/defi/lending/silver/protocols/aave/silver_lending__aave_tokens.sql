@@ -17,6 +17,13 @@ WITH aave_version_addresses AS (
     WHERE
         type = 'aave_version_address'
 ),
+aave_fork_version AS (
+    {{ curated_contract_mapping(
+        vars.CURATED_DEFI_LENDING_CONTRACT_MAPPING
+    ) }}
+    WHERE
+        type = 'fork_version'
+),
 DECODE AS (
 
     SELECT
@@ -128,6 +135,7 @@ SELECT
     A.underlying_asset AS underlying_address,
     t.protocol,
     t.version,
+    f.contract_address AS fork_version,
     A.modified_timestamp,
     A._log_id
 FROM
@@ -136,6 +144,8 @@ FROM
     ON A.a_token_address = b.token_address
     LEFT JOIN aave_version_addresses t
     ON A.version_pool = t.contract_address
+    LEFT JOIN aave_fork_version f
+    ON t.protocol = f.protocol AND t.version = f.version
     qualify(ROW_NUMBER() over(PARTITION BY A.underlying_asset,A.version_pool
 ORDER BY
     A.atoken_created_block DESC)) = 1

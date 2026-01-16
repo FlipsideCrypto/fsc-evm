@@ -25,6 +25,7 @@
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v1','hashflow-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2','curve-v1'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['hop-v1','multichain-v7','symbiosis-v1','across-v2'],
+        'CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS': '0x1bf0c2541f820e775182832f06c0b7fc27a25f67',
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -246,11 +247,13 @@
             'aave': {
                 'v3': {
                     'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
-                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+                    'fork_version': 'v3'
                 },
                 'v2': {
                     'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
-                    'aave_version_address': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf'
+                    'aave_version_address': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf',
+                    'fork_version': 'v2'
                 }
             },
             'morpho': {

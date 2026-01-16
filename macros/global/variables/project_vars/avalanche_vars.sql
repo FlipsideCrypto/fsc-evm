@@ -253,10 +253,12 @@
             },
             'aave': {
                 'v3': {
-                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad'
+                    'aave_version_address': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+                    'fork_version': 'v3'
                 },
                 'v2': {
-                    'aave_version_address': '0x4f01aed16d97e3ab5ab2b501154dc9bb0f1a5a2c'
+                    'aave_version_address': '0x4f01aed16d97e3ab5ab2b501154dc9bb0f1a5a2c',
+                    'fork_version': 'v2'
                 }
             },
             'euler': {

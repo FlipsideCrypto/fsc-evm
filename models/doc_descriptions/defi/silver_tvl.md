@@ -102,3 +102,61 @@ Methodology:
 Sums token0 and token1 balances held by each Slipstream (CL) pool contract via balanceOf()
 
 {% enddocs %}
+
+{% docs eigenlayer_v1_tvl_table_doc %}
+
+Methodology:
+Sums (1) native ETH restaked via EigenPods by matching PodDeployed events with beacon chain validator balances and (2) LST/ERC20 tokens deposited in strategy contracts via totalShares()
+
+{% enddocs %}
+
+{% docs ethena_v1_tvl_table_doc %}
+
+Methodology:
+Total supply of USDe (synthetic dollar)
+
+{% enddocs %}
+
+{% docs morpho_blue_v1_tvl_table_doc %}
+
+Methodology:
+Sums balanceOf each unique token (collateralToken + loanToken from CreateMarket events) held by the MorphoBlue singleton contract
+
+{% enddocs %}
+
+{% docs rocketpool_v1_tvl_table_doc %}
+
+Methodology:
+Total supply of rETH (Rocket Pool's liquid staking token representing staked ETH)
+
+Note: This represents the liquid staking portion only. Other methodologies may report additional TVL (operator-staked funds) by including node operator collateral (nodeEthProvided), matched ETH from the deposit pool, and pending deposits.
+
+{% enddocs %}
+
+{% docs compound_v1_tvl_table_doc %}
+
+Methodology:
+Sums all token balances held by the MoneyMarket contract (0x3FDA67f7583380E67ef93072294a7fAc882FD7E7) via balanceOf(). Collateral markets are discovered dynamically via collateralMarkets() calls.
+
+{% enddocs %}
+
+{% docs compound_v2_tvl_table_doc %}
+
+Methodology:
+Sums all underlying token balances held by each cToken contract via balanceOf()
+
+{% enddocs %}
+
+{% docs compound_v3_tvl_table_doc %}
+
+Methodology:
+Sums balanceOf() for base tokens + all collateral assets held by each Comet market contract. Collateral assets are discovered dynamically via getAssetInfo() calls.
+
+{% enddocs %}
+
+{% docs sky_v1_tvl_table_doc %}
+
+Methodology:
+Sums balanceOf() for collateral tokens held by each collateral join contract (discovered via MCD_VAT rely events and gem() calls) plus USDC held by the PSM wallet.
+
+{% enddocs %}

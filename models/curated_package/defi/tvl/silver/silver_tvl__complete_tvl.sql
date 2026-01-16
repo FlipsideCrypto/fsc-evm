@@ -21,13 +21,21 @@
     (ref('silver_tvl__superchain_slipstream_v1_tvl'), 12, 'superchain-slipstream-v1'),
     (ref('silver_tvl__binance_v1_tvl'), 12, 'binance-v1'),
     (ref('silver_tvl__curve_v1_tvl'), 10, 'curve-v1'),
+    (ref('silver_tvl__eigenlayer_v1_tvl'), 12, 'eigenlayer-v1'),
+    (ref('silver_tvl__ethena_v1_tvl'), 12, 'ethena-v1'),
     (ref('silver_tvl__etherfi_v1_tvl_agg'), 12, 'etherfi-v1'),
     (ref('silver_tvl__lido_v1_tvl'), 12, 'lido-v1'),
+    (ref('silver_tvl__rocketpool_v1_tvl'), 12, 'rocketpool-v1'),
+    (ref('silver_tvl__sky_v1_tvl'), 12, 'sky-v1'),
     (ref('silver_tvl__tornado_cash_v1_tvl'), 9, 'tornado_cash-v1'),
     (ref('silver_tvl__uniswap_v1_tvl'), 9, 'uniswap-v1'),
     (ref('silver_tvl__uniswap_v2_tvl'), 9, 'uniswap-v2'),
     (ref('silver_tvl__uniswap_v3_tvl'), 9, 'uniswap-v3'),
-    (ref('silver_tvl__uniswap_v4_tvl'), 9, 'uniswap-v4')
+    (ref('silver_tvl__uniswap_v4_tvl'), 9, 'uniswap-v4'),
+    (ref('silver_tvl__morpho_blue_v1_tvl'), 12, 'morpho-v1'),
+    (ref('silver_tvl__compound_v1_tvl'), 12, 'compound-v1'),
+    (ref('silver_tvl__compound_v2_tvl'), 12, 'compound-v2'),
+    (ref('silver_tvl__compound_v3_tvl'), 12, 'compound-v3')
 ] %}
 
 WITH all_tvl AS (

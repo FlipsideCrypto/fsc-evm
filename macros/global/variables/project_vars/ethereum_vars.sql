@@ -28,6 +28,7 @@
         'CURATED_DEFI_LENDING_RECENCY_EXCLUSION_LIST': ['silo-v1','aave-v1','flux-v1','aave-v2','aave-v2.1','sturdy-v1','silo-v2'],
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['hashflow-v1','pancakeswap-v2','synthetix-v1','uniswap-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['kyberswap-v2','uniswap-v1'],
+        'CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb',
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['ronin_axie_bridge-v1','multichain-v7','symbiosis-v1','axie_infinity-v2','across-v1','near_rainbow_bridge-v1','hop-v1','everclear-v1'],
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
@@ -324,25 +325,29 @@
             'radiant': {
                 'v2': {
                     'aave_treasury': '0x28e395a54a64284dba39652921cd99924f4e3797',
-                    'aave_version_address': '0xa950974f64aa33f27f6c5e017eee93bf7588ed07'
+                    'aave_version_address': '0xa950974f64aa33f27f6c5e017eee93bf7588ed07',
+                    'fork_version': 'v2'
                 }
             },
             'spark': {
                 'v1': {
                     'aave_treasury': '0xb137e7d16564c81ae2b0c8ee6b55de81dd46ece5',
-                    'aave_version_address': '0xc13e21b648a5ee794902342038ff3adab66be987'
+                    'aave_version_address': '0xc13e21b648a5ee794902342038ff3adab66be987',
+                    'fork_version': 'v3'
                 }
             },
             'sturdy': {
                 'v1': {
                     'aave_treasury': '0xfd1d36995d76c0f75bbe4637c84c06e4a68bbb3a',
-                    'aave_version_address': ['0xa422ca380bd70eef876292839222159e41aaee17','0x9f72dc67cec672bb99e3d02cbea0a21536a2b657']
+                    'aave_version_address': ['0xa422ca380bd70eef876292839222159e41aaee17','0x9f72dc67cec672bb99e3d02cbea0a21536a2b657'],
+                    'fork_version': 'v2'
                 }
             },
             'aave': {
                 'v3': {
                     'aave_treasury': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
-                    'aave_version_address': '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'
+                    'aave_version_address': '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2',
+                    'fork_version': 'v3'
                 },
                 'v2': {
                     'aave_pool_addresses': ['0x311bb771e4f8952e6da169b425e7e92d6ac45756',

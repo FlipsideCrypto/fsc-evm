@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: silver_tvl__ethena_v1_tvl
+    description: '{{ doc("ethena_v1_tvl_table_doc") }}'

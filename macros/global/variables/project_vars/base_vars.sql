@@ -34,6 +34,7 @@
         'CURATED_DEFI_DEX_SWAPS_RECENCY_EXCLUSION_LIST': ['woofi-v3','woofi-v1','voodoo-v1'],
         'CURATED_DEFI_DEX_LP_ACTIONS_RECENCY_EXCLUSION_LIST': ['balancer-v1'],
         'CURATED_DEFI_BRIDGE_RECENCY_EXCLUSION_LIST': ['symbiosis-v1','hop-v1','across-v2'],
+        'CURATED_DEFI_TVL_MORPHO_BLUE_ADDRESS': '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb',
         'CURATED_DEFI_DEX_SWAPS_CONTRACT_MAPPING': {
             'uniswap': {
                 'v2': {
@@ -260,12 +261,14 @@
             },
             'aave': {
                 'v3': {
-                    'aave_version_address': '0xa238dd80c259a72e81d7e4664a9801593f98d1c5'
+                    'aave_version_address': '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
+                    'fork_version': 'v3'
                 },
             },
             'radiant': {
                 'v2': {
-                    'aave_version_address': '0x30798cfe2cca822321ceed7e6085e633aabc492f'
+                    'aave_version_address': '0x30798cfe2cca822321ceed7e6085e633aabc492f',
+                    'fork_version': 'v2'
                 },
             },
             'euler': {
@@ -275,12 +278,14 @@
             },
             'granary': {
                 'v1': {
-                    'aave_version_address': '0xb702ce183b4e1faa574834715e5d4a6378d0eed3'
+                    'aave_version_address': '0xb702ce183b4e1faa574834715e5d4a6378d0eed3',
+                    'fork_version': 'v2'
                 },
             },
             'seamless': {
                 'v1': {
-                    'aave_version_address': '0x8f44fd754285aa6a2b8b9b97739b79746e0475a7'
+                    'aave_version_address': '0x8f44fd754285aa6a2b8b9b97739b79746e0475a7',
+                    'fork_version': 'v3'
                 },
             },
             'morpho': {

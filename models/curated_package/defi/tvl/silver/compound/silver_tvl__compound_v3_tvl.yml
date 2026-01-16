@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: silver_tvl__compound_v3_tvl
+    description: '{{ doc("compound_v3_tvl_table_doc") }}'
