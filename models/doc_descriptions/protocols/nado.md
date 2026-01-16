@@ -23,11 +23,17 @@ All Nado liquidations. Once an account’s maintenance margin reaches $0, the ac
 
 Nado perpetuals are derivative contracts on an underlying spot asset. On Nado, all perpetual contracts trade against USDC.
 
+**Important: Volume Calculation**
+Each trade match emits **two** FillOrder events on-chain: one for the maker and one for the taker (each with their own order digest). To calculate accurate volume or trade counts that match Nado's official API metrics, filter to `is_taker = TRUE` to avoid double-counting.
+
 {% enddocs %}
 
 {% docs nado_spot_trades %}
 
-Nado’s spot markets allow you to buy or sell listed crypto assets paired with USD-denominated stablecoins.
+Nado's spot markets allow you to buy or sell listed crypto assets paired with USD-denominated stablecoins.
+
+**Important: Volume Calculation**
+Each trade match emits **two** FillOrder events on-chain: one for the maker and one for the taker (each with their own order digest). To calculate accurate volume or trade counts that match Nado's official API metrics, filter to `is_taker = TRUE` to avoid double-counting.
 
 {% enddocs %}
 
@@ -139,7 +145,7 @@ Number used to differentiate between the same order multiple times, and a user t
 
 {% docs nado_is_taker %}
 
-Boolean representing if the trader was the taker or maker.
+Boolean representing if the trader was the taker or maker. Each trade match emits two FillOrder events (one for each side), so when calculating volume or trade counts, filter to `is_taker = TRUE` to avoid double-counting.
 
 {% enddocs %}
 
