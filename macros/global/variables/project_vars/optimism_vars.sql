@@ -106,6 +106,10 @@
                 'v2': {
                     'factory': '0xf1046053aa5682b4f9a81b5481394da16be5ff5a',
                     'converter': '0x585af0b397ac42dbef7f18395426bf878634f18d'
+                },
+                'v3': {
+                    'cl_factory_v1': '0xc7a590291e07b9fe9e64b86c58fd8fc764308c4a',
+                    'cl_factory_v2': '0xcc0bddb707055e04e497ab22a59c2af4391cd12f'
                 }
             }
         },
