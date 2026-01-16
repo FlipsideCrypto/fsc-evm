@@ -10,6 +10,16 @@
         chain: The blockchain name (e.g., 'ethereum', 'polygon')
         protocol: The protocol name (e.g., 'Aave V2', 'Aave V3')
 #}
+{# Map protocol names to platform values in ez_lending_flashloans #}
+{% set platform_map = {
+    'Aave V1': 'aave-v1',
+    'Aave V2': 'aave-v2',
+    'Aave V3': 'aave-v3',
+    'aave-v1': 'aave-v1',
+    'aave-v2': 'aave-v2',
+    'aave-v3': 'aave-v3'
+} %}
+{% set platform = platform_map.get(protocol, protocol | lower | replace(' ', '-')) %}
 SELECT
     block_timestamp::date AS date
     , '{{ chain }}' AS chain
@@ -18,7 +28,7 @@ SELECT
     , SUM(premium_amount) AS amount_nominal
     , SUM(COALESCE(premium_amount_usd, 0)) AS amount_usd
 FROM {{ ref('defi__ez_lending_flashloans') }}
-WHERE platform = '{{ protocol }}'
+WHERE platform = '{{ platform }}'
 GROUP BY 1, 2, 3, 4
 {% endmacro %}
 
