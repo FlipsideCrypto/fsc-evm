@@ -1,0 +1,932 @@
+version: 2
+
+models:
+  - name: silver_protocols__maker_gem_join_addresses
+    description: >
+      Maker GEM join addresses mapping gems to their join adapters.
+    columns:
+      - name: gem_address
+        tests:
+          - not_null
+      - name: join_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_psms
+    description: >
+      Maker PSM (Peg Stability Module) addresses and their associated ilks.
+    columns:
+      - name: psm_address
+        tests:
+          - not_null
+      - name: ilk
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_accounting_agg
+    description: >
+      Aggregated accounting data for Maker protocol including liquidation revenues and expenses.
+    columns:
+      - name: period
+        tests:
+          - not_null
+      - name: account_id
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_d3m_revenues
+    description: >
+      Maker D3M (Direct Deposit Module) revenues from Aave and Compound integrations.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dai_arb_supply
+    description: >
+      DAI supply on Arbitrum network.
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: dai_supply
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dai_burn
+    description: >
+      DAI burn events on Ethereum mainnet.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: usr
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dai_dsr_supply
+    description: >
+      DAI supply in the DSR (Dai Savings Rate) contract.
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: dai_supply
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dai_eth_supply
+    description: >
+      DAI supply on Ethereum mainnet.
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: dai_supply
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dai_mint
+    description: >
+      DAI mint events on Ethereum mainnet.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: usr
+        tests:
+          - not_null
+      - name: wad
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dsr_expenses
+    description: >
+      DSR (Dai Savings Rate) expenses incurred by the protocol.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dsr_flows
+    description: >
+      DSR (Dai Savings Rate) flows in and out of the Pot contract.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dssvesttransferrable_create
+    description: >
+      DssVestTransferrable vesting schedule creation events.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: output_id
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dssvesttransferrable_vest
+    description: >
+      DssVestTransferrable vest events.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: _id
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_dssvesttransferrable_yank
+    description: >
+      DssVestTransferrable yank (cancel) events.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: _id
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_ilk_list
+    description: >
+      List of all Maker ilks (collateral types).
+    columns:
+      - name: ilk
+        tests:
+          - not_null
+          - unique
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_interest_accruals_1
+    description: >
+      Interest accruals from VAT frob, grab, and fold operations.
+    columns:
+      - name: ilk
+        tests:
+          - not_null
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_jug_file
+    description: >
+      Jug file events for stability fee updates.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: ilk
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_liquidation_excluded_tx
+    description: >
+      Transactions excluded from liquidation revenue calculations.
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+          - unique
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_liquidation_revenue
+    description: >
+      Liquidation revenue from vault liquidations.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_m2m_levels
+    description: >
+      Mark-to-market price levels for treasury tokens.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_mkr_burns
+    description: >
+      MKR token burns via surplus auction.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_mkr_mints
+    description: >
+      MKR token mints via debt auction.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_opex
+    description: >
+      Operating expenses paid by the Maker protocol.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_opex_suck_hashes
+    description: >
+      Transaction hashes for operating expense suck operations.
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+          - unique
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_other_sin_outflows
+    description: >
+      Other sin (system debt) outflows not categorized elsewhere.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_pause_proxy_mkr_trxns_raw
+    description: >
+      Raw MKR token transactions from the Pause Proxy contract.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_psm_yield
+    description: >
+      PSM (Peg Stability Module) yield revenues.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_rwa_yield
+    description: >
+      Real World Asset (RWA) yield revenues.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_sin_inflows
+    description: >
+      Sin (system debt) inflows to the Vow contract.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_spot_file
+    description: >
+      Spot file events for oracle price feed updates.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: ilk
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_team_dai_burns
+    description: >
+      DAI burns returned by team/keeper operations.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_token_prices
+    description: >
+      Historical token prices for Maker treasury assets.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: price
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_trading_revenues
+    description: >
+      PSM trading fee revenues.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_treasury_flows
+    description: >
+      Token flows in and out of the Maker treasury.
+    columns:
+      - name: ts
+        tests:
+          - not_null
+      - name: hash
+        tests:
+          - not_null
+      - name: code
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_treasury_lp_balances
+    description: >
+      Uniswap V2 DAI-MKR LP token balances in the treasury.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: token
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_treasury_mkr
+    description: >
+      MKR and SKY token balances in treasury wallets.
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: user_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_uni_lp_supply
+    description: >
+      Uniswap V2 DAI-MKR LP token circulating supply.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: circulating_supply
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_uni_lp_value
+    description: >
+      Uniswap V2 DAI-MKR LP token total value locked.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: amount_usd
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_vat_grab
+    description: >
+      VAT grab events for vault liquidations.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: ilk
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_vow_fess
+    description: >
+      Vow fess events for sin queue entries.
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+          - unique
+      - name: tab
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_mkr_total_supply
+    description: >
+      MKR token total supply over time.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: total_supply_mkr
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__maker_sky_total_supply
+    description: >
+      SKY token total supply over time.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: total_supply_sky
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
