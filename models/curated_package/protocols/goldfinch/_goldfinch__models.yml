@@ -1,0 +1,802 @@
+version: 2
+
+models:
+  # Dimension Models
+  - name: silver_protocols__goldfinch_migratedtranchepools_addresses
+    description: >
+      Goldfinch Migrated Tranche Pools Addresses.
+      This dimension table contains the contract addresses of migrated tranched pools
+      identified by PaymentApplied events, excluding the CreditDesk contract.
+    columns:
+      - name: migratedtranchepool_address
+        tests:
+          - not_null
+          - unique
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # CreditDesk Events
+  - name: silver_protocols__goldfinch_creditdesk_drawdownmade
+    description: >
+      Goldfinch CreditDesk Drawdown Made Events.
+      Tracks DrawdownMade events from the CreditDesk contract.
+      Contract: 0xd52dc1615c843c30f2e4668e101c0938e6007220
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # Protocol Metrics & Treasury
+  - name: silver_protocols__goldfinch_metrics
+    description: >
+      Goldfinch Metrics.
+      Daily metrics tracking TVL, deposits, withdrawals, interest, and other
+      key protocol statistics for Goldfinch.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_token_incentives
+    description: >
+      Goldfinch Token Incentives.
+      Tracks GFI token incentives distributed from Goldfinch incentive addresses.
+      GFI Token: 0xdab396ccf3d84cf2d07c4454e10c8a6f5b008d2b
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token
+            - tx_hash
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_treasury
+    description: >
+      Goldfinch Treasury.
+      Tracks token balances in the Goldfinch Treasury address.
+      Treasury address: 0xBEb28978B2c755155f20fd3d09Cb37e300A6981f
+      Note: TGE on 01/10~01/11 2022 so pricing data before this date is excluded.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # Investor Rewards Events
+  - name: silver_protocols__goldfinch_investorrewards_depositedandstaked
+    description: >
+      Goldfinch Investor Rewards - Deposited And Staked Events.
+      Tracks DepositedAndStaked events from the StakingRewards contract.
+      Contract: 0xfd6ff39da508d281c2d255e9bbbfab34b6be60c3
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_investorrewards_unstakedandwithdrew
+    description: >
+      Goldfinch Investor Rewards - Unstaked And Withdrew Events.
+      Tracks UnstakedAndWithdrew events from the StakingRewards contract.
+      Contract: 0xfd6ff39da508d281c2d255e9bbbfab34b6be60c3
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_investorrewards_unstakedandwithdrewmultiple
+    description: >
+      Goldfinch Investor Rewards - Unstaked And Withdrew Multiple Events.
+      Tracks UnstakedAndWithdrewMultiple events from the StakingRewards contract.
+      Contract: 0xfd6ff39da508d281c2d255e9bbbfab34b6be60c3
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # Migrated Tranched Pool Events
+  - name: silver_protocols__goldfinch_migratedtranchedpool_depositmade
+    description: >
+      Goldfinch Migrated Tranched Pool - Deposit Made Events.
+      Tracks DepositMade events from migrated tranched pool contracts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_migratedtranchedpool_drawdownmade
+    description: >
+      Goldfinch Migrated Tranched Pool - Drawdown Made Events.
+      Tracks DrawdownMade events from migrated tranched pool contracts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_migratedtranchedpool_paymentapplied
+    description: >
+      Goldfinch Migrated Tranched Pool - Payment Applied Events.
+      Tracks PaymentApplied events from migrated tranched pool contracts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_migratedtranchedpool_reservefundscollected
+    description: >
+      Goldfinch Migrated Tranched Pool - Reserve Funds Collected Events.
+      Tracks ReserveFundsCollected events from migrated tranched pool contracts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_migratedtranchedpool_withdrawalmade
+    description: >
+      Goldfinch Migrated Tranched Pool - Withdrawal Made Events.
+      Tracks WithdrawalMade events from migrated tranched pool contracts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # Pool Events
+  - name: silver_protocols__goldfinch_pool_depositmade
+    description: >
+      Goldfinch Pool - Deposit Made Events.
+      Tracks DepositMade events from the Pool contract.
+      Contract: 0xB01b315e32D1D9B5CE93e296D483e1f0aAD39E75
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_pool_interestcollected
+    description: >
+      Goldfinch Pool - Interest Collected Events.
+      Tracks InterestCollected events from the Pool contract.
+      Contract: 0xb01b315e32d1d9b5ce93e296d483e1f0aad39e75
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_pool_principalcollected
+    description: >
+      Goldfinch Pool - Principal Collected Events.
+      Tracks PrincipalCollected events from the Pool contract.
+      Contract: 0xb01b315e32d1d9b5ce93e296d483e1f0aad39e75
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_pool_principalwrittendown
+    description: >
+      Goldfinch Pool - Principal Written Down Events.
+      Tracks PrincipalWrittendown events from the Pool contract.
+      Contract: 0xb01b315e32d1d9b5ce93e296d483e1f0aad39e75
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_pool_reservefundscollected
+    description: >
+      Goldfinch Pool - Reserve Funds Collected Events.
+      Tracks ReserveFundsCollected events from the Pool contract.
+      Contract: 0xb01b315e32d1d9b5ce93e296d483e1f0aad39e75
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_pool_withdrawalmade
+    description: >
+      Goldfinch Pool - Withdrawal Made Events.
+      Tracks WithdrawalMade events from the Pool contract.
+      Contract: 0xB01b315e32D1D9B5CE93e296D483e1f0aAD39E75
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # Senior Pool Events
+  - name: silver_protocols__goldfinch_seniorpool_depositmade
+    description: >
+      Goldfinch Senior Pool - Deposit Made Events.
+      Tracks DepositMade events from the Senior Pool contract.
+      Contract: 0x8481a6EbAf5c7DABc3F7e09e44A89531fd31F822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_interestcollected
+    description: >
+      Goldfinch Senior Pool - Interest Collected Events.
+      Tracks InterestCollected events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_investmentmadeinjunior
+    description: >
+      Goldfinch Senior Pool - Investment Made In Junior Events.
+      Tracks InvestmentMadeInJunior events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_investmentmadeinsenior
+    description: >
+      Goldfinch Senior Pool - Investment Made In Senior Events.
+      Tracks InvestmentMadeInSenior events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_principalcollected
+    description: >
+      Goldfinch Senior Pool - Principal Collected Events.
+      Tracks PrincipalCollected events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_principalwrittendown
+    description: >
+      Goldfinch Senior Pool - Principal Written Down Events.
+      Tracks PrincipalWrittenDown events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_reservefundscollected
+    description: >
+      Goldfinch Senior Pool - Reserve Funds Collected Events.
+      Tracks ReserveFundsCollected events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_withdrawaladdedto
+    description: >
+      Goldfinch Senior Pool - Withdrawal Added To Events.
+      Tracks WithdrawalAddedTo events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_withdrawalcanceled
+    description: >
+      Goldfinch Senior Pool - Withdrawal Canceled Events.
+      Tracks WithdrawalCanceled events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_withdrawalmade
+    description: >
+      Goldfinch Senior Pool - Withdrawal Made Events.
+      Tracks WithdrawalMade events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__goldfinch_seniorpool_withdrawalrequested
+    description: >
+      Goldfinch Senior Pool - Withdrawal Requested Events.
+      Tracks WithdrawalRequested events from the Senior Pool contract.
+      Contract: 0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - contract_address
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
