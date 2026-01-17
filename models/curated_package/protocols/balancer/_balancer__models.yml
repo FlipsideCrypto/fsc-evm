@@ -1,0 +1,547 @@
+version: 2
+
+models:
+  # Root-level Balancer models
+  - name: silver_protocols__balancer_ethereum_revenue_by_token
+    description: >
+      Tracks revenue collected by Balancer protocol fee collector on Ethereum.
+      Fee collector address: 0xce88686553686DA562CE7Cea497CE749DA109f9F (Balancer v2 Protocol Fee Collector).
+      Note: This model is currently incomplete - there are missing fees.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - contract_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: contract_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_token_incentives
+    description: >
+      Tracks BAL token incentives distributed from Merkle Redeem contract.
+      Merkle Redeem: 0x6d19b2bf3a36a61530909ae65445a906d98a2fa8.
+      BAL token: 0xba100000625a3754423978a60c9317c58a424e3D.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - contract_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: contract_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_token_incentives_all_chains
+    description: >
+      Tracks BAL token incentives across Ethereum, Arbitrum, and Polygon from various
+      Merkle Orchard contracts. Includes emissions from minting events.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - chain
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_treasury_by_token
+    description: >
+      Tracks token balances in Balancer treasury addresses including Protocol Fee Collector,
+      DAO Multisig, Treasury, and LM Multisig. Active since June 23, 2020.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # V1 Models
+  - name: silver_protocols__balancer_v1_ethereum_bpools
+    description: >
+      Tracks Balancer V1 pool creation events from the Core Pool Factory.
+      Factory address: 0x9424B1412450D0f8Fc2255FAf6046b98213B76Bd.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - block_timestamp
+            - pool
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: pool
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v1_ethereum_bpool_swaps
+    description: >
+      Tracks LOG_SWAP events from Balancer V1 pools on Ethereum.
+      Joins with BPools model to get pool addresses.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v1_swaps
+    description: >
+      Enriched swap data for Balancer V1 with USD values and fee calculations.
+      Joins with price data and swap fee configurations.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v1_tvl
+    description: >
+      Tracks total value locked in Balancer V1 pools by token on Ethereum.
+      Uses address balances and price data to calculate TVL.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_address
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: pool_address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  # V2 Arbitrum Models
+  - name: silver_protocols__balancer_v2_arbitrum_pool_balance_changed_evt
+    description: >
+      Tracks PoolBalanceChanged events for liquidity additions/removals on Arbitrum.
+      Note: Requires get_balancer_v2_PoolBalanceChanged macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_arbitrum_pool_metadata
+    description: >
+      Tracks pool registration and metadata on Arbitrum.
+      Note: Requires get_balancer_v2_pool_metadata macro implementation.
+    columns:
+      - name: pool_id
+        tests:
+          - not_null
+          - unique
+
+  - name: silver_protocols__balancer_v2_arbitrum_swap_fee_changes
+    description: >
+      Tracks SwapFeePercentageChanged events for pools on Arbitrum.
+      Note: Requires get_balancer_v2_swap_fee_changes macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_arbitrum_swaps
+    description: >
+      Tracks swap events from Balancer V2 pools on Arbitrum.
+      Note: Requires get_balancer_v2_swaps macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_arbitrum_tvl_by_pool_and_token
+    description: >
+      Tracks total value locked per pool per token on Arbitrum.
+      Note: Requires get_balancer_v2_tvl_by_pool_and_token macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_id
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: pool_id
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+
+  # V2 Ethereum Models
+  - name: silver_protocols__balancer_v2_ethereum_pool_balance_changed_evt
+    description: >
+      Tracks PoolBalanceChanged events for liquidity additions/removals on Ethereum.
+      Note: Requires get_balancer_v2_PoolBalanceChanged macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_ethereum_pool_metadata
+    description: >
+      Tracks pool registration and metadata on Ethereum.
+      Note: Requires get_balancer_v2_pool_metadata macro implementation.
+    columns:
+      - name: pool_id
+        tests:
+          - not_null
+          - unique
+
+  - name: silver_protocols__balancer_v2_ethereum_swap_fee_changes
+    description: >
+      Tracks SwapFeePercentageChanged events for pools on Ethereum.
+      Note: Requires get_balancer_v2_swap_fee_changes macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_ethereum_swaps
+    description: >
+      Tracks swap events from Balancer V2 pools on Ethereum.
+      Note: Requires get_balancer_v2_swaps macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_ethereum_tvl_by_pool_and_token
+    description: >
+      Tracks total value locked per pool per token on Ethereum.
+      Note: Requires get_balancer_v2_tvl_by_pool_and_token macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_id
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: pool_id
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+
+  # V2 Gnosis Models
+  - name: silver_protocols__balancer_v2_gnosis_pool_balance_changed_evt
+    description: >
+      Tracks PoolBalanceChanged events for liquidity additions/removals on Gnosis.
+      Note: Requires get_balancer_v2_PoolBalanceChanged macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_gnosis_pool_metadata
+    description: >
+      Tracks pool registration and metadata on Gnosis.
+      Note: Requires get_balancer_v2_pool_metadata macro implementation.
+    columns:
+      - name: pool_id
+        tests:
+          - not_null
+          - unique
+
+  - name: silver_protocols__balancer_v2_gnosis_swap_fee_changes
+    description: >
+      Tracks SwapFeePercentageChanged events for pools on Gnosis.
+      Note: Requires get_balancer_v2_swap_fee_changes macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_gnosis_swaps
+    description: >
+      Tracks swap events from Balancer V2 pools on Gnosis.
+      Note: Requires get_balancer_v2_swaps macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_gnosis_tvl_by_pool_and_token
+    description: >
+      Tracks total value locked per pool per token on Gnosis.
+      Note: Requires get_balancer_v2_tvl_by_pool_and_token macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_id
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: pool_id
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+
+  # V2 Polygon Models
+  - name: silver_protocols__balancer_v2_polygon_pool_balance_changed_evt
+    description: >
+      Tracks PoolBalanceChanged events for liquidity additions/removals on Polygon.
+      Note: Requires get_balancer_v2_PoolBalanceChanged macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_polygon_pool_metadata
+    description: >
+      Tracks pool registration and metadata on Polygon.
+      Note: Requires get_balancer_v2_pool_metadata macro implementation.
+    columns:
+      - name: pool_id
+        tests:
+          - not_null
+          - unique
+
+  - name: silver_protocols__balancer_v2_polygon_swap_fee_changes
+    description: >
+      Tracks SwapFeePercentageChanged events for pools on Polygon.
+      Note: Requires get_balancer_v2_swap_fee_changes macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_polygon_swaps
+    description: >
+      Tracks swap events from Balancer V2 pools on Polygon.
+      Note: Requires get_balancer_v2_swaps macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_hash
+            - event_index
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+      - name: event_index
+        tests:
+          - not_null
+
+  - name: silver_protocols__balancer_v2_polygon_tvl_by_pool_and_token
+    description: >
+      Tracks total value locked per pool per token on Polygon.
+      Note: Requires get_balancer_v2_tvl_by_pool_and_token macro implementation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - pool_id
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: pool_id
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
