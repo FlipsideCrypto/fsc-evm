@@ -1,0 +1,302 @@
+version: 2
+
+models:
+  - name: silver_protocols__liquity_token_incentives
+    description: >
+      Tracks LQTY token incentives distributed from Liquity incentive addresses:
+      0xd37a77E71ddF3373a79BE2eBB76B6c4808bDF0d5 (Stability Pool) and
+      0xD8c9D9071123a059C6E0A945cF0e0c82b508d816 (Frontend Operators).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_treasury
+    description: >
+      Tracks token balances in the Liquity Treasury address:
+      0xF06016D822943C42e3Cb7FC3a6A3B1889C1045f8.
+      Active since: March 17, 2021.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v1_fees_and_revs
+    description: >
+      Liquity V1 Fees and Revenues. Tracks fees from two sources:
+      LUSD borrowing fees from the BorrowerOperations contract and
+      ETH redemption fees from the TroveManager contract.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v1_outstanding_supply_ethereum
+    description: >
+      Liquity V1 Outstanding LUSD Supply on Ethereum.
+      Tracks the net LUSD supply by monitoring mints and burns.
+      LUSD contract: 0x5f98805a4e8be255a32880fdec7f6728c6568ba0.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: outstanding_supply
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v1_outstanding_supply_polygon
+    description: >
+      Liquity V1 Outstanding LUSD Supply on Polygon.
+      Tracks the net LUSD supply by monitoring mints and burns.
+      LUSD contract on Polygon: 0x23001f892c0C82b79303EDC9B9033cD190BB21c7.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: outstanding_supply
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v1_tvl
+    description: >
+      Liquity V1 TVL. Tracks ETH collateral locked in the Liquity V1
+      ActivePool contract: 0xdf9eb223bafbe5c5271415c75aecd68c21fe3d7f.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: tvl_native
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v2_fees_and_revs
+    description: >
+      Liquity V2 Fees and Revenues. Tracks three types of fees:
+      SP Yield (Stability Pool yield from wstETH, rETH, WETH collateral types),
+      PIL Yield (Protocol Incentivized Liquidity yield), and
+      Redemption Fees (ETH redemption fees).
+      Original query: https://dune.com/queries/4462463/7465203
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - fee_type
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: fee_type
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v2_outstanding_supply
+    description: >
+      Liquity V2 Outstanding BOLD Supply. Tracks the net BOLD supply on
+      Ethereum by monitoring mints and burns.
+      BOLD contract: 0xb01dd87b29d187f3e3a4bf6cdaebfb97f3d9ab98.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: outstanding_supply
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
+  - name: silver_protocols__liquity_v2_tvl
+    description: >
+      Liquity V2 TVL. Tracks token balances across Liquity V2 pools
+      for BOLD, WETH, wstETH, and rETH tokens.
+      Original query: https://dune.com/queries/4611479
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - token
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: version
+        tests:
+          - not_null
+      - name: token
+        tests:
+          - not_null
+      - name: tvl_native
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
