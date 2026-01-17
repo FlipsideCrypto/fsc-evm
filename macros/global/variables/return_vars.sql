@@ -323,6 +323,53 @@
   {% set ns.PROTOCOL_AAVE_INCENTIVES_CONTROLLER_ETHEREUM = get_var('PROTOCOL_AAVE_INCENTIVES_CONTROLLER_ETHEREUM', '0x8145edddf43f50276641b55bd3ad95944510021e') %}
   {% set ns.PROTOCOL_AAVE_INCENTIVES_CONTROLLER_V3_ETHEREUM = get_var('PROTOCOL_AAVE_INCENTIVES_CONTROLLER_V3_ETHEREUM', '0x8164cc65827dcfe994ab23944cbc90e0aa80bfcb') %}
 
+  {# AAVE Cross-Chain Contract Mappings - Used by consolidated protocol models #}
+  {% set ns.CURATED_AAVE_V3_POOLS = get_var('CURATED_AAVE_V3_POOLS', {
+      'ethereum': '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2',
+      'polygon': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+      'arbitrum': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+      'optimism': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+      'avalanche': '0x794a61358d6845594f94dc1db02a252b5b4814ad',
+      'base': '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
+      'gnosis': '0xb50201558b00496a145fe76f7424749556e326d8',
+      'bsc': '0x6807dc923806fe8fd134338eabca509979a7e0cb'
+  }) %}
+  {% set ns.CURATED_AAVE_V2_POOLS = get_var('CURATED_AAVE_V2_POOLS', {
+      'ethereum': '0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9',
+      'polygon': '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf',
+      'avalanche': '0x4f01aed16d97e3ab5ab2b501154dc9bb0f1a5a2c'
+  }) %}
+  {% set ns.CURATED_AAVE_V3_COLLECTORS = get_var('CURATED_AAVE_V3_COLLECTORS', {
+      'ethereum': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+      'polygon': '0xe8599f3cc5d38a9ad6f3684cd5cea72f10dbc383',
+      'arbitrum': '0x053d55f9b5af8694c503eb288a1b7e552f590710',
+      'optimism': '0xb2289e329d2f85f1ed31addc5972bc78ce08e0e7',
+      'avalanche': '0x5ba7fd868c40c16f7adfae6cf87121e13fc2f7a0',
+      'base': '0xba9424d650a4f5c80a0da641254d1acce2a37057',
+      'gnosis': '0xb9e6dba8f56d5c7dc2579cb1cd4c5d170f25df76',
+      'bsc': '0x25ef20c8c1d6ff5b02c9e08e6bde6c9b5d8d35b9'
+  }) %}
+  {% set ns.CURATED_AAVE_V2_COLLECTORS = get_var('CURATED_AAVE_V2_COLLECTORS', {
+      'ethereum': '0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c',
+      'polygon': '0xe8599f3cc5d38a9ad6f3684cd5cea72f10dbc383',
+      'avalanche': '0x5ba7fd868c40c16f7adfae6cf87121e13fc2f7a0'
+  }) %}
+  {% set ns.CURATED_AAVE_V3_INCENTIVES = get_var('CURATED_AAVE_V3_INCENTIVES', {
+      'ethereum': '0x8164cc65827dcfe994ab23944cbc90e0aa80bfcb',
+      'polygon': '0x929ec64c34a17401f460460d4b9390518e5b473e',
+      'arbitrum': '0x8145edddf43f50276641b55bd3ad95944510021e',
+      'optimism': '0x929ec64c34a17401f460460d4b9390518e5b473e',
+      'avalanche': '0x01d83fe6a10d2f2b7af17034343746188272cac9',
+      'base': '0xf9cc4f0d883f1a1eb2c253bdb46c254ca51e1f44',
+      'gnosis': '0xad4f91d26254b6b0c6346b390dda2991fde2f20d',
+      'bsc': '0xc206c2764a9dbf27d599613b8f9a63acd1160ab4'
+  }) %}
+  {% set ns.CURATED_AAVE_V2_INCENTIVES = get_var('CURATED_AAVE_V2_INCENTIVES', {
+      'ethereum': '0x8145edddf43f50276641b55bd3ad95944510021e',
+      'polygon': '0x929ec64c34a17401f460460d4b9390518e5b473e',
+      'avalanche': '0x01d83fe6a10d2f2b7af17034343746188272cac9'
+  }) %}
+
   {# LIDO #}
   {% set ns.PROTOCOL_LIDO_STETH_ADDRESS = get_var('PROTOCOL_LIDO_STETH_ADDRESS', '0xae7ab96520de3a18e5e111b5eaab095312d7fe84') %}
   {% set ns.PROTOCOL_LIDO_LDO_TOKEN = get_var('PROTOCOL_LIDO_LDO_TOKEN', '0x5a98fcbea516cf06857215779fd812ca3bef1b32') %}
@@ -353,6 +400,14 @@
   {% set ns.PROTOCOL_BALANCER_BAL_TOKEN = get_var('PROTOCOL_BALANCER_BAL_TOKEN', '0xba100000625a3754423978a60c9317c58a424e3d') %}
   {% set ns.PROTOCOL_BALANCER_VAULT_V2 = get_var('PROTOCOL_BALANCER_VAULT_V2', '0xba12222222228d8ba445958a75a0704d566bf2c8') %}
   {% set ns.PROTOCOL_BALANCER_TREASURY = get_var('PROTOCOL_BALANCER_TREASURY', '0x10a19e7ee7d7f8a52822f6817de8ea18204f2e4f') %}
+
+  {# BALANCER Cross-Chain Contract Mappings - Used by consolidated protocol models #}
+  {% set ns.CURATED_BALANCER_V2_VAULT = get_var('CURATED_BALANCER_V2_VAULT', {
+      'ethereum': '0xba12222222228d8ba445958a75a0704d566bf2c8',
+      'polygon': '0xba12222222228d8ba445958a75a0704d566bf2c8',
+      'arbitrum': '0xba12222222228d8ba445958a75a0704d566bf2c8',
+      'gnosis': '0xba12222222228d8ba445958a75a0704d566bf2c8'
+  }) %}
 
   {# CHAINLINK #}
   {% set ns.PROTOCOL_CHAINLINK_LINK_TOKEN = get_var('PROTOCOL_CHAINLINK_LINK_TOKEN', '0x514910771af9ca656af840dff83e8264ecf986ca') %}

@@ -1,148 +1,338 @@
 version: 2
 
 models:
-  # Arbitrum V3
-  - name: silver_protocols__aave_v3_arbitrum_deposits_borrows_lender_revenue
-    description: Aave V3 Arbitrum deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_arbitrum_ecosystem_incentives
-    description: Aave V3 Arbitrum ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_arbitrum_flashloan_fees
-    description: Aave V3 Arbitrum flashloan fees
-  - name: silver_protocols__aave_v3_arbitrum_liquidation_revenue
-    description: Aave V3 Arbitrum liquidation revenue
-  - name: silver_protocols__aave_v3_arbitrum_reserve_factor_revenue
-    description: Aave V3 Arbitrum reserve factor revenue
+  # =============================================================================
+  # Cross-Chain Models (work across all chains via GLOBAL_PROJECT_NAME)
+  # =============================================================================
 
-  # Avalanche V2
-  - name: silver_protocols__aave_v2_avalanche_deposits_borrows_lender_revenue
-    description: Aave V2 Avalanche deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v2_avalanche_ecosystem_incentives
-    description: Aave V2 Avalanche ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v2_avalanche_flashloan_fees
-    description: Aave V2 Avalanche flashloan fees
-  - name: silver_protocols__aave_v2_avalanche_liquidation_revenue
-    description: Aave V2 Avalanche liquidation revenue
-  - name: silver_protocols__aave_v2_avalanche_reserve_factor_revenue
-    description: Aave V2 Avalanche reserve factor revenue
+  - name: silver_protocols__aave_flashloan_fees
+    description: >
+      Aave flashloan fees aggregated by date, chain, protocol, and token.
+      Tracks premium amounts paid on flashloans for both V2 and V3 deployments.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
+      V2 chains: ethereum, polygon, avalanche
+      V3 chains: ethereum, polygon, avalanche, arbitrum, optimism, base, gnosis
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - protocol
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: amount_nominal
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
 
-  # Avalanche V3
-  - name: silver_protocols__aave_v3_avalanche_deposits_borrows_lender_revenue
-    description: Aave V3 Avalanche deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_avalanche_ecosystem_incentives
-    description: Aave V3 Avalanche ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_avalanche_flashloan_fees
-    description: Aave V3 Avalanche flashloan fees
-  - name: silver_protocols__aave_v3_avalanche_liquidation_revenue
-    description: Aave V3 Avalanche liquidation revenue
-  - name: silver_protocols__aave_v3_avalanche_reserve_factor_revenue
-    description: Aave V3 Avalanche reserve factor revenue
+  - name: silver_protocols__aave_liquidation_revenue
+    description: >
+      Aave liquidation revenue from LiquidationCall events.
+      Captures individual liquidation events with collateral and debt details.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
+      V2 chains: ethereum, polygon, avalanche
+      V3 chains: ethereum, polygon, avalanche, arbitrum, optimism, base, gnosis, bsc
+    columns:
+      - name: _log_id
+        tests:
+          - not_null
+          - unique
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
 
-  # Base V3
-  - name: silver_protocols__aave_v3_base_deposits_borrows_lender_revenue
-    description: Aave V3 Base deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_base_ecosystem_incentives
-    description: Aave V3 Base ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_base_flashloan_fees
-    description: Aave V3 Base flashloan fees
-  - name: silver_protocols__aave_v3_base_liquidation_revenue
-    description: Aave V3 Base liquidation revenue
-  - name: silver_protocols__aave_v3_base_reserve_factor_revenue
-    description: Aave V3 Base reserve factor revenue
+  - name: silver_protocols__aave_reserve_factor_revenue
+    description: >
+      Aave reserve factor revenue from ReserveDataUpdated events.
+      Tracks amounts transferred to protocol treasury via reserve factor.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
+      V2 chains: ethereum, polygon, avalanche
+      V3 chains: ethereum, polygon, avalanche, arbitrum, optimism, base, gnosis, bsc
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - protocol
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: amount_nominal
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
 
-  # BSC V3
-  - name: silver_protocols__aave_v3_bsc_deposits_borrows_lender_revenue
-    description: Aave V3 BSC deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_bsc_ecosystem_incentives
-    description: Aave V3 BSC ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_bsc_liquidation_revenue
-    description: Aave V3 BSC liquidation revenue
-  - name: silver_protocols__aave_v3_bsc_reserve_factor_revenue
-    description: Aave V3 BSC reserve factor revenue
+  - name: silver_protocols__aave_ecosystem_incentives
+    description: >
+      Aave ecosystem incentives from RewardsClaimed events.
+      Tracks liquidity mining rewards distributed to users.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
+      V2 chains: ethereum, polygon, avalanche
+      V3 chains: ethereum, polygon, avalanche, arbitrum, optimism, base, gnosis, bsc
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - protocol
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: amount_nominal
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
 
-  # Ethereum V2
-  - name: silver_protocols__aave_v2_ethereum_deposits_borrows_lender_revenue
-    description: Aave V2 Ethereum deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v2_ethereum_ecosystem_incentives
-    description: Aave V2 Ethereum ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v2_ethereum_flashloan_fees
-    description: Aave V2 Ethereum flashloan fees
-  - name: silver_protocols__aave_v2_ethereum_liquidation_revenue
-    description: Aave V2 Ethereum liquidation revenue
-  - name: silver_protocols__aave_v2_ethereum_reserve_factor_revenue
-    description: Aave V2 Ethereum reserve factor revenue
+  - name: silver_protocols__aave_deposits_borrows_lender_revenue
+    description: >
+      Aave deposits, borrows, and lender revenue metrics.
+      Tracks daily borrow rates, liquidity rates, and reserve factors.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
+      V2 chains: ethereum, polygon, avalanche
+      V3 chains: ethereum, polygon, avalanche, arbitrum, optimism, base, gnosis, bsc
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - protocol
+            - token_address
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: protocol
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: daily_borrow_rate
+      - name: daily_liquidity_rate
+      - name: stable_borrow_rate
+      - name: reserve_factor
+      - name: modified_timestamp
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
 
-  # Ethereum V3
-  - name: silver_protocols__aave_v3_ethereum_deposits_borrows_lender_revenue
-    description: Aave V3 Ethereum deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_ethereum_ecosystem_incentives
-    description: Aave V3 Ethereum ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_ethereum_flashloan_fees
-    description: Aave V3 Ethereum flashloan fees
-  - name: silver_protocols__aave_v3_ethereum_liquidation_revenue
-    description: Aave V3 Ethereum liquidation revenue
-  - name: silver_protocols__aave_v3_ethereum_reserve_factor_revenue
-    description: Aave V3 Ethereum reserve factor revenue
+  # =============================================================================
+  # Ethereum-Only Models (DAO, treasury, and governance specific)
+  # =============================================================================
 
-  # Gnosis V3
-  - name: silver_protocols__aave_v3_gnosis_deposits_borrows_lender_revenue
-    description: Aave V3 Gnosis deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_gnosis_ecosystem_incentives
-    description: Aave V3 Gnosis ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_gnosis_flashloan_fees
-    description: Aave V3 Gnosis flashloan fees
-  - name: silver_protocols__aave_v3_gnosis_liquidation_revenue
-    description: Aave V3 Gnosis liquidation revenue
-  - name: silver_protocols__aave_v3_gnosis_reserve_factor_revenue
-    description: Aave V3 Gnosis reserve factor revenue
-
-  # Optimism V3
-  - name: silver_protocols__aave_v3_optimism_deposits_borrows_lender_revenue
-    description: Aave V3 Optimism deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_optimism_ecosystem_incentives
-    description: Aave V3 Optimism ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_optimism_flashloan_fees
-    description: Aave V3 Optimism flashloan fees
-  - name: silver_protocols__aave_v3_optimism_liquidation_revenue
-    description: Aave V3 Optimism liquidation revenue
-  - name: silver_protocols__aave_v3_optimism_reserve_factor_revenue
-    description: Aave V3 Optimism reserve factor revenue
-
-  # Polygon V2
-  - name: silver_protocols__aave_v2_polygon_deposits_borrows_lender_revenue
-    description: Aave V2 Polygon deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v2_polygon_ecosystem_incentives
-    description: Aave V2 Polygon ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v2_polygon_flashloan_fees
-    description: Aave V2 Polygon flashloan fees
-  - name: silver_protocols__aave_v2_polygon_liquidation_revenue
-    description: Aave V2 Polygon liquidation revenue
-  - name: silver_protocols__aave_v2_polygon_reserve_factor_revenue
-    description: Aave V2 Polygon reserve factor revenue
-
-  # Polygon V3
-  - name: silver_protocols__aave_v3_polygon_deposits_borrows_lender_revenue
-    description: Aave V3 Polygon deposits, borrows, and lender revenue metrics
-  - name: silver_protocols__aave_v3_polygon_ecosystem_incentives
-    description: Aave V3 Polygon ecosystem incentives (rewards claimed)
-  - name: silver_protocols__aave_v3_polygon_flashloan_fees
-    description: Aave V3 Polygon flashloan fees
-  - name: silver_protocols__aave_v3_polygon_liquidation_revenue
-    description: Aave V3 Polygon liquidation revenue
-  - name: silver_protocols__aave_v3_polygon_reserve_factor_revenue
-    description: Aave V3 Polygon reserve factor revenue
-
-  # Ethereum-specific models
   - name: silver_protocols__aave_dao_balancer_trading_fees
-    description: Aave DAO Balancer pool trading fees
+    description: >
+      Aave DAO Balancer pool trading fees.
+      Tracks fees earned from the AAVE/WETH 80/20 pool.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
   - name: silver_protocols__aave_dao_safety_incentives
-    description: Aave DAO safety module incentives (staked AAVE rewards)
+    description: >
+      Aave DAO safety module incentives.
+      Tracks staked AAVE rewards distributed to safety module stakers.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
   - name: silver_protocols__aave_gho_treasury_revenue
-    description: Aave GHO treasury revenue
+    description: >
+      Aave GHO treasury revenue.
+      Tracks interest revenue from GHO stablecoin borrowing.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
   - name: silver_protocols__aave_aavura_treasury
-    description: Aave Aavura treasury balances
+    description: >
+      Aave Aavura treasury balances.
+      Tracks token holdings in the Aavura treasury multisig.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
   - name: silver_protocols__aave_ecosystem_reserve
-    description: Aave ecosystem reserve balances
+    description: >
+      Aave ecosystem reserve balances.
+      Tracks AAVE holdings in the ecosystem reserve contract.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
   - name: silver_protocols__aave_safety_module
-    description: Aave safety module staked token supply (stkAAVE, stkABPT, stkGHO)
+    description: >
+      Aave safety module staked token supply.
+      Tracks total supply of stkAAVE, stkABPT, and stkGHO.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null
+
   - name: silver_protocols__aave_v2_collector
-    description: Aave V2 collector treasury balances
+    description: >
+      Aave V2 collector treasury balances.
+      Tracks token holdings in the V2 collector contract.
+      Ethereum-only model.
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - unique
+      - name: chain
+        tests:
+          - not_null
+      - name: inserted_timestamp
+        tests:
+          - not_null
+      - name: _invocation_id
+        tests:
+          - not_null

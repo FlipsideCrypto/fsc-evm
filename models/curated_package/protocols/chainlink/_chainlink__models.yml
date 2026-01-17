@@ -1,43 +1,15 @@
 version: 2
 
 models:
-  # Arbitrum Models
-  - name: silver_protocols__chainlink_arbitrum_ccip_send_requested_logs_v1
-    description: Chainlink CCIP (Cross-Chain Interoperability Protocol) v1 send requested logs on Arbitrum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
+  # =============================================================================
+  # Cross-Chain Models (work across all chains via GLOBAL_PROJECT_NAME)
+  # =============================================================================
 
-  - name: silver_protocols__chainlink_arbitrum_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on Arbitrum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_arbitrum_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on Arbitrum
+  - name: silver_protocols__chainlink_ocr_rewards_daily
+    description: >
+      Daily Chainlink OCR (Off-Chain Reporting) rewards by operator.
+      Aggregates token transfers from OCR transmission events.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -48,7 +20,19 @@ models:
       - name: date
         tests:
           - not_null
+      - name: chain
+        tests:
+          - not_null
       - name: operator_address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: reward_amount
+        tests:
+          - not_null
+      - name: modified_timestamp
         tests:
           - not_null
       - name: inserted_timestamp
@@ -58,8 +42,11 @@ models:
         tests:
           - not_null
 
-  - name: silver_protocols__chainlink_arbitrum_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on Arbitrum
+  - name: silver_protocols__chainlink_fm_rewards_daily
+    description: >
+      Daily Chainlink Flux Monitor (FM) rewards by operator.
+      FM is used for price feed submissions.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -70,7 +57,19 @@ models:
       - name: date
         tests:
           - not_null
+      - name: chain
+        tests:
+          - not_null
       - name: operator_address
+        tests:
+          - not_null
+      - name: token_address
+        tests:
+          - not_null
+      - name: reward_amount
+        tests:
+          - not_null
+      - name: modified_timestamp
         tests:
           - not_null
       - name: inserted_timestamp
@@ -80,8 +79,11 @@ models:
         tests:
           - not_null
 
-  - name: silver_protocols__chainlink_arbitrum_ocr_reward_daily
-    description: Daily Chainlink OCR (Off-Chain Reporting) rewards on Arbitrum
+  - name: silver_protocols__chainlink_direct_rewards_daily
+    description: >
+      Daily Chainlink direct operator rewards.
+      Direct payments to operators for node operations.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -92,137 +94,19 @@ models:
       - name: date
         tests:
           - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_arbitrum_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on Arbitrum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_arbitrum_vrf_request_fulfilled_logs
-    description: Chainlink VRF (Verifiable Random Function) request fulfilled logs on Arbitrum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  # Avalanche Models
-  - name: silver_protocols__chainlink_avalanche_automation_upkeep_performed_logs
-    description: Chainlink Automation upkeep performed logs on Avalanche
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_avalanche_ccip_send_requested_logs_v1
-    description: Chainlink CCIP v1 send requested logs on Avalanche
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_avalanche_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on Avalanche
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_avalanche_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on Avalanche
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
+      - name: chain
         tests:
           - not_null
       - name: operator_address
         tests:
           - not_null
-      - name: inserted_timestamp
+      - name: token_address
         tests:
           - not_null
-      - name: _invocation_id
+      - name: reward_amount
         tests:
           - not_null
-
-  - name: silver_protocols__chainlink_avalanche_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on Avalanche
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
+      - name: modified_timestamp
         tests:
           - not_null
       - name: inserted_timestamp
@@ -232,30 +116,11 @@ models:
         tests:
           - not_null
 
-  - name: silver_protocols__chainlink_avalanche_ocr_reward_daily
-    description: Daily Chainlink OCR rewards on Avalanche
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_avalanche_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on Avalanche
+  - name: silver_protocols__chainlink_ocr_transmission_logs
+    description: >
+      Chainlink OCR (Off-Chain Reporting) transmission event logs.
+      Raw event data from OCR transmissions.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     columns:
       - name: _log_id
         tests:
@@ -264,6 +129,12 @@ models:
       - name: block_timestamp
         tests:
           - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
       - name: inserted_timestamp
         tests:
           - not_null
@@ -271,8 +142,11 @@ models:
         tests:
           - not_null
 
-  - name: silver_protocols__chainlink_avalanche_vrf_request_fulfilled_logs
-    description: Chainlink VRF request fulfilled logs on Avalanche
+  - name: silver_protocols__chainlink_vrf_request_fulfilled_logs
+    description: >
+      Chainlink VRF (Verifiable Random Function) request fulfilled logs.
+      Captures randomness request and fulfillment events.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     columns:
       - name: _log_id
         tests:
@@ -281,6 +155,12 @@ models:
       - name: block_timestamp
         tests:
           - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
       - name: inserted_timestamp
         tests:
           - not_null
@@ -288,9 +168,11 @@ models:
         tests:
           - not_null
 
-  # Base Models
-  - name: silver_protocols__chainlink_base_ccip_send_requested_logs_v1
-    description: Chainlink CCIP v1 send requested logs on Base
+  - name: silver_protocols__chainlink_ccip_send_requested_logs_v1
+    description: >
+      Chainlink CCIP (Cross-Chain Interoperability Protocol) v1 send requested logs.
+      Captures cross-chain message send requests.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     columns:
       - name: _log_id
         tests:
@@ -299,6 +181,12 @@ models:
       - name: block_timestamp
         tests:
           - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
       - name: inserted_timestamp
         tests:
           - not_null
@@ -306,8 +194,11 @@ models:
         tests:
           - not_null
 
-  - name: silver_protocols__chainlink_base_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on Base
+  - name: silver_protocols__chainlink_ccip_send_requested_logs_v1_2
+    description: >
+      Chainlink CCIP (Cross-Chain Interoperability Protocol) v1.2 send requested logs.
+      Captures cross-chain message send requests (updated format).
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     columns:
       - name: _log_id
         tests:
@@ -316,6 +207,12 @@ models:
       - name: block_timestamp
         tests:
           - not_null
+      - name: chain
+        tests:
+          - not_null
+      - name: modified_timestamp
+        tests:
+          - not_null
       - name: inserted_timestamp
         tests:
           - not_null
@@ -323,9 +220,11 @@ models:
         tests:
           - not_null
 
-  # BSC Models
-  - name: silver_protocols__chainlink_bsc_automation_upkeep_performed_logs
-    description: Chainlink Automation upkeep performed logs on BSC
+  - name: silver_protocols__chainlink_automation_upkeep_performed_logs
+    description: >
+      Chainlink Automation (formerly Keepers) upkeep performed logs.
+      Captures automated task execution events.
+      Works across all chains - uses GLOBAL_PROJECT_NAME for chain identification.
     columns:
       - name: _log_id
         tests:
@@ -334,21 +233,10 @@ models:
       - name: block_timestamp
         tests:
           - not_null
-      - name: inserted_timestamp
+      - name: chain
         tests:
           - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_bsc_ccip_send_requested_logs_v1
-    description: Chainlink CCIP v1 send requested logs on BSC
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
+      - name: modified_timestamp
         tests:
           - not_null
       - name: inserted_timestamp
@@ -358,279 +246,15 @@ models:
         tests:
           - not_null
 
-  - name: silver_protocols__chainlink_bsc_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on BSC
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_bsc_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on BSC
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_bsc_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on BSC
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_bsc_ocr_reward_daily
-    description: Daily Chainlink OCR rewards on BSC
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_bsc_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on BSC
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_bsc_vrf_request_fulfilled_logs
-    description: Chainlink VRF request fulfilled logs on BSC
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  # Ethereum Models
-  - name: silver_protocols__chainlink_ethereum_automation_upkeep_performed_logs
-    description: Chainlink Automation upkeep performed logs on Ethereum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_ccip_send_requested_logs_v1
-    description: Chainlink CCIP v1 send requested logs on Ethereum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on Ethereum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on Ethereum
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on Ethereum
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_ocr_reward_daily
-    description: Daily Chainlink OCR rewards on Ethereum
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on Ethereum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_ethereum_vrf_request_fulfilled_logs
-    description: Chainlink VRF request fulfilled logs on Ethereum
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
+  # =============================================================================
+  # Chain-Specific Models (Ethereum-only or special cases)
+  # =============================================================================
 
   - name: silver_protocols__chainlink_ethereum_staking_rewards
     description: >
       Chainlink staking rewards on Ethereum.
       Tracks rewards from both V1 (RewardClaimed) and V2 (RewardsVault) staking contracts.
+      Ethereum-only model.
     columns:
       - name: date
         tests:
@@ -653,6 +277,7 @@ models:
     description: >
       Chainlink Treasury balance in LINK and USD.
       Tracks cumulative balance in non-circulating supply addresses.
+      Ethereum-centric model (LINK token and treasury addresses are Ethereum mainnet).
     columns:
       - name: date
         tests:
@@ -671,7 +296,8 @@ models:
   - name: silver_protocols__chainlink_tvl_native_usd
     description: >
       Chainlink Total Value Locked (TVL) in LINK and USD.
-      Tracks balances in key staking contracts on Ethereum.
+      Tracks balances in key staking contracts.
+      Ethereum-centric model (staking contracts are on Ethereum mainnet).
     columns:
       - name: date
         tests:
@@ -687,381 +313,11 @@ models:
         tests:
           - not_null
 
-  # Gnosis Models
-  - name: silver_protocols__chainlink_gnosis_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on Gnosis
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_gnosis_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on Gnosis
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_gnosis_ocr_reward_daily
-    description: Daily Chainlink OCR rewards on Gnosis
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_gnosis_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on Gnosis
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  # Optimism Models
-  - name: silver_protocols__chainlink_optimism_ccip_send_requested_logs_v1
-    description: Chainlink CCIP v1 send requested logs on Optimism
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_optimism_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on Optimism
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_optimism_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on Optimism
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_optimism_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on Optimism
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_optimism_ocr_reward_daily
-    description: Daily Chainlink OCR rewards on Optimism
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_optimism_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on Optimism
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_optimism_vrf_request_fulfilled_logs
-    description: Chainlink VRF request fulfilled logs on Optimism
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  # Polygon Models
-  - name: silver_protocols__chainlink_polygon_automation_upkeep_performed_logs
-    description: Chainlink Automation upkeep performed logs on Polygon
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_ccip_send_requested_logs_v1
-    description: Chainlink CCIP v1 send requested logs on Polygon
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_ccip_send_requested_logs_v1_2
-    description: Chainlink CCIP v1.2 send requested logs on Polygon
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_direct_rewards_daily
-    description: Daily Chainlink direct operator rewards on Polygon
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_fm_reward_daily
-    description: Daily Chainlink Flux Monitor rewards on Polygon
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_ocr_reward_daily
-    description: Daily Chainlink OCR rewards on Polygon
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - operator_address
-            - token_address
-    columns:
-      - name: date
-        tests:
-          - not_null
-      - name: operator_address
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_ocr_reward_transmission_logs
-    description: Chainlink OCR reward transmission logs on Polygon
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
-  - name: silver_protocols__chainlink_polygon_vrf_request_fulfilled_logs
-    description: Chainlink VRF request fulfilled logs on Polygon
-    columns:
-      - name: _log_id
-        tests:
-          - not_null
-          - unique
-      - name: block_timestamp
-        tests:
-          - not_null
-      - name: inserted_timestamp
-        tests:
-          - not_null
-      - name: _invocation_id
-        tests:
-          - not_null
-
   - name: silver_protocols__chainlink_polygon_ocr_reconcile_daily
     description: >
       Chainlink Polygon OCR reconciliation data.
       Contains historical reconciliation adjustments for operator payments from October 2023.
+      Polygon-only model.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
